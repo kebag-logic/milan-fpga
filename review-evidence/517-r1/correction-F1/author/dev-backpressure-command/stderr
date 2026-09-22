@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$CANDIDATE/tb/verilator/milan_dp/test_sim_pool_backpressure.py", line 245, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$CANDIDATE/tb/verilator/milan_dp/test_sim_pool_backpressure.py", line 239, in main
+    return run(args.output.resolve())
+  File "$CANDIDATE/tb/verilator/milan_dp/test_sim_pool_backpressure.py", line 222, in run
+    exercise(root / name, recipe, flush, sig, race)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CANDIDATE/tb/verilator/milan_dp/test_sim_pool_backpressure.py", line 137, in exercise
+    signal.sigtimedwait(set(), 0.005)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyboardInterrupt
+[rtk] timeout: process terminated by signal 2

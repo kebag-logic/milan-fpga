@@ -1,0 +1,123 @@
+[
+  {
+    "name": "policy-check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "policy-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "python-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "shell-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "evidence-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "fail-fast-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "docs-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "em-dash-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "contents-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "hygiene-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "todo-selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "exit": 0
+  }
+]

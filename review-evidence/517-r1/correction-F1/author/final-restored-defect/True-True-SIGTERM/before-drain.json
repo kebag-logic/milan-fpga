@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "--no-print-directory",
+    "-f",
+    "Makefile",
+    "run",
+    "CURDIR=$CANDIDATE/tb/verilator/milan_dp",
+    "VERILATOR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/final-restored-defect/True-True-SIGTERM/compiler",
+    "VERILATOR_JOBS=8",
+    "-o",
+    "ltn_rom.hex",
+    "-o",
+    "ucode.hex",
+    "-o",
+    "gptp_ucode.hex",
+    "-o",
+    "../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+    "-o",
+    "../../../hdl/common/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+    "-o",
+    "gen_divergent/gen/adp_shape_defaults.svh"
+  ],
+  "flush": true,
+  "queued_before": 4096,
+  "signal": "SIGTERM",
+  "recipe": true,
+  "race": "active",
+  "runner_pid": 2191062,
+  "runner_events": [],
+  "owned_events": {
+    "2191063": [
+      [
+        10,
+        17
+      ]
+    ],
+    "2191065": [],
+    "2191064": []
+  },
+  "queued_after": 4096,
+  "descriptor_restored": true
+}

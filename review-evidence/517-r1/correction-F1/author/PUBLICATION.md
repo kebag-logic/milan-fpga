@@ -1,0 +1,5 @@
+The original typed MANIFEST has been verified before publication. Regular files are checked by SHA256, size and mode. FIFO entries are checked by filesystem kind and mode, without reading the pipe. FIFO_FIXTURES.json retains those declarative fixtures. Portable scripts recreate them when run.
+
+Disposable fixture Git metadata is omitted from the portable tree, with every original name, mode and hash listed in PORTABLE_SELECTION.json. All working files, raw receipts and scripts are retained. Original MANIFEST.json and SHA256SUMS are unchanged; their full population includes the declared exclusions. The outer archive MANIFEST records original/published digests for every published regular file, including any literal host-path normalization in mixed binary captures.
+
+The first manager inspection incorrectly attempted a FIFO byte read and blocked. Only that owned verifier was terminated through a pidfd with SIGTERM; the execution exit143 is a manager inspection failure, not a source gate or an author-test result. Its stop receipt is retained.

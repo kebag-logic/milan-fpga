@@ -1,0 +1,27 @@
+{
+  "label": "18-extra-H",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "    if not hasattr(os, \"pidfd_open\") or not Path(\"/proc/self/stat\").is_file(): # hostplane",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[H]",
+  "accepted": true
+}

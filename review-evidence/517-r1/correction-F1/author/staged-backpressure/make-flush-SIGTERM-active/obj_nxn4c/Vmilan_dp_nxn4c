@@ -1,0 +1,5 @@
+#!/usr/bin/python3 -S
+import sys
+sys.path.insert(0, '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-flush-SIGTERM-active')
+import fake_leg
+fake_leg.main({'out': [['out', 'L6 partial\n']], 'name': 'L6', 'ledger': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-flush-SIGTERM-active/ledger.jsonl', 'announce': '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/staged-backpressure/make-flush-SIGTERM-active/announce.fifo'})

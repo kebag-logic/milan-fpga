@@ -1,0 +1,482 @@
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index d5b6cb89..e0f3ec73 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -30,6 +30,11 @@ Captures, banners and commands replay in legacy order.
+ Failed, crashed or missing children fail the recipe.
+ SIGINT, SIGTERM and SIGHUP terminate and reap owned descendants.
+ Started children retain attributable partial logs; unstarted children are named.
++The ordered transcript also stays in `obj_legs/replay.log`.
++Blocked stdout never delays cancellation, descendant cleanup, or shutdown.
++Cancellation writes only immediately available stdout bytes after cleanup.
++Drain or inspect the disk transcript for any remaining output.
++Normal runs replay every byte, including through pipes.
+ Linux subreaper support is required before any child starts.
+ Run one suite invocation per working directory.
+ 
+@@ -37,11 +42,16 @@ Run one suite invocation per working directory.
+ make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
+ make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
+ python3 tb/verilator/milan_dp/test_sim_pool.py
++python3 tb/verilator/milan_dp/test_sim_pool_backpressure.py
+ ```
+ 
+ The runner tests use real processes with controlled shared writes.
+ They cover exclusion, independent overlap, order, failures and descendant cleanup.
+ They also check frame serialization, complete output and Makefile inventory.
++Backpressure controls execute both direct and actual Makefile paths.
++They cover blocked copies, final flushes, signals, and exit races.
++Their consumer stays blocked until shutdown and reaping are observed.
++Normal draining checks binary output against the complete ordered transcript.
+ Runner diagnostics contribute no checks to `suite_tally.py`.
+ 
+ | objdir | harness | shape | what it is for |
+diff --git a/tb/verilator/milan_dp/sim_pool.py b/tb/verilator/milan_dp/sim_pool.py
+index 761ec858..0f52d55c 100644
+--- a/tb/verilator/milan_dp/sim_pool.py
++++ b/tb/verilator/milan_dp/sim_pool.py
+@@ -38,17 +38,23 @@ SIGINT,
+ SIGTERM and SIGHUP - scripts/run_all_suites.sh's per-suite wall clock sends
+ SIGTERM - kill every running leg's whole group with SIGKILL, then kill and
+ reap adopted descendants as well as direct children. Every started leg is
+-then replayed with what it had written, each
+-unfinished or unstarted leg is named, and this process ends by the same
+-signal. SIGKILL rather than SIGTERM because none of the ten legs handles a
+-signal, so both end a leg the same way, and SIGKILL needs no grace period, so
++then recorded with what it had written in obj_legs/replay.log; each
++unfinished or unstarted leg is named. Available stdout receives that ordered
++transcript, but cancellation never waits for a blocked consumer. This process
++ends by the same signal. SIGKILL rather than SIGTERM because none of the ten
++legs handles a signal, so both end a leg the same way, and SIGKILL needs no
++grace period, so
+ this runner reads no host clock (rule 8's wall-clock ratchet,
+ scripts/test_evidence.budget item 4). A leg that exits by itself has its
+ group killed too, before it is reaped, so nothing it spawned outlives it and
+ its group id cannot have been reused.
+ 
+ The captures stay in obj_legs/NN-<executable>.log, so a run killed before it
+-could replay still leaves each leg's output under the leg's own name. Every
++could replay still leaves each leg's output under the leg's own name. The
++ordered transcript is also kept in obj_legs/replay.log. Nonblocking stdout
++writes preserve a byte cursor; cancellation interrupts capacity waits, then
++cleanup precedes a final attempt to write only immediately available bytes.
++The output retry interval is not a simulation deadline or a test verdict. Every
+ line this runner adds starts with `sim_pool:` and matches no tally shape
+ scripts/suite_tally.py reads: it adds no check and no verdict of its own.
+ """
+@@ -219,6 +225,63 @@ def kill_group(leg: Leg) -> None:
+         pass
+ 
+ 
++class ReplayInterrupted(Exception):
++    """An output-capacity wait received a watched cancellation signal."""
++
++    def __init__(self, signo: int) -> None:
++        self.signo = signal.Signals(signo)
++        super().__init__(self.signo.name)
++
++
++class Replay:
++    """Deliver a disk transcript without blocking cancellation or losing position.
++
++    Only this owner writes stdout. Restore its shared descriptor flags before
++    any launch or exit. There is no buffered stdout write or exit-time flush.
++    The disk transcript remains complete even when cancellation stops delivery.
++    """
++
++    def __init__(self, transcript: BinaryIO, fd: int,
++                 watched: set[signal.Signals]) -> None:
++        self.transcript = transcript
++        self.fd = fd
++        self.interrupts = watched & set(INTERRUPTS)
++        self.position = 0
++
++    def wait_interrupt(self, seconds: float) -> None:
++        """Wait only for output retry or cancellation, never for a test verdict."""
++        pending = signal.sigtimedwait(self.interrupts, seconds)
++        if pending is not None:
++            raise ReplayInterrupted(pending.si_signo)
++
++    def drain(self, *, wait: bool = True) -> None:
++        """Deliver in order; after cleanup, wait=False never awaits the reader."""
++        self.transcript.flush()
++        blocking = os.get_blocking(self.fd)
++        os.set_blocking(self.fd, False)
++        try:
++            while True:
++                if wait:
++                    self.wait_interrupt(0)
++                data = os.pread(self.transcript.fileno(), 65536, self.position)
++                if not data:
++                    return
++                try:
++                    written = os.write(self.fd, data)
++                except BlockingIOError:
++                    if not wait:
++                        return
++                    self.wait_interrupt(0.05)
++                    continue
++                except BrokenPipeError:
++                    if not wait:
++                        return
++                    raise
++                self.position += written
++        finally:
++            os.set_blocking(self.fd, blocking)
++
++
+ class Pool:
+     """The legs, the bound, and the replay position, for one run."""
+ 
+@@ -308,7 +371,7 @@ class Pool:
+             self.out.flush()
+             self.replayed += 1
+ 
+-    def run(self, watched: set[signal.Signals]) -> signal.Signals | None:
++    def run(self, watched: set[signal.Signals], replay: Replay) -> signal.Signals | None:
+         """Run eligible legs, at most `jobs` alive, replaying in recipe order as
+         they finish. Returns the interrupt that ended the run early, or None.
+         The watched signals stay blocked from here on and are taken with
+@@ -338,6 +401,9 @@ class Pool:
+                     break
+                 self.reap_exited(running)
+                 self.replay_ready()
++                replay.drain()
++        except ReplayInterrupted as exc:
++            interrupt = exc.signo
+         finally:
+             #! Normally empty. Non-empty on an interrupt, and on an exception
+             #! out of this loop, which must not leave a leg running either.
+@@ -380,10 +446,6 @@ def main(argv: list[str]) -> int:
+         print(f"sim_pool: {exc}\n{USAGE}", file=sys.stderr)
+         return 2
+     frame_dump = FRAME_DUMP_VAR in os.environ
+-    pool = Pool(legs, 1 if frame_dump else jobs, sys.stdout.buffer)
+-    if frame_dump:
+-        pool.note(f"{FRAME_DUMP_VAR} is set, so the legs run one at a time in "
+-                  f"recipe order")
+     #! An ignored interrupt stays ignored, as it was for the recipe's legs. A
+     #! blocked signal is never discarded, so watching one would turn it back on.
+     watched = {signal.SIGCHLD}
+@@ -393,12 +455,24 @@ def main(argv: list[str]) -> int:
+     LOG_DIR.mkdir(exist_ok=True)
+     for stale in LOG_DIR.glob("*.log"):
+         stale.unlink()
+-    interrupt = pool.run(watched)
+-    passed = all(leg.passed() for leg in legs)
+-    if interrupt is not None or not passed:
+-        pool.report_unstarted(interrupt)
+-    if interrupt is not None:
+-        return end_by(interrupt)
++    with (LOG_DIR / "replay.log").open("w+b") as transcript:
++        replay = Replay(transcript, sys.stdout.fileno(), watched)
++        pool = Pool(legs, 1 if frame_dump else jobs, transcript)
++        if frame_dump:
++            pool.note(f"{FRAME_DUMP_VAR} is set, so the legs run one at a time in "
++                      f"recipe order")
++        interrupt = pool.run(watched, replay)
++        passed = all(leg.passed() for leg in legs)
++        if interrupt is not None or not passed:
++            pool.report_unstarted(interrupt)
++        try:
++            replay.drain(wait=interrupt is None)
++        except ReplayInterrupted as exc:
++            # All owned processes have already been reaped by Pool.run.
++            interrupt = exc.signo
++        if interrupt is not None:
++            return end_by(interrupt)
++
+     #! A signal that arrived after the last leg ended is still an interrupt.
+     late = signal.sigpending() & set(INTERRUPTS)
+     if late:
+diff --git a/tb/verilator/milan_dp/test_sim_pool.py b/tb/verilator/milan_dp/test_sim_pool.py
+index ab93e2c5..928a5452 100644
+--- a/tb/verilator/milan_dp/test_sim_pool.py
++++ b/tb/verilator/milan_dp/test_sim_pool.py
+@@ -443,7 +443,9 @@ def arm_both_worker_counts_run_each_leg_once_as_the_recipe_did() -> None:
+             assert case.stdout() == want, case.stdout()
+             assert case.stderr() == "", case.stderr()
+             logs = sorted(p.name for p in (case.dir / "obj_legs").iterdir())
+-            assert logs == ["01-VL1.log", "02-VL2.log", "03-VL3.log", "04-VL4.log"], logs
++            assert logs == ["01-VL1.log", "02-VL2.log", "03-VL3.log", "04-VL4.log",
++                            "replay.log"], logs
++            assert (case.dir / "obj_legs/replay.log").read_bytes() == want
+             seen[jobs] = (case.stdout(), [(r["leg"], r["argv"]) for r in
+                                           sorted(starts, key=lambda r: r["leg"])])
+     assert seen["1"] == seen["2"], "one worker and two did not replay the same"
+diff --git a/tb/verilator/milan_dp/test_sim_pool_backpressure.py b/tb/verilator/milan_dp/test_sim_pool_backpressure.py
+new file mode 100644
+index 00000000..7e5a35d8
+--- /dev/null
++++ b/tb/verilator/milan_dp/test_sim_pool_backpressure.py
+@@ -0,0 +1,270 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""F1: cancellation must finish while the stdout consumer stays blocked.
++
++Run directly and through the unchanged actual Makefile, with inert build and
++prerequisite executables. These are host orchestration controls, not RTL checks.
++Hold both legs until their pidfds are owned; release the first and saturate
++stdout. Large binary copies and a small final flush are separate cases.
++Only after runner exit and owned-process reaping may the reader drain.
++The two-second pidfd observation bounds cancellation, not simulation behavior.
++An outer command guard handles broken fixture setup as UNKNOWN, never PASS.
++--output preserves every fixture, capture and result in a new directory.
++"""
++
++import argparse
++import array
++import contextlib
++import ctypes
++import fcntl
++import json
++import os
++import select
++import signal
++import subprocess
++import sys
++import tempfile
++import termios
++from dataclasses import dataclass
++from pathlib import Path
++
++from test_sim_pool import HERE, LEGACY_LEGS, Scenario, clean_env, transcript
++
++
++
++@dataclass(frozen=True)
++class Control:
++    """One wiring/output boundary and its signal/race variant."""
++
++    recipe: bool
++    flush: bool
++    signo: signal.Signals | None
++    race: str
++
++
++def events(fd: int, milliseconds: int = 0) -> list:
++    """Observe exit/reaping without changing process state."""
++    poller = select.poll()
++    poller.register(fd, select.POLLIN | select.POLLHUP)
++    return poller.poll(milliseconds)
++
++
++def reaped(observed: list) -> bool:
++    """POLLIN alone includes an unreaped zombie; require POLLHUP."""
++    return bool(observed and observed[0][1] & select.POLLHUP)
++
++
++def queued(fd: int) -> int:
++    """Bytes pending in the pipe; this observation never consumes them."""
++    count = array.array("i", [0])
++    fcntl.ioctl(fd, termios.FIONREAD, count)
++    return count[0]
++
++
++def prepare(case: Scenario, recipe: bool, body: str) -> tuple[list[str], list]:
++    """Use the original two held fixtures at the recipe's original paths."""
++    commands = []
++    selected = list(LEGACY_LEGS) if recipe else [(None, "./obj_L1/VL1"),
++                                                (None, "./obj_L2/VL2")]
++    for index, (_banner, exe) in enumerate(selected):
++        name = f"L{index + 1}"
++        cfg = {"out": [["out", body if index == 0 else f"{name} partial\n"]]}
++        if index < 2:
++            cfg["hold"] = case.hold_fifo(name)
++        if index == 1:
++            cfg.update(descendant_hold=case.hold_fifo("descendant"), descendant_session=True)
++        original = case.leg(name, **cfg)
++        if original != exe:
++            target = case.dir / exe
++            target.parent.mkdir(exist_ok=True)
++            (case.dir / original).replace(target)
++        commands.append(exe)
++    (case.dir / "sim_pool.py").write_bytes((HERE / "sim_pool.py").read_bytes())
++    if not recipe:
++        return [sys.executable, "sim_pool.py", "--jobs=2", *commands], selected
++    (case.dir / "Makefile").write_bytes((HERE / "Makefile").read_bytes())
++    for path in ("compiler", "obj_gptp/Vmilan_dp_gptp", "obj_gptplat/Vmilan_dp_gptplat"):
++        exe = case.dir / path
++        exe.parent.mkdir(exist_ok=True)
++        exe.write_text("#!/bin/sh\nexit 0\n")
++        exe.chmod(0o755)
++    (case.dir / "render_mutants.py").write_text(
++        "from pathlib import Path\nPath('render-ran').touch()\n")
++    argv = ["make", "-s", "--no-print-directory", "-f", "Makefile", "run",
++            f"CURDIR={HERE}", f"VERILATOR={case.dir}/compiler", "VERILATOR_JOBS=8"]
++    # Query expanded prerequisites from the actual recipe, rather than keep
++    # a second generated-input inventory. Both gPTP recipes still execute.
++    database = subprocess.run(["make", "-np", "-C", str(HERE), "run"],
++                              env=clean_env(), capture_output=True, text=True, check=True)
++    prerequisites = next(line.split()[1:] for line in database.stdout.splitlines()
++                         if line.startswith("run:"))
++    for name in prerequisites:
++        if name not in ("gptp", "gptp-lat"):
++            argv += ["-o", name]
++    return argv, selected
++
++
++def check_delivery(case: Scenario, selected: list, body: str, prefix: bytes,
++                   output: bytes, control: Control) -> dict:
++    """Judge binary output against independent fixture bytes and legacy order."""
++    recipe, sig, race = control.recipe, control.signo, control.race
++    disk = (case.dir / "obj_legs/replay.log").read_bytes()
++    for index, (_banner, exe) in enumerate(selected[:2]):
++        expected = (body if index == 0 else "L2 partial\n").encode("latin-1")
++        assert (case.dir / "obj_legs" / f"{index + 1:02d}-{Path(exe).name}.log").read_bytes() == expected
++        assert disk.count(expected) == 1, "capture omitted or duplicated on disk"
++    if sig is None:
++        expected = transcript(*[(banner, exe, body if index == 0 else f"L{index + 1} partial\n")
++                                for index, (banner, exe) in enumerate(selected)])
++        assert disk == expected, "legacy binary transcript changed"
++        suffix = (b"---- #386 render law: the same leg against mutated setpoint stages and datapath ----\n"
++                  if recipe else b"")
++        assert output == prefix + expected + suffix, "pipe output lost/duplicated/reordered bytes"
++        assert (case.dir / "render-ran").exists() == recipe
++    else:
++        assert (prefix + disk).startswith(output), "partial delivery is not a transcript prefix"
++        assert len(output) == len(prefix), "consumer drained before cancellation assertions"
++        if race != "child-exit":
++            assert f"on {sig.name}".encode() in disk, "partial capture lacks signal attribution"
++        if recipe:
++            assert b"was not started before" in disk, "unstarted legs not attributed"
++    return dict(accepted=True, exit=case.runner.returncode, captured_bytes=len(disk),
++                delivered_bytes=len(output))
++
++
++def cancel_blocked(case: Scenario, control: Control, read_fd: int,
++                   write_fd: int, runner_fd: int, row: dict) -> None:
++    """Require shutdown and owned reaping before permitting any consumer drain."""
++    recipe, sig, race = control.recipe, control.signo, control.race
++    runner_pid = next(entry["ppid"] for entry in case.events("start"))
++    if recipe:
++        os.killpg(case.runner.pid, sig)
++    else:
++        case.runner.send_signal(sig)
++    if race == "repeated":
++        for _ in range(8):
++            with contextlib.suppress(ProcessLookupError):
++                signal.pidfd_send_signal(runner_fd, sig)
++    runner_events = events(runner_fd, 2000)
++    owned = {pid: events(fd) for pid, fd in case.pidfds.items()}
++    row.update(signal=sig.name, recipe=recipe, race=race,
++               runner_pid=runner_pid, runner_events=runner_events, owned_events=owned,
++               queued_after=queued(read_fd),
++               descriptor_restored=os.get_blocking(write_fd))
++    (case.dir / "before-drain.json").write_text(json.dumps(row, indent=2) + "\n")
++    assert runner_events, "runner did not shut down while stdout stayed blocked"
++    assert all(reaped(value) for value in owned.values()), "owned processes not reaped"
++    assert row["descriptor_restored"], "shared stdout flags were not restored"
++    # Reap make/the direct runner before any stdout read.
++    parent_fd = os.pidfd_open(case.runner.pid)
++    try:
++        assert events(parent_fd, 2000), "recipe did not end before consumer drain"
++    finally:
++        os.close(parent_fd)
++    assert case.runner.wait() == -sig, "original cancellation status was lost"
++    assert not (case.dir / "render-ran").exists(), "render ran after cancellation"
++
++
++def exercise(root: Path, recipe: bool, flush: bool, sig: signal.Signals | None,
++             race: str) -> dict:
++    """Retain verdict observations before either drain or fallback cleanup."""
++    root.mkdir()
++    control = Control(recipe, flush, sig, race)
++    case = Scenario(root)
++    read_fd, write_fd = os.pipe()
++    runner_fd = None
++    row = {}
++    try:
++        capacity = fcntl.fcntl(write_fd, fcntl.F_SETPIPE_SZ, 4096)
++        body = "first binary\x00\xff\x80" + ("x" * 262144 if not flush else "") + "\n"
++        argv, selected = prepare(case, recipe, body)
++        with case.stderr_path.open("wb") as err:
++            case.runner = subprocess.Popen(argv, cwd=root, env=clean_env(MAKEFLAGS="-j8"),
++                                           stdout=write_fd, stderr=err, start_new_session=True)
++        news = [case.next_start(), case.next_start()]
++        starts = {entry["leg"]: entry for entry in news}
++        runner_pid = next(entry["ppid"] for entry in case.events("start"))
++        runner_fd = os.pidfd_open(runner_pid)
++        prefix = b"======================================================================\n" if recipe else b""
++        # Fill capacity after make's pre-run echo. A large nonblocking write
++        # can lack capacity even before FIONREAD reaches the nominal maximum.
++        # Fully saturating first gives both implementations the same handshake.
++        os.set_blocking(write_fd, False)
++        try:
++            while True:
++                os.write(write_fd, b"P")
++                prefix += b"P"
++        except BlockingIOError:
++            pass
++        finally:
++            os.set_blocking(write_fd, True)
++        case.release("L1")
++        first_fd = case.pidfds[starts["L1"]["pid"]]
++        while not reaped(events(first_fd)) or queued(read_fd) != capacity:
++            assert case.runner.poll() is None, "exited before blocked-output handshake"
++            # A readiness retry, with no clock-derived test result.
++            signal.sigtimedwait(set(), 0.005)
++        if race == "child-exit":
++            case.release("L2")
++        row.update(argv=argv, flush=flush, queued_before=queued(read_fd))
++        if sig is not None:
++            cancel_blocked(case, control, read_fd, write_fd, runner_fd, row)
++        else:
++            case.release("L2")
++        # Draining is a positive output control, never a cancellation prerequisite.
++        os.close(write_fd)
++        write_fd = -1
++        with os.fdopen(read_fd, "rb") as reader:
++            read_fd = -1
++            output = reader.read()
++        (root / "stdout-after-drain").write_bytes(output)
++        if sig is None:
++            assert case.finish() == 0, case.stderr()
++        row.update(check_delivery(case, selected, body, prefix, output, control))
++        return row
++    finally:
++        (root / "result.json").write_text(json.dumps(row, indent=2) + "\n")
++        case.close()
++        for fd in (read_fd, write_fd, runner_fd):
++            if fd is not None and fd >= 0:
++                os.close(fd)
++
++
++def run(root: Path) -> int:
++    """Exercise both wiring paths and both output boundaries independently."""
++    assert ctypes.CDLL(None).prctl(36, 1, 0, 0, 0) == 0
++    failures = 0
++    for recipe in (False, True):
++        for flush in (False, True):
++            controls = [(sig, race) for sig in (signal.SIGINT, signal.SIGTERM)
++                        for race in ("active", "repeated", "child-exit")]
++            controls.append((None, "drain"))
++            for sig, race in controls:
++                name = (f"{'make' if recipe else 'direct'}-{'flush' if flush else 'copy'}-"
++                        f"{sig.name if sig else 'normal'}-{race}")
++                try:
++                    exercise(root / name, recipe, flush, sig, race)
++                except Exception as exc:
++                    failures += 1
++                    print(f"[FAIL] {name}: {type(exc).__name__}: {exc}", flush=True)
++                else:
++                    print(f"[PASS] {name}", flush=True)
++    print(f"28 backpressure controls: {28 - failures} PASS, {failures} FAIL")
++    return int(bool(failures))
++
++
++def main() -> int:
++    """Optionally retain the disposable fixtures and raw observations."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path)
++    args = parser.parse_args()
++    if args.output is not None:
++        args.output.mkdir(parents=True, exist_ok=False)
++        return run(args.output.resolve())
++    with tempfile.TemporaryDirectory(prefix="sim-pool-backpressure-") as directory:
++        return run(Path(directory))
++
++
++if __name__ == "__main__":
++    sys.exit(main())

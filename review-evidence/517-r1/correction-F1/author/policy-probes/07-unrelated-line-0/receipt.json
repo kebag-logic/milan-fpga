@@ -1,0 +1,27 @@
+{
+  "label": "07-unrelated-line-0",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "arms read /proc and wait on pidfds.\nThe target requires /proc",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[R]",
+  "accepted": true
+}

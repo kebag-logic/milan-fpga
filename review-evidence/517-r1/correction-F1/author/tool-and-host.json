@@ -1,0 +1,52 @@
+{
+  "selector": "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+  "selector_contents": "#!/bin/sh\nexec env VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator \"$@\"\n",
+  "version": "Verilator 5.050 2026-07-01 rev v5.050\n",
+  "verilator_root": "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+  "files": {
+    "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator": "fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin": "44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd"
+  },
+  "affinity": [
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103
+  ],
+  "host_boot_id": "1840ad38-5a22-4594-a27d-c6353a403789",
+  "cgroup_ancestry": {
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice/milan-517-f1-a183.service": {
+      "memory.max": "12884901888",
+      "memory.swap.max": "max"
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/app.slice": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "memory.swap.max": "max"
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "memory.swap.max": "max"
+    },
+    "/sys/fs/cgroup/user.slice/user-1000.slice": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "memory.swap.max": "max"
+    },
+    "/sys/fs/cgroup/user.slice": {
+      "cpu.max": "max 100000",
+      "memory.max": "max",
+      "memory.swap.max": "max",
+      "cpuset.cpus.effective": "0-127"
+    },
+    "/sys/fs/cgroup": {
+      "cpuset.cpus.effective": "0-127"
+    }
+  }
+}

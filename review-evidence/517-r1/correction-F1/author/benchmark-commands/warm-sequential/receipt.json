@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "/usr/bin/python3",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/bench/run_suite.py",
+    "--lane",
+    "$CANDIDATE",
+    "--out",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-f1-author/runs/warm-sequential",
+    "--verilator",
+    "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+    "--expect-head",
+    "ff7dac3257a321538a1fd1a310ab3190f646153d",
+    "--jobs",
+    "1",
+    "--temperature",
+    "warm"
+  ],
+  "cwd": "$CANDIDATE",
+  "environment": {
+    "PATH": "$WORKSPACE_HOME/.codex/tmp/arg0/codex-arg0zpB9ZR:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl",
+    "MAKEFLAGS": null,
+    "MFLAGS": null,
+    "VERILATOR_JOBS": null,
+    "SIM_JOBS": null,
+    "TMPDIR": null,
+    "MILAN_COUNTER_FRAME_OUT": null
+  },
+  "start_utc": 1790110862.9618495,
+  "elapsed_s": 981.8387439250946,
+  "exit": 0
+}

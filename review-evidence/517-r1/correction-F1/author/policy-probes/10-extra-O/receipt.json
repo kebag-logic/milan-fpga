@@ -1,0 +1,27 @@
+{
+  "label": "10-extra-O",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh: # --sound-card",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[O]",
+  "accepted": true
+}

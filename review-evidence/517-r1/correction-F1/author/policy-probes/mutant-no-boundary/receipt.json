@@ -1,0 +1,27 @@
+{
+  "label": "mutant-no-boundary",
+  "path": "tb/verilator/milan_dp/sim_pool.py",
+  "payload": "Every leg is its own session and process group, reading /dev/null. Linuxptp",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 0,
+  "expected": 1,
+  "needle": "[T]",
+  "accepted": false
+}
