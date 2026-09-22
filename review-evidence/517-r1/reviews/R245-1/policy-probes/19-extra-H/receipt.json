@@ -1,0 +1,27 @@
+{
+  "label": "19-extra-H",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "        print(\"[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run\") # hostplane",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[H]",
+  "accepted": true
+}

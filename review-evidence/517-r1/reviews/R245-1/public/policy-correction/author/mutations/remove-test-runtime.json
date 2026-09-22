@@ -1,0 +1,17 @@
+{
+  "label": "remove-test-runtime",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "/tmp/517-policy-mutation-8ze6jtma/scripts/check_baremetal_only.py",
+    "--selftest"
+  ],
+  "cwd": "$CANDIDATE",
+  "exit": 2,
+  "elapsed_seconds": 4.56365877299686,
+  "source_sha256": "66a51849d055edd852dbda5f29d1463911181e775d0ed0edda4dd3f3ce799d0c",
+  "mutant_sha256": "a2b394c7e1ac6e3a936374d228eff9844920bda88abcc8728a61b2c8f8f9d605",
+  "expected_control": "-allowed] clean fixture flagged",
+  "detected": true
+}

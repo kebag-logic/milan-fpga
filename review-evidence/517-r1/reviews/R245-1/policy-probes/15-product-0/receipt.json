@@ -1,0 +1,27 @@
+{
+  "label": "15-product-0",
+  "path": "docs/overview/FULL_FPGA_SOLUTION.md",
+  "payload": "                raw = Path(f\"/proc/{entry}/stat\").read_bytes()",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[R]",
+  "accepted": true
+}

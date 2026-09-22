@@ -1,0 +1,170 @@
+diff --git a/scripts/check_baremetal_only.py b/scripts/check_baremetal_only.py
+index d66144d8..0dd7a6f8 100644
+--- a/scripts/check_baremetal_only.py
++++ b/scripts/check_baremetal_only.py
+@@ -258,6 +258,20 @@ TARGET_OS_DEVICE_RE = re.compile(
+ # in that same file. Renaming the fixture image on dev retires this entry.
+ TERM_MASKS = {
+     "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
++    # #517's host-tool decision: only the suite runner's workstation
++    # subreaper contract, platform check and refusal, in their code homes.
++    # Mask the token, never a whole line: appended policy text stays visible.
++    "tb/verilator/milan_dp/sim_pool.py": re.compile(
++        r'(?<=Every leg is its own session and process group, reading /dev/null\. )Linux(?![A-Za-z0-9])'
++        r'|(?<=""")Linux(?= subreaper: orphaned grandchildren stay ours to kill and reap\.)'
++        r'|(?<=if not sys\.platform\.startswith\(")linux(?="\):)'
++        r'|(?<=raise OSError\("sim_pool requires )Linux(?= child-subreaper support"\))'),
++    "tb/verilator/milan_dp/test_sim_pool.py": re.compile(
++        r'(?<=than a leg takes to start, at every such check, to go unseen\. )Linux(?= only: the)'
++        r'|(?<=print\("\[FAIL\] these arms need )Linux'
++        r'(?= /proc and os\.pidfd_open; nothing was run"\))'),
++    "tb/verilator/milan_dp/README.md": re.compile(
++        r'^Linux(?= subreaper support is required before any child starts\.)'),
+ }
+ 
+ HOST_RUNTIME_MASKS = {
+@@ -270,6 +284,27 @@ HOST_RUNTIME_MASKS = {
+     "scripts/act_ci.py": re.compile(r'(?<=Path\(")/proc(?="\))'),
+     "docs/testing/CI_WORKFLOWS.md": re.compile(
+         r"(?<=`)/proc(?=/<pid>/stat` state is `Z`)"),
++    # #517: inventory only the runner's own children and the process-control
++    # fixtures' state. These do not license another path or unrelated prose.
++    "tb/verilator/milan_dp/sim_pool.py": re.compile(
++        r'(?<=children = Path\(f")/proc(?=/self/task/\{os\.getpid\(\)\}/children"\))'),
++    "tb/verilator/milan_dp/test_sim_pool.py": re.compile(
++        r'(?<=^arms read )/proc(?= and wait on pidfds\.)'
++        r'|(?<="""Children of `ppid` that are not zombies, read from )/proc(?=\.""")'
++        r'|(?<=for entry in os\.listdir\(")/proc(?="\):)'
++        r'|(?<=with open\(")/proc(?=/" \+ entry \+ "/stat", "rb"\) as fh:)'
++        r'|(?<=with open\(")/proc(?=/self/status"\) as fh:)'
++        r'|(?<=stdin=os\.readlink\(")/proc(?=/self/fd/0"\),)'
++        r'|(?<="""The runner\'s children that are alive now, read from )/proc(?=\.""")'
++        r'|(?<=raw = Path\(f")/proc(?=/\{entry\}/stat"\)\.read_bytes\(\))'
++        r'|(?<=children = Path\(f")/proc'
++        r'(?=/self/task/\{os\.getpid\(\)\}/children"\)\.read_text\(\)\.split\(\))'
++        r'|(?<="""The )/proc(?= status mask with the bits of `signals` set\.""")'
++        r'|(?<=if not hasattr\(os, "pidfd_open"\) or not Path\(")/proc'
++        r'(?=/self/stat"\)\.is_file\(\):)'
++        # Class T already removed the host OS token, leaving two spaces.
++        r'|(?<=print\("\[FAIL\] these arms need  )/proc'
++        r'(?= and os\.pidfd_open; nothing was run"\))'),
+ }
+ 
+ # Class H: concrete names and phrases that carried the removed target host
+@@ -1011,6 +1046,108 @@ def _arms_host_tooling_masks(arm):
+             '<text>rootfs</text></svg>\n'), True, "[T]")
+ 
+ 
++def _sim_pool_host_fixtures() -> dict[str, tuple[str, ...]]:
++    """Literal source lines from #517, independent of the mask expressions.
++
++    Keep real spellings here: generating positives from a regex would certify
++    that regex's own breadth. Both indentations of the inventory loop occur.
++    """
++    return {
++        "tb/verilator/milan_dp/sim_pool.py": (
++            'Every leg is its own session and process group, reading /dev/null. Linux',
++            '    """Linux subreaper: orphaned grandchildren stay ours to kill and reap.',
++            '    if not sys.platform.startswith("linux"):',
++            '        raise OSError("sim_pool requires Linux child-subreaper support")',
++            '    children = Path(f"/proc/self/task/{os.getpid()}/children")',
++        ),
++        "tb/verilator/milan_dp/test_sim_pool.py": (
++            'than a leg takes to start, at every such check, to go unseen. Linux only: the',
++            'arms read /proc and wait on pidfds.',
++            '    """Children of `ppid` that are not zombies, read from /proc."""',
++            '    for entry in os.listdir("/proc"):',
++            '            with open("/proc/" + entry + "/stat", "rb") as fh:',
++            '    with open("/proc/self/status") as fh:',
++            '           argv=sys.argv, cwd=os.getcwd(), stdin=os.readlink("/proc/self/fd/0"),',
++            '        """The runner\'s children that are alive now, read from /proc."""',
++            '        for entry in os.listdir("/proc"):',
++            '                raw = Path(f"/proc/{entry}/stat").read_bytes()',
++            '            children = Path(f"/proc/self/task/{os.getpid()}/children").read_text().split()',
++            '    """The /proc status mask with the bits of `signals` set."""',
++            '    if not hasattr(os, "pidfd_open") or not Path("/proc/self/stat").is_file():',
++            '        print("[FAIL] these arms need Linux /proc and os.pidfd_open; nothing was run")',
++        ),
++        "tb/verilator/milan_dp/README.md": (
++            'Linux subreaper support is required before any child starts.',
++        ),
++    }
++
++
++def _arms_sim_pool_host_masks(arm):
++    """Each real host line is clean only at home and cannot hide new policy text."""
++    def plant(root: pathlib.Path, path: str, payload: str) -> None:
++        """Write a literal fixture at the selected inventory path."""
++        target = root / path
++        target.parent.mkdir(parents=True, exist_ok=True)
++        target.write_text(payload + "\n")
++
++    for path, lines in _sim_pool_host_fixtures().items():
++        for index, line in enumerate(lines):
++            label = f"sim-pool-host-{path}-{index}"
++            arm(label + "-allowed",
++                lambda r, p=path, t=line: plant(r, p, t), False)
++            # Check every class the literal contains, including BOTH in the
++            # refusal message. No regex or production mask builds the oracle.
++            tokens = []
++            if "Linux" in line or "linux" in line:
++                tokens.append(("T", "Linux" if "Linux" in line else "linux"))
++            if "/proc" in line:
++                tokens.append(("R", "/proc"))
++            for policy_class, token in tokens:
++                needle = f"[{policy_class}]"
++                arm(label + f"-wrong-file-{policy_class}",
++                    lambda r, t=line: plant(r, "other.py", t), True, needle)
++                # The SAME token on another line and in unrelated prose must
++                # not inherit the legitimate line's permission.
++                arm(label + f"-unrelated-same-file-{policy_class}",
++                    lambda r, p=path, t=line, word=token: plant(
++                        r, p, t + "\nThe product requires " + word + "."),
++                    True, needle)
++                arm(label + f"-same-token-same-line-{policy_class}",
++                    lambda r, p=path, t=line, word=token: plant(
++                        r, p, t + " # The product requires " + word + "."),
++                    True, needle)
++                arm(label + f"-product-copy-{policy_class}",
++                    lambda r, t=line: plant(r, PRODUCT_DOCS[0], t),
++                    True, "[P]" if policy_class == "T" else "[R]")
++                # Retain each full accepted path spelling without its call
++                # or prose context; a global literal-path mask must fail.
++                if token == "/proc":
++                    bare_path = "/proc" + line.split("/proc", 1)[1].split('"', 1)[0].split(" ", 1)[0]
++                    arm(label + "-path-without-context",
++                        lambda r, p=path, word=bare_path: plant(
++                            r, p, "The product reads " + word), True, "[R]")
++                    arm(label + "-different-path-same-context",
++                        lambda r, p=path, t=line: plant(
++                            r, p, t.replace("/proc", "/proc/target-only", 1)),
++                        True, "[R]")
++                else:
++                    arm(label + "-longer-prohibited-term",
++                        lambda r, p=path, t=line, word=token: plant(
++                            r, p, t.replace(word, word + "ptp", 1)),
++                        True, "[T]")
++            # Distinct appended violations name the intended finding, so a
++            # positive that stopped masking cannot accidentally pass these.
++            for extra, needle in (
++                ("rootfs", "[T] retired-stack term 'rootfs'"),
++                ("/etc/fstab", "surface '/etc'"),
++                ("PCM ring", "[S]"), ("hostplane", "[H]"),
++                ("CONFIG_NET=y", "[K]"), ("--sound-card", "[O]"),
++            ):
++                arm(label + "-extra-" + extra,
++                    lambda r, p=path, t=line, suffix=extra: plant(
++                        r, p, t + " # " + suffix), True, needle)
++
++
+ def _arms_product_and_paths(arm):
+     """Class P: the protected product page, then every retired path class."""
+     # P: the product page rejects embedded spellings and host-tool masks
+@@ -1306,6 +1443,7 @@ def selftest() -> tuple[list[str], int]:
+     bench = _Bench()
+     for group in (_arms_control_and_terms, _arms_target_runtime,
+                   _arms_retired_surfaces, _arms_host_tooling_masks,
++                  _arms_sim_pool_host_masks,
+                   _arms_product_and_paths, _arms_build_configuration,
+                   _arms_image_mask_and_options, _arms_parsed_configs):
+         group(bench.arm)

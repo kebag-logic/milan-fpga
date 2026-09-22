@@ -1,0 +1,27 @@
+{
+  "label": "mutant-wrong-file",
+  "path": "other.py",
+  "payload": "Linux subreaper support is required before any child starts.",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 0,
+  "expected": 1,
+  "needle": "[T]",
+  "accepted": false
+}

@@ -1,0 +1,27 @@
+{
+  "label": "10-positive",
+  "path": "tb/verilator/milan_dp/test_sim_pool.py",
+  "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 0,
+  "expected": 0,
+  "needle": null,
+  "accepted": true
+}

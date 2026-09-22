@@ -1,0 +1,209 @@
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the render law at INTERNAL (cadence = the packet grid)
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: 916 PDUs, first-event delay min 17427 max 17427 mean 17427.0 cycles = 8.365..8.365 media ticks
+  RENDER-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-INT: PDUs measured in the window                    = 1
+  [ok]   RENDER-INT: every PDU's first event inside the law band    = 916
+  [ok]   RENDER-INT: the fill at accept is the setpoint for every PDU = 916
+  [ok]   RENDER-INT: one constant: spread within 64 cycles          = 1
+  [ok]   RENDER-INT: no rail inside the window                      = 0
+  [ok]   RENDER-INT: no underrun inside the window                  = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-RC-INT] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-INT: displaced 3 ticks late: 12 PDUs, delay min 11177 max 11177 cycles = 5.365..5.365 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-INT: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (late)           = 0
+  RENDER-RC-INT: displaced 3 ticks early: 13 PDUs, delay min 23677 max 23677 cycles = 11.365..11.365 ticks
+  [ok]   RENDER-RC-INT: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-INT: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-INT: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-INT: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-INT: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-INT: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-INT: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-INT: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-INT: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-INT: the recentre is not a rail (early)          = 0
+
+[RENDER-LIVE] the running feed moved past a tick (the grid moved later): one event off, no recovery
+  RENDER-LIVE: accept phase 0.365 tick; the feed moves 0.935 ticks earlier
+  [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+  RENDER-LIVE: moved: 13 PDUs, delay min 19375 max 19375 cycles = 9.300..9.300 ticks
+  [ok]   RENDER-LIVE: the fill at accept is one event long for every PDU = 13
+  [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+  [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+  [ok]   RENDER-LIVE: nothing recentred it                          = 0
+  [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 0
+
+[INTERNAL] clock_source INTERNAL: free-run, slips accepted
+  media_tick_p : 4800 ticks, first 16393814 last 26391730
+  tdm_fsync_o  : 4800 frames, first 16393996 last 26392019
+  [ok]   media grid ticked                                          = 1
+  [ok]   TDM master framed                                          = 1
+  MEASURED     :  -10.7021 ppm   (closed form  -10.6393 ppm)
+  one sample of slip every 1.9467 s
+  [ok]   INTERNAL: fsync SLOWER than the media grid (the known drift) = 1
+  [ok]   INTERNAL: drift matches the divider plan within 0.5 ppm    = 1
+  [ok]   INTERNAL: the grids free-run apart (USER rule: slips accepted) = 1
+  [ok]   INTERNAL: align loop disengaged                            = 0
+  [ok]   INTERNAL: NCO servo gate low                               = 0
+
+[RING-INT] the loopback ring at INTERNAL: pushed on the physical grid, popped on the packet grid
+  [ok]   RING-INT: the priming PDU reached the loop tap             = 1
+  loop-tap landing latency: 59 cycles after the inject slot
+  [ok]   RING-INT: the priming PDU's loop-tap latency is inside one AAF period = 1
+  restart PDU landed 1938 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-INT: the restart PDU landed inside the aimed band     = 1
+  the PDU spans 23 cycles at the loop tap: its first beat landed 1915 cycles after the tick
+  predicted first dup: 1266 PDUs = 15821714 cycles (0.158 s); window 23732571 cycles
+  ring over the window: 4 dup, 0 skip; first dup at +15975085 cycles (+1.0% of the prediction)
+  [ok]   RING-INT: one beat period = one repeated event on each of the four fed pairs = 4
+  [ok]   RING-INT: no skip - the push side is the slower grid       = 0
+  [ok]   RING-INT: the first dup landed within 25% of the -10.64 ppm prediction = 1
+  [ok]   RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}     = 524360
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x00080048 (tap 0x00080048)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 524360
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 524360
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+
+[CRF] the stored selection goes to this shape's CRF index (1)
+  [ok]   CRF: the root resolve sees the selection                   = 1
+  [ok]   CRF: the NCO servo gate is live                            = 1
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+  MEASURED     :   +0.3334 ppm with CRF selected (was  -10.7021)
+  [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+  [ok]   CRF: zero junction dups over the aligned window            = 0
+  [ok]   CRF: zero junction skips over the aligned window           = 0
+  [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: one recentre once the grid settled
+  [ok]   RENDER-LIVE-CRF: the selection fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-CRF: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-CRF: the recentre executed once                = 1
+  RENDER-LIVE-CRF: 1196 PDUs, first-event delay min 18681 max 18686 mean 18683.7 cycles = 8.967..8.969 media ticks
+  RENDER-LIVE-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-CRF: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-CRF: every PDU's first event inside the law band = 1196
+  [ok]   RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU = 1196
+  [ok]   RENDER-LIVE-CRF: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the render law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1359
+  RENDER-CRF: 1195 PDUs, first-event delay min 18686 max 18690 mean 18688.4 cycles = 8.969..8.971 media ticks
+  RENDER-CRF: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-CRF: PDUs measured in the window                    = 1
+  [ok]   RENDER-CRF: every PDU's first event inside the law band    = 1195
+  [ok]   RENDER-CRF: the fill at accept is the setpoint for every PDU = 1195
+  [ok]   RENDER-CRF: one constant: spread within 2147 cycles        = 1
+  [ok]   RENDER-CRF: no rail inside the window                      = 0
+  [ok]   RENDER-CRF: no underrun inside the window                  = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-RC-CRF] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each
+  RENDER-RC-CRF: displaced 3 ticks late: 12 PDUs, delay min 12439 max 12440 cycles = 5.971..5.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the late displacement (fill at accept = setpoint -3) = 12
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (late)   = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (late) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (late) = 1
+  [ok]   RENDER-RC-CRF: the recentre executed once (late)           = 1
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (late) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (late) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (late)            = 1
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (late) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (late) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (late)           = 0
+  RENDER-RC-CRF: displaced 3 ticks early: 13 PDUs, delay min 24939 max 24940 cycles = 11.971..11.971 ticks
+  [ok]   RENDER-RC-CRF: the instrument sees the early displacement (fill at accept = setpoint +3) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay left the law band (early)  = 0
+  [ok]   RENDER-RC-CRF: a three-tick displacement trips no rail (early) = 0
+  [ok]   RENDER-RC-CRF: the step reached the render stage as one pulse (early) = 2
+  [ok]   RENDER-RC-CRF: the recentre executed once (early)          = 2
+  [ok]   RENDER-RC-CRF: the recentre restored the law (fill at accept = setpoint) (early) = 13
+  [ok]   RENDER-RC-CRF: ...and the delay is back inside the band (early) = 13
+  [ok]   RENDER-RC-CRF: counted once, never again (early)           = 2
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU at the setpoint (early) = 96
+  [ok]   RENDER-RC-CRF: no drift back: every later PDU inside the band (early) = 96
+  [ok]   RENDER-RC-CRF: the recentre is not a rail (early)          = 0
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1938 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23732571-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 1 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 786556
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 131073
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[RENDER-LIVE] the running feed moved past a tick (the grid moved earlier): one event off, no recovery
+  RENDER-LIVE: accept phase 0.094 tick; the feed moves 0.394 ticks later
+  [ok]   RENDER-LIVE: the stream sat at the setpoint before the move = 17
+  RENDER-LIVE: moved: 12 PDUs, delay min 16042 max 16043 cycles = 7.700..7.701 ticks
+  [ok]   RENDER-LIVE: the fill at accept is one event short for every PDU = 12
+  [ok]   RENDER-LIVE: ...and the delay left the law band            = 0
+  [ok]   RENDER-LIVE: one event off trips no rail                   = 0
+  [ok]   RENDER-LIVE: nothing recentred it                          = 0
+  [ok]   RENDER-LIVE: the move left the convergence verdict as it was = 1
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 0
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 1
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 1
+  [ok]   MR: align loop disengaged again at INTERNAL                = 0
+
+[RENDER-LIVE-INT] the deselect under the running stream: one recentre after the dwell
+  [ok]   RENDER-LIVE-INT: the source change fired the settled-grid trigger once = 1
+  [ok]   RENDER-LIVE-INT: ...as one recentre pulse                  = 1
+  [ok]   RENDER-LIVE-INT: the recentre executed once                = 1
+  RENDER-LIVE-INT: 96 PDUs, first-event delay min 18018 max 18030 mean 18023.9 cycles = 8.649..8.654 media ticks
+  RENDER-LIVE-INT: the law: 8 < d/T <= 9 (+64 cycles of registration slack); setpoint 8 events = 166.67 us
+  [ok]   RENDER-LIVE-INT: PDUs measured in the window               = 1
+  [ok]   RENDER-LIVE-INT: every PDU's first event inside the law band = 96
+  [ok]   RENDER-LIVE-INT: the fill at accept is the setpoint for every PDU = 96
+  [ok]   RENDER-LIVE-INT: one constant: spread within 2147 cycles   = 1
+  [ok]   RENDER-LIVE-INT: no rail                                   = 0
+  [ok]   RENDER-LIVE-INT: counted once, never again                 = 1
+
+----------------------------------------------------------------------
+media_aclk: 139 checks, 0 failures
+RESULT: PASS

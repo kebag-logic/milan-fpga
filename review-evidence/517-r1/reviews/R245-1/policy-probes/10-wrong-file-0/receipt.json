@@ -1,0 +1,27 @@
+{
+  "label": "10-wrong-file-0",
+  "path": "other.py",
+  "payload": "            with open(\"/proc/\" + entry + \"/stat\", \"rb\") as fh:",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[R]",
+  "accepted": true
+}

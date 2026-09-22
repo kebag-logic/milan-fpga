@@ -1,0 +1,60 @@
+[
+  {
+    "name": "runner",
+    "argv": [
+      "python3",
+      "-B",
+      "tb/verilator/milan_dp/test_sim_pool.py"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r245-517-r1",
+    "exit": 0,
+    "elapsed_seconds": 6.977443212992512
+  },
+  {
+    "name": "phase",
+    "argv": [
+      "python3",
+      "-B",
+      "tb/verilator/milan_dp/test_render_phase_observation.py"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r245-517-r1",
+    "exit": 0,
+    "elapsed_seconds": 0.1142016879748553
+  },
+  {
+    "name": "policy-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r245-517-r1",
+    "exit": 0,
+    "elapsed_seconds": 13.136370838998118
+  },
+  {
+    "name": "policy-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r245-517-r1",
+    "exit": 0,
+    "elapsed_seconds": 4.475819249986671
+  },
+  {
+    "name": "tally-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/suite_tally.py",
+      "--selftest"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r245-517-r1",
+    "exit": 0,
+    "elapsed_seconds": 0.06408664799528196
+  }
+]

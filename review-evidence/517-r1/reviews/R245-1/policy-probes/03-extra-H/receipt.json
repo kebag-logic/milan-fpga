@@ -1,0 +1,27 @@
+{
+  "label": "03-extra-H",
+  "path": "tb/verilator/milan_dp/sim_pool.py",
+  "payload": "    if not sys.platform.startswith(\"linux\"): # hostplane",
+  "setup": [
+    [
+      "git",
+      "init",
+      "-q"
+    ],
+    [
+      "git",
+      "add",
+      "--all"
+    ]
+  ],
+  "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+  ],
+  "exit": 1,
+  "expected": 1,
+  "needle": "[H]",
+  "accepted": true
+}

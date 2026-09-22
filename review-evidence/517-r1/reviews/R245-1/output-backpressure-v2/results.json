@@ -1,0 +1,66 @@
+[
+  {
+    "signal": "SIGTERM",
+    "argv": [
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r245-517-r1/tb/verilator/milan_dp/sim_pool.py",
+      "--jobs=2",
+      "./fast",
+      "./hold"
+    ],
+    "blocked_after_signal": "anon_pipe_write",
+    "pending_signal": true,
+    "owned_pidfd_events_while_blocked": {
+      "1925503": [],
+      "1925504": []
+    },
+    "exit_after_drain": -15,
+    "owned_pidfd_events_after_drain": {
+      "1925503": [
+        [
+          4,
+          17
+        ]
+      ],
+      "1925504": [
+        [
+          6,
+          17
+        ]
+      ]
+    }
+  },
+  {
+    "signal": "SIGINT",
+    "argv": [
+      "python3",
+      "-B",
+      "$VALIDATION_STORAGE/reviews/r245-517-r1/tb/verilator/milan_dp/sim_pool.py",
+      "--jobs=2",
+      "./fast",
+      "./hold"
+    ],
+    "blocked_after_signal": "anon_pipe_write",
+    "pending_signal": true,
+    "owned_pidfd_events_while_blocked": {
+      "1925525": [],
+      "1925527": []
+    },
+    "exit_after_drain": -2,
+    "owned_pidfd_events_after_drain": {
+      "1925525": [
+        [
+          4,
+          17
+        ]
+      ],
+      "1925527": [
+        [
+          6,
+          17
+        ]
+      ]
+    }
+  }
+]

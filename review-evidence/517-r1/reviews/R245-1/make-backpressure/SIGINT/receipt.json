@@ -1,0 +1,55 @@
+{
+  "signal": "SIGINT",
+  "argv": [
+    "make",
+    "-s",
+    "--no-print-directory",
+    "-f",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-r1-r245/make-backpressure/SIGINT/Makefile",
+    "run",
+    "CURDIR=$VALIDATION_STORAGE/reviews/r245-517-r1/tb/verilator/milan_dp",
+    "VERILATOR=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/517-r1-r245/make-backpressure/SIGINT/compiler",
+    "VERILATOR_JOBS=8",
+    "-o",
+    "ltn_rom.hex",
+    "-o",
+    "ucode.hex",
+    "-o",
+    "gptp_ucode.hex",
+    "-o",
+    "../../../hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+    "-o",
+    "../../../hdl/common/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+    "-o",
+    "../../../configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+    "-o",
+    "gen_divergent/gen/adp_shape_defaults.svh"
+  ],
+  "make_pid": 1926179,
+  "runner_pid": 1926203,
+  "blocked_after_signal": "anon_pipe_write",
+  "pending_signal": true,
+  "owned_pidfd_events_while_blocked": {
+    "1926205": [],
+    "1926206": []
+  },
+  "exit_after_drain": -2,
+  "owned_pidfd_events_after_drain": {
+    "1926205": [
+      [
+        4,
+        17
+      ]
+    ],
+    "1926206": [
+      [
+        6,
+        17
+      ]
+    ]
+  }
+}
