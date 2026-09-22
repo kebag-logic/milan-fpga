@@ -1,0 +1,56 @@
+[
+  {
+    "job": "docs-check",
+    "limits_and_provenance": [
+      {
+        "line": 739,
+        "text": "2026-09-22T17:11:25.7923551Z SDK verified: {\"archive_sha256\": \"d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f\", \"archive_url\": \"https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz\", \"destination\": \"/home/runner/br-milan-rv32/host\", \"host\": {\"architecture\": \"x86_64\", \"os\": \"Linux\"}, \"installer_revision\": 1, \"installer_sha256\": \"ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4\", \"release\": \"riscv32-ilp32d--glibc--stable-2025.08-1\"}"
+      },
+      {
+        "line": 753,
+        "text": "2026-09-22T17:14:33.1569844Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make"
+      },
+      {
+        "line": 754,
+        "text": "2026-09-22T17:14:33.1573162Z   [gate 1b] SKIP: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run"
+      },
+      {
+        "line": 779,
+        "text": "2026-09-22T17:14:33.7378174Z GATE 1b PASS; 3 NOT RUN; 0 actual firmware compiler invocations"
+      },
+      {
+        "line": 794,
+        "text": "2026-09-22T17:18:42.9633597Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make"
+      },
+      {
+        "line": 795,
+        "text": "2026-09-22T17:18:42.9636789Z   [gate 1b] SKIP: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run"
+      },
+      {
+        "line": 1062,
+        "text": "2026-09-22T17:19:18.4969256Z ALL GATES PASS EXCEPT 13 NOT RUN"
+      }
+    ]
+  },
+  {
+    "job": "elaborate",
+    "limits_and_provenance": [
+      {
+        "line": 697,
+        "text": "2026-09-22T17:10:50.0217963Z SDK verified: {\"archive_sha256\": \"d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f\", \"archive_url\": \"https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz\", \"destination\": \"/home/runner/br-milan-rv32/host\", \"host\": {\"architecture\": \"x86_64\", \"os\": \"Linux\"}, \"installer_revision\": 1, \"installer_sha256\": \"ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4\", \"release\": \"riscv32-ilp32d--glibc--stable-2025.08-1\"}"
+      },
+      {
+        "line": 721,
+        "text": "2026-09-22T17:15:26.2992326Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make"
+      },
+      {
+        "line": 722,
+        "text": "2026-09-22T17:15:26.2995680Z   [gate 1b] SKIP: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run"
+      },
+      {
+        "line": 979,
+        "text": "2026-09-22T17:17:10.2884642Z ALL GATES PASS EXCEPT 3 NOT RUN"
+      }
+    ]
+  }
+]

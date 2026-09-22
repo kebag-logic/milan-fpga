@@ -1,0 +1,56 @@
+{
+  "cwd": "$BUILDER_VALIDATION",
+  "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "commands": [
+    [
+      "python3",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--archive",
+      "$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz"
+    ],
+    [
+      "python3",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--archive",
+      "$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz"
+    ],
+    [
+      "python3",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--verify-only"
+    ],
+    [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    [
+      "python3",
+      "-u",
+      "sw/builder/test_firmware_compiler.py",
+      "--sdk-destination",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+      "--audit",
+      "$VALIDATION_STORAGE/504-manager-r1/sdk-compiler-argv.jsonl"
+    ],
+    [
+      "python3",
+      "-u",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$VALIDATION_STORAGE/504-manager-r1/absent-compiler-argv.jsonl"
+    ]
+  ]
+}

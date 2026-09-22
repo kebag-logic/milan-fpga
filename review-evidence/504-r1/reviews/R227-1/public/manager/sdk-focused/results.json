@@ -1,0 +1,90 @@
+{
+  "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+        "--archive",
+        "$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz"
+      ],
+      "exit_code": 0,
+      "seconds": 12.862,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+        "--archive",
+        "$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz"
+      ],
+      "exit_code": 0,
+      "seconds": 0.768,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+        "--verify-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.699,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.607,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_firmware_compiler.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.511,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-u",
+        "sw/builder/test_firmware_compiler.py",
+        "--sdk-destination",
+        "$VALIDATION_STORAGE/504-manager-r1/sdk-install",
+        "--audit",
+        "$VALIDATION_STORAGE/504-manager-r1/sdk-compiler-argv.jsonl"
+      ],
+      "exit_code": 0,
+      "seconds": 345.416,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-u",
+        "sw/builder/test_firmware_compiler.py",
+        "--absent",
+        "--audit",
+        "$VALIDATION_STORAGE/504-manager-r1/absent-compiler-argv.jsonl"
+      ],
+      "exit_code": 0,
+      "seconds": 298.414,
+      "log": "$VALIDATION_STORAGE/504-manager-r1/sdk-focused/07.log"
+    }
+  ]
+}
