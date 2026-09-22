@@ -92,6 +92,12 @@ PROSE_OK = {
         {"protocol-processor/hdl/adp/KL_adp_engine.sv",
          "protocol-processor/hdl/adp/pp_adp_pkg.sv"},
         "a gate citing submodule paths in its findings"),
+    "sw/builder/test_declarations.py": (
+        {"protocol-processor/hdl/top/protocol_processor_top.sv",
+         "protocol-processor/hdl/srp/KL_srp_top.sv",
+         "protocol-processor/hdl/common/KL_pp_prng.sv"},
+        "declaration gate reads the authorized donor bindings and fixed timer profile; "
+        "these are assertions, not compile source entries"),
     "sw/litex/milan_soc.py": (
         {"protocol-processor/hdl/top/protocol_processor_top.sv"},
         "a comment citing a submodule line number, not a source entry"),

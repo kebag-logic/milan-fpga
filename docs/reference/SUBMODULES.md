@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `8452f564294300a82d56eed464276576f65f4d58` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -110,3 +110,15 @@ Imported prose never defines root runtime behavior.
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
 
 Track donor repairs separately.
+
+The protocol pin adopts only donor #95 / PR96.
+It exposes the generated startup VID parameter.
+
+[Donor completion](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/96#issuecomment-5772201653) records its independent reviews and validation.
+Later donor revisions are outside this adoption.
+
+Historical audit exceptions remain open disclosures.
+PR13/PR6 branch continuity is UNKNOWN.
+
+PR13/PR9 retain the negative-merge baseline.
+Parent integration does not clear these donor audit findings.

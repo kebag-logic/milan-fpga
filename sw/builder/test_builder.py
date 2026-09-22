@@ -16909,15 +16909,16 @@ def test_optional_block_gates_bite() -> None:
          dict(maap=False),
          lambda c: c.setdefault("srp", {}).update(stream_dmac_base="maap"),
          True),
-        ("MAAP pruned, static DMAC base",
-         dict(maap=False), lambda c: None, False),
+        ("MAAP pruned, numeric legacy scratch cannot allocate talkers",
+         dict(maap=False), lambda c: None, True),
         ("playback pruned but the interface is i2s_philips",
          dict(i2s_playback=False, render_lpf=False),
          lambda c: c["audio_interface"].update(kind="i2s_philips"), True),
         ("playback+LPF pruned, TDM interface",
          dict(i2s_playback=False, render_lpf=False), lambda c: None, False),
         ("filter pruned but rx_address_filter is hardware",
-         dict(rx_mac_filter=False), lambda c: None, True),
+         dict(rx_mac_filter=False), lambda c: c.setdefault("platform", {}).update(
+             rx_address_filter="hardware"), True),
         ("filter pruned, promiscuous input declared explicitly",
          dict(rx_mac_filter=False),
          lambda c: c.setdefault("platform", {}).update(
@@ -16973,9 +16974,9 @@ def test_optional_block_prune_accounting() -> None:
     the re-measurement it forces, and the estimate must stay labelled an
     ESTIMATE."""
     def m(c: dict[str, Any]) -> None:
-        """The whole prune this accounting arm measures: six optional
+        """The supported prune this accounting arm measures: five optional
         blocks, internal-only clocking and a promiscuous RX filter."""
-        _prune(c, media_clock_servo=False, latency_taps=False, maap=False,
+        _prune(c, media_clock_servo=False, latency_taps=False,
                i2s_playback=False, rx_mac_filter=False, render_lpf=False)
         c["clocking"].update(media_clock_sources=["internal"],
                              default_source="internal", crf_sink=False)
@@ -16993,8 +16994,8 @@ def test_optional_block_prune_accounting() -> None:
                    for k in ("media_clock_servo", "latency_taps",
                              "render_lpf")) \
         + eb.RESOURCE_COSTS["rx_filter"]["lut"] \
-        + eb.RESOURCE_COSTS["i2s_renderer"]["lut"] \
-        + eb.RESOURCE_COSTS["maap_claim_ctx"]["lut"]
+        + eb.RESOURCE_COSTS["i2s_renderer"]["lut"]
+
     got_lut = b["totals"]["lut"] - q["totals"]["lut"]
     assert got_lut >= want_lut, \
         f"pruned estimate fell by {got_lut} LUT, want at least {want_lut}"
@@ -17002,12 +17003,14 @@ def test_optional_block_prune_accounting() -> None:
     assert q["totals"]["ff"] < b["totals"]["ff"]
     plan = pruned["plan"]
     for k, (flag, param, _w) in eb.OPTIONAL_BLOCKS.items():
+        if k == "maap":
+            continue  # declared talkers require the live allocator
         assert f"`{k}`" in plan, f"plan does not name {k}"
         assert f"`{param}=0`" in plan, f"plan does not name {param}=0"
         assert flag in plan, f"plan does not name {flag}"
     assert "RE-MEASURE" in plan and "yosys estimate" in plan
     assert "ALL PRESENT" not in plan
-    print(f"  [gate 23c] all-pruned ax7101_8x8: estimate -{got_lut} LUT / "
+    print(f"  [gate 23c] supported prunes, MAAP retained: estimate -{got_lut} LUT / "
           f"-{b['totals']['ff'] - q['totals']['ff']} FF (banked rows "
           f"-{want_lut} LUT), plan names every block, its parameter, its "
           "flag and the re-measurement it forces, labelled ESTIMATE")
@@ -23068,11 +23071,13 @@ def _expected_fabric_writes(k: dict[str, int]) -> list[tuple[int, int]]:
         (0x604, k["MILAN_ENTITY_ID_LO"]), (0x608, k["MILAN_ENTITY_ID_HI"]),
         (0x60C, k["MILAN_MODEL_ID_LO"]), (0x610, k["MILAN_MODEL_ID_HI"]),
         (0x108, k["MILAN_STATION_MAC_LO"]), (0x10C, k["MILAN_STATION_MAC_HI"]),
-        (0x100, seed(0x100) | 0x8),                     # MAC_CTRL, #403
+        (0x100, seed(0x100) | 0x8),                     # MAC_CTRL allmulti
+        (0x700, 1),                                    # promiscuous miss policy
         (0x654, (k["MILAN_SR_VID"] << 16) | 0x1),       # AAF_CTRL
         (0x684, k["MILAN_SR_VID"]),                     # LWSRP_VID
         (0x680, k["MILAN_LWSRP_CTRL_RESET"] | 0x3),     # LWSRP_CTRL, #400
-        (0x6CC, ((k["MILAN_N_TALKERS"] + 1) << 8) | 0x1),  # MAAP_CTRL
+        (0x6CC, ((k["MILAN_N_TALKERS"] +
+                  int(bool(k["MILAN_CRF_TX_CTRL_BOOT"]))) << 8) | 0x1),
         (0x750, k["MILAN_CRF_TX_CTRL_BOOT"]),           # CRFT_CTRL
     ]
 
@@ -23225,6 +23230,19 @@ def _boot_policy_controls(cc: str, firmware: str, cases: dict[str, _BootCase],
             "ADP_CAPS write"), "ADP_CAPS (0x614)"),
         ("the LWSRP_VID write dropped", on, None, _planted(
             firmware, lwsrp_vid, "", "LWSRP_VID write"), "the pinned list is"),
+        ("unconditional spare MAAP address", off, None, _planted(
+            firmware, "MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT)",
+            "MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u)",
+            "spare MAAP address"), "the pinned list is"),
+        ("boot drops live SRP admission enable", on, None, _planted(
+            firmware, "MILAN_LWSRP_CTRL_RESET | 3u",
+            "MILAN_LWSRP_CTRL_RESET | 2u", "SRP enable"), "the pinned list is"),
+        ("boot drops live SRP declaration arm", on, None, _planted(
+            firmware, "MILAN_LWSRP_CTRL_RESET | 3u",
+            "MILAN_LWSRP_CTRL_RESET | 1u", "SRP declare"), "the pinned list is"),
+        ("boot silently enables station filtering", on, None, _planted(
+            firmware, "MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT)",
+            "MILAN_TCAM_CTRL, 2u)", "restrictive RX"), "the pinned list is"),
     )
     for n, (label, case, consts, source, because) in enumerate(controls):
         consts = consts or boot_policy.fabric_constants(case.overlay, case.lwsrp)
@@ -23793,6 +23811,27 @@ def test_descriptor_fields_name_this_device() -> None:
           f"same port; planted {' and '.join(caught)} refused")
 
 
+def _declaration_boot_cases(cases: dict[str, _BootCase], work: Path) -> None:
+    """Add all reset bit combinations and grade the CRF one-address delta."""
+    for bits in range(4):
+        p = _variant(CONFIGS["arty_current"], lambda c, bits=bits:
+                     c["srp"].update(enable_at_reset=bool(bits & 1),
+                                     talker_declare_at_reset=bool(bits & 2),
+                                     rtl_table=False))
+        try:
+            cases[f"reset admission {bits}"] = _boot_case(
+                f"reset admission {bits}", p, work / "out")
+        finally:
+            p.unlink()
+    off_k = boot_policy.fabric_constants(
+        cases["ax7101_1x1_tdm8, crf_output off"].overlay,
+        cases["ax7101_1x1_tdm8, crf_output off"].lwsrp)
+    on_k = boot_policy.fabric_constants(
+        cases["ax7101_1x1_tdm8"].overlay,
+        cases["ax7101_1x1_tdm8"].lwsrp)
+    assert on_k["MILAN_MAAP_CTRL_BOOT"] - off_k["MILAN_MAAP_CTRL_BOOT"] == 256
+
+
 def test_boot_policy_follows_the_declaration() -> None:
     """Gate 35 (#398): the words the bare-metal firmware programs at boot
     come from the declaration, measured on the firmware as shipped.
@@ -23806,7 +23845,7 @@ def test_boot_policy_follows_the_declaration() -> None:
     pinned list, with CRFT_CTRL's word the one the config's own YAML asks for:
     the talker enable and class-A declare when the output is declared, and
     CRFT_CTRL[0] clear when it is not. ADP_CAPS (0x614) is written by none.
-    Four planted defects must be refused for the rule each breaks, and the
+    Eight planted defects must be refused for the rule each breaks, and the
     writer's five waits must be the generated constants, a literal planted
     back refused. The waits need no compiler, so they are checked first."""
     firmware = FIRMWARE_C.read_text(encoding="utf-8")
@@ -23862,6 +23901,7 @@ def test_boot_policy_follows_the_declaration() -> None:
                 "ax7101_1x1_tdm8, crf_output off", off, work / "out")
         finally:
             off.unlink()
+        _declaration_boot_cases(cases, work)
         for name, case in cases.items():
             consts = boot_policy.fabric_constants(case.overlay, case.lwsrp)
             for key in consts:
@@ -23871,6 +23911,8 @@ def test_boot_policy_follows_the_declaration() -> None:
                                    _fabric_host_header(consts, case.overlay),
                                    work / name.replace(", ", "_").replace(" ", "_"))
             _assert_fabric_writes(case.label, got, consts, case.crf_declared)
+            print(f"  [gate 35 transcript] {case.label}: " +
+                  " ".join(f"{addr:03x}={value:08x}" for addr, value in got))
             print(f"  [gate 35] {case.label}: configure_fabric() wrote the "
                   f"{len(got)} pinned CSR words in order, CRFT_CTRL "
                   f"<- {dict(got)[0x750]:#x} for crf_output "
@@ -23882,10 +23924,12 @@ def test_boot_policy_follows_the_declaration() -> None:
 
 
 if __name__ == "__main__":
+    from test_declarations import test_declaration_contracts
+
     if "--write-cluster-golden" in sys.argv:
         write_cluster_names_golden()
         sys.exit(0)
-    for fn in (test_all_configs_build, test_baremetal_profile_contract,
+    for fn in (test_declaration_contracts, test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_qspi_owner_transition_completed_write_prefixes,

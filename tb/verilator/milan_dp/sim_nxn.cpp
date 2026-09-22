@@ -4431,6 +4431,7 @@ class NxnDatapathHarness {
         prove_a_bound_input_refuses_stream_is_running(fmt_2ch);
         prove_the_crf_output_row_admits_only_the_crf_family(fmt_base);
         prove_the_divergent_rows_serve_their_own_base();
+        grade_all_output_offset_rows();
         grade_set_stream_info_presentation_offset();
     }
 
@@ -4591,6 +4592,101 @@ class NxnDatapathHarness {
         ck("#67dv restore: row 1's declared base is accepted back",
            aecp_status(r2), 0);
         #endif
+    }
+
+    void grade_output_timestamps(const std::vector<uint32_t>& offsets) {
+        // Compare transmitted fields with the PHC at egress. The AAF sample
+        // precedes egress by at most one six-sample epoch plus serialization;
+        // CRF rounds its transit offset upward to one media-clock period.
+        // These are observation bounds, never listener acceptance policy.
+        axi_write(A_LWSRP_CTRL, 0);
+        axi_write(A_MAAP_CTRL, 0);
+        axi_write(A_AAF_CTRL, 0x00020003);
+        axi_write(0x750, 1);  // diagnostic CRF free-run, also exercises its row
+        for (int c = 0; c < 400000; ++c) step(); // drain old packet epochs
+        std::vector<unsigned> seen(offsets.size(), 0);
+        std::vector<uint8_t> frame;
+        dut->m_axis_mac_tx_tready = 1;
+        for (int cycle = 0; cycle < 600000; ++cycle) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int lane = 0; lane < 8; ++lane)
+                    if ((dut->m_axis_mac_tx_tkeep >> lane) & 1)
+                        frame.push_back(static_cast<uint8_t>(dut->m_axis_mac_tx_tdata >> (8 * lane)));
+                if (dut->m_axis_mac_tx_tlast) {
+                    const size_t tag = frame.size() > 18 && frame[12] == 0x81 ? 4 : 0;
+                    if (frame.size() >= 42 + tag && frame[12 + tag] == 0x22 && frame[13 + tag] == 0xf0) {
+                        const unsigned subtype = frame[14 + tag];
+                        const unsigned index = (frame[24 + tag] << 8) | frame[25 + tag];
+                        if ((subtype == 2 || subtype == 4) && index < offsets.size() && seen[index] < 2) {
+                            const uint32_t stamp = subtype == 2
+                                ? static_cast<uint32_t>(be(frame, 26 + tag, 4))
+                                : static_cast<uint32_t>(be(frame, 34 + tag, 8));
+                            const uint32_t now = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__ptp_now_w);
+                            const int32_t error = static_cast<int32_t>(stamp - now - offsets[index]);
+                            char label[100];
+                            snprintf(label, sizeof label, "#403 output %u %s timestamp follows %u ns", index,
+                                     subtype == 2 ? "AAF" : "CRF", offsets[index]);
+                            printf("  timestamp output=%u stamp=%u phc=%u offset=%u residual=%d ns\n",
+                                   index, stamp, now, offsets[index], error);
+                            ck(label, error >= -200000 && error <= 30000, 1);
+                            ++seen[index];
+                        }
+                    }
+                    frame.clear();
+                }
+            }
+            hi();
+            bool complete = true;
+            for (unsigned count : seen) complete &= count >= 2;
+            if (complete) break;
+        }
+        for (size_t index = 0; index < seen.size(); ++index) {
+            char label[80];
+            snprintf(label, sizeof label, "#403 output %zu produced two timestamp observations", index);
+            ck(label, seen[index], 2);
+        }
+        axi_write(A_AAF_CTRL, 0x00020000);
+        axi_write(0x750, 0);
+        for (int c = 0; c < 20000; ++c) step();
+    }
+
+    void grade_all_output_offset_rows() {
+        const uint32_t aaf = axi_read(A_AAF_CTRL), crf = axi_read(0x750);
+        const uint32_t srp = axi_read(A_LWSRP_CTRL), maap = axi_read(A_MAAP_CTRL);
+        // Earlier TCTX coverage deliberately gives source 1 unique_id 5.
+        // Name its actual index for this census, then restore that fixture.
+        const uint32_t selection = axi_read(A_STRM_SEL);
+        axi_write(A_STRM_SEL, 0x101);
+        const uint32_t source1 = axi_read(A_SW_DMAC_HI);
+        axi_write(A_SW_DMAC_HI, (source1 & 0xffffu) | (1u << 16));
+        axi_write(A_AAF_CTRL, 0x00020000); axi_write(0x750, 0);
+        std::vector<uint32_t> expected(kNstreamsTb + 1, 2000000);
+        for (unsigned index = 0; index < expected.size(); ++index) {
+            auto response = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, index));
+            ck("#403 every factory output GET succeeds", aecp_status(response), 0);
+            ck("#403 every factory output is 2 ms", lat_of(response), expected[index]);
+        }
+        grade_output_timestamps(expected);
+        for (unsigned target = 0; target < expected.size(); ++target) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                     si_pl(0x0006, target, 0x20000000u, 1000000));
+            ck("#403 addressed output accepts runtime 1 ms", aecp_status(response), 0);
+            expected[target] = 1000000;
+            for (unsigned index = 0; index < expected.size(); ++index) {
+                response = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, index));
+                ck("#403 runtime GET changes only its own output", lat_of(response), expected[index]);
+            }
+            grade_output_timestamps(expected);
+            response = aecp_xact(0x000E, setter_sq++,
+                                 si_pl(0x0006, target, 0x20000000u, 2000000));
+            ck("#403 runtime factory value can be selected again", aecp_status(response), 0);
+            expected[target] = 2000000;
+        }
+        axi_write(A_STRM_SEL, 0x101); axi_write(A_SW_DMAC_HI, source1);
+        axi_write(A_STRM_SEL, selection);
+        axi_write(A_LWSRP_CTRL, srp); axi_write(A_MAAP_CTRL, maap);
+        axi_write(A_AAF_CTRL, aaf); axi_write(0x750, crf);
     }
 
     // SET_STREAM_INFO(ACC_LAT): the offset the framers stamp

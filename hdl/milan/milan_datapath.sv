@@ -1420,6 +1420,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! handshake-qualified but never apply backpressure, so the shared tap is
   //! permanently ready.
   assign rx_axis_fabric.tready = 1'b1;
+  //! Passive post-filter observation, shared by integration assertions.
+  wire [TDATA_WIDTH-1:0] rx_fabric_data_w /* verilator public_flat_rd */ = rx_axis_fabric.tdata;
+  wire [TDATA_WIDTH/8-1:0] rx_fabric_keep_w /* verilator public_flat_rd */ = rx_axis_fabric.tkeep;
+  wire rx_fabric_valid_w /* verilator public_flat_rd */ = rx_axis_fabric.tvalid;
+  wire rx_fabric_last_w /* verilator public_flat_rd */ = rx_axis_fabric.tlast;
+
 
   // ==========================================================================
   //  CSR <-> datapath signals
@@ -2018,7 +2024,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
            (acmp_talker_active_aaf_w[gs] & lwsrp_stream_gate[gs]));
     end
   endgenerate
-  wire [63:0]              ptp_now_w;
+  wire [63:0]              ptp_now_w /* verilator public_flat_rd */;
   wire [31:0]              aaf_frames_w, aaf_pairs_w;
   wire [TDATA_WIDTH-1:0]   aaf_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] aaf_tx_tkeep;
@@ -3220,22 +3226,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! per-STREAM_OUTPUT presentation offset. SET_STREAM_INFO(ACC_LAT) is a
   //! WRITER AGAIN (issue #67): entry k folds the processor's published
   //! SEL_PTOFF row k when a controller has set it, and holds the Milan v1.2
-  //! default otherwise. The default is a DEFAULT, not a zero: 0 ns would be
-  //! a presentation time in the past and every listener would drop every
-  //! frame as late. The CRF Media Clock Output consumes ITS OWN row through
+  //! factory default otherwise. Zero is a legal runtime offset, too.
+  //! The CRF Media Clock Output consumes ITS OWN row through
   //! its transit entry (talker_unique_id CRF_TUID_C = N_STREAMS), so a
   //! controller can move the CRF presentation offset by the same command.
   //! This fold is the ONE derivation point: GET_STREAM_INFO's latency word
   //! serves these same entries below, so the wire the talker stamps and the
   //! answer a controller reads cannot disagree.
-  localparam logic [31:0] PRES_DFLT_C = 32'd2_000_000;   //! 2 ms
   always_comb begin : pres_offset_fold
     for (int k = 0; k < ACMP_SRC_C; k++)
       aecp_pres_offset[32*k +: 32] = pp_aecp_pt_offset_v_w[k]
                                      ? pp_aecp_pt_offset_w[32*k +: 32]
-                                     : PRES_DFLT_C;
+                                     : ADP_STROUT_PRES_NS_C[k];
     for (int k = ACMP_SRC_C; k < 16; k++)
-      aecp_pres_offset[32*k +: 32] = PRES_DFLT_C;
+      aecp_pres_offset[32*k +: 32] = ADP_STROUT_PRES_NS_C[0];
   end
   //! (the media clock source is LIVE (#74) - see media_clk_resolve and the
   //!  media-clock banner at the top of this file. The CRF Media Clock Input
@@ -5679,13 +5683,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),
-    //! LISTENER-side presentation window, deliberately entry 0 (the
-    //! index-0/global value, exactly what this port has always been fed):
-    //! pres_ofs_i scales the RX monitor's LATE/EARLY acceptance window and
-    //! is a property of OUR sink, not of any talker's transit time - the
-    //! per-index file above is TALKER state (per STREAM_OUTPUT), so keying
-    //! this by a talker index would conflate the two. A per-SINK window
-    //! is future LCTX work, not a per-talker mux.
+    //! Existing listener EARLY/LATE diagnostics use output row zero.
+    //! This threshold does not gate listener payload acceptance.
     .pres_ofs_i     (aecp_pres_offset[31:0]),
     //! LIVE wiring, INERT consumer (#74, [R1] finding 2): the monitor
     //! declares these ports for a media-lock rule it does not implement
@@ -7258,6 +7257,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! unanswerable exactly the way the pre-0x0027 shapes did.
       .N_STREAM_IN_P  (ACMP_SINKS_C),
       .N_STREAM_OUT_P (ACMP_SRC_C),
+      .SRP_DOM_DEF_VID_P (ADP_SRP_DOM_DEF_VID_C),
       .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
       .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
       .TROM_HEX_P     (PP_TROM_HEX_P),

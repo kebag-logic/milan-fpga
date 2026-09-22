@@ -158,6 +158,13 @@ void FabricGptpCsrHarness::reset_and_idle_the_bus() {
   for (unsigned i = 0; i < kAspPathWords; i++) dut->i_gptp_asp_path[i] = 0;
   for (unsigned i = 0; i < kResetTicks; i++) tick();
   dut->aresetn = 1; tick();
+  check("AAF neutral reset readback", axi_read(0x654), 0);
+  check("AAF neutral reset VID", dut->o_aaf_vid, 0);
+  check("AAF neutral reset enable", dut->o_aaf_enable, 0);
+  check("MAAP neutral reset readback", axi_read(0x6cc), 0);
+  check("MAAP neutral reset count", dut->o_maap_count, 0);
+  check("MAAP neutral reset enable", dut->o_maap_enable, 0);
+
 }
 
 void FabricGptpCsrHarness::legacy_writes_never_move_fabric_publication() {

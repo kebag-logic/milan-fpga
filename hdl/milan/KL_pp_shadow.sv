@@ -185,6 +185,8 @@ module KL_pp_shadow #(
     //! processor sink/source array sizes (F01.5 P-N-STREAM-IN/OUT)
     parameter int unsigned N_STREAM_IN_P  = 8,
     parameter int unsigned N_STREAM_OUT_P = 8,
+    //! Generated product startup VID; distinct values are test fixtures only.
+    parameter logic [15:0] SRP_DOM_DEF_VID_P = 16'd2,
     //! control-frame FIFO, bytes. One 1522 B frame fits with margin for the
     //! serializer's lag; 4096 is one RAMB36 at 64 b.
     parameter int unsigned RX_FIFO_BYTES_P = 4096,
@@ -1043,6 +1045,7 @@ module KL_pp_shadow #(
   protocol_processor_top #(
       .N_STREAM_IN_P  (N_STREAM_IN_P),
       .N_STREAM_OUT_P (N_STREAM_OUT_P),
+      .SRP_DOM_DEF_VID_P (SRP_DOM_DEF_VID_P),
       .CLK_HZ_P       (CLK_HZ_P),
       .TIM_DIV_US_P   (TIM_DIV_US_P),
       .TIM_DIV_MS_P   (TIM_DIV_MS_P),
