@@ -1,0 +1,87 @@
+[
+ {
+  "id": "G01 equals setext",
+  "base_page": "# Page\n\nOld — heading\n===\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "head_page": "# Page\n\n## Contents\n\n- **[Old — heading](#old--heading)** -- TODO describe this section\n- **[Alpha](#alpha)** -- TODO describe this section\n- **[Beta](#beta)** -- TODO describe this section\n- **[Gamma](#gamma)** -- TODO describe this section\n\n## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "base_headings": [
+   "Page",
+   "Alpha",
+   "Beta",
+   "Gamma"
+  ],
+  "findings": [
+   "page0.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block",
+   "page0.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+  ],
+  "exempt": 0,
+  "judged": 8
+ },
+ {
+  "id": "G02 hyphen setext",
+  "base_page": "# Page\n\nOld — heading\n---\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "head_page": "# Page\n\n## Contents\n\n- **[Old — heading](#old--heading)** -- TODO describe this section\n- **[Alpha](#alpha)** -- TODO describe this section\n- **[Beta](#beta)** -- TODO describe this section\n- **[Gamma](#gamma)** -- TODO describe this section\n\n## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "base_headings": [
+   "Page",
+   "Alpha",
+   "Beta",
+   "Gamma"
+  ],
+  "findings": [
+   "page1.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block",
+   "page1.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+  ],
+  "exempt": 0,
+  "judged": 8
+ },
+ {
+  "id": "G03 single hyphen setext",
+  "base_page": "# Page\n\nOld — heading\n-\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "head_page": "# Page\n\n## Contents\n\n- **[Old — heading](#old--heading)** -- TODO describe this section\n- **[Alpha](#alpha)** -- TODO describe this section\n- **[Beta](#beta)** -- TODO describe this section\n- **[Gamma](#gamma)** -- TODO describe this section\n\n## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "base_headings": [
+   "Page",
+   "Alpha",
+   "Beta",
+   "Gamma"
+  ],
+  "findings": [
+   "page2.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block",
+   "page2.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+  ],
+  "exempt": 0,
+  "judged": 8
+ },
+ {
+  "id": "G04 quoted heading",
+  "base_page": "# Page\n\n> ## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "head_page": "# Page\n\n## Contents\n\n- **[Old — heading](#old--heading)** -- TODO describe this section\n- **[Alpha](#alpha)** -- TODO describe this section\n- **[Beta](#beta)** -- TODO describe this section\n- **[Gamma](#gamma)** -- TODO describe this section\n\n## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "base_headings": [
+   "Page",
+   "Alpha",
+   "Beta",
+   "Gamma"
+  ],
+  "findings": [
+   "page3.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block",
+   "page3.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+  ],
+  "exempt": 0,
+  "judged": 8
+ },
+ {
+  "id": "G05 list heading",
+  "base_page": "# Page\n\n- item\n\n  ## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "head_page": "# Page\n\n## Contents\n\n- **[Old — heading](#old--heading)** -- TODO describe this section\n- **[Alpha](#alpha)** -- TODO describe this section\n- **[Beta](#beta)** -- TODO describe this section\n- **[Gamma](#gamma)** -- TODO describe this section\n\n## Old — heading\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+  "base_headings": [
+   "Page",
+   "Alpha",
+   "Beta",
+   "Gamma"
+  ],
+  "findings": [
+   "page4.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block",
+   "page4.md:10: U+2014 (em dash) in an added heading -- write --, a colon or a plain sentence"
+  ],
+  "exempt": 0,
+  "judged": 7
+ }
+]

@@ -1,0 +1,63 @@
+id                                                           github                 base                   head                   base-verdict / head-verdict
+A01 two spaces                                               ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A02 three spaces                                             ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A03 star item                                                ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A04 ordered item                                             ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A05 two container paragraphs                                 ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A06 task item                                                ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A07 list after paragraph                                     ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A08 b tag                                                    ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A09 two blank lines                                          ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A10 plus item                                                ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A11 paren ordinal                                            ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A12 custom tag                                               ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A13 lone closing tag                                         ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A14 tag with attribute                                       ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A15 self-closing tag                                         ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A16 tag one column below col 2                               ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A17 tag two columns below col 3                              ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A18 two-line first paragraph                                 ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A19 resumed twice                                            ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+A20 zero ordinal                                             ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+B01 one space                                                ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+B02 four spaces                                              ['Real']               ['Real']               ['Real']               AGREE / AGREE
+B03 block quote                                              ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+B04 footnote two spaces                                      ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+B05 footnote four spaces                                     ['Real']               ['Real']               ['Real']               AGREE / AGREE
+B06 tab                                                      ['Real']               ['Real']               ['Real']               AGREE / AGREE
+C01 tag at col 2 under resumed paragraph                     ['Old', 'Real']        ['Old', 'Real']        ['Real']               AGREE / WITHHOLD Old
+C02 tag at col 3 under resumed paragraph (col 2 item)        ['Old', 'Real']        ['Old', 'Real']        ['Real']               AGREE / WITHHOLD Old
+C03 tag at col 3 under resumed paragraph (col 3 item)        ['Old', 'Real']        ['Old', 'Real']        ['Real']               AGREE / WITHHOLD Old
+C04 C01 then column-0 fence                                  ['Real']               ['Real']               ['Old']                AGREE / INVENT Old +WITHHOLD Real
+C05 C01 then column-0 comment                                ['Real']               ['Real']               ['Old', 'Real']        AGREE / INVENT Old
+C06 C01 then column-0 type-1 pre                             ['Real']               ['Real']               ['Old', 'Real']        AGREE / INVENT Old
+C07 C04 after a lazy line                                    ['Real']               ['Real']               ['Old']                AGREE / INVENT Old +WITHHOLD Real
+C08 C04 with a col-3 item                                    ['Real']               ['Real']               ['Old']                AGREE / INVENT Old +WITHHOLD Real
+P01 tag at col 2 under the FIRST item paragraph, then fence  ['Real']               ['Old']                ['Old']                INVENT Old +WITHHOLD Real / INVENT Old +WITHHOLD Real
+P02 tag at col 2 after a blank inside the item, then fence   ['Real']               ['Old']                ['Old']                INVENT Old +WITHHOLD Real / INVENT Old +WITHHOLD Real
+P03 type-6 div at col 2 inside the item, then fence          ['Real']               ['Old']                ['Old']                INVENT Old +WITHHOLD Real / INVENT Old +WITHHOLD Real
+P04 tag at col 2 under the FIRST item paragraph              ['Old', 'Real']        ['Real']               ['Real']               WITHHOLD Old / WITHHOLD Old
+D01 column-0 quote after item, resumed text, tag             ['Old', 'Real']        ['Old', 'Real']        ['Real']               AGREE / WITHHOLD Old
+D02 column-0 footnote after item, resumed text, tag          ['Old', 'Real']        ['Old', 'Real']        ['Real']               AGREE / WITHHOLD Old
+D03 D01 then column-0 fence                                  ['Real']               ['Real']               ['Old']                AGREE / INVENT Old +WITHHOLD Real
+D04 D02 then column-0 fence                                  ['Real']               ['Real']               ['Old']                AGREE / INVENT Old +WITHHOLD Real
+D05 quote after a blank releases the item                    ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+D06 quote inside the item keeps it                           ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+D07 indented quote below col 4 after item                    ['Real']               ['Real']               ['Real']               AGREE / AGREE
+F01 new ordered list after blank                             ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+F02 new bullet type after blank                              ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+F03 sibling then one space                                   ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+F04 empty item then sibling                                  ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+F05 noninterrupting zero ordinal                             ['Old', 'Real']        ['Old', 'Real']        ['Old', 'Real']        AGREE / AGREE
+F06 table inside item                                        ['Real']               ['Real']               ['Real']               AGREE / AGREE
+F07 setext inside item                                       ['text', 'Real']       ['Real']               ['Real']               AGREE / AGREE
+F08 fence inside item                                        ['Real']               ['Real']               ['Real']               AGREE / AGREE
+F09 tag at col 2 after blank (no paragraph)                  ['Old', 'Real']        ['Real']               ['Real']               WITHHOLD Old / WITHHOLD Old
+F10 type-1 below resumed paragraph                           ['Real']               ['Real']               ['Real']               AGREE / AGREE
+F11 dedented setext text ends nothing                        ['Real']               ['Real']               ['Real']               AGREE / AGREE
+F12 empty star item then lazy                                ['Real']               ['Old', 'Real']        ['Real']               INVENT Old / AGREE
+G01 equals setext                                            ['Alpha']              []                     []                     WITHHOLD Alpha / WITHHOLD Alpha
+G02 hyphen setext                                            ['text']               []                     []                     WITHHOLD text / WITHHOLD text
+G03 single hyphen setext                                     ['text']               []                     []                     WITHHOLD text / WITHHOLD text
+G04 quoted heading                                           ['Q']                  []                     []                     WITHHOLD Q / WITHHOLD Q
+G05 list heading                                             ['Inner']              []                     []                     WITHHOLD Inner / WITHHOLD Inner

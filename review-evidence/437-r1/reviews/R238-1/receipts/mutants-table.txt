@@ -1,0 +1,20 @@
+mutant | toc exit | emdash exit | I437 arms named (toc) | guards (toc) | non-I437 failures (toc) | I437 named (emdash)
+M01 drop the context | 1 | 2 | 18 | 0 | 1 | 18
+M02 forget the context at every blank | 1 | 2 | 18 | 0 | 0 | 18
+M03 strict column | 1 | 2 | 17 | 0 | 0 | 17
+M04 blanket indentation | 1 | 2 | 7 | 0 | 0 | 7
+M05 fixed column two | 1 | 2 | 6 | 0 | 0 | 6
+M06 characters, not columns | 1 | 2 | 1 | 0 | 0 | 1
+M07 no W+1 for code padding | 1 | 2 | 1 | 0 | 0 | 1
+M08 four columns count as code padding | 1 | 2 | 1 | 0 | 0 | 1
+M09 empty item never ends at a blank | 1 | 2 | 2 | 0 | 0 | 2
+M10 empty flag never clears | 1 | 2 | 2 | 0 | 0 | 2
+M11 empty item uses its padding | 1 | 2 | 1 | 0 | 0 | 1
+M12 nested item replaces the outer column | 1 | 2 | 1 | 0 | 0 | 1
+M13 sibling keeps the stale column | 1 | 2 | 1 | 0 | 0 | 1
+M14 no lazy hold | 1 | 2 | 1 | 0 | 0 | 1
+M15 context never released | 1 | 2 | 2 | 0 | 0 | 2
+M16 markers read inside blocks | 1 | 2 | 2 | 0 | 0 | 2
+M17 noninterrupting item opens a context | 1 | 2 | 1 | 0 | 0 | 1
+M18 resumed paragraph not held | 1 | 2 | 18 | 0 | 0 | 18
+N01 dedented quote/footnote releases the item (F2 repair) | 0 | 0 | 0 | 0 | 0 | 0

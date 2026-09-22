@@ -1,0 +1,17 @@
+toc-selftest                 exit 0  | TOC selftest: PASS (707/707 arm(s))
+toc-check                    exit 0  | TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+toc-anchors                  exit 0  | anchor check: 144 existing cross-page fragment links reproduced
+toc-sites                    exit 0  | line_kinds() lstrip(): single source
+emdash-selftest              exit 0  | check_em_dash selftest: PASS (57 arm(s))
+emdash-base                  exit 0  | check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [88e9276b..HEAD]
+docs-check                   exit 0  | docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs-selftest                exit 0  | docs_check selftest: PASS (23 scrub + 4 routing arm(s))
+doc-style                    exit 0  | documentation style: OK (22 current documents)
+doc-style-selftest           exit 0  | documentation style selftest: OK
+doc-paths                    exit 0  | doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+py-idiom                     exit 0  |   over-long line: 0 <= 0
+py-idiom-selftest            exit 0  | 54 checks: 54 PASS, 0 FAIL
+hygiene                      exit 0  | HYGIENE RATCHET: PASS (3 population(s), 706 file(s))
+hygiene-selftest             exit 0  | 35 checks: 35 PASS, 0 FAIL
+ci-events                    exit 0  | ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci-events-selftest           exit 0  | selftest: PASS (1505 contract items, 1144 arms)
