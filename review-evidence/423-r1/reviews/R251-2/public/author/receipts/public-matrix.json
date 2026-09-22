@@ -1,0 +1,823 @@
+{
+ "git": "git version 2.55.0",
+ "rows": [
+  {
+   "scenario": "positive-replay-far-extension",
+   "class": "positive",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "0bdd506aac4dcf4f36c04458adc7b35228e42a98",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "positive-replay-two-later-commits",
+   "class": "positive",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "6505f7e29cfae954a9f88012d1991a7e19cbfa24",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, new.txt]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "two-redundant-merges",
+   "class": "conservative FN (one-merge cap; per-merge variant would accept)",
+   "branch_head": "49c19fd437e2052f754e8fc3b5e68bc473bcd1b8",
+   "base_tip": "3393dd2cf1962991c265725eaec4097da93b7a70",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "control-replay-no-later-edit",
+   "class": "control: existing path arm",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "28ddc4f1aa6afe0115091beaf9776730f5a8387a",
+   "trusted_rc": 0,
+   "trusted": "contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     0,
+     "contained"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "control-revert-then-reapply",
+   "class": "control: existing path arm",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "c9916765254a47b44f9ebc6c8e2e9f90870eb752",
+   "trusted_rc": 0,
+   "trusted": "contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     0,
+     "contained"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "pr62-faithful-later-rewrite",
+   "class": "conservative FN (mirrors actual PR62)",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "fe2059e0de8f8831c7b0e93a009b415a1da35efa",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "later-disabling-rewrite",
+   "class": "negative: reversion by edit (twin of pr62-faithful)",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "3e56061073b9a7694609135de1ed13a0c5df2d3f",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "published-shape-adjacent-extension",
+   "class": "conservative FN (legit extension adjacent to a replayed hunk)",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "d5d79006452938b4067f399d0ae10c56226eb70e",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "later-deletion-of-touched-file",
+   "class": "refused: later deletion removes replayed work",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "c5d4bf9c23b3d8fd61a1603645c1e76251b760e9",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "later-exec-bit-loss",
+   "class": "refused: later exec-bit reversion",
+   "branch_head": "f8d1076cd8799002555e62bee65bb33d1a683754",
+   "base_tip": "653d8af1bd607b6a3ec92d9f35cfca3a0b025350",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: tool.sh]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'tool.sh'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "later-binary-edit",
+   "class": "explicitly unresolved: binary later edit unmeasurable",
+   "branch_head": "0d3b3b25625ab28281f9279389c4ce0f3c5ca634",
+   "base_tip": "ec47673abafeebc2e427a5ebfeaf6c6ba462edba",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: data.bin]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'data.bin' (raw merge-file failed (exit 255))"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "exact-revert-whole-replay",
+   "class": "negative: later reversion",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "4f6f909f94a849386b5c1310faab2a7bb573c9f9",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'",
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "exact-revert-pr-commit",
+   "class": "negative: later reversion",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "6083ec1e4e82f800a5473bf8826246bee6b50395",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'",
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "partial-revert-one-hunk",
+   "class": "negative: later reversion",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "e94e845394001345efaebb93dbebefd76e289b1a",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "revert-plus-far-extension",
+   "class": "negative: later reversion",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "066ca287b8ce3a429fec693056915a3b33914209",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'",
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "revert-under-hostile-merge-config",
+   "class": "negative: reversion + ours driver/textconv",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "74fd7c7b8168224e70b55a244b613578a8ea7faf",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: .gitattributes, added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'",
+   "G_shape": true,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'",
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "UNKNOWN"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "omitted-linear-commit",
+   "class": "negative: omitted linear work",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "f516a8bcd158fae772e9b0a8e05a7fb7d6080d02",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "G_shape": true,
+   "H_replay": false,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'",
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "omitted-part-of-a-commit",
+   "class": "negative: omitted linear work",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "82fe9afa349e475bd728981deaaeee5f57facb42",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": true,
+   "H_replay": false,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "whitespace-different-postimage",
+   "class": "negative: whitespace",
+   "branch_head": "5f917075a749ff836b90cc5f28ee0f1be7810799",
+   "base_tip": "413f9342462e310c3f2158d93e356cbb75744936",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]",
+   "G_shape": true,
+   "H_replay": false,
+   "T_retained": false,
+   "T_detail": [
+    "'added.py'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "repeated-block-other-location",
+   "class": "negative: hunk position",
+   "branch_head": "a8ede027dc32db8430ea8912e0c78fdaa55c0f10",
+   "base_tip": "a75165eeb24e6a9a6c7caea569db720cd0752628",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]",
+   "G_shape": true,
+   "H_replay": false,
+   "T_retained": false,
+   "T_detail": [
+    "'rep.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "merge-resolution-work-missing",
+   "class": "negative: resolution work",
+   "branch_head": "be0bfd1a3fc407e760fe5247218d1dd516217c51",
+   "base_tip": "5f8097d00394fdb03d899a8b5cd5e6aec762645e",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'resolution.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "merge-resolution-work-present",
+   "class": "conservative FN (AC2 'unless')",
+   "branch_head": "be0bfd1a3fc407e760fe5247218d1dd516217c51",
+   "base_tip": "c3ac2d92376855a4607452c9dfa643f5303e45f0",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "merge-one-byte-evil-change",
+   "class": "negative: resolution work",
+   "branch_head": "531168dbff7f62bf2058765714fada0452afe2b1",
+   "base_tip": "5ab76aad031d66c6c8be4e3223d0ca0925806644",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": false,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "octopus-merge",
+   "class": "negative: octopus",
+   "branch_head": "a0add23948d6a4f46d991ea5e1113d5468922089",
+   "base_tip": "65cbc523c16d91ad0c37727d296a9850e65a7c85",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "octopus-absorbed-third-parent",
+   "class": "conservative FN (scope: two parents only)",
+   "branch_head": "8adb74d995279da06b482d4e36be6b762f3064fd",
+   "base_tip": "c75fd10e2a3f0deb06d7f012957f8980914051fe",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "unrelated-parent-merge",
+   "class": "negative: unrelated parent",
+   "branch_head": "fa6685c66d515d562ab09138748fa8dce85ee504",
+   "base_tip": "5dacd0034463e0939a1a9db0372f51244bc1be61",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "redundant-plus-nonredundant-merge",
+   "class": "negative: multiple merges",
+   "branch_head": "338dd9bcca1c10c2bac8ddca5defd90481f60201",
+   "base_tip": "57288f3ad8a94648b69fb3a0b74bcfae75d5cad3",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "first-parent-is-grandparent",
+   "class": "conservative FN (distance 2)",
+   "branch_head": "85d403857fd2b0c8ace29a4a2f3e3c61d517c0a6",
+   "base_tip": "5733d04f9a2578a911b4c480b52c400569c2ef94",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "reversed-parent-order",
+   "class": "negative: shape",
+   "branch_head": "2f08023e060400eb2e60d4558a2d0f31a306a3a9",
+   "base_tip": "426c8dd5360aa7e5ce2a4be2839e8606383d50cd",
+   "trusted_rc": 1,
+   "trusted": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "prototype_rc": 1,
+   "prototype": "STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": true,
+   "T_detail": [],
+   "expected": {
+    "trusted": [
+     1,
+     "STRANDED"
+    ],
+    "prototype": [
+     1,
+     "STRANDED"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "linear-control-exact-revert",
+   "class": "pre-existing linear historical arm (unchanged)",
+   "branch_head": "9a9c1e7b26ff2d3439ef5c5ec439cc3a13c9a34a",
+   "base_tip": "219aa2256e055e8a577f9899ac6d36bd8bd986e0",
+   "trusted_rc": 0,
+   "trusted": "contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     0,
+     "contained"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  },
+  {
+   "scenario": "linear-control-adjacent-extension",
+   "class": "pre-existing linear historical arm (unchanged)",
+   "branch_head": "1bd2b82f0e618d3a8a3cdeb2e47a8c2f2dfb6182",
+   "base_tip": "fe6d591afdc008a7314761b3f9e7dbb6bc2a49d6",
+   "trusted_rc": 0,
+   "trusted": "contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]",
+   "prototype_rc": 0,
+   "prototype": "contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]",
+   "G_shape": false,
+   "H_replay": true,
+   "T_retained": false,
+   "T_detail": [
+    "'mod.txt'"
+   ],
+   "expected": {
+    "trusted": [
+     0,
+     "contained"
+    ],
+    "prototype": [
+     0,
+     "contained"
+    ]
+   },
+   "as_expected": true
+  }
+ ]
+}

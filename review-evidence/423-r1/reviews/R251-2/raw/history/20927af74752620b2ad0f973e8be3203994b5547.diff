@@ -1,0 +1,504 @@
+diff --git a/tb/mutation_verdict.py b/tb/mutation_verdict.py
+new file mode 100644
+index 0000000..40410be
+--- /dev/null
++++ b/tb/mutation_verdict.py
+@@ -0,0 +1,53 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""How a suite's OWN output answers, read once for every mutation arm.
++
++A mutation arm is only evidence if "caught" means the harness said so. A
++non-zero exit on its own is not a catch: a mutant that makes the design abort,
++hang, or die by a signal has told us nothing about the assertions - it has only
++told us the mutant is broken, which we already knew. So the verdict is read
++from the tally line and the FAIL lines both suites already print, and every
++other outcome is named as what it is rather than counted as success.
++"""
++
++from __future__ import annotations
++
++import re
++
++#: `N checks: P PASS, F FAIL`, printed by tsngen_main/run_tsngen.py and by the
++#: gasket sim_main.cpp alike.
++TALLY = re.compile(r"^\s*(\d+)\s+checks:\s*(\d+)\s+PASS,\s*(\d+)\s+FAIL\s*$", re.M)
++#: a per-check failure line, e.g. `FAIL size 64 delivered got 0 exp 1`
++FAIL_LINE = re.compile(r"^\s*FAIL\s+\S", re.M)
++
++
++def reports_failure(out: str) -> tuple[str, bool]:
++    """(reason, the harness itself reported at least one failed check)."""
++    tally = TALLY.search(out)
++    if tally is not None:
++        failed = int(tally.group(3))
++        if failed:
++            return f"the tally reports {failed} failed check(s)", True
++        return "the tally reports no failed check", False
++    if FAIL_LINE.search(out):
++        return "a FAIL line was printed with no tally", True
++    return "the harness printed no tally and no FAIL line", False
++
++
++def verdict(rc: object, out: str, timeout_s: int) -> str:
++    """'pass', 'caught', 'skipped', or why this run is not evidence."""
++    if "SKIP:" in out:
++        return "skipped"
++    reason, failed = reports_failure(out)
++    if rc == "TIMEOUT":
++        return f"TIMEOUT after {timeout_s}s - a hang is not a catch"
++    if rc == 0 and not failed:
++        return "pass"
++    if rc == 0 and failed:
++        return f"exited 0 but {reason} - a masked verdict is not evidence"
++    if failed:
++        return "caught"
++    if isinstance(rc, int) and rc < 0:
++        return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
++    return f"exited {rc} with no harness verdict - an abort is not a catch"
+diff --git a/tb/tsngen/Makefile b/tb/tsngen/Makefile
+index 946eee0..219478f 100644
+--- a/tb/tsngen/Makefile
++++ b/tb/tsngen/Makefile
+@@ -14,10 +14,22 @@ SRCS = $(RTL_DIR)/ucpu/gptp_ucpu_pkg.sv $(RTL_DIR)/ucpu/KL_gptp_ucpu.sv \
+        $(RTL_DIR)/common/KL_gptp_timer.sv $(RTL_DIR)/top/KL_gptp_engine.sv
+ CPP  = tsngen_main.cpp
+ 
++.PHONY: all run mutants clean
++.DEFAULT_GOAL := all
++all: run mutants
++
+ run: gptp_ucode.hex
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vtsngen
+ 	python3 run_tsngen.py
+ 
++# Rule 8: prove the checks above are load-bearing. Three defects are injected
++# into the real engine RTL, one at a time, and each must make the SAME harness
++# fail; the unmutated build must still pass. The suite is staged into a
++# temporary directory, so nothing is written into the tree. This arm skips
++# exactly when the suite skips (no tsn-gen checkout).
++mutants: gptp_ucode.hex
++	python3 mutants.py
++
+ gptp_ucode.hex: $(RTL_DIR)/ucode/gen_gptp_ucode.py
+ 	python3 $< --clk-hz 2000000 -o $@
+ 
+diff --git a/tb/tsngen/mutants.py b/tb/tsngen/mutants.py
+new file mode 100644
+index 0000000..1c97f59
+--- /dev/null
++++ b/tb/tsngen/mutants.py
+@@ -0,0 +1,189 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Mutation arm for the tsngen suite: prove its checks are load-bearing.
++
++Why this exists. `run_tsngen.py` drives the engine with frames an INDEPENDENT
++generator builds, and checks BMCA outcomes, Announce contents, Sync/Follow_Up
++pairing, Pdelay responses and the published offsets - the widest behavioural
++net in this repository. Nothing proved any of it could fail. A harness whose
++assertions never fail is indistinguishable from a harness that asserts
++nothing, and this one is the independent judge the engine is measured by.
++
++So the real engine RTL is mutated, one defect at a time, and the SAME harness
++is run against each mutant. Every mutant must make it FAIL. The unmutated
++build must still PASS - without that control the arm would be satisfied by a
++harness that fails on everything.
++
++The suite is staged into a temporary directory, mutated sources and all, so
++nothing is written into the tree and the tracked microcode image is held
++constant: only the RTL under test varies between runs.
++
++What this arm found the suite does NOT prove: a parser that accepts a foreign
++domainNumber survives every check, because the generator only ever builds
++domain-0 frames, and a discarded received stepsRemoved survives too. Both are
++recorded rather than hidden - the value of a mutation arm is the map of what
++it cannot reach - and both need new SCENARIOS, not new mutants.
++
++This arm SKIPS exactly when the suite skips. `run_tsngen.py` exits 0 with a
++`SKIP:` line when the tsn-gen checkout is absent, so on a host without it
++there is nothing to prove and the arm says so rather than inventing a pass.
++"""
++
++from __future__ import annotations
++
++import os
++import shutil
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = (HERE / "../../hdl").resolve()
++sys.path.insert(0, str((HERE / "../").resolve()))
++
++from mutation_verdict import verdict  # noqa: E402
++
++#: One scenario run takes a few seconds; a mutant still running well past that
++#: is livelocked, and is reported as a hang rather than counted as a catch.
++MUTANT_RUN_TIMEOUT_S = 600
++
++#: the engine sources the suite elaborates, in the Makefile's order
++SOURCES = (
++    "ucpu/gptp_ucpu_pkg.sv", "ucpu/KL_gptp_ucpu.sv",
++    "wire/KL_gptp_rx_parser.sv", "wire/KL_gptp_tx_slot.sv",
++    "common/KL_gptp_timer.sv", "top/KL_gptp_engine.sv",
++)
++
++#: (name, file, pattern, replacement, the assertion this defect should break)
++MUTATIONS = [
++    ("received sequenceId zeroed", "wire/KL_gptp_rx_parser.sv",
++     "bank_wdata_o <= {8'd0, 4'd0, mtype_r, seq_r, DOMAIN_C,",
++     "bank_wdata_o <= {8'd0, 4'd0, mtype_r, 16'd0, DOMAIN_C,",
++     "a Follow_Up is paired with its Sync by the sequenceId that arrived, "
++     "not by a constant"),
++    ("announce grandmasterIdentity discarded", "wire/KL_gptp_rx_parser.sv",
++     "gm_r         <= acc_nxt_w;",
++     "gm_r         <= '0;",
++     "the grandmasterIdentity an Announce carries is the identity BMCA "
++     "compares, so a better master is recognised as one"),
++    ("transmit end of frame one byte early", "wire/KL_gptp_tx_slot.sv",
++     "assign tx_eof_o   = ser_run_r && (ser_left_r == 11'd1);",
++     "assign tx_eof_o   = ser_run_r && (ser_left_r == 11'd2);",
++     "a transmitted frame carries every byte the slot holds"),
++]
++
++VFLAGS = [
++    "--cc", "--exe", "--build", "-j", "0", "--top-module", "KL_gptp_engine",
++    "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
++    "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
++    "-GUCODE_HEX_P=\"gptp_ucode.hex\"", "-GCLK_HZ_P=2000000",
++]
++
++
++def stage(work, tag, mutate=None):
++    """A self-contained copy of the suite, with at most one source mutated."""
++    suite = work / f"suite_{tag}"
++    (suite / "rtl").mkdir(parents=True)
++    for rel in SOURCES:
++        text = (RTL / rel).read_text()
++        if mutate is not None and mutate[0] == rel:
++            text = text.replace(mutate[1], mutate[2])
++        dst = suite / "rtl" / rel
++        dst.parent.mkdir(parents=True, exist_ok=True)
++        dst.write_text(text)
++    for name in ("run_tsngen.py", "tsngen_main.cpp", "gptp_ucode.hex"):
++        shutil.copy2(HERE / name, suite / name)
++    return suite
++
++
++def build(suite):
++    """Build the staged suite into its own obj_dir; True when it produced one."""
++    out = subprocess.run(
++        ["verilator", *VFLAGS, "--Mdir", str(suite / "obj_dir"),
++         "-CFLAGS", f"-std=c++17 -O2 -I{suite}",
++         *[str(suite / "rtl" / rel) for rel in SOURCES],
++         str(suite / "tsngen_main.cpp"), "-o", "Vtsngen"],
++        capture_output=True, text=True, cwd=suite)
++    return (suite / "obj_dir" / "Vtsngen").is_file() and out.returncode == 0
++
++
++def run_harness(suite):
++    """(rc, stdout) of the staged run_tsngen.py; rc is "TIMEOUT" when killed."""
++    proc = subprocess.Popen([sys.executable, "run_tsngen.py"], cwd=suite,
++                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
++                            text=True, start_new_session=True)
++    try:
++        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
++        return proc.returncode, out
++    except subprocess.TimeoutExpired:
++        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
++        out, _ = proc.communicate()
++        return "TIMEOUT", out
++    finally:
++        if proc.poll() is None:
++            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
++            proc.wait()
++
++
++def main():
++    passes = fails = 0
++    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
++    with tempfile.TemporaryDirectory(prefix="tsngen-mutants-") as td:
++        work = Path(td)
++
++        # -- positive control: the real RTL must still pass -------------------
++        suite = stage(work, "clean")
++        answer = verdict(*run_harness(suite), MUTANT_RUN_TIMEOUT_S) \
++            if build(suite) else "did not compile"
++        if answer == "skipped":
++            print("SKIP: the suite itself skips here (no tsn-gen checkout), "
++                  "so there is nothing for a mutation arm to prove")
++            return 0
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated engine RTL still passes the harness")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated engine RTL does NOT pass ({answer}) - "
++                  f"every mutant result below is meaningless")
++
++        # -- each mutant must be caught ---------------------------------------
++        for name, rel, pattern, replacement, breaks in MUTATIONS:
++            src = (RTL / rel).read_text()
++            if src.count(pattern) != 1:
++                fails += 1
++                print(f"[FAIL] mutation {name!r}: its pattern appears "
++                      f"{src.count(pattern)} time(s) in {rel}, expected "
++                      f"exactly 1. The RTL moved and this mutant is no longer "
++                      f"mutating anything - fix the pattern, do not delete "
++                      f"the arm.")
++                continue
++            tag = name.replace(" ", "_")
++            suite = stage(work, tag, (rel, pattern, replacement))
++            if not build(suite):
++                fails += 1
++                print(f"[FAIL] mutation {name!r} did not compile; a mutant "
++                      f"that cannot build proves nothing about the harness")
++                continue
++            answer = verdict(*run_harness(suite), MUTANT_RUN_TIMEOUT_S)
++            if answer == "caught":
++                passes += 1
++                print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
++            elif answer == "pass":
++                fails += 1
++                print(f"[FAIL] mutant SURVIVED: {name}. The harness does not "
++                      f"prove \"{breaks}\".")
++            else:
++                fails += 1
++                print(f"[FAIL] mutant {name!r} {answer}")
++
++    total = passes + fails
++    print(f"\n{total} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/gaskets/Makefile b/tb/verilator/gaskets/Makefile
+index a44897e..bd1a2d3 100644
+--- a/tb/verilator/gaskets/Makefile
++++ b/tb/verilator/gaskets/Makefile
+@@ -12,9 +12,20 @@ SRCS = $(BENCH_DIR)/bench_afifo.sv $(BENCH_DIR)/bench_mii_tx.sv \
+        $(BENCH_DIR)/bench_mii_rx.sv gasket_tb_top.sv
+ CPP  = sim_main.cpp
+ 
++.PHONY: all run mutants clean
++.DEFAULT_GOAL := all
++all: run mutants
++
+ run:
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgasket_sim
+ 	./obj_dir/Vgasket_sim
+ 
++# Rule 8: prove the 81 checks above are load-bearing. Four defects are
++# injected into the real bench RTL, one at a time, and each must make the
++# SAME harness fail; the unmutated build must still pass. Mutants are built
++# in a temporary directory, so nothing is written into the tree.
++mutants:
++	python3 mutants.py
++
+ clean:
+ 	rm -rf obj_dir
+diff --git a/tb/verilator/gaskets/mutants.py b/tb/verilator/gaskets/mutants.py
+new file mode 100644
+index 0000000..8fc5da3
+--- /dev/null
++++ b/tb/verilator/gaskets/mutants.py
+@@ -0,0 +1,192 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Mutation arm for the gasket suite: prove its 81 checks are load-bearing.
++
++Why this exists. `sim_main.cpp` drives the TX and RX MII gaskets and the two
++dual-clock FIFOs around them, and checks delivery, byte counts, the SFD
++toggles and back-to-back framing - and nothing proved any of those checks
++could fail. A harness whose assertions never fail is indistinguishable from a
++harness that asserts nothing, and this suite is the one that pins the defect
++the gasket was repaired for: a TX FIFO level truncated below its full width
++reads a completely full FIFO as empty and wedges the transmitter in S_IDLE
++forever. A silently vacuous suite here would let exactly that defect return.
++
++So the real bench RTL is mutated, one defect at a time, and the SAME harness
++is run against each mutant. Every mutant must make it FAIL. The unmutated
++build must still PASS - without that control the arm would be satisfied by a
++harness that fails on everything.
++
++"Caught" means the harness's own tally says so; see tb/mutation_verdict.py for
++why a non-zero exit alone is not a catch. Mutants are built in a temporary
++directory, so nothing is written into the tree.
++
++What this arm found the suite does NOT prove, recorded rather than hidden,
++because the value of a mutation arm is the map of what it cannot reach. Two
++further defects SURVIVED the 81 checks and are therefore not listed above:
++removing the start threshold entirely (`f_level_i >= 7'd8` reduced to
++`!f_empty_i`, so the transmitter leaves S_IDLE before a startable burst is
++buffered), and a read-side level off by one in bench_afifo. Both are real
++defects the harness does not detect. Closing them needs new CHECKS, not new
++mutants, and that is a change to sim_main.cpp rather than to this file.
++"""
++
++from __future__ import annotations
++
++import os
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++BENCH = (HERE / "../../../bench/arty").resolve()
++sys.path.insert(0, str((HERE / "../../").resolve()))
++
++from mutation_verdict import verdict  # noqa: E402
++
++#: The harness runs in well under a second; a mutant still running after this
++#: many seconds is livelocked - which is what a wedged gasket looks like - and
++#: is reported as a hang rather than counted as a catch.
++MUTANT_RUN_TIMEOUT_S = 120
++
++#: the four sources the suite builds, mutated copies and all
++SOURCES = ("bench_afifo.sv", "bench_mii_tx.sv", "bench_mii_rx.sv")
++TOP_SV = "gasket_tb_top.sv"
++
++#: (name, file, pattern, replacement, the assertion this defect should break)
++MUTATIONS = [
++    ("tx fifo level truncated", "bench_mii_tx.sv",
++     "input  wire  [6:0] f_level_i,",
++     "input  wire  [5:0] f_level_i,",
++     "a FIFO holding exactly 64 words reports a level the gasket can see, "
++     "instead of reading 0 and wedging S_IDLE"),
++    ("tx sfd toggle frozen", "bench_mii_tx.sv",
++     "          sfd_toggle_o <= ~sfd_toggle_o;",
++     "          sfd_toggle_o <= sfd_toggle_o;",
++     "the egress timestamp point is marked once per frame at the SFD"),
++    ("rx sfd toggle frozen", "bench_mii_rx.sv",
++     "            sfd_toggle_o <= ~sfd_toggle_o;",
++     "            sfd_toggle_o <= sfd_toggle_o;",
++     "the ingress timestamp point is marked once per frame at the SFD"),
++    ("rx end of frame never raised", "bench_mii_rx.sv",
++     "              b_eof_o   <= 1'b1;",
++     "              b_eof_o   <= 1'b0;",
++     "a delivered frame is terminated, so the receiver can count its bytes"),
++]
++
++VFLAGS = [
++    "--cc", "--exe", "--build", "-j", "0", "--top-module", "gasket_tb_top",
++    "-Wall", "-Wno-fatal", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
++    "-Wno-WIDTHEXPAND", "-Wno-WIDTHTRUNC", "-Wno-UNUSEDPARAM",
++]
++
++
++def build(srcdir, workdir, tag):
++    """Build the harness against the sources in `srcdir`; the exe, or None."""
++    mdir = workdir / f"obj_{tag}"
++    exe_name = f"Vgasket_{tag}"
++    out = subprocess.run(
++        ["verilator", *VFLAGS, "--Mdir", str(mdir),
++         "-CFLAGS", f"-std=c++17 -O2 -I{HERE}",
++         *[str(srcdir / s) for s in SOURCES], str(srcdir / TOP_SV),
++         str(HERE / "sim_main.cpp"), "-o", exe_name],
++        capture_output=True, text=True)
++    exe = mdir / exe_name
++    if out.returncode != 0 or not exe.is_file():
++        return None
++    return exe
++
++
++def run_harness(exe):
++    """(rc, stdout); rc is "TIMEOUT" when the run had to be killed.
++
++    The harness is its own process group, so the kill reaches anything it
++    spawned and nothing outlives the temporary directory.
++    """
++    proc = subprocess.Popen([str(exe)], stdout=subprocess.PIPE,
++                            stderr=subprocess.STDOUT, text=True,
++                            start_new_session=True)
++    try:
++        out, _ = proc.communicate(timeout=MUTANT_RUN_TIMEOUT_S)
++        return proc.returncode, out
++    except subprocess.TimeoutExpired:
++        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
++        out, _ = proc.communicate()
++        return "TIMEOUT", out
++    finally:
++        if proc.poll() is None:
++            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
++            proc.wait()
++
++
++def stage(work, tag, mutate=None):
++    """A directory holding the four sources, with at most one mutated."""
++    srcdir = work / f"src_{tag}"
++    srcdir.mkdir()
++    for name in SOURCES:
++        text = (BENCH / name).read_text()
++        if mutate is not None and mutate[0] == name:
++            text = text.replace(mutate[1], mutate[2])
++        (srcdir / name).write_text(text)
++    (srcdir / TOP_SV).write_text((HERE / TOP_SV).read_text())
++    return srcdir
++
++
++def main():
++    passes = fails = 0
++    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
++    with tempfile.TemporaryDirectory(prefix="gasket-mutants-") as td:
++        work = Path(td)
++
++        # -- positive control: the real RTL must still pass -------------------
++        exe = build(stage(work, "clean"), work, "clean")
++        answer = verdict(*run_harness(exe), MUTANT_RUN_TIMEOUT_S) \
++            if exe else "did not compile"
++        if answer == "pass":
++            passes += 1
++            print("[PASS] the unmutated bench RTL still passes the harness")
++        else:
++            fails += 1
++            print(f"[FAIL] the unmutated bench RTL does NOT pass ({answer}) - "
++                  f"every mutant result below is meaningless")
++
++        # -- each mutant must be caught ---------------------------------------
++        for name, fname, pattern, replacement, breaks in MUTATIONS:
++            src = (BENCH / fname).read_text()
++            if src.count(pattern) != 1:
++                fails += 1
++                print(f"[FAIL] mutation {name!r}: its pattern appears "
++                      f"{src.count(pattern)} time(s) in {fname}, expected "
++                      f"exactly 1. The RTL moved and this mutant is no longer "
++                      f"mutating anything - fix the pattern, do not delete "
++                      f"the arm.")
++                continue
++            tag = name.replace(" ", "_")
++            srcdir = stage(work, tag, (fname, pattern, replacement))
++            exe = build(srcdir, work, tag)
++            if exe is None:
++                fails += 1
++                print(f"[FAIL] mutation {name!r} did not compile; a mutant "
++                      f"that cannot build proves nothing about the harness")
++                continue
++            answer = verdict(*run_harness(exe), MUTANT_RUN_TIMEOUT_S)
++            if answer == "caught":
++                passes += 1
++                print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
++            elif answer == "pass":
++                fails += 1
++                print(f"[FAIL] mutant SURVIVED: {name}. The harness does not "
++                      f"prove \"{breaks}\".")
++            else:
++                fails += 1
++                print(f"[FAIL] mutant {name!r} {answer}")
++
++    total = passes + fails
++    print(f"\n{total} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

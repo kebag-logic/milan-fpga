@@ -1,0 +1,83 @@
+[
+  {
+    "name": "shared-decoder",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/tmp/r251-restore-46w9rpw7/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 1,
+    "seconds": 20.809100190992467,
+    "failed_assertions": [
+      "  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass",
+      "  FAIL locale-ascii-process       fresh Python: b'Traceback (most recent call last):\\n  File \"/tmp/r251-restore-46w9rpw7/merge_containment_selftest_locale.py\", line 186, in <module>\\n    print(json.dumps(_child(sys.argv[2]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/merge_containment_selftest_locale.py\", line 106, in _child\\n    rc = mc.main([str(Path(mc.__file__)), \"--no-fetch\", \"--base\", \"main\", \"pr\"])\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 993, in main\\n    return _report(targets, base)\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 895, in _report\\n    ok, ahead, note = contained(ref, base)\\n                      ~~~~~~~~~^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 567, in contained\\n    verdict = _path_scoped_verdict(branch, base, mb, ahead)\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 474, in _path_scoped_verdict\\n    rc, _ = _git(\"--literal-pathspecs\", \"diff\", *RAW_DIFF_FLAGS,\\n            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                 \"--quiet\", base, branch, \"--\", *paths)\\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 99, in _git\\n    p = subprocess.run((\"git\", \"--no-replace-objects\") + args,\\n                       capture_output=True)\\n  File \"/usr/lib/python3.14/subprocess.py\", line 555, in run\\n    with Popen(*popenargs, **kwargs) as process:\\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1039, in __init__\\n    self._execute_child(args, executable, preexec_fn, close_fds,\\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                        pass_fds, cwd, env,\\n                        ^^^^^^^^^^^^^^^^^^^\\n    ...<5 lines>...\\n                        gid, gids, uid, umask,\\n                        ^^^^^^^^^^^^^^^^^^^^^^\\n                        start_new_session, process_group)\\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1920, in _execute_child\\n    self.pid = _fork_exec(\\n               ~~~~~~~~~~^\\n            args, executable_list,\\n            ^^^^^^^^^^^^^^^^^^^^^^\\n    ...<6 lines>...\\n            process_group, gid, gids, uid, umask,\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n            preexec_fn)\\n            ^^^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode character \\'\\\\xe9\\' in position 0: ordinal not in range(128)\\n'",
+      "  FAIL locale-iso8859-1-process   fresh Python: b'Traceback (most recent call last):\\n  File \"/tmp/r251-restore-46w9rpw7/merge_containment_selftest_locale.py\", line 186, in <module>\\n    print(json.dumps(_child(sys.argv[2]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/merge_containment_selftest_locale.py\", line 106, in _child\\n    rc = mc.main([str(Path(mc.__file__)), \"--no-fetch\", \"--base\", \"main\", \"pr\"])\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 993, in main\\n    return _report(targets, base)\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 895, in _report\\n    ok, ahead, note = contained(ref, base)\\n                      ~~~~~~~~~^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 567, in contained\\n    verdict = _path_scoped_verdict(branch, base, mb, ahead)\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 474, in _path_scoped_verdict\\n    rc, _ = _git(\"--literal-pathspecs\", \"diff\", *RAW_DIFF_FLAGS,\\n            ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                 \"--quiet\", base, branch, \"--\", *paths)\\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-46w9rpw7/check_merge_containment.py\", line 99, in _git\\n    p = subprocess.run((\"git\", \"--no-replace-objects\") + args,\\n                       capture_output=True)\\n  File \"/usr/lib/python3.14/subprocess.py\", line 555, in run\\n    with Popen(*popenargs, **kwargs) as process:\\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1039, in __init__\\n    self._execute_child(args, executable, preexec_fn, close_fds,\\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                        pass_fds, cwd, env,\\n                        ^^^^^^^^^^^^^^^^^^^\\n    ...<5 lines>...\\n                        gid, gids, uid, umask,\\n                        ^^^^^^^^^^^^^^^^^^^^^^\\n                        start_new_session, process_group)\\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1920, in _execute_child\\n    self.pid = _fork_exec(\\n               ~~~~~~~~~~^\\n            args, executable_list,\\n            ^^^^^^^^^^^^^^^^^^^^^^\\n    ...<6 lines>...\\n            process_group, gid, gids, uid, umask,\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n            preexec_fn)\\n            ^^^^^^^^^^^\\nUnicodeEncodeError: \\'latin-1\\' codec can\\'t encode character \\'\\\\u20ac\\' in position 0: ordinal not in range(256)\\n'",
+      "selftest: 2 FAILURE(S)"
+    ],
+    "detected": true
+  },
+  {
+    "name": "patch-inverse",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/tmp/r251-restore-c0mkgxvn/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 1,
+    "seconds": 22.684895243990468,
+    "failed_assertions": [
+      "  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass",
+      "  FAIL locale-iso8859-1-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes",
+      "  FAIL locale-iso8859-1-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes",
+      "  FAIL locale-iso8859-1-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes",
+      "  FAIL locale-iso8859-1-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes actual filesystem encoding and literal Git filename bytes",
+      "selftest: 4 FAILURE(S)"
+    ],
+    "detected": true
+  },
+  {
+    "name": "retention-decoder",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/tmp/r251-restore-ltb_8bkn/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 1,
+    "seconds": 20.739447026018752,
+    "failed_assertions": [
+      "  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass",
+      "  FAIL locale-ascii-process       fresh Python: b'Traceback (most recent call last):\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_selftest_locale.py\", line 186, in <module>\\n    print(json.dumps(_child(sys.argv[2]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_selftest_locale.py\", line 106, in _child\\n    rc = mc.main([str(Path(mc.__file__)), \"--no-fetch\", \"--base\", \"main\", \"pr\"])\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 993, in main\\n    return _report(targets, base)\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 895, in _report\\n    ok, ahead, note = contained(ref, base)\\n                      ~~~~~~~~~^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 575, in contained\\n    verdict = replay_verdict(branch, base, ahead, _git, _linear_patches_contained)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 150, in replay_verdict\\n    unproved = _retained_at_tip(branch, base, git)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 129, in _retained_at_tip\\n    entries = [_tree_entry(commit, path)\\n               ~~~~~~~~~~~^^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 62, in _tree_entry\\n    raw = _measure(_git_bytes, \"--literal-pathspecs\", \"ls-tree\", \"-z\",\\n                   \"--full-tree\", commit, \"--\", path)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 25, in _measure\\n    rc, output = git(*args)\\n                 ~~~^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 32, in _git_bytes\\n    result = subprocess.run((\"git\", \"--no-replace-objects\", *args),\\n                            capture_output=True)\\n  File \"/usr/lib/python3.14/subprocess.py\", line 555, in run\\n    with Popen(*popenargs, **kwargs) as process:\\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1039, in __init__\\n    self._execute_child(args, executable, preexec_fn, close_fds,\\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                        pass_fds, cwd, env,\\n                        ^^^^^^^^^^^^^^^^^^^\\n    ...<5 lines>...\\n                        gid, gids, uid, umask,\\n                        ^^^^^^^^^^^^^^^^^^^^^^\\n                        start_new_session, process_group)\\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1920, in _execute_child\\n    self.pid = _fork_exec(\\n               ~~~~~~~~~~^\\n            args, executable_list,\\n            ^^^^^^^^^^^^^^^^^^^^^^\\n    ...<6 lines>...\\n            process_group, gid, gids, uid, umask,\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n            preexec_fn)\\n            ^^^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode character \\'\\\\xe9\\' in position 0: ordinal not in range(128)\\n'",
+      "  FAIL locale-iso8859-1-process   fresh Python: b'Traceback (most recent call last):\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_selftest_locale.py\", line 186, in <module>\\n    print(json.dumps(_child(sys.argv[2]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_selftest_locale.py\", line 106, in _child\\n    rc = mc.main([str(Path(mc.__file__)), \"--no-fetch\", \"--base\", \"main\", \"pr\"])\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 993, in main\\n    return _report(targets, base)\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 895, in _report\\n    ok, ahead, note = contained(ref, base)\\n                      ~~~~~~~~~^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/check_merge_containment.py\", line 575, in contained\\n    verdict = replay_verdict(branch, base, ahead, _git, _linear_patches_contained)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 150, in replay_verdict\\n    unproved = _retained_at_tip(branch, base, git)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 129, in _retained_at_tip\\n    entries = [_tree_entry(commit, path)\\n               ~~~~~~~~~~~^^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 62, in _tree_entry\\n    raw = _measure(_git_bytes, \"--literal-pathspecs\", \"ls-tree\", \"-z\",\\n                   \"--full-tree\", commit, \"--\", path)\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 25, in _measure\\n    rc, output = git(*args)\\n                 ~~~^^^^^^^\\n  File \"/tmp/r251-restore-ltb_8bkn/merge_containment_replay.py\", line 32, in _git_bytes\\n    result = subprocess.run((\"git\", \"--no-replace-objects\", *args),\\n                            capture_output=True)\\n  File \"/usr/lib/python3.14/subprocess.py\", line 555, in run\\n    with Popen(*popenargs, **kwargs) as process:\\n         ~~~~~^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1039, in __init__\\n    self._execute_child(args, executable, preexec_fn, close_fds,\\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n                        pass_fds, cwd, env,\\n                        ^^^^^^^^^^^^^^^^^^^\\n    ...<5 lines>...\\n                        gid, gids, uid, umask,\\n                        ^^^^^^^^^^^^^^^^^^^^^^\\n                        start_new_session, process_group)\\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"/usr/lib/python3.14/subprocess.py\", line 1920, in _execute_child\\n    self.pid = _fork_exec(\\n               ~~~~~~~~~~^\\n            args, executable_list,\\n            ^^^^^^^^^^^^^^^^^^^^^^\\n    ...<6 lines>...\\n            process_group, gid, gids, uid, umask,\\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n            preexec_fn)\\n            ^^^^^^^^^^^\\nUnicodeEncodeError: \\'latin-1\\' codec can\\'t encode character \\'\\\\u20ac\\' in position 0: ordinal not in range(256)\\n'",
+      "selftest: 2 FAILURE(S)"
+    ],
+    "detected": true
+  },
+  {
+    "name": "returned-name",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "/tmp/r251-restore-wob8ldg6/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 1,
+    "seconds": 21.09001710600569,
+    "failed_assertions": [
+      "  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass",
+      "  FAIL locale-iso8859-1-process   fresh Python: b'Traceback (most recent call last):\\n  File \"/tmp/r251-restore-wob8ldg6/merge_containment_selftest_locale.py\", line 186, in <module>\\n    print(json.dumps(_child(sys.argv[2]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^\\n  File \"/tmp/r251-restore-wob8ldg6/merge_containment_selftest_locale.py\", line 119, in _child\\n    entry = proof._tree_entry(linear, path)\\n  File \"/tmp/r251-restore-wob8ldg6/merge_containment_replay.py\", line 75, in _tree_entry\\n    raise _MeasurementError(\"invalid ls-tree path or object ID\")\\nmerge_containment_replay._MeasurementError: invalid ls-tree path or object ID\\n'",
+      "selftest: 1 FAILURE(S)"
+    ],
+    "detected": true
+  }
+]

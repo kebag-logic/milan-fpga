@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/transport_probe.py", line 124, in <module>
+    check('entry '+name.hex(),proof._tree_entry(source,path),expected)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/transport_probe.py", line 113, in check
+    assert got==want,(label,got,want)
+           ^^^^^^^^^
+AssertionError: ('entry 7261772dff2e747874', ('100644', 'blob', '43be4ca296b1e9e1ee6422d796b91a8e102ab171'), ())

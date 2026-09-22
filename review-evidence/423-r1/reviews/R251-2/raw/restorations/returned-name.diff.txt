@@ -1,0 +1,3 @@
+merge_containment_replay.py
+- os.fsencode(path)
++ path.encode("utf-8", "surrogateescape")
