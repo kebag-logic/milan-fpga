@@ -1,0 +1,48 @@
+{
+  "finding": "F1",
+  "head": "6af65a151663e1301f1983a6c9d22650a0b35da9",
+  "severity": "MINOR",
+  "lenses": [
+    "Docs"
+  ],
+  "policy": {
+    "635": "    Every recognized carrier `run` body is also pinned (#407).",
+    "636": "    `CARRIER_STEP_LISTS` records each canonical script beside its step identity.",
+    "651": "    The maintenance cost is deliberate: every legitimate script edit updates",
+    "652": "    its canonical entry beside a mutation entry, within the same commit.",
+    "767": "    The four non-RTL carriers now pin every recognized script (#407).",
+    "1040": "first and then proves its planted drifts are rejected. `CARRIER_STEP_LISTS`",
+    "1041": "records all three steps by name and position, so removing or reordering one",
+    "1042": "is refused naming it; like the other recognised steps, their commands are not",
+    "1043": "pinned yet (#407)."
+  },
+  "independent_refusals": [
+    {
+      "kind": "each-line",
+      "identity": ".github/workflows/docs.yml: job `docs-check` step 41 (`Sweep/build shape gate`)",
+      "expected": ".github/workflows/docs.yml: job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test'",
+      "findings": [
+        ".github/workflows/docs.yml: job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test' (found 'true # R219 altered line 1'); 1 line(s) expected, 1 found"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "each-line",
+      "identity": ".github/workflows/docs.yml: job `docs-check` step 42 (`Deploy shape gate`)",
+      "expected": ".github/workflows/docs.yml: job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test'",
+      "findings": [
+        ".github/workflows/docs.yml: job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test' (found 'true # R219 altered line 1'); 1 line(s) expected, 1 found"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "each-line",
+      "identity": ".github/workflows/docs.yml: job `docs-check` step 43 (`Entity shape gate`)",
+      "expected": ".github/workflows/docs.yml: job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test'",
+      "findings": [
+        ".github/workflows/docs.yml: job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test' (found 'true # R219 altered line 1'); 1 line(s) expected, 1 found"
+      ],
+      "passed": true
+    }
+  ]
+}

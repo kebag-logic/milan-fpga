@@ -1,0 +1,28 @@
+{
+  "head": "6af65a151663e1301f1983a6c9d22650a0b35da9",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "changed": [
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/ci_events.py"
+  ],
+  "workflow_blobs_unchanged": {
+    ".github/workflows/docs.yml": "f5a45401a8bb3648be2189c9c8b273707de097dd",
+    ".github/workflows/elaborate.yml": "54c71a0482bf2e92694c8896684286611ebfbc21",
+    ".github/workflows/rtl-fast.yml": "f7c502c9cf577777bce35eecb31c4b6d52cd8ccc",
+    ".github/workflows/rtl.yml": "8510159e3b0f1a386ad8d2adfd57f7848a5cf137"
+  },
+  "existing_functions_with_executable_changes": [
+    "check_carrier_steps",
+    "_mutations",
+    "_selftest_whitespace",
+    "selftest"
+  ],
+  "new_functions": [
+    "_carrier_run_steps",
+    "_carrier_script_arms",
+    "_carrier_script_edits",
+    "_selftest_carrier_script_pins",
+    "check_carrier_script"
+  ],
+  "unchanged_existing_function_count": 319
+}

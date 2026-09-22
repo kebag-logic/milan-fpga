@@ -1,0 +1,65 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.204,
+    "log": "focused-01.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "seconds": 5.688,
+    "log": "focused-02.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "seconds": 3.838,
+    "log": "focused-03.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.454,
+    "log": "focused-04.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "exit": 0,
+    "seconds": 0.062,
+    "log": "focused-05.log"
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "seconds": 2.765,
+    "log": "focused-06.log"
+  }
+]
