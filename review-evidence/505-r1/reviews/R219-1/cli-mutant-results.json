@@ -1,0 +1,50 @@
+[
+  {
+    "variant": "comparison-disabled",
+    "mode": "--check",
+    "exit": 0,
+    "expected": 0,
+    "failure_count": 0,
+    "log": "comparison-disabled-check.log"
+  },
+  {
+    "variant": "comparison-disabled",
+    "mode": "--selftest",
+    "exit": 1,
+    "expected": 1,
+    "failure_count": 187,
+    "log": "comparison-disabled-selftest.log"
+  },
+  {
+    "variant": "record-refusal-disabled",
+    "mode": "--check",
+    "exit": 0,
+    "expected": 0,
+    "failure_count": 0,
+    "log": "record-refusal-disabled-check.log"
+  },
+  {
+    "variant": "record-refusal-disabled",
+    "mode": "--selftest",
+    "exit": 1,
+    "expected": 1,
+    "failure_count": 56,
+    "log": "record-refusal-disabled-selftest.log"
+  },
+  {
+    "variant": "paired-maintenance",
+    "mode": "--check",
+    "exit": 0,
+    "expected": 0,
+    "failure_count": 0,
+    "log": "paired-maintenance-check.log"
+  },
+  {
+    "variant": "paired-maintenance",
+    "mode": "--selftest",
+    "exit": 0,
+    "expected": 0,
+    "failure_count": 0,
+    "log": "paired-maintenance-selftest.log"
+  }
+]

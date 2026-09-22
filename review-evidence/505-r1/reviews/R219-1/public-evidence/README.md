@@ -15,12 +15,8 @@ All five native commands pass at the unchanged candidate.
 Processor suites, gPTP make all and 316 behavior scenarios pass.
 Four field-campaign/freshness skips remain explicit in native/01.log.
 Final candidate/worktree integrity is recorded in candidate-final.json.
-The ready exhaustive replica was interrupted after R219 found F1.
-The trusted runner confirmed cleanup and returned130; no pass is claimed.
-Obsolete hosted runs were cancelled and PR505 returned to draft.
-A corrected head needs appropriate validation and independent re-review.
-R219-1 is NEGATIVE with open Docs MINOR F1.
-R220-1 remains in flight; no merge approval exists.
+The ready exhaustive replica and hosted long gates remain pending.
+Independent reviews have not started.
 No merge approval is represented by this evidence branch.
 Never merge this branch.
 

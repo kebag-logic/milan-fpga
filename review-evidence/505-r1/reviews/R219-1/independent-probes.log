@@ -1,0 +1,96 @@
+{
+  "inventory": 56,
+  "independent_probe_receipts": 1135,
+  "population": {
+    "all_workflow_arms": 833,
+    "new_workflow_arms": 243,
+    "levers": {
+      "no-op": 56,
+      "or-true": 56,
+      "drop-command": 40,
+      "drop-flag": 35,
+      "continue-on-error": 56
+    },
+    "by_job": {
+      "docs-check": {
+        "no-op": 41,
+        "or-true": 41,
+        "drop-command": 30,
+        "drop-flag": 32,
+        "continue-on-error": 41
+      },
+      "wire-accountability": {
+        "no-op": 2,
+        "or-true": 2,
+        "continue-on-error": 2,
+        "drop-command": 1,
+        "drop-flag": 1
+      },
+      "docs-check-no-git": {
+        "no-op": 1,
+        "or-true": 1,
+        "drop-command": 1,
+        "continue-on-error": 1
+      },
+      "elaborate": {
+        "no-op": 12,
+        "or-true": 12,
+        "drop-command": 8,
+        "drop-flag": 2,
+        "continue-on-error": 12
+      }
+    },
+    "disabled_new_helper_missing_body_assertions": 187
+  },
+  "cli": [
+    {
+      "variant": "comparison-disabled",
+      "mode": "--check",
+      "exit": 0,
+      "expected": 0,
+      "failure_count": 0,
+      "log": "comparison-disabled-check.log"
+    },
+    {
+      "variant": "comparison-disabled",
+      "mode": "--selftest",
+      "exit": 1,
+      "expected": 1,
+      "failure_count": 187,
+      "log": "comparison-disabled-selftest.log"
+    },
+    {
+      "variant": "record-refusal-disabled",
+      "mode": "--check",
+      "exit": 0,
+      "expected": 0,
+      "failure_count": 0,
+      "log": "record-refusal-disabled-check.log"
+    },
+    {
+      "variant": "record-refusal-disabled",
+      "mode": "--selftest",
+      "exit": 1,
+      "expected": 1,
+      "failure_count": 56,
+      "log": "record-refusal-disabled-selftest.log"
+    },
+    {
+      "variant": "paired-maintenance",
+      "mode": "--check",
+      "exit": 0,
+      "expected": 0,
+      "failure_count": 0,
+      "log": "paired-maintenance-check.log"
+    },
+    {
+      "variant": "paired-maintenance",
+      "mode": "--selftest",
+      "exit": 0,
+      "expected": 0,
+      "failure_count": 0,
+      "log": "paired-maintenance-selftest.log"
+    }
+  ]
+}
+R219 independent probes: PASS; checkout bytes never mutated

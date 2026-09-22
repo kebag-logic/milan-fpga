@@ -1,0 +1,791 @@
+[
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 2,
+    "name": "Build the validated HDL reference",
+    "line": 26,
+    "normalized_lines": 4,
+    "canonical": [
+      "set -euo pipefail",
+      "python3 -m pip install --quiet --require-hashes -r tools/hdl_reference/requirements.txt",
+      "python3 scripts/gen_hdl_reference.py --selftest",
+      "python3 scripts/gen_hdl_reference.py --output \"$RUNNER_TEMP/milan-hdl-reference\""
+    ],
+    "raw_sha256": "ad6bbe1eb360e18f6586bc89d23a55301a062d0262458f460ff82b5b45d73082"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 4,
+    "name": "Install the python gate dependencies",
+    "line": 44,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 -m pip install --quiet pyyaml"
+    ],
+    "raw_sha256": "ba2ff42976ef05e245cd2ce419c23169ee5dcb4819ce87db40771908a54d1998"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 5,
+    "name": "Install diagram gate dependencies",
+    "line": 46,
+    "normalized_lines": 3,
+    "canonical": [
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends librsvg2-bin",
+      "python3 -m pip install --quiet wavedrom==2.0.3.post3"
+    ],
+    "raw_sha256": "2476183e2339f4165eca2caa73c6a12aee41e721f751ab1e5335c6e52c3125a0"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 6,
+    "name": "Link health, wording, dead-reference and local-info gate",
+    "line": 51,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/docs_check.py"
+    ],
+    "raw_sha256": "95adb94b38a49ec47c1a1a728b65a8882a8f4f73dcba4a52ac3c2ae20898495d"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 65,
+    "normalized_lines": 17,
+    "canonical": [
+      "set -euo pipefail",
+      "case \"$EVENT_NAME\" in",
+      "pull_request)",
+      "if [ -z \"$PR_BASE_REF\" ]; then",
+      "echo \"the pull_request event names no base branch\"; exit 2",
+      "fi",
+      "git fetch --quiet origin \"$PR_BASE_REF\"",
+      "base=\"$(git merge-base HEAD FETCH_HEAD || true)\"",
+      ";;",
+      "push) base=\"$PUSH_BEFORE_SHA\" ;;",
+      "*) echo \"a $EVENT_NAME event carries no base to judge from\"; exit 2 ;;",
+      "esac",
+      "if [ -z \"$base\" ] || [ \"$base\" = 0000000000000000000000000000000000000000 ]; then",
+      "echo \"the $EVENT_NAME event names no base commit\"; exit 2",
+      "fi",
+      "git cat-file -e \"$base^{commit}\" 2>/dev/null || git fetch --quiet --depth=1 origin \"$base\"",
+      "python3 scripts/check_em_dash.py --base \"$base\""
+    ],
+    "raw_sha256": "5589b3e85bc17426273e0fbf497fac96e600da9525795e576a4acd89731bca3d"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 8,
+    "name": "Concise audience documentation gate",
+    "line": 88,
+    "normalized_lines": 4,
+    "canonical": [
+      "python3 scripts/check_doc_style.py",
+      "python3 scripts/check_doc_style.py --selftest",
+      "python3 scripts/check_gptp_docs.py",
+      "python3 scripts/check_gptp_docs.py --selftest"
+    ],
+    "raw_sha256": "a4a9e8e04e33cd7f012c5437a371f07bc088b437675abe9ed45e00d7abf9880f"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 94,
+    "normalized_lines": 4,
+    "canonical": [
+      "python3 docs/DOC_MAP.gen.py --check",
+      "python3 docs/DOC_MAP.gen.py --selftest",
+      "python3 docs/diagrams/timesync_chain.gen.py --check",
+      "python3 docs/diagrams/timesync_chain.gen.py --selftest"
+    ],
+    "raw_sha256": "fc0a3ba5a2e09b4f0951341fb724db7142c365d4d7fc556b1c81a872b314579a"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 10,
+    "name": "Product solution source-fact gate",
+    "line": 100,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_solution_docs.py",
+      "python3 scripts/check_solution_docs.py --selftest"
+    ],
+    "raw_sha256": "9a3b19048b6518a93588be1055298c735ba053a99fc772c06a339d1440af0215"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 104,
+    "normalized_lines": 4,
+    "canonical": [
+      "python3 docs/diagrams/submodule_boundaries.gen.py --check",
+      "python3 docs/diagrams/submodule_boundaries.gen.py --selftest",
+      "python3 scripts/check_submodule_docs.py",
+      "python3 scripts/check_submodule_docs.py --selftest"
+    ],
+    "raw_sha256": "e65b618564ed692d7d1547c2fa639934c6211fe361a2bcec74c7cf643ff62288"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 110,
+    "normalized_lines": 4,
+    "canonical": [
+      "python3 scripts/gen_wavedrom.py --selftest",
+      "python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check",
+      "python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check",
+      "python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check"
+    ],
+    "raw_sha256": "86f93dcb06918aa111e81d82be575174bbdae8f8978dd6875296007e491bffe0"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 13,
+    "name": "Published diagram PNG gate",
+    "line": 116,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_diagram_pngs.py",
+      "python3 scripts/check_diagram_pngs.py --selftest"
+    ],
+    "raw_sha256": "0ab5cb0e4aa2cda24f73cc4d562dd86828cedbd8567383a9fe31588b1438332d"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 14,
+    "name": "Milan feature-status consistency gate",
+    "line": 120,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/check_feature_status.py --self-test"
+    ],
+    "raw_sha256": "d147744787d803f172ee189d1b68da713c2a44edd5e6cc2f6ab9bd7b67c099a0"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 15,
+    "name": "Traceability matrix no-drift gate",
+    "line": 122,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 docs/traceability/gen_module_matrix.py --check"
+    ],
+    "raw_sha256": "c44e282213a03fa948a1d0182cb782b9c56700583063814db587459e729f8747"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 16,
+    "name": "Fetch the builder source dependencies",
+    "line": 124,
+    "normalized_lines": 1,
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "raw_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 17,
+    "name": "Imported gPTP documentation gate",
+    "line": 134,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_gptp_docs.py --with-submodule",
+      "make -C gptp-processor docs"
+    ],
+    "raw_sha256": "1420bd61cc641c7e1079d6ea8c12ab8611668d9bcd417887a1b0c3783e329b58"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 18,
+    "name": "Code-quality measurement self-tests",
+    "line": 145,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/measure_control_flow.py --selftest",
+      "python3 scripts/measure_cohesion.py --selftest"
+    ],
+    "raw_sha256": "dffa3e7cd0c9bf0af9a230f3fcffd8e2c35cc6b09f4ce9f1dddd9bdd1cdbb28a"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 154,
+    "normalized_lines": 9,
+    "canonical": [
+      "set -euo pipefail",
+      "ver=v0.0.12",
+      "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+      "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+      "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+      "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+      "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+      "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+      "sv2v --version"
+    ],
+    "raw_sha256": "cf504d08c6218eca34b392b1f9287d84d4efb12c6a815cba3c6047a83fca1252"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 20,
+    "name": "Bare-metal scope gate",
+    "line": 168,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_baremetal_only.py --check",
+      "python3 scripts/check_baremetal_only.py --selftest"
+    ],
+    "raw_sha256": "43949fc003274d206f9fec0996797ebd1a972bb6ba459dc49c45ad47ba21999c"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 21,
+    "name": "End-station builder gates",
+    "line": 172,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 -m pip install --quiet pyyaml",
+      "python3 sw/builder/test_builder.py"
+    ],
+    "raw_sha256": "11a1ce6bcf54bcc3eb26c4135d73ddcce51e7f8f35e5fd81dcc7ec9112457092"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 22,
+    "name": "NVM record-space gate",
+    "line": 188,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_nvm_record_space.py",
+      "python3 scripts/check_nvm_record_space.py --self-test"
+    ],
+    "raw_sha256": "8842c423db84e9022672705fca5b23aea56fd65ebb581e411e57fd0761df8a2e"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 23,
+    "name": "Saved-state writer gate",
+    "line": 199,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test"
+    ],
+    "raw_sha256": "acdd5be67ef5c2f55b1b6f67327d2cea25f492e0ea7bd2a50a01dbf7855f6e15"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 208,
+    "normalized_lines": 7,
+    "canonical": [
+      "python3 scripts/check_soc_sources.py",
+      "python3 scripts/check_soc_sources.py --selftest",
+      "command -v tclsh >/dev/null || {",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends tcl",
+      "}",
+      "python3 sw/litex/iob_pack_selftest.py"
+    ],
+    "raw_sha256": "17ac8ee0681d58649b34ffc0634212f970d6b0cb1fbe63fc5604b953794033a4"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 25,
+    "name": "RTL source-list drift gate",
+    "line": 228,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_rtl_source_lists.py",
+      "python3 scripts/check_rtl_source_lists.py --selftest"
+    ],
+    "raw_sha256": "bc702efe072ebe6130640345f40d62f1ad23f58a21aae4b04225e493f7c49af7"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 26,
+    "name": "Boundary-unit naming ratchet",
+    "line": 237,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/measure_naming.py --check",
+      "python3 scripts/measure_naming.py --selftest"
+    ],
+    "raw_sha256": "5cda07bbdccdeaecda8290fd62b124cbf016c5b587a27925ecdf23e3efa4e43b"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 27,
+    "name": "Port contract gate",
+    "line": 247,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_port_contracts.py",
+      "python3 scripts/check_port_contracts.py --selftest"
+    ],
+    "raw_sha256": "0bcc27a61b65ba48e26442e62afbb1c5d87eeab646e8cc419582bf67cb8cf535"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 28,
+    "name": "Fail-fast ratchet",
+    "line": 257,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/measure_fail_fast.py --check",
+      "python3 scripts/measure_fail_fast.py --selftest"
+    ],
+    "raw_sha256": "b4bf12519b4043cd18acb386f843c89cd6a60b3c12656f595efaeb169032a266"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 29,
+    "name": "TODO ownership gate",
+    "line": 271,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_todo_ownership.py",
+      "python3 scripts/check_todo_ownership.py --selftest"
+    ],
+    "raw_sha256": "13d51fd1cbcb2d0bd734f5142aa3438ba12c95ce540cc4400106f9946456ad95"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 30,
+    "name": "Test-evidence ratchet",
+    "line": 278,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/measure_test_evidence.py --check",
+      "python3 scripts/measure_test_evidence.py --selftest"
+    ],
+    "raw_sha256": "e40e92eb3fe34ff82d8526180255cbbcaf43eb28308171de36e76010a374325b"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 31,
+    "name": "Mechanical hygiene ratchet",
+    "line": 287,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_hygiene.py --check",
+      "python3 scripts/check_hygiene.py --selftest"
+    ],
+    "raw_sha256": "ddae99cc3c93153b806ece4cc6db9332c0008339773173fb3bceff906ae86ffd"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 32,
+    "name": "SystemVerilog idiom gate",
+    "line": 297,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_sv_idiom.py",
+      "python3 scripts/check_sv_idiom.py --selftest"
+    ],
+    "raw_sha256": "18adc03418636df9ed25a42e21820e4ea3398fd0816349bfa03256631214271d"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 33,
+    "name": "C and C++ idiom gate",
+    "line": 310,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_cpp_idiom.py",
+      "python3 scripts/check_cpp_idiom.py --selftest"
+    ],
+    "raw_sha256": "18b86bebcf2881330ca6aa5a375ba8d264e7fe471cacc15f0f58d68393ad4984"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 34,
+    "name": "Python idiom gate",
+    "line": 321,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_py_idiom.py",
+      "python3 scripts/check_py_idiom.py --selftest"
+    ],
+    "raw_sha256": "48ef3a9a724268d1bd9beb46e6bfec629719ea7db3ae5f80186d28a8773d0d0d"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 35,
+    "name": "Shell idiom gate",
+    "line": 332,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_sh_idiom.py",
+      "python3 scripts/check_sh_idiom.py --selftest"
+    ],
+    "raw_sha256": "a8e3b8f78ec34398992312408173cbbef4bf5b18ecb5be1aa8a6568c5797ac5b"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 36,
+    "name": "CI event and SHA contract gate",
+    "line": 343,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/ci_events.py --check",
+      "python3 scripts/ci_events.py --selftest"
+    ],
+    "raw_sha256": "0704860d0056e4df8cb5594cf50ddb816ee4c5250e1cb988c04f4e478b570740"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 37,
+    "name": "Local act runner contract gate",
+    "line": 355,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/act_ci.py --selftest"
+    ],
+    "raw_sha256": "6c94eda7a68f00eee363b08920a2187ba7c6c01bb2b76333f69915424ccb5031"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 38,
+    "name": "Doc cited-path gate",
+    "line": 361,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/check_doc_paths.py"
+    ],
+    "raw_sha256": "75caa85822c37db517f98bbce8f8ff4649d5e7523d3701eb23222ea606842f51"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 39,
+    "name": "Archive integrity gate",
+    "line": 368,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 scripts/check_archive.py",
+      "python3 scripts/check_archive.py --selftest"
+    ],
+    "raw_sha256": "6c9605a3490fd7d5ca3e937df37b55041ef2220acecda66180ec53681de1f276"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 40,
+    "name": "Per-page contents gate",
+    "line": 378,
+    "normalized_lines": 3,
+    "canonical": [
+      "python3 scripts/gen_toc.py --selftest",
+      "python3 scripts/gen_toc.py --verify-anchors",
+      "python3 scripts/gen_toc.py --check"
+    ],
+    "raw_sha256": "16edb17647fcca6d0c9abfd27932b78450d146fa58ea2a53f39b570ac2e3220b"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 41,
+    "name": "Sweep/build shape gate",
+    "line": 387,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/check_sweep_shape.py --self-test"
+    ],
+    "raw_sha256": "efac7c7666b785896f59ae6c3ca0648e617883202a527c8c4b80ddb45b2735e1"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 42,
+    "name": "Deploy shape gate",
+    "line": 397,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/check_deploy_shape.py --self-test"
+    ],
+    "raw_sha256": "74c060bfb313f3f878bb4d3f188aa0f06adeb859b1b816ae7de21ea09352996b"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check",
+    "step": 43,
+    "name": "Entity shape gate",
+    "line": 406,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 scripts/check_entity_shape.py --self-test"
+    ],
+    "raw_sha256": "85ee6241773d6c40e8a696f6f8b1ec6f096f92d2933119321e64a7038ff0c5f9"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "wire-accountability",
+    "step": 2,
+    "name": "Fetch the engine authority the builder derives from",
+    "line": 434,
+    "normalized_lines": 1,
+    "canonical": [
+      "git submodule update --init gptp-processor"
+    ],
+    "raw_sha256": "e004752016f40a21644c397a07eaa68cee3b1f47541f374b776f5fe07afffb5e"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "wire-accountability",
+    "step": 3,
+    "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "line": 436,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 -m pip install --quiet pyyaml",
+      "python3 scripts/check_wire_accountability.py --self-test"
+    ],
+    "raw_sha256": "d193fa3d83dd2fc24cd913d88b5219294bcdeb8b429042050dbd24ee9afc6aaf"
+  },
+  {
+    "path": ".github/workflows/docs.yml",
+    "job": "docs-check-no-git",
+    "step": 2,
+    "name": "Strip git metadata, then run the docs gate",
+    "line": 448,
+    "normalized_lines": 3,
+    "canonical": [
+      "rm -rf .git",
+      "python3 scripts/docs_check.py",
+      "python3 scripts/check_feature_status.py"
+    ],
+    "raw_sha256": "3e686fc2073dff7a9a3205bb516a6482f150659c54943755e85b57877b4f103c"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 83,
+    "normalized_lines": 20,
+    "canonical": [
+      "set -euo pipefail",
+      "# ci_scope.py arrives with PR #176. Until that lands this file may",
+      "# not exist, and the safe answer to \"is this change RTL relevant\"",
+      "# when the classifier is absent is yes.",
+      "if [ ! -f scripts/ci_scope.py ]; then",
+      "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\"",
+      "echo \"no scripts/ci_scope.py yet: elaborating unconditionally\"",
+      "exit 0",
+      "fi",
+      "python3 scripts/ci_scope.py --selftest",
+      "if [ \"$EVENT_NAME\" != pull_request ]; then",
+      "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\"",
+      "exit 0",
+      "fi",
+      "if [ -n \"$PR_BASE_SHA\" ] && git cat-file -e \"$PR_BASE_SHA^{commit}\" 2>/dev/null; then",
+      "git diff --no-renames --name-only \"$PR_BASE_SHA\" \"$GITHUB_SHA\" > \"$RUNNER_TEMP/changed\"",
+      "else",
+      "git ls-files > \"$RUNNER_TEMP/changed\"",
+      "fi",
+      "echo \"rtl=$(python3 scripts/ci_scope.py < \"$RUNNER_TEMP/changed\")\" >> \"$GITHUB_OUTPUT\""
+    ],
+    "raw_sha256": "e593d778b758d91b055bb55c1f9da9db0a691de2398c6d1db636fd38d8f6d0f0"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 3,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "line": 117,
+    "normalized_lines": 1,
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "raw_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 124,
+    "normalized_lines": 9,
+    "canonical": [
+      "set -euo pipefail",
+      "ver=v0.0.12",
+      "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+      "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+      "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+      "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+      "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+      "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+      "sv2v --version"
+    ],
+    "raw_sha256": "cf504d08c6218eca34b392b1f9287d84d4efb12c6a815cba3c6047a83fca1252"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 7,
+    "name": "Install LiteX at the pinned revisions",
+    "line": 160,
+    "normalized_lines": 2,
+    "canonical": [
+      "python3 -m pip install --quiet pyyaml",
+      "python3 -m pip install --quiet -r sw/litex/litex_pins.txt"
+    ],
+    "raw_sha256": "f0de7a95375fedaaa08529ca62745ced7dd21e7ac13534b7366c49a6f20f5f06"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 10,
+    "name": "Install sbt",
+    "line": 205,
+    "normalized_lines": 4,
+    "canonical": [
+      "sbt --version >/dev/null 2>&1 && exit 0",
+      "curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz",
+      "sudo tar xzf /tmp/sbt.tgz -C /opt",
+      "echo /opt/sbt/bin >> \"$GITHUB_PATH\""
+    ],
+    "raw_sha256": "63adb39d01fc97c620a6ee7469553e59a80a142071fe555f1e0c208c69edf549"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 11,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "line": 219,
+    "normalized_lines": 3,
+    "canonical": [
+      "python3 scripts/ci_litex_env.py",
+      "mkdir -p ~/vexii-netlist-args",
+      "cp -n ~/vexii-netlist-args/*.py \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/\" 2>/dev/null || true"
+    ],
+    "raw_sha256": "d3a7a682f7a425d875c375f72bbbedd9d74bf0a1dd3d6f060bd73680dfc7fa45"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 12,
+    "name": "Apply the toolchain patch series",
+    "line": 238,
+    "normalized_lines": 1,
+    "canonical": [
+      "sw/litex/patches/apply.sh"
+    ],
+    "raw_sha256": "edb27e79e802abf232b0aa0ede026f309da7e014704d84bb3fa96afe69ec7cf7"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 13,
+    "name": "Elaboration gates",
+    "line": 245,
+    "normalized_lines": 1,
+    "canonical": [
+      "python3 sw/builder/test_builder.py --require-elaboration"
+    ],
+    "raw_sha256": "2616af3a325ce1dc0eb2c537814ce111bed2019e621ac0c40d23105c2b7c5206"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 262,
+    "normalized_lines": 9,
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3",
+      "git clone --depth 1 --branch \"$VERILATOR_VERSION\" https://github.com/verilator/verilator.git /tmp/verilator-src",
+      "cd /tmp/verilator-src",
+      "autoconf",
+      "./configure --prefix=/opt/verilator",
+      "make -j\"$(nproc)\"",
+      "sudo make install"
+    ],
+    "raw_sha256": "565c71f8b0f6ef5cfa0a53748755e5b3139ca65a627a8b7a4e0fabb1728b32a1"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 16,
+    "name": "Put Verilator on PATH and prove the version",
+    "line": 277,
+    "normalized_lines": 4,
+    "canonical": [
+      "set -euo pipefail",
+      "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"",
+      "/opt/verilator/bin/verilator --version",
+      "/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\""
+    ],
+    "raw_sha256": "9d56d2b896bde238d3adfedae0ef2592bb4f5b743fce2bb2ed6c11b706de1ef0"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 17,
+    "name": "Standalone LiteX simulation aggregate",
+    "line": 294,
+    "normalized_lines": 2,
+    "canonical": [
+      "scripts/run_litex_sims.sh --selftest",
+      "scripts/run_litex_sims.sh \"$RUNNER_TEMP/litex-sim-logs\""
+    ],
+    "raw_sha256": "3735a1d6323d2df327281e18d869a60c13636598c20d735d033c3b4fe1f751ca"
+  },
+  {
+    "path": ".github/workflows/elaborate.yml",
+    "job": "elaborate",
+    "step": 18,
+    "name": "Keep the generated CPU netlist arguments for the next run",
+    "line": 300,
+    "normalized_lines": 1,
+    "canonical": [
+      "cp -n \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')\"/*.py ~/vexii-netlist-args/ 2>/dev/null || true"
+    ],
+    "raw_sha256": "ada080da04c596d9a22e844519ca912d88bfb94c3ce666a88ba6d7497ef6439a"
+  }
+]

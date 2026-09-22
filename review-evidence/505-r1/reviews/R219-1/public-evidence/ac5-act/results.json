@@ -1,0 +1,40 @@
+{
+  "head": "66ba210630ff7f412e5706427b3ea976ebee3ba2",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$TRUSTED_DEV/scripts/act_ci.py",
+        "--pr",
+        "506",
+        "--act-bin",
+        "$VALIDATION_TOOLS/act-0.2.89/act",
+        "--sudo",
+        "--workflow",
+        "docs"
+      ],
+      "exit_code": 1,
+      "seconds": 439.228,
+      "log": "$VALIDATION_STORAGE/407-manager-r1/ac5-act/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$TRUSTED_DEV/scripts/act_ci.py",
+        "--pr",
+        "506",
+        "--act-bin",
+        "$VALIDATION_TOOLS/act-0.2.89/act",
+        "--sudo",
+        "--workflow",
+        "rtl-full"
+      ],
+      "exit_code": 1,
+      "seconds": 89.933,
+      "log": "$VALIDATION_STORAGE/407-manager-r1/ac5-act/02.log"
+    }
+  ]
+}
