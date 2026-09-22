@@ -1,0 +1,24 @@
+{
+  "cwd": "$CANDIDATE",
+  "head": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "riscv32-linux-gcc",
+      "--version"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    [
+      "git",
+      "status",
+      "--porcelain"
+    ]
+  ]
+}

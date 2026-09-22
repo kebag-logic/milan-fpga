@@ -1,0 +1,7 @@
+# Issue504 compiler compatibility evidence
+
+This evidence branch is never merged. The unchanged product head is b17580b91deb11f3441dfc5d7f9fafe539d929b8. The verified compiler archive is Bootlin riscv32-ilp32d glibc stable2025.08-1, SHA256 d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f. Vendor binaries are not included; download/provenance and exact commands are retained.
+
+The first PATH-only trial accidentally selected the existing absolute-path native compiler and is not Bootlin evidence. The corrected trial maps only that compiler's subprocess argv[0] to the checksum-verified Bootlin executable, logging all 215 actual invocations. Other arguments, outcomes and unchanged product/test sources are preserved. It passes the complete builder with 208 hostile refusals, 17 legitimate firmware and 4 Makefile controls. One physical calibration gate remains NOT RUN. The observed emitted architecture includes F/D, matching the candidate rather than the native compiler. This is local compatibility evidence, not a fresh hosted installation or a merge/review verdict.
+
+MANIFEST.json records original/published hashes. Private local paths are neutralized in published text; embedded hashes of original raw files remain original-file claims where redaction occurred. All logs retain their exact whitespace. No private reasoning transcripts or environment credentials are included.

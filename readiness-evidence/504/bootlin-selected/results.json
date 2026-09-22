@@ -1,0 +1,26 @@
+{
+  "head": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-u",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-probe/probe_selected_compiler.py"
+      ],
+      "exit_code": 0,
+      "seconds": 431.29,
+      "log": "$VALIDATION_STORAGE/504-readiness/bootlin-bound/01.log"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "seconds": 0.021,
+      "log": "$VALIDATION_STORAGE/504-readiness/bootlin-bound/02.log"
+    }
+  ]
+}

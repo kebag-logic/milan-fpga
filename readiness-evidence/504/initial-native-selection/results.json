@@ -1,0 +1,38 @@
+{
+  "head": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "riscv32-linux-gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "seconds": 0.002,
+      "log": "$VALIDATION_STORAGE/504-readiness/bootlin-native/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "exit_code": 0,
+      "seconds": 427.987,
+      "log": "$VALIDATION_STORAGE/504-readiness/bootlin-native/02.log"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "seconds": 0.142,
+      "log": "$VALIDATION_STORAGE/504-readiness/bootlin-native/03.log"
+    }
+  ]
+}
