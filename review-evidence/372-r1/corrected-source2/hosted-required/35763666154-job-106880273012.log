@@ -1,0 +1,236 @@
+﻿2026-09-22T18:28:36.9287032Z Current runner version: '2.337.0'
+2026-09-22T18:28:36.9305815Z ##[group]Runner Image Provisioner
+2026-09-22T18:28:36.9306469Z Hosted Compute Agent
+2026-09-22T18:28:36.9306882Z Version: 20260828.587
+2026-09-22T18:28:36.9307313Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T18:28:36.9307887Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T18:28:36.9308354Z Worker ID: {b847ff5c-f82f-4762-84db-3df3e68f1bbd}
+2026-09-22T18:28:36.9308820Z Azure Region: centralus
+2026-09-22T18:28:36.9309264Z ##[endgroup]
+2026-09-22T18:28:36.9310439Z ##[group]Operating System
+2026-09-22T18:28:36.9310953Z Ubuntu
+2026-09-22T18:28:36.9311306Z 24.04.5
+2026-09-22T18:28:36.9311635Z LTS
+2026-09-22T18:28:36.9312014Z ##[endgroup]
+2026-09-22T18:28:36.9312385Z ##[group]Runner Image
+2026-09-22T18:28:36.9312807Z Image: ubuntu-24.04
+2026-09-22T18:28:36.9313194Z Version: 20260907.300.1
+2026-09-22T18:28:36.9314090Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T18:28:36.9315399Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T18:28:36.9316089Z ##[endgroup]
+2026-09-22T18:28:36.9316943Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T18:28:36.9318547Z Contents: read
+2026-09-22T18:28:36.9318950Z Metadata: read
+2026-09-22T18:28:36.9319407Z Packages: read
+2026-09-22T18:28:36.9319825Z ##[endgroup]
+2026-09-22T18:28:36.9321262Z Secret source: Actions
+2026-09-22T18:28:36.9321876Z Cache mode: write
+2026-09-22T18:28:36.9322346Z Prepare workflow directory
+2026-09-22T18:28:36.9596763Z Prepare all required actions
+2026-09-22T18:28:36.9632702Z Getting action download info
+2026-09-22T18:28:37.1927033Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T18:28:37.5396748Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-09-22T18:28:38.3517380Z Complete job name: yosys-portability
+2026-09-22T18:28:38.4153730Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T18:28:38.4162217Z ##[group]Run actions/checkout@v4
+2026-09-22T18:28:38.4163178Z with:
+2026-09-22T18:28:38.4163890Z   repository: kebag-logic/milan-fpga
+2026-09-22T18:28:38.4170186Z   token: ***
+2026-09-22T18:28:38.4170893Z   ssh-strict: true
+2026-09-22T18:28:38.4171663Z   ssh-user: git
+2026-09-22T18:28:38.4172380Z   persist-credentials: true
+2026-09-22T18:28:38.4173138Z   clean: true
+2026-09-22T18:28:38.4173908Z   sparse-checkout-cone-mode: true
+2026-09-22T18:28:38.4174742Z   fetch-depth: 1
+2026-09-22T18:28:38.4175539Z   fetch-tags: false
+2026-09-22T18:28:38.4176277Z   show-progress: true
+2026-09-22T18:28:38.4177023Z   lfs: false
+2026-09-22T18:28:38.4177841Z   submodules: false
+2026-09-22T18:28:38.4178626Z   set-safe-directory: true
+2026-09-22T18:28:38.4179463Z   allow-unsafe-pr-checkout: false
+2026-09-22T18:28:38.4180418Z env:
+2026-09-22T18:28:38.4181101Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:28:38.4181899Z   YOSYS_VERSION: v0.66
+2026-09-22T18:28:38.4182741Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:28:38.4183727Z ##[endgroup]
+2026-09-22T18:28:38.4975875Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T18:28:38.4979376Z ##[group]Getting Git version info
+2026-09-22T18:28:38.4980907Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T18:28:38.4983124Z [command]/usr/bin/git version
+2026-09-22T18:28:38.6752476Z git version 2.55.0
+2026-09-22T18:28:38.6769480Z ##[endgroup]
+2026-09-22T18:28:38.6780920Z Temporarily overriding HOME='/home/runner/work/_temp/37dc6351-d16c-4419-88b1-b4d020e7f2c1' before making global git config changes
+2026-09-22T18:28:38.6783040Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T18:28:38.6785296Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:28:38.6830011Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T18:28:38.6833327Z ##[group]Initializing the repository
+2026-09-22T18:28:38.6836263Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:28:38.6923158Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T18:28:38.6924826Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T18:28:38.6926531Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T18:28:38.6927707Z hint: call:
+2026-09-22T18:28:38.6928408Z hint:
+2026-09-22T18:28:38.6929268Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T18:28:38.6930280Z hint:
+2026-09-22T18:28:38.6931250Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T18:28:38.6932659Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T18:28:38.6933823Z hint:
+2026-09-22T18:28:38.6934597Z hint: 	git branch -m <name>
+2026-09-22T18:28:38.6935553Z hint:
+2026-09-22T18:28:38.6936869Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T18:28:38.6938779Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T18:28:38.6945853Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T18:28:38.6984229Z ##[endgroup]
+2026-09-22T18:28:38.6985747Z ##[group]Disabling automatic garbage collection
+2026-09-22T18:28:38.6986882Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T18:28:38.7008283Z ##[endgroup]
+2026-09-22T18:28:38.7009488Z ##[group]Setting up auth
+2026-09-22T18:28:38.7012041Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T18:28:38.7037519Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T18:28:38.7584327Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T18:28:38.7608976Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T18:28:38.7761392Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T18:28:38.7785503Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T18:28:38.7937782Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T18:28:39.1133755Z ##[endgroup]
+2026-09-22T18:28:39.1137097Z ##[group]Fetching the repository
+2026-09-22T18:28:39.1142925Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +024defe077e1107325bdd0bb421700a0b85c7c87:refs/remotes/pull/518/merge
+2026-09-22T18:28:41.8120872Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T18:28:41.8122911Z  * [new ref]         024defe077e1107325bdd0bb421700a0b85c7c87 -> pull/518/merge
+2026-09-22T18:28:41.8124916Z ##[endgroup]
+2026-09-22T18:28:41.8125726Z ##[group]Determining the checkout info
+2026-09-22T18:28:41.8126487Z ##[endgroup]
+2026-09-22T18:28:41.8132071Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T18:28:41.8642616Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T18:28:41.9241555Z ##[group]Checking out the ref
+2026-09-22T18:28:41.9246664Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/518/merge
+2026-09-22T18:28:42.1382013Z Note: switching to 'refs/remotes/pull/518/merge'.
+2026-09-22T18:28:42.1382586Z 
+2026-09-22T18:28:42.1383079Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T18:28:42.1383567Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T18:28:42.1384013Z state without impacting any branches by switching back to a branch.
+2026-09-22T18:28:42.1384278Z 
+2026-09-22T18:28:42.1384519Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T18:28:42.1384923Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T18:28:42.1385315Z 
+2026-09-22T18:28:42.1385453Z   git switch -c <new-branch-name>
+2026-09-22T18:28:42.1385643Z 
+2026-09-22T18:28:42.1385767Z Or undo this operation with:
+2026-09-22T18:28:42.1385976Z 
+2026-09-22T18:28:42.1386063Z   git switch -
+2026-09-22T18:28:42.1386261Z 
+2026-09-22T18:28:42.1386480Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T18:28:42.1386774Z 
+2026-09-22T18:28:42.1387072Z HEAD is now at 024defe Merge 059c3a60b8290873ed9fd14673f9981e8af754ce into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T18:28:42.1393928Z ##[endgroup]
+2026-09-22T18:28:42.1496662Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T18:28:42.1517217Z 024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:42.1719048Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T18:28:42.1720309Z ##[group]Run actions/download-artifact@v4
+2026-09-22T18:28:42.1720578Z with:
+2026-09-22T18:28:42.1720895Z   pattern: yosys-results-*
+2026-09-22T18:28:42.1721187Z   path: /home/runner/work/_temp/all-yosys-results
+2026-09-22T18:28:42.1721520Z   merge-multiple: false
+2026-09-22T18:28:42.1721819Z   repository: kebag-logic/milan-fpga
+2026-09-22T18:28:42.1722107Z   run-id: 35763666154
+2026-09-22T18:28:42.1722372Z env:
+2026-09-22T18:28:42.1722615Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:28:42.1723321Z   YOSYS_VERSION: v0.66
+2026-09-22T18:28:42.1723643Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:28:42.1724056Z ##[endgroup]
+2026-09-22T18:28:42.2942409Z (node:2031) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T18:28:42.2943291Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T18:28:42.4588429Z Found 9 artifact(s)
+2026-09-22T18:28:42.4589659Z Filtering artifacts by pattern 'yosys-results-*'
+2026-09-22T18:28:42.4604060Z Preparing to download the following artifacts:
+2026-09-22T18:28:42.4605067Z - yosys-results-1 (ID: 10711302119, Size: 389, Expected Digest: sha256:fb74c3580a9f893af66495b5d98b8232c4a4cd6298bb25888b74ae4056968144)
+2026-09-22T18:28:42.4606665Z - yosys-results-2 (ID: 10711037965, Size: 5764, Expected Digest: sha256:52d89ec742f376d8781b93094ccb94e827573b7ceffa8b4cfc934b9e6ac880ef)
+2026-09-22T18:28:42.4607982Z - yosys-results-3 (ID: 10710748915, Size: 5838, Expected Digest: sha256:dd32adaec38e13b1dfd0a637ffea9845425af69d2dd0287b207971a77ce2078f)
+2026-09-22T18:28:42.4609173Z - yosys-results-0 (ID: 10710694128, Size: 765, Expected Digest: sha256:b8726f455d74ecb2332f0b01825bc436d1dd4953ede3a05773fb66a1a60d446a)
+2026-09-22T18:28:42.6387537Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/7af29927-c350-46f4-b5c7-ba35b6630c0d/workflow-job-run-59cfe18d-4742-5ebd-9fe7-707db7e5bc32/artifacts/3cb856780a494f32bcd975570d5cd421f881f93b2f261f1108bf93da70874847.zip
+2026-09-22T18:28:42.6389054Z Starting download of artifact to: /home/runner/work/_temp/all-yosys-results/yosys-results-2
+2026-09-22T18:28:42.7003219Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/7af29927-c350-46f4-b5c7-ba35b6630c0d/workflow-job-run-1b6ef008-854c-5e4f-bb65-e8813577db11/artifacts/8fc717e1108b5ee89fa01181e2eefe7eb49a0bb0546dab67bdb46f8dd9d84d0a.zip
+2026-09-22T18:28:42.7004740Z Starting download of artifact to: /home/runner/work/_temp/all-yosys-results/yosys-results-3
+2026-09-22T18:28:42.7087881Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/7af29927-c350-46f4-b5c7-ba35b6630c0d/workflow-job-run-8c3afdb0-4f2b-536a-984b-1083a992f1e7/artifacts/311aebd7414b8fc41faf0eaaa97168ac19bd8958608260df5e1ecf023a5d98eb.zip
+2026-09-22T18:28:42.7089303Z Starting download of artifact to: /home/runner/work/_temp/all-yosys-results/yosys-results-1
+2026-09-22T18:28:42.7390266Z Redirecting to blob download url: https://productionresultssa2.blob.core.windows.net/actions-results/7af29927-c350-46f4-b5c7-ba35b6630c0d/workflow-job-run-82e5cb30-b93e-54fe-a73a-c4617cbcfcd2/artifacts/e1057459046efe7b74e9dc8b9745429395787435de2fb3c90243be0a3fd37e31.zip
+2026-09-22T18:28:42.7391491Z Starting download of artifact to: /home/runner/work/_temp/all-yosys-results/yosys-results-0
+2026-09-22T18:28:42.7531979Z (node:2031) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-09-22T18:28:42.7649940Z SHA256 digest of downloaded artifact is 52d89ec742f376d8781b93094ccb94e827573b7ceffa8b4cfc934b9e6ac880ef
+2026-09-22T18:28:42.7650572Z Artifact download completed successfully.
+2026-09-22T18:28:42.8812782Z SHA256 digest of downloaded artifact is dd32adaec38e13b1dfd0a637ffea9845425af69d2dd0287b207971a77ce2078f
+2026-09-22T18:28:42.8813367Z Artifact download completed successfully.
+2026-09-22T18:28:42.8914134Z SHA256 digest of downloaded artifact is fb74c3580a9f893af66495b5d98b8232c4a4cd6298bb25888b74ae4056968144
+2026-09-22T18:28:42.8914875Z Artifact download completed successfully.
+2026-09-22T18:28:42.8938522Z SHA256 digest of downloaded artifact is b8726f455d74ecb2332f0b01825bc436d1dd4953ede3a05773fb66a1a60d446a
+2026-09-22T18:28:42.8939073Z Artifact download completed successfully.
+2026-09-22T18:28:42.8939604Z Total of 4 artifact(s) downloaded
+2026-09-22T18:28:42.8943976Z Download artifact has finished successfully
+2026-09-22T18:28:42.9061495Z ##[group]Run shopt -s nullglob
+2026-09-22T18:28:42.9061891Z [36;1mshopt -s nullglob[0m
+2026-09-22T18:28:42.9062295Z [36;1mroots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)[0m
+2026-09-22T18:28:42.9062747Z [36;1mpython3 scripts/ci_events.py --require-target-sha --expect 4 \[0m
+2026-09-22T18:28:42.9063250Z [36;1m  --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \[0m
+2026-09-22T18:28:42.9063691Z [36;1m  --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"[0m
+2026-09-22T18:28:42.9087145Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:28:42.9087474Z env:
+2026-09-22T18:28:42.9087754Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:28:42.9088038Z   YOSYS_VERSION: v0.66
+2026-09-22T18:28:42.9088330Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:28:42.9088691Z   GATE_SHA: 024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:42.9089042Z ##[endgroup]
+2026-09-22T18:28:43.0987836Z   ok   yosys-results-0  024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.0988472Z   ok   yosys-results-1  024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.0988897Z   ok   yosys-results-2  024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.0989243Z   ok   yosys-results-3  024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.0989691Z target-sha: OK, 4 record(s) all 024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.1076452Z ##[group]Run set -euo pipefail
+2026-09-22T18:28:43.1076813Z [36;1mset -euo pipefail[0m
+2026-09-22T18:28:43.1077178Z [36;1msyn/yosys/run.sh --list > "$RUNNER_TEMP/expected-yosys-tops"[0m
+2026-09-22T18:28:43.1077506Z [36;1mshopt -s nullglob[0m
+2026-09-22T18:28:43.1077843Z [36;1mroots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)[0m
+2026-09-22T18:28:43.1078230Z [36;1mif [ "${#roots[@]}" -eq 0 ]; then[0m
+2026-09-22T18:28:43.1078531Z [36;1m  mkdir -p "$RUNNER_TEMP/all-yosys-results/none"[0m
+2026-09-22T18:28:43.1079030Z [36;1m  roots=("$RUNNER_TEMP/all-yosys-results/none")[0m
+2026-09-22T18:28:43.1079338Z [36;1mfi[0m
+2026-09-22T18:28:43.1079642Z [36;1mpython3 scripts/yosys_tally.py "${roots[@]}" \[0m
+2026-09-22T18:28:43.1080015Z [36;1m  --expected "$RUNNER_TEMP/expected-yosys-tops" \[0m
+2026-09-22T18:28:43.1080366Z [36;1m  --require-structural[0m
+2026-09-22T18:28:43.1099903Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:28:43.1100215Z env:
+2026-09-22T18:28:43.1100568Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:28:43.1100820Z   YOSYS_VERSION: v0.66
+2026-09-22T18:28:43.1101141Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:28:43.1101460Z ##[endgroup]
+2026-09-22T18:28:43.2230669Z Yosys evidence: expected=54 observed=54 errors=0
+2026-09-22T18:28:43.2312777Z ##[group]Run if [ "$SHARD_RESULT" != success ]; then
+2026-09-22T18:28:43.2313171Z [36;1mif [ "$SHARD_RESULT" != success ]; then[0m
+2026-09-22T18:28:43.2313535Z [36;1m  echo "one or more Yosys workers ended: $SHARD_RESULT" >&2[0m
+2026-09-22T18:28:43.2313883Z [36;1m  exit 1[0m
+2026-09-22T18:28:43.2314095Z [36;1mfi[0m
+2026-09-22T18:28:43.2314441Z [36;1mecho "yosys-portability: every worker succeeded at $GITHUB_SHA"[0m
+2026-09-22T18:28:43.2334328Z shell: /usr/bin/bash -e {0}
+2026-09-22T18:28:43.2334713Z env:
+2026-09-22T18:28:43.2334959Z   VERILATOR_VERSION: v5.050
+2026-09-22T18:28:43.2335410Z   YOSYS_VERSION: v0.66
+2026-09-22T18:28:43.2335755Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T18:28:43.2336055Z   SHARD_RESULT: success
+2026-09-22T18:28:43.2336351Z ##[endgroup]
+2026-09-22T18:28:43.3127009Z yosys-portability: every worker succeeded at 024defe077e1107325bdd0bb421700a0b85c7c87
+2026-09-22T18:28:43.3231142Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T18:28:43.3232225Z Post job cleanup.
+2026-09-22T18:28:43.3836397Z [command]/usr/bin/git version
+2026-09-22T18:28:43.3871789Z git version 2.55.0
+2026-09-22T18:28:43.3901901Z Temporarily overriding HOME='/home/runner/work/_temp/4bd6a6b9-5405-4e8e-8fbc-54e2e9a21e01' before making global git config changes
+2026-09-22T18:28:43.3902682Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T18:28:43.3906988Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T18:28:43.4199728Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T18:28:43.4230269Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T18:28:43.4412880Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T18:28:43.4432810Z http.https://github.com/.extraheader
+2026-09-22T18:28:43.4440839Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T18:28:43.4868271Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T18:28:43.5029603Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T18:28:43.5053148Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T18:28:43.5325566Z Cleaning up orphan processes
+2026-09-22T18:28:43.5523860Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
