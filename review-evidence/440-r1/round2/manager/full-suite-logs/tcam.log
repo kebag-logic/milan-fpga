@@ -1,0 +1,23 @@
+make: Entering directory '$VALIDATION/tb/verilator/tcam'
+verilator --cc --exe --build -j 0 --top-module tcam -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee8021q/filtering/tcam.sv sim_main.cpp -o Vtcam_sim
+======================================================================
+python3 mutants.py
+make[1]: Entering directory '$VALIDATION/tb/verilator/tcam/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION/tb/verilator/tcam/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 6.016 MB
+======================================================================
+./obj_dir/Vtcam_sim
+== tcam (ternary MAC CAM) harness ==
+--------------------------------------------------------------
+checks: 19   failures: 0
+RESULT: PASS
+[PASS] the unmutated RTL still passes the harness
+[PASS] mutant caught: priority inverted — breaks "lowest matching index wins (index 0 = highest priority)"
+[PASS] mutant caught: care mask ignored — breaks "a wildcard entry matches a range, not just its exact key"
+[PASS] mutant caught: entry validity ignored — breaks "a removed entry stops matching"
+
+4 checks: 4 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/tcam'
