@@ -1,0 +1,20 @@
+## PR delta (88e9276b2a220c716f64a843f7e1eb8f9265e896..1496558d82cf35fc98dda0e781b2a1be643c301a) paths under RTL/bench/synthesis/pin scope
+  (end; empty means none)
+## changes since round-1 head (d81a302760b84f32d2aa019643f57682bb6e052c..1496558d82cf35fc98dda0e781b2a1be643c301a) under the same scope
+  (end; empty means none)
+## consumers of the emitted AEM_RATES_* tables (parent hdl/ and pinned processor hdl/)
+  parent hdl/: none
+  protocol-processor@424c688fa2205b934a7689a58f2aa766420f2326 hdl/: none
+## where the emitted table goes (avdecc/aem_emit.py) and the descriptor count width (avdecc/aem_descriptors.py)
+  1496558d82cf35fc98dda0e781b2a1be643c301a:avdecc/aem_emit.py:226:    a(f"localparam int AEM_RATES_N_C = {len(M['RATES'])};")
+  1496558d82cf35fc98dda0e781b2a1be643c301a:avdecc/aem_emit.py:227:    a(f"localparam [31:0] AEM_RATES_C [0:{len(M['RATES'])-1}] = "
+  1496558d82cf35fc98dda0e781b2a1be643c301a:avdecc/aem_descriptors.py:260:    b += be16(144)                      # sampling_rates_offset (fixed)
+  1496558d82cf35fc98dda0e781b2a1be643c301a:avdecc/aem_descriptors.py:261:    b += be16(len(rates))
+## hand-built pp_shadow spellings of the AUDIO_UNIT (unchanged; S1 residue)
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/sim_main.cpp:827:    static constexpr uint32_t AU_RATES_C[3] = {
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/sim_main.cpp:829:    static constexpr uint32_t AU_CUR_RATE_C = 48000u;
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/sim_main.cpp:850:    static constexpr size_t   AU_LEN_C     = 144 + 4 * 3;        // Table 7-5, 3 rates
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/sim_main.cpp:879:            put16be_v(d, 142, 3);                    // sampling_rates_count
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/sim_main.cpp:880:            for (size_t k = 0; k < 3; k++)
+## pp_shadow harness elaborates the arty_current shape
+  1496558d82cf35fc98dda0e781b2a1be643c301a:tb/verilator/pp_shadow/Makefile:34:SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current

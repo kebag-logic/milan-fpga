@@ -1,0 +1,28 @@
+date: 2026-09-22T16:19:49+02:00
+HEAD: 1496558d82cf35fc98dda0e781b2a1be643c301a
+HEAD^{tree}: e8d797554a935c5514e25be9e1dda119f4f8c999
+write-tree(index): e8d797554a935c5514e25be9e1dda119f4f8c999
+ls-files -s sha256: 6b84f1bfa420d6c1678c6ab7c847c63c095210d9c9d409e5c05962b783a73b1c
+ls-files -s count: 855
+ls-tree -r HEAD sha256: 3c3b61a465ea4b4e9b6c38b30a80eb950e17b4c192618f6b1fb4fde8ba1c560b
+gitlinks (mode 160000):
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 c1b617435824929a790739ea8585c3fe1a328cc0 0	gptp-processor
+160000 424c688fa2205b934a7689a58f2aa766420f2326 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+status --porcelain=v2 --ignored=no --untracked-files=all:
+(end status)
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+diff-index HEAD (tracked working changes):
+(end diff-index)
+worktree-vs-index blob/mode/kind check:
+checked 855 index entries; mismatches=0
+submodule HEADs vs gitlinks:
+external gitlink=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 (not initialized)
+gptp-processor gitlink=c1b617435824929a790739ea8585c3fe1a328cc0 subHEAD=c1b617435824929a790739ea8585c3fe1a328cc0 dirty=0
+protocol-processor gitlink=424c688fa2205b934a7689a58f2aa766420f2326 subHEAD=424c688fa2205b934a7689a58f2aa766420f2326 dirty=0
+third_party/verilog-axis gitlink=48ff7a7e2ef782cf778d47910cf85835c64b1bce subHEAD=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0

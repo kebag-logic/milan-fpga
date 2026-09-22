@@ -1,0 +1,67 @@
+## round2/candidate.json
+{
+  "prepared_at": "2026-09-22T14:17:04.544764+02:00",
+  "author_head": "2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7",
+  "head": "1496558d82cf35fc98dda0e781b2a1be643c301a",
+  "tree": "e8d797554a935c5514e25be9e1dda119f4f8c999",
+  "live_base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "candidate_equals_source_tree": true,
+  "complete_issue_delta_unchanged": true,
+  "matches_merge_tree": true,
+  "decision": "https://github.com/kebag-logic/milan-fpga/pull/512#issuecomment-5776320451",
+  "validation": "pending"
+}
+## static/builder bank (manager-builder/results.json)
+head 1496558d82cf35fc98dda0e781b2a1be643c301a base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+commands 40 non-zero 0
+  exit 0 python3 scripts/docs_check.py
+  exit 0 python3 scripts/check_em_dash.py --base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+  exit 0 python3 sw/builder/test_builder.py
+{
+  "head": "1496558d82cf35fc98dda0e781b2a1be643c301a",
+  "exit_code": 0,
+  "finished": "2026-09-22T14:28:14.842713+02:00"
+}
+## builder log (40.log): gate 36a lines and verdict
+  [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+## full native (full-native/results.json)
+head 1496558d82cf35fc98dda0e781b2a1be643c301a base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+  exit 0   2248.9s bash scripts/run_all_suites.sh $VALIDATION_STORAGE/478-manager-r2/full-suite-logs --wait
+  exit 0    666.4s bash syn/yosys/run.sh --results $VALIDATION_STORAGE/478-manager-r2/yosys-results
+  exit 0    181.9s bash -c cd protocol-processor && bash scripts/run_suites.sh
+  exit 0    547.3s make -C gptp-processor all
+  exit 0      1.1s behave tests/features
+{
+  "head": "1496558d82cf35fc98dda0e781b2a1be643c301a",
+  "exit_code": 0,
+  "finished": "2026-09-22T15:17:50.480742+02:00"
+}
+## parent sweep summary (full-native/01.log)
+PASS     pp_shadow
+checks: 2118264   in-suite failures: 0
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+## Verilator version reported by the native logs
+full-suite-logs/pp_shadow.log: Verilator 5.052 
+full-native/04.log: Verilator 5.052 
+## integrity records vs this review clone
+builder-integrity.json PASS 1496558d82cf35fc98dda0e781b2a1be643c301a e8d797554a935c5514e25be9e1dda119f4f8c999 851 {'third_party/verilog-axis': ('48ff7a7e2ef7', '54432ffb46df', 214), 'protocol-processor': ('424c688fa220', '1b073c8be20f', 222), 'gptp-processor': ('c1b617435824', '25909c4d7401', 103)}
+builder-final-tree-integrity.json PASS 1496558d82cf35fc98dda0e781b2a1be643c301a e8d797554a935c5514e25be9e1dda119f4f8c999 851 {'third_party/verilog-axis': ('48ff7a7e2ef7', '54432ffb46df', 214), 'protocol-processor': ('424c688fa220', '1b073c8be20f', 222), 'gptp-processor': ('c1b617435824', '25909c4d7401', 103)}
+native-tree-integrity.json PASS 1496558d82cf35fc98dda0e781b2a1be643c301a e8d797554a935c5514e25be9e1dda119f4f8c999 851 {'third_party/verilog-axis': ('48ff7a7e2ef7', '54432ffb46df', 214), 'protocol-processor': ('424c688fa220', '1b073c8be20f', 222), 'gptp-processor': ('c1b617435824', '25909c4d7401', 103)}
+review clone: head=1496558d82cf35fc98dda0e781b2a1be643c301a tree=e8d797554a935c5514e25be9e1dda119f4f8c999 files=851
+  third_party/verilog-axis head=48ff7a7e2ef7 tree=54432ffb46df files=214
+  protocol-processor head=424c688fa220 tree=1b073c8be20f files=222
+  gptp-processor head=c1b617435824 tree=25909c4d7401 files=103
