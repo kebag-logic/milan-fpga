@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+args = sys.argv[1:]
+real = os.environ["ROM_PROBE_PYTHON"]
+script = Path(args[0]).name if args else ""
+generators = ("gen_ltn_rom.py", "gen_ucode.py", "gen_gptp_ucode.py")
+if script in generators and "-o" in args:
+    image = Path(args[args.index("-o") + 1])
+    selected = image.name == os.environ.get("ROM_PROBE_IMAGE")
+    action = os.environ.get("ROM_PROBE_ACTION", "") if selected else ""
+    if action == "failed":
+        sys.exit(7)
+    rc = subprocess.run([real, *args]).returncode
+    if rc:
+        sys.exit(rc)
+    if action == "changed":
+        image.write_bytes(b"INVALID_ROM_DATA\n")
+    elif action == "empty":
+        image.write_bytes(b"")
+    elif action == "missing":
+        image.rename(image.with_name(image.name + ".wrong-name"))
+    data = image.read_bytes() if image.exists() else None
+    event = {"image": image.name, "bytes": len(data) if data is not None else None,
+             "sha256": hashlib.sha256(data).hexdigest() if data is not None else None}
+    with Path(os.environ["ROM_PROBE_TRACE"]).open("a") as handle:
+        handle.write(json.dumps(event) + "\n")
+    sys.exit(0)
+if script == "result_cache.py" and len(args) > 1 and args[1] in ("lookup", "store"):
+    event = {"operation": args[1], "args": args[2:]}
+    staged = Path(args[args.index("--sv2v-file") + 1])
+    event["sv2v_sha256"] = hashlib.sha256(staged.read_bytes()).hexdigest()
+    with Path(os.environ["ROM_PROBE_TRACE"]).open("a") as handle:
+        handle.write(json.dumps(event) + "\n")
+
+if args and args[0] == "-" and len(args) == 2 and args[1].endswith(".stat.json"):
+    import shutil
+    destination = Path(os.environ["ROM_PROBE_TRACE"]).with_suffix(".artifacts")
+    destination.mkdir(exist_ok=True)
+    for artifact in Path(args[1]).parent.iterdir():
+        if artifact.is_file() and artifact.suffix in (".hex", ".json", ".log", ".v"):
+            shutil.copyfile(artifact, destination / artifact.name)
+
+os.execv(real, [real, *args])

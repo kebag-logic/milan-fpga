@@ -1,0 +1,41 @@
+{
+  "label": "full-ucode.hex-failed",
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "$VALIDATION_STORAGE/reviews/r247-520-r1/syn/yosys/run.sh",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--no-structural",
+    "--mode",
+    "full",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/full-ucode.hex-failed/results",
+    "--cache-seed",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/full-seed"
+  ],
+  "mode": "full",
+  "action": "failed",
+  "image": "ucode.hex",
+  "exit": 2,
+  "cells": {},
+  "hits": 0,
+  "events": [
+    {
+      "operation": "--selftest",
+      "arguments": []
+    },
+    {
+      "generator": "gen_ltn_rom.py",
+      "action": ""
+    },
+    {
+      "generator": "gen_ucode.py",
+      "action": "failed"
+    }
+  ],
+  "seconds": 0.471
+}

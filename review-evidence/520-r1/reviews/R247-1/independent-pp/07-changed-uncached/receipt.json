@@ -1,0 +1,37 @@
+{
+  "label": "07-changed-uncached",
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "$VALIDATION_STORAGE/reviews/r247-520-r1/syn/yosys/run.sh",
+    "--top",
+    "KL_pp_shadow",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-pp/07-changed-uncached/results"
+  ],
+  "changed": true,
+  "frozen": null,
+  "exit": 0,
+  "seconds": 164.79,
+  "cells": 1122602,
+  "hit": false,
+  "events": [
+    {
+      "generator": "gen_ltn_rom.py",
+      "image": "ltn_rom.hex",
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    {
+      "generator": "gen_ucode.py",
+      "image": "ucode.hex",
+      "sha256": "ef5474dfdf8e052218a479ec0edec84b8ab1c057a0945e16e98b5e94f1802d53"
+    },
+    {
+      "generator": "gen_gptp_ucode.py",
+      "image": "gptp_ucode.hex",
+      "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+    }
+  ]
+}

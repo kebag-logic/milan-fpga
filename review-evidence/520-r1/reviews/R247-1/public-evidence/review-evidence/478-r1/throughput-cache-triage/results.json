@@ -1,0 +1,19 @@
+[
+  {
+    "name": "01-original-warm",
+    "command": [
+      "bash",
+      "syn/yosys/run.sh",
+      "--top",
+      "KL_pp_shadow",
+      "--no-structural",
+      "--cache",
+      "$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache",
+      "--cache-seed",
+      "$VALIDATION_STORAGE/yosys-seed-52711029/cache-build"
+    ],
+    "exit_code": 0,
+    "seconds": 169.22,
+    "cache_hit": false
+  }
+]

@@ -1,0 +1,40 @@
+{
+  "started": "2026-09-22T17:11:18.607679+00:00",
+  "head": "28e350b99ac240a750326b762c6d029f0653362c",
+  "tree": "d17c117db03128e444b7b44742fe82f10746cb28",
+  "tools": {
+    "yosys": {
+      "path": "/usr/bin/yosys",
+      "sha256": "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b",
+      "version": "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]"
+    },
+    "sv2v": {
+      "path": "$WORKSPACE_HOME/.local/bin/sv2v",
+      "sha256": "b80a8ac6212aa72a196d9d6129cda35f16dbfa799ec61848c46321f845b6b635",
+      "version": "sv2v v0.0.13"
+    },
+    "python3": {
+      "path": "/usr/bin/python3.14",
+      "sha256": "d78f9cf7178ecff09963551399855543c297f37ac207e626228bfe43cb26a70c",
+      "version": "Python 3.14.7"
+    }
+  },
+  "generator_sha256": {
+    "protocol-processor/hdl/acmp/rom/gen_ltn_rom.py": "a0d1c1c7a6ddb8b573b2b03a976088e46902aee06f4d98f9e14929289c395b45",
+    "protocol-processor/hdl/aecp/ucode/gen_ucode.py": "9d8155442dc45478d4305ca366dfbdd385770e0072376b8ab6e91b4079c80c33",
+    "gptp-processor/hdl/ucode/gen_gptp_ucode.py": "fdd58ddcd2ba1d9f3765aca52957280e2422c87052ac8d8ffd75ca4307249fde"
+  },
+  "submodules": "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external\n c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)\n 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)\n 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)",
+  "affinity": [
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "public_evidence": "e4a2d05481b33e9b437023a50f2eb754ea0592eb/review-evidence/478-r1/throughput-cache-triage/round2",
+  "injected_bytes": "INVALID_ROM_DATA\n"
+}

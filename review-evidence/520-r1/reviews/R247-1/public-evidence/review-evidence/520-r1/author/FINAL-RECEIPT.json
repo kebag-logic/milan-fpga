@@ -1,0 +1,51 @@
+{
+  "head": "28e350b99ac240a750326b762c6d029f0653362c",
+  "tree": "d17c117db03128e444b7b44742fe82f10746cb28",
+  "source_clean": true,
+  "source_status_command": [
+    "git",
+    "status",
+    "--porcelain"
+  ],
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/run_checks.py",
+        "--out",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "env",
+        "MAKEFLAGS=-j8",
+        "OMP_NUM_THREADS=8",
+        "python3",
+        "-u",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/real_pp_probe.py",
+        "--out",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-pp"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/audit_pp.py",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-pp"
+      ],
+      "exit": 0
+    }
+  ],
+  "raw_console_logs": [
+    "final-pp-console.log",
+    "final-pp-audit.log"
+  ],
+  "detailed_receipts": [
+    "final-checks/complete.json",
+    "final-pp/complete.json",
+    "final-pp/raw-input-audit.json"
+  ]
+}

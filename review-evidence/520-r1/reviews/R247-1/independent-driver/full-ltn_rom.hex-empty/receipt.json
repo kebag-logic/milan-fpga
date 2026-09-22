@@ -1,0 +1,45 @@
+{
+  "label": "full-ltn_rom.hex-empty",
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "$VALIDATION_STORAGE/reviews/r247-520-r1/syn/yosys/run.sh",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--no-structural",
+    "--mode",
+    "full",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/full-ltn_rom.hex-empty/results",
+    "--cache-seed",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/full-seed"
+  ],
+  "mode": "full",
+  "action": "empty",
+  "image": "ltn_rom.hex",
+  "exit": 2,
+  "cells": {},
+  "hits": 0,
+  "events": [
+    {
+      "operation": "--selftest",
+      "arguments": []
+    },
+    {
+      "generator": "gen_ltn_rom.py",
+      "action": "empty"
+    },
+    {
+      "generator": "gen_ucode.py",
+      "action": ""
+    },
+    {
+      "generator": "gen_gptp_ucode.py",
+      "action": ""
+    }
+  ],
+  "seconds": 0.61
+}

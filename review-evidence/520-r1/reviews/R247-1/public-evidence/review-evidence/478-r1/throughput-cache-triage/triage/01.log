@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/yosys-cache-rom-probe/probe.py", line 16, in <module>
+    assert rows[-1]['exit_code']==0 and rows[-1]['cache_hit'],rows
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [{'name': '01-original-warm', 'command': ['bash', 'syn/yosys/run.sh', '--top', 'KL_pp_shadow', '--no-structural', '--cache', '$VALIDATION_STORAGE/yosys-cache-rom-probe/warm-cache', '--cache-seed', '$VALIDATION_STORAGE/yosys-seed-52711029/cache-build'], 'exit_code': 0, 'seconds': 169.22, 'cache_hit': False}]

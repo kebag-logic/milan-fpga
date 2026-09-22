@@ -1,0 +1,11 @@
+schema=milan-yosys-result-cache/2
+status=PASS
+cells=26
+top=cdc_handshake
+mode=elaborate
+sv2v_sha256=7cf364c54e5f0ecb0351869e958537fb4dde2d614a66bf82b113e288f3f7511c
+program=read_verilog @TMP@/cdc_handshake.v; hierarchy -check -top cdc_handshake; proc; opt_clean; check -assert; stat -top cdc_handshake; tee -q -o @TMP@/cdc_handshake.stat.json stat -top cdc_handshake -json
+yosys_version=Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+yosys_sha256=ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b
+sv2v_version=sv2v v0.0.13
+rom_sha256=15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73

@@ -1,0 +1,105 @@
+{
+  "label": "elaborate-seed-hit",
+  "command": [
+    "rtk",
+    "proxy",
+    "bash",
+    "$VALIDATION_STORAGE/reviews/r247-520-r1/syn/yosys/run.sh",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--no-structural",
+    "--mode",
+    "elaborate",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-seed-hit/results",
+    "--cache-seed",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-seed"
+  ],
+  "mode": "elaborate",
+  "action": "",
+  "image": "",
+  "exit": 0,
+  "cells": {
+    "cdc_pulse": "7",
+    "cdc_handshake": "26"
+  },
+  "hits": 2,
+  "events": [
+    {
+      "operation": "--selftest",
+      "arguments": []
+    },
+    {
+      "generator": "gen_ltn_rom.py",
+      "action": ""
+    },
+    {
+      "generator": "gen_ucode.py",
+      "action": ""
+    },
+    {
+      "generator": "gen_gptp_ucode.py",
+      "action": ""
+    },
+    {
+      "operation": "rom-digest",
+      "arguments": [
+        "--rom-dir",
+        "/tmp/tmp.5l2IHdfAW6"
+      ]
+    },
+    {
+      "operation": "lookup",
+      "arguments": [
+        "--dir",
+        "/tmp/tmp.5l2IHdfAW6/no-cache",
+        "--seed",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-seed",
+        "--top",
+        "cdc_pulse",
+        "--mode",
+        "elaborate",
+        "--sv2v-file",
+        "/tmp/tmp.5l2IHdfAW6/cdc_pulse.v",
+        "--program",
+        "read_verilog @TMP@/cdc_pulse.v; hierarchy -check -top cdc_pulse; proc; opt_clean; check -assert; stat -top cdc_pulse; tee -q -o @TMP@/cdc_pulse.stat.json stat -top cdc_pulse -json",
+        "--rom-sha256",
+        "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+        "--yosys-version",
+        "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]",
+        "--yosys-bin-sha256",
+        "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b",
+        "--sv2v-version",
+        "sv2v v0.0.13"
+      ]
+    },
+    {
+      "operation": "lookup",
+      "arguments": [
+        "--dir",
+        "/tmp/tmp.5l2IHdfAW6/no-cache",
+        "--seed",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-r1-r247/independent-driver/elaborate-seed",
+        "--top",
+        "cdc_handshake",
+        "--mode",
+        "elaborate",
+        "--sv2v-file",
+        "/tmp/tmp.5l2IHdfAW6/cdc_handshake.v",
+        "--program",
+        "read_verilog @TMP@/cdc_handshake.v; hierarchy -check -top cdc_handshake; proc; opt_clean; check -assert; stat -top cdc_handshake; tee -q -o @TMP@/cdc_handshake.stat.json stat -top cdc_handshake -json",
+        "--rom-sha256",
+        "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+        "--yosys-version",
+        "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]",
+        "--yosys-bin-sha256",
+        "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b",
+        "--sv2v-version",
+        "sv2v v0.0.13"
+      ]
+    }
+  ],
+  "seconds": 0.935
+}
