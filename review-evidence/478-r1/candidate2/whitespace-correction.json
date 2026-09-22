@@ -1,0 +1,15 @@
+{
+  "cwd": "$BUILDER_VALIDATION",
+  "head": "72e16c6172db723734317b105cff6c6e9168571a",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "note": "Corrects only the stale explicit whitespace-check endpoint; original receipts preserved",
+  "commands": [
+    [
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "72e16c6172db723734317b105cff6c6e9168571a"
+    ]
+  ]
+}
