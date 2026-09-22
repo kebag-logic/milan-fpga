@@ -1,0 +1,17 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 00b1b852..89c221da 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -765,8 +765,10 @@ is exactly these twelve things:
+     recorded-list item, its must-exist item or its comparison removed each
+     fail named `--selftest` arms with `--check` still green.
+ 
+-    The remaining content gap belongs to the seven RTL jobs (#439).
+-    Their recognized steps remain rewritable where no specialized script pin applies.
++    The seven RTL jobs still have scripts without specialized pins.
++    The sibling `full-ci-gate` SHA-pin script also remains unpinned:
++    "Print the event and pin the one SHA this run validates".
++    Both remaining content gaps are future work under #439.
+     The four non-RTL carriers now pin every recognized script (#407).
+     Their maintenance remedy is recorded in item 11.
+     The second runner checks these pins independently through `ci_events --check`.

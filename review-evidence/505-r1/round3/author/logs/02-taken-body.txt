@@ -1,0 +1,13 @@
+[A163] TAKEN
+
+Branch: `407-carrier-script-pins`; sole implementation author in the existing #407 / PR #505 lane.
+Starting head: `ad62493186576144f9fa1568babad012bc9ad8ca`; tree: `6b279253aa7d3edd6d9b5e9adc1ed9caf6f13d75`. Source and index are clean; all 850 tracked non-gitlink files match their recorded blobs. Actual merge base against current `origin/dev` is `b17580b91deb11f3441dfc5d7f9fafe539d929b8`, also the live remote dev tip.
+
+Authoritative references: REQUIREMENTS section 8; CONTRIBUTING sections 2, 3, 5 and 6; AGENTS sections 5-7; CI_WORKFLOWS items 1, 2, 4, 11 and 12; #407 acceptance criteria; [R220-2 original MINOR Docs F3](https://github.com/kebag-logic/milan-fpga/pull/505#issuecomment-5772521129); [accepted correction](https://github.com/kebag-logic/milan-fpga/pull/505#issuecomment-5772548304); [#439 settled scope](https://github.com/kebag-logic/milan-fpga/issues/439#issuecomment-5772547851).
+
+Interpreted scope: correct only the remaining-content-gap paragraph in item 12 of `docs/testing/CI_WORKFLOWS.md`, naming both the seven RTL jobs' scripts not held by specialized pins and sibling full-ci-gate's "Print the event and pin the one SHA this run validates" script as future #439 work. Preserve the four-carrier claims and every other tracked byte. No checker, workflow, mutation, canonical-record, normalization or product changes; no #439 implementation or optional malformed-pristine traceback change.
+
+Validation plan: `rtk proxy python3 -B scripts/ci_events.py --check`; `rtk proxy python3 -B scripts/ci_events.py --selftest` (1144 arms, 1046 mutations); `rtk proxy python3 -B scripts/docs_check.py`; `rtk proxy python3 -B scripts/gen_toc.py --check`; `rtk proxy python3 -B scripts/check_doc_paths.py`; `rtk proxy python3 -B scripts/check_em_dash.py --base b17580b91deb11f3441dfc5d7f9fafe539d929b8` after committing, since that gate compares HEAD; `rtk proxy git diff --check` and merge-base-to-HEAD diff check; complete tracked hashes, modes, index, gitlinks and cleanliness verification.
+
+Independent re-reviewers remain R219/R220. Full manager gates, trusted act, hosted gates, publication and targeted cold reviews remain manager work. Historical AC5 measurements retain their original attribution and are not executions on the forthcoming head. One local one-line commit, no push or PR/project metadata changes.
+Blockers: none.
