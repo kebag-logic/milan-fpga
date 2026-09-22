@@ -1,0 +1,376 @@
++ set -u
++ CLONE=$VALIDATION_STORAGE/reviews/r251-423-locale-retry
++ W=/tmp/r251-locale-cibc9vlf
++ R=$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/receipts/reproduced
++ HEAD_SHA=df53dfa116b34816db0193230ad9833e67bf46dd
++ BASE_SHA=52711029f374650dc93830d5ea28e81cb5c8f410
++ mkdir -p /tmp/r251-locale-cibc9vlf $WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/receipts/reproduced
++ rm -rf /tmp/r251-locale-cibc9vlf/lp
++ mkdir -p /tmp/r251-locale-cibc9vlf/lp/head /tmp/r251-locale-cibc9vlf/lp/base /tmp/r251-locale-cibc9vlf/lp/locale
++ git -C $VALIDATION_STORAGE/reviews/r251-423-locale-retry archive df53dfa116b34816db0193230ad9833e67bf46dd scripts
++ tar -x -C /tmp/r251-locale-cibc9vlf/lp/head
++ git -C $VALIDATION_STORAGE/reviews/r251-423-locale-retry archive 52711029f374650dc93830d5ea28e81cb5c8f410 scripts
++ tar -x -C /tmp/r251-locale-cibc9vlf/lp/base
++ localedef -i en_US -f ISO-8859-1 /tmp/r251-locale-cibc9vlf/lp/locale/en_US.ISO-8859-1
++ echo 'localedef rc=0'
++ export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
++ GIT_CONFIG_NOSYSTEM=1
++ GIT_CONFIG_GLOBAL=/dev/null
++ export GIT_AUTHOR_NAME=Probe GIT_AUTHOR_EMAIL=probe@example.invalid
++ GIT_AUTHOR_NAME=Probe
++ GIT_AUTHOR_EMAIL=probe@example.invalid
++ export GIT_COMMITTER_NAME=Probe GIT_COMMITTER_EMAIL=probe@example.invalid
++ GIT_COMMITTER_NAME=Probe
++ GIT_COMMITTER_EMAIL=probe@example.invalid
++ t=1790000000
+++ printf '\303\251.txt'
++ NAME=é.txt
++ L=/tmp/r251-locale-cibc9vlf/lp/linear
++ mkdir -p /tmp/r251-locale-cibc9vlf/lp/linear
++ cd /tmp/r251-locale-cibc9vlf/lp/linear
++ g init -q -b main
++ t=1790000060
++ GIT_AUTHOR_DATE='@1790000060 +0000'
++ GIT_COMMITTER_DATE='@1790000060 +0000'
++ git init -q -b main
++ printf 'keep\n'
++ printf 'v0\n'
++ g add -A
++ t=1790000120
++ GIT_AUTHOR_DATE='@1790000120 +0000'
++ GIT_COMMITTER_DATE='@1790000120 +0000'
++ git add -A
++ g commit -qm O
++ t=1790000180
++ GIT_AUTHOR_DATE='@1790000180 +0000'
++ GIT_COMMITTER_DATE='@1790000180 +0000'
++ git commit -qm O
++ g checkout -qb pr
++ t=1790000240
++ GIT_AUTHOR_DATE='@1790000240 +0000'
++ GIT_COMMITTER_DATE='@1790000240 +0000'
++ git checkout -qb pr
++ printf 'v1 stranded work\n'
++ g add -A
++ t=1790000300
++ GIT_AUTHOR_DATE='@1790000300 +0000'
++ GIT_COMMITTER_DATE='@1790000300 +0000'
++ git add -A
++ g commit -qm 'stranded edit of a non-ASCII path'
++ t=1790000360
++ GIT_AUTHOR_DATE='@1790000360 +0000'
++ GIT_COMMITTER_DATE='@1790000360 +0000'
++ git commit -qm 'stranded edit of a non-ASCII path'
++ g checkout -q main
++ t=1790000420
++ GIT_AUTHOR_DATE='@1790000420 +0000'
++ GIT_COMMITTER_DATE='@1790000420 +0000'
++ git checkout -q main
++ printf 'keep later\n'
++ g add -A
++ t=1790000480
++ GIT_AUTHOR_DATE='@1790000480 +0000'
++ GIT_COMMITTER_DATE='@1790000480 +0000'
++ git add -A
++ g commit -qm 'unrelated base work'
++ t=1790000540
++ GIT_AUTHOR_DATE='@1790000540 +0000'
++ GIT_COMMITTER_DATE='@1790000540 +0000'
++ git commit -qm 'unrelated base work'
++ M=/tmp/r251-locale-cibc9vlf/lp/merge
++ mkdir -p /tmp/r251-locale-cibc9vlf/lp/merge
++ cd /tmp/r251-locale-cibc9vlf/lp/merge
++ g init -q -b main
++ t=1790000600
++ GIT_AUTHOR_DATE='@1790000600 +0000'
++ GIT_COMMITTER_DATE='@1790000600 +0000'
++ git init -q -b main
+++ seq -w 1 40
++ for i in $(seq -w 1 40)
++ echo 'line 01'
++ for i in $(seq -w 1 40)
++ echo 'line 02'
++ for i in $(seq -w 1 40)
++ echo 'line 03'
++ for i in $(seq -w 1 40)
++ echo 'line 04'
++ for i in $(seq -w 1 40)
++ echo 'line 05'
++ for i in $(seq -w 1 40)
++ echo 'line 06'
++ for i in $(seq -w 1 40)
++ echo 'line 07'
++ for i in $(seq -w 1 40)
++ echo 'line 08'
++ for i in $(seq -w 1 40)
++ echo 'line 09'
++ for i in $(seq -w 1 40)
++ echo 'line 10'
++ for i in $(seq -w 1 40)
++ echo 'line 11'
++ for i in $(seq -w 1 40)
++ echo 'line 12'
++ for i in $(seq -w 1 40)
++ echo 'line 13'
++ for i in $(seq -w 1 40)
++ echo 'line 14'
++ for i in $(seq -w 1 40)
++ echo 'line 15'
++ for i in $(seq -w 1 40)
++ echo 'line 16'
++ for i in $(seq -w 1 40)
++ echo 'line 17'
++ for i in $(seq -w 1 40)
++ echo 'line 18'
++ for i in $(seq -w 1 40)
++ echo 'line 19'
++ for i in $(seq -w 1 40)
++ echo 'line 20'
++ for i in $(seq -w 1 40)
++ echo 'line 21'
++ for i in $(seq -w 1 40)
++ echo 'line 22'
++ for i in $(seq -w 1 40)
++ echo 'line 23'
++ for i in $(seq -w 1 40)
++ echo 'line 24'
++ for i in $(seq -w 1 40)
++ echo 'line 25'
++ for i in $(seq -w 1 40)
++ echo 'line 26'
++ for i in $(seq -w 1 40)
++ echo 'line 27'
++ for i in $(seq -w 1 40)
++ echo 'line 28'
++ for i in $(seq -w 1 40)
++ echo 'line 29'
++ for i in $(seq -w 1 40)
++ echo 'line 30'
++ for i in $(seq -w 1 40)
++ echo 'line 31'
++ for i in $(seq -w 1 40)
++ echo 'line 32'
++ for i in $(seq -w 1 40)
++ echo 'line 33'
++ for i in $(seq -w 1 40)
++ echo 'line 34'
++ for i in $(seq -w 1 40)
++ echo 'line 35'
++ for i in $(seq -w 1 40)
++ echo 'line 36'
++ for i in $(seq -w 1 40)
++ echo 'line 37'
++ for i in $(seq -w 1 40)
++ echo 'line 38'
++ for i in $(seq -w 1 40)
++ echo 'line 39'
++ for i in $(seq -w 1 40)
++ echo 'line 40'
++ printf 'v0\n'
++ g add -A
++ t=1790000660
++ GIT_AUTHOR_DATE='@1790000660 +0000'
++ GIT_COMMITTER_DATE='@1790000660 +0000'
++ git add -A
++ g commit -qm O
++ t=1790000720
++ GIT_AUTHOR_DATE='@1790000720 +0000'
++ GIT_COMMITTER_DATE='@1790000720 +0000'
++ git commit -qm O
+++ git rev-parse HEAD
++ O=f17da7c7545165d4d7ae43a0d540da469e7b32b9
++ g checkout -qb incoming
++ t=1790000780
++ GIT_AUTHOR_DATE='@1790000780 +0000'
++ GIT_COMMITTER_DATE='@1790000780 +0000'
++ git checkout -qb incoming
++ printf 'v1 source work\n'
++ g add -A
++ t=1790000840
++ GIT_AUTHOR_DATE='@1790000840 +0000'
++ GIT_COMMITTER_DATE='@1790000840 +0000'
++ git add -A
++ g commit -qm 'A edits the non-ASCII path'
++ t=1790000900
++ GIT_AUTHOR_DATE='@1790000900 +0000'
++ GIT_COMMITTER_DATE='@1790000900 +0000'
++ git commit -qm 'A edits the non-ASCII path'
+++ git rev-parse HEAD
++ A=d16ead00161053358af274be7a29fb5caa7b0bfa
++ g checkout -qb pr f17da7c7545165d4d7ae43a0d540da469e7b32b9
++ t=1790000960
++ GIT_AUTHOR_DATE='@1790000960 +0000'
++ GIT_COMMITTER_DATE='@1790000960 +0000'
++ git checkout -qb pr f17da7c7545165d4d7ae43a0d540da469e7b32b9
++ g merge -q --no-ff -m 'M redundant merge' incoming
++ t=1790001020
++ GIT_AUTHOR_DATE='@1790001020 +0000'
++ GIT_COMMITTER_DATE='@1790001020 +0000'
++ git merge -q --no-ff -m 'M redundant merge' incoming
++ sed -i 's/^line 20$/line 20 changed by C/' mod.txt
++ g add -A
++ t=1790001080
++ GIT_AUTHOR_DATE='@1790001080 +0000'
++ GIT_COMMITTER_DATE='@1790001080 +0000'
++ git add -A
++ g commit -qm 'C edits mod.txt'
++ t=1790001140
++ GIT_AUTHOR_DATE='@1790001140 +0000'
++ GIT_COMMITTER_DATE='@1790001140 +0000'
++ git commit -qm 'C edits mod.txt'
+++ git rev-parse HEAD
++ C=de848a331248a394ca0256c55932f937ff762b66
++ g checkout -q main
++ t=1790001200
++ GIT_AUTHOR_DATE='@1790001200 +0000'
++ GIT_COMMITTER_DATE='@1790001200 +0000'
++ git checkout -q main
++ g cherry-pick d16ead00161053358af274be7a29fb5caa7b0bfa
++ t=1790001260
++ GIT_AUTHOR_DATE='@1790001260 +0000'
++ GIT_COMMITTER_DATE='@1790001260 +0000'
++ git cherry-pick d16ead00161053358af274be7a29fb5caa7b0bfa
++ g cherry-pick de848a331248a394ca0256c55932f937ff762b66
++ t=1790001320
++ GIT_AUTHOR_DATE='@1790001320 +0000'
++ GIT_COMMITTER_DATE='@1790001320 +0000'
++ git cherry-pick de848a331248a394ca0256c55932f937ff762b66
++ printf 'v0\n'
++ sed -i 's/^line 35$/line 35 later/' mod.txt
++ g add -A
++ t=1790001380
++ GIT_AUTHOR_DATE='@1790001380 +0000'
++ GIT_COMMITTER_DATE='@1790001380 +0000'
++ git add -A
++ g commit -qm 'tip reverts the non-ASCII edit and extends mod.txt'
++ t=1790001440
++ GIT_AUTHOR_DATE='@1790001440 +0000'
++ GIT_COMMITTER_DATE='@1790001440 +0000'
++ git commit -qm 'tip reverts the non-ASCII edit and extends mod.txt'
++ for fx in linear merge
++ for mode in utf8 latin1
++ run linear/utf8/head-df53dfa1 /tmp/r251-locale-cibc9vlf/lp/head /tmp/r251-locale-cibc9vlf/lp/linear utf8
++ local label=linear/utf8/head-df53dfa1 root=/tmp/r251-locale-cibc9vlf/lp/head fx=/tmp/r251-locale-cibc9vlf/lp/linear mode=utf8 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/linear
++ '[' utf8 = latin1 ']'
++ tee $WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/receipts/reproduced/locale_transport_probe.txt
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=utf-8
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
++ rc=1
+++ printf %s $'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' linear/utf8/head-df53dfa1 utf-8 1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]'
++ run linear/utf8/base-52711029 /tmp/r251-locale-cibc9vlf/lp/base /tmp/r251-locale-cibc9vlf/lp/linear utf8
++ local label=linear/utf8/base-52711029 root=/tmp/r251-locale-cibc9vlf/lp/base fx=/tmp/r251-locale-cibc9vlf/lp/linear mode=utf8 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/linear
++ '[' utf8 = latin1 ']'
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=utf-8
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/base/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
++ rc=1
+++ printf %s $'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' linear/utf8/base-52711029 utf-8 1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]'
++ for mode in utf8 latin1
++ run linear/latin1/head-df53dfa1 /tmp/r251-locale-cibc9vlf/lp/head /tmp/r251-locale-cibc9vlf/lp/linear latin1
++ local label=linear/latin1/head-df53dfa1 root=/tmp/r251-locale-cibc9vlf/lp/head fx=/tmp/r251-locale-cibc9vlf/lp/linear mode=latin1 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/linear
++ '[' latin1 = latin1 ']'
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=iso8859-1
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py --no-fetch --base main pr
++ out='  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]'
++ rc=0
+++ printf %s '  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' linear/latin1/head-df53dfa1 iso8859-1 0 'contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]'
++ run linear/latin1/base-52711029 /tmp/r251-locale-cibc9vlf/lp/base /tmp/r251-locale-cibc9vlf/lp/linear latin1
++ local label=linear/latin1/base-52711029 root=/tmp/r251-locale-cibc9vlf/lp/base fx=/tmp/r251-locale-cibc9vlf/lp/linear mode=latin1 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/linear
++ '[' latin1 = latin1 ']'
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=iso8859-1
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/base/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
++ rc=1
+++ printf %s $'  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' linear/latin1/base-52711029 iso8859-1 1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, é.txt]'
++ for fx in linear merge
++ for mode in utf8 latin1
++ run merge/utf8/head-df53dfa1 /tmp/r251-locale-cibc9vlf/lp/head /tmp/r251-locale-cibc9vlf/lp/merge utf8
++ local label=merge/utf8/head-df53dfa1 root=/tmp/r251-locale-cibc9vlf/lp/head fx=/tmp/r251-locale-cibc9vlf/lp/merge mode=utf8 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/merge
++ '[' utf8 = latin1 ']'
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=utf-8
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: \'é.txt\'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.'
++ rc=1
+++ printf %s $'  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: \'é.txt\'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' merge/utf8/head-df53dfa1 utf-8 1 'UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\''é.txt'\'''
++ run merge/utf8/base-52711029 /tmp/r251-locale-cibc9vlf/lp/base /tmp/r251-locale-cibc9vlf/lp/merge utf8
++ local label=merge/utf8/base-52711029 root=/tmp/r251-locale-cibc9vlf/lp/base fx=/tmp/r251-locale-cibc9vlf/lp/merge mode=utf8 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/merge
++ '[' utf8 = latin1 ']'
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=utf-8
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/base/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
++ rc=1
+++ printf %s $'  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' merge/utf8/base-52711029 utf-8 1 'STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]'
++ for mode in utf8 latin1
++ run merge/latin1/head-df53dfa1 /tmp/r251-locale-cibc9vlf/lp/head /tmp/r251-locale-cibc9vlf/lp/merge latin1
++ local label=merge/latin1/head-df53dfa1 root=/tmp/r251-locale-cibc9vlf/lp/head fx=/tmp/r251-locale-cibc9vlf/lp/merge mode=latin1 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/merge
++ '[' latin1 = latin1 ']'
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=iso8859-1
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py --no-fetch --base main pr
++ out='  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]'
++ rc=0
+++ printf %s '  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' merge/latin1/head-df53dfa1 iso8859-1 0 'contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]'
++ run merge/latin1/base-52711029 /tmp/r251-locale-cibc9vlf/lp/base /tmp/r251-locale-cibc9vlf/lp/merge latin1
++ local label=merge/latin1/base-52711029 root=/tmp/r251-locale-cibc9vlf/lp/base fx=/tmp/r251-locale-cibc9vlf/lp/merge mode=latin1 out rc enc
++ cd /tmp/r251-locale-cibc9vlf/lp/merge
++ '[' latin1 = latin1 ']'
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B -c 'import sys; print(sys.getfilesystemencoding())'
++ enc=iso8859-1
+++ LOCPATH=/tmp/r251-locale-cibc9vlf/lp/locale
+++ LC_ALL=en_US.ISO-8859-1
+++ python3 -B /tmp/r251-locale-cibc9vlf/lp/base/scripts/check_merge_containment.py --no-fetch --base main pr
++ out=$'  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
++ rc=1
+++ printf %s $'  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.'
+++ head -1
+++ sed 's/^ *//'
++ printf '%s fs=%s rc=%s | %s\n' merge/latin1/base-52711029 iso8859-1 1 'STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, é.txt]'

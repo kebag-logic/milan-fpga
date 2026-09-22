@@ -1,0 +1,214 @@
+{
+  "commands": [
+    {
+      "label": "linear-checkout",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "checkout",
+        "-q",
+        "-b",
+        "retained",
+        "main"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/linear",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "linear-add",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "add",
+        "-A"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/linear",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "linear-commit",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-qm",
+        "Retain exact non-ASCII source content"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/linear",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "linear-utf8",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py",
+        "--no-fetch",
+        "--base",
+        "retained",
+        "pr"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/linear",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "linear-latin1",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py",
+        "--no-fetch",
+        "--base",
+        "retained",
+        "pr"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/linear",
+      "LC_ALL": "en_US.ISO-8859-1",
+      "LOCPATH": "/tmp/r251-locale-cibc9vlf/lp/locale",
+      "returncode": 0
+    },
+    {
+      "label": "merge-checkout",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "checkout",
+        "-q",
+        "-b",
+        "retained",
+        "main"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/merge",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "merge-add",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "add",
+        "-A"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/merge",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "merge-commit",
+      "argv": [
+        "rtk",
+        "proxy",
+        "git",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-qm",
+        "Retain exact non-ASCII source content"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/merge",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "merge-utf8",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py",
+        "--no-fetch",
+        "--base",
+        "retained",
+        "pr"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/merge",
+      "LC_ALL": "C.UTF-8",
+      "LOCPATH": null,
+      "returncode": 0
+    },
+    {
+      "label": "merge-latin1",
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "/tmp/r251-locale-cibc9vlf/lp/head/scripts/check_merge_containment.py",
+        "--no-fetch",
+        "--base",
+        "retained",
+        "pr"
+      ],
+      "cwd": "/tmp/r251-locale-cibc9vlf/lp/merge",
+      "LC_ALL": "en_US.ISO-8859-1",
+      "LOCPATH": "/tmp/r251-locale-cibc9vlf/lp/locale",
+      "returncode": 0
+    }
+  ],
+  "checks": [
+    {
+      "case": "linear-utf8",
+      "pass": true,
+      "returncode": 0
+    },
+    {
+      "case": "linear-latin1",
+      "pass": true,
+      "returncode": 0
+    },
+    {
+      "case": "merge-utf8",
+      "pass": true,
+      "returncode": 0
+    },
+    {
+      "case": "merge-latin1",
+      "pass": true,
+      "returncode": 0
+    }
+  ],
+  "jobs": 1,
+  "environment_overrides": {
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_CONFIG_NOSYSTEM": "1",
+    "GIT_CONFIG_GLOBAL": "/dev/null",
+    "GIT_TERMINAL_PROMPT": "0",
+    "GIT_AUTHOR_NAME": "R251 fixture",
+    "GIT_AUTHOR_EMAIL": "fixture@example.invalid",
+    "GIT_COMMITTER_NAME": "R251 fixture",
+    "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
+    "GIT_AUTHOR_DATE": "@1790100000 +0000",
+    "GIT_COMMITTER_DATE": "@1790100000 +0000"
+  },
+  "fixture_write": {
+    "path_bytes_hex": "c3a92e747874",
+    "linear_bytes_hex": "763120737472616e64656420776f726b0a",
+    "merge_bytes_hex": "763120736f7572636520776f726b0a"
+  }
+}

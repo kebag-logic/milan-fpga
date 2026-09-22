@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "bash",
+    "-x",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/receipts/locale_transport_probe.sh",
+    "$VALIDATION_STORAGE/reviews/r251-423-locale-retry",
+    "/tmp/r251-locale-cibc9vlf",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/receipts/reproduced"
+  ],
+  "cwd": "$VALIDATION_STORAGE/reviews/r251-423-locale-retry",
+  "returncode": 0,
+  "environment_overrides": {
+    "LC_ALL": "C.UTF-8",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_TERMINAL_PROMPT": "0",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MAKEFLAGS": "-j1"
+  },
+  "work": "/tmp/r251-locale-cibc9vlf",
+  "jobs": 1,
+  "note": "Probe exit 0 means execution completed; individual checker exits are in stdout."
+}

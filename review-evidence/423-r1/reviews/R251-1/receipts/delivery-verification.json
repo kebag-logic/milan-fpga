@@ -1,0 +1,46 @@
+{
+  "report_links_valid": true,
+  "python_scripts_parse": true,
+  "installed_locales_unchanged": true,
+  "source_integrity_pass": true,
+  "recorded_top_level_commands": [
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/run_published.py"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/run_focused.py"
+      ],
+      "exit": 1,
+      "result": "8 contract assertions, 2 expected defect failures; 22 existing path/format assertions passed in each locale"
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/run_positive_controls.py"
+      ],
+      "exit": 0,
+      "result": "4/4 controls pass"
+    },
+    {
+      "argv": [
+        "rtk",
+        "proxy",
+        "python3",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-locale-r251-retry/verify_integrity.py"
+      ],
+      "exit": 0
+    }
+  ]
+}
