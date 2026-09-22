@@ -1,0 +1,106 @@
+[
+  {
+    "name": "toc-selftest",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 0.193,
+    "output": "TOC selftest: PASS (754/754 arm(s))\n"
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 0.41,
+    "output": "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)\n"
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 0.444,
+    "output": "anchor check: 144 existing cross-page fragment links reproduced\n"
+  },
+  {
+    "name": "em-dash-selftest",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 1.379,
+    "output": "check_em_dash selftest: PASS (99 arm(s))\n"
+  },
+  {
+    "name": "em-dash-base",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "88e9276b2a220c716f64a843f7e1eb8f9265e896"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 1.362,
+    "output": "check_em_dash: 0 finding(s) over 9 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 99/99 [88e9276b..HEAD]\n"
+  },
+  {
+    "name": "docs",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 3.769,
+    "output": "docs_check: 0 finding(s) across 163 md files + 828 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n"
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+    "exit": 0,
+    "seconds": 2.776,
+    "output": "py idiom: 211 first-party modules, 157385 lines\n  bare except: 0\n  mutable default argument: 0\n  shell invocation: 0\n  shadowed builtin: 0\n  wildcard import: 0\n  dynamic eval/exec: 0\n  unparseable source: 0\n  long function: 9 <= 9\n  long module: 10 <= 10\n  unannotated public function: 0 <= 0\n  undocumented public function: 0 <= 0\n  os.path use: 1 <= 1\n  unmanaged open: 0 <= 0\n  too many parameters: 7 <= 7\n  global statement: 0 <= 0\n  over-long line: 0 <= 0\n"
+  }
+]
