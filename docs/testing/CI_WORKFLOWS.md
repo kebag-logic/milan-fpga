@@ -631,6 +631,26 @@ is exactly these twelve things:
     action, or any content at all -- is refused naming the job and the
     position, as are a removed, reordered or renamed step, a loosened
     step `if`, and a rewritten cache or upload `with`.
+
+    Every recognized carrier `run` body is also pinned (#407).
+    `CARRIER_STEP_LISTS` records each canonical script beside its step identity.
+    Existing canonical gate scripts are reused; specialized checks still apply.
+    Comparison uses item 7's whitespace normalization.
+    Refusals name the job, step, and first differing line.
+    Missing script records fail closed, even with unchanged workflows.
+    `uses` steps retain their recorded `with` mappings.
+
+    Mutation arms derive from live carrier steps, independently of records.
+    Each body faces replacement, swallowed-call, and `continue-on-error` controls.
+    Multi-command bodies additionally lose a command.
+    Bodies carrying proof/check flags additionally lose a flag.
+    Python gates, bounded ratchets, builder gates, and reference builds participate.
+    A checker returning no findings fails every mutation arm.
+    Whitespace reformatting and matching record updates remain accepted.
+
+    The maintenance cost is deliberate: every legitimate script edit updates
+    its canonical entry beside a mutation entry, within the same commit.
+    Never regenerate expected scripts during checking from candidate workflows.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
     shell before any pinned script runs: `BASH_ENV` names a file bash
@@ -740,15 +760,16 @@ is exactly these twelve things:
     rewrite of the checker is outside that boundary, and what stands
     against it is the gate's own proof -- the coverage rule uncalled, its
     recorded-list item, its must-exist item or its comparison removed each
-    fail named `--selftest` arms with `--check` still green. What this
-    still cannot hold is the CONTENT of the recognised non-gate steps:
-    `docs-check`'s gates other than the ci_events step (`docs_check`,
-    `check_feature_status`, the traceability matrix, the builder gates and
-    the rest) and every RTL step no rule above holds by script can still
-    be rewritten or swallowed under the recorded name with the context
-    green, and the second runner backs up only `ci_events --check`. A
-    content pin on every recognised step closes that; the four carriers'
-    is #407 and the seven RTL jobs' is #439.
+    fail named `--selftest` arms with `--check` still green.
+
+    The remaining content gap belongs to the seven RTL jobs (#439).
+    Their recognized steps remain rewritable where no specialized script pin applies.
+    The four non-RTL carriers now pin every recognized script (#407).
+    Their maintenance remedy is recorded in item 11.
+    The second runner checks these pins independently through `ci_events --check`.
+    A swallowed Python idiom call therefore leaves that step green,
+    but both jobs' contract steps refuse it by name.
+    `docs-check` fails; the exhaustive aggregates also fail closed.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
