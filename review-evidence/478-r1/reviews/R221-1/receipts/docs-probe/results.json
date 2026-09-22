@@ -1,0 +1,78 @@
+{
+  "head": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "base": "ec34fcdee0ca9ffa63564a9af8ad70a3a618de29",
+  "target": "protocol-processor/docs/architecture/07_memory_maps.md",
+  "results": [
+    {
+      "label": "current-git-no-submodules",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/docs-git",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "current-git-no-submodules.log"
+    },
+    {
+      "label": "current-no-git-no-submodules",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/docs-nogit",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "log": "current-no-git-no-submodules.log"
+    },
+    {
+      "label": "integrated-base-no-git-no-submodules",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/docs-integrated-base-nogit",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "integrated-base-no-git-no-submodules.log"
+    },
+    {
+      "label": "current-git-processor-populated",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/docs-git",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "current-git-processor-populated.log"
+    },
+    {
+      "label": "current-no-git-processor-populated",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/478-r1-r221/scratch/docs-nogit",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "log": "current-no-git-processor-populated.log"
+    }
+  ],
+  "conclusion": "The added relative link causes the failure in both supported no-submodule documentation jobs; populating the pinned processor masks it."
+}

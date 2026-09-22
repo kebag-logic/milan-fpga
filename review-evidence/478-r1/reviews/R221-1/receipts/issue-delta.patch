@@ -1,0 +1,192 @@
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index 47b82e9025c2bd7f869c1277567e4dfe1dee7820..7f167a12d0096986d7a340375c46f2038dbc8dcd 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -960,7 +960,7 @@ Line numbers are those of the cited file at the time of writing.
+ | 6 | `platform.pp_mem_phys` | protocol-processor DRAM reservation; fixed extent is builder-owned (`emit_platform_shape`, line 2999) | - | PMEM |
+ | 6a | `platform.mac_address` | the station MAC: the overlay `adp.mac_address` (`overlay_adp_block`, line 2314) that AVB_INTERFACE repeats; the `MILAN_STATION_MAC_*` constants; the gPTP microcode station identity (`--mac`, line 4915); row 3's default `entity_id` | 1722.1 7.2.8; 802-2014 8.2 | AEM (`gen_aemi_image.py` line 157); fw (into `MAC_ADDR_LO/HI`); SoC (`gptp_ucode.hex`, `p_GPTP_UCODE_HEX_P` line 838) |
+ | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded); the default Base format of every stream (rows 18, 22); the SRP frame geometry (row 43); the AES3 serial clock (row 13). **And, on a TDM bus master, the FABRIC's frame rate** (#399): `emit_design_opts` (line 4375) emits `--audio-fs-hz` whenever the declaration is off the SoC's own default, `milan_soc.py` passes it as `p_AUDIO_IF_FS_HZ_P` (line 1008) and derives `AUDIO_IF_CLK_HZ_P` = `2 x SLOTS x slot bits x fs` from it, which is also the rate `_CRG` gives the master's MMCM output. At the 48000 default the flag and the parameter are withheld, so a config declaring the shipping rate keeps a byte-identical argv and top `.v`. On any other front-end the audio clock is fixed and `milan_soc.py` REFUSES the flag rather than accepting a rate it cannot elaborate; such a config carries an item-6 plan mark instead | 1722.1 7.2.3; Milan 5.3.3.3, 6.2 | SoC (`milan_soc.py` lines 98, 1008; `milan_datapath.sv` line 139); AEM (`aem_specs.py` line 233); check (must be a Milan 6.2 base rate); plan |
+-| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sample_rates` list; each entry is a rate family for row 18's completion; part of the model hash. The render path runs 48 kHz only, so since #399 **every entry it cannot run carries its OWN plan mark** (`_marks_media_clock`, line 4171) naming it as an advertised SET_SAMPLING_RATE target the fabric would not follow. Marking only the current rate published two promises and checked one | 1722.1 7.2.3 | AEM (`aem_specs.py` line 198); plan (one mark per unrunnable rate) |
++| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sample_rates` list; defaults to `[sampling_rate_hz]`. Order is preserved, and the current rate must appear. Duplicate entries and lists exceeding eight entries raise `ConfigError`. The maximum mirrors [processor section 3.1, L10](../protocol-processor/docs/architecture/07_memory_maps.md#31-descriptor-tree). It bounds the processor walk at descriptor offset 144. `test_builder.py` gate 36a covers refusals and the eight-entry boundary. It also checks the hand-built `pp_shadow` rate array against YAML. Both array values and declared length must match. Each entry is a rate family for row 18's completion; part of the model hash. The render path runs 48 kHz only, so since #399 **every entry it cannot run carries its OWN plan mark** (`_marks_media_clock`, line 4171) naming it as an advertised SET_SAMPLING_RATE target the fabric would not follow. Marking only the current rate published two promises and checked one | 1722.1 7.2.3 | AEM (`aem_specs.py` line 198); plan (one mark per unrunnable rate) |
+ | 9 | `clocking.media_clock_sources` | CLOCK_SOURCE set: INTERNAL (+ the CRF sink's INPUT_STREAM source, row 11) and nothing per AAF listener - the fabric follows no stream-derived clock, so `input_stream` is REFUSED by name rather than advertised (#389). Offering `crf` here without row 11's sink is refused for the same reason, that source being located on the sink's STREAM_INPUT (`_load_clocking`, line 3372); the set is model shape (1722.1 6.2.2.8); the shape header's `AEM_CRF_CLKSRC_C` (line 2515) that `milan_datapath.sv` compares the live clock-source index against (lines 1348 and 5231); the servo prune gate (`validate_features`, line 2927) | 1722.1 7.2.9, 7.2.9.2; Milan 7.2.2 | AEM (`aem_specs.py` line 249); shape; check |
+ | 9a | `names.clock_sources.{internal,crf}` (optional, schema 1.2) | the CLOCK_SOURCE `object_name` of the INTERNAL source and of the CRF sink's INPUT_STREAM source, default `Internal` / `CRF Clock` (`CLOCK_SOURCE_NAMES`, line 131, written by `_overlay_clock_sources`, line 4739). A name for a source row 9 does not emit is refused, and so is `names.clock_sources.stream`: #389 retired the per-listener `Stream Clock` source it would name (`_load_names`, line 3575). 6.2.2.8-excluded, so it moves no hash-derived id | 1722.1 7.2.9, 6.2.2.8 | AEM (the overlay's `clock_sources` names, `aem_specs.py` line 263) |
+ | 10 | `clocking.default_source` | nothing beyond validation (it must name a member of row 9) and the plan (line 4643). The CLOCK_DOMAIN `clock_source_index` reset is index 0 of row 9's set whatever this says (`aem_assemble.py` line 227) | 1722.1 7.2.32; Milan 5.3.11.1 | check, plan |
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 14a7495cc99390411503d02014963c75658a8772..95ffb669ecc93ebf64b7d033911d0d2cc3e9459f 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -1195,6 +1195,9 @@ def fmt_channels(fmt: str) -> int | None:
+ #: SR = 48 kHz, NS = 12 for SR = 96 kHz, NS = 24 for SR = 192 kHz."
+ #: {rate_hz: (nsr, samples_per_frame)}; nsr is IEEE 1722-2016 Table 11.
+ BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
++#: Processor walk bound: protocol-processor/docs/architecture/07_memory_maps.md
++#: section 3.1, L10 (AUDIO_UNIT sampling_rates at offset 144).
++MAX_AUDIO_UNIT_RATES = 8
+ #: Milan v1.2 6.2 / Table 6.1 - the ONLY channel counts that are Base formats.
+ BASE_CHANNELS = (1, 2, 4, 6, 8)
+ 
+@@ -3795,7 +3798,15 @@ def _load_clocking(cfg, path):
+         audio_pll_hz=int(clk.get("audio_pll_hz", soc_audio_const(
+             "AUDIO_CLK_HZ", 24_576_000))),
+     )
+-    if rate not in clocking["audio_unit_rates_hz"]:
++    rates = clocking["audio_unit_rates_hz"]
++    if len(rates) > MAX_AUDIO_UNIT_RATES:
++        raise ConfigError(
++            f"clocking.audio_unit_rates_hz has {len(rates)} entries; "
++            f"processor walk bound is {MAX_AUDIO_UNIT_RATES} (L10, "
++            "protocol-processor/docs/architecture/07_memory_maps.md section 3.1)")
++    if len(set(rates)) != len(rates):
++        raise ConfigError("clocking.audio_unit_rates_hz contains duplicate entries")
++    if rate not in rates:
+         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
+     # #399: the audio MMCM plan is FIXED. _CRG derives the audio clock from a
+     # two-stage integer chain whose error is the achievable optimum from a
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 7eb6bdd513f101197c7f3247b968c91c2f4acb6b..ea24c58c32c3e86a252d097c1fea7797ae5c9c7a 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -246,6 +246,12 @@ Gates (gaps item 4, generator round):
+       the tap's 875 ns unevenly and inside 10 ns of it, and recalibrating
+       moves neither `entity_model_id` nor the AEM overlay: a correction is
+       a timestamp fact, not descriptor content.
++  36a. AUDIO_UNIT RATES FIT THE PROCESSOR WALK (issue #478): a distinct
++      ninth entry and duplicate entries are refused by cause, while eight
++      distinct entries pass the clocking loader unchanged. Defaults and
++      order survive, and all five shipping images retain their rate lists.
++      The hand-built pp_shadow AU_RATES_C values and declared length match
++      the shipping config; independent value/length drift controls fail.
+   37. THE TWO FIELDS THAT DESCRIBE THE DEVICE ARE TRUE OF IT (gate 37,
+       issues #462 and #463): read back out of the packed image, every
+       tracked config's AVB_INTERFACE `port_number` is the `OUR_PORTNUM_C`
+@@ -23515,6 +23521,120 @@ def test_gptp_latency_corrections_are_declared_and_carried() -> None:
+         moved.unlink()
+ 
+ 
++# ================================================================ gate 36a ===
++def test_audio_unit_rates_loader_contract() -> None:
++    """Gate 36a: L10's eight-entry walk and duplicate refusals are independent."""
++    base = yaml.safe_load(CONFIGS["arty_current"].read_text())
++    # L10 of protocol-processor/docs/architecture/07_memory_maps.md section
++    # 3.1 says EIGHT. Do not import the implementation's maximum here: a
++    # changed bound must fail. These are clocking-loader inputs, not a claim
++    # that the stream-format builder or runtime fabric supports these rates.
++    eight = [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
++    base["clocking"]["audio_unit_rates_hz"] = eight
++    assert eb._load_clocking(base, "gate 36a")["audio_unit_rates_hz"] == eight, \
++        "gate 36a: eight distinct entries must load in declared order"
++    for current in (48000, 96000, 192000):
++        base["clocking"].pop("audio_unit_rates_hz", None)
++        base["clocking"]["sampling_rate_hz"] = current
++        loaded = eb._load_clocking(base, "gate 36a")
++        assert loaded["audio_unit_rates_hz"] == [current], \
++            "gate 36a: omitted rate list must default to the current rate"
++
++    cases = [
++        ("distinct ninth entry", eight + [22050], ("8", "walk", "L10")),
++        ("duplicate", [48000, 96000, 48000], ("duplicate",)),
++        ("duplicate after integer conversion", [48000, "48000"],
++         ("duplicate",)),
++        ("empty list", [], ("sampling_rate_hz", "must appear")),
++        ("missing current rate", [96000, 192000],
++         ("sampling_rate_hz", "must appear")),
++    ]
++    for label, rates, reason in cases:
++        path = _variant(CONFIGS["arty_current"],
++                        lambda c, r=rates: c["clocking"].update(
++                            audio_unit_rates_hz=r))
++        try:
++            try:
++                eb.load_config(path)
++            except eb.ConfigError as exc:
++                message = str(exc)
++                assert "audio_unit_rates_hz" in message and all(
++                    token in message for token in reason), \
++                    f"gate 36a: {label} refused for another cause: {message}"
++            else:
++                raise AssertionError(f"gate 36a: {label} accepted")
++        finally:
++            path.unlink()
++    print("  [gate 36a] eight distinct entries and defaults pass; distinct "
++          "ninth, duplicates, empty and missing-current lists refused by cause")
++
++
++def test_audio_unit_shipping_rates() -> None:
++    """Gate 36a: every shipped AUDIO_UNIT retains its advertised rate words."""
++    for name, path in CONFIGS.items():
++        want = [48000, 96000, 192000] if name == "arty_current" else [48000]
++        cfg = eb.load_config(path)
++        assert cfg["clocking"]["audio_unit_rates_hz"] == want, \
++            f"gate 36a: {name} shipping rate declaration changed"
++        overlay = eb.emit_aem_overlay(cfg)
++        desc = image_descriptor(
++            eb._entity_model_image(cfg, overlay)["aem_desc.bin"], 0x0002)
++        offset, count = struct.unpack_from(">HH", desc, 140)
++        assert offset == 144 and count == len(want), \
++            f"gate 36a: {name} AUDIO_UNIT rate offset/count changed"
++        got = list(struct.unpack_from(f">{count}I", desc, offset))
++        assert got == want, f"gate 36a: {name} image rates {got} != {want}"
++        print(f"  [gate 36a] {name}: image advertises {got}, offset {offset}")
++
++
++def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
++    """Compare the deliberate literal C++ array with its YAML authority."""
++    code = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
++    declarations = re.findall(
++        r"\bstatic\s+constexpr\s+uint32_t\s+AU_RATES_C\s*"
++        r"\[\s*(\d+)\s*\]\s*=\s*\{([^{}]*)\}\s*;", code)
++    assert len(declarations) == 1, \
++        "gate 36a: expected one literal AU_RATES_C declaration"
++    length, body = declarations[0]
++    assert int(length) == len(rates), \
++        f"gate 36a: AU_RATES_C declared length {length} != {len(rates)}"
++    words = body.strip().rstrip(",").split(",")
++    assert all(re.fullmatch(r"\s*\d+[uU]?\s*", word) for word in words), \
++        "gate 36a: AU_RATES_C must contain literal rate words"
++    got = [int(word.strip().rstrip("uU")) for word in words]
++    assert got == rates, f"gate 36a: AU_RATES_C values {got} != {rates}"
++
++
++def test_pp_shadow_audio_unit_rates_match_config() -> None:
++    """Gate 36a: pristine hand-built rates pass; independent drift fails."""
++    source = (ROOT / "tb/verilator/pp_shadow/sim_main.cpp").read_text()
++    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
++    _assert_pp_shadow_audio_unit_rates(
++        source, cfg["clocking"]["audio_unit_rates_hz"])
++    # Independent fixtures exercise each comparison, including C++'s legal
++    # implicit zero fill. They do not derive their expectations from parsing.
++    pristine = "static constexpr uint32_t AU_RATES_C[3] = {48000u, 96000u, 192000u};"
++    want = [48000, 96000, 192000]
++    _assert_pp_shadow_audio_unit_rates(pristine, want)
++    mutants = [
++        (pristine.replace("96000u", "88200u"), "values"),
++        (pristine.replace("48000u, 96000u", "96000u, 48000u"), "values"),
++        (pristine.replace("[3]", "[4]"), "declared length"),
++        (pristine.replace(", 192000u", ""), "values"),
++        ("// " + pristine, "declaration"),
++    ]
++    for mutant, reason in mutants:
++        try:
++            _assert_pp_shadow_audio_unit_rates(mutant, want)
++        except AssertionError as exc:
++            assert reason in str(exc), \
++                f"gate 36a: pp_shadow drift refused for another cause: {exc}"
++        else:
++            raise AssertionError(f"gate 36a: pp_shadow {reason} drift accepted")
++    print("  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent "
++          "value/order/length/initializer/declaration controls refused")
++
++
+ #: Gate 37's two fields, each as (descriptor type, first octet, width): the
+ #: AVB_INTERFACE port_number of 1722.1-2021 Table 7-13 and the CONTROL
+ #: reset_time of Table 7-28.  Named once, because the gate reads them out of
+@@ -23834,6 +23954,9 @@ if __name__ == "__main__":
+                test_builder_doc_key_map,
+                test_boot_policy_follows_the_declaration,
+                test_gptp_latency_corrections_are_declared_and_carried,
++               test_audio_unit_rates_loader_contract,
++               test_audio_unit_shipping_rates,
++               test_pp_shadow_audio_unit_rates_match_config,
+                test_descriptor_fields_name_this_device):
+         print(f"{fn.__name__}:")
+         fn()

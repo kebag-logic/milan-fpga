@@ -1,0 +1,83 @@
+{
+  "loader_checks": 115,
+  "mutations": [
+    {
+      "mutation": "bound-nine",
+      "detected": true,
+      "exception": "AssertionError",
+      "message": "gate 36a: distinct ninth entry accepted"
+    },
+    {
+      "mutation": "bound-seven",
+      "detected": true,
+      "exception": "ConfigError",
+      "message": "clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 7 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)"
+    },
+    {
+      "mutation": "no-count-check",
+      "detected": true,
+      "exception": "AssertionError",
+      "message": "gate 36a: distinct ninth entry accepted"
+    },
+    {
+      "mutation": "no-duplicate-check",
+      "detected": true,
+      "exception": "AssertionError",
+      "message": "gate 36a: duplicate accepted"
+    },
+    {
+      "mutation": "no-current-membership",
+      "detected": true,
+      "exception": "AssertionError",
+      "message": "gate 36a: empty list accepted"
+    },
+    {
+      "mutation": "reverse-order",
+      "detected": true,
+      "exception": "AssertionError",
+      "message": "gate 36a: eight distinct entries must load in declared order"
+    },
+    {
+      "mutation": "wrong-default",
+      "detected": true,
+      "exception": "ConfigError",
+      "message": "sampling_rate_hz must appear in audio_unit_rates_hz"
+    },
+    {
+      "mutation": "cpp-value",
+      "detected": true,
+      "message": "gate 36a: AU_RATES_C values [48000, 88200, 192000] != [48000, 96000, 192000]"
+    },
+    {
+      "mutation": "cpp-order",
+      "detected": true,
+      "message": "gate 36a: AU_RATES_C values [96000, 48000, 192000] != [48000, 96000, 192000]"
+    },
+    {
+      "mutation": "cpp-length",
+      "detected": true,
+      "message": "gate 36a: AU_RATES_C declared length 4 != 3"
+    },
+    {
+      "mutation": "cpp-short-initializer",
+      "detected": true,
+      "message": "gate 36a: AU_RATES_C values [48000, 96000] != [48000, 96000, 192000]"
+    },
+    {
+      "mutation": "cpp-commented",
+      "detected": true,
+      "message": "gate 36a: expected one literal AU_RATES_C declaration"
+    }
+  ],
+  "normal_dispatch_real_gates": [
+    "test_audio_unit_rates_loader_contract",
+    "test_audio_unit_shipping_rates",
+    "test_pp_shadow_audio_unit_rates_match_config"
+  ],
+  "normal_dispatch_failure_sentinels": [
+    "test_audio_unit_rates_loader_contract",
+    "test_audio_unit_shipping_rates",
+    "test_pp_shadow_audio_unit_rates_match_config"
+  ],
+  "result": "PASS"
+}

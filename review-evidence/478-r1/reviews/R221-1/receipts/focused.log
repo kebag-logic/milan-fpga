@@ -1,0 +1,26 @@
+PRISTINE: test_audio_unit_rates_loader_contract
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+PRISTINE: test_audio_unit_shipping_rates
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+  [gate 36a] arty_4x4: image advertises [48000], offset 144
+  [gate 36a] arty_8ch: image advertises [48000], offset 144
+  [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+  [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+PRISTINE: test_pp_shadow_audio_unit_rates_match_config
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+INDEPENDENT loader checks: 115
+DETECTED: bound-nine AssertionError gate 36a: distinct ninth entry accepted
+DETECTED: bound-seven ConfigError clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 7 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)
+DETECTED: no-count-check AssertionError gate 36a: distinct ninth entry accepted
+DETECTED: no-duplicate-check AssertionError gate 36a: duplicate accepted
+DETECTED: no-current-membership AssertionError gate 36a: empty list accepted
+DETECTED: reverse-order AssertionError gate 36a: eight distinct entries must load in declared order
+DETECTED: wrong-default ConfigError sampling_rate_hz must appear in audio_unit_rates_hz
+DETECTED actual scratch source drift: cpp-value gate 36a: AU_RATES_C values [48000, 88200, 192000] != [48000, 96000, 192000]
+DETECTED actual scratch source drift: cpp-order gate 36a: AU_RATES_C values [96000, 48000, 192000] != [48000, 96000, 192000]
+DETECTED actual scratch source drift: cpp-length gate 36a: AU_RATES_C declared length 4 != 3
+DETECTED actual scratch source drift: cpp-short-initializer gate 36a: AU_RATES_C values [48000, 96000] != [48000, 96000, 192000]
+DETECTED actual scratch source drift: cpp-commented gate 36a: expected one literal AU_RATES_C declaration
+NORMAL DISPATCH: all three real gates run; each independent assertion propagates
+EXPECTED downstream image refusal for loader-only fixture: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+FOCUSED RESULT: PASS

@@ -1,0 +1,23 @@
+{
+  "method": "Read local PDFs directly using pdftotext -layout; retained only document hashes, clause identifiers, and paraphrases, not full standards text.",
+  "documents": [
+    {
+      "name": "Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf",
+      "sha256": "6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8",
+      "clauses": [
+        "5.3.3.3"
+      ],
+      "conclusion": "AUDIO_UNIT must report its supported rates truthfully and its current rate must belong to that list."
+    },
+    {
+      "name": "1722.1-2021.pdf",
+      "sha256": "ad7b822008c1b78bce8af1470f1ace177a22344aa48c0da939066d6db9a65b9c",
+      "clauses": [
+        "7.2.3 / Table 7-5",
+        "7.3.1 (referenced sampling-rate format)",
+        "7.4.21.1"
+      ],
+      "conclusion": "Table 7-5 defines current rate at 136, list offset at 140 containing 144, count at 142, then 4-byte rate words; IEEE maximum count is 91. SET_SAMPLING_RATE response carries the current value, retaining the old value on failure. L10 narrows this implementation to eight entries."
+    }
+  ]
+}
