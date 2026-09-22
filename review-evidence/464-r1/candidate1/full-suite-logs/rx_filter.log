@@ -1,0 +1,39 @@
+make: Entering directory '$VALIDATION/tb/verilator/rx_filter'
+verilator --cc --exe --build -j 0 --top-module rx_mac_filter -Wall -Wno-fatal -Werror-USERERROR -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Werror-PINMISSING -Werror-UNDRIVEN -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv sim_main.cpp -o Vrx_filter_sim
+======================================================================
+[PASS] elaboration refused TDATA_WIDTH=32 with the contract's own diagnostic
+make[1]: Entering directory '$VALIDATION/tb/verilator/rx_filter/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrx_mac_filter.cpp Vrx_mac_filter___024root__0.cpp Vrx_mac_filter___024root__Slow.cpp Vrx_mac_filter___024root__0__Slow.cpp Vrx_mac_filter__Syms__Slow.cpp > Vrx_mac_filter__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vrx_mac_filter__ALL.o Vrx_mac_filter__ALL.cpp
+[PASS] elaboration refused TDATA_WIDTH=52 with the contract's own diagnostic
+[PASS] elaboration refused NUM_ENTRIES=0 with the contract's own diagnostic
+[PASS] elaboration refused ACTION_WIDTH=0 with the contract's own diagnostic
+[PASS] elaboration accepted the legal default shape
+
+5 checks: 5 PASS, 0 FAIL
+g++    sim_main.o verilated.o verilated_threads.o Vrx_mac_filter__ALL.a    -pthread -lpthread -latomic   -o Vrx_filter_sim
+rm Vrx_mac_filter__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/rx_filter/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.051 MB sources in 3 modules, into 0.122 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.177 s (elab=0.001, cvt=0.010, bld=5.160); cpu 0.019 s on 8 threads; allocated 17.051 MB
+======================================================================
+./obj_dir/Vrx_filter_sim
+== rx_mac_filter harness ==
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+checks: 78   failures: 0
+RESULT: PASS
+======================================================================
+python3 binding_mutant.py
+[PASS] missing lookup binding: refused at the build with %Error-PINMISSING
+[PASS] swapped key and mask bindings: the harness rejected it (5 of its 77 comparisons failed)
+[PASS] tied-off lookup key: the harness rejected it (11 of its 76 comparisons failed)
+[PASS] child lookup port declared output (direction-wrong binding): refused at the build with %Error-UNDRIVEN
+[PASS] DUT m_tready declared output (direction-wrong boundary): refused at the build with %Error-UNDRIVEN
+5 checks: 5 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/rx_filter'
