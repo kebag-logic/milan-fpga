@@ -6,8 +6,9 @@
 WHY THIS EXISTS. A green suite and a suite that cannot go red look the same
 from the outside. Each control below plants ONE defect the design is
 supposed to refuse, requires this suite to notice, and writes only private
-source/build copies. Caller sources are never modified, even under KILL. A control that leaves the suite
-green is a finding about the suite, and is reported as one.
+source/build copies. Caller sources are never modified, even under KILL.
+A control that leaves the suite green is a finding about the suite, and is
+reported as one.
 
 WHAT IS HERE AND WHAT IS NOT. The plane's own laws: what a ledger entry is
 and when it may be resolved, what a barrier destroys, what discharges a
@@ -31,8 +32,8 @@ KILL can leave private scratch/children, but cannot modify caller source.
 
 import argparse
 import re
-import tempfile
 import sys
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent

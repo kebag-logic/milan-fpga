@@ -85,6 +85,7 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
     """Check exact populations, verdict distinctions and repeated cleanup."""
     root, probe = fixture(parent, mode)
     probe.env["PROBE_MODE"] = mode
+    probe.env["GIT_PAGER"] = "cat"  # presentation does not change input identity
     before = snapshot(root)
     for iteration in range(2 if repeat else 1):
         probe.start([sys.executable, str(root / DRIVER)])

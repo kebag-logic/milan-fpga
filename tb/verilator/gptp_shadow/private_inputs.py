@@ -81,9 +81,10 @@ def _copy_tree(root, target, owner, revision, scopes):
 def copy_inputs(repo: Path, target: Path, owner: object) -> None:
     """Snapshot verified input files, including both required pinned dependencies."""
     # Caller Git environment must not redirect identity checks to another tree.
-    if any(name.startswith("GIT_") for name in os.environ
-           if name not in ("GIT_NO_REPLACE_OBJECTS", "GIT_CONFIG_NOSYSTEM", "GIT_TERMINAL_PROMPT")):
-        raise InputRefused("Git environment overrides are not accepted")
+    allowed = {"GIT_NO_REPLACE_OBJECTS", "GIT_CONFIG_NOSYSTEM", "GIT_TERMINAL_PROMPT", "GIT_PAGER"}
+    overrides = sorted(name for name in os.environ if name.startswith("GIT_") and name not in allowed)
+    if overrides:
+        raise InputRefused(f"Git environment overrides are not accepted: {', '.join(overrides)}")
     _copy_tree(repo, target, owner, "HEAD", FIRST_PARTY)
     pins = _records(_git(repo, owner, "ls-tree", "-z", "HEAD", "--", *DEPENDENCIES), tree=True)
     indexed = _records(_git(repo, owner, "ls-files", "--stage", "-z", "--", *DEPENDENCIES))

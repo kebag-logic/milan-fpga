@@ -73,7 +73,12 @@ class OwnedProcesses:
 
     def __exit__(self, exc_type, exc, traceback) -> None:
         try:
-            self._cleanup()
+            # run() always cleans, including on error. Do not restart its
+            # cleanup deadline while unwinding a failed cleanup attempt.
+            # Context-only users (the fixture containment boundary) still
+            # adopt and clean children launched inside their context.
+            if self.process is None:
+                self._cleanup()
             if exc_type is None:
                 self.checkpoint()
         finally:
@@ -211,10 +216,12 @@ class OwnedProcesses:
                     self.checkpoint()
                     time.sleep(0.02)
             finally:
-                self._cleanup()
-                if self.root_fd is not None:
-                    os.close(self.root_fd)
-                    self.root_fd = None
+                try:
+                    self._cleanup()
+                finally:
+                    if self.root_fd is not None:
+                        os.close(self.root_fd)
+                        self.root_fd = None
             self.checkpoint()
             output.seek(0)
             return self.process.returncode, output.read().decode("utf-8", errors="replace")
