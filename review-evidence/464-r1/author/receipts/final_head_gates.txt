@@ -1,0 +1,15 @@
+head 1576f0893ae9781074fffb105f5384fe774ff11e tree b16ce21a92e8c80f209486d8a5d848f6e47359aa base ec34fcdee0ca9ffa63564a9af8ad70a3a618de29
+lane pristine before gates
+python3 -B avdecc/gen_aem_store.py --self-test             exit=0 | gen_aem_store self-test: PASS
+$WORKSPACE_HOME/.local/bin/python3.12 -B avdecc/gen_aem_store.py --self-test exit=0 | gen_aem_store self-test: PASS
+python3 -B scripts/ci_events.py --check                    exit=0 | ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+python3 -B scripts/ci_events.py --selftest                 exit=0 | selftest: PASS (1513 contract items, 1150 arms)
+python3 -B scripts/docs_check.py                           exit=0 | docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-
+python3 -B scripts/check_doc_paths.py                      exit=0 | doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+python3 -B scripts/gen_toc.py --check                      exit=0 | TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+python3 -B scripts/check_em_dash.py --base ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 exit=0 | check_em_dash: 0 finding(s) over 11 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 34/34 
+python3 -B scripts/check_feature_status.py                 exit=0 | feature_status: 0 finding(s)
+python3 -B scripts/check_py_idiom.py                       exit=0 |   over-long line: 0 <= 0
+python3 -B scripts/check_hygiene.py --check                exit=0 | HYGIENE RATCHET: PASS (3 population(s), 705 file(s))
+git diff --check ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 HEAD exit=0 | 
+lane pristine after gates

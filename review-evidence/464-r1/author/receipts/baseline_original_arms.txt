@@ -1,0 +1,41 @@
+current builtin geometry:
+  ports_in  = [{'clusters': 8, 'base_cluster': 0, 'maps': 0, 'base_map': 0, 'map_mode': 'dynamic', 'map_page': 8}]
+  ports_out = [{'clusters': 8, 'base_cluster': 8, 'maps': 1, 'base_map': 0}]
+  audio_maps: 1 map(s)
+  stream_inputs = [('Stream 1', 'aaf'), ('CRF', 'crf')]
+  stream_outputs = ['Stream Output 0']
+
+[refuse] global cluster index where 7.2.19 wants a port-relative offset
+   MUTATION CRASHED: IndexError: list assignment index out of range
+[refuse] base_map naming an AUDIO_MAP the model does not define
+   ValueError: STREAM_PORT_OUTPUT[0] base_map=7 names an AUDIO_MAP this model does not define (it defines 1: 0..0) - 7.2.13 base_map addresses a descriptor that must exist
+[refuse] number_of_maps != 1 on a static port
+   ValueError: STREAM_PORT_OUTPUT[0] declares number_of_maps=2; the static GET_AUDIO_MAP path serves map_index 0 only, so any other count advertises pages the entity cannot answer (7.2.13 number_of_maps / 7.4.44.1 paging)
+[refuse] cluster_channel past the cluster's channel_count (7.2.16)
+   ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,0,0,1): cluster_channel 1 >= channel_count 1 of the AUDIO_CLUSTER at base_cluster+0 (7.2.16 Table 7-27 channel_count: "The number of channels within the cluster")
+[refuse] stream_index past the descriptors this direction has (7.2.13)
+   ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): stream_index 9 >= the 1 stream descriptors this direction has (7.2.13)
+[refuse] INPUT: two mappings onto the SAME cluster channel (7.2.19)
+   ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,0,0,0): 1722.1-2021 7.2.19 for a STREAM_PORT_OUTPUT - "There is at most one entry for each mapping_stream_index and mapping_stream_channel across the entire Configuration" - and (0,0) is already mapped by STREAM_PO
+[refuse] a mapping onto the CRF sink, which carries no audio channels
+   ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream_index 1 >= the 1 stream descriptors this direction has (7.2.13)
+[refuse] OUTPUT: the same (stream_index, stream_channel) twice
+   MUTATION CRASHED: IndexError: list assignment index out of range
+[accept] OUTPUT: the same cluster_offset twice IS allowed
+   MUTATION CRASHED: IndexError: list assignment index out of range
+[refuse] more mappings in one AUDIO_MAP than Table 7-32 allows (62)
+   ValueError: STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] has 63 mappings; 1722.1-2021 Table 7-32: "The maximum value of this field is 62 for this version of AEM"
+
+deployed deviations: 6; recorded: 6; equal: False
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,3,3,0): stream_channel 3 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,4,4,0): stream_channel 4 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,5,5,0): stream_channel 5 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,6,6,0): stream_channel 6 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  got : STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,7,7,0): stream_channel 7 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,3,3,0): stream_channel 3 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,4,4,0): stream_channel 4 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,5,5,0): stream_channel 5 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,6,6,0): stream_channel 6 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1
+  rec : STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,7,7,0): stream_channel 7 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1

@@ -1,0 +1,6 @@
+head 1576f089
+scripts/measure_fail_fast.py --check -> exit 0 |   the ratchets can be lowered to 82, 4 and 0
+scripts/measure_test_evidence.py --check -> exit 0 |   the mutation ratchet can be lowered to 75
+scripts/check_todo_ownership.py -> exit 0 | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 755 first-
+scripts/check_sh_idiom.py -> exit 0 |   top-heavy long script: 0 <= 0
+scripts/check_archive.py -> exit 0 | archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
