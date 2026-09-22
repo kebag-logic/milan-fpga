@@ -1,0 +1,2570 @@
+{
+  "original_manifest_verified": 1031,
+  "included": [
+    "MANIFEST.sha256",
+    "REPORT.md",
+    "probes/obj/Vsemantics_probe.cpp",
+    "probes/obj/Vsemantics_probe.h",
+    "probes/obj/Vsemantics_probe.mk",
+    "probes/obj/Vsemantics_probe__ALL.cpp",
+    "probes/obj/Vsemantics_probe__Dpi.cpp",
+    "probes/obj/Vsemantics_probe__Dpi.h",
+    "probes/obj/Vsemantics_probe__Syms.h",
+    "probes/obj/Vsemantics_probe__Syms__Slow.cpp",
+    "probes/obj/Vsemantics_probe___024root.h",
+    "probes/obj/Vsemantics_probe___024root__0.cpp",
+    "probes/obj/Vsemantics_probe___024root__0__Slow.cpp",
+    "probes/obj/Vsemantics_probe___024root__Slow.cpp",
+    "probes/obj/Vsemantics_probe__pch.h",
+    "probes/obj/Vsemantics_probe_classes.mk",
+    "probes/semantics_probe.cpp",
+    "probes/semantics_probe.sv",
+    "public-manager/builder-complete-integrity.json",
+    "public-manager/builder-validation-complete-integrity.json",
+    "public-manager/full-native/01.log",
+    "public-manager/full-native/02.log",
+    "public-manager/full-native/03.log",
+    "public-manager/full-native/04.log",
+    "public-manager/full-native/05.log",
+    "public-manager/full-native/complete.json",
+    "public-manager/full-native/results.json",
+    "public-manager/full-native-initial-integrity.json",
+    "public-manager/full-native.json",
+    "public-manager/full-suite-logs/ptp_ts.log",
+    "public-manager/full-suite-logs/tsn_fuzz.log",
+    "public-manager/manager-builder/01.log",
+    "public-manager/manager-builder/02.log",
+    "public-manager/manager-builder/03.log",
+    "public-manager/manager-builder/04.log",
+    "public-manager/manager-builder/05.log",
+    "public-manager/manager-builder/06.log",
+    "public-manager/manager-builder/07.log",
+    "public-manager/manager-builder/08.log",
+    "public-manager/manager-builder/09.log",
+    "public-manager/manager-builder/10.log",
+    "public-manager/manager-builder/11.log",
+    "public-manager/manager-builder/12.log",
+    "public-manager/manager-builder/13.log",
+    "public-manager/manager-builder/14.log",
+    "public-manager/manager-builder/15.log",
+    "public-manager/manager-builder/16.log",
+    "public-manager/manager-builder/17.log",
+    "public-manager/manager-builder/18.log",
+    "public-manager/manager-builder/19.log",
+    "public-manager/manager-builder/20.log",
+    "public-manager/manager-builder/21.log",
+    "public-manager/manager-builder/22.log",
+    "public-manager/manager-builder/23.log",
+    "public-manager/manager-builder/24.log",
+    "public-manager/manager-builder/25.log",
+    "public-manager/manager-builder/26.log",
+    "public-manager/manager-builder/27.log",
+    "public-manager/manager-builder/28.log",
+    "public-manager/manager-builder/29.log",
+    "public-manager/manager-builder/30.log",
+    "public-manager/manager-builder/31.log",
+    "public-manager/manager-builder/32.log",
+    "public-manager/manager-builder/33.log",
+    "public-manager/manager-builder/34.log",
+    "public-manager/manager-builder/35.log",
+    "public-manager/manager-builder/36.log",
+    "public-manager/manager-builder/37.log",
+    "public-manager/manager-builder/38.log",
+    "public-manager/manager-builder/39.log",
+    "public-manager/manager-builder/40.log",
+    "public-manager/manager-builder/41.log",
+    "public-manager/manager-builder/42.log",
+    "public-manager/manager-builder/43.log",
+    "public-manager/manager-builder/44.log",
+    "public-manager/manager-builder/45.log",
+    "public-manager/manager-builder/46.log",
+    "public-manager/manager-builder/47.log",
+    "public-manager/manager-builder/48.log",
+    "public-manager/manager-builder/complete.json",
+    "public-manager/manager-builder/results.json",
+    "public-manager/manager-builder-initial-integrity.json",
+    "public-manager/manager-builder.json",
+    "public-manager/pinned-tool-identity.json",
+    "public-manager/source.json",
+    "public-manager/validation-complete-integrity.json",
+    "raw/anchors.log",
+    "raw/assignment.json",
+    "raw/assignment.log",
+    "raw/correction.diff",
+    "raw/default-stop-w64.log",
+    "raw/default-stop-w8.log",
+    "raw/diff-check.log",
+    "raw/doc-paths.log",
+    "raw/doc-style.log",
+    "raw/docs-check.log",
+    "raw/em-dash.log",
+    "raw/evidence-tree.json",
+    "raw/evidence-tree.log",
+    "raw/fetch-public.json",
+    "raw/fetch-public.log",
+    "raw/final-inputs.json",
+    "raw/final-inputs.log",
+    "raw/final-integrity.json",
+    "raw/final-integrity.log",
+    "raw/focused-campaign.json",
+    "raw/focused-campaign.log",
+    "raw/focused-controls-results.json",
+    "raw/focused-controls.json",
+    "raw/focused-controls.log",
+    "raw/focused-mux.json",
+    "raw/focused-mux.log",
+    "raw/focused-suite-composed.log",
+    "raw/history.txt",
+    "raw/initial-integrity.json",
+    "raw/initial-integrity.log",
+    "raw/issue.json",
+    "raw/issue.log",
+    "raw/old-findings.json",
+    "raw/old-findings.log",
+    "raw/original-ptp-ts.log",
+    "raw/pr.json",
+    "raw/pr.log",
+    "raw/public-evidence-manifest.json",
+    "raw/result-audit.json",
+    "raw/result-audit.log",
+    "raw/seed-w64-0.log",
+    "raw/seed-w64-1.log",
+    "raw/seed-w64-10.log",
+    "raw/seed-w64-11.log",
+    "raw/seed-w64-12.log",
+    "raw/seed-w64-13.log",
+    "raw/seed-w64-14.log",
+    "raw/seed-w64-15.log",
+    "raw/seed-w64-16.log",
+    "raw/seed-w64-17.log",
+    "raw/seed-w64-18.log",
+    "raw/seed-w64-19.log",
+    "raw/seed-w64-2.log",
+    "raw/seed-w64-3.log",
+    "raw/seed-w64-4.log",
+    "raw/seed-w64-5.log",
+    "raw/seed-w64-6.log",
+    "raw/seed-w64-7.log",
+    "raw/seed-w64-8.log",
+    "raw/seed-w64-9.log",
+    "raw/seed-w8-0.log",
+    "raw/seed-w8-1.log",
+    "raw/seed-w8-10.log",
+    "raw/seed-w8-11.log",
+    "raw/seed-w8-12.log",
+    "raw/seed-w8-13.log",
+    "raw/seed-w8-14.log",
+    "raw/seed-w8-15.log",
+    "raw/seed-w8-16.log",
+    "raw/seed-w8-17.log",
+    "raw/seed-w8-18.log",
+    "raw/seed-w8-19.log",
+    "raw/seed-w8-2.log",
+    "raw/seed-w8-3.log",
+    "raw/seed-w8-4.log",
+    "raw/seed-w8-5.log",
+    "raw/seed-w8-6.log",
+    "raw/seed-w8-7.log",
+    "raw/seed-w8-8.log",
+    "raw/seed-w8-9.log",
+    "raw/semantics-build.json",
+    "raw/semantics-build.log",
+    "raw/semantics-run.json",
+    "raw/semantics-run.log",
+    "raw/source-proof.json",
+    "raw/source-proof.log",
+    "raw/source.diff",
+    "raw/tally-verdict.json",
+    "raw/tally-verdict.log",
+    "raw/toc.log",
+    "raw/tool-identity-corrected.json",
+    "raw/tool-identity-corrected.log",
+    "raw/tool-identity-final.json",
+    "raw/tool-identity-final.log",
+    "raw/tool-identity.json",
+    "raw/tool-identity.log",
+    "raw/usage-w64-0.log",
+    "raw/usage-w64-1.log",
+    "raw/usage-w64-2.log",
+    "raw/usage-w64-3.log",
+    "raw/usage-w64-4.log",
+    "raw/usage-w64-5.log",
+    "raw/usage-w8-0.log",
+    "raw/usage-w8-1.log",
+    "raw/usage-w8-2.log",
+    "raw/usage-w8-3.log",
+    "raw/usage-w8-4.log",
+    "raw/usage-w8-5.log",
+    "scratch/hdl/common/KL_link_guard.sv",
+    "scratch/hdl/common/README-tests.md",
+    "scratch/hdl/common/axi_stream_if.sv",
+    "scratch/hdl/common/axis_mux_rr_2in_1out.sv",
+    "scratch/hdl/common/cdc_handshake.sv",
+    "scratch/hdl/common/cdc_pair_fifo.sv",
+    "scratch/hdl/common/cdc_pulse.sv",
+    "scratch/hdl/common/csr/README-tests.md",
+    "scratch/hdl/common/csr/doc/milan_csr.md",
+    "scratch/hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+    "scratch/hdl/common/csr/milan_csr.sv",
+    "scratch/hdl/common/eth_event_counter/KL_mac_rmon_events.sv",
+    "scratch/hdl/common/eth_event_counter/README-tests.md",
+    "scratch/hdl/common/eth_event_counter/doc/ethernet_events.md",
+    "scratch/hdl/common/eth_event_counter/doc/ethernet_events.svg",
+    "scratch/hdl/common/eth_event_counter/doc/event_counter.md",
+    "scratch/hdl/common/eth_event_counter/doc/event_counter.svg",
+    "scratch/hdl/common/eth_event_counter/ethernet_events.sv",
+    "scratch/hdl/common/eth_event_counter/ethernet_events.svh",
+    "scratch/hdl/common/eth_event_counter/event_counter.sv",
+    "scratch/hdl/common/ethernet_packet_pkg.sv",
+    "scratch/hdl/common/gen/adp_shape_defaults.svh",
+    "scratch/hdl/common/parameters.svh",
+    "scratch/hdl/common/tx_ifg_gasket.sv",
+    "scratch/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+    "scratch/hdl/ieee8021as/ptp_timestamp/README-tests.md",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/fsm_ptp_ts_core_00.svg",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_core.md",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_core.svg",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_top.md",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_top.svg",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/timestamp_counter.md",
+    "scratch/hdl/ieee8021as/ptp_timestamp/doc/timestamp_counter.svg",
+    "scratch/hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
+    "scratch/hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv",
+    "scratch/hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv",
+    "scratch/hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+    "scratch/scripts/suite_tally.py",
+    "scratch/tb/common/axi_stream_driver.svh",
+    "scratch/tb/common/gptp_launch_observer.hpp",
+    "scratch/tb/common/gptp_tx_flags.hpp",
+    "scratch/tb/common/sva/axis_mux_rr_2in_1out_bind.sv",
+    "scratch/tb/common/sva/axis_mux_rr_2in_1out_sva.sv",
+    "scratch/tb/common/sva/axis_stream_source_sva.sv",
+    "scratch/tb/common/verilator_harness.hpp",
+    "scratch/tb/verilator/ptp_ts/Makefile",
+    "scratch/tb/verilator/ptp_ts/mux_sva_main.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top_axi_stream_if.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top_axi_stream_if__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top_axi_stream_if__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top_axi_stream_if__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/clean-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/clean-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s0_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s0_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s0_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s0_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s1_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s1_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s1_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run-s1_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/axis_mux_rr_2in_1out_bind.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s0_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s0_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s0_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s0_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s1_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s1_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s1_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run-s1_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/axis_mux_rr_2in_1out_bind.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s0_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s0_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s0_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s0_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s1_drop_tvalid.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s1_flip_tdata.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s1_flip_tkeep.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run-s1_flip_tlast.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-unused_path-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/elaboration-tdata_width_12/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/axis_mux_rr_2in_1out.sv",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/build.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ALL.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ConstPool__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__Dpi.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__Syms.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__Syms__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024root.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024root__0.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024root__0__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024root__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024unit.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out___024unit__Slow.cpp",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__pch.h",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out_classes.mk",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_drop_tvalid-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_drop_tvalid-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tdata-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tdata-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tkeep-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tkeep-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tlast-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s0_flip_tlast-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_drop_tvalid-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_drop_tvalid-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tdata-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tdata-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tkeep-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tkeep-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tlast-w64/run.log",
+    "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/stimulus-s1_flip_tlast-w8/run.log",
+    "scratch/tb/verilator/ptp_ts/sim_main.cpp",
+    "scratch/tb/verilator/ptp_ts/sva_campaign.py",
+    "scratch/third_party/verilog-axis/rtl/axis_fifo.v",
+    "scripts/README.md",
+    "scripts/audit_results.py",
+    "scripts/fetch_evidence.py",
+    "scripts/final_inputs.py",
+    "scripts/focused_controls.py",
+    "scripts/integrity.py",
+    "scripts/record.py",
+    "scripts/seal.py",
+    "scripts/source_proof.py",
+    "scripts/tool_identity.py"
+  ],
+  "omitted": [
+    {
+      "file": "probes/obj/Vsemantics_probe__ALL.a",
+      "bytes": 34552,
+      "sha256": "2918a9141ab59d611e839451878611176653bceab5816b486189666a9acf9eb8",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/Vsemantics_probe__ALL.d",
+      "bytes": 1892,
+      "sha256": "864b8d1c14f7380fa6bc7a2037283fa1af3bdc18174a5ce9c99f4f1cc71c116b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/Vsemantics_probe__ALL.o",
+      "bytes": 31000,
+      "sha256": "1b6bbb925e4bab9f7c32120b37f80c682f25e07334739db9eeeb5b290447e29b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/Vsemantics_probe__ver.d",
+      "bytes": 2106,
+      "sha256": "56ce25530e44b53ea4e011d1f76d1187268b9097fd940fd2b922196544553bca",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/Vsemantics_probe__verFiles.dat",
+      "bytes": 4314,
+      "sha256": "f2cc62e7f742db1abd3549f789afee2f2232ea927ea8d7b04f3f7979bf8a04d3",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/semantics_probe",
+      "bytes": 248336,
+      "sha256": "8025ea627d5af4861527307b701f043b9e1a00bd4060209ca6d9250a443a1477",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "probes/obj/semantics_probe.d",
+      "bytes": 1162,
+      "sha256": "ecbc5dc9bff18bade145831d248873327613f53d621c58ef5eadbccb4e7e0993",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/semantics_probe.o",
+      "bytes": 13384,
+      "sha256": "467d4e4d8984498e33fb97a27ccb1624f9dddd0a004c10ba27377d43ec223209",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated.o",
+      "bytes": 286440,
+      "sha256": "c90b4756c22d5faeb0e5c87d346ae2312cef5a919ccf4671358c9bcb35b80384",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated_dpi.o",
+      "bytes": 30712,
+      "sha256": "6c62c5d035ee6a2e711c01c7387b2b389e66be453d1586674dc34c8995155df4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "probes/obj/verilated_threads.o",
+      "bytes": 57216,
+      "sha256": "4827cc22e5df82c2baa1c11f038bfa670511f56f6dfdef98b35e23f2461a545b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_sim",
+      "bytes": 351536,
+      "sha256": "0196953ba04e07a392abcf2901a24954db745efca1bd6caaabcb5504fff45fcf",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ALL.a",
+      "bytes": 45660,
+      "sha256": "85a0f0731f00ae6bfaff850f725dadcc09ac9a75221aa5f3d2c994a54c2fb3ec",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ALL.d",
+      "bytes": 1351,
+      "sha256": "4818722ef4d9fc5f2f15c54ea5baa19c72c64721af094ade2e102b838ad02b3a",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ALL.o",
+      "bytes": 41368,
+      "sha256": "4e36c19dad2c801b17bc26272595548a4661dbfe39d3862856d1f0c28b49b81e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__ver.d",
+      "bytes": 2204,
+      "sha256": "9963ac425e80b02914d7b0eb3e567af82581f9e9917a59b8e2e193695f38c8a2",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/Vptp_ts_top__verFiles.dat",
+      "bytes": 6325,
+      "sha256": "ddb9e14efad5a1042cec4be5e42c46b8524c4a7427abaca10a91d976a87ab049",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/sim_main.d",
+      "bytes": 924,
+      "sha256": "7fa23105c4fc54986ce09bec555284c44b3d8aa0f0fa9985375685b74501bde5",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/sim_main.o",
+      "bytes": 29784,
+      "sha256": "cefffb215464981d6a6d08ab62ee1e894f46b42550bacc6a330aaac7f640cf0e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104174,
+      "sha256": "81da5194c4d6faded46df66efa82020cc4e34d174d5a59e736a26c22437b26d2",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99760,
+      "sha256": "51491ac54929b02bc3b285604f29cdcb1d8f4a81e683e76dcb24493971515d44",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 1724,
+      "sha256": "7d2a232a24a963189f90c9aa84cf7cff34ad386d191d76f0818c857dbc70e6e0",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 4372,
+      "sha256": "733a58159ce6c4eed669f232f60812498bd8197e61af9db780a43660e5e93cef",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "e2d09c9d35e27a40c61dc2b7cce8383ed672b40c67454664b9df2dca75fcdffb",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/mux_sva_main.d",
+      "bytes": 1141,
+      "sha256": "fec339867fd4020b4a984369a3a683617db810373631fdd86fd942b344c6f45a",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "2ca3a42e49f45933ad637a8240dde7d34c90ce9743406a30b3804bdc39fbab04",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 103886,
+      "sha256": "9a4a72a596861118306f0d57a13358902b38fdf87035c267ef007d04a911d65c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99472,
+      "sha256": "a450a00f037df4a33651102f51c42c97a64aeea7029e1934afc75b906ef0c4aa",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 1707,
+      "sha256": "b8ffe6ec8b3cd5caed310942101aebe6f7f9936fa951dd196e7b000f0b4a9199",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 4351,
+      "sha256": "20bb5fd0633896764ec8cf7d9cd37792d2a39f2c4bd9f238de7fe83e35cca80e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "3e0f2e8e65ba98e4e7c63fa8235cf1eb6e1c028861d3036df21b8ab5ac9a321f",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/mux_sva_main.d",
+      "bytes": 1141,
+      "sha256": "fec339867fd4020b4a984369a3a683617db810373631fdd86fd942b344c6f45a",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "a6c2044049c5b2f91cb87eff788a3f3c16ad2ff2d3cab4edf178fbb08dc9c3ad",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 26516,
+      "sha256": "658f70ceffd44f6b577257c258dbabb890475c2f659a18f2eebcd1d148ded554",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 22752,
+      "sha256": "ca4404731e3a02effecb803d2acc7214ac8a380d68c2b2dfba2b1c544d25229c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3914,
+      "sha256": "087d7cdf08f26bf8fb660e4cb81cf5e6b82d9056d47b4c3ab62945e44116702a",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 6925,
+      "sha256": "a2727f27efc92acea83b5fa04dee6b5c7087239ab281af8ecd0ab782f6faf860",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/Vmux_sva",
+      "bytes": 388696,
+      "sha256": "413643d3feeb12e38ccab983dca9e588cad6504e68a962b8bbcc9fa0fb8e2375",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-assertions_disabled-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104238,
+      "sha256": "308fa67833aac4958befecea909ececc72ef413eebba53ece795d3bad2b254b6",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99824,
+      "sha256": "a6b28b5d99037291b705eb2d8844083df5bc3dfdaf836d20ea82976aa6357fbc",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3956,
+      "sha256": "aa8e5bb0088aada1c9fb1e69256f61a270c04d0237ecd8b91c106713d818a41e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7021,
+      "sha256": "582c41965afbd7b2d7d23bd9876ec59bd1a43ba65733e75820ab3f38b2b90814",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "83760aa2b51abfc95dc01cd5a82a5411eea48f7109c405a1d73d88365623fe22",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_ports_swapped-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 26268,
+      "sha256": "55665083b19fe0e7c5f017fc01a06b9d03e2e9ae7962166f90f9f9c9a28381f5",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 22504,
+      "sha256": "9553725b8a9ba3d83cfe11f02300ab4713d1fbb0c1105de207b107f723e19145",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3974,
+      "sha256": "07605663cb553f7ad6a595aef65ac81139f2b3a9568321379c718107023ab531",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7040,
+      "sha256": "b73fc1ae562e7192ecd64a4dc4a926df26110ab540dbb4a656b3514cfda28037",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/Vmux_sva",
+      "bytes": 388704,
+      "sha256": "8766af7f0c45f805963b191398cfca363a103f14dea9dba7eaaaa1728feeed72",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/mux_sva_main.o",
+      "bytes": 66280,
+      "sha256": "d4f0df4220e0ca8fd1d42b143ee829b0a4767b87d650e2300521f01cb315bcd1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/coverage-bind_target_mistyped-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104286,
+      "sha256": "b37a0051ae35ad691762e43b2a0b42175c1b130572bb893729c52dbe52f2b58c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99872,
+      "sha256": "bf01b96c112241a0c15e625ed7e881ae7e2c92a78f46497c8c72556a93c36df8",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3923,
+      "sha256": "51c0ac29ea58cec9edcb52ba7cc63ff0877d760a35ed2642da898e7e6c03ab2f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 6985,
+      "sha256": "460a38388c6a777ea1ed1351d1e629cfe8b068b0a61e60cea3b68a146b84a599",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "2f4e241c4a1d2f8350c06f2bdc6b74527b3b7f8edac0c8390b582451fe82e487",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-both_sources_ready-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104006,
+      "sha256": "24cbf12e174be9c1141de18bd4b707d8e0c48e7fcfc3fbf9f7d5eead1de6edf5",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99592,
+      "sha256": "05878a1bd93308240fbfa265d88777f801336f34592e121110263cc351d7d38f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3995,
+      "sha256": "4cb801cc937910a59479e91ed7aa2f26573048c97ae0be828e715622a1db98bc",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7067,
+      "sha256": "56e4d84745cb22b20e63cf82227ce46b060d487c44d13ae771abc9223c837111",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "8a9777c4a66c8dff20eb075da2de620b0d81ef8772650f888ea407c43429eb06",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-granted_without_request-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104294,
+      "sha256": "5fd50bdcdac2a7fdccb12457c9d0cface12dd41bc4a56d891628f85b5501da8f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99880,
+      "sha256": "de04c578e1081e0f51d23402966052ee2e1f9c7f957a1918ecb573fbee7e3b68",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3977,
+      "sha256": "4367423efd75d1ecc07e9b13d59ce4500537f01396bfb5801d0e9a38c4b9b9bf",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7048,
+      "sha256": "0aaa2b4cf8ff1dd244cc36b032b235a41d08701f4d07a5fa768965448d293d9c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "4f4c048b6e8d5f1f9909b19e782d02867f1996b28f5b956b1da268ce994a7d5c",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-illegal_state_reached-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 103998,
+      "sha256": "3e3e45055c5302022a97e9738847d518493f97b58d00c2c2c10df6f2869cb17b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99584,
+      "sha256": "ec5387286aba78766c5c17d04ebdd3bde79d681cd824a41089b6264a94d99274",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3869,
+      "sha256": "8bc5aad2cd7e4dbd74a51888a77ef2874eac04ac6e36c82ae88ff482a4748404",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 6920,
+      "sha256": "2a97f660a63f9a53c7e69d9838566efa7f58f559612f94783f36ee1e2ab1d287",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "a29b9bff40d3a6c7062df0de0b98f235a03b6cdd29b00ece85552c522ce1cf2e",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-kept_after_tlast-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 105358,
+      "sha256": "8d97be9878f6c4734625d7aadafde59e12a11a7617fd53633ebed165e00987a9",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 100944,
+      "sha256": "43aa45d8eda6891fa5657694cd2f6c0eb6188867ea03e4ff03f786e27c4ecf1e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3905,
+      "sha256": "52c3b79b949868c562b8efec41ce7c39eab7470ecda23874a165507be4d87cc5",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 6962,
+      "sha256": "5d1b1374848bec163b206993cb9ae63019614e97e4a3d49da4eb101c2438917c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "797880a5a77c0bdf4b6f32f072fae6919f8648fad272531622c4ca000f008338",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-ready_ignores_sink-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 103862,
+      "sha256": "60e4e986355976e47486d3ac83da2a3a16568fb181a1dc5ad2807968122557f9",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99448,
+      "sha256": "bf86f5e260408283624f2c51b039c146ade9f063a6abf01c2f398d14f424190b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4013,
+      "sha256": "af6f19d2b87fe32f1be8cbd46ac37b43e6b8f7969025a9fe16c51c76c50d7e5b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7088,
+      "sha256": "cc191c03d964981f1e748c6ec0b838001029df83173d6b028893db39d4a03e85",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "600436b10355a3715f5e27a7c89195061c944c94a6f16309df0e16d1e5d0d99e",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s0-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104150,
+      "sha256": "149821402b478aca74af62da10335324248e8082fe9b72bddd0dbf5110c19c8e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99736,
+      "sha256": "fb8151292518c5b6bd4764c995b11e613f0f929d89d5c53d55c4240d7e3d909e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4031,
+      "sha256": "e2518b1cda693dd7e0ed0e4440e60b8ede733d22eca03a5b1d10c0d4e12a5df4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7111,
+      "sha256": "9390137862902e68b6f0a6f3da82b9366909d4c696ea20b4193cedbb4e9391cf",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "d63b30c9b5204362959b83b760bb2edca4d1c6c97622a7efdd172983e527e1cb",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_before_tlast_s1-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104302,
+      "sha256": "6719f57a37b13b91ed697807ccb3f8f9d1791dbccb019014470db8738ba5727f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99888,
+      "sha256": "62a27746f75ec82f0e46705040ed4a2fc12167b704610a5ec81c6b8167a5d789",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4103,
+      "sha256": "3070cf4c9bdb722651c21a8e7ce3e406d9f2a95bc8aa81dc13914655a40e38ae",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7195,
+      "sha256": "ebda27a31dced4df8d049667e10f45c4a2b1936a896051606f8fa457bfe7e6cd",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "3834035f3de69fe8f421102753facfbe337d43e3f1779d369bdc7fabfaa134bf",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-released_while_tlast_stalled-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104630,
+      "sha256": "1ee56a337bbd9d34172049f62f1f7dbd046a473e3ac04e60ab95019b71cbd017",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 100216,
+      "sha256": "9f84fa0883d4dba2cd22fd0c2f2495c83c298f55f5ad6c809abee20f8fac05a8",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 3833,
+      "sha256": "ccee85ee9cecd6ff841a43fd7d2e3b2a4f7e24882c50034130c5aca9f49a6e69",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 6880,
+      "sha256": "754e3fab33482403cba464109f72e6072f6fd0e319de9e4c134f1be5e032f7d2",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "cb8b95100f1c0f3ae91de8c827deb2f2c251ab8276c39f23573ba891639f0f29",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-reset_ignored-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104078,
+      "sha256": "44319c401d52342dbab0d44822c273c0f35684655bfceeb67523a14cc5bc4eaf",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99664,
+      "sha256": "14a4e458205b657d2e67ba981655f1d5d4e80e79e260889952e765d819849b5e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4049,
+      "sha256": "914f50a357f311b3b9823a5bf0acdd99eb434e3df74e25daef72e5ca1e389a80",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7130,
+      "sha256": "734efe888152415d471a8842f73312f97328bbb7e56ac40cb6dde2a5fe7ad00f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "6e212e809e5dc02180fbe71a859f89faf0d412b71ed785fd682f2435d784f413",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104206,
+      "sha256": "36b78bb07a4fef391944c56129ce98dfbd29f249e9d6e0d0b89c2725a59329be",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99792,
+      "sha256": "25f0b11f3e0edd9b4222a1281bff65a0f1616d45a6b90fe18dd6fe62bcca9f61",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4013,
+      "sha256": "38bd2f0da51954b5f7319c005c9e53a2e7035221eddb41a1db7699ab3bf97e6d",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7090,
+      "sha256": "7ae83b90d5a3b136103247226e474ba1ce687b9aebd867d41ff01a5e37f002fc",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "8641fc0e218f4b24de00313edcfd36ff86fcd49648e66b0c42526e7b2e4c3213",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_from_other_source-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104350,
+      "sha256": "51caa48f01034183eb8f3e39e60f8de453d709d8d5d769dfc6e67f3279ffa6ce",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99936,
+      "sha256": "489ec12fde2a2dcc6a38c0b133a87d073a16c0dc3bb3354e78f219d0c3b63593",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4067,
+      "sha256": "96ccad36a2e6748a1a95379a2954c1b81300fe9b8082a5c28bbe0e16ffc92bad",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7153,
+      "sha256": "0f4f398824f6806e54d51a6670b7afc10fce8a13b7700cc25510fcf670522d24",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "fca6a5d7906b1774738f7dd463a80325eaabea76e079cf9911ede97b6f27e411",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tkeep_hidden_while_stalled-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104078,
+      "sha256": "640d0caae96ace940f0a27ec6a40c63fb96a891c94fd324ccff7814bd188665c",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99664,
+      "sha256": "9aca23a23a121a5bad7e56ff9ce0401006e53560ece059933d0b45c1f1f3443a",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4049,
+      "sha256": "194e0966070f96162ef6e932c1fcdcafba9156fb0b5da21bb9a404cbdd93edc6",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7130,
+      "sha256": "4d354ae89a48009a13abdbd990273389eec2e80656d52128561acc7be7cc633d",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "0e66e520c0f3c9e1ec68a2f61c7c8f57c7598509b804c2fc7cd04d75cdb95052",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tlast_hidden_while_stalled-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104302,
+      "sha256": "3c794e32dbae08468ea4720ee2f91081b05dbee48588965e8f7bc1a46d6d5e99",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99888,
+      "sha256": "1b6875c337957986490c880584ec8ac870f1dc604d6f4d682b7880bb87bd3821",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4013,
+      "sha256": "4dad1db3d0627b867964cb2e2aa63609ac9cb0837e475f190e793d15af091ff5",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7090,
+      "sha256": "1b42df67a57f70578c28a954dc4d8212049bf144a049102d24021929a522bd91",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "18ff5670d971ecd296cc8d1ba43959d6ea3b14f08ff4f4979343b914970274a0",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/mux_sva_main.o",
+      "bytes": 66264,
+      "sha256": "cffa8bf3a247fd39058fc24cc80c5e5cc385a6c167176fcb15eaf1a56c00b5a1",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tvalid_waits_for_tready-w64/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ALL.a",
+      "bytes": 104006,
+      "sha256": "6edb61f728e9449db3e9a7ea92d086cf2434bfc8af8b31654c7bc48a200bf191",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ALL.d",
+      "bytes": 2094,
+      "sha256": "3a98b1e7d27123b8a6575f0e7a3e1a68c2fd81266bc5174156b903c185b6e4f4",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ALL.o",
+      "bytes": 99592,
+      "sha256": "470c8dd5fc19344d2c9f8a1cfb5106b9dd9e3c6486e243676df17f306cda67df",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__ver.d",
+      "bytes": 4013,
+      "sha256": "aa0b63db55eb57ab3599c2c7cb6b08eca6f48cc59c1a55ad868a03a88f3a2e59",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vaxis_mux_rr_2in_1out__verFiles.dat",
+      "bytes": 7088,
+      "sha256": "780004a4ef38f7db2d7a4806f655d83c752c551741325c8666dbe0b606ee3c29",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/Vmux_sva",
+      "bytes": 422536,
+      "sha256": "ab0ca8d4bd3035741956ea4a88300767a2c9a5a34dc268cc2625d0be49a083b1",
+      "reason": "Rebuildable executable; source, build command and run receipt retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/mux_sva_main.d",
+      "bytes": 1153,
+      "sha256": "b1e97750d054cd609f9e3cb756526b8fb267fa7ac7d60238422d69cb085cd912",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/mux_sva_main.o",
+      "bytes": 66272,
+      "sha256": "2a5269cae9f6f60c8a85746a7cc1dd103f9a2fd04aa4ea2931321d6f82a88cfe",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated.d",
+      "bytes": 2041,
+      "sha256": "049515c86051f4de188e66bd361fbf5720b9887fe16fe49a4fb34c80f509043e",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated.o",
+      "bytes": 406872,
+      "sha256": "330fa6291921bbd410cf178c11b2a5d6826f63e0ef60162d33b9fae108d3697b",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated_dpi.d",
+      "bytes": 2041,
+      "sha256": "8dc3220aed73b0fef9f056509260367a8e63623d06db34e1a459cb179cbefb6f",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated_dpi.o",
+      "bytes": 61024,
+      "sha256": "e7d102ad26f31e87fbef3dbba9784855baa0d54372e3dc6942589003f0a9c882",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated_threads.d",
+      "bytes": 1208,
+      "sha256": "09fece16b94c45777450a65f25bec046a2dc82195a8cf855ad5967f8b7f674e7",
+      "reason": "Disposable generated build product; original identity retained"
+    },
+    {
+      "file": "scratch/tb/verilator/ptp_ts/obj_dir_sva_campaign/scoreboard-round_robin_inverted-w8/obj/verilated_threads.o",
+      "bytes": 67208,
+      "sha256": "06445307612d97ec8df598af30993d2a6ab5770542a9750870afdbee8f14f6b7",
+      "reason": "Disposable generated build product; original identity retained"
+    }
+  ],
+  "note": "Original MANIFEST.sha256 describes the sealed full packet before publication path neutralization. The archive MANIFEST.json describes actual published bytes. Build products are omitted, not failed or missing executions."
+}

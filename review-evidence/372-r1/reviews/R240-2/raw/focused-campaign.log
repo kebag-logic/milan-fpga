@@ -1,0 +1,64 @@
+sva campaign: Verilator 5.050 2026-07-01 rev v5.050; raw logs in obj_dir_sva_campaign/
+  [PASS] clean-w8: passes, no property fails
+  [PASS] clean-w64: passes, no property fails
+  [PASS] stimulus-s0_drop_tvalid-w8: stopped by u_s0_stimulus.ap_tvalid_held_until_handshake
+  [PASS] stimulus-s0_flip_tdata-w8: stopped by u_s0_stimulus.ap_tdata_stable_until_handshake
+  [PASS] stimulus-s0_flip_tkeep-w8: stopped by u_s0_stimulus.ap_tkeep_stable_until_handshake
+  [PASS] stimulus-s0_flip_tlast-w8: stopped by u_s0_stimulus.ap_tlast_stable_until_handshake
+  [PASS] stimulus-s1_drop_tvalid-w8: stopped by u_s1_stimulus.ap_tvalid_held_until_handshake
+  [PASS] stimulus-s1_flip_tdata-w8: stopped by u_s1_stimulus.ap_tdata_stable_until_handshake
+  [PASS] stimulus-s1_flip_tkeep-w8: stopped by u_s1_stimulus.ap_tkeep_stable_until_handshake
+  [PASS] stimulus-s1_flip_tlast-w8: stopped by u_s1_stimulus.ap_tlast_stable_until_handshake
+  [PASS] stimulus-s0_drop_tvalid-w64: stopped by u_s0_stimulus.ap_tvalid_held_until_handshake
+  [PASS] stimulus-s0_flip_tdata-w64: stopped by u_s0_stimulus.ap_tdata_stable_until_handshake
+  [PASS] stimulus-s0_flip_tkeep-w64: stopped by u_s0_stimulus.ap_tkeep_stable_until_handshake
+  [PASS] stimulus-s0_flip_tlast-w64: stopped by u_s0_stimulus.ap_tlast_stable_until_handshake
+  [PASS] stimulus-s1_drop_tvalid-w64: stopped by u_s1_stimulus.ap_tvalid_held_until_handshake
+  [PASS] stimulus-s1_flip_tdata-w64: stopped by u_s1_stimulus.ap_tdata_stable_until_handshake
+  [PASS] stimulus-s1_flip_tkeep-w64: stopped by u_s1_stimulus.ap_tkeep_stable_until_handshake
+  [PASS] stimulus-s1_flip_tlast-w64: stopped by u_s1_stimulus.ap_tlast_stable_until_handshake
+  [PASS] mutant-tvalid_waits_for_tready-w64: stopped by forwarding_laws.ai_tvalid_forwarded
+  [PASS] mutant-tdata_hidden_while_stalled-w8: stopped by u_m_dut.ap_tdata_stable_until_handshake
+  [PASS] mutant-tkeep_hidden_while_stalled-w64: stopped by u_m_dut.ap_tkeep_stable_until_handshake
+  [PASS] mutant-tlast_hidden_while_stalled-w8: stopped by u_m_dut.ap_tlast_stable_until_handshake
+  [PASS] mutant-released_while_tlast_stalled-w64: stopped by u_m_dut.ap_tvalid_held_until_handshake; the same edge also failed u_m_dut.ap_tdata_stable_until_handshake, u_m_dut.ap_tkeep_stable_until_handshake, u_m_dut.ap_tlast_stable_until_handshake, ap_owner_held_until_tlast_handshake
+  [PASS] mutant-released_before_tlast_s0-w8: stopped by ap_owner_held_until_tlast_handshake
+  [PASS] mutant-released_before_tlast_s1-w64: stopped by ap_owner_held_until_tlast_handshake
+  [PASS] mutant-kept_after_tlast-w8: stopped by ap_owner_released_after_tlast
+  [PASS] mutant-reset_ignored-w64: stopped by ap_reset_releases_owner
+  [PASS] mutant-illegal_state_reached-w64: stopped by ap_state_legal
+  [PASS] mutant-granted_without_request-w8: stopped by ap_grant_only_to_requester
+  [PASS] mutant-both_sources_ready-w64: stopped by forwarding_laws.ai_grants_mutually_exclusive; the same edge also failed forwarding_laws.ai_ready_only_for_owner_and_ready_sink
+  [PASS] mutant-ready_ignores_sink-w8: stopped by forwarding_laws.ai_ready_only_for_owner_and_ready_sink
+  [PASS] mutant-tkeep_from_other_source-w64: stopped by forwarding_laws.ai_payload_forwarded_on_transfer
+  [PASS] scoreboard-round_robin_inverted-w8: no property fails; the scoreboard's check does: simultaneous_offers: saturated sources alternate packet by packet
+  [PASS] elaboration-tdata_width_12: refused at elaboration by its own message: 'axis_stream_source_sva: TDATA_WIDTH_P=12 is not a whole, non-zero number of bytes'
+  [PASS] coverage-assertions_disabled-w64: rebuilt; the harness refuses the run, failing 'checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions'
+  [PASS] coverage-assertions_disabled-w64-s0_drop_tvalid: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s0_flip_tdata: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s0_flip_tkeep: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s0_flip_tlast: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s1_drop_tvalid: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s1_flip_tdata: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s1_flip_tkeep: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-assertions_disabled-w64-s1_flip_tlast: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8: rebuilt; the harness refuses the run, failing 'checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions'
+  [PASS] coverage-bind_target_mistyped-w8-s0_drop_tvalid: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s0_flip_tdata: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s0_flip_tkeep: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s0_flip_tlast: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s1_drop_tvalid: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s1_flip_tdata: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s1_flip_tkeep: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_target_mistyped-w8-s1_flip_tlast: injected, not detected (exit 1, not the assertion stop 3; properties named: none): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64: rebuilt; the harness refuses the run, failing 'witness TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake'
+  [PASS] coverage-bind_ports_swapped-w64-s0_drop_tvalid: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s0_flip_tdata: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s0_flip_tkeep: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s0_flip_tlast: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s1_drop_tvalid: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s1_flip_tdata: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s1_flip_tkeep: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-bind_ports_swapped-w64-s1_flip_tlast: injected, not detected (stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake): the detection check fails, as it must
+  [PASS] coverage-unused_path-w8: the clean build; the harness refuses the run, failing 'witness TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tvalid_held_until_handshake'
+== ptp_ts sva campaign: checks: 62   failures: 0 ==

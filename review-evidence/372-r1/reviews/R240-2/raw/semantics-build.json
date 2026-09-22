@@ -1,0 +1,27 @@
+{
+  "command": [
+    "rtk",
+    "proxy",
+    "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+    "--cc",
+    "--exe",
+    "--build",
+    "-j",
+    "8",
+    "--assert",
+    "--top-module",
+    "semantics_probe",
+    "-Wall",
+    "--Mdir",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/probes/obj",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/probes/semantics_probe.sv",
+    "$VALIDATION_STORAGE/reviews/r240-372-r2/tb/common/sva/axis_stream_source_sva.sv",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/probes/semantics_probe.cpp",
+    "-o",
+    "semantics_probe"
+  ],
+  "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+  "started": "2026-09-22T18:02:05.467139+00:00",
+  "finished": "2026-09-22T18:02:10.026246+00:00",
+  "exit": 0
+}

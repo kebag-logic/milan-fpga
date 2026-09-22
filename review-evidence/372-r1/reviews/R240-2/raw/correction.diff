@@ -1,0 +1,127 @@
+diff --git a/docs/testing/ASSERTIONS.md b/docs/testing/ASSERTIONS.md
+index 45f9ed65..03d3bb6d 100644
+--- a/docs/testing/ASSERTIONS.md
++++ b/docs/testing/ASSERTIONS.md
+@@ -82,8 +82,11 @@ campaign row named.
+   the model then prints `Verilog $stop` and exits 1. With
+   `+verilator+error+limit+<n>` it continues, so every assertion failing at
+   that edge is reported.
+-- **`disable iff (!rst_n)` abandons an attempt at either end.** An attempt
+-  that starts during reset, or completes during it, neither fails nor passes.
++- **Reset affects the two edges differently in the measured 5.050 setup.**
++  For `disable iff (!rst_n) a |=> b`, an attempt completing on a reset edge
++  is skipped: neither action runs. An attempt starting on a reset edge
++  passes vacuously when the next edge is out of reset: its pass action runs
++  with witness flag 0.
+ - **A pass action runs at every passing edge, vacuous or not.**
+   `$assertvacuousoff` changes nothing. Counting pass actions therefore counts
+   clock edges, not checks.
+@@ -146,14 +149,19 @@ campaign row named.
+ 
+ ### Reset and past state
+ 
++The reset and first-edge results come from the
++[R239-1 pinned 5.050 probes and receipts](https://github.com/kebag-logic/milan-fpga/tree/7795e487048867fde07a224ec1a5885acfb4375b/review-evidence/372-r1/review/R239-1).
++
+ - A protocol law on a synchronously reset interface is a concurrent property
+   sampled at the rising edge, with `disable iff (!rst_n)`. A source may then
+   drop a stalled beat into reset without failing it.
+ - A law about reset itself has no `disable iff`. `ap_reset_releases_owner` is
+   `!rst_n |=> owner_none_i`.
+-- `|=>`, `$past` and `$stable` compare one edge with the previous one. At the
+-  first edge after time zero the "previous" value is the variable's initial
+-  value, which is 0 by default in this tool. Hold reset for the first edges,
++- `|=>` delays an obligation by one edge; `$past` and `$stable` use previous
++  samples. In the measured Verilator 5.050 two-state setup, the first-edge
++  previous value is 0, regardless of the signal's declared initial value.
++  A probe with `one = 1'b1` held constant fails both `$past(one) == 1'b1`
++  and `$stable(one)` at that first edge. Hold reset for the first edges,
+   as every harness here does.
+ - A combinational law that holds at every settled point, reset included, is a
+   deferred immediate assertion (`assert final`) in an `always_comb` block.
+@@ -176,16 +184,23 @@ else
+   $error("TVALID fell before TREADY took the beat (IHI0051A 2.2)");
+ ```
+ 
++- Keep `rst_n` inside the witness flag's `$past`, beside the antecedent.
++  In the pinned 5.050 probe, a stalled offer on a reset edge produces a
++  vacuous pass action at the next running edge. `$past(stalled_w)` alone
++  would incorrectly count that as non-vacuous; testing current `rst_n`
++  would not exclude it. `$past(rst_n && stalled_w)` reports flag 0,
++  matching the reset-qualified antecedent used by the tool.
+ - The import is `context`, so the harness finds its ledger through the
+   calling scope (`svPutUserData`), with no global state.
+ - The harness looks each expected checker scope up by name at start-up. A
+   missing scope is a failed check: the bind is missing or mistyped, or
+   `--no-assert` compiled every call out.
+-- The harness counts the same antecedents from the ports itself. Where the
+-  antecedent is visible on the ports the two counts must be equal. Where it
+-  involves internal state, the port-visible events that imply it are a floor.
+-  For an immediate assertion, which re-evaluates whenever an input moves,
+-  both counts must merely be above zero.
++- The harness compares 21 witness pairs with its own port counts: 15 require
++  equality. Two use a floor: `ap_owner_held_until_tlast_handshake` and
++  `ap_grant_only_to_requester` also involve internal state, so port-visible
++  events give a lower bound. Four immediate laws require presence only:
++  both counts must be above zero, without an equality or floor comparison,
++  because these assertions re-evaluate whenever an input moves.
+ - Only the flagged calls are counted, and none of them is added to the
+   suite's check total. The tally counts graded verdicts, never assertion
+   evaluations or clock edges.
+@@ -275,9 +290,8 @@ SVA-STOP: an assertion failed at the edge ending cycle 6 (the %Error lines above
+   observed, so nothing here shows that an X cannot propagate.
+ - **CDC correctness.** The checker samples one clock. No crossing is modelled
+   or checked.
+-- **A formal proof.** Only simulation ran. The properties avoid unsupported
+-  constructs, but no formal tool has read them; a formal flow would compile
+-  out the DPI witness calls and turn the stimulus instances into assumptions.
++- **A formal proof.** Only simulation ran. No formal tool has read these
++  properties.
+ - **Timing closure.** The simulation is cycle-based and zero-delay.
+ - **Coverage of the product.** One module carries assertions. The mux
+   instance inside `ptp_ts_top` is not bound: the original `run` leg is
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 6076c466..2e90daf1 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -440,7 +440,7 @@ verdicts and for check counts.
+ | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
+ | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model, in **two elaborations**. The default `PPS_P=0` shape adds the option-off proof that `pps_o` is a structural zero while the PPS inputs are driven. The `PPS_P=1` shape (`pps_main.cpp`) grades the #260 output: twelve pulses on an ABSOLUTE `base + k*1e9` grid rather than pulse-to-pulse spacing, each within one counter increment of its boundary, the stretcher exactly `PPS_WIDTH_CYC_P` wide, and three negative controls  -  a fine fractional addend must move the edge in ticks and not in ns, the runtime enable alone must gate the pin, and enable arriving before the arm (the CDC order the one-word `PTP_PPS_CTRL` write produces) must emit no pulse and leave the target unadvanced |
+ | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | the CSR↔PHC crossing, in **two elaborations**. Both grade the settime/adjtime payload alignment and the snapshot return; the `PPS_P=1` `obj_pps` leg adds the #260 alarm crossing: the enable reaches `ts_clk`, the arm lands as exactly one pulse with its 64-bit target already captured, and the live target publishes back to `aclk` on the free-running beat. A target that does not land with its arm pulse arms the comparator at a **stale boundary**, which is a pulse at the wrong time rather than a dead pin, so the default leg proves the parked arm holds a structural zero under the same stimulus |
+-| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | `ptp_ts_top`'s record pipeline (its interference harness, unchanged), then **#372's representative bound-assertion target**: `axis_mux_rr_2in_1out` alone at TDATA_WIDTH 8 and 64, with the checker in `tb/common/sva/` bound by module name. An independent scoreboard grades every beat and round-robin order, each property's non-vacuous witness count must match the harness's own port count, and `sva_campaign.py` makes every property fail on a defect written against it, with assertions-disabled, mistyped-bind, swapped-port and unused-path controls that the harness must refuse and the detection check must fail ([assertion guide](ASSERTIONS.md)) |
++| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | `ptp_ts_top`'s record pipeline (its interference harness, unchanged), then **#372's representative bound-assertion target**: `axis_mux_rr_2in_1out` alone at TDATA_WIDTH 8 and 64, with the checker in `tb/common/sva/` bound by module name. An independent scoreboard grades every beat and round-robin order, 21 non-vacuous witness pairs are graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and `sva_campaign.py` makes every property fail on a defect written against it, with assertions-disabled, mistyped-bind, swapped-port and unused-path controls that the harness must refuse and the detection check must fail ([assertion guide](ASSERTIONS.md)) |
+ | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
+ | [`tb/verilator/render_setpoint`](../../tb/verilator/render_setpoint) | `KL_render_setpoint`, the #386 listener render setpoint stage: the fill law per PDU (prefill to the setpoint, the sawtooth, the first-event delay), byte-exact beats for 8, 3, 1 and 12 wire channels, the pop schedule, both rails, the observer, the one-shot recentre, a flush, an overrun, the event-atomic pop (a recentre or a flush inside the pop window leaves the crossbar whole events), a PDU end on a pop's own edge, an event judged full past a pop inside it, a wire channel count change, and a model of the crossbar's walker on every beat, run on an 8-lane and a 7-lane build -- and a thirteen-mutant arm that proves every one of those checks can fail. The datapath-level law rides `milan_dp`'s true-ratio leg (a live clock-source change under the running stream included) with its own four-mutant arm |
+ | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
+diff --git a/tb/verilator/README.md b/tb/verilator/README.md
+index e0d078a0..38464399 100644
+--- a/tb/verilator/README.md
++++ b/tb/verilator/README.md
+@@ -48,7 +48,7 @@ Reserved bits and twoStepFlag remain ignored on reception.
+ | [`cls/`](cls) | `traffic_class_map.sv` | 802.1Q classification (`REQ-VER-03`): PCP→regen→TC→queue, untagged default priority, legacy EtherType fallback, reserved-DMAC validation of the gPTP fast path (`REQ-CLS-07`, with its spoof negatives), and the **DMAC-keyed control fast path** (`REQ-CLS-10`): the whole q2 protocol table, the gPTP/MSRP split at the shared `01-80-C2-00-00-0E`, AECP on the unicast arm, and four negatives — a tagged `0x22F0` still on the SR classes, an address with no table row (including the Bridge Group Address RSTP will use), a forged `0x22F0` to a foreign multicast, and `CLS_CTRL[2]=0` restoring VERSION `0x0011`. All vs a reference over 200 k random configs × 9 destination MACs. | `cd cls && make` |
+ | [`ptp/`](ptp) | `timestamp_counter.sv` | PTP hardware clock: nominal rate, adjfine (fractional carry), settime, adjtime, gettime snapshot, disable — vs a 128-bit accumulator model (201 k checks). | `cd ptp && make` |
+ | [`ptp_sync/`](ptp_sync) | `ptp_csr_sync.sv` | CSR↔PHC CDC: settime/adjtime command-pulse ↔ payload alignment, one pulse per command, rate-config passthrough, gettime snapshot return path. | `cd ptp_sync && make` |
+-| [`ptp_ts/`](ptp_ts) | `ptp_ts_top.sv`, then `axis_mux_rr_2in_1out.sv` with its bound SVA checker (`tb/common/sva/`) at TDATA_WIDTH 8 and 64 | The timestamp record pipeline's interference suite, then the round-robin mux on its own: an independent scoreboard, non-vacuity witnesses that must match the harness's port counts, and a detection campaign in which every property fails on a defect written against it ([assertion guide](../../docs/testing/ASSERTIONS.md)). | `cd ptp_ts && make` |
++| [`ptp_ts/`](ptp_ts) | `ptp_ts_top.sv`, then `axis_mux_rr_2in_1out.sv` with its bound SVA checker (`tb/common/sva/`) at TDATA_WIDTH 8 and 64 | The timestamp record pipeline's interference suite, then the round-robin mux on its own: an independent scoreboard, 21 non-vacuity witness pairs graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and a detection campaign in which every property fails on a defect written against it ([assertion guide](../../docs/testing/ASSERTIONS.md)). | `cd ptp_ts && make` |
+ | [`clkvalid/`](clkvalid) | `KL_ptp_clock_validity.sv` | The AVTP **`tu`** verdict every talker stamps. Product mode consumes the fabric owner's sync/asCapable/GM publication, detects discontinuity and applies the Milan holdover; verification-only option OFF is ownerless, holds `tu=1`, reports sync/asCapable zero and ignores every retired write. `CLKV_TUCNT` counts Milan Table 5.4 observation intervals. Both compressed behavioural timing and the shipping divider are covered. | `cd clkvalid && make` |
+ | [`csr/`](csr) | `milan_csr.sv` | AXI4-Lite CSR: reset values, RO/RW/W1C, IRQ mask+event, hardware-set-beats-W1C, PTP command strobes + TOD-valid snapshot, stats snapshot, output wiring (check count printed at run time). | `cd csr && make` |
+ | [`adp_tx/`](adp_tx) | `adp_tx_arbiter.sv` | 2-input AXIS packet arbiter merging the ADP stream into the MAC TX: no frame interleave, per-source in-order byte-exact delivery, round-robin fairness, back-pressure integrity (26 checks). | `cd adp_tx && make` |
+diff --git a/tb/verilator/ptp_ts/mux_sva_main.cpp b/tb/verilator/ptp_ts/mux_sva_main.cpp
+index b833062a..d580d910 100644
+--- a/tb/verilator/ptp_ts/mux_sva_main.cpp
++++ b/tb/verilator/ptp_ts/mux_sva_main.cpp
+@@ -13,10 +13,10 @@
+ //      packet; nothing leaves that was not handed over; and when both sources
+ //      offer back-to-back packets the output alternates between them.
+ //   2. WITNESSES: every checker instance must be elaborated (its DPI scope
+-//      exists), and every property must report non-vacuous passes. Where the
+-//      antecedent is visible on the ports, the count must EQUAL the count
+-//      this harness took from the ports itself; where it involves the mux's
+-//      internal state, the port-visible events that imply it are a floor.
++//      exists), and every property must report non-vacuous passes. Of the
++//      21 witness pairs, 15 must equal this harness's port counts, 2 use
++//      those counts as floors, and 4 immediate laws require only presence:
++//      both counts above zero. See docs/testing/ASSERTIONS.md.
+ //   3. The assertions themselves stop the simulation on a violation.
+ //
+ // The AXI4-Stream source rules on s0/s1 are THIS harness's obligations

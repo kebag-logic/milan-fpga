@@ -1,0 +1,5 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=backpressure_mid_packet stimulus_fault=none
+scenario backpressure_mid_packet from cycle 4
+[12000] %Error: axis_stream_source_sva.sv:77: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut.ap_tdata_stable_until_handshake: TDATA changed while the beat was stalled (IHI0051A 2.2)
+-Info: ../../common/sva/axis_stream_source_sva.sv:77: Verilog $stop, ignored due to +verilator+error+limit
+SVA-STOP: an assertion failed at the edge ending cycle 12 (the %Error lines above name it); the run stops at that edge
