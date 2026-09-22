@@ -1,0 +1,50 @@
+$ python3 scripts/measure_control_flow.py --selftest
+[PASS] python: flat function is depth 0
+[PASS] python: one if is depth 1
+[PASS] python: sibling ifs do not stack
+[PASS] python: nested if/for stacks
+[PASS] python: a flat elif chain is depth 1
+[PASS] python: an elif arm's body still nests inside the chain
+[PASS] python: try/except counts the handler
+[PASS] python: boolean operators are decisions
+[PASS] python: assert is a decision
+[PASS] python: each for clause of a comprehension is a decision
+[PASS] python: async for nests and decides like for
+[PASS] python: a nested def is measured on its own
+[PASS] python: match cases are visible control flow
+[PASS] python: inner function reported with its own depth
+[PASS] python: an unparsable file is reported, not dropped
+[PASS] sv: single assignment has no implicit priority
+[PASS] sv: a default then a narrower override is order dependent
+[PASS] sv: default-then-override in a case is order dependent
+[PASS] sv: a write after a case that also wrote it is order dependent
+[PASS] sv: two sibling ifs are not exclusive
+[PASS] sv: an if/else pair is exclusive
+[PASS] sv: a full case with one write per arm is exclusive
+[PASS] sv: an else-if chain is exclusive
+[PASS] sv: reset then else is exclusive
+[PASS] sv: two different signals are not order dependent
+[PASS] sv: a comparison is not an assignment
+[PASS] sv: a comparison on a continuation line is not an assignment
+[PASS] sv: a loop variable is not a signal, however many loops step it
+[PASS] sv: a loop variable stepped with ++ is not a signal
+[PASS] sv: a struct member is a target of its own
+[PASS] sv: a whole-struct default then a member override is order dependent
+[PASS] sv: two members of one struct are different targets
+[PASS] sv: a concatenation writes each of its elements
+[PASS] sv: a concatenation element re-written alone is order dependent
+[PASS] sv: writes to different constant bits are disjoint
+[PASS] sv: writes to overlapping slices are order dependent
+[PASS] sv: a variable index may overlap anything
+[PASS] sv: a block without begin is measured
+[PASS] sv: a begin inside a string does not unbalance the block
+[PASS] sv: a compiler directive right before the closing end does not unbalance the block
+[PASS] sv: begin/case nesting is counted inside the block
+[PASS] sv: every always header form opens a block, with or without begin
+[PASS] sv: an unclosed block is reported by line, and the next block is still measured
+[PASS] population: protocol-processor contributes Python files to the scan
+[PASS] population: gptp-processor contributes Python files to the scan
+
+45 checks: 45 PASS, 0 FAIL
+
+EXIT=0
