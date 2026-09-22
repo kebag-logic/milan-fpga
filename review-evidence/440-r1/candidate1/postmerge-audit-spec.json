@@ -1,0 +1,28 @@
+{
+  "cwd": "$VALIDATION",
+  "head": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "base": "ec34fcdee0ca9ffa63564a9af8ad70a3a618de29",
+  "note": "Bound to actual verified PR507 merge, exact validated candidate tree",
+  "commands": [
+    [
+      "python3",
+      "$TRUSTED_DEV/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "origin/440-markdown-closers"
+    ],
+    [
+      "python3",
+      "$TRUSTED_DEV/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "--merged-prs"
+    ],
+    [
+      "python3",
+      "$TRUSTED_DEV/scripts/check_merge_review_integrity.py",
+      "--base",
+      "dev"
+    ]
+  ]
+}
