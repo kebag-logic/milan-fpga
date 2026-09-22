@@ -1,0 +1,58 @@
+[
+  {
+    "case": "zero exit",
+    "verdict": {
+      "ok": false,
+      "text": "exit 0, not the assertion stop 3; properties named: TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "scoreboard exit",
+    "verdict": {
+      "ok": false,
+      "text": "exit 1, not the assertion stop 3; properties named: TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "usage exit",
+    "verdict": {
+      "ok": false,
+      "text": "exit 2, not the assertion stop 3; properties named: TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "signal",
+    "verdict": {
+      "ok": false,
+      "text": "exit -11, not the assertion stop 3; properties named: TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "timeout",
+    "verdict": {
+      "ok": false,
+      "text": "exit 124, not the assertion stop 3; properties named: TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "unnamed stop",
+    "verdict": {
+      "ok": false,
+      "text": "stopped, but by nothing named"
+    }
+  },
+  {
+    "case": "wrong instance",
+    "verdict": {
+      "ok": false,
+      "text": "stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake"
+    }
+  },
+  {
+    "case": "property prefix collision",
+    "verdict": {
+      "ok": false,
+      "text": "stopped, but by TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake_extra"
+    }
+  }
+]

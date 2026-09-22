@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "scripts/suite_tally.py",
+    "--verdict",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r240/focused-default.log"
+  ],
+  "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r1",
+  "start_utc": "2026-09-22T15:42:34.450336+00:00",
+  "duration_seconds": 0.06876743699831422,
+  "exit": 0,
+  "log": "suite-verdict.log",
+  "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "environment_overrides": {
+    "MAKEFLAGS": "-j1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_NO_REPLACE_OBJECTS": "1"
+  }
+}
