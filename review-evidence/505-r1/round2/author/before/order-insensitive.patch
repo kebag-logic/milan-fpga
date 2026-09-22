@@ -1,0 +1,11 @@
+--- real.py
++++ order-insensitive.py
+@@ -3584,7 +3584,7 @@
+     if not recorded:
+         return
+     lines = normalize_script(step["run"])
+-    c.item(tuple(lines) == canonical, path,
++    c.item(sorted(lines) == sorted(canonical), path,
+            f"{what} script is not the canonical form: "
+            + script_difference(lines, canonical))
+ 

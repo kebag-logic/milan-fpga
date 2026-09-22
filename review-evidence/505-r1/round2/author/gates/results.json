@@ -1,0 +1,176 @@
+[
+  {
+    "name": "ci-events-check",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.164
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 6.991
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 3.846
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.361
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.061
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.824
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.044
+  },
+  {
+    "name": "python-idiom",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 2.792
+  },
+  {
+    "name": "python-idiom-selftest",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 2.771
+  },
+  {
+    "name": "hygiene",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.307
+  },
+  {
+    "name": "todo-ownership",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_todo_ownership.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 1.209
+  },
+  {
+    "name": "fail-fast",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 1.381
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.566
+  },
+  {
+    "name": "lint",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 5.087
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "$CANDIDATE",
+    "exit": 0,
+    "elapsed_seconds": 0.019
+  }
+]

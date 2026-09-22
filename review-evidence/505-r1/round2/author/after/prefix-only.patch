@@ -1,0 +1,11 @@
+--- real.py
++++ prefix-only.py
+@@ -3586,7 +3586,7 @@
+     if not recorded:
+         return
+     lines = normalize_script(step["run"])
+-    c.item(tuple(lines) == canonical, path,
++    c.item(tuple(lines[:len(canonical)]) == canonical, path,
+            f"{what} script is not the canonical form: "
+            + script_difference(lines, canonical))
+ 

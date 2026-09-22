@@ -1,0 +1,11 @@
+--- real.py
++++ removed-record-enforcement.py
+@@ -3579,7 +3579,7 @@
+     canonical = entry.get("run")
+     recorded = (isinstance(canonical, tuple) and bool(canonical)
+                 and all(isinstance(line, str) for line in canonical))
+-    c.item(recorded, path,
++    c.item(True, path,
+            f"{what} must record a canonical normalized `run` script")
+     if not recorded:
+         return

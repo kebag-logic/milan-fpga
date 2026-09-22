@@ -1,0 +1,11 @@
+--- real.py
++++ M5b.py
+@@ -3584,7 +3584,7 @@
+     if not recorded:
+         return
+     lines = normalize_script(step["run"])
+-    c.item(tuple(lines) == canonical, path,
++    c.item(len(lines) == len(canonical) and all((re.sub(r' \|\| true$', '', a) == re.sub(r' \|\| true$', '', b)) if i < len(lines) - 1 else a == b for i, (a, b) in enumerate(zip(lines, canonical))), path,
+            f"{what} script is not the canonical form: "
+            + script_difference(lines, canonical))
+ 
