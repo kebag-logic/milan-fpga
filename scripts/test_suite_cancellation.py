@@ -133,6 +133,8 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
     label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name
     root, probe = fixture(parent, label)
     probe.env["PROBE_MODE"] = phase
+    write(root / "logs/omega.log", "OLD COMPLETED RUN\n")
+    write(root / "logs/preflight/old.log", "OLD PREFLIGHT\n")
     if unsafe:
         path = root / DRIVER
         text = path.read_text()
@@ -171,6 +173,8 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
             assert "PARTIAL: alpha entered" in (root / "logs/alpha.log").read_text()
         if phase == "preflight":
             assert "PARTIAL: owned command" in (root / "logs/preflight/suite_tally.log").read_text()
+            assert not (root / "logs/omega.log").exists(), "stale suite log survived"
+            assert not (root / "logs/preflight/old.log").exists(), "stale prerequisite log survived"
         current = identity(foreign.pid)
         assert foreign.poll() is None and current is not None, "foreign process exited"
         assert current[0] == foreign_identity[0] and current[1] != "Z", "foreign identity changed"
@@ -205,6 +209,16 @@ def normal_orphan(parent: Path) -> None:
     probe.save(dict(exit=status, normal_cleanup=True, handshake=data))
 
 
+def relative_output(parent: Path) -> None:
+    """Prerequisite directory changes must preserve a relative caller outdir."""
+    root, probe = fixture(parent, "relative-output")
+    probe.start(["bash", str(root / DRIVER), str(Path(root.name) / "logs")], cwd=parent)
+    status, output = probe.finish()
+    assert status == 0 and "PASS     omega" in output, output
+    assert (root / "logs/preflight/check_merge_containment.log").is_file()
+    probe.save(dict(exit=status, relative_output=True))
+
+
 def main() -> int:
     """Exercise production orchestration with no compiler or RTL substitution claim."""
     with tempfile.TemporaryDirectory(prefix="suite-cancellation-") as scratch:
@@ -214,6 +228,7 @@ def main() -> int:
                 ordinary(parent, mode)
             ownership_refusal(parent)
             normal_orphan(parent)
+            relative_output(parent)
             for phase in ("selection", "preflight", "command", "transition"):
                 for signum in (signal.SIGINT, signal.SIGTERM):
                     cancellation(parent, phase, signum)

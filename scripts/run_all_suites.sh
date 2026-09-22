@@ -111,8 +111,18 @@ if [ "${1:-}" != "--owned-sweep" ]; then
   exec python3 "$ROOT/scripts/owned_process.py" -- bash "$0" --owned-sweep "$@"
 fi
 shift
-trap 'echo "CANCELLED: INT; partial logs: ${OUT:-selection}" >&2; exit 130' INT
-trap 'echo "CANCELLED: TERM; partial logs: ${OUT:-selection}" >&2; exit 143' TERM
+LOGS_READY=0
+cancelled() {
+  echo "CANCELLED: $1; no completed sweep result" >&2
+  if [ "$LOGS_READY" = 1 ]; then
+    echo "partial logs: $OUT" >&2
+  else
+    echo "logs were not prepared for this invocation" >&2
+  fi
+  exit "$2"
+}
+trap 'cancelled INT 130' INT
+trap 'cancelled TERM 143' TERM
 
 WAIT=0
 OUT=""
@@ -138,6 +148,11 @@ parse_args() {
     esac
   done
   OUT="${OUT:-$ROOT/.suite-logs}"
+  # Prerequisites may change directory. Keep every log in the caller's OUT.
+  case "$OUT" in
+    /*) ;;
+    *) OUT="$PWD/$OUT" ;;
+  esac
 }
 
 #! the suites this invocation owns, into `suites` (or --list and out)
@@ -235,11 +250,17 @@ preflight() {
   return "$status"
 }
 
+#! Clear stale evidence only after acquiring the sweep's existing lock.
+prepare_logs() {
+  mkdir -p "$OUT/preflight" || exit 2
+  rm -f "$OUT"/*.log "$OUT/preflight"/*.log || exit 2
+  LOGS_READY=1
+}
+
 #! every self-test that has to hold before a 40-minute sweep is worth
 #! starting. Each aborts with exit 2 and says which tool it distrusts; the
 #! containment self-test's exit 3, a leftover temporary tree, is reported only.
 run_preflight_gates() {
-  mkdir -p "$OUT/preflight" || exit 2
   if ! selftest_out=$(preflight test_suite_cancellation python3 "$ROOT/scripts/test_suite_cancellation.py" 2>&1); then
     echo "$selftest_out" >&2
     echo "ABORTING: sweep cancellation controls failed." >&2
@@ -353,9 +374,6 @@ run_preflight_gates() {
 
 #! the sweep itself: one verdict line per suite, counters for the rest
 run_suites() {
-  mkdir -p "$OUT"
-  rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
-
   pass=0; fail=0; tmo=0; failed=""; timedout=""
   echo "shard: $SHARD   selected suites: ${#suites[@]}"
   for suite in "${suites[@]}"; do
@@ -418,6 +436,7 @@ main() {
   parse_args "$@"
   select_suites
   acquire_lock
+  prepare_logs
   run_preflight_gates
   run_suites
   summarise

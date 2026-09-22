@@ -128,10 +128,10 @@ class Probe:
         write(self.control / "worker.py", WORKER)
         self.process = None
 
-    def start(self, argv: list[str]) -> None:
+    def start(self, argv: list[str], cwd: Path | None = None) -> None:
         """Launch a production driver; keep output even if its assertion fails."""
         with (self.control / "driver.log").open("wb") as output:
-            self.process = subprocess.Popen(argv, cwd=self.root, env=self.env,
+            self.process = subprocess.Popen(argv, cwd=cwd or self.root, env=self.env,
                                             start_new_session=True, stdout=output,
                                             stderr=subprocess.STDOUT)
 

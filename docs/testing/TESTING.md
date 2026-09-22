@@ -223,6 +223,9 @@ Masked verdicts still fail; deadline results remain unknown.
 
 Partial suite logs remain under the requested output directory.
 Prerequisite logs remain within its `preflight/` directory.
+Old logs are cleared after locking, before preflight starts.
+Relative output paths retain their caller's location.
+Cancellation before log preparation reports that boundary explicitly.
 The sweep's normal preflight owns these deterministic cancellation controls:
 
 ```sh
