@@ -1,0 +1,21 @@
+shard: 0/1   selected suites: 2
+TIMEOUT  alpha   (0.5s wall clock - result UNKNOWN, not a failure)
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 1   failed: 0   timed out: 1
+checks: 1   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  alpha: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+TIMED OUT (result unknown, NOT a failure): alpha
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: /tmp/suite-cancellation-uqkhk4mt/timeout input [523]/logs

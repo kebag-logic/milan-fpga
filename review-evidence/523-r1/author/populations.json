@@ -1,0 +1,247 @@
+{
+  "head": "b5ce20eca8b59709ec5bc6115e5e15bfc312f283",
+  "mutations": [
+    {
+      "name": "abort_counts_as_completion",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "if (epi_done_i && epi_cover_r) begin",
+      "new": "if ((epi_done_i || !epi_busy_i) && epi_cover_r) begin",
+      "expected": "aborted episode: the demand survives it"
+    },
+    {
+      "name": "no_generation_check",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "assign gen_ok_w     = (cap_gen_r != '0) && (cap_gen_r == gen_r);",
+      "new": "assign gen_ok_w     = 1'b1;",
+      "expected": "generation zero: the ledger refused it and raised a barrier"
+    },
+    {
+      "name": "no_tag_check",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "  assign tag_ok_w     = cap_abort_r\n                     || ((cap_type_r == led_type_r[led_head_r]) &&\n                         (cap_seq_r  == led_seq_r [led_head_r]));",
+      "new": "  assign tag_ok_w     = 1'b1;",
+      "expected": "foreign tag: the ledger refused it and raised a barrier"
+    },
+    {
+      "name": "age_never_expires",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "  assign age_hit_w = (n_led_r != OCC_W_C'(0)) &&",
+      "new": "  assign age_hit_w = 1'b0 && (n_led_r != OCC_W_C'(0)) &&",
+      "expected": "aged head: the age expired and was counted"
+    },
+    {
+      "name": "observer_latency_off_by_one",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "parameter int unsigned OBS_LAT_E_CYC_P  = 2,",
+      "new": "parameter int unsigned OBS_LAT_E_CYC_P  = 1,",
+      "expected": "launch: the reconstruction is the launch instant"
+    },
+    {
+      "name": "crossing_latency_off_by_one",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "parameter int unsigned CDC_LAT_D_CYC_P  = 2,",
+      "new": "parameter int unsigned CDC_LAT_D_CYC_P  = 3,",
+      "expected": "launch: the reconstruction is the launch instant"
+    },
+    {
+      "name": "no_fence",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "        egress_hold_o <= 1'b1;\n        n_pre_v_r     <= 1'b0;",
+      "new": "        egress_hold_o <= 1'b0;\n        n_pre_v_r     <= 1'b0;",
+      "expected": "torn frame: a frame was mid-egress when the fence closed"
+    },
+    {
+      "name": "unseal_without_echo",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "old": "n_pre_v_r & echo_ok_r;",
+      "new": "n_pre_v_r;",
+      "expected": "echo: the seal outlasts it"
+    },
+    {
+      "name": "credit_never_withheld",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+      "old": "assign tx_credit_o = ~credit_hold_i &",
+      "new": "assign tx_credit_o = 1'b1 | ~credit_hold_i &",
+      "expected": "credit: the engine is held off at the reserve"
+    }
+  ],
+  "not_observable": [
+    {
+      "name": "abort_outranks_completion",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "anchor": "      if (!epi_busy_i && !epi_done_i)     epi_cover_r <= 1'b0;",
+      "reason": "the two arms it reorders never apply on the same edge: the guard's `epi_busy_o` is already high on the cycle its start pulse is published, so the ordering is defence against an edge this guard cannot produce. The LAW - an aborted episode is not a completion - is carried by `abort_counts_as_completion` above."
+    },
+    {
+      "name": "no_departure_predicate",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "anchor": "have_entry_w & departed_w & tag_ok_w;",
+      "reason": "a record cannot reach the ledger before its frame is on the wire, so removing the predicate changes only WHEN an entry resolves relative to the departure it is already behind, and no interface here observes that order. Pinned structurally in scripts/check_gptp_docs.py, on the USE in `resolve_w` and not only on the declaration: until #360 round three the pin was the first line of that expression and the term is on the second, so the sentence above was true of a token that did not hold it."
+    },
+    {
+      "name": "no_position_check",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "anchor": "assign oidx_ok_w    = (cap_oidx_r == exp_oidx_r);",
+      "reason": "the position and the tag are two independent cross-checks on one fact, and every single-record anomaly this bench can produce - a lost record, a reset observer, a corrupted field - trips the tag as well, so the position cannot be isolated behaviourally. Pinned structurally in scripts/check_gptp_docs.py."
+    },
+    {
+      "name": "delta_forced_not_measured",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+      "anchor": "(delta_r != TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P))};",
+      "reason": "this slice's framer emits only whole frames, so the measured distance is always the expected one. CARRIED, with a fragment injected on the wire, by tb/verilator/gptp_txts/mutants.py."
+    },
+    {
+      "name": "eof_acceptance_unqualified",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+      "anchor": "assign alloc_w = beat_w & tx_eof_i;",
+      "reason": "the allocation seam is the ENGINE's byte face into the plane, and this bench can stall the plane's egress lane but not that face independently, so an offered-but-unaccepted EOF beat cannot be produced here. Pinned structurally in scripts/check_gptp_docs.py."
+    },
+    {
+      "name": "cancellation_frees_the_entry",
+      "path": "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+      "anchor": "        for (int unsigned li = 0; li < TXTS_CAP_N_P; li++) led_live_r[li] <= 1'b0;",
+      "reason": "every barrier this bench can raise has an empty pre-fence prefix at the fence, so forgetting the entries and marking them not-live lead to the same observable close. Pinned structurally in scripts/check_gptp_docs.py."
+    }
+  ],
+  "default_suites": [
+    "aaf",
+    "aaf_audio_loop",
+    "aaf_latency_tap_bank",
+    "aaf_latency_taps",
+    "adp_tx",
+    "aes3",
+    "avtp_parser",
+    "avtp_rxmon",
+    "avtp_stream",
+    "cbs",
+    "cdc",
+    "chmap_capture",
+    "chmap_render",
+    "classifier",
+    "clkvalid",
+    "cls",
+    "controller_rate",
+    "crf_rx",
+    "crf_tx",
+    "csr",
+    "datapath",
+    "eth_tx_reset",
+    "gptp_plane",
+    "gptp_shadow",
+    "gptp_txts",
+    "i2spb",
+    "ifg",
+    "lat_history_ring",
+    "link_guard",
+    "maap",
+    "mac_rmon",
+    "media_grid_align",
+    "media_nco",
+    "milan_dp",
+    "milan_dp_render",
+    "mmcm_servo",
+    "mmcm_servo_autorepair",
+    "nvm_backend",
+    "nvm_cosim",
+    "pair_fill",
+    "pcmlpf",
+    "pp_shadow",
+    "ptp",
+    "ptp_sync",
+    "ptp_ts",
+    "queues",
+    "render_setpoint",
+    "rx_filter",
+    "shaper_core",
+    "tcam",
+    "tcam_csr",
+    "tdm",
+    "tdm_render",
+    "tkdiag",
+    "tsn_fuzz"
+  ],
+  "physical_suites": [
+    "milan_dp_gptp"
+  ],
+  "shards": {
+    "0/4": [
+      "aaf",
+      "aes3",
+      "avtp_parser",
+      "avtp_stream",
+      "chmap_capture",
+      "classifier",
+      "clkvalid",
+      "controller_rate",
+      "crf_tx",
+      "csr",
+      "datapath",
+      "gptp_shadow",
+      "gptp_txts",
+      "lat_history_ring",
+      "maap",
+      "mac_rmon",
+      "render_setpoint",
+      "tdm",
+      "tdm_render"
+    ],
+    "1/4": [
+      "aaf_audio_loop",
+      "aaf_latency_tap_bank",
+      "aaf_latency_taps",
+      "crf_rx",
+      "gptp_plane",
+      "ifg",
+      "milan_dp_render",
+      "mmcm_servo",
+      "nvm_cosim",
+      "pair_fill",
+      "pcmlpf",
+      "ptp",
+      "ptp_sync",
+      "ptp_ts",
+      "rx_filter",
+      "tcam",
+      "tkdiag",
+      "tsn_fuzz"
+    ],
+    "2/4": [
+      "adp_tx",
+      "avtp_rxmon",
+      "cbs",
+      "cdc",
+      "chmap_render",
+      "cls",
+      "eth_tx_reset",
+      "i2spb",
+      "link_guard",
+      "media_grid_align",
+      "media_nco",
+      "mmcm_servo_autorepair",
+      "nvm_backend",
+      "pp_shadow",
+      "queues",
+      "shaper_core",
+      "tcam_csr"
+    ],
+    "3/4": [
+      "milan_dp"
+    ]
+  },
+  "normal_list_matches_selector": true,
+  "immutable_inventory_tally_and_rtl_harness": true,
+  "changed_files": [
+    "docs/testing/TESTING.md",
+    "scripts/check_baremetal_only.py",
+    "scripts/measure_test_evidence.py",
+    "scripts/owned_process.py",
+    "scripts/process_test_support.py",
+    "scripts/run_all_suites.sh",
+    "scripts/test_suite_cancellation.py",
+    "tb/verilator/gptp_shadow/Makefile",
+    "tb/verilator/gptp_shadow/README.md",
+    "tb/verilator/gptp_shadow/mutants.py",
+    "tb/verilator/gptp_shadow/private_inputs.py",
+    "tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+  ]
+}

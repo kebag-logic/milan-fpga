@@ -1,0 +1,6 @@
+Command: python3 scripts/test_suite_cancellation.py
+Exit: 1
+pass, fail, masked, timeout and owner-refusal arms passed.
+First cancellation arm: selection SIGINT.
+AssertionError at test_suite_cancellation.py:172: foreign process signalled
+The oracle compared both process start time and scheduler state; the sibling changed from running to sleeping. The production owner had not killed it. Corrected oracle compares start time, requires a live non-zombie state and checks Popen.poll().

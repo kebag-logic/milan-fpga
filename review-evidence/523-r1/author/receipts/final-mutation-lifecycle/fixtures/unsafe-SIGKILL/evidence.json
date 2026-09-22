@@ -1,0 +1,26 @@
+{
+  "exit": -9,
+  "signal": "SIGKILL",
+  "handshake": {
+    "pid": 2186136,
+    "child": 2186137,
+    "cwd": "/tmp/mutant-lifecycle-z3h22lgn/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow",
+    "mutations": [
+      "abort_counts_as_completion"
+    ],
+    "private": "/tmp/mutant-lifecycle-z3h22lgn/unsafe-SIGKILL input [523]",
+    "identities": {
+      "2186136": [
+        "14467158",
+        "S"
+      ],
+      "2186137": [
+        "14467161",
+        "S"
+      ]
+    }
+  },
+  "caller_changed": true,
+  "unsafe_control_detected": true,
+  "cleanup_required": false
+}

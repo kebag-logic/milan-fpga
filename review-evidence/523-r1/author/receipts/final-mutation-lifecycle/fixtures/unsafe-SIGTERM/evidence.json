@@ -1,0 +1,26 @@
+{
+  "exit": 143,
+  "signal": "SIGTERM",
+  "handshake": {
+    "pid": 2186079,
+    "child": 2186080,
+    "cwd": "/tmp/mutant-lifecycle-z3h22lgn/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow",
+    "mutations": [
+      "abort_counts_as_completion"
+    ],
+    "private": "/tmp/mutant-lifecycle-z3h22lgn/unsafe-SIGTERM input [523]",
+    "identities": {
+      "2186079": [
+        "14466915",
+        "S"
+      ],
+      "2186080": [
+        "14466918",
+        "S"
+      ]
+    }
+  },
+  "caller_changed": true,
+  "unsafe_control_detected": true,
+  "cleanup_required": true
+}

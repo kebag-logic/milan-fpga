@@ -1,0 +1,4 @@
+Command: python3 integrity.py before-real
+Exit: 1
+AssertionError: third_party/verilog-axis README executable mode
+Collector incorrectly compared symlink 0777 permissions with regular-file executable bit. Source symlink is unchanged and its stored link bytes match the pin. Corrected collector applies executable-bit comparison only to regular files.

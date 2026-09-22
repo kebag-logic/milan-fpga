@@ -1,0 +1,22 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2066825, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-selection-SIGINT input [523]", "identities": {"2066824": ["14335712", "S"], "2066825": ["14335714", "S"]}, "pid": 2066824}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2066894, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-selection-SIGTERM input [523]", "identities": {"2066893": ["14335941", "S"], "2066894": ["14335944", "S"]}, "pid": 2066893}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2066916, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-preflight-SIGINT input [523]", "identities": {"2066915": ["14336184", "S"], "2066916": ["14336186", "S"]}, "pid": 2066915}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2067005, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-preflight-SIGTERM input [523]", "identities": {"2067004": ["14336423", "S"], "2067005": ["14336425", "S"]}, "pid": 2067004}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2067151, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-command-SIGINT input [523]", "identities": {"2067150": ["14336678", "S"], "2067151": ["14336681", "S"]}, "pid": 2067150}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2067599, "cwd": "/tmp/suite-cancellation-uqkhk4mt/cancel-command-SIGTERM input [523]", "identities": {"2067598": ["14336932", "S"], "2067599": ["14336935", "S"]}, "pid": 2067598}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$CANDIDATE/scripts/test_suite_cancellation.py", line 212, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$CANDIDATE/scripts/test_suite_cancellation.py", line 203, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CANDIDATE/scripts/test_suite_cancellation.py", line 165, in cancellation
+    assert not (root / ".run_all_suites.lock.owner").exists(), "lock owner survived"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: lock owner survived

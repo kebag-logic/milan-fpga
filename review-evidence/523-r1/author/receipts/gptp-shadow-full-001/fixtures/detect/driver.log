@@ -1,0 +1,17 @@
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught by "launch: the reconstruction is the launch instant"
+[ ok ] crossing_latency_off_by_one: caught by "launch: the reconstruction is the launch instant"
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught by "credit: the engine is held off at the reserve"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 0
+RESULT: PASS

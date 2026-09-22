@@ -1,0 +1,35 @@
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "mode"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "untracked"}
+extra: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "extra"}
+symlink: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "symlink"}
+parent-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "parent-link"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency"}
+off-pin: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "off-pin"}
+pin-index: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "pin-index"}
+dependency-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency-link"}
+git-env: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "git-env"}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 2085242, "cwd": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGINT-control/gptp-shadow-mutants-rui0w5fp/tb/verilator/gptp_shadow", "identities": {"2085241": ["14368441", "S"], "2085242": ["14368444", "S"]}, "mutations": ["abort_counts_as_completion", "unseal_without_echo"], "pid": 2085241, "private": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGINT-control/gptp-shadow-mutants-rui0w5fp"}, "signal": "SIGINT", "unsafe_control_detected": false}
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 2086076, "cwd": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGTERM-control/gptp-shadow-mutants-rrqvjlej/tb/verilator/gptp_shadow", "identities": {"2086075": ["14368788", "S"], "2086076": ["14368791", "S"]}, "mutations": ["abort_counts_as_completion", "unseal_without_echo"], "pid": 2086075, "private": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGTERM-control/gptp-shadow-mutants-rrqvjlej"}, "signal": "SIGTERM", "unsafe_control_detected": false}
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 2086122, "cwd": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGKILL-control/gptp-shadow-mutants-ujex82rp/tb/verilator/gptp_shadow", "identities": {"2086121": ["14369122", "S"], "2086122": ["14369124", "S"]}, "mutations": ["abort_counts_as_completion", "unseal_without_echo"], "pid": 2086121, "private": "/tmp/mutant-lifecycle-5_2xbccj/isolated-SIGKILL-control/gptp-shadow-mutants-ujex82rp"}, "signal": "SIGKILL", "unsafe_control_detected": false}
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 2086156, "cwd": "/tmp/mutant-lifecycle-5_2xbccj/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"2086155": ["14369353", "S"], "2086156": ["14369356", "S"]}, "mutations": ["abort_counts_as_completion", "unseal_without_echo"], "pid": 2086155, "private": "/tmp/mutant-lifecycle-5_2xbccj/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 2086882, "cwd": "/tmp/mutant-lifecycle-5_2xbccj/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"2086881": ["14369599", "S"], "2086882": ["14369602", "S"]}, "mutations": ["abort_counts_as_completion", "unseal_without_echo"], "pid": 2086881, "private": "/tmp/mutant-lifecycle-5_2xbccj/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+Traceback (most recent call last):
+  File "$CANDIDATE/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 287, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$CANDIDATE/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 280, in main
+    outer_cancellation(parent, signum)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$CANDIDATE/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 250, in outer_cancellation
+    assert snapshot(root) == before and not private.exists(), "nested cancellation left private work"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: nested cancellation left private work
