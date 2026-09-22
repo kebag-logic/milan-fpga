@@ -515,6 +515,15 @@ rewritten for this rule.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
+The heading walk has a documented withholding limitation (#437).
+Five measured forms render headings but remain absent from Contents:
+`Alpha` over `===`, `text` over `---`, `text` over a single `-`,
+`> ## Q`, and `## Inner` indented into a list item.
+Their copied labels receive no exemption because those headings are omitted.
+The walk does not supply their anchors.
+List paragraph context survives blank lines at the item's content column.
+This corrects the escaping HTML classification without adding container headings.
+
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
 `HEAD` over every tracked `*.md` (renames followed, every page compared as
 text whatever a `.gitattributes` entry says, a page git will only report as

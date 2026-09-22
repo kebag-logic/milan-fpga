@@ -947,7 +947,9 @@ def selftest() -> tuple[list[str], int]:
     found, more = _base_derivation_arms()
     from gen_toc_closer_cases import em_dash_arms
     closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
-    return problems + found + closer_problems, arms + more + closer_arms
+    from gen_toc_container_cases import em_dash_arms as container_em_dash_arms
+    container_problems, container_arms = container_em_dash_arms(sys.modules[__name__])
+    return problems + found + closer_problems + container_problems, arms + more + closer_arms + container_arms
 
 
 def main(argv: list[str] | None = None) -> int:

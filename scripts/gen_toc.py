@@ -51,8 +51,8 @@ NEST_WHEN_H3_ATLEAST = 8
 #: import printed a smaller total and exited 0 ([R86] suggestion, round 6
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
-                "provenance", "refusal", "I440")
-MIN_ARMS = 707
+                "provenance", "refusal", "I440", "I437")
+MIN_ARMS = 754
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -349,7 +349,7 @@ def blocks(text: str) -> list[str]:
     any of them is text.
 
     WHAT THIS WALK ANSWERS FOR. Its domain is a page of ATX headings and
-    the blocks above, read FLAT and from column 0, and inside it every
+    the blocks above, classified from column 0, and inside it every
     rule is the one the RENDERER applies and not the one the
     specification's prose reads: every character class tested here comes
     from `CLASSES`, measured at the position that reads it, and
@@ -361,28 +361,24 @@ def blocks(text: str) -> list[str]:
     visible text is labelled by the block it STARTS in, which can withhold
     a heading but never invent one.
 
-    CONTAINERS ARE FLAT, and indentation is counted in COLUMNS from column
-    0 (`_indent_columns`, CommonMark 2.2's tab stops of four). Three
-    residues follow, all carried by #437. Two WITHHOLD a heading the page
-    renders, which a contributor sees at once because the generated list
-    then omits the section: a block quote or list-item line holds the
-    plain lines after it as that container's paragraph whatever the
-    container held, and a line indented into a container's content column
-    is read as this walk's own indentation, so a tag at four columns
-    inside an item opens no block and a plain line at four columns is
-    code. The third runs the other way: after a BLANK line inside a list
-    item, a plain line at the item's content column (one to three columns)
-    is a fresh top-level paragraph here where the renderer holds it inside
-    the item, so a lone tag on the next line interrupts nothing the
-    renderer has open, the renderer opens a block and reads the heading
-    inside it as text, and this walk KEEPS it. That is the ESCAPE
-    direction, and a label mirroring such a heading would be exempt. The
-    test is the content column and not indentation as such, and telling a
-    container's own paragraph from a top-level one is a change to the
-    state model rather than a rule ([R86] F1, round 5 on PR #428; the
-    columns R8, round 9).
+    LIST PARAGRAPHS retain their item's content column across blank lines
+    (#437, CommonMark 5.2). A plain TEXT line at that column is HELD by the
+    item, not a top-level paragraph; a lone unindented tag below it can
+    therefore open HTML. One space below `- item` is outside that item.
+    Indentation still labels blocks from column 0, with tab stops of four;
+    this does not add a recursive container walk. Existing withholding
+    remains for a quote or item holding plain lines after non-paragraph
+    content, and for a tag at four columns inside an item.
+
+    HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
+    omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
+    over a single `-`, `> ## Q`, and `## Inner` indented into a list item.
+    GitHub renders each as a heading. This walk WITHHOLDS their sections
+    and refuses copied-label exemptions; it does not add their anchors.
+    Setext and container headings remain outside its listing domain.
     """
     out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
+    item_context = None
     for line in text.split("\n"):
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
@@ -390,7 +386,8 @@ def blocks(text: str) -> list[str]:
         else:
             label, state, delim, tag = _opens(line, para, state)
             out.append(label)
-        para, prev = _paragraph_after(line, out[-1], para, prev), line
+        para, item_context = _list_paragraph_after(line, out[-1], para, prev, item_context)
+        prev = line
     return out
 
 
@@ -443,6 +440,35 @@ def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
             and _table_cells(line) == _table_cells(prev):
         return HELD
     return HELD if para == HELD else PARAGRAPH
+
+
+def _list_paragraph_after(line: str, label: str, para: str, prev: str,
+                          context: tuple[int, bool] | None) -> tuple[str, tuple[int, bool] | None]:
+    """Keep an outer list's (content column, empty item) paragraph context.
+
+    Blank lines end paragraphs, not nonempty items. An empty item ends at
+    its next blank line (CommonMark 5.2). Nested content retains the outer
+    column; a sibling replaces it. Dedented lazy text retains a live hold,
+    but a fresh dedented paragraph or block releases the item. This only
+    changes paragraph context; block openers still use column-zero indentation.
+    """
+    after = _paragraph_after(line, label, para, prev)
+    if not line.strip(CLASSES["blank"]):
+        return after, None if context and context[1] else context
+    if context and _indent_columns(line) >= context[0]:
+        return HELD if after == PARAGRAPH else after, (context[0], False)
+    item = LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None
+    if item:
+        prefix = line[:item.start(2)] if item.group(2) else line
+        marker_end = len(prefix.rstrip(CLASSES["blank"]))
+        column = len(prefix.expandtabs(4))
+        # Over four columns of padding starts code; empty items use W+1.
+        if not item.group(2) or column - marker_end > 4:
+            column = marker_end + 1
+        return after, (column, not bool(item.group(2)))
+    if para == HELD and after == HELD:
+        return after, context
+    return after, None
 
 
 def _comment_after(line: str, inside: bool) -> bool:
@@ -835,19 +861,21 @@ def selftest() -> int:
     sys.modules.setdefault("gen_toc", sys.modules[__name__])
     import gen_toc_cases as cases
     import gen_toc_closer_cases as closers
+    import gen_toc_container_cases as containers
     families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
                 "guard": cases.guard_arms(), "heading": cases.heading_arms(),
                 "predecessor": cases.predecessor_arms(),
                 "provenance": cases.provenance_arms(),
-                "refusal": cases.refusal_arms(), "I440": closers.closer_arms()}
+                "refusal": cases.refusal_arms(), "I440": closers.closer_arms(),
+                "I437": containers.container_arms()}
     on_walk = families["walk"] + families["tag"] + families["I440"]
     on_page = (families["provenance"] + families["predecessor"]
                + families["heading"] + families["guard"]
-               + families["refusal"])
+               + families["refusal"] + families["I437"])
     arms = len(on_walk) + len(on_page)
     import gen_toc_guards as guards
     notes = _tally_guards(families, arms) + _sites()[1]
-    for beside in (cases, guards, closers):  # none may hold a rule
+    for beside in (cases, guards, closers, containers):  # none may hold a rule
         src = Path(beside.__file__)
         notes += _owner_guards(src.name, src.read_text(), vars(beside))
     for note in notes:

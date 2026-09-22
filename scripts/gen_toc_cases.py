@@ -759,11 +759,11 @@ def guard_arms() -> list[tuple[str, str, object]]:
     short = {name: arms for name, arms in plenty.items() if name != "tag"}
     here = Path(__file__)
     return [
-        ("the family names are the eight the runner scores, spelled here "
+        ("the family names are the nine the runner scores, spelled here "
          "and not read from the constant the guard reads", "",
          lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
                                     "predecessor", "provenance",
-                                    "refusal", "I440")),
+                                    "refusal", "I440", "I437")),
         ("the tally guard passes a full set of families", "",
          lambda t: _tally_guards(plenty, whole) == []),
         ("it names a family dropped from the runner's import", "",
@@ -885,7 +885,7 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
         # how many there are. This one does.
         ("the walk carries the number of decision sites recorded here", "",
          lambda t: len(_class_guards(
-             Path(gen_toc_file()).read_text())[0]) == 25),
+             Path(gen_toc_file()).read_text())[0]) == 27),
         ("the site enumerator beside the walk holds no rule of its own", "",
          lambda t: _beside_the_walk() == []),
     ]
