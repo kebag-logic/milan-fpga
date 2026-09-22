@@ -205,6 +205,50 @@ flowchart LR
    the release that added `git patch-id --verbatim`; an older Git is refused
    by name before any verdict, and so is the script's self-test.
 
+   Ancestry and linear replay prove historical landing.
+   Later reversions do not revoke those existing proofs.
+   Linear retention policy belongs to Issue #514.
+
+   [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
+   adds one final fallback after every existing arm declines:
+
+   - **G1, exact shape:** exactly one source-only merge, two ordered parents.
+     The second parent's sole parent must be the first.
+     The merge tree must equal the second parent's tree.
+     Additional merges, distant parents, octopus and resolution work remain excluded.
+   - **H, historical replay:** every non-merge source commit needs a distinct replay.
+     Existing whitespace-exact patch identities and touched-path postimages must match.
+   - **T, current retention:** require exactly one merge base.
+     Examine raw entries on the source's net-changed paths, unfolding renames.
+     Identity requires matching mode, kind and object ID, including absence.
+     Otherwise, tip and source must both be regular blobs.
+     The ancestor must be absent or a regular blob.
+     Regular modes are `100644` and `100755`.
+     Tip mode must equal source mode.
+     Alternatively, source mode must equal ancestor mode.
+     Raw three-way merge must finish without conflicts.
+     Its output must equal tip bytes exactly.
+     Attributes, drivers, textconv and normalization provide no proof.
+     Symlinks, gitlinks and other types require exact tip/source identity.
+
+   G1/H rejection preserves the existing verdict.
+   Historical replay without T reports `UNKNOWN`, naming unproved current paths.
+   Measurement failures also remain `UNKNOWN`; neither result clears containment.
+   Exit codes remain 0/1/2, plus self-test cleanup status 3.
+   Actual gPTP processor PR62 and published adjacent extension remain unresolved.
+   This arm cannot prove arbitrary later semantic rewrites preserve work.
+   Repeated-block controls provide bounded evidence, without a general alignment proof.
+   The default self-test owns these controls and guard mutations.
+
+   Reproduce the decision's patch hashes from exact raw diffs:
+
+   ```bash
+   git diff --no-ext-diff --no-textconv --no-renames <parent> <commit>
+   ```
+
+   Hash those output bytes with SHA-256.
+   The decision records both original/replay pairs and their hashes.
+
    It exits non-zero and names the count when commits are left behind. Replayed
    against the two merge points in step 6 it reports **3** stranded commits for
    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
