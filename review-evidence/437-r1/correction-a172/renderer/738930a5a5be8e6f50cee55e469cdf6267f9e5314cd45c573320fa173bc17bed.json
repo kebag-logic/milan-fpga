@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "gh",
+    "api",
+    "markdown",
+    "--input",
+    "-"
+  ],
+  "utc": "2026-09-22T14:45:15.336705+00:00",
+  "request": {
+    "text": "# Page\n\nplain\n\n  text\n<span>\n## Old \u2014 heading\n</span>\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n",
+    "mode": "gfm",
+    "context": "kebag-logic/milan-fpga"
+  },
+  "request_bytes": "{\"text\": \"# Page\\n\\nplain\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+  "exit": 0,
+  "html": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">plain</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "github_all": [
+    "Page",
+    "Old \u2014 heading",
+    "Alpha",
+    "Beta",
+    "Gamma"
+  ],
+  "response_sha256": "c2a41eded369a585e497b2e874c73d5c7193523c918be9e63cafff7f8d055501"
+}

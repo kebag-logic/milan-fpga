@@ -1,0 +1,332 @@
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index c8d45084..38e5ae44 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -515,6 +515,15 @@ rewritten for this rule.
+ The gate judges the lines a change ADDS, never the tree, so a page that
+ carries the character keeps it until a change touches those lines.
+ 
++The heading walk has a documented withholding limitation (#437).
++Five measured forms render headings but remain absent from Contents:
++`Alpha` over `===`, `text` over `---`, `text` over a single `-`,
++`> ## Q`, and `## Inner` indented into a list item.
++Their copied labels receive no exemption because those headings are omitted.
++The walk does not supply their anchors.
++List paragraph context survives blank lines at the item's content column.
++This corrects the escaping HTML classification without adding container headings.
++
+ `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
+ `HEAD` over every tracked `*.md` (renames followed, every page compared as
+ text whatever a `.gitattributes` entry says, a page git will only report as
+diff --git a/scripts/check_em_dash.py b/scripts/check_em_dash.py
+index 641432e7..a6586e5a 100755
+--- a/scripts/check_em_dash.py
++++ b/scripts/check_em_dash.py
+@@ -947,7 +947,9 @@ def selftest() -> tuple[list[str], int]:
+     found, more = _base_derivation_arms()
+     from gen_toc_closer_cases import em_dash_arms
+     closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
+-    return problems + found + closer_problems, arms + more + closer_arms
++    from gen_toc_container_cases import em_dash_arms as container_em_dash_arms
++    container_problems, container_arms = container_em_dash_arms(sys.modules[__name__])
++    return problems + found + closer_problems + container_problems, arms + more + closer_arms + container_arms
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+diff --git a/scripts/gen_toc.py b/scripts/gen_toc.py
+index b2013963..f5c538b8 100644
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -51,8 +51,8 @@ NEST_WHEN_H3_ATLEAST = 8
+ #: import printed a smaller total and exited 0 ([R86] suggestion, round 6
+ #: on PR #428). The floor rises with the corpus.
+ ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
+-                "provenance", "refusal", "I440")
+-MIN_ARMS = 707
++                "provenance", "refusal", "I440", "I437")
++MIN_ARMS = 754
+ 
+ #: Pages that are deliberately TOC-free, with the reason.
+ SKIP = {
+@@ -349,7 +349,7 @@ def blocks(text: str) -> list[str]:
+     any of them is text.
+ 
+     WHAT THIS WALK ANSWERS FOR. Its domain is a page of ATX headings and
+-    the blocks above, read FLAT and from column 0, and inside it every
++    the blocks above, classified from column 0, and inside it every
+     rule is the one the RENDERER applies and not the one the
+     specification's prose reads: every character class tested here comes
+     from `CLASSES`, measured at the position that reads it, and
+@@ -361,28 +361,24 @@ def blocks(text: str) -> list[str]:
+     visible text is labelled by the block it STARTS in, which can withhold
+     a heading but never invent one.
+ 
+-    CONTAINERS ARE FLAT, and indentation is counted in COLUMNS from column
+-    0 (`_indent_columns`, CommonMark 2.2's tab stops of four). Three
+-    residues follow, all carried by #437. Two WITHHOLD a heading the page
+-    renders, which a contributor sees at once because the generated list
+-    then omits the section: a block quote or list-item line holds the
+-    plain lines after it as that container's paragraph whatever the
+-    container held, and a line indented into a container's content column
+-    is read as this walk's own indentation, so a tag at four columns
+-    inside an item opens no block and a plain line at four columns is
+-    code. The third runs the other way: after a BLANK line inside a list
+-    item, a plain line at the item's content column (one to three columns)
+-    is a fresh top-level paragraph here where the renderer holds it inside
+-    the item, so a lone tag on the next line interrupts nothing the
+-    renderer has open, the renderer opens a block and reads the heading
+-    inside it as text, and this walk KEEPS it. That is the ESCAPE
+-    direction, and a label mirroring such a heading would be exempt. The
+-    test is the content column and not indentation as such, and telling a
+-    container's own paragraph from a top-level one is a change to the
+-    state model rather than a rule ([R86] F1, round 5 on PR #428; the
+-    columns R8, round 9).
++    LIST PARAGRAPHS retain their item's content column across blank lines
++    (#437, CommonMark 5.2). A plain TEXT line at that column is HELD by the
++    item, not a top-level paragraph; a lone unindented tag below it can
++    therefore open HTML. One space below `- item` is outside that item.
++    Indentation still labels blocks from column 0, with tab stops of four;
++    this does not add a recursive container walk. Existing withholding
++    remains for a quote or item holding plain lines after non-paragraph
++    content, and for a tag at four columns inside an item.
++
++    HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
++    omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
++    over a single `-`, `> ## Q`, and `## Inner` indented into a list item.
++    GitHub renders each as a heading. This walk WITHHOLDS their sections
++    and refuses copied-label exemptions; it does not add their anchors.
++    Setext and container headings remain outside its listing domain.
+     """
+     out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
++    item_context = None
+     for line in text.split("\n"):
+         if state in (FENCE, COMMENT, HTML):
+             out.append(state)
+@@ -390,7 +386,8 @@ def blocks(text: str) -> list[str]:
+         else:
+             label, state, delim, tag = _opens(line, para, state)
+             out.append(label)
+-        para, prev = _paragraph_after(line, out[-1], para, prev), line
++        para, item_context = _list_paragraph_after(line, out[-1], para, prev, item_context)
++        prev = line
+     return out
+ 
+ 
+@@ -445,6 +442,35 @@ def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
+     return HELD if para == HELD else PARAGRAPH
+ 
+ 
++def _list_paragraph_after(line: str, label: str, para: str, prev: str,
++                          context: tuple[int, bool] | None) -> tuple[str, tuple[int, bool] | None]:
++    """Keep an outer list's (content column, empty item) paragraph context.
++
++    Blank lines end paragraphs, not nonempty items. An empty item ends at
++    its next blank line (CommonMark 5.2). Nested content retains the outer
++    column; a sibling replaces it. Dedented lazy text retains a live hold,
++    but a fresh dedented paragraph or block releases the item. This only
++    changes paragraph context; block openers still use column-zero indentation.
++    """
++    after = _paragraph_after(line, label, para, prev)
++    if not line.strip(CLASSES["blank"]):
++        return after, None if context and context[1] else context
++    if context and _indent_columns(line) >= context[0]:
++        return HELD if after == PARAGRAPH else after, (context[0], False)
++    item = LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None
++    if item:
++        prefix = line[:item.start(2)] if item.group(2) else line
++        marker_end = len(prefix.rstrip(CLASSES["blank"]))
++        column = len(prefix.expandtabs(4))
++        # Over four columns of padding starts code; empty items use W+1.
++        if not item.group(2) or column - marker_end > 4:
++            column = marker_end + 1
++        return after, (column, not bool(item.group(2)))
++    if para == HELD and after == HELD:
++        return after, context
++    return after, None
++
++
+ def _comment_after(line: str, inside: bool) -> bool:
+     """Whether a comment is open AFTER this line, reading EVERY delimiter on
+     it in order.
+@@ -835,19 +861,21 @@ def selftest() -> int:
+     sys.modules.setdefault("gen_toc", sys.modules[__name__])
+     import gen_toc_cases as cases
+     import gen_toc_closer_cases as closers
++    import gen_toc_container_cases as containers
+     families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
+                 "guard": cases.guard_arms(), "heading": cases.heading_arms(),
+                 "predecessor": cases.predecessor_arms(),
+                 "provenance": cases.provenance_arms(),
+-                "refusal": cases.refusal_arms(), "I440": closers.closer_arms()}
++                "refusal": cases.refusal_arms(), "I440": closers.closer_arms(),
++                "I437": containers.container_arms()}
+     on_walk = families["walk"] + families["tag"] + families["I440"]
+     on_page = (families["provenance"] + families["predecessor"]
+                + families["heading"] + families["guard"]
+-               + families["refusal"])
++               + families["refusal"] + families["I437"])
+     arms = len(on_walk) + len(on_page)
+     import gen_toc_guards as guards
+     notes = _tally_guards(families, arms) + _sites()[1]
+-    for beside in (cases, guards, closers):  # none may hold a rule
++    for beside in (cases, guards, closers, containers):  # none may hold a rule
+         src = Path(beside.__file__)
+         notes += _owner_guards(src.name, src.read_text(), vars(beside))
+     for note in notes:
+diff --git a/scripts/gen_toc_cases.py b/scripts/gen_toc_cases.py
+index e056d6cb..8214a3ec 100644
+--- a/scripts/gen_toc_cases.py
++++ b/scripts/gen_toc_cases.py
+@@ -759,11 +759,11 @@ def guard_arms() -> list[tuple[str, str, object]]:
+     short = {name: arms for name, arms in plenty.items() if name != "tag"}
+     here = Path(__file__)
+     return [
+-        ("the family names are the eight the runner scores, spelled here "
++        ("the family names are the nine the runner scores, spelled here "
+          "and not read from the constant the guard reads", "",
+          lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
+                                     "predecessor", "provenance",
+-                                    "refusal", "I440")),
++                                    "refusal", "I440", "I437")),
+         ("the tally guard passes a full set of families", "",
+          lambda t: _tally_guards(plenty, whole) == []),
+         ("it names a family dropped from the runner's import", "",
+@@ -885,7 +885,7 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
+         # how many there are. This one does.
+         ("the walk carries the number of decision sites recorded here", "",
+          lambda t: len(_class_guards(
+-             Path(gen_toc_file()).read_text())[0]) == 25),
++             Path(gen_toc_file()).read_text())[0]) == 27),
+         ("the site enumerator beside the walk holds no rule of its own", "",
+          lambda t: _beside_the_walk() == []),
+     ]
+diff --git a/scripts/gen_toc_container_cases.py b/scripts/gen_toc_container_cases.py
+new file mode 100644
+index 00000000..61f021b3
+--- /dev/null
++++ b/scripts/gen_toc_container_cases.py
+@@ -0,0 +1,124 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""I437 list paragraph fixtures and the five retained heading omissions.
++
++These are fresh reconstructions of PR #428 R86-5's public descriptions,
++not copies of its unpublished shapes files. GitHub's GFM renderer supplies
++the expected heading presence. The boundary and reset rows independently
++hold the content column, item lifetime and block precedence. This module
++contains no Markdown classifier; gen_toc owns every decision.
++"""
++import tempfile
++from pathlib import Path
++from types import ModuleType
++
++from gen_toc import HTML, TEXT, blocks, headings
++
++
++def probe_rows() -> list[tuple[str, str, str, bool]]:
++    """(Name, predecessor, tag, whether Old renders), measured with GFM."""
++    return [
++        ("two spaces", "- item\n\n  text", "span", False),
++        ("three spaces", "- item\n\n   text", "span", False),
++        ("star item", "* item\n\n  text", "span", False),
++        ("ordered item", "1. item\n\n   text", "span", False),
++        ("two paragraphs", "- item\n\n  first\n\n  text", "span", False),
++        ("task item", "- [ ] item\n\n  text", "span", False),
++        ("interrupting item", "text\n- item\n\n  text", "span", False),
++        ("bold tag", "- item\n\n  text", "b", False),
++        ("two blank lines", "- item\n\n\n  text", "span", False),
++        ("plus item", "+ item\n\n  text", "span", False),
++        ("custom tag", "- item\n\n  text", "custom-tag", False),
++        ("one space outside item", "- item\n\n text", "span", True),
++        ("four spaces", "- item\n\n    text", "span", False),
++        ("quote boundary", "> item\n\n  text", "span", True),
++        ("footnote two spaces", "[^1]: note\n\n  text", "span", True),
++        ("footnote four spaces", "[^1]: note\n\n    text", "span", False),
++        ("tab continuation", "- item\n\n\ttext", "span", False),
++        ("no item", "plain\n\n  text", "span", True),
++        ("padding outside", "-  item\n\n  text", "span", True),
++        ("padding inside", "-  item\n\n   text", "span", False),
++        ("ordered outside", "1. item\n\n  text", "span", True),
++        ("marker indent outside", " - item\n\n  text", "span", True),
++        ("marker indent inside", " - item\n\n   text", "span", False),
++        ("code padding uses one", "-     code\n\n  text", "span", False),
++        ("four padding columns", "-    item\n\n   text", "span", True),
++        ("tab padding columns", "- \titem\n\n   text", "span", True),
++        ("empty item ends at blank", "-\n\n  text", "span", True),
++        ("empty padded item ends at blank", "-   \n\n  text", "span", True),
++        ("empty item gains content", "-\n  first\n\n  text", "span", False),
++        ("empty item ignores padding", "-   \n  first\n\n  text", "span", False),
++        ("nested item retains outer column", "- item\n  - nested\n\n  text", "span", False),
++        ("sibling replaces column", "- item\n\n1. item\n\n  text", "span", True),
++        ("fresh dedented paragraph ends item", "- item\n\noutside\n\n  text", "span", True),
++        ("lazy line retains item", "- item\nlazy\n\n  text", "span", False),
++        ("heading ends item", "- item\n\n## Outside\n\n  text", "span", True),
++        ("fenced marker is inert", "```\n- item\n```\n\n  text", "span", True),
++        ("commented marker is inert", "<!--\n- item\n-->\n\n  text", "span", True),
++        ("HTML marker is inert", "<div>\n- item\n</div>\n\n  text", "span", True),
++        ("code marker is inert", "    - item\n\n  text", "span", True),
++        ("thematic break is no item", "- - -\n\n  text", "span", True),
++        ("noninterrupting ordinal is no item", "text\n2. item\n\n   text", "span", True),
++        ("setext dash is no item", "text\n-\n\n  text", "span", True),
++    ]
++
++
++def _probe_holds(visible: bool) -> object:
++    """Check the probe's block label, its anchor, and recovery after HTML."""
++    return lambda page: (blocks(page)[-5] == (TEXT if visible else HTML)
++                         and ("old" in [h[2] for h in headings(page)]) == visible
++                         and headings(page)[-1] == (2, "Real", "real"))
++
++
++def container_arms() -> list[tuple[str, str, object]]:
++    """Raw classification and heading assertions, independent of policy."""
++    arms = [(f"I437 {name}", f"{prefix}\n<{tag}>\n## Old\n</{tag}>\n\n## Real\n",
++             _probe_holds(visible)) for name, prefix, tag, visible in probe_rows()]
++    for name, page in [
++        ("equals setext", "Alpha\n===\n"),
++        ("hyphen setext", "text\n---\n"),
++        ("single hyphen setext", "text\n-\n"),
++        ("quoted heading", "> ## Q\n"),
++        ("list heading", "- item\n\n  ## Inner\n"),
++    ]:
++        arms.append((f"I437 limitation {name}", page, lambda text: headings(text) == []))
++    return arms
++
++
++def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:
++    """Judge copied labels through real Git base/head commits and provenance.
++
++    Every head contains legitimate generated navigation; an absent base
++    heading must yield the specific mirrors-no-heading finding. Positive
++    boundary controls must still obtain exactly one exemption.
++    """
++    rows, problems = probe_rows(), []
++    heading = "## Old \u2014 heading\n"
++    tail = "\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
++    navigation = ("## Contents\n\n"
++                  "- **[Old \u2014 heading](#old--heading)** -- Copied.\n"
++                  "- **[Alpha](#alpha)** -- What alpha holds.\n"
++                  "- **[Beta](#beta)** -- What beta holds.\n"
++                  "- **[Gamma](#gamma)** -- What gamma holds.\n\n")
++    with tempfile.TemporaryDirectory(prefix="i437.emdash.") as tmp:
++        repo = Path(tmp)
++        gate._fixture_git(repo, "init", "-q", "--initial-branch=main")
++        for i, (_, prefix, tag, _) in enumerate(rows):
++            (repo / f"page{i}.md").write_text(
++                f"# Page\n\n{prefix}\n<{tag}>\n{heading}</{tag}>\n{tail}", encoding="utf-8")
++        base = gate._commit(repo, "I437 base")
++        for i in range(len(rows)):
++            (repo / f"page{i}.md").write_text("# Page\n\n" + navigation + heading + tail, encoding="utf-8")
++        gate._commit(repo, "I437 head")
++        for i, (name, _, _, visible) in enumerate(rows):
++            verdict = gate.Verdict()
++            path = f"page{i}.md"
++            gate.judge_page(repo, base, gate.Change(path, path), verdict)
++            expected = (0, 1) if visible else (1, 0)
++            if (len(verdict.findings), verdict.exempt) != expected:
++                problems.append(f"[I437 {name}] expected findings/exempt {expected}, "
++                                f"got {len(verdict.findings)}/{verdict.exempt}: {verdict.findings}")
++            if not visible and not any("mirrors no heading" in note for note in verdict.findings):
++                problems.append(f"[I437 {name}] absent base heading was not the refusal reason")
++    return problems, len(rows)

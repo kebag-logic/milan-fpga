@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "gh",
+    "api",
+    "markdown",
+    "--input",
+    "-"
+  ],
+  "utc": "2026-09-22T14:32:51.884001+00:00",
+  "request": {
+    "text": "- item\n\n- other\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "mode": "gfm",
+    "context": "kebag-logic/milan-fpga"
+  },
+  "request_bytes": "{\"text\": \"- item\\n\\n- other\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+  "exit": 0,
+  "html": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">other</p>\n</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "github_all": [
+    "Old",
+    "Real"
+  ],
+  "response_sha256": "e8fa0b28a44869233a5f9ae5f02e8f168007d5d91bd5ab8c2842d160048b10b4"
+}

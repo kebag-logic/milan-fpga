@@ -1,0 +1,82 @@
+{
+  "in_scope_correction_rows": 155,
+  "all_agree": true,
+  "optional_residues_unchanged": [
+    "R238 archive P02 tag at col 2 after a blank inside the item, then fence",
+    "R238 archive P03 type-6 div at col 2 inside the item, then fence",
+    "R238 archive F09 tag at col 2 after blank (no paragraph)",
+    "empty item opens HTML",
+    "empty sibling opens HTML"
+  ],
+  "exploratory_unclosed_comments_unchanged_by_correction": 12,
+  "exploratory_unclosed_comments_differ_from_original_base": 6,
+  "first_paragraph_counterparts": [
+    {
+      "id": "R238 P01",
+      "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+      "visible": false,
+      "source": "correction_rows",
+      "request_sha256": "82897333cb809e951ad081482ed34b2cdad7e74b72f75bc2f1a87315fcdc2602",
+      "github_all": [
+        "Real"
+      ],
+      "head_all": [
+        "Real"
+      ],
+      "github": [
+        "Real"
+      ],
+      "head": [
+        "Real"
+      ],
+      "agreement": true,
+      "walks": {
+        "baseline": [
+          "Old"
+        ],
+        "starting": [
+          "Old"
+        ],
+        "corrected": [
+          "Real"
+        ]
+      }
+    },
+    {
+      "id": "R238 P04",
+      "page": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n",
+      "visible": true,
+      "source": "correction_rows",
+      "request_sha256": "803acb90ceda4b3bbd6958c1e9c42d81d33381bad80cb2fa9926672307ff9514",
+      "github_all": [
+        "Old",
+        "Real"
+      ],
+      "head_all": [
+        "Old",
+        "Real"
+      ],
+      "github": [
+        "Old",
+        "Real"
+      ],
+      "head": [
+        "Old",
+        "Real"
+      ],
+      "agreement": true,
+      "walks": {
+        "baseline": [
+          "Real"
+        ],
+        "starting": [
+          "Real"
+        ],
+        "corrected": [
+          "Old",
+          "Real"
+        ]
+      }
+    }
+  ]
+}

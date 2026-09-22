@@ -1,0 +1,50 @@
+{
+  "search-shapes2": {
+    "argv": [
+      "rtk",
+      "proxy",
+      "gh",
+      "api",
+      "-X",
+      "GET",
+      "search/code",
+      "-f",
+      "q=repo:kebag-logic/milan-fpga filename:shapes2.json"
+    ],
+    "exit": 0,
+    "stdout": "{\"total_count\":0,\"incomplete_results\":false,\"items\":[]}",
+    "stderr": ""
+  },
+  "search-probes2": {
+    "argv": [
+      "rtk",
+      "proxy",
+      "gh",
+      "api",
+      "-X",
+      "GET",
+      "search/code",
+      "-f",
+      "q=repo:kebag-logic/milan-fpga filename:probes2-vs-gfm-head.txt"
+    ],
+    "exit": 0,
+    "stdout": "{\"total_count\":0,\"incomplete_results\":false,\"items\":[]}",
+    "stderr": ""
+  },
+  "public-history-paths": {
+    "argv": [
+      "rtk",
+      "proxy",
+      "git",
+      "log",
+      "--all",
+      "--format=%H %s",
+      "--",
+      "*shapes2.json",
+      "*probes2-vs-gfm-head.txt"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}
