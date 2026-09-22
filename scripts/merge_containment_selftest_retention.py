@@ -74,7 +74,9 @@ def _check(fx, name, expected, path=None):
         fx.case("retention-" + name + "-proof", "raw no-op retention" in output,
                 True, "acceptance requires both historical replay and raw retention")
     if path is not None:
-        fx.case("retention-" + name + "-path", repr(path) in output, True,
+        # _tree fixes the filename bytes independently of the process locale.
+        literal_path = os.fsdecode(path.encode("utf-8", "surrogateescape"))
+        fx.case("retention-" + name + "-path", repr(literal_path) in output, True,
                 "the unproved literal path is named without decoding loss")
 
 
