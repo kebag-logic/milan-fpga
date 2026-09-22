@@ -1,0 +1,38 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-pp/runs/06-changed-uncached",
+    "--top",
+    "KL_pp_shadow"
+  ],
+  "mutation": [
+    "ucode.hex",
+    "changed"
+  ],
+  "exit": 0,
+  "seconds": 162.349,
+  "cells": {
+    "KL_pp_shadow": 1122602
+  },
+  "hits": [],
+  "output": "== Yosys open-synthesis check (synth, via sv2v; shard 0/1) ==\n   yosys allocator: /usr/lib/libjemalloc.so.2\n  [PASS] KL_pp_shadow           cells=1122602\n--------------------------------------------------------------\ntops: 1   pass: 1   fail: 0\nRESULT: PASS\nstructural checks: skipped in this worker\n",
+  "events": [
+    {
+      "image": "ltn_rom.hex",
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    {
+      "image": "ucode.hex",
+      "bytes": 17,
+      "sha256": "ef5474dfdf8e052218a479ec0edec84b8ab1c057a0945e16e98b5e94f1802d53"
+    },
+    {
+      "image": "gptp_ucode.hex",
+      "bytes": 13312,
+      "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+    }
+  ]
+}

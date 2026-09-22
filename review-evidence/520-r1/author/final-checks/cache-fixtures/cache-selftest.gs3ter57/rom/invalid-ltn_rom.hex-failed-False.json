@@ -1,0 +1,22 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks/cache-fixtures/cache-selftest.gs3ter57/rom/invalid-ltn_rom.hex-failed-False",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake"
+  ],
+  "mutation": [
+    "ltn_rom.hex",
+    "failed"
+  ],
+  "exit": 2,
+  "seconds": 0.225,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: ACMP transition-ROM generation failed\n",
+  "events": []
+}

@@ -1,0 +1,38 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-cache-tests/cache-selftest.dda0khzc/rom/invalid-ucode.hex-empty-False",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake"
+  ],
+  "mutation": [
+    "ucode.hex",
+    "empty"
+  ],
+  "exit": 2,
+  "seconds": 0.443,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: generated ROM is empty: /tmp/tmp.HTCgdIsSu8/ucode.hex\n",
+  "events": [
+    {
+      "image": "ltn_rom.hex",
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    {
+      "image": "ucode.hex",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "image": "gptp_ucode.hex",
+      "bytes": 13312,
+      "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+    }
+  ]
+}

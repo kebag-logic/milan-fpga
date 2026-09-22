@@ -1,0 +1,38 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-cache-tests/cache-selftest.yc48wagd/rom/invalid-gptp_ucode.hex-empty-False",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake"
+  ],
+  "mutation": [
+    "gptp_ucode.hex",
+    "empty"
+  ],
+  "exit": 2,
+  "seconds": 0.452,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: generated ROM is empty: /tmp/tmp.4V5TPT1rxC/gptp_ucode.hex\n",
+  "events": [
+    {
+      "image": "ltn_rom.hex",
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    {
+      "image": "ucode.hex",
+      "bytes": 26624,
+      "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+    },
+    {
+      "image": "gptp_ucode.hex",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

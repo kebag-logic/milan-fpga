@@ -1,0 +1,40 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-checks/cache-fixtures/cache-selftest.fctu2vtm/rom/invalid-ltn_rom.hex-empty-True",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--cache",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-checks/cache-fixtures/cache-selftest.fctu2vtm/rom/full-head"
+  ],
+  "mutation": [
+    "ltn_rom.hex",
+    "empty"
+  ],
+  "exit": 2,
+  "seconds": 0.584,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: generated ROM is empty: /tmp/tmp.PR8b8TJx2B/ltn_rom.hex\n",
+  "events": [
+    {
+      "image": "ltn_rom.hex",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "image": "ucode.hex",
+      "bytes": 26624,
+      "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+    },
+    {
+      "image": "gptp_ucode.hex",
+      "bytes": 13312,
+      "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+    }
+  ]
+}

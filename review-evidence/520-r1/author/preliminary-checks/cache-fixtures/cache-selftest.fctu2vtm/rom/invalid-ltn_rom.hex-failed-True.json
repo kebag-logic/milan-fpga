@@ -1,0 +1,24 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-checks/cache-fixtures/cache-selftest.fctu2vtm/rom/invalid-ltn_rom.hex-failed-True",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--cache",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-checks/cache-fixtures/cache-selftest.fctu2vtm/rom/full-head"
+  ],
+  "mutation": [
+    "ltn_rom.hex",
+    "failed"
+  ],
+  "exit": 2,
+  "seconds": 0.365,
+  "cells": {},
+  "hits": [],
+  "output": "Yosys: ACMP transition-ROM generation failed\n",
+  "events": []
+}

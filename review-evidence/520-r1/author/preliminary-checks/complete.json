@@ -1,0 +1,295 @@
+{
+  "head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "tree": "93be2b5788c4b79e88bfe22fbaf985686bbdc8f2",
+  "status": "M docs/testing/CI_WORKFLOWS.md\n M syn/yosys/README.md\n M syn/yosys/cache_selftest.py\n M syn/yosys/result_cache.py\n A syn/yosys/rom_cache_selftest.py\n M syn/yosys/run.sh",
+  "working_diff_sha256": "0e55e1d33f2c89dd17399894e1a310bee6830e53946222f667746035f5eeb992",
+  "recorded": "2026-09-22T17:09:49.150566+00:00",
+  "max_parallel": 4,
+  "affinity": [
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "end_head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "end_status": "M docs/testing/CI_WORKFLOWS.md\n M syn/yosys/README.md\n M syn/yosys/cache_selftest.py\n M syn/yosys/result_cache.py\n A syn/yosys/rom_cache_selftest.py\n M syn/yosys/run.sh",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "syn/yosys/result_cache.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.061,
+      "log": "01.log",
+      "sha256": "f86cb91b590f89aad036d7c0514fecc428afe09a2be6cddfd60315cf9466a034"
+    },
+    {
+      "command": [
+        "python3",
+        "syn/yosys/cache_selftest.py",
+        "--logs",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-checks/cache-fixtures"
+      ],
+      "exit": 0,
+      "seconds": 52.028,
+      "log": "02.log",
+      "sha256": "d64ac9b42631f2e3146bc063d9372564a7ab492a4abe343aa753171cacf35a49"
+    },
+    {
+      "command": [
+        "bash",
+        "-n",
+        "syn/yosys/run.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.003,
+      "log": "03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "bash",
+        "syn/yosys/check_list_hermetic.sh"
+      ],
+      "exit": 0,
+      "seconds": 0.248,
+      "log": "04.log",
+      "sha256": "11821ab0aefd03bca3e3e3e34a5b1a3796f824f526f98322044be2354ff46030"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/yosys_tally.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.055,
+      "log": "05.log",
+      "sha256": "065f880ce3a5db9ed8e7ec7d381148d6e7f112016d9c7fbe550667ab5114c1a5"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/yosys_shards.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.042,
+      "log": "06.log",
+      "sha256": "b45bf7cb6b4308d5e8f64c3f6efabd6751f4101cb0a3d1bde337f4f2f24c9429"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.213,
+      "log": "07.log",
+      "sha256": "8ff214d02993a2b1dea0268a8a96c3f7bfb2c37fd8f974de6fe8662305d256fb"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.165,
+      "log": "08.log",
+      "sha256": "3d694aeb98c30446770cf65e3ce623eea30cf7aefa11b81b35a4a97acc9a7f9c"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 7.168,
+      "log": "09.log",
+      "sha256": "caf7e05eb72dc685146e93488920bc643e79310d9c0bcb8120c76acc84987bec"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit": 0,
+      "seconds": 3.748,
+      "log": "10.log",
+      "sha256": "6b4ffe413cf83db8c2e8ac00c43e5fd47afc1e31204a739ea214bf5e9e3171ce"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit": 0,
+      "seconds": 0.045,
+      "log": "11.log",
+      "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.035,
+      "log": "12.log",
+      "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit": 0,
+      "seconds": 0.062,
+      "log": "13.log",
+      "sha256": "0630e26d54dd30d7299822abd7f4bf909f87f1fd020e80bf28f71cdd841ab156"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.354,
+      "log": "14.log",
+      "sha256": "96bc18435c495f5cb9ec0ca5adf87657ad82a8823248250514fc7586b048dce3"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit": 0,
+      "seconds": 0.401,
+      "log": "15.log",
+      "sha256": "97264dbeef4e9f3c29b8e85d14c7c2dfb642b344fbc385e29c3668d64dfbf51a"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+      ],
+      "exit": 0,
+      "seconds": 0.959,
+      "log": "16.log",
+      "sha256": "0ffb418ff98f0217fdbcb36983fd61f6e1cd74d68be835bf59162cece6a3a4e9"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit": 0,
+      "seconds": 2.824,
+      "log": "17.log",
+      "sha256": "e5d88bab744b304f0261225c7ab18373ce069ded2ab9b34b4ccc83772ef4ff0f"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 2.847,
+      "log": "18.log",
+      "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit": 0,
+      "seconds": 0.2,
+      "log": "19.log",
+      "sha256": "5b4da4ada78926b702a3ceac7ef8b8f3edd481897f50641078e04f7f8deeae8e"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 0.203,
+      "log": "20.log",
+      "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.375,
+      "log": "21.log",
+      "sha256": "5323fa60bd93e7511ee7b996a0d88869401be05df5e28e8440b2c64ee0792805"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 1.383,
+      "log": "22.log",
+      "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 4.553,
+      "log": "23.log",
+      "sha256": "5cbb1cf9ffc7e661b24ff470d4732144e426eac08a143385eaff9e307a25a87e"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "exit": 0,
+      "seconds": 4.603,
+      "log": "24.log",
+      "sha256": "6941e2a84d477d1d50fc87b5654262810f29707e73006d6d8f19dcf7e679ae6c"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+      ],
+      "exit": 0,
+      "seconds": 0.018,
+      "log": "25.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

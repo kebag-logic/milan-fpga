@@ -1,0 +1,15 @@
+{
+  "classification": "All preliminary-* outputs predate the local commit; they are not final-head evidence.",
+  "preliminary_cache_tests": [
+    {
+      "path": "preliminary-cache-tests/cache-selftest.dda0khzc",
+      "result": "FAILED during legacy fixture construction: multiple distinct ROM bundles collapse to the same schema-1 key. Fixed by using only the immutable original baseline seed when constructing old-schema fixtures."
+    },
+    {
+      "path": "preliminary-cache-tests/cache-selftest.yc48wagd",
+      "result": "PASS before added seed-only and cross-mode controls."
+    }
+  ],
+  "preliminary_checks": "25/25 commands passed, before a final cache_selftest.py docstring clarification. check_em_dash checks HEAD, so this preliminary result does not validate the then-uncommitted Markdown additions.",
+  "final_evidence": "Use final-checks, final-pp, and final-source.json only for the committed candidate."
+}

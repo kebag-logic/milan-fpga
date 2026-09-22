@@ -1,0 +1,10 @@
+== Yosys open-synthesis check (synth, via sv2v; shard 0/1) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+  [note] cdc_pulse              cache entry refused, running live: refused bc288a82cae2 in $WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-cache-tests/cache-selftest.yc48wagd/rom/planted-missing: recorded rom_sha256 differs from the current one
+  [PASS] cdc_pulse              cells=6
+  [note] cdc_handshake          cache entry refused, running live: refused 3152b499235c in $WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/preliminary-cache-tests/cache-selftest.yc48wagd/rom/planted-missing: recorded rom_sha256 differs from the current one
+  [PASS] cdc_handshake          cells=143
+--------------------------------------------------------------
+tops: 2   pass: 2   fail: 0
+RESULT: PASS
+structural checks: skipped in this worker

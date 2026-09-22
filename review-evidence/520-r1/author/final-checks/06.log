@@ -1,0 +1,17 @@
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   four-worker heavy owners: milan_datapath=0 KL_pp_shadow=1 loads=[1550, 465, 92, 91]
+  ok   reject shard ''
+  ok   reject shard '1'
+  ok   reject shard '-1/4'
+  ok   reject shard '01/4'
+  ok   reject shard '4/4'
+  ok   reject shard '5/4'
+  ok   reject shard '0/0'
+  ok   reject shard 'a/4'
+  ok   reject inventory []
+  ok   reject inventory ['good', 'good']
+  ok   reject inventory ['bad-name']
+selftest: PASS

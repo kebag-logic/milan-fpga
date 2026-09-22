@@ -1,0 +1,631 @@
+{
+  "head": "28e350b99ac240a750326b762c6d029f0653362c",
+  "tree": "d17c117db03128e444b7b44742fe82f10746cb28",
+  "runs": 54,
+  "controls": {
+    "invalid-ucode.hex-empty-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "empty"
+      ]
+    },
+    "entry-duplicate": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "entry-missing": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "invalid-ucode.hex-missing-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "missing"
+      ]
+    },
+    "invalid-ltn_rom.hex-failed-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "failed"
+      ]
+    },
+    "entry-malformed": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "invalid-ucode.hex-missing-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "missing"
+      ]
+    },
+    "invalid-gptp_ucode.hex-failed-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "failed"
+      ]
+    },
+    "invalid-ltn_rom.hex-failed-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "failed"
+      ]
+    },
+    "invalid-gptp_ucode.hex-empty-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "empty"
+      ]
+    },
+    "elaborate-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "elaborate-ltn_rom.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "full-gptp_ucode.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "elaborate-gptp_ucode.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "full-gptp_ucode.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "invalid-ltn_rom.hex-empty-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "empty"
+      ]
+    },
+    "full-ltn_rom.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "elaborate-gptp_ucode.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "entry-old-key": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "entry-old-schema": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "invalid-gptp_ucode.hex-missing-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "missing"
+      ]
+    },
+    "invalid-gptp_ucode.hex-empty-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "empty"
+      ]
+    },
+    "elaborate-ltn_rom.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "full-ucode.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "elaborate-gptp_ucode.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "elaborate-gptp_ucode.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "invalid-gptp_ucode.hex-missing-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "missing"
+      ]
+    },
+    "entry-mismatch": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "invalid-ucode.hex-empty-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "empty"
+      ]
+    },
+    "full-ltn_rom.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "invalid-ltn_rom.hex-missing-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "missing"
+      ]
+    },
+    "invalid-gptp_ucode.hex-failed-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "failed"
+      ]
+    },
+    "elaborate-ucode.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "full-ltn_rom.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "invalid-ucode.hex-failed-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "failed"
+      ]
+    },
+    "full-cold": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "full-gptp_ucode.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "full-gptp_ucode.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "gptp_ucode.hex",
+        "changed"
+      ]
+    },
+    "elaborate-ucode.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "full-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "elaborate-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "invalid-ltn_rom.hex-missing-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "missing"
+      ]
+    },
+    "full-ucode.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "full-ucode.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "invalid-ucode.hex-failed-True": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "failed"
+      ]
+    },
+    "full-ltn_rom.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "elaborate-ucode.hex-per-head": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "elaborate-ltn_rom.hex-warm": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "invalid-ltn_rom.hex-empty-False": {
+      "exit": 2,
+      "cells": {},
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "empty"
+      ]
+    },
+    "elaborate-cold": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "full-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [
+        "cdc_pulse",
+        "cdc_handshake"
+      ],
+      "mutation": [
+        "",
+        ""
+      ]
+    },
+    "elaborate-ltn_rom.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ltn_rom.hex",
+        "changed"
+      ]
+    },
+    "elaborate-ucode.hex": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 7,
+        "cdc_handshake": 26
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    },
+    "full-ucode.hex-seed-only": {
+      "exit": 0,
+      "cells": {
+        "cdc_pulse": 6,
+        "cdc_handshake": 143
+      },
+      "hits": [],
+      "mutation": [
+        "ucode.hex",
+        "changed"
+      ]
+    }
+  }
+}

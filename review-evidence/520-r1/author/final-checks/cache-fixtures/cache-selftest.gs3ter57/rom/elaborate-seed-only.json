@@ -1,0 +1,100 @@
+{
+  "command": [
+    "$CANDIDATE/syn/yosys/run.sh",
+    "--no-structural",
+    "--results",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks/cache-fixtures/cache-selftest.gs3ter57/rom/elaborate-seed-only",
+    "--top",
+    "cdc_pulse",
+    "--top",
+    "cdc_handshake",
+    "--mode",
+    "elaborate",
+    "--cache-seed",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks/cache-fixtures/cache-selftest.gs3ter57/rom/elaborate-seed"
+  ],
+  "mutation": [
+    "",
+    ""
+  ],
+  "exit": 0,
+  "seconds": 0.88,
+  "cells": {
+    "cdc_pulse": 7,
+    "cdc_handshake": 26
+  },
+  "hits": [
+    "cdc_pulse",
+    "cdc_handshake"
+  ],
+  "output": "== Yosys fast elaboration check (via sv2v) ==\n   yosys allocator: /usr/lib/libjemalloc.so.2\n  [PASS] cdc_pulse              cells=7  (result cache)\n  [PASS] cdc_handshake          cells=26  (result cache)\n--------------------------------------------------------------\ntops: 2   pass: 2   fail: 0\nRESULT: PASS\nstructural checks: skipped in this worker\n",
+  "events": [
+    {
+      "image": "ltn_rom.hex",
+      "bytes": 6138,
+      "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+    },
+    {
+      "image": "ucode.hex",
+      "bytes": 26624,
+      "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+    },
+    {
+      "image": "gptp_ucode.hex",
+      "bytes": 13312,
+      "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+    },
+    {
+      "operation": "lookup",
+      "args": [
+        "--dir",
+        "/tmp/tmp.rJNBSaCbKK/no-cache",
+        "--seed",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks/cache-fixtures/cache-selftest.gs3ter57/rom/elaborate-seed",
+        "--top",
+        "cdc_pulse",
+        "--mode",
+        "elaborate",
+        "--sv2v-file",
+        "/tmp/tmp.rJNBSaCbKK/cdc_pulse.v",
+        "--program",
+        "read_verilog @TMP@/cdc_pulse.v; hierarchy -check -top cdc_pulse; proc; opt_clean; check -assert; stat -top cdc_pulse; tee -q -o @TMP@/cdc_pulse.stat.json stat -top cdc_pulse -json",
+        "--rom-sha256",
+        "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+        "--yosys-version",
+        "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]",
+        "--yosys-bin-sha256",
+        "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b",
+        "--sv2v-version",
+        "sv2v v0.0.13"
+      ],
+      "sv2v_sha256": "18142345723302f447db343b8c3724f7fe2bce323fb94f91ee3835aafca54db7"
+    },
+    {
+      "operation": "lookup",
+      "args": [
+        "--dir",
+        "/tmp/tmp.rJNBSaCbKK/no-cache",
+        "--seed",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/520-author/final-checks/cache-fixtures/cache-selftest.gs3ter57/rom/elaborate-seed",
+        "--top",
+        "cdc_handshake",
+        "--mode",
+        "elaborate",
+        "--sv2v-file",
+        "/tmp/tmp.rJNBSaCbKK/cdc_handshake.v",
+        "--program",
+        "read_verilog @TMP@/cdc_handshake.v; hierarchy -check -top cdc_handshake; proc; opt_clean; check -assert; stat -top cdc_handshake; tee -q -o @TMP@/cdc_handshake.stat.json stat -top cdc_handshake -json",
+        "--rom-sha256",
+        "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+        "--yosys-version",
+        "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]",
+        "--yosys-bin-sha256",
+        "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b",
+        "--sv2v-version",
+        "sv2v v0.0.13"
+      ],
+      "sv2v_sha256": "7cf364c54e5f0ecb0351869e958537fb4dde2d614a66bf82b113e288f3f7511c"
+    }
+  ]
+}
