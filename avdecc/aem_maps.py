@@ -99,8 +99,13 @@ SMAP_MAX_ROWS = 62
 #: Down-declaring is NOT the fix (USER, commit e103d8e: the device declares
 #: what it IS); the map has to be built from min(clusters, widest advertised
 #: channels) or the talker has to grow.
+#:
+#: The map is AUDIO_MAP[0] since da71309c, which made the Stream Port Input
+#: dynamic (Milan v1.2 5.3.3.9) and densely renumbered the one static map
+#: that remained. The six mappings, the stream and the format are the ones
+#: first measured; only the descriptor index changed (#464).
 KNOWN_MAP_DEVIATIONS = {
-    "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,%d,%d,0): stream_channel "
+    "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,%d,%d,0): stream_channel "
     "%d >= 2, the widest channels_per_frame stream 0 advertises "
     "(['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1" % (c, c, c)
     for c in range(2, 8)
