@@ -631,6 +631,29 @@ is exactly these twelve things:
     action, or any content at all -- is refused naming the job and the
     position, as are a removed, reordered or renamed step, a loosened
     step `if`, and a rewritten cache or upload `with`.
+
+    Every recognized carrier `run` body is also pinned (#407).
+    `CARRIER_STEP_LISTS` records each canonical script beside its step identity.
+    Existing canonical gate scripts are reused; specialized checks still apply.
+    Comparison uses item 7's whitespace normalization.
+    Refusals name the job, step, and first differing line.
+    Missing script records fail closed, even with unchanged workflows.
+    `uses` steps retain their recorded `with` mappings.
+
+    Mutation arms derive from live carrier steps, independently of records.
+    Each body faces replacement, appended-command, and `continue-on-error` controls.
+    Every normalized line gets a trailing `|| true` control.
+    These include bounded `--check` calls and the AC5 idiom call.
+    Multi-command bodies additionally lose a command and reorder distinct lines.
+    Bodies carrying proof/check flags additionally lose a flag.
+    Python gates, bounded ratchets, builder gates, and reference builds participate.
+    A checker returning no findings fails every mutation arm.
+    Whitespace reformatting and matching record updates remain accepted.
+
+    Every legitimate script edit explicitly updates its canonical entry.
+    Both edits belong in the same commit.
+    Mutation arms derive automatically from the live body, independently.
+    Never regenerate expected scripts during checking from candidate workflows.
 12. **The inherited execution environment.** None of the keys above is
     `env`, and a name set at the workflow or job level reaches every step's
     shell before any pinned script runs: `BASH_ENV` names a file bash
@@ -740,15 +763,18 @@ is exactly these twelve things:
     rewrite of the checker is outside that boundary, and what stands
     against it is the gate's own proof -- the coverage rule uncalled, its
     recorded-list item, its must-exist item or its comparison removed each
-    fail named `--selftest` arms with `--check` still green. What this
-    still cannot hold is the CONTENT of the recognised non-gate steps:
-    `docs-check`'s gates other than the ci_events step (`docs_check`,
-    `check_feature_status`, the traceability matrix, the builder gates and
-    the rest) and every RTL step no rule above holds by script can still
-    be rewritten or swallowed under the recorded name with the context
-    green, and the second runner backs up only `ci_events --check`. A
-    content pin on every recognised step closes that; the four carriers'
-    is #407 and the seven RTL jobs' is #439.
+    fail named `--selftest` arms with `--check` still green.
+
+    The seven RTL jobs still have scripts without specialized pins.
+    The sibling `full-ci-gate` SHA-pin script also remains unpinned:
+    "Print the event and pin the one SHA this run validates".
+    Both remaining content gaps are future work under #439.
+    The four non-RTL carriers now pin every recognized script (#407).
+    Their maintenance remedy is recorded in item 11.
+    The second runner checks these pins independently through `ci_events --check`.
+    A swallowed Python idiom call therefore leaves that step green,
+    but both jobs' contract steps refuse it by name.
+    `docs-check` fails; the exhaustive aggregates also fail closed.
 
 `--selftest` covers, one at a time: the step removed, the token missing, the
 live read replaced by an echo, the event not passed, `|| true`, the decoy
@@ -868,10 +894,18 @@ hard-coded, its `PR_BASE_REF` rebound to the frozen `base.sha`, its
 judging from the frozen recorded base, swallowing its exit status, its push
 base rewritten, its base-branch fetch, its null-base refusal and its
 by-SHA fetch removed, and its body moved under another recorded
-name; the imported gPTP gate removed, replaced by
+name; every recognized non-RTL carrier body (#407) replaced by `true`,
+given an appended command, and made `continue-on-error`;
+every normalized line separately given `|| true`, including non-last calls;
+multi-command bodies stripped of their last command and distinct lines swapped;
+an existing proof/check flag removed wherever present;
+each missing canonical script record refused by name;
+a script and its canonical record updated together, accepted;
+the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
-reformatting of all ten canonical scripts that must still pass; and the
+reformatting of every carrier body and the specialized canonical scripts
+that must still pass; and the
 decision itself for every event class.
 
 ## One authoritative SHA
@@ -1017,9 +1051,10 @@ run only prints, so the gate needs no LiteX, but loading the config reads the
 gPTP engine generator, so it needs the `gptp-processor` checkout above and
 fails, never passes, without it. `--self-test` grades the tracked `deploy.sh`
 first and then proves its planted drifts are rejected. `CARRIER_STEP_LISTS`
-records all three steps by name and position, so removing or reordering one
-is refused naming it; like the other recognised steps, their commands are not
-pinned yet (#407).
+records all three steps by name, position, and canonical script.
+Removing, reordering, or rewriting one is refused by name (#407).
+Script refusals also identify the first differing line.
+Legitimate command edits require matching record updates, as item 11 describes.
 
 Three caches, deliberately split. The Scala toolchain is content-addressed
 and keeps a broad fallback. The pip download cache is keyed on the pin file
