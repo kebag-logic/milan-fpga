@@ -1,0 +1,8 @@
+{
+  "command": "rtk proxy python3 -c 'from pathlib import Path\nimport subprocess\nassert subprocess.check_output([\"rtk\",\"proxy\",\"git\",\"rev-parse\",\"HEAD\"],text=True).strip()==\"ad62493186576144f9fa1568babad012bc9ad8ca\"\nassert not subprocess.check_output([\"rtk\",\"proxy\",\"git\",\"status\",\"--porcelain=v1\",\"--untracked-files=all\",\"--ignore-submodules=none\"])\np=Path(\"docs/testing/CI_WORKFLOWS.md\")\nbefore=p.read_bytes()\nold=b\"\"\"    The remaining content gap belongs to the seven RTL jobs (#439).\n    Their recognized steps remain rewritable where no specialized script pin applies.\n\"\"\"\nnew=b\"\"\"    The seven RTL jobs still have scripts without specialized pins.\n    The sibling `full-ci-gate` SHA-pin script also remains unpinned:\n    \"Print the event and pin the one SHA this run validates\".\n    Both remaining content gaps are future work under #439.\n\"\"\"\nassert before.count(old)==1\nassert bytes([0xe2,0x80,0x94]) not in new\np.write_bytes(before.replace(old,new,1))\nprint(\"Replaced exactly two item-12 lines with four lines; all other document bytes preserved.\")\n'",
+  "chunk_id": "1c95ba",
+  "wall_time_seconds": 0.000002234,
+  "exit_code": 0,
+  "original_token_count": 22,
+  "output": "Replaced exactly two item-12 lines with four lines; all other document bytes preserved.\n"
+}
