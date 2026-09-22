@@ -1,0 +1,2991 @@
+[
+  {
+    "label": "retained-lf",
+    "branch": "32665e52dfecb1a3bb0ef577247b041f7bcbaace",
+    "tip": "b6441114852ce382889f5dae9dba18f0fc5097c0",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "a4f972e5d3467da990d901e92c8c51e40b89933163062682354a8528aea0f255",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "bc2f1f34a9c717d2b512552e0b663afb9bf4db16cabec2fee1031af51642164e",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "13c79530d3f61df153c2f20c756de0c989d44c7fad97692e9d05dbc71610b9c2",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "c9fd9679966e64e8ad0a1fa4e941075d9e6be2998fb5de803c633a43a143627d",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "f9ac977cd0c0c535db735a201f4ec16aca4639d2"
+        ],
+        "rc": 0,
+        "sha256": "974f94862d93d56a7bc465c22a90eba45502e64a37cf5694df098053f835482d",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-g7uecihj/tip",
+          "/tmp/containment-merge-g7uecihj/base",
+          "/tmp/containment-merge-g7uecihj/branch"
+        ],
+        "rc": 0,
+        "sha256": "974f94862d93d56a7bc465c22a90eba45502e64a37cf5694df098053f835482d",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "partial-reversal-lf",
+    "branch": "32665e52dfecb1a3bb0ef577247b041f7bcbaace",
+    "tip": "20a940b83431b15e5c181af1f655e8f15f7f7c5b",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'raw-\\udcff\\r\\nlf'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "a4f972e5d3467da990d901e92c8c51e40b89933163062682354a8528aea0f255",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "cce7a500df126ee42e1f872fc9f4b55707775f62",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "bc2f1f34a9c717d2b512552e0b663afb9bf4db16cabec2fee1031af51642164e",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "d0043592364b1132dfe0b433bc195e299882a9cf3b435905d13ac5d79b787919",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nlf"
+        ],
+        "rc": 0,
+        "sha256": "c9fd9679966e64e8ad0a1fa4e941075d9e6be2998fb5de803c633a43a143627d",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "cd7776714b227ee01d27ca8ae922799231aad8ff"
+        ],
+        "rc": 0,
+        "sha256": "ad5f7b93ab97543f6a198a3f70fa5648141dadf32ab61ff1f0d4d80530c41844",
+        "length": 479
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-5u4tpaz9/tip",
+          "/tmp/containment-merge-5u4tpaz9/base",
+          "/tmp/containment-merge-5u4tpaz9/branch"
+        ],
+        "rc": 0,
+        "sha256": "974f94862d93d56a7bc465c22a90eba45502e64a37cf5694df098053f835482d",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "retained-crlf",
+    "branch": "d4e4e03e6bea33b6c456e17a66b740b298e2ac0c",
+    "tip": "55b888edf26b528fc6fea42fd6a72fc8080b792b",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "383cca38e58138e234dfec9e09939f5d565c0aba7101ccd0e89c6c89d3343c85",
+        "length": 20
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "84ec0ab8f808e1b5efa645405ca5841fa64115cb35091a54db0577466c1449d2",
+        "length": 65
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "60b9c1523b37926f69662c6b452e05af954c6d5207468c3cb1f2a0fafa07fbdb",
+        "length": 65
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "cf28c3c01c5665caf429e7680d19970e5660988e4ffd0e5d917b97f377ed228a",
+        "length": 65
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "2510414f9a929a6bf914255e0f42ef1b4ba2346e"
+        ],
+        "rc": 0,
+        "sha256": "675a6477a14fa90ac0b39b4c900511be10422c1353615fb713187d494fc2e3f4",
+        "length": 540
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "e2cdb02ee1f77de0b9337155c79c1e70016b0b41"
+        ],
+        "rc": 0,
+        "sha256": "eb26a51d415c9a92f6d0f444c1a5458bc327b5e834f61d6030f7a1f87850bbea",
+        "length": 540
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "a6dfa9f68718a8b6c156bbdabd571f7669f4e9c7"
+        ],
+        "rc": 0,
+        "sha256": "fb5fb34f8a975ec13f4c67aff38795a5b0c00211a7a5e18df77e1d9bd607b255",
+        "length": 542
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-jhfsocw2/tip",
+          "/tmp/containment-merge-jhfsocw2/base",
+          "/tmp/containment-merge-jhfsocw2/branch"
+        ],
+        "rc": 0,
+        "sha256": "675a6477a14fa90ac0b39b4c900511be10422c1353615fb713187d494fc2e3f4",
+        "length": 540
+      }
+    ]
+  },
+  {
+    "label": "partial-reversal-crlf",
+    "branch": "d4e4e03e6bea33b6c456e17a66b740b298e2ac0c",
+    "tip": "662522da3a327b3869039fca291d9d8a2f40c837",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'raw-\\udcff\\r\\ncrlf'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "383cca38e58138e234dfec9e09939f5d565c0aba7101ccd0e89c6c89d3343c85",
+        "length": 20
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "05601e823d9a927c057bf341313f770e1c6a28cc",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "84ec0ab8f808e1b5efa645405ca5841fa64115cb35091a54db0577466c1449d2",
+        "length": 65
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "09a9948d1fa573bddff0824d7fc90ca425de83accd672a88d73ba3ba0bd1a370",
+        "length": 65
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\ncrlf"
+        ],
+        "rc": 0,
+        "sha256": "cf28c3c01c5665caf429e7680d19970e5660988e4ffd0e5d917b97f377ed228a",
+        "length": 65
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "2763697d6200f7a19540a2ce345d72646c81cf85"
+        ],
+        "rc": 0,
+        "sha256": "f3bb5a8480d65677e2b25086e37ec8cd181dc85ad519599c2d32abad44f48c70",
+        "length": 539
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "e2cdb02ee1f77de0b9337155c79c1e70016b0b41"
+        ],
+        "rc": 0,
+        "sha256": "eb26a51d415c9a92f6d0f444c1a5458bc327b5e834f61d6030f7a1f87850bbea",
+        "length": 540
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "a6dfa9f68718a8b6c156bbdabd571f7669f4e9c7"
+        ],
+        "rc": 0,
+        "sha256": "fb5fb34f8a975ec13f4c67aff38795a5b0c00211a7a5e18df77e1d9bd607b255",
+        "length": 542
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-g_4_kffb/tip",
+          "/tmp/containment-merge-g_4_kffb/base",
+          "/tmp/containment-merge-g_4_kffb/branch"
+        ],
+        "rc": 0,
+        "sha256": "675a6477a14fa90ac0b39b4c900511be10422c1353615fb713187d494fc2e3f4",
+        "length": 540
+      }
+    ]
+  },
+  {
+    "label": "retained-no-final-lf",
+    "branch": "5ac9de7cdf7bd01513901f01d8531585c28b26ac",
+    "tip": "15abfaefc8ab3caf6f666aa9e8776fce34ec94d5",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "0df82ef32f331015b230764ec1928be3c44d77f7ffd883a5cf020beb977ac0e6",
+        "length": 27
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "1dbca516aa065738dc5d7560e61ab6b159f478a74b55ea34695249f2adca3ec3",
+        "length": 72
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "173bdcf191752bd5c1ee46fd71c113d92d94b9f3fb89740a8239dbf2910b2f64",
+        "length": 72
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "8f3cecc5fd7d1674123f0490d324805c726c499e76dbbd070ad95167c9140881",
+        "length": 72
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "5e4597f736bf8eb0481d61f981e7984148be499a"
+        ],
+        "rc": 0,
+        "sha256": "3c82d2d58b4b1e8655cff5690b701e482a9e364d384674208d6fc1cf2763949d",
+        "length": 479
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "08642cfb1343bd3afe0abd29066b94ff54169608"
+        ],
+        "rc": 0,
+        "sha256": "df7d39d5e53602573ceb22a27da8b2976e927654af11a073f2142aa089721f81",
+        "length": 479
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "c11665c16ba57a989093973136bb610d263bda5e"
+        ],
+        "rc": 0,
+        "sha256": "55d71ec40a291aa806b7f2f41bb05150a788babe0cf2a0c93fd0f10f72372fe9",
+        "length": 481
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-atqjszbz/tip",
+          "/tmp/containment-merge-atqjszbz/base",
+          "/tmp/containment-merge-atqjszbz/branch"
+        ],
+        "rc": 0,
+        "sha256": "3c82d2d58b4b1e8655cff5690b701e482a9e364d384674208d6fc1cf2763949d",
+        "length": 479
+      }
+    ]
+  },
+  {
+    "label": "partial-reversal-no-final-lf",
+    "branch": "5ac9de7cdf7bd01513901f01d8531585c28b26ac",
+    "tip": "8d736e9b703ddd0753562ddadc116526d4b980b5",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'raw-\\udcff\\r\\nno-final-lf'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "0df82ef32f331015b230764ec1928be3c44d77f7ffd883a5cf020beb977ac0e6",
+        "length": 27
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "dd8da8b7ad739150f178f398eb91c2c4da5b9a3a",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "1dbca516aa065738dc5d7560e61ab6b159f478a74b55ea34695249f2adca3ec3",
+        "length": 72
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "59e08b27eef616240058a01feca9d63f1c7efd40b9da30df80b4fb50839fd89f",
+        "length": 72
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nno-final-lf"
+        ],
+        "rc": 0,
+        "sha256": "8f3cecc5fd7d1674123f0490d324805c726c499e76dbbd070ad95167c9140881",
+        "length": 72
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "9dfdf66fcab0a1644e0b532b0e3562a7409c0dba"
+        ],
+        "rc": 0,
+        "sha256": "fe28a080f4d9630f544ef9b14c47ab22815f3ad3c589eaa0cb2c2e3e8868d0a1",
+        "length": 478
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "08642cfb1343bd3afe0abd29066b94ff54169608"
+        ],
+        "rc": 0,
+        "sha256": "df7d39d5e53602573ceb22a27da8b2976e927654af11a073f2142aa089721f81",
+        "length": 479
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "c11665c16ba57a989093973136bb610d263bda5e"
+        ],
+        "rc": 0,
+        "sha256": "55d71ec40a291aa806b7f2f41bb05150a788babe0cf2a0c93fd0f10f72372fe9",
+        "length": 481
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-pvviacca/tip",
+          "/tmp/containment-merge-pvviacca/base",
+          "/tmp/containment-merge-pvviacca/branch"
+        ],
+        "rc": 0,
+        "sha256": "3c82d2d58b4b1e8655cff5690b701e482a9e364d384674208d6fc1cf2763949d",
+        "length": 479
+      }
+    ]
+  },
+  {
+    "label": "retained-non-utf8",
+    "branch": "d2b9bb8c236eef8047d8c1fab92d96b9775f7449",
+    "tip": "6f2899d007d3805437209b50828f1db524849fcc",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "ff3ebfa5b380422fe1c463fbfbf3a6b4a9cdc93c66e66411be04073201811f9f",
+        "length": 24
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "28a1a8ce398b7229d14797cac7df566aacd1a3b2a13589fd5de8f90f3e091b4b",
+        "length": 69
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "225c3e88c069968a4b377acc85f49d5836d0c6e167b334e93a7f2f192ed2d423",
+        "length": 69
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "7bac19e173349d95ded2299f275c14938cda2b7105e033bf133e3382033e66e7",
+        "length": 69
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "e220cbcc7d37a783893bb73dce9e1da46d1664bb"
+        ],
+        "rc": 0,
+        "sha256": "c1cf28bc3458b24994339d418d78482ac866d34ffc6f2a22eef6e56ae9cb7f2b",
+        "length": 482
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "38eb85b556cf8163fc444abac46e839db1c5b5d3"
+        ],
+        "rc": 0,
+        "sha256": "0d69d43d89ff9cb82244076bb71ebbbaaa0c48666e561ab5ce555fe632db3c29",
+        "length": 482
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "726103fb52a8733d3a4f14e89e53c13aae4307cf"
+        ],
+        "rc": 0,
+        "sha256": "71d0fafc61e775237fd4ff0a557403dbec21b3ff6c59c36417fc0fa8e84cf7d2",
+        "length": 484
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-ed2qamc8/tip",
+          "/tmp/containment-merge-ed2qamc8/base",
+          "/tmp/containment-merge-ed2qamc8/branch"
+        ],
+        "rc": 0,
+        "sha256": "c1cf28bc3458b24994339d418d78482ac866d34ffc6f2a22eef6e56ae9cb7f2b",
+        "length": 482
+      }
+    ]
+  },
+  {
+    "label": "partial-reversal-non-utf8",
+    "branch": "d2b9bb8c236eef8047d8c1fab92d96b9775f7449",
+    "tip": "e2391b80c76afc0c4af8a6a62e69df8d6b7c81b7",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'raw-\\udcff\\r\\nnon-utf8'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "ff3ebfa5b380422fe1c463fbfbf3a6b4a9cdc93c66e66411be04073201811f9f",
+        "length": 24
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "80ebc7f7b8876ee144d893f424bd339ebbb4e378",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "28a1a8ce398b7229d14797cac7df566aacd1a3b2a13589fd5de8f90f3e091b4b",
+        "length": 69
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "21037efcc21ce8323085a4f1f39447e5e8f38dc748bda8da77028cc89bd7d9e6",
+        "length": 69
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "raw-\udcff\r\nnon-utf8"
+        ],
+        "rc": 0,
+        "sha256": "7bac19e173349d95ded2299f275c14938cda2b7105e033bf133e3382033e66e7",
+        "length": 69
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce71ec9a0f5250cec677c52d067030ec56d45304"
+        ],
+        "rc": 0,
+        "sha256": "3e45155586394ece3a8839307500ed99805a84a155e695933f2f1e02b8652594",
+        "length": 481
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "38eb85b556cf8163fc444abac46e839db1c5b5d3"
+        ],
+        "rc": 0,
+        "sha256": "0d69d43d89ff9cb82244076bb71ebbbaaa0c48666e561ab5ce555fe632db3c29",
+        "length": 482
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "726103fb52a8733d3a4f14e89e53c13aae4307cf"
+        ],
+        "rc": 0,
+        "sha256": "71d0fafc61e775237fd4ff0a557403dbec21b3ff6c59c36417fc0fa8e84cf7d2",
+        "length": 484
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-6hol1jcs/tip",
+          "/tmp/containment-merge-6hol1jcs/base",
+          "/tmp/containment-merge-6hol1jcs/branch"
+        ],
+        "rc": 0,
+        "sha256": "c1cf28bc3458b24994339d418d78482ac866d34ffc6f2a22eef6e56ae9cb7f2b",
+        "length": 482
+      }
+    ]
+  },
+  {
+    "label": "current-position-0",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "44bdfdbb8123da07502cf356655eb727b2bf74ea",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "54eb5533413a1015dd73ade6639d8f0239ac72143ef622a3c6abfe718a189bd8",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "5dc48fcf80c42d697687f49986aab7d66c8451ae"
+        ],
+        "rc": 0,
+        "sha256": "3cd9fc82ae15a884323dff8c63d6ad29877dc2f3f9f56a17c7f8079efe20162d",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-nyxzqdhy/tip",
+          "/tmp/containment-merge-nyxzqdhy/base",
+          "/tmp/containment-merge-nyxzqdhy/branch"
+        ],
+        "rc": 0,
+        "sha256": "3cd9fc82ae15a884323dff8c63d6ad29877dc2f3f9f56a17c7f8079efe20162d",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "current-position-4",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "dfff9129e0a6f2fc1ff52c09dd99238d04ff8883",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "e212ae7c6955f9592b5495c358ad967812b78eaa0c9247413e75f4023ddd83c8",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "2fb8845f61c6396f288e692278ad899fd57329bf"
+        ],
+        "rc": 0,
+        "sha256": "a8a8481150568222169b3f79900ddd9afbc40eff3f38bf5d3932c720b4d77d80",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-2_pzm2pq/tip",
+          "/tmp/containment-merge-2_pzm2pq/base",
+          "/tmp/containment-merge-2_pzm2pq/branch"
+        ],
+        "rc": 1,
+        "sha256": "d1c2e2151b592cef136031ae6f6ab4b70242d497052ca6d717520a3ccf0fa7e0",
+        "length": 587
+      }
+    ]
+  },
+  {
+    "label": "current-position-5",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "4e787e704abbcba0b41ed69dace40721f8fda83a",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "222bdde7c1c049f76a243b72219fc5117a47e204d960da121fbda933d07c4e89",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "4c77f52d59fb40b29cc6afa0f4221e81b3dd75a5"
+        ],
+        "rc": 0,
+        "sha256": "d7c1c46c40027b79678b143c3bebb7c1575568c2d248f15a7c7e0e9382c0366f",
+        "length": 481
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-etzeso87/tip",
+          "/tmp/containment-merge-etzeso87/base",
+          "/tmp/containment-merge-etzeso87/branch"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      }
+    ]
+  },
+  {
+    "label": "current-position-6",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "81690691a0121f1f5e1609fef31f022596de0179",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "49ddb5621eac7abf1a6e829bd6662fa5136cbbf5ffe58e4723ae3ee52da6a8dd",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "de26b5f5148c965c97fd69c7a2757a999cb8a4ed"
+        ],
+        "rc": 0,
+        "sha256": "72ed49241841f0ff4c9f02cf658a541604342bd177b482a9d05353d6b8186173",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-f3z_doxc/tip",
+          "/tmp/containment-merge-f3z_doxc/base",
+          "/tmp/containment-merge-f3z_doxc/branch"
+        ],
+        "rc": 1,
+        "sha256": "4b84273ddc2f05ebfb544de44b3638bac5b456c3d0120c83362d538214f3b58a",
+        "length": 587
+      }
+    ]
+  },
+  {
+    "label": "current-position-28",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "0d069e36893546260ccaafcce82259398c5e96a0",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "9aeb2c415cf6bf028e66670b4e5903e52c0afafee2dc82d75519a27fbf2e3cbc",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "bc0fe25a2eb2ed26ec9f7b9fcc0300c84da34e77"
+        ],
+        "rc": 0,
+        "sha256": "69f0cde162861cdb42bafea95907a14f3ecba5cf162f2462a4bdd0280957781d",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-gy8w_xkr/tip",
+          "/tmp/containment-merge-gy8w_xkr/base",
+          "/tmp/containment-merge-gy8w_xkr/branch"
+        ],
+        "rc": 0,
+        "sha256": "69f0cde162861cdb42bafea95907a14f3ecba5cf162f2462a4bdd0280957781d",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "current-position-29",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "2b3937551e7c218fcf58839bbe93ff916468a86c",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "04a1dec92d71efc21825bfff048ed534761bb9d11ed9fb2dbe7f6d4a3551f30f",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "e799c75a6aaf293646badc6eaee8f3d4951c8080"
+        ],
+        "rc": 0,
+        "sha256": "a6decc13a78d759f72faa7ceb31b63dced33d904513bad6506c25f753c26dde2",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-_bg8iiki/tip",
+          "/tmp/containment-merge-_bg8iiki/base",
+          "/tmp/containment-merge-_bg8iiki/branch"
+        ],
+        "rc": 1,
+        "sha256": "fa390e8abb998a75317bf99f741c9df8d6ddfef337adc7a01f64a9903b0e27d3",
+        "length": 587
+      }
+    ]
+  },
+  {
+    "label": "current-position-30",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "953eae0c803bdcd07af5c207ef72d7748083b01c",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "d75b6b7fc2950e2e205592fc8dd97af9f8382480721bc93ea947d6cd9b740b55",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "a10bdc66d0062749882f65290e7b45f33512be11"
+        ],
+        "rc": 0,
+        "sha256": "19e1953c813c9cf6628d503f4727a0e81935d3f211f1aaf087f0bf5ff713d42b",
+        "length": 481
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-9sh4to73/tip",
+          "/tmp/containment-merge-9sh4to73/base",
+          "/tmp/containment-merge-9sh4to73/branch"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      }
+    ]
+  },
+  {
+    "label": "current-position-31",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "6f27ba63f71b30b06ad12a5b9d0361b431645762",
+    "expected": [
+      1,
+      "UNKNOWN"
+    ],
+    "actual": [
+      1,
+      "UNKNOWN"
+    ],
+    "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'positions'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "7dea95c9bd1164a138d824b930fb2d32a65876682503de2b70abd8a99ee53483",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "3cb8346821ea7d7d4b29ac24499909721e9cc69c"
+        ],
+        "rc": 0,
+        "sha256": "0045958e622ded689bb00f6327c41eb4fe798051010e776b0fb6b7b3ebc6ca8d",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-bndvolil/tip",
+          "/tmp/containment-merge-bndvolil/base",
+          "/tmp/containment-merge-bndvolil/branch"
+        ],
+        "rc": 1,
+        "sha256": "bb43e71bed082503af73fa2286b57879b4a60483563fdbe348ca20543254972c",
+        "length": 587
+      }
+    ]
+  },
+  {
+    "label": "current-position-32",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "3e6b0040effd95da45d5e61cbbfab607da646f50",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "cecfebd0f0a9b1e16d18f9da83c9a1f03780dd48499b3f26c64d44411fdbd948",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "3f7edd6754724655634099a3f57bcbacebba92c8"
+        ],
+        "rc": 0,
+        "sha256": "ced3f2c970e4f1b06030a2a940ce7e25f5f8d30263d535bea4c6ff7298ada7ce",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-h4sbhzcb/tip",
+          "/tmp/containment-merge-h4sbhzcb/base",
+          "/tmp/containment-merge-h4sbhzcb/branch"
+        ],
+        "rc": 0,
+        "sha256": "ced3f2c970e4f1b06030a2a940ce7e25f5f8d30263d535bea4c6ff7298ada7ce",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "current-position-59",
+    "branch": "815c5d7456341ffc5e8dff8ac0e7bbb5d8077fd8",
+    "tip": "d6da0e8fc227d7e20598ba6a32003271fd213ae3",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+    "stderr": "",
+    "raw_trace": [
+      {
+        "args": [
+          "diff",
+          "--no-ext-diff",
+          "--no-textconv",
+          "--ignore-submodules=none",
+          "--name-only",
+          "--no-renames",
+          "-z",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "refs/heads/pr"
+        ],
+        "rc": 0,
+        "sha256": "4784735bcd77314367c71e56b792c2536ccd64537dde69bccadf0915d6a9d633",
+        "length": 18
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "length": 0
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "control"
+        ],
+        "rc": 0,
+        "sha256": "617805ee73a63ceb3a1b549332386971cdb3bede4829f6e58ce36e17c6b766f9",
+        "length": 61
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "b2e7ec2d80db6030f089cf43eb686639b1b2d63e",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "0f288def3102c25017b05df29b7467db04ebf835cb16fbb6a2ce7b5c6f54ed79",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/main",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "71be63ace7653a0701aee0a720d7048e30fd4c27cc4cac23122d8f8130549c13",
+        "length": 63
+      },
+      {
+        "args": [
+          "--literal-pathspecs",
+          "ls-tree",
+          "-z",
+          "--full-tree",
+          "refs/heads/pr",
+          "--",
+          "positions"
+        ],
+        "rc": 0,
+        "sha256": "06c91e431d1b9b1c82265d328451d9d85b1e6ba0b51ba09d6a26513835e95393",
+        "length": 63
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "997c6238c9bb60ab0548070f7ae7513c71125899"
+        ],
+        "rc": 0,
+        "sha256": "30e1f07716eadf8239cacb650edcb39da84db673293a060a340ca9ffee90b225",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "86b610df6cf7533185a7979b372805d55b1c2916"
+        ],
+        "rc": 0,
+        "sha256": "ba761a291e48fa3e405209b27d28ff61c165cc038c741d769bf5c453d89e78d1",
+        "length": 480
+      },
+      {
+        "args": [
+          "cat-file",
+          "blob",
+          "ce8ab46c03e0bd80436513d3dee76737a29a8666"
+        ],
+        "rc": 0,
+        "sha256": "2fc63ad987be749790348a91d9f760f6e84832b01f36c7b1e40015ee4ce0e37a",
+        "length": 482
+      },
+      {
+        "args": [
+          "-c",
+          "merge.conflictStyle=merge",
+          "merge-file",
+          "-p",
+          "-q",
+          "/tmp/containment-merge-ce9od_x4/tip",
+          "/tmp/containment-merge-ce9od_x4/base",
+          "/tmp/containment-merge-ce9od_x4/branch"
+        ],
+        "rc": 0,
+        "sha256": "30e1f07716eadf8239cacb650edcb39da84db673293a060a340ca9ffee90b225",
+        "length": 480
+      }
+    ]
+  },
+  {
+    "label": "old-linear-historical-crlf",
+    "branch": "ff8c83e6a20ab4162f68cd443344a7c29d3428a1",
+    "tip": "bee6924f01683cd83ee3f12208001808e9973599",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+    "stderr": "",
+    "raw_trace": []
+  },
+  {
+    "label": "old-path-identity-crlf",
+    "branch": "ff8c83e6a20ab4162f68cd443344a7c29d3428a1",
+    "tip": "861e5b50fff4583bbcd7683e9d6d731ace60ae85",
+    "expected": [
+      0,
+      "contained"
+    ],
+    "actual": [
+      0,
+      "contained"
+    ],
+    "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+    "stderr": "",
+    "raw_trace": []
+  },
+  {
+    "label": "old-differing-path-crlf",
+    "branch": "ff8c83e6a20ab4162f68cd443344a7c29d3428a1",
+    "tip": "97f1418d3e9f31b43bf01f8892d4bdef18601e61",
+    "expected": [
+      1,
+      "STRANDED"
+    ],
+    "actual": [
+      1,
+      "STRANDED"
+    ],
+    "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: old-arm-\udcff\r\n]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+    "stderr": "",
+    "raw_trace": []
+  },
+  {
+    "label": "distinct-history-required",
+    "branch": "b05790286d824ae8a3b0b986704be93ca0a0ce95",
+    "tip": "0345bc2f447ae7f38fb6858eaf688f95d5761a87",
+    "expected": [
+      1,
+      "STRANDED"
+    ],
+    "actual": [
+      1,
+      "STRANDED"
+    ],
+    "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: data]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+    "stderr": "",
+    "raw_trace": [],
+    "distinct_mutant": {
+      "exit": 0,
+      "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (4 not ancestors)]\n"
+    }
+  },
+  {
+    "label": "shared-transport-roundtrip",
+    "strip_contract": "terminal LF stripping remains existing behavior",
+    "raw_sha256": "78b9865d2f1af389f120c7061f2ab83fb292dd01cb3eb324620747743c9551c7"
+  }
+]

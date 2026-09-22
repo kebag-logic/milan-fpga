@@ -1,0 +1,18 @@
+{
+  "cwd": "$BUILDER_VALIDATION",
+  "head": "df53dfa116b34816db0193230ad9833e67bf46dd",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "note": "Corrects only the stale explicit whitespace-check endpoint; original receipts preserved",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/423-manager-candidate1/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "df53dfa116b34816db0193230ad9833e67bf46dd"
+    ]
+  ]
+}
