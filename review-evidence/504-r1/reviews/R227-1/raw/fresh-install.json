@@ -1,0 +1,25 @@
+{
+  "label": "fresh-install",
+  "argv": [
+    "rtk",
+    "proxy",
+    "python3",
+    "-B",
+    "scripts/ci_rv32_sdk.py",
+    "--archive",
+    "$VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz",
+    "--destination",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-r1-r227/sdk-trial/host"
+  ],
+  "cwd": "$VALIDATION_STORAGE/reviews/r227-504-r1",
+  "started_utc": "2026-09-22T17:24:25.630241+00:00",
+  "duration_seconds": 13.178,
+  "returncode": 0,
+  "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-r1-r227/tmp",
+    "MAKEFLAGS": "-j8",
+    "CMAKE_BUILD_PARALLEL_LEVEL": "8"
+  }
+}
