@@ -1,0 +1,17 @@
+Compiler mode: absent cross tools
+Compiler audit: $WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-author/absent-required.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$CANDIDATE/sw/builder/test_firmware_compiler.py", line 152, in <module>
+    main()
+    ~~~~^^
+  File "$CANDIDATE/sw/builder/test_firmware_compiler.py", line 148, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CANDIDATE/sw/builder/test_firmware_compiler.py", line 81, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$CANDIDATE/sw/builder/test_builder.py", line 3976, in test_baremetal_profile_contract
+    assert not instruments_down, \
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the hosted firmware instruments must run

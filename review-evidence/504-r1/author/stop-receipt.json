@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-09-22T15:44:55.547616+00:00",
+  "cwd": "$CANDIDATE",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "status",
+        "--porcelain=v1"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit": 0,
+      "stdout": "3d90958f3a82ca2a9617112c107a22f332117e17\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "exit": 0,
+      "stdout": "b595c57b41d253660fcc84794352f174b90008a6\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "exit": 0,
+      "stdout": "504-hosted-rv32-compiler\n",
+      "stderr": ""
+    }
+  ],
+  "review_ready_comment": "https://github.com/kebag-logic/milan-fpga/issues/504#issuecomment-5779488988",
+  "source_published": false,
+  "real_sdk_validation": "BLOCKED: archive download timeout; no real SDK executed"
+}

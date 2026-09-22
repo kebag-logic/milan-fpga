@@ -1,0 +1,22 @@
+{
+  "selected_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz",
+  "published_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f",
+  "selected_size": 102597892,
+  "acquisition_status": "BLOCKED: final installer online attempt timed out before extraction",
+  "partial_directory": "/tmp/milan-504-a160-7_lvwnpb",
+  "source_confirmation": "Bootlin release catalog and published .sha256 read on 2026-09-22 before download",
+  "notes": [
+    "Initial hash attempt correctly rejected the still-growing partial full download.",
+    "Initial six range workers yielded two complete ranges; other stalled workers were terminated.",
+    "Two-worker retry with 45-second deadlines and four retries per request exhausted with curl exit 28.",
+    "Python urllib range attempt timed out while reading the body.",
+    "Final default downloader was exercised through ci_rv32_sdk.py with an explicit disposable destination and an outer 180-second timeout; exit 124, destination absent."
+  ],
+  "final_attempt_receipt": "sdk-fresh-online.json",
+  "final_attempt_exit": 124,
+  "real_archive_verified": false,
+  "real_sdk_installed": false,
+  "real_compiler_executed": false,
+  "installed_compiler_realpath": null,
+  "installed_compiler_version": null
+}

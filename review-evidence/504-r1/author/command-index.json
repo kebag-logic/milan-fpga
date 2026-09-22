@@ -1,0 +1,798 @@
+[
+  {
+    "receipt": "absent-required-refusal.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--require-rv32",
+      "--audit",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-author/absent-required.jsonl"
+    ],
+    "exit": 1,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:06:05.499442+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "absent-required-refusal.log"
+  },
+  {
+    "receipt": "audit-selftest-final.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:18:54.863302+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "audit-selftest-final.log"
+  },
+  {
+    "receipt": "audit-selftest-v2.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:11:29.646155+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "audit-selftest-v2.log"
+  },
+  {
+    "receipt": "audit-selftest.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:06:04.928833+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "audit-selftest.log"
+  },
+  {
+    "receipt": "baremetal-scope.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 1,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:13:23.760185+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nAM scripts/ci_rv32_sdk.py\nAM scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "baremetal-scope.log"
+  },
+  {
+    "receipt": "ci-events-check.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:06:28.501119+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M scripts/ci_events.py\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "ci-events-check.log"
+  },
+  {
+    "receipt": "ci-events-final-check.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:16:15.104490+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "ci-events-final-check.log"
+  },
+  {
+    "receipt": "ci-events-final-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:17:24.139435+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "ci-events-final-selftest.log"
+  },
+  {
+    "receipt": "ci-events-selftest-v2.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:09:00.656249+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M docs/integration/BAREMETAL_FIRMWARE.md\n M docs/testing/CI_WORKFLOWS.md\n M scripts/ci_events.py\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "ci-events-selftest-v2.log"
+  },
+  {
+    "receipt": "ci-events-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 1,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:06:52.175251+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M scripts/ci_events.py\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "ci-events-selftest.log"
+  },
+  {
+    "receipt": "doc-style.json",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:10:12.085665+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "doc-style.log"
+  },
+  {
+    "receipt": "docs-check.json",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:10:12.081518+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "docs-check.log"
+  },
+  {
+    "receipt": "docs-final.json",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "1deb798cb3b6ce37f03e11970dc1e62ca225b317",
+    "start": "2026-09-22T15:22:44.454636+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "docs-final.log"
+  },
+  {
+    "receipt": "fail-fast.json",
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:14:13.028597+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nAM scripts/ci_rv32_sdk.py\nAM scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "fail-fast.log"
+  },
+  {
+    "receipt": "final-em-dash.json",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "52711029f374650dc93830d5ea28e81cb5c8f410"
+    ],
+    "exit": 0,
+    "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+    "tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "index_tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "start": "2026-09-22T15:41:41.837093+00:00",
+    "status_before": "",
+    "log": "final-em-dash.log"
+  },
+  {
+    "receipt": "final-installer.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+    "tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "index_tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "start": "2026-09-22T15:41:41.829776+00:00",
+    "status_before": "",
+    "log": "final-installer.log"
+  },
+  {
+    "receipt": "final-scope-check.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+    "tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "index_tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "start": "2026-09-22T15:41:41.839059+00:00",
+    "status_before": "",
+    "log": "final-scope-check.log"
+  },
+  {
+    "receipt": "final-scope-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "3d90958f3a82ca2a9617112c107a22f332117e17",
+    "tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "index_tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "start": "2026-09-22T15:41:41.829344+00:00",
+    "status_before": "",
+    "log": "final-scope-selftest.log"
+  },
+  {
+    "receipt": "firmware-absent-final.json",
+    "argv": [
+      "python3",
+      "-u",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-author/firmware-absent-final-argv.jsonl"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:15:21.850662+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "firmware-absent-final.log"
+  },
+  {
+    "receipt": "firmware-absent.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-author/firmware-absent-argv.jsonl"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:06:27.332584+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M scripts/ci_events.py\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "firmware-absent.log"
+  },
+  {
+    "receipt": "focused-policy.json",
+    "argv": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:10:51.798228+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "focused-policy.log"
+  },
+  {
+    "receipt": "head-absent.json",
+    "argv": [
+      "python3",
+      "-u",
+      "sw/builder/test_firmware_compiler.py",
+      "--absent",
+      "--audit",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/504-author/head-absent-argv.jsonl"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:26:00.896547+00:00",
+    "status_before": "",
+    "log": "head-absent.log"
+  },
+  {
+    "receipt": "head-em-dash.json",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "52711029f374650dc93830d5ea28e81cb5c8f410"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:26:02.057736+00:00",
+    "status_before": "",
+    "log": "head-em-dash.log"
+  },
+  {
+    "receipt": "head-installer.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:26:03.116138+00:00",
+    "status_before": "",
+    "log": "head-installer.log"
+  },
+  {
+    "receipt": "head-selector.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:26:03.894529+00:00",
+    "status_before": "",
+    "log": "head-selector.log"
+  },
+  {
+    "receipt": "head-workflow-check.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:27:03.312723+00:00",
+    "status_before": "",
+    "log": "head-workflow-check.log"
+  },
+  {
+    "receipt": "head-workflow-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:27:03.603046+00:00",
+    "status_before": "",
+    "log": "head-workflow-selftest.log"
+  },
+  {
+    "receipt": "hygiene.json",
+    "argv": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:10:12.090809+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "hygiene.log"
+  },
+  {
+    "receipt": "installer-selftest-final.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:15:23.011499+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "installer-selftest-final.log"
+  },
+  {
+    "receipt": "installer-selftest-v2.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:13:22.426601+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nAM scripts/ci_rv32_sdk.py\nAM scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "installer-selftest-v2.log"
+  },
+  {
+    "receipt": "installer-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:04:30.025109+00:00",
+    "status_before": "M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "installer-selftest.log"
+  },
+  {
+    "receipt": "policy-final.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "1deb798cb3b6ce37f03e11970dc1e62ca225b317",
+    "start": "2026-09-22T15:23:09.796315+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "policy-final.log"
+  },
+  {
+    "receipt": "precommit-docs.json",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:25:15.145403+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "precommit-docs.log"
+  },
+  {
+    "receipt": "precommit-py-idiom.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:25:13.982128+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "precommit-py-idiom.log"
+  },
+  {
+    "receipt": "python-idiom-final.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:15:23.849561+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "python-idiom-final.log"
+  },
+  {
+    "receipt": "python-idiom-staged.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:10:12.072520+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "python-idiom-staged.log"
+  },
+  {
+    "receipt": "python-idiom.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": null,
+    "start": "2026-09-22T15:09:01.821470+00:00",
+    "status_before": "M .github/workflows/docs.yml\n M .github/workflows/elaborate.yml\n M docs/integration/BAREMETAL_FIRMWARE.md\n M docs/testing/CI_WORKFLOWS.md\n M scripts/ci_events.py\n M sw/builder/test_builder.py\n?? scripts/ci_rv32_sdk.py\n?? scripts/ci_rv32_sdk_selftest.py\n?? sw/builder/test_firmware_compiler.py",
+    "log": "python-idiom.log"
+  },
+  {
+    "receipt": "required-selector-selftest.json",
+    "argv": [
+      "python3",
+      "sw/builder/test_firmware_compiler.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "1deb798cb3b6ce37f03e11970dc1e62ca225b317",
+    "start": "2026-09-22T15:24:37.757514+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nMM sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "required-selector-selftest.log"
+  },
+  {
+    "receipt": "scope-commit.json",
+    "argv": [
+      "git",
+      "commit",
+      "-m",
+      "ci: bound SDK metadata to the host tooling scope"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "b595c57b41d253660fcc84794352f174b90008a6",
+    "start": "2026-09-22T15:41:26.295672+00:00",
+    "status_before": "M  docs/testing/CI_WORKFLOWS.md\nM  scripts/check_baremetal_only.py\nM  scripts/ci_rv32_sdk.py\nM  scripts/ci_rv32_sdk_selftest.py",
+    "log": "scope-commit.log"
+  },
+  {
+    "receipt": "sdk-controls-after-scope.json",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:36:58.434828+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-controls-after-scope.log"
+  },
+  {
+    "receipt": "sdk-docs-after-scope.json",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:47.730189+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-docs-after-scope.log"
+  },
+  {
+    "receipt": "sdk-fresh-online.json",
+    "argv": [
+      "timeout",
+      "180s",
+      "python3",
+      "-u",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "/tmp/milan-504-a160-7_lvwnpb/online-host"
+    ],
+    "exit": 124,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:20:35.889182+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "sdk-fresh-online.log"
+  },
+  {
+    "receipt": "sdk-python-after-scope-checked.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:56.789653+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-python-after-scope-checked.log"
+  },
+  {
+    "receipt": "sdk-python-after-scope-fixed.json",
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--check"
+    ],
+    "exit": 2,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:47.732403+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-python-after-scope-fixed.log"
+  },
+  {
+    "receipt": "sdk-python-after-scope.json",
+    "argv": [
+      "python3",
+      "scripts/check_python_idiom.py",
+      "--check"
+    ],
+    "exit": 2,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:20.250113+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-python-after-scope.log"
+  },
+  {
+    "receipt": "sdk-scope-check-fixed.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:47.726134+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-scope-check-fixed.log"
+  },
+  {
+    "receipt": "sdk-scope-check.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:36:57.266724+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-scope-check.log"
+  },
+  {
+    "receipt": "sdk-scope-selftest-fixed.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:40:20.227056+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-scope-selftest-fixed.log"
+  },
+  {
+    "receipt": "sdk-scope-selftest.json",
+    "argv": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "exit": 2,
+    "head": "ab2671c0f12cdd68df8a9260f98960b92f533efc",
+    "tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "index_tree": "85b9bb5a71a82c0cdf953fdb09384d0e60b3f606",
+    "start": "2026-09-22T15:36:56.104555+00:00",
+    "status_before": "M docs/testing/CI_WORKFLOWS.md\n M scripts/check_baremetal_only.py\n M scripts/ci_rv32_sdk.py\n M scripts/ci_rv32_sdk_selftest.py",
+    "log": "sdk-scope-selftest.log"
+  },
+  {
+    "receipt": "sdk-sh-policy.json",
+    "argv": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "6afe511fe3826d70df84b3541a6e684cb0113cb1",
+    "start": "2026-09-22T15:17:08.542369+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "sdk-sh-policy.log"
+  },
+  {
+    "receipt": "selftest-final.json",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check",
+      "--selftest"
+    ],
+    "exit": 2,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:14:14.190137+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nAM scripts/ci_rv32_sdk.py\nAM scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "selftest-final.log"
+  },
+  {
+    "receipt": "toc-check.json",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "425caa9ae6d3eea16c7aab82c330a8b1cbd7256d",
+    "start": "2026-09-22T15:13:23.274334+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nMM docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nAM scripts/ci_rv32_sdk.py\nAM scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nAM sw/builder/test_firmware_compiler.py",
+    "log": "toc-check.log"
+  },
+  {
+    "receipt": "toc-final.json",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+    "index_tree": "1deb798cb3b6ce37f03e11970dc1e62ca225b317",
+    "start": "2026-09-22T15:23:10.951626+00:00",
+    "status_before": "M  .github/workflows/docs.yml\nM  .github/workflows/elaborate.yml\nM  docs/integration/BAREMETAL_FIRMWARE.md\nM  docs/testing/CI_WORKFLOWS.md\nM  scripts/ci_events.py\nA  scripts/ci_rv32_sdk.py\nA  scripts/ci_rv32_sdk_selftest.py\nM  sw/builder/test_builder.py\nA  sw/builder/test_firmware_compiler.py",
+    "log": "toc-final.log"
+  }
+]
