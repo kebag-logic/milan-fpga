@@ -1,0 +1,829 @@
+{
+  "head": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "tree": "c23dff6c0eafdf5ae89bb3e8a9416c55533a2332",
+  "status": " M CONTRIBUTING.md\n M scripts/check_em_dash.py\n M scripts/gen_toc.py\n M scripts/gen_toc_cases.py\n?? scripts/gen_toc_container_cases.py\n",
+  "utc": "2026-09-22T11:50:19.808132+00:00",
+  "source_sha256": "2661cf7e353eeb258d015ace3b66b52acd85958c99cb023ef9037620233dfba3",
+  "results": [
+    {
+      "mutant": "drop-context",
+      "replace": "after = _paragraph_after(line, label, para, prev)",
+      "with": "after = _paragraph_after(line, label, para, prev)\n    return after, None",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 three spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 three spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "forget-on-blank",
+      "replace": "return after, None if context and context[1] else context",
+      "with": "return after, None",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 three spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 three spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "blanket-indent",
+      "replace": "_indent_columns(line) >= context[0]",
+      "with": "_indent_columns(line) >= 1",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 one space outside item]",
+            "  FAIL [I437 padding outside]",
+            "  FAIL [I437 ordered outside]",
+            "  FAIL [I437 marker indent outside]",
+            "  FAIL [I437 four padding columns]",
+            "  FAIL [I437 tab padding columns]",
+            "  FAIL [I437 sibling replaces column]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 one space outside item] expected findings/exempt (0, 1), got 1/0: ['page11.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 padding outside] expected findings/exempt (0, 1), got 1/0: ['page18.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered outside] expected findings/exempt (0, 1), got 1/0: ['page20.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 marker indent outside] expected findings/exempt (0, 1), got 1/0: ['page21.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "strict-column",
+      "replace": "_indent_columns(line) >= context[0]",
+      "with": "_indent_columns(line) > context[0]",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "fixed-column",
+      "replace": "column = len(prefix.expandtabs(4))",
+      "with": "column = 2",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 padding outside]",
+            "  FAIL [I437 ordered outside]",
+            "  FAIL [I437 marker indent outside]",
+            "  FAIL [I437 four padding columns]",
+            "  FAIL [I437 tab padding columns]",
+            "  FAIL [I437 sibling replaces column]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 padding outside] expected findings/exempt (0, 1), got 1/0: ['page18.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered outside] expected findings/exempt (0, 1), got 1/0: ['page20.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 marker indent outside] expected findings/exempt (0, 1), got 1/0: ['page21.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "characters-not-columns",
+      "replace": "column = len(prefix.expandtabs(4))",
+      "with": "column = len(prefix)",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 tab padding columns]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "no-code-padding",
+      "replace": "or column - marker_end > 4",
+      "with": "or False",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 code padding uses one]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "four-is-code-padding",
+      "replace": "column - marker_end > 4",
+      "with": "column - marker_end >= 4",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 four padding columns]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "empty-never-ends",
+      "replace": "return after, None if context and context[1] else context",
+      "with": "return after, context",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 empty item ends at blank]",
+            "  FAIL [I437 empty padded item ends at blank]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 empty item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page26.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty padded item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page27.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "empty-stays-empty",
+      "replace": "(context[0], False)",
+      "with": "context",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "empty-uses-padding",
+      "replace": "if not item.group(2) or column - marker_end > 4:",
+      "with": "if column - marker_end > 4:",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 empty item ignores padding]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "lose-outer-column",
+      "replace": "if context and _indent_columns(line) >= context[0]:",
+      "with": "if context and _indent_columns(line) >= context[0] and not LIST_ITEM_RE.match(line):",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 nested item retains outer column]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "stale-sibling-column",
+      "replace": "return after, (column, not bool(item.group(2)))",
+      "with": "return after, context or (column, not bool(item.group(2)))",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 sibling replaces column]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "stale-context",
+      "replace": "    return after, None\n\n\ndef _comment_after",
+      "with": "    return after, context\n\n\ndef _comment_after",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 fresh dedented paragraph ends item]",
+            "  FAIL [I437 heading ends item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 fresh dedented paragraph ends item] expected findings/exempt (0, 1), got 1/0: ['page32.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 heading ends item] expected findings/exempt (0, 1), got 1/0: ['page34.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "no-lazy-hold",
+      "replace": "if para == HELD and after == HELD:",
+      "with": "if False:",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 lazy line retains item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "markers-in-blocks",
+      "replace": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+      "with": "LIST_ITEM_RE.match(line)",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 thematic break is no item]",
+            "  FAIL [I437 noninterrupting ordinal is no item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "mutant": "no-ordinal-interruption-check",
+      "replace": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+      "with": "LIST_ITEM_RE.match(line) if label == TEXT else None",
+      "checks": [
+        {
+          "gate": "gen_toc.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "named_failures": [
+            "  FAIL [I437 thematic break is no item]",
+            "  FAIL [I437 noninterrupting ordinal is no item]"
+          ]
+        },
+        {
+          "gate": "check_em_dash.py",
+          "command": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-author/mutations-work/copies-ls_jpf4o/scripts/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "named_failures": [
+            "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    }
+  ]
+}
