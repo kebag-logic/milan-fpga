@@ -1,0 +1,5 @@
+[A164] AUTHOR HANDOFF
+
+R226-F1 correction is committed locally at `9d6109ccf924c03308cb8aa202ce68a435cd4f8d` (tree `1d322d866da6b8d19ccd46cfd7ef5f405e9dadb4`), one commit after `0d43ff25d38917e77bb5c3d2ddb6473013cea3ba`; no push. Only other-ASCII-name fixtures, the TOC test floor, and coverage prose changed. All prior 683 TOC / 51 em-dash controls remain; new totals are 707 / 57. R15(div), R16(title), and X04(xmp) now fail named raw and shipped-label controls; real E14/E15 CLI runs stop at those controls. Focused documentation gates and the actual post-commit merge-base em-dash check pass. Source/index/modes are clean; production/parser/policy bytes are unchanged.
+
+Manager has the factual HANDOFF.md, RESPONSE.md, REVIEW-READY.md, exact patches and receipts in the assigned 507-f1-author archive. Manager publishes review-ready/evidence and owns the remaining execution gates. R226-F1 remains Tests and Docs for cold R225/R226 re-review; reviewers alone accept any unchanged-artifact coverage. No optional suggestion or unrelated scope was added.
