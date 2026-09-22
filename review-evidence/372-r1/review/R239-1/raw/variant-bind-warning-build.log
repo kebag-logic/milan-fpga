@@ -1,0 +1,9 @@
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --cc --exe --build -j 8 --assert --top-module axis_mux_rr_2in_1out -GTDATA_WIDTH=8 -Wall -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DAXIS_MUX_TDATA_WIDTH=8" -Mdir $VALIDATION_STORAGE/r239-372-r1-work/probes/variants/bind-warning ../../../hdl/common/axis_mux_rr_2in_1out.sv ../../common/sva/axis_stream_source_sva.sv ../../common/sva/axis_mux_rr_2in_1out_sva.sv $VALIDATION_STORAGE/r239-372-r1-work/probes/variants/warn_bind.sv mux_sva_main.cpp -o Vmux_sva
+%Warning-WIDTHTRUNC: $VALIDATION_STORAGE/r239-372-r1-work/probes/variants/warn_bind.sv:55:4: Input port connection 'owner_none_i' expects 1 bits on the pin connection, but pin connection's VARREF 'state' generates 2 bits.
+                                                                                       : ... note: In instance 'axis_mux_rr_2in_1out'
+   55 |   .owner_none_i(state),
+      |    ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+make: *** [Makefile:80: mux-sva-build] Error 1

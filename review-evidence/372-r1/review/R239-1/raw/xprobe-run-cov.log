@@ -1,0 +1,12 @@
+PROBE x-assign: v=00000000 isunknown(v)=0 never_assigned=00000000
+PROBE cover hit at 5
+PROBE first-edge $past(a)=0 (a is initialised 1)
+PROBE cover hit at 15
+PROBE cover hit at 25
+PROBE assume failed at 25
+PROBE cover hit at 35
+PROBE assume failed at 35
+- $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r239/scripts/probes/xprobe.sv:19: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 35ps; walltime 0.000 s; speed 188.814 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 7 MB

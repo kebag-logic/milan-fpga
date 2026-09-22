@@ -1,0 +1,9 @@
+[R239-DETECTED] grant_without_request_other_branch-w64 (single_beats): stopped by ap_grant_only_to_requester
+[R239-DETECTED] released_while_tlast_stalled_s1-w8 (backpressure_last_beat): stopped by u_m_dut.ap_tvalid_held_until_handshake; the same edge also failed u_m_dut.ap_tdata_stable_until_handshake, u_m_dut.ap_tkeep_stable_until_handshake, u_m_dut.ap_tlast_stable_until_handshake, ap_owner_held_until_tlast_handshake
+[R239-DETECTED] tvalid_waits_for_tready_s1-w64 (backpressure_mid_packet): stopped by forwarding_laws.ai_tvalid_forwarded
+[R239-DETECTED] tdata_from_other_source_s0-w8 (multi_beats): stopped by forwarding_laws.ai_payload_forwarded_on_transfer
+[R239-DETECTED] both_sources_ready_s1_owner-w64 (single_beats): stopped by forwarding_laws.ai_grants_mutually_exclusive; the same edge also failed forwarding_laws.ai_ready_only_for_owner_and_ready_sink
+[R239-DETECTED] reset_to_owner-w8 (single_beats): stopped by ap_reset_releases_owner
+[R239-DETECTED] tlast_hidden_while_stalled_s0_w64-w64 (backpressure_last_beat): stopped by u_m_dut.ap_tlast_stable_until_handshake
+[R239-INFO] tkeep_stuck_all_ones_s0_w8-w8 (all scenarios): exit 0; properties fired: none; harness failures: 0
+exit=0

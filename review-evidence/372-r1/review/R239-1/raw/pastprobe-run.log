@@ -1,0 +1,10 @@
+PROBE ap_implication_initial passed at 5
+PROBE ap_past_is_initial FAILED at 5: $past(one) is not 1
+PROBE ap_stable_initial FAILED at 5: $stable(one) is false
+PROBE ap_implication_initial passed at 15
+PROBE ap_implication_initial passed at 25
+PROBE ap_implication_initial passed at 35
+- $WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r1-r239/scripts/probes/pastprobe.sv:12: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 35ps; walltime 0.000 s; speed 733.568 ns/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 7 MB
