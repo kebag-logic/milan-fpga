@@ -1,0 +1,105 @@
+[
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/01.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/02.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--sites"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/03.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/04.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/05.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/06.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/07.log"
+  },
+  {
+    "command": [
+      "rtk",
+      "proxy",
+      "git",
+      "diff",
+      "--check",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+      "HEAD"
+    ],
+    "cwd": "/tmp/r225-507-r2-y1puhm64/head",
+    "rc": 0,
+    "log": "gates/08.log"
+  }
+]

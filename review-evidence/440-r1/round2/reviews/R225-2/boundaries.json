@@ -1,0 +1,3480 @@
+[
+  {
+    "name": "other/pre/div/'\\n'/eofTrue",
+    "text": "<pre>\n</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/div/'\\n'/eofFalse",
+    "text": "<pre>\n</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/div/'\\n'",
+    "text": "<pre>\n</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/DIV/'\\n'/eofTrue",
+    "text": "<pre>\n</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/DIV/'\\n'/eofFalse",
+    "text": "<pre>\n</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/DIV/'\\n'",
+    "text": "<pre>\n</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/div/'x'/eofTrue",
+    "text": "<pre>x</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/div/'x'/eofFalse",
+    "text": "<pre>x</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/div/'x'",
+    "text": "<pre>x</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/DIV/'x'/eofTrue",
+    "text": "<pre>x</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/DIV/'x'/eofFalse",
+    "text": "<pre>x</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/DIV/'x'",
+    "text": "<pre>x</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/title/'\\n'/eofTrue",
+    "text": "<pre>\n</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/title/'\\n'/eofFalse",
+    "text": "<pre>\n</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/title/'\\n'",
+    "text": "<pre>\n</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/TITLE/'\\n'/eofTrue",
+    "text": "<pre>\n</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/TITLE/'\\n'/eofFalse",
+    "text": "<pre>\n</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/TITLE/'\\n'",
+    "text": "<pre>\n</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/title/'x'/eofTrue",
+    "text": "<pre>x</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/title/'x'/eofFalse",
+    "text": "<pre>x</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/title/'x'",
+    "text": "<pre>x</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/TITLE/'x'/eofTrue",
+    "text": "<pre>x</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/TITLE/'x'/eofFalse",
+    "text": "<pre>x</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/TITLE/'x'",
+    "text": "<pre>x</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/xmp/'\\n'/eofTrue",
+    "text": "<pre>\n</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/xmp/'\\n'/eofFalse",
+    "text": "<pre>\n</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/xmp/'\\n'",
+    "text": "<pre>\n</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/XMP/'\\n'/eofTrue",
+    "text": "<pre>\n</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/XMP/'\\n'/eofFalse",
+    "text": "<pre>\n</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/XMP/'\\n'",
+    "text": "<pre>\n</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/xmp/'x'/eofTrue",
+    "text": "<pre>x</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/xmp/'x'/eofFalse",
+    "text": "<pre>x</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/xmp/'x'",
+    "text": "<pre>x</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/XMP/'x'/eofTrue",
+    "text": "<pre>x</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/pre/XMP/'x'/eofFalse",
+    "text": "<pre>x</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/pre/XMP/'x'",
+    "text": "<pre>x</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "valid/pre/pre/'\\n'",
+    "text": "<pre>\n</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/pre/'x'",
+    "text": "<pre>x</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/script/'\\n'",
+    "text": "<pre>\n</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/script/'x'",
+    "text": "<pre>x</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/style/'\\n'",
+    "text": "<pre>\n</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/style/'x'",
+    "text": "<pre>x</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/textarea/'\\n'",
+    "text": "<pre>\n</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/pre/textarea/'x'",
+    "text": "<pre>x</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "malformed/pre/' '",
+    "text": "<pre>\n</pre >\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/pre/'\\t'",
+    "text": "<pre>\n</pre\t>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/pre/'/'",
+    "text": "<pre>\n</pre/>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/pre/'lude'",
+    "text": "<pre>\n</prelude>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/pre/'\u017f'",
+    "text": "<pre>\n</pre\u017f>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/div/'\\n'/eofTrue",
+    "text": "<script>\n</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/div/'\\n'/eofFalse",
+    "text": "<script>\n</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/div/'\\n'",
+    "text": "<script>\n</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/DIV/'\\n'/eofTrue",
+    "text": "<script>\n</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/DIV/'\\n'/eofFalse",
+    "text": "<script>\n</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/DIV/'\\n'",
+    "text": "<script>\n</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/div/'x'/eofTrue",
+    "text": "<script>x</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/div/'x'/eofFalse",
+    "text": "<script>x</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/div/'x'",
+    "text": "<script>x</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/DIV/'x'/eofTrue",
+    "text": "<script>x</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/DIV/'x'/eofFalse",
+    "text": "<script>x</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/DIV/'x'",
+    "text": "<script>x</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/title/'\\n'/eofTrue",
+    "text": "<script>\n</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/title/'\\n'/eofFalse",
+    "text": "<script>\n</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/title/'\\n'",
+    "text": "<script>\n</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/TITLE/'\\n'/eofTrue",
+    "text": "<script>\n</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/TITLE/'\\n'/eofFalse",
+    "text": "<script>\n</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/TITLE/'\\n'",
+    "text": "<script>\n</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/title/'x'/eofTrue",
+    "text": "<script>x</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/title/'x'/eofFalse",
+    "text": "<script>x</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/title/'x'",
+    "text": "<script>x</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/TITLE/'x'/eofTrue",
+    "text": "<script>x</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/TITLE/'x'/eofFalse",
+    "text": "<script>x</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/TITLE/'x'",
+    "text": "<script>x</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/xmp/'\\n'/eofTrue",
+    "text": "<script>\n</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/xmp/'\\n'/eofFalse",
+    "text": "<script>\n</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/xmp/'\\n'",
+    "text": "<script>\n</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/XMP/'\\n'/eofTrue",
+    "text": "<script>\n</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/XMP/'\\n'/eofFalse",
+    "text": "<script>\n</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/XMP/'\\n'",
+    "text": "<script>\n</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/xmp/'x'/eofTrue",
+    "text": "<script>x</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/xmp/'x'/eofFalse",
+    "text": "<script>x</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/xmp/'x'",
+    "text": "<script>x</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/XMP/'x'/eofTrue",
+    "text": "<script>x</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/script/XMP/'x'/eofFalse",
+    "text": "<script>x</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/script/XMP/'x'",
+    "text": "<script>x</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "valid/script/pre/'\\n'",
+    "text": "<script>\n</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/pre/'x'",
+    "text": "<script>x</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/script/'\\n'",
+    "text": "<script>\n</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/script/'x'",
+    "text": "<script>x</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/style/'\\n'",
+    "text": "<script>\n</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/style/'x'",
+    "text": "<script>x</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/textarea/'\\n'",
+    "text": "<script>\n</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/script/textarea/'x'",
+    "text": "<script>x</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "malformed/script/' '",
+    "text": "<script>\n</script >\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/script/'\\t'",
+    "text": "<script>\n</script\t>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/script/'/'",
+    "text": "<script>\n</script/>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/script/'lude'",
+    "text": "<script>\n</scriptlude>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/script/'\u017f'",
+    "text": "<script>\n</script\u017f>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/div/'\\n'/eofTrue",
+    "text": "<style>\n</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/div/'\\n'/eofFalse",
+    "text": "<style>\n</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/div/'\\n'",
+    "text": "<style>\n</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/DIV/'\\n'/eofTrue",
+    "text": "<style>\n</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/DIV/'\\n'/eofFalse",
+    "text": "<style>\n</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/DIV/'\\n'",
+    "text": "<style>\n</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/div/'x'/eofTrue",
+    "text": "<style>x</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/div/'x'/eofFalse",
+    "text": "<style>x</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/div/'x'",
+    "text": "<style>x</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/DIV/'x'/eofTrue",
+    "text": "<style>x</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/DIV/'x'/eofFalse",
+    "text": "<style>x</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/DIV/'x'",
+    "text": "<style>x</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/title/'\\n'/eofTrue",
+    "text": "<style>\n</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/title/'\\n'/eofFalse",
+    "text": "<style>\n</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/title/'\\n'",
+    "text": "<style>\n</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/TITLE/'\\n'/eofTrue",
+    "text": "<style>\n</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/TITLE/'\\n'/eofFalse",
+    "text": "<style>\n</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/TITLE/'\\n'",
+    "text": "<style>\n</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/title/'x'/eofTrue",
+    "text": "<style>x</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/title/'x'/eofFalse",
+    "text": "<style>x</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/title/'x'",
+    "text": "<style>x</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/TITLE/'x'/eofTrue",
+    "text": "<style>x</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/TITLE/'x'/eofFalse",
+    "text": "<style>x</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/TITLE/'x'",
+    "text": "<style>x</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/xmp/'\\n'/eofTrue",
+    "text": "<style>\n</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/xmp/'\\n'/eofFalse",
+    "text": "<style>\n</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/xmp/'\\n'",
+    "text": "<style>\n</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/XMP/'\\n'/eofTrue",
+    "text": "<style>\n</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/XMP/'\\n'/eofFalse",
+    "text": "<style>\n</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/XMP/'\\n'",
+    "text": "<style>\n</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/xmp/'x'/eofTrue",
+    "text": "<style>x</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/xmp/'x'/eofFalse",
+    "text": "<style>x</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/xmp/'x'",
+    "text": "<style>x</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/XMP/'x'/eofTrue",
+    "text": "<style>x</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/style/XMP/'x'/eofFalse",
+    "text": "<style>x</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/style/XMP/'x'",
+    "text": "<style>x</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "valid/style/pre/'\\n'",
+    "text": "<style>\n</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/pre/'x'",
+    "text": "<style>x</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/script/'\\n'",
+    "text": "<style>\n</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/script/'x'",
+    "text": "<style>x</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/style/'\\n'",
+    "text": "<style>\n</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/style/'x'",
+    "text": "<style>x</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/textarea/'\\n'",
+    "text": "<style>\n</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/style/textarea/'x'",
+    "text": "<style>x</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "malformed/style/' '",
+    "text": "<style>\n</style >\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/style/'\\t'",
+    "text": "<style>\n</style\t>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/style/'/'",
+    "text": "<style>\n</style/>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/style/'lude'",
+    "text": "<style>\n</stylelude>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/style/'\u017f'",
+    "text": "<style>\n</style\u017f>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/div/'\\n'/eofTrue",
+    "text": "<textarea>\n</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/div/'\\n'/eofFalse",
+    "text": "<textarea>\n</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/div/'\\n'",
+    "text": "<textarea>\n</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/DIV/'\\n'/eofTrue",
+    "text": "<textarea>\n</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/DIV/'\\n'/eofFalse",
+    "text": "<textarea>\n</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/DIV/'\\n'",
+    "text": "<textarea>\n</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/div/'x'/eofTrue",
+    "text": "<textarea>x</div>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/div/'x'/eofFalse",
+    "text": "<textarea>x</div>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/div/'x'",
+    "text": "<textarea>x</div>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/DIV/'x'/eofTrue",
+    "text": "<textarea>x</DIV>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/DIV/'x'/eofFalse",
+    "text": "<textarea>x</DIV>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/DIV/'x'",
+    "text": "<textarea>x</DIV>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/title/'\\n'/eofTrue",
+    "text": "<textarea>\n</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/title/'\\n'/eofFalse",
+    "text": "<textarea>\n</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/title/'\\n'",
+    "text": "<textarea>\n</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/TITLE/'\\n'/eofTrue",
+    "text": "<textarea>\n</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/TITLE/'\\n'/eofFalse",
+    "text": "<textarea>\n</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/TITLE/'\\n'",
+    "text": "<textarea>\n</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/title/'x'/eofTrue",
+    "text": "<textarea>x</title>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/title/'x'/eofFalse",
+    "text": "<textarea>x</title>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/title/'x'",
+    "text": "<textarea>x</title>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/TITLE/'x'/eofTrue",
+    "text": "<textarea>x</TITLE>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/TITLE/'x'/eofFalse",
+    "text": "<textarea>x</TITLE>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/TITLE/'x'",
+    "text": "<textarea>x</TITLE>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/xmp/'\\n'/eofTrue",
+    "text": "<textarea>\n</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/xmp/'\\n'/eofFalse",
+    "text": "<textarea>\n</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/xmp/'\\n'",
+    "text": "<textarea>\n</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/XMP/'\\n'/eofTrue",
+    "text": "<textarea>\n</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/XMP/'\\n'/eofFalse",
+    "text": "<textarea>\n</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/XMP/'\\n'",
+    "text": "<textarea>\n</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/xmp/'x'/eofTrue",
+    "text": "<textarea>x</xmp>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/xmp/'x'/eofFalse",
+    "text": "<textarea>x</xmp>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/xmp/'x'",
+    "text": "<textarea>x</xmp>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/XMP/'x'/eofTrue",
+    "text": "<textarea>x</XMP>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "other/textarea/XMP/'x'/eofFalse",
+    "text": "<textarea>x</XMP>\n## Hidden\n",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "recovery/textarea/XMP/'x'",
+    "text": "<textarea>x</XMP>\n## Hidden\n</sTyLe>\n## Visible\n<script>\n## Hidden again\n",
+    "expected": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line",
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "valid/textarea/pre/'\\n'",
+    "text": "<textarea>\n</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/pre/'x'",
+    "text": "<textarea>x</PRE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/script/'\\n'",
+    "text": "<textarea>\n</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/script/'x'",
+    "text": "<textarea>x</SCRIPT>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/style/'\\n'",
+    "text": "<textarea>\n</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/style/'x'",
+    "text": "<textarea>x</STYLE>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/textarea/'\\n'",
+    "text": "<textarea>\n</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "valid/textarea/textarea/'x'",
+    "text": "<textarea>x</TEXTAREA>\n## Visible",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "malformed/textarea/' '",
+    "text": "<textarea>\n</textarea >\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/textarea/'\\t'",
+    "text": "<textarea>\n</textarea\t>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/textarea/'/'",
+    "text": "<textarea>\n</textarea/>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/textarea/'lude'",
+    "text": "<textarea>\n</textarealude>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "malformed/textarea/'\u017f'",
+    "text": "<textarea>\n</textarea\u017f>\n## Hidden",
+    "expected": [
+      "raw HTML line"
+    ],
+    "actual": [
+      "raw HTML line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/''",
+    "text": "```\n``\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/' '",
+    "text": "```\n`` \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/'\\t'",
+    "text": "```\n``\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/' \\t '",
+    "text": "```\n`` \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/'x'",
+    "text": "```\n``x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/'\\u200b'",
+    "text": "```\n``\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/2/'\\x0c'",
+    "text": "```\n``\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/''",
+    "text": "```\n```\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/' '",
+    "text": "```\n``` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/'\\t'",
+    "text": "```\n```\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/' \\t '",
+    "text": "```\n``` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/'x'",
+    "text": "```\n```x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/'\\u200b'",
+    "text": "```\n```\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/3/'\\x0c'",
+    "text": "```\n```\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/''",
+    "text": "```\n`````\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/' '",
+    "text": "```\n````` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/'\\t'",
+    "text": "```\n`````\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/' \\t '",
+    "text": "```\n````` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/'x'",
+    "text": "```\n`````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/'\\u200b'",
+    "text": "```\n`````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/3/5/'\\x0c'",
+    "text": "```\n`````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/''",
+    "text": "````\n```\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/' '",
+    "text": "````\n``` \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/'\\t'",
+    "text": "````\n```\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/' \\t '",
+    "text": "````\n``` \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/'x'",
+    "text": "````\n```x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/'\\u200b'",
+    "text": "````\n```\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/3/'\\x0c'",
+    "text": "````\n```\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/''",
+    "text": "````\n````\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/' '",
+    "text": "````\n```` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/'\\t'",
+    "text": "````\n````\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/' \\t '",
+    "text": "````\n```` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/'x'",
+    "text": "````\n````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/'\\u200b'",
+    "text": "````\n````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/4/'\\x0c'",
+    "text": "````\n````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/''",
+    "text": "````\n``````\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/' '",
+    "text": "````\n`````` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/'\\t'",
+    "text": "````\n``````\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/' \\t '",
+    "text": "````\n`````` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/'x'",
+    "text": "````\n``````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/'\\u200b'",
+    "text": "````\n``````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/4/6/'\\x0c'",
+    "text": "````\n``````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/''",
+    "text": "``````````\n`````````\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/' '",
+    "text": "``````````\n````````` \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/'\\t'",
+    "text": "``````````\n`````````\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/' \\t '",
+    "text": "``````````\n````````` \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/'x'",
+    "text": "``````````\n`````````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/'\\u200b'",
+    "text": "``````````\n`````````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/9/'\\x0c'",
+    "text": "``````````\n`````````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/''",
+    "text": "``````````\n``````````\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/' '",
+    "text": "``````````\n`````````` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/'\\t'",
+    "text": "``````````\n``````````\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/' \\t '",
+    "text": "``````````\n`````````` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/'x'",
+    "text": "``````````\n``````````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/'\\u200b'",
+    "text": "``````````\n``````````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/10/'\\x0c'",
+    "text": "``````````\n``````````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/''",
+    "text": "``````````\n````````````\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/' '",
+    "text": "``````````\n```````````` \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/'\\t'",
+    "text": "``````````\n````````````\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/' \\t '",
+    "text": "``````````\n```````````` \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/'x'",
+    "text": "``````````\n````````````x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/'\\u200b'",
+    "text": "``````````\n````````````\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/`/10/12/'\\x0c'",
+    "text": "``````````\n````````````\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/''",
+    "text": "~~~\n~~\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/' '",
+    "text": "~~~\n~~ \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/'\\t'",
+    "text": "~~~\n~~\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/' \\t '",
+    "text": "~~~\n~~ \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/'x'",
+    "text": "~~~\n~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/'\\u200b'",
+    "text": "~~~\n~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/2/'\\x0c'",
+    "text": "~~~\n~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/''",
+    "text": "~~~\n~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/' '",
+    "text": "~~~\n~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/'\\t'",
+    "text": "~~~\n~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/' \\t '",
+    "text": "~~~\n~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/'x'",
+    "text": "~~~\n~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/'\\u200b'",
+    "text": "~~~\n~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/3/'\\x0c'",
+    "text": "~~~\n~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/''",
+    "text": "~~~\n~~~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/' '",
+    "text": "~~~\n~~~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/'\\t'",
+    "text": "~~~\n~~~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/' \\t '",
+    "text": "~~~\n~~~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/'x'",
+    "text": "~~~\n~~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/'\\u200b'",
+    "text": "~~~\n~~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/3/5/'\\x0c'",
+    "text": "~~~\n~~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/''",
+    "text": "~~~~\n~~~\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/' '",
+    "text": "~~~~\n~~~ \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/'\\t'",
+    "text": "~~~~\n~~~\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/' \\t '",
+    "text": "~~~~\n~~~ \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/'x'",
+    "text": "~~~~\n~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/'\\u200b'",
+    "text": "~~~~\n~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/3/'\\x0c'",
+    "text": "~~~~\n~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/''",
+    "text": "~~~~\n~~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/' '",
+    "text": "~~~~\n~~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/'\\t'",
+    "text": "~~~~\n~~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/' \\t '",
+    "text": "~~~~\n~~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/'x'",
+    "text": "~~~~\n~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/'\\u200b'",
+    "text": "~~~~\n~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/4/'\\x0c'",
+    "text": "~~~~\n~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/''",
+    "text": "~~~~\n~~~~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/' '",
+    "text": "~~~~\n~~~~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/'\\t'",
+    "text": "~~~~\n~~~~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/' \\t '",
+    "text": "~~~~\n~~~~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/'x'",
+    "text": "~~~~\n~~~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/'\\u200b'",
+    "text": "~~~~\n~~~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/4/6/'\\x0c'",
+    "text": "~~~~\n~~~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/''",
+    "text": "~~~~~~~~~~\n~~~~~~~~~\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/' '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~ \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/'\\t'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~\t\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/' \\t '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~ \t \n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/'x'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/'\\u200b'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/9/'\\x0c'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/''",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/' '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/'\\t'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/' \\t '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/'x'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/'\\u200b'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/10/'\\x0c'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/''",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/' '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~ \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/'\\t'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~\t\n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/' \\t '",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~ \t \n## Probe",
+    "expected": [
+      "prose line"
+    ],
+    "actual": [
+      "prose line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/'x'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~x\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/'\\u200b'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~\u200b\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "fence/~/10/12/'\\x0c'",
+    "text": "~~~~~~~~~~\n~~~~~~~~~~~~\f\n## Probe",
+    "expected": [
+      "fenced line"
+    ],
+    "actual": [
+      "fenced line"
+    ]
+  },
+  {
+    "name": "comment precedence/div",
+    "text": "<!--\n</div>\n## Hidden",
+    "expected": [
+      "commented line"
+    ],
+    "actual": [
+      "commented line"
+    ]
+  },
+  {
+    "name": "type6 precedence/div",
+    "text": "<div>\n</div>\n## Hidden\n\n## Visible",
+    "expected": [
+      "raw HTML line",
+      "prose line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line"
+    ]
+  },
+  {
+    "name": "comment precedence/title",
+    "text": "<!--\n</title>\n## Hidden",
+    "expected": [
+      "commented line"
+    ],
+    "actual": [
+      "commented line"
+    ]
+  },
+  {
+    "name": "type6 precedence/title",
+    "text": "<div>\n</title>\n## Hidden\n\n## Visible",
+    "expected": [
+      "raw HTML line",
+      "prose line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line"
+    ]
+  },
+  {
+    "name": "comment precedence/xmp",
+    "text": "<!--\n</xmp>\n## Hidden",
+    "expected": [
+      "commented line"
+    ],
+    "actual": [
+      "commented line"
+    ]
+  },
+  {
+    "name": "type6 precedence/xmp",
+    "text": "<div>\n</xmp>\n## Hidden\n\n## Visible",
+    "expected": [
+      "raw HTML line",
+      "prose line"
+    ],
+    "actual": [
+      "raw HTML line",
+      "prose line"
+    ]
+  }
+]
