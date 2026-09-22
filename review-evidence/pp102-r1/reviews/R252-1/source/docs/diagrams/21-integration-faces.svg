@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="900" viewBox="0 0 1340 900" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0,1 L8,4.5 L0,8 z" fill="#2c3038"/>
+    </marker>
+    <marker id="ahb" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+      <path d="M9,1 L1,4.5 L9,8 z" fill="#2c3038"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1340" height="900" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
+
+  <text x="24" y="34" font-size="19" font-weight="bold" fill="#16181d">The integrator's contract — every face of protocol_processor_top</text>
+  <text x="24" y="56" font-size="12.5" fill="#4a5058">Port names are exact. Directions are from the processor's point of view. Red text is what happens when you do not connect a face.</text>
+
+  <!-- ===== centre ===== -->
+  <rect x="440" y="130" width="460" height="560" rx="10" fill="#eef3fb" stroke="#2c4a75" stroke-width="2"/>
+  <text x="670" y="162" font-size="16" font-weight="bold" text-anchor="middle" fill="#16181d">protocol_processor_top</text>
+  <text x="670" y="184" font-size="11.5" text-anchor="middle" fill="#4a5058">hdl/top/protocol_processor_top.sv</text>
+
+  <line x1="464" y1="200" x2="876" y2="200" stroke="#b9c4d4" stroke-width="1"/>
+
+  <text x="464" y="224" font-size="12.5" font-weight="bold" fill="#16181d">Clock and reset — there is exactly one of each</text>
+  <text x="464" y="244" font-size="11.5" fill="#4a5058">clk_i · a single core clock, CLK_HZ_P (default 100 MHz)</text>
+  <text x="464" y="262" font-size="11.5" fill="#4a5058">rst_n · SYNCHRONOUS, active low</text>
+  <text x="464" y="282" font-size="11.5" fill="#a03030">No CDC lives in here. Every crossing is yours: the MAC</text>
+  <text x="464" y="299" font-size="11.5" fill="#a03030">FIFOs, and a 2FF synchroniser on link_up_i / gm_change_i.</text>
+
+  <line x1="464" y1="318" x2="876" y2="318" stroke="#b9c4d4" stroke-width="1"/>
+
+  <text x="464" y="342" font-size="12.5" font-weight="bold" fill="#16181d">Shape is fixed at elaboration, never poked at runtime</text>
+  <text x="464" y="362" font-size="11.5" fill="#4a5058">N_STREAM_IN_P / N_STREAM_OUT_P — sinks and sources</text>
+  <text x="464" y="380" font-size="11.5" fill="#4a5058">RX_SLOTS_P · RX_SLOT_BYTES_P · TX_STD_SLOTS_P</text>
+  <text x="464" y="398" font-size="11.5" fill="#4a5058">TX_OVERSIZE_BYTES_P · CLK_HZ_P</text>
+  <text x="464" y="418" font-size="11.5" fill="#4a5058">An over-large shape stops the build with $error, rather</text>
+  <text x="464" y="435" font-size="11.5" fill="#4a5058">than aliasing a timer slot in silence.</text>
+
+  <line x1="464" y1="454" x2="876" y2="454" stroke="#b9c4d4" stroke-width="1"/>
+
+  <text x="464" y="478" font-size="12.5" font-weight="bold" fill="#16181d">Two ROM images are file paths, not ports</text>
+  <text x="464" y="498" font-size="11.5" fill="#4a5058">TROM_HEX_P — the ACMP listener transition ROM</text>
+  <text x="464" y="516" font-size="11.5" fill="#4a5058">UCODE_HEX_P — the AECP µcode ROM</text>
+  <text x="464" y="536" font-size="11.5" fill="#a03030">A RELATIVE name resolves against the TOOL'S run</text>
+  <text x="464" y="553" font-size="11.5" fill="#a03030">directory. Hand over absolute paths.</text>
+
+  <line x1="464" y1="572" x2="876" y2="572" stroke="#b9c4d4" stroke-width="1"/>
+
+  <text x="464" y="596" font-size="12.5" font-weight="bold" fill="#16181d">Two main-memory bases, also compile-time</text>
+  <text x="464" y="616" font-size="11.5" fill="#4a5058">DESC_BASE_P — the descriptor image (default 0x20000000)</text>
+  <text x="464" y="634" font-size="11.5" fill="#4a5058">RESP_BASE_P — the response buffer (default 0x20100000)</text>
+  <text x="464" y="654" font-size="11.5" fill="#a03030">There are no base REGISTERS, by design. The map is</text>
+  <text x="464" y="671" font-size="11.5" fill="#a03030">fixed when the bitstream is built.</text>
+
+  <!-- ===== LEFT ===== -->
+  <rect x="24" y="130" width="390" height="116" rx="7" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1.3"/>
+  <text x="42" y="152" font-size="12.5" font-weight="bold" fill="#16181d">MAC trunk RX  →  in</text>
+  <text x="42" y="172" font-size="11.5" fill="#4a5058">rx_valid_i · rx_data_i[7:0] · rx_last_i</text>
+  <text x="42" y="192" font-size="11.5" fill="#4a5058">A BYTE stream. Byte 0 is the first DA octet;</text>
+  <text x="42" y="209" font-size="11.5" fill="#4a5058">rx_last_i delimits the frame.</text>
+  <text x="42" y="232" font-size="11.5" fill="#a03030">There is NO rx_ready. The RX side cannot be stalled.</text>
+
+  <rect x="24" y="278" width="390" height="116" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+  <text x="42" y="300" font-size="12.5" font-weight="bold" fill="#16181d">identity and level controls  →  in</text>
+  <text x="42" y="320" font-size="11.5" fill="#4a5058">entity_id_i · entity_model_id_i · own_mac_i · the four</text>
+  <text x="42" y="337" font-size="11.5" fill="#4a5058">ADPDU capability words · current_cfg_i</text>
+  <text x="42" y="357" font-size="11.5" fill="#4a5058">entity_enable_i · link_up_i · gm_change_i · gm_id_i</text>
+  <text x="42" y="380" font-size="11.5" fill="#a03030">entity_enable_i is the boot gate: 0 means never advertise.</text>
+
+  <rect x="24" y="426" width="390" height="116" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+  <text x="42" y="448" font-size="12.5" font-weight="bold" fill="#16181d">quasi-static configuration  →  in</text>
+  <text x="42" y="468" font-size="11.5" fill="#4a5058">SRP: p2p_i · cfg_rank_i · cfg_acc_lat_ns_i</text>
+  <text x="42" y="485" font-size="11.5" fill="#4a5058">port_rate_bps_i · cfg_tspec_max_frame_i</text>
+  <text x="42" y="505" font-size="11.5" fill="#4a5058">talker sources: cfg_src_en_i · cfg_src_iface_i</text>
+  <text x="42" y="522" font-size="11.5" fill="#4a5058">cfg_stream_id_i — flat packed vectors, index s at [W*s +: W]</text>
+
+  <rect x="24" y="574" width="390" height="116" rx="7" fill="#fdf0e3" stroke="#b5741f" stroke-width="1.3"/>
+  <text x="42" y="596" font-size="12.5" font-weight="bold" fill="#16181d">host_* management side port  ↔  bidirectional</text>
+  <text x="42" y="616" font-size="11.5" fill="#4a5058">host_req_valid_i · host_we_i · host_addr_i[19:0] (WORDS)</text>
+  <text x="42" y="633" font-size="11.5" fill="#4a5058">host_wdata_i · host_rdata_o · host_rvalid_o · host_err_o</text>
+  <text x="42" y="653" font-size="11.5" fill="#4a5058">Six windows. This is where the diagnostics live.</text>
+  <text x="42" y="676" font-size="11.5" fill="#a03030">Optional: tie host_req_valid_i low and the plane still runs.</text>
+
+  <line x1="414" y1="188" x2="435" y2="188" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="414" y1="336" x2="435" y2="336" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="414" y1="484" x2="435" y2="484" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="414" y1="632" x2="435" y2="632" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)" marker-start="url(#ahb)"/>
+
+  <!-- ===== RIGHT ===== -->
+  <rect x="950" y="130" width="366" height="96" rx="7" fill="#e8f0fb" stroke="#3b6ea5" stroke-width="1.3"/>
+  <text x="968" y="152" font-size="12.5" font-weight="bold" fill="#16181d">MAC trunk TX  ←  out</text>
+  <text x="968" y="172" font-size="11.5" fill="#4a5058">tx_valid_o · tx_sof_o · tx_data_o[7:0] · tx_eof_o</text>
+  <text x="968" y="192" font-size="11.5" fill="#4a5058">tx_ready_i — this one IS real backpressure.</text>
+  <text x="968" y="213" font-size="11.5" fill="#4a5058">A granted frame streams sof to eof without preemption.</text>
+
+  <rect x="950" y="246" width="366" height="96" rx="7" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="968" y="268" font-size="12.5" font-weight="bold" fill="#16181d">desc_mem_*  ←  master, READ ONLY</text>
+  <text x="968" y="288" font-size="11.5" fill="#4a5058">One outstanding request, responses IN ORDER, rsp_last</text>
+  <text x="968" y="305" font-size="11.5" fill="#4a5058">on the final beat, big-endian 64-bit lanes.</text>
+  <text x="968" y="328" font-size="11.5" fill="#a03030">req_ready tied 0 is LEGAL → NO_SUCH_DESCRIPTOR.</text>
+
+  <rect x="950" y="362" width="366" height="96" rx="7" fill="#f3ecfb" stroke="#6b46a5" stroke-width="1.3"/>
+  <text x="968" y="384" font-size="12.5" font-weight="bold" fill="#16181d">resp_mem_*  ↔  master, READ + WRITE</text>
+  <text x="968" y="404" font-size="11.5" fill="#4a5058">Same read contract, plus one outstanding single-beat</text>
+  <text x="968" y="421" font-size="11.5" fill="#4a5058">write. Here rsp_ready IS real backpressure.</text>
+  <text x="968" y="444" font-size="11.5" fill="#a03030">Tied off → a 60-byte ENTITY_MISBEHAVING answer.</text>
+
+  <rect x="950" y="478" width="366" height="96" rx="7" fill="#fdf0e3" stroke="#b5741f" stroke-width="1.3"/>
+  <text x="968" y="500" font-size="12.5" font-weight="bold" fill="#16181d">three optional service faces  ↔</text>
+  <text x="968" y="520" font-size="11.5" fill="#4a5058">nvm_dev_* — persistence backend (record-level)</text>
+  <text x="968" y="537" font-size="11.5" fill="#4a5058">svc_* — the SRP config plane (DECLARE/WITHDRAW)</text>
+  <text x="968" y="560" font-size="11.5" fill="#a03030">maap_* — tie it off and NO talker ever declares.</text>
+
+  <rect x="950" y="594" width="366" height="96" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+  <text x="968" y="616" font-size="12.5" font-weight="bold" fill="#16181d">class-D status wires  ←  out, every clock</text>
+  <text x="968" y="636" font-size="11.5" fill="#4a5058">acmp_declaring_o · acmp_bound_o + bound stream identity</text>
+  <text x="968" y="653" font-size="11.5" fill="#4a5058">srp_active_o · srp_granted_slope_bps_o · srp_sum_slope_bps_o</text>
+  <text x="968" y="676" font-size="11.5" fill="#4a5058">Combinational reads of clk_i registers — you own the 2FF.</text>
+
+  <line x1="905" y1="178" x2="945" y2="178" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="905" y1="294" x2="945" y2="294" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+  <line x1="905" y1="410" x2="945" y2="410" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)" marker-start="url(#ahb)"/>
+  <line x1="905" y1="526" x2="945" y2="526" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)" marker-start="url(#ahb)"/>
+  <line x1="905" y1="642" x2="945" y2="642" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+
+  <!-- ===== bottom band ===== -->
+  <rect x="24" y="722" width="1292" height="150" rx="8" fill="#fff6e5" stroke="#a06400" stroke-width="1.3"/>
+  <text x="42" y="746" font-size="13" font-weight="bold" fill="#16181d">What you must reserve in your memory map</text>
+  <text x="42" y="770" font-size="11.5" fill="#4a5058">At DESC_BASE_P — the descriptor image your software writes before entity_enable. The processor only READS it.</text>
+  <text x="42" y="790" font-size="11.5" fill="#4a5058">At RESP_BASE_P — 16 + DESC_LINE_BYTES_P bytes that NOTHING ELSE WRITES. The processor writes here. It must not overlap DESC_BASE_P.</text>
+  <text x="42" y="810" font-size="11.5" fill="#4a5058">Both are 8-byte aligned. The two masters are deliberately separate: sharing one channel would need an arbiter whose grant must be released correctly on every watchdog.</text>
+  <text x="42" y="838" font-size="13" font-weight="bold" fill="#16181d">The tie-off rule</text>
+  <text x="42" y="860" font-size="11.5" fill="#4a5058">Every optional face is watchdog-bounded, so leaving it unconnected degrades that function to an honest answer on the wire — it never wedges the control plane.</text>
+</svg>

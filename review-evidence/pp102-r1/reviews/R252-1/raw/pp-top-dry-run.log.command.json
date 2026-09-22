@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "rtk",
+    "proxy",
+    "make",
+    "-n",
+    "-C",
+    "$VALIDATION_STORAGE/reviews/r252-pp102-r1/tb/pp_top",
+    "run",
+    "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+    "VFLAGS=--cc --exe --build -j 8           --top-module $(TOP)           -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL           -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM           -CFLAGS \"-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra\""
+  ],
+  "cwd": "$VALIDATION_STORAGE/reviews/r252-pp102-r1",
+  "started_utc": "2026-09-22T19:27:27.423095+00:00",
+  "finished_utc": "2026-09-22T19:27:27.441202+00:00",
+  "exit": 0,
+  "stdout_sha256": "e2834e7b7cd10e904e742d9ad29e6502d113bf2e2e76abc42a8d3b133e3f909e",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

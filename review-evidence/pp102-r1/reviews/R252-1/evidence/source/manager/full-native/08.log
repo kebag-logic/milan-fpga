@@ -1,0 +1,62 @@
+make: Entering directory '$VALIDATION/tb/nvm_port'
+42 Verilator builds: 1 baseline + 12 arms + 18 mutations + 6 models + 5 matrix
+baseline: 122 checks, 122 PASS, 0 FAIL
+
+arm coverage (measured vs README):
+  [ok ]  211 S_WEREQ    measured=0    readme=0
+  [ok ]  220 S_WEWAIT   measured=69   readme=69
+  [ok ]  230 S_WWREQ    measured=0    readme=0
+  [ok ]  240 S_WHPUMP   measured=64   readme=64
+  [ok ]  253 S_WDPUMP   measured=52   readme=52
+  [ok ]  263 S_WWAIT    measured=39   readme=39
+  [ok ]  274 S_RHREQ    measured=0    readme=0
+  [ok ]  284 S_RHCOLL   measured=32   readme=32
+  [ok ]  302 S_RHWAIT   measured=29   readme=29
+  [ok ]  329 S_RPREQ    measured=0    readme=0
+  [ok ]  339 S_RPPUMP   measured=63   readme=63
+  [ok ]  349 S_RPWAIT   measured=26   readme=26
+
+mutations and probes (measured vs README):
+  [ok ] M1               measured=24   readme=24
+  [ok ] M1-sibling       measured=5    readme=5
+  [ok ] M2               measured=5    readme=5
+  [ok ] M3               measured=91   readme=91
+  [ok ] M4               measured=52   readme=52
+  [ok ] M5               measured=39   readme=39
+  [ok ] M6               measured=6    readme=6
+  [ok ] M6-sibling       measured=5    readme=5
+  [ok ] probe-armearly   measured=1    readme=1
+  [ok ] probe-nodevice   measured=3    readme=3
+  [ok ] probe-t18        measured=3    readme=3
+  [ok ] done_seen_r/coincident measured=91   readme=91
+  [ok ] done_seen_r/pristine measured=9    readme=9
+  [ok ] own-states-dropped measured=6    readme=6
+  [ok ] own-minus-rhcoll measured=3    readme=3
+  [ok ] own-minus-wwait  measured=0    readme=0
+  [ok ] own-plus-rhreq   measured=1    readme=1
+  [ok ] retraction       measured=2    readme=2
+
+device models (measured vs README):
+  [ok ] pristine                   measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] page-buffered NOR          measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] lazy erase                 measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] lazy erase + page-buffered measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] coincident completion      measured=122 PASS, 0 FAIL  readme=(122, 0)
+
+pre-fix matrix (measured vs README), 5 builds:
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+  [ok ] T15 cut was real                   measured=pass pass pass pass FAIL
+  [ok ] T15 #70 property, unconditioned    measured=pass pass pass pass FAIL
+
+all measured figures agree with the tree
+
+NOT measured (waived, with the reason, so the exclusion set is
+derived from the file rather than asserted in a comment):
+  - /`fails 22 of the 122 checks` and `fails\s+22 out of 122`/ absorbs 2 (cap 4): two illustrative phrasings quoted inside the paragraph explaining what the inverted default does not close; not claims about this suite
+  - /\b122/122\b/ absorbs 2 (cap 4): suite tally shorthand; both halves are the suite size, which the size check already pins against the measured total
+make: Leaving directory '$VALIDATION/tb/nvm_port'

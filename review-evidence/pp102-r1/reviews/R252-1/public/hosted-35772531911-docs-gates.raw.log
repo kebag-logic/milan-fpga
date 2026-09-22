@@ -1,0 +1,174 @@
+﻿2026-09-22T19:14:52.0901376Z Current runner version: '2.337.0'
+2026-09-22T19:14:52.0936573Z ##[group]Runner Image Provisioner
+2026-09-22T19:14:52.0937876Z Hosted Compute Agent
+2026-09-22T19:14:52.0938919Z Version: 20260828.587
+2026-09-22T19:14:52.0939959Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T19:14:52.0941256Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T19:14:52.0942525Z Worker ID: {5fad5ea5-b75e-4e15-a207-aa2adbe72019}
+2026-09-22T19:14:52.0943717Z Azure Region: eastus
+2026-09-22T19:14:52.0944764Z ##[endgroup]
+2026-09-22T19:14:52.0947767Z ##[group]Operating System
+2026-09-22T19:14:52.0948805Z Ubuntu
+2026-09-22T19:14:52.0949777Z 24.04.5
+2026-09-22T19:14:52.0950685Z LTS
+2026-09-22T19:14:52.0951624Z ##[endgroup]
+2026-09-22T19:14:52.0952534Z ##[group]Runner Image
+2026-09-22T19:14:52.0953546Z Image: ubuntu-24.04
+2026-09-22T19:14:52.0954736Z Version: 20260907.300.1
+2026-09-22T19:14:52.0957116Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T19:14:52.0959929Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T19:14:52.0961726Z ##[endgroup]
+2026-09-22T19:14:52.0963636Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T19:14:52.0966636Z Contents: read
+2026-09-22T19:14:52.0967606Z Metadata: read
+2026-09-22T19:14:52.0968530Z Packages: read
+2026-09-22T19:14:52.0969562Z ##[endgroup]
+2026-09-22T19:14:52.0972572Z Secret source: Actions
+2026-09-22T19:14:52.0974190Z Cache mode: write
+2026-09-22T19:14:52.0975689Z Prepare workflow directory
+2026-09-22T19:14:52.1552823Z Prepare all required actions
+2026-09-22T19:14:52.1624874Z Getting action download info
+2026-09-22T19:14:52.3681295Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T19:14:52.5672328Z Complete job name: docs-gates
+2026-09-22T19:14:52.6572764Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T19:14:52.6583191Z ##[group]Run actions/checkout@v4
+2026-09-22T19:14:52.6583967Z with:
+2026-09-22T19:14:52.6584628Z   repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:52.6589358Z   token: ***
+2026-09-22T19:14:52.6589830Z   ssh-strict: true
+2026-09-22T19:14:52.6590290Z   ssh-user: git
+2026-09-22T19:14:52.6590759Z   persist-credentials: true
+2026-09-22T19:14:52.6591271Z   clean: true
+2026-09-22T19:14:52.6591739Z   sparse-checkout-cone-mode: true
+2026-09-22T19:14:52.6592282Z   fetch-depth: 1
+2026-09-22T19:14:52.6592727Z   fetch-tags: false
+2026-09-22T19:14:52.6593192Z   show-progress: true
+2026-09-22T19:14:52.6593716Z   lfs: false
+2026-09-22T19:14:52.6594497Z   submodules: false
+2026-09-22T19:14:52.6595477Z   set-safe-directory: true
+2026-09-22T19:14:52.6596257Z   allow-unsafe-pr-checkout: false
+2026-09-22T19:14:52.6597187Z env:
+2026-09-22T19:14:52.6597638Z   VERILATOR_VERSION: v5.050
+2026-09-22T19:14:52.6598142Z ##[endgroup]
+2026-09-22T19:14:52.7660433Z Syncing repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:52.7663527Z ##[group]Getting Git version info
+2026-09-22T19:14:52.7665966Z Working directory is '/home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-09-22T19:14:52.7668553Z [command]/usr/bin/git version
+2026-09-22T19:14:52.7704429Z git version 2.55.0
+2026-09-22T19:14:52.7727430Z ##[endgroup]
+2026-09-22T19:14:52.7743288Z Temporarily overriding HOME='/home/runner/work/_temp/33e01bf6-34d6-45cb-a0f7-43bac2e4ff9c' before making global git config changes
+2026-09-22T19:14:52.7746508Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T19:14:52.7750698Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:52.7813627Z Deleting the contents of '/home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-09-22T19:14:52.7820790Z ##[group]Initializing the repository
+2026-09-22T19:14:52.7848386Z [command]/usr/bin/git init /home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:52.7963750Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T19:14:52.7965995Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T19:14:52.7968077Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T19:14:52.7969725Z hint: call:
+2026-09-22T19:14:52.7970749Z hint:
+2026-09-22T19:14:52.7971965Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T19:14:52.7973225Z hint:
+2026-09-22T19:14:52.7974381Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T19:14:52.7977022Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T19:14:52.7978415Z hint:
+2026-09-22T19:14:52.7979112Z hint: 	git branch -m <name>
+2026-09-22T19:14:52.7979868Z hint:
+2026-09-22T19:14:52.7980883Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T19:14:52.7982965Z Initialized empty Git repository in /home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/.git/
+2026-09-22T19:14:52.7987083Z [command]/usr/bin/git remote add origin https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:52.8026600Z ##[endgroup]
+2026-09-22T19:14:52.8027931Z ##[group]Disabling automatic garbage collection
+2026-09-22T19:14:52.8030535Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T19:14:52.8062634Z ##[endgroup]
+2026-09-22T19:14:52.8063853Z ##[group]Setting up auth
+2026-09-22T19:14:52.8069692Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T19:14:52.8104852Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T19:14:52.8476385Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T19:14:52.8529088Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T19:14:52.8764225Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T19:14:52.8803108Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T19:14:52.9030069Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T19:14:52.9069145Z ##[endgroup]
+2026-09-22T19:14:52.9070088Z ##[group]Fetching the repository
+2026-09-22T19:14:52.9079016Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e66e6eb9271ff045d9061449423331d47472ab12:refs/remotes/pull/103/merge
+2026-09-22T19:14:53.3493635Z From https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:53.3496317Z  * [new ref]         e66e6eb9271ff045d9061449423331d47472ab12 -> pull/103/merge
+2026-09-22T19:14:53.3500165Z ##[endgroup]
+2026-09-22T19:14:53.3501882Z ##[group]Determining the checkout info
+2026-09-22T19:14:53.3504312Z ##[endgroup]
+2026-09-22T19:14:53.3510024Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T19:14:53.3565556Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T19:14:53.3597745Z ##[group]Checking out the ref
+2026-09-22T19:14:53.3601711Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/103/merge
+2026-09-22T19:14:53.4072712Z Note: switching to 'refs/remotes/pull/103/merge'.
+2026-09-22T19:14:53.4073772Z 
+2026-09-22T19:14:53.4074554Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T19:14:53.4076733Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T19:14:53.4078505Z state without impacting any branches by switching back to a branch.
+2026-09-22T19:14:53.4079532Z 
+2026-09-22T19:14:53.4080223Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T19:14:53.4081693Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T19:14:53.4082265Z 
+2026-09-22T19:14:53.4082528Z   git switch -c <new-branch-name>
+2026-09-22T19:14:53.4082925Z 
+2026-09-22T19:14:53.4083222Z Or undo this operation with:
+2026-09-22T19:14:53.4083579Z 
+2026-09-22T19:14:53.4083875Z   git switch -
+2026-09-22T19:14:53.4084470Z 
+2026-09-22T19:14:53.4085463Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T19:14:53.4086194Z 
+2026-09-22T19:14:53.4086925Z HEAD is now at e66e6eb Merge e0c43b03f31d6c1220dd05a110e4bb30029233a0 into f70ba36ecb634467e4b1c3f0dbf1239d1e12af57
+2026-09-22T19:14:53.4089298Z ##[endgroup]
+2026-09-22T19:14:53.4134093Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T19:14:53.4162171Z e66e6eb9271ff045d9061449423331d47472ab12
+2026-09-22T19:14:53.4402006Z ##[group]Run python3 -m pip install wavedrom
+2026-09-22T19:14:53.4402843Z [36;1mpython3 -m pip install wavedrom[0m
+2026-09-22T19:14:53.4403537Z [36;1mpython3 scripts/check-links.py[0m
+2026-09-22T19:14:53.4404224Z [36;1mpython3 scripts/check-matrix.py[0m
+2026-09-22T19:14:53.4404946Z [36;1mpython3 scripts/render-wavedrom.py --check[0m
+2026-09-22T19:14:53.4405856Z [36;1mmake stale[0m
+2026-09-22T19:14:53.4446503Z shell: /usr/bin/bash -e {0}
+2026-09-22T19:14:53.4447125Z env:
+2026-09-22T19:14:53.4447599Z   VERILATOR_VERSION: v5.050
+2026-09-22T19:14:53.4448142Z ##[endgroup]
+2026-09-22T19:14:53.8602142Z Defaulting to user installation because normal site-packages is not writeable
+2026-09-22T19:14:54.2132530Z Collecting wavedrom
+2026-09-22T19:14:54.2471068Z   Downloading wavedrom-2.0.3.post3.tar.gz (137 kB)
+2026-09-22T19:14:54.2657295Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.7/137.7 kB 7.9 MB/s eta 0:00:00
+2026-09-22T19:14:54.2858761Z   Preparing metadata (setup.py): started
+2026-09-22T19:14:57.2901239Z   Preparing metadata (setup.py): finished with status 'done'
+2026-09-22T19:14:57.3088940Z Requirement already satisfied: pyyaml in /usr/lib/python3/dist-packages (from wavedrom) (6.0.1)
+2026-09-22T19:14:57.3095318Z Requirement already satisfied: six in /usr/lib/python3/dist-packages (from wavedrom) (1.16.0)
+2026-09-22T19:14:57.3278175Z Collecting svgwrite (from wavedrom)
+2026-09-22T19:14:57.3320613Z   Downloading svgwrite-1.4.3-py3-none-any.whl.metadata (8.8 kB)
+2026-09-22T19:14:57.3420082Z Downloading svgwrite-1.4.3-py3-none-any.whl (67 kB)
+2026-09-22T19:14:57.3463831Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.1/67.1 kB 22.4 MB/s eta 0:00:00
+2026-09-22T19:14:57.3499231Z Building wheels for collected packages: wavedrom
+2026-09-22T19:14:57.3504251Z   Building wheel for wavedrom (setup.py): started
+2026-09-22T19:14:58.0401619Z   Building wheel for wavedrom (setup.py): finished with status 'done'
+2026-09-22T19:14:58.0407071Z   Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=15e207f1fc466b53c627b4903ef9f34358fe42116868d898198b3b33f63ba003
+2026-09-22T19:14:58.0409250Z   Stored in directory: /home/runner/.cache/pip/wheels/dd/97/87/67fda20d5b17da917e87e94dcdc39acd2195796f42511e42fe
+2026-09-22T19:14:58.0430313Z Successfully built wavedrom
+2026-09-22T19:14:58.2848332Z Installing collected packages: svgwrite, wavedrom
+2026-09-22T19:14:58.3928386Z Successfully installed svgwrite-1.4.3 wavedrom-2.0.3.post3
+2026-09-22T19:14:58.5738308Z links: 807 checked, OK
+2026-09-22T19:14:58.6022846Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-09-22T19:14:59.1396264Z wavedrom: 18 blocks checked, OK
+2026-09-22T19:14:59.1957283Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T19:14:59.1958985Z Post job cleanup.
+2026-09-22T19:14:59.2828642Z [command]/usr/bin/git version
+2026-09-22T19:14:59.2886018Z git version 2.55.0
+2026-09-22T19:14:59.2916119Z Temporarily overriding HOME='/home/runner/work/_temp/6e9ea6ef-2f46-4b23-8781-648d94e8287c' before making global git config changes
+2026-09-22T19:14:59.2917541Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T19:14:59.2922266Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-09-22T19:14:59.2964193Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T19:14:59.3002546Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T19:14:59.3274022Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T19:14:59.3304785Z http.https://github.com/.extraheader
+2026-09-22T19:14:59.3319208Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T19:14:59.3364044Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T19:14:59.3621895Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T19:14:59.3665418Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T19:14:59.4058811Z Cleaning up orphan processes
+2026-09-22T19:14:59.4383937Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

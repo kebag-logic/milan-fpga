@@ -1,0 +1,103 @@
+{
+  "reviewer": "R252",
+  "round": "R252-1",
+  "head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+  "base": "f70ba36ecb634467e4b1c3f0dbf1239d1e12af57",
+  "tree": "0547903adc17449dfb4f0c2610a23e6adb4ff6a2",
+  "verdict": "POSITIVE",
+  "scope": "issue102/PR103 exact-head internal source review",
+  "authored_by_reviewer": true,
+  "open_findings": [],
+  "lenses": [
+    {
+      "lens": "Conformance",
+      "covering_round": "R252-1",
+      "exact_head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+      "severity": "PASS",
+      "state": "CLEAN",
+      "open_blocker_major_minor": [],
+      "evidence": [
+        "raw/source.diff",
+        "raw/parser-results.json",
+        "source/tb/pp_top/Makefile",
+        "public/donor-issue-102.json"
+      ]
+    },
+    {
+      "lens": "RTL",
+      "covering_round": "R252-1",
+      "exact_head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+      "severity": "PASS",
+      "state": "CLEAN",
+      "open_blocker_major_minor": [],
+      "evidence": [
+        "raw/evidence-audit.json",
+        "source/hdl/top/protocol_processor_top.sv",
+        "source/hdl/srp/KL_srp_domain.sv",
+        "raw/pp-top-full.stdout.log"
+      ]
+    },
+    {
+      "lens": "Robustness",
+      "covering_round": "R252-1",
+      "exact_head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+      "severity": "PASS",
+      "state": "CLEAN",
+      "open_blocker_major_minor": [],
+      "evidence": [
+        "controls/Makefile.remove-Wall",
+        "controls/Makefile.remove-Wextra",
+        "source/tb/pp_top/fixture_guards.py",
+        "source/tb/pp_top/test_fixture_guards.py",
+        "raw/pp-top-full.stdout.log"
+      ]
+    },
+    {
+      "lens": "Tests",
+      "covering_round": "R252-1",
+      "exact_head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+      "severity": "PASS",
+      "state": "CLEAN",
+      "open_blocker_major_minor": [],
+      "evidence": [
+        "raw/build-tally.txt",
+        "raw/pp-top-full.stdout.log.command.json",
+        "raw/tool-identity.json",
+        "raw/evidence-audit.json",
+        "raw/hosted-audit.json",
+        "source/tb/pp_top/sim_main.cpp"
+      ]
+    },
+    {
+      "lens": "Docs",
+      "covering_round": "R252-1",
+      "exact_head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+      "severity": "PASS",
+      "state": "CLEAN",
+      "open_blocker_major_minor": [],
+      "evidence": [
+        "raw/source.diff",
+        "source/docs/architecture/01_overview.md",
+        "source/docs/architecture/10_srp_engine.md",
+        "source/tb/pp_top/README.md",
+        "public/pr103.json",
+        "evidence/source/manager/full-native/05.log"
+      ]
+    }
+  ],
+  "external_R253": "PENDING, not waived",
+  "merge_ready": false,
+  "manager_remaining": [
+    "external positive and complete review closure",
+    "current-main candidate validation and decision",
+    "merge authorization/execution",
+    "post-merge containment and evidence"
+  ],
+  "historical_PR13_6_continuity": "UNKNOWN",
+  "historical_PR13_9": "negative-review baseline retained",
+  "parent_pin_adopted": false,
+  "restored_PTOF_400_403_70_completed": false,
+  "author_extra_parent_selftest": "FAILED exit 2: uninitialized submodules; required focused controls passed separately",
+  "terminal": "R252-1 FINISHED",
+  "created_utc": "2026-09-22T19:39:06.494520+00:00"
+}

@@ -1,0 +1,53 @@
+{
+  "head": "e0c43b03f31d6c1220dd05a110e4bb30029233a0",
+  "real_checker_git_blob": "1d9ccd7fa1fded549f8988149397ff10bc12b0d5",
+  "groups": [
+    "\"-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra\"",
+    "\"-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra\""
+  ],
+  "controls": [
+    {
+      "case": "baseline",
+      "actual": [
+        "-Wall",
+        "-Wextra"
+      ],
+      "expected": [
+        "-Wall",
+        "-Wextra"
+      ],
+      "git_blob": "22fa1baeeb81e6e1c2e0780ddaae6f03aa6c8c69",
+      "pass": true
+    },
+    {
+      "case": "head",
+      "actual": [],
+      "expected": [],
+      "git_blob": "70651784ac0a8ac2dd3dd2be46229117fcd64c60",
+      "pass": true
+    },
+    {
+      "case": "remove-Wall",
+      "actual": [
+        "-Wall"
+      ],
+      "expected": [
+        "-Wall"
+      ],
+      "git_blob": "3a8b592a61cac2a06e83e460a53bc567e731ad74",
+      "pass": true
+    },
+    {
+      "case": "remove-Wextra",
+      "actual": [
+        "-Wextra"
+      ],
+      "expected": [
+        "-Wextra"
+      ],
+      "git_blob": "7efd830e020226dbfddd451324ddf986dcf1e3cd",
+      "pass": true
+    }
+  ],
+  "only_change": "-CFLAGS \"-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE)\" -> -CFLAGS \"-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra\""
+}

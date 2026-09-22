@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# The consumption contract (hdl/README.md): the consumer's submodule pin moves
+# only to a commit whose gates are green HERE first. Verilator is pinned and
+# built from source — distro packages have failed the reference platform twice
+# (5.020 cannot build datapath harnesses; 5.032 reads back zeros).
+name: hdl
+on: [push, pull_request]
+
+env:
+  VERILATOR_VERSION: v5.050
+
+jobs:
+  docs-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Link, matrix, wavedrom and staleness gates
+        run: |
+          python3 -m pip install wavedrom
+          python3 scripts/check-links.py
+          python3 scripts/check-matrix.py
+          python3 scripts/render-wavedrom.py --check
+          make stale
+
+  suites:
+    runs-on: ubuntu-latest
+    steps:
+      # Full main history, not the default depth-1: the nvm_port figure gate
+      # compares its matrix injections with historical implementations.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+      - name: Build Verilator ${{ env.VERILATOR_VERSION }}
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y git help2man perl \
+            python3 make g++ libfl2 libfl-dev zlib1g zlib1g-dev autoconf flex bison
+          git clone --depth 1 --branch $VERILATOR_VERSION \
+            https://github.com/verilator/verilator ~/verilator-src
+          cd ~/verilator-src && autoconf && ./configure --prefix "$HOME/verilator"
+          make -j"$(nproc)" && make install
+      - name: Lint (zero tolerance) + every suite
+        run: |
+          export PATH="$HOME/verilator/bin:$PATH"
+          verilator --version
+          ./scripts/lint_hdl.sh
+          ./scripts/run_suites.sh
+      - name: Traceability matrix no-drift + untested budget 0
+        run: python3 scripts/gen_matrix.py --check
+
+      # Out of run_suites.sh on purpose: too slow for the per-suite loop, and
+      # it prints its own derived build count rather than quoting one here --
+      # that number was stale in this file for two rounds. "Run it by hand
+      # after a change" is the discipline that let the nvm_port figures go
+      # stale in four consecutive reviews, so it gates here instead, where
+      # Verilator is already built.
+      - name: nvm_port README figures agree with the tree
+        run: |
+          export PATH="$HOME/verilator/bin:$PATH"
+          # PR #13 was squash-merged. Its review lineage is therefore absent
+          # from main, but remains available through GitHub's durable pull ref.
+          git fetch --no-tags origin refs/pull/13/head
+          make -C tb/nvm_port figures
+
+  portability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yosys + sv2v
+        run: |
+          sudo apt-get update && sudo apt-get install -y yosys
+          curl -sL https://github.com/zachjs/sv2v/releases/latest/download/sv2v-Linux.zip \
+            -o /tmp/sv2v.zip && sudo apt-get install -y unzip
+          unzip -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install /tmp/sv2v/*/sv2v /usr/local/bin/
+      - name: Elaborate every top off-vendor
+        run: ./syn/yosys/run.sh

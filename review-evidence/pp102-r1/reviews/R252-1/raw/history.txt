@@ -1,0 +1,382 @@
+commit e0c43b03f31d6c1220dd05a110e4bb30029233a0
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 20:45:36 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 20:45:36 2026 +0200
+
+    Repeat warning flags in pp_top VID fixture CFLAGS group
+
+ tb/pp_top/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit f70ba36ecb634467e4b1c3f0dbf1239d1e12af57
+Merge: c8214cf bc997e7
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Tue Sep 22 13:40:20 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 22 13:40:20 2026 +0200
+
+    Merge PR #101: clarify SRP Domain link-down restoration and link-up declaration
+
+commit c8214cfe827fb3fb50c9bfee415468a24b7c27b1
+Merge: 8452f56 5c45845
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Tue Sep 22 13:13:33 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 22 13:13:33 2026 +0200
+
+    Merge PR #100: assert distinct SRP VID test fixtures
+
+commit 5c45845ad15bd7995f20c81d7fd61501e5ca9d7e
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 10:59:00 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 10:59:00 2026 +0200
+
+    Normalize fixture guard compiler diagnostics to C
+
+ tb/pp_top/Makefile               |  7 +++--
+ tb/pp_top/README.md              |  6 ++++
+ tb/pp_top/fixture_guards.py      |  5 ++++
+ tb/pp_top/test_fixture_guards.py | 64 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 80 insertions(+), 2 deletions(-)
+
+commit bc997e7c00e50e3d59b97987950bfbf6cc442182
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 10:36:53 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 10:36:53 2026 +0200
+
+    Describe F10.2's revert edge in the srp_encoder README instead of quoting its old label
+
+ tb/srp_encoder/README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 88a4eb4f0765e7e8c1c41f35599f169ea74a2aaf
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 10:19:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 10:19:15 2026 +0200
+
+    Show F10.2's Domain defaults restored at LINK_DOWN and declared at the next LINK_UP
+
+ docs/architecture/10_srp_engine.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1eb20dc4911880de10b745cc284e7dde306788b5
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 08:43:04 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 08:43:04 2026 +0200
+
+    Assert distinct SRP VID verification fixtures
+
+ tb/pp_top/Makefile          | 10 ++++++--
+ tb/pp_top/README.md         | 17 +++++++++++++
+ tb/pp_top/fixture_guards.py | 60 +++++++++++++++++++++++++++++++++++++++++++++
+ tb/pp_top/sim_main.cpp      |  5 ++++
+ 4 files changed, 90 insertions(+), 2 deletions(-)
+
+commit 8452f564294300a82d56eed464276576f65f4d58
+Merge: 424c688 ea93023
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Tue Sep 22 08:23:06 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 22 08:23:06 2026 +0200
+
+    Merge PR #96: expose the SRP default VID parameter
+
+commit ea93023fbdd31cbf718da0d8f1aab4d750bfd21a
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 07:02:27 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 07:02:27 2026 +0200
+
+    Expose the SRP Domain default VID as a top parameter and grade its binding in a second pp_top build
+
+ docs/architecture/01_overview.md   |   1 +
+ docs/architecture/10_srp_engine.md |   5 +-
+ docs/guides/integrator.md          |   3 +-
+ hdl/top/protocol_processor_top.sv  |   9 ++
+ tb/pp_top/Makefile                 |  19 +++-
+ tb/pp_top/README.md                |  72 ++++++++++++-
+ tb/pp_top/pp_top_wrap.sv           |  20 ++++
+ tb/pp_top/sim_main.cpp             | 209 ++++++++++++++++++++++++++++++++++++-
+ 8 files changed, 332 insertions(+), 6 deletions(-)
+
+commit 424c688fa2205b934a7689a58f2aa766420f2326
+Merge: ce448dd f4d8505
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sun Sep 20 21:19:02 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Sep 20 21:19:02 2026 +0200
+
+    Export the binding manager's unflushed sinks and the AECP NVM commit marks (#90)
+    
+    [A146] Export the binding manager's unflushed sinks and the AECP NVM commit marks (#90)
+
+commit f4d8505b4caa3b4c8b40ac80eab810d272587b2f
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Sep 20 20:38:28 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Sep 20 20:38:28 2026 +0200
+
+    Declare the R21 mark counters one per line in the pp_top bench
+
+ tb/pp_top/sim_main.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 98f5610e63d099bcef062252a93e8fe2162e6c70
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Sep 20 18:22:30 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Sep 20 18:22:30 2026 +0200
+
+    Export the binding manager's unflushed sinks and the AECP NVM commit marks
+
+ docs/architecture/02_interfaces.md | 19 ++++++++
+ docs/guides/integrator.md          |  4 +-
+ hdl/top/protocol_processor_top.sv  | 37 +++++++++++++---
+ tb/acmp_nvm/README.md              | 16 ++++++-
+ tb/acmp_nvm/acmp_nvm_wrap.sv       |  8 +++-
+ tb/acmp_nvm/sim_main.cpp           | 76 ++++++++++++++++++++++++++++++++
+ tb/pp_top/README.md                | 10 ++++-
+ tb/pp_top/pp_top_wrap.sv           | 12 +++--
+ tb/pp_top/sim_main.cpp             | 90 +++++++++++++++++++++++++++++++++++++-
+ 9 files changed, 254 insertions(+), 18 deletions(-)
+
+commit ce448ddc144c40a692d829381fc7bd721aa73932
+Merge: 6a9a124 0746479
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sat Sep 19 21:20:10 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Sep 19 21:20:10 2026 +0200
+
+    Refuse a SET_SAMPLING_RATE rate the AUDIO_UNIT sampling_rates list does not hold (#88)
+    
+    [A139] Refuse a SET_SAMPLING_RATE rate the AUDIO_UNIT sampling_rates list does not hold (#51)
+
+commit 0746479418939f613228e8d29b1edd064e3cabe9
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sat Sep 19 19:48:22 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sat Sep 19 19:48:22 2026 +0200
+
+    Refuse a SET_SAMPLING_RATE rate the AUDIO_UNIT sampling_rates list does not hold
+
+ docs/architecture/06_aecp_engine.md  |   4 +-
+ docs/architecture/07_memory_maps.md  |   1 +
+ docs/architecture/09_verification.md |   2 +-
+ hdl/aecp/ucode/gen_ucode.py          | 102 +++++++++--
+ tb/pp_top/README.md                  |  48 +++++-
+ tb/pp_top/sim_main.cpp               | 321 ++++++++++++++++++++++++++++++++++-
+ 6 files changed, 452 insertions(+), 26 deletions(-)
+
+commit 6a9a12416b90158cb4762ab100ede2711bdab76f
+Merge: 2ccb427 110388a
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sat Sep 19 14:28:52 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Sep 19 14:28:52 2026 +0200
+
+    Key the talker's REGISTERING_FAILED on the SRP engine's own Listener code (#87)
+    
+    [A136] Key the talker's REGISTERING_FAILED on the SRP engine's own Listener code (#46)
+
+commit 110388a2a8913e74bfa7b1c4b067b10f516ad229
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sat Sep 19 10:42:29 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sat Sep 19 10:42:29 2026 +0200
+
+    Key the talker's REGISTERING_FAILED on the SRP engine's own Listener code and grade it against a registered MRPDU
+
+ docs/architecture/02_interfaces.md |   2 +-
+ docs/guides/integrator.md          |   2 +-
+ docs/traceability/MODULE_MATRIX.md |   2 +-
+ hdl/acmp/KL_acmp_talker.sv         |  16 ++---
+ tb/acmp_talker/Makefile            |   2 +-
+ tb/acmp_talker/README.md           |  24 ++++++-
+ tb/acmp_talker/sim_main.cpp        |  28 +++++++-
+ tb/pp_top/README.md                |  36 +++++++++-
+ tb/pp_top/sim_main.cpp             | 135 +++++++++++++++++++++++++++++++++++++
+ 9 files changed, 229 insertions(+), 18 deletions(-)
+
+commit 2ccb4276498bfcf8e90100bb17eebc150a22fd4d
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Fri Sep 18 15:35:51 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Fri Sep 18 15:35:51 2026 +0200
+
+    Link each compliance finding to the issue tracking its open residue
+
+ docs/00_MILAN_COMPLIANCE_REVIEW.md | 43 +++++++++++++++++++++-----------------
+ 1 file changed, 24 insertions(+), 19 deletions(-)
+
+commit 6a878f603d1c452de2b30699cdd018f0901ae2d5
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Fri Sep 18 15:04:06 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Fri Sep 18 15:04:06 2026 +0200
+
+    Replace the docs reading-order tree with a linked step table
+
+ docs/README.md | 54 ++++++++++++++++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 20 deletions(-)
+
+commit 8f2f58fb2cc26e3d37170744b83f9909786a3105
+Merge: 9fc2960 f964f0c
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sat Sep 12 04:57:14 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sat Sep 12 04:57:14 2026 +0200
+
+    Grade the SET_CLOCK_SOURCE refusal on the unset row and at its effects (#36)
+    
+    Grade the SET_CLOCK_SOURCE refusal on the unset row and at its effects
+
+commit f964f0c29d7c18ec5842f629382e36014e00b27c
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Fri Sep 11 23:11:01 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Fri Sep 11 23:11:01 2026 +0200
+
+    Grade the accepted SET_CLOCK_SOURCE echo on the unset row and let W10 change it
+
+ docs/architecture/09_verification.md |  2 +-
+ tb/pp_top/README.md                  | 16 ++++++++++------
+ tb/pp_top/sim_main.cpp               | 28 +++++++++++++++++++++-------
+ 3 files changed, 32 insertions(+), 14 deletions(-)
+
+commit 4757f98f2c173549c3c772ebacf5d57652dc2317
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Fri Sep 11 21:59:53 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Fri Sep 11 21:59:53 2026 +0200
+
+    Grade the SET_CLOCK_SOURCE refusal on the unset row and at its effects
+
+ docs/architecture/09_verification.md |   2 +-
+ tb/pp_top/README.md                  |   9 +-
+ tb/pp_top/pp_top_wrap.sv             |  14 ++-
+ tb/pp_top/sim_main.cpp               | 174 +++++++++++++++++++++++++++++++++--
+ 4 files changed, 188 insertions(+), 11 deletions(-)
+
+commit 9fc2960bda85180a40c6ac5737145ef86b68662f
+Merge: 2faa5af 35b4dc1
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Thu Sep 10 06:58:05 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Thu Sep 10 06:58:05 2026 +0200
+
+    Refuse a SET_CLOCK_SOURCE index past clock_sources_count (#34)
+    
+    Refuse a SET_CLOCK_SOURCE index past clock_sources_count
+
+commit 35b4dc1d5e590800d3e35e25c43d345dcfc8e762
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Sep 10 05:44:28 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Sep 10 05:44:28 2026 +0200
+
+    Fold R107-1 in: identity-list precondition, suite docs, named casts
+
+ docs/architecture/06_aecp_engine.md  | 2 +-
+ docs/architecture/07_memory_maps.md  | 2 +-
+ docs/architecture/09_verification.md | 2 +-
+ tb/pp_top/README.md                  | 4 ++--
+ tb/pp_top/sim_main.cpp               | 6 +++---
+ 5 files changed, 8 insertions(+), 8 deletions(-)
+
+commit 4b2d710b2a73719e1533d73eff9252fac5534732
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Wed Sep 9 18:36:08 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Wed Sep 9 18:36:08 2026 +0200
+
+    Refuse a SET_CLOCK_SOURCE index past clock_sources_count
+
+ hdl/aecp/ucode/gen_ucode.py | 48 +++++++++++++++++++++++++++++++++----------
+ tb/pp_top/sim_main.cpp      | 50 ++++++++++++++++++++++++++++++++++++---------
+ 2 files changed, 77 insertions(+), 21 deletions(-)
+
+commit 2faa5af8889d97616bda1369e4739a546da7b0f1
+Merge: e743dcd 488b876
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Tue Sep 8 07:47:18 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Tue Sep 8 07:47:18 2026 +0200
+
+    Merge completion ownership and boundary regression fix
+    
+    Scope NVM completion to the granted device command
+
+commit 488b876f83c0a7b2d1dd73e892b05ea35ed6087a
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Mon Sep 7 18:48:12 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Mon Sep 7 19:01:06 2026 +0200
+
+    nvm_port: pin both halves of the completion-ownership window in the standing suite (#14)
+
+ tb/nvm_port/README.md          | 243 ++++++++++++++++++++++++++++-------------
+ tb/nvm_port/measure_figures.py | 137 +++++++++++++----------
+ tb/nvm_port/sim_main.cpp       | 211 +++++++++++++++++++++++++++++------
+ 3 files changed, 427 insertions(+), 164 deletions(-)
+
+commit 1c1a0d6ddd147ef5c38f6ddc13a3fe6b143b04c9
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Mon Sep 7 16:59:27 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Mon Sep 7 16:59:27 2026 +0200
+
+    nvm_port: done_seen_r latches only the granted command's completion (#14)
+
+ hdl/packet_engine/KL_pp_nvm_port.sv |  40 ++++-
+ tb/nvm_port/README.md               | 234 +++++++++++++++++++++--------
+ tb/nvm_port/measure_figures.py      |  97 ++++++++----
+ tb/nvm_port/sim_main.cpp            | 289 +++++++++++++++++++++++++++++++++++-
+ 4 files changed, 560 insertions(+), 100 deletions(-)
+
+commit e743dcdc6196ea812e4fd35d9cb64b987529436d
+Merge: 0c20844 7c5fdbe
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Fri Sep 4 10:11:30 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Fri Sep 4 10:11:30 2026 +0200
+
+    Merge pull request #31 from Mister-M-alt/chore/cpp-core-guidelines-idiom
+    
+    Rule 11/12/13: idiom debt to zero, including pp_top's 5 741-line main
+
+commit 7c5fdbe116bcbb33c4050a8c67523bcb1fab29c1
+Author:     Alex M. <alexandremalki@gmail.com>
+AuthorDate: Thu Sep 3 13:03:49 2026 +0200
+Commit:     Alex M. <alexandremalki@gmail.com>
+CommitDate: Thu Sep 3 13:03:49 2026 +0200
+
+    Rule 12: generators and gates declare their signatures
+
+ hdl/acmp/rom/gen_ltn_rom.py     |   2 +
+ hdl/aecp/desc/gen_desc_image.py | 285 ++++++++++++++++++++++++----------------
+ hdl/aecp/ucode/gen_ucode.py     |  31 ++++-
+ scripts/check-links.py          |  37 +++---
+ scripts/check-matrix.py         |  10 +-
+ scripts/check_upc_map.py        |  18 +--
+ scripts/gen_matrix.py           |  12 +-
+ scripts/render-wavedrom.py      |  57 ++++----
+ 8 files changed, 283 insertions(+), 169 deletions(-)
+
+commit ad813556f70a32dcf2e1d991b8842e9d6417948a
+Author:     Alex M. <alexandremalki@gmail.com>
+AuthorDate: Thu Sep 3 13:03:36 2026 +0200
+Commit:     Alex M. <alexandremalki@gmail.com>
+CommitDate: Thu Sep 3 13:03:36 2026 +0200
+
+    Rule 13: strict mode in the four shell wrappers
+
+ scripts/lint-diagrams.sh | 12 +++++++++---
+ scripts/lint_hdl.sh      | 50 +++++++++++++++++++++++++++++++++++++++---------
+ scripts/run_suites.sh    | 20 ++++++++++++++-----
+ syn/yosys/run.sh         | 10 ++++++++--
+ 4 files changed, 73 insertions(+), 19 deletions(-)

@@ -1,0 +1,70 @@
+# Verilated -*- Makefile -*-
+# DESCRIPTION: Verilator output: Makefile for building Verilated archive or executable
+#
+# Execute this makefile from the object directory:
+#    make -f Vpp_top_wrap.mk
+
+default: Vpp_top_vid
+
+### Constants...
+# Perl executable (from $PERL, defaults to 'perl' if not set)
+PERL = perl
+# Python3 executable (from $PYTHON3, defaults to 'python3' if not set)
+PYTHON3 = python3
+# Path to Verilator kit (from $VERILATOR_ROOT)
+VERILATOR_ROOT = $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator
+# SystemC include directory with systemc.h (from $SYSTEMC_INCLUDE)
+SYSTEMC_INCLUDE ?=
+# SystemC library directory with libsystemc.a (from $SYSTEMC_LIBDIR)
+SYSTEMC_LIBDIR ?=
+
+### Switches...
+# C++ code coverage  0/1 (from --prof-c)
+VM_PROFC = 0
+# SystemC output mode?  0/1 (from --sc)
+VM_SC = 0
+# Legacy or SystemC output mode?  0/1 (from --sc)
+VM_SP_OR_SC = $(VM_SC)
+# Deprecated
+VM_PCLI = 1
+# Deprecated: SystemC architecture to find link library path (from $SYSTEMC_ARCH)
+VM_SC_TARGET_ARCH = linux
+
+### Vars...
+# Design prefix (from --prefix)
+VM_PREFIX = Vpp_top_wrap
+# Module prefix (from --prefix)
+VM_MODPREFIX = Vpp_top_wrap
+# User CFLAGS (from -CFLAGS on Verilator command line)
+VM_USER_CFLAGS = \
+  -std=c++17 -O2 -I$VALIDATION_STORAGE/reviews/r252-pp102-r1/tb/pp_top -Wall -Wextra \
+  -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra \
+
+# User LDLIBS (from -LDFLAGS on Verilator command line)
+VM_USER_LDLIBS = \
+
+# User .cpp files (from .cpp's on Verilator command line)
+VM_USER_CLASSES = \
+  sim_main \
+
+# User .cpp directories (from .cpp's on Verilator command line)
+VM_USER_DIR = \
+  .. \
+
+### Default rules...
+# Include list of all generated classes
+include Vpp_top_wrap_classes.mk
+# Include global rules
+include $(VERILATOR_ROOT)/include/verilated.mk
+
+### Executable rules... (from --exe)
+VPATH += $(VM_USER_DIR)
+
+sim_main.o: sim_main.cpp 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+
+### Link rules... (from --exe)
+Vpp_top_vid: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a
+	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
+
+# Verilated -*- Makefile -*-

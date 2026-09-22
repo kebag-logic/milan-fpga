@@ -1,0 +1,6 @@
+baseline ['-Wall', '-Wextra'] PASS
+head [] PASS
+remove-Wall ['-Wall'] PASS
+remove-Wextra ['-Wextra'] PASS
+Both CFLAGS groups: ['"-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"', '"-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra"']
+Exact one-line insertion confirmed; macro, fixture and all other Makefile bytes unchanged.
