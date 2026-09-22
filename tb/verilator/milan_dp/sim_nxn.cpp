@@ -396,8 +396,8 @@ class NxnDatapathHarness {
         return true;
     }
 
-    // The builder writes into <outdir>/<config-stem>/; no --write-rtl and no
-    // --write-fragment, so it touches nothing tracked.
+    // Images use <outdir>/<config-stem>/, but the builder also rewrites the
+    // tracked per-config shape header. The ordinary runner serializes these legs.
     bool run_the_image_generators(const char* cfg, const std::string& temp_dir,
                                   const std::string& bin, const std::string& js,
                                   std::string* why) {

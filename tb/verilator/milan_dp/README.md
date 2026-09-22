@@ -12,6 +12,38 @@ Set `TMPDIR` to a filesystem with enough quota when review lanes run in
 parallel. A failed generator deliberately leaves that directory and names its
 log in the failure so the artifact can be inspected.
 
+The ordinary simulations use `sim_pool.py` after all model builds.
+`SIM_JOBS=2` is the default; `SIM_JOBS=1` reproduces sequential execution.
+Only these two values are accepted, independently of make flags.
+Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
+The mutation driver starts only after every ordinary simulation succeeds.
+
+Five `sim_nxn` legs share one exclusive group, in legacy order:
+`obj_notify`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
+Their builder also rewrites tracked per-config shape headers.
+Independent simulations can overlap that group within the two-child limit.
+Presence of `MILAN_COUNTER_FRAME_OUT` serializes the entire ordinary set.
+This includes empty values and preserves the final writer's outcome.
+
+Each child's complete stdout/stderr stays together under `obj_legs/`.
+Captures, banners and commands replay in legacy order.
+Failed, crashed or missing children fail the recipe.
+SIGINT, SIGTERM and SIGHUP terminate and reap owned descendants.
+Started children retain attributable partial logs; unstarted children are named.
+Linux subreaper support is required before any child starts.
+Run one suite invocation per working directory.
+
+```sh
+make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
+python3 tb/verilator/milan_dp/test_sim_pool.py
+```
+
+The runner tests use real processes with controlled shared writes.
+They cover exclusion, independent overlap, order, failures and descendant cleanup.
+They also check frame serialization, complete output and Makefile inventory.
+Runner diagnostics contribute no checks to `suite_tally.py`.
+
 | objdir | harness | shape | what it is for |
 |---|---|---|---|
 | `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | CSR, fabric protocol/media RX/TX, PHC, CLKV, CRF, RMON, and link guard |
