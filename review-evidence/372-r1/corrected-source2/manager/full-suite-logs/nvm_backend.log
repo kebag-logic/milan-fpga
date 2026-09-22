@@ -1,0 +1,24 @@
+make: Entering directory '$VALIDATION/tb/verilator/nvm_backend'
+verilator --lint-only -Wall --top-module KL_nvm_blankflash_sizer ../../../syn/ooc/sizing/KL_nvm_blankflash_sizer.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.049 MB sources in 2 modules, into 0.017 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.003, bld=0.000); cpu 0.007 s on 1 threads; allocated 18.500 MB
+verilator --lint-only -Wall --top-module KL_nvm_backend -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 -GN_SPORT_IN_P=8 -GN_SPORT_OUT_P=8 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=99 ../../../hdl/milan/KL_nvm_backend.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.081 MB sources in 2 modules, into 0.301 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.069 s (elab=0.016, cvt=0.042, bld=0.000); cpu 0.069 s on 1 threads; allocated 23.500 MB
+verilator --lint-only -Wall --top-module KL_nvm_backend -GCLK_HZ_P=10000 -GT_ALIVE_MS_P=4 -GT_COMMIT_MS_P=6 -GT_HOLD_MS_P=2 -GN_STREAM_IN_P=2 -GN_STREAM_OUT_P=2 -GN_SPORT_IN_P=1 -GN_SPORT_OUT_P=1 -GN_AUDIO_UNIT_P=1 -GN_CLK_DOM_P=1 -GN_NAME_P=38 ../../../hdl/milan/KL_nvm_backend.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.081 MB sources in 2 modules, into 0.222 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.053 s (elab=0.016, cvt=0.028, bld=0.000); cpu 0.053 s on 1 threads; allocated 23.492 MB
+======================================================================
+./obj_8x8/Vnvm records_endstation_ax7101_8x8.txt
+nvm_backend[endstation_ax7101_8x8]: checks: 469  failures: 0
+./obj_1x1/Vnvm records_endstation_ax7101_1x1_tdm8.txt
+nvm_backend[endstation_ax7101_1x1_tdm8]: checks: 201  failures: 0
+---- negative controls: each MUST fail --------------------------------
+negative control alias: RED as required -- FAIL: endstation_ax7101_8x8: a READ of record 0x70 (MAPS_OUT[0]) was REFUSED
+negative control stride: RED as required -- FAIL: endstation_ax7101_8x8: MAPS_OUT[0] (record 0x70, 80 framed bytes at area offset 834) reads the wrong span: byte 0 came back 0x59, the image holds 0x17. The backend resolved this record to a different place in the image
+negative control stale_mask: RED as required -- FAIL: endstation_ax7101_8x8: an ordinary change after a healed outage is in flight, not stale -- read (backed=1, dirty=1, stale=1), wanted (1, 1, 0) (status word 0xC30003E4)
+negative control blind_read: RED as required -- FAIL: endstation_ax7101_8x8: a READ before the image was validated served image bytes or touched the bus (done 1, 10 byte(s), first 17 22, 2 bus read(s))
+make: Leaving directory '$VALIDATION/tb/verilator/nvm_backend'
