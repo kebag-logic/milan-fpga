@@ -1,0 +1,28 @@
+{
+  "cwd": "$VALIDATION",
+  "head": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "note": "Actual PR512 merge tree equals the fully validated and independently reviewed candidate",
+  "commands": [
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-513/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "origin/478-audio-unit-rate-bound"
+    ],
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-513/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "--merged-prs"
+    ],
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-513/scripts/check_merge_review_integrity.py",
+      "--base",
+      "dev"
+    ]
+  ]
+}
