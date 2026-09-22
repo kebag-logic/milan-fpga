@@ -1,0 +1,111 @@
+make: Entering directory '$VALIDATION/tb/verilator/avtp_stream'
+verilator --cc --exe --build -j 0 --top-module avtp_stream_parser +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv sim_main.cpp -o Vavtp_stream_parser_sim
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+make[1]: Entering directory '$VALIDATION/tb/verilator/avtp_stream/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vavtp_stream_parser.cpp Vavtp_stream_parser___024root__0.cpp Vavtp_stream_parser__ConstPool__0__Slow.cpp Vavtp_stream_parser___024root__Slow.cpp Vavtp_stream_parser___024root__0__Slow.cpp Vavtp_stream_parser___024unit__Slow.cpp Vavtp_stream_parser__Syms__Slow.cpp > Vavtp_stream_parser__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vavtp_stream_parser__ALL.o Vavtp_stream_parser__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vavtp_stream_parser__ALL.a    -pthread -lpthread -latomic   -o Vavtp_stream_parser_sim
+rm Vavtp_stream_parser__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/avtp_stream/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.154 MB sources in 5 modules, into 0.344 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 4.977 s (elab=0.002, cvt=0.016, bld=4.950); cpu 0.032 s on 8 threads; allocated 548.969 MB
+./obj_dir/Vavtp_stream_parser_sim
+== avtp_stream_parser harness ==
+--------------------------------------------------------------
+checks: 21   failures: 0
+RESULT: PASS
+verilator --cc --exe --build -j 0 --top-module stream_table_wrap +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_tbl ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv stream_table_wrap.sv sim_table.cpp -o Vstream_table_sim
+%Warning-PINMISSING: stream_table_wrap.sv:45:52: Instance has missing pin: 'bound_v_i'
+   45 |   KL_stream_table #(.N_LISTENERS_P(N_LISTENERS_P)) u_tbl (
+      |                                                    ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:74:40: ... Location of port declaration
+   74 |   input  wire [N_LISTENERS_P-1:0]      bound_v_i,    
+      |                                        ^~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: stream_table_wrap.sv:45:52: Instance has missing pin: 'sid_v_i'
+   45 |   KL_stream_table #(.N_LISTENERS_P(N_LISTENERS_P)) u_tbl (
+      |                                                    ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:75:40: ... Location of port declaration
+   75 |   input  wire [64*N_LISTENERS_P-1:0]   sid_v_i,      
+      |                                        ^~~~~~~
+%Warning-PINMISSING: stream_table_wrap.sv:45:52: Instance has missing pin: 'bind_fall_o'
+   45 |   KL_stream_table #(.N_LISTENERS_P(N_LISTENERS_P)) u_tbl (
+      |                                                    ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:87:39: ... Location of port declaration
+   87 |   output logic [N_LISTENERS_P-1:0]    bind_fall_o   
+      |                                       ^~~~~~~~~~~
+%Warning-PINMISSING: stream_table_wrap.sv:56:5: Instance has missing pin: 'media_restart_o'
+   56 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:90:35: ... Location of port declaration
+   90 | output logic                      media_restart_o,  
+      |                                   ^~~~~~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+make[1]: Entering directory '$VALIDATION/tb/verilator/avtp_stream/obj_tbl'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_table.o ../sim_table.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vstream_table_wrap.cpp Vstream_table_wrap___024root__0.cpp Vstream_table_wrap__ConstPool__0__Slow.cpp Vstream_table_wrap___024root__Slow.cpp Vstream_table_wrap___024root__0__Slow.cpp Vstream_table_wrap___024unit__Slow.cpp Vstream_table_wrap__Syms__Slow.cpp > Vstream_table_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vstream_table_wrap__ALL.o Vstream_table_wrap__ALL.cpp
+g++    sim_table.o verilated.o verilated_threads.o Vstream_table_wrap__ALL.a    -pthread -lpthread -latomic   -o Vstream_table_sim
+rm Vstream_table_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/avtp_stream/obj_tbl'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.286 MB sources in 7 modules, into 0.208 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 4.981 s (elab=0.003, cvt=0.014, bld=4.954); cpu 0.031 s on 8 threads; allocated 612.438 MB
+./obj_tbl/Vstream_table_sim
+== KL_stream_table + parser harness (NXN §1.1 / P1) ==
+
+[T1] entry-0 ACMP alias: unbound = miss, bound = match idx 0
+  [ ok ] unbound: no match                            = 0
+  [ ok ] bind-rise pulse fired for s0                 = 1
+  [ ok ] bound: matched                               = 1
+  [ ok ] bound: index 0                               = 0
+
+[T2] bind_rise: s0 edge pulses exactly once
+  [ ok ] one bind_rise pulse on rebind                = 1
+
+[T3] CSR-window write arms entry 2 (match idx 2)
+  [ ok ] entry-2 write already pulsed bind_rise       = 0
+  [ ok ] entry-2 sid matched                          = 1
+  [ ok ] entry-2 index 2                              = 2
+  [ ok ] unwritten sid still miss                     = 0
+
+[T4] eviction: rewrite entry 2 -> old sid misses, new matches
+  [ ok ] evicted sid no longer matches                = 0
+  [ ok ] replacement sid matches idx 2                = 1
+
+[T5] disable-evict: wr_valid=0 clears the entry
+  [ ok ] disabled entry: miss                         = 0
+  [ ok ] tbl_en entry 2 clear                         = 0
+
+[T6] entry-0 bench override wins over the ACMP alias
+  [ ok ] aliased ACMP sid no longer matches           = 0
+  [ ok ] override sid matches idx 0                   = 1
+
+[T7] two entries live: index rides the match (tuser source)
+  [ ok ] s0 frame -> idx 0                            = 1
+  [ ok ] s1 frame -> idx 1                            = 1
+--------------------------------------------------------------
+checks: 17   failures: 0
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/avtp_stream'
