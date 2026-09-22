@@ -1,0 +1,42 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -470,7 +470,7 @@
+     return inside
+ 
+ 
+-def _type_1_end(line: str) -> bool:
++def _type_1_end(line: str, tag: str) -> bool:
+     """Whether a literal closer ends a type-1 block (CommonMark 4.6).
+ 
+     Any of the four names ends any type-1 block, including on its opening
+@@ -478,7 +478,7 @@
+     Unicode lookalikes; no character is allowed inside the closing tag.
+     #440 removes the inner-blank escape and the cross-name withholding
+     measured on PR #428 ([R85] F2, [R86] F1)."""
+-    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS), line, ASCII_FOLD))
++    return bool(re.search(r"</%s\s*>" % tag, line, ASCII_FOLD))
+ 
+ 
+ def _still_open(line: str, state: str, delim: str,
+@@ -492,10 +492,10 @@
+         if not tag:                     # type 6: a blank line ends it
+             return (TEXT if not line.strip(CLASSES["blank"])
+                     else HTML), "", tag
+-        return (TEXT if _type_1_end(line) else HTML), "", tag
++        return (TEXT if _type_1_end(line, tag) else HTML), "", tag
+     m = FENCE_RE.match(line)         # closes on the SAME character, a run
+     if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
+-            and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
++            and not m.group(2).strip():
+         return TEXT, "", ""
+     return FENCE, delim, ""
+ 
+@@ -518,7 +518,7 @@
+     html = RAW_HTML_OPEN_RE.match(line)
+     if html:
+         tag = html.group(1)
+-        closed = _type_1_end(line)
++        closed = _type_1_end(line, tag)
+         return HTML, (TEXT if closed else HTML), "", tag
+     if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
+                                           and HTML_TAG_LINE_RE.match(line)):

@@ -1,0 +1,1409 @@
+{
+ "counts": {
+  "walk": 51,
+  "tag": 43,
+  "guard": 37,
+  "heading": 8,
+  "predecessor": 115,
+  "provenance": 18,
+  "refusal": 7
+ },
+ "total": 279,
+ "rows": [
+  {
+   "family": "walk",
+   "name": "a fence delimiter inside a comment opens no fence",
+   "text_sha256": "e59e6940c462816b932f934b950fcc448d0a312e9380d73132970cb342d7db0f"
+  },
+  {
+   "family": "walk",
+   "name": "a comment delimiter inside a fence opens no comment",
+   "text_sha256": "a4bf90862ecbd7b2cc43fc7b1e48a7c9511a75f77740d87db99614ae08ae615f"
+  },
+  {
+   "family": "walk",
+   "name": "a short delimiter inside a longer fence is content",
+   "text_sha256": "28e8dfbefeeeaba024475abcdd91e72da28a38a2720b36c0510df2418f8afcab"
+  },
+  {
+   "family": "walk",
+   "name": "a tilde fence does not close on backticks",
+   "text_sha256": "69727e2eefcd60c1a190a3331ef1dfa046da7cf208fb8a0e48fdb607313c316f"
+  },
+  {
+   "family": "walk",
+   "name": "a closer carrying an info string does not close",
+   "text_sha256": "4684fe7dc41436e782973d5d7c529907aedbbd748e3271ea61b26cd1f7437eec"
+  },
+  {
+   "family": "walk",
+   "name": "a backtick in a backtick opener's info string voids the opener",
+   "text_sha256": "025fca289b654252923f7cb60815a4251a328c5d144cda5a2ae903e89c933662"
+  },
+  {
+   "family": "walk",
+   "name": "a backtick in a tilde opener's info string does not",
+   "text_sha256": "ae43229eb7e25b126920d9dcee39c0bbde49edd4d9a1c064e349d1feef3a4a2a"
+  },
+  {
+   "family": "walk",
+   "name": "an opener indented three spaces still opens, and its closer at the same indentation still closes",
+   "text_sha256": "607cc41211e6e9b94d10fc6b6856776646e2f5feedae9560afdcc0be4b5965c6"
+  },
+  {
+   "family": "walk",
+   "name": "an indented closer shorter than its opener does not close",
+   "text_sha256": "33170359f8cf2ae4753f3babbc365d579469e6df1e175895ec972678dc4cf329"
+  },
+  {
+   "family": "walk",
+   "name": "a backtick in an INDENTED backtick opener's info string voids it the same way",
+   "text_sha256": "1ff2ae7907259ef5db2602c18b6d0a2ef49d6b9e586f404a2057162c0808b11d"
+  },
+  {
+   "family": "walk",
+   "name": "four spaces after a blank line is code, not a fence",
+   "text_sha256": "f7cc0cffe5ee3970364ca79b15029cc0f369d859d890a02452fe380d90a74dff"
+  },
+  {
+   "family": "walk",
+   "name": "an indented line continuing a paragraph is not code",
+   "text_sha256": "743717198b2e4a70d2d457a96b58f1e8d9a2477e51819a09e0a795eb9e679892"
+  },
+  {
+   "family": "walk",
+   "name": "an indented code run carries the blank line inside it",
+   "text_sha256": "46273d7484dca1123e570d16bfb9d91fcccad95e780471450f44505c0d1b2cf9"
+  },
+  {
+   "family": "walk",
+   "name": "a raw HTML block's content is not Markdown",
+   "text_sha256": "3b36a8076d9e9afb3fb95ed71fb3c417fcb0d2d3abbc8bc5964cecc0f19bf617"
+  },
+  {
+   "family": "walk",
+   "name": "a raw HTML block closed on its own line ends there",
+   "text_sha256": "4d4b0eb3cd87006aaba5c8301c5ea3d113af0baf3dd7e97a420d89082cf3a02b"
+  },
+  {
+   "family": "walk",
+   "name": "a tight type-6 block hides the heading it wraps",
+   "text_sha256": "3808a5fb91e6bbc2af07307ee426ab3843d1ab6f8f3e74e9295068f17ecf1225"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 block INTERRUPTS a paragraph, where a type-7 block may not",
+   "text_sha256": "fa3e90814b2d94ab4f3c3bd0def56da91873ad88963a7c7c71947c46141882bc"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 block ends at the blank line, so the heading renders",
+   "text_sha256": "3f9693f7a8058cfbd68cbd232152b989f04d6c5e8bcbc494602b9cdb5f9ec5d1"
+  },
+  {
+   "family": "walk",
+   "name": "a details block hides its heading the same way",
+   "text_sha256": "c9e16dbf6b6ea005c1c13ebf564b5950bfe0b3d50e266ae624ae0908bee39f01"
+  },
+  {
+   "family": "walk",
+   "name": "a tight type-7 block on an unknown tag hides the heading it wraps",
+   "text_sha256": "1ecf4f5704f2c292c736805221033e13b632c8b71ba1035da7f01c505d74743d"
+  },
+  {
+   "family": "walk",
+   "name": "an inline tag alone on its line opens a type-7 block the same way",
+   "text_sha256": "30f298e3dc57ec583774610ed4e9ccb26bf4e80b19ec201cd4a4013b1c1fed50"
+  },
+  {
+   "family": "walk",
+   "name": "a lone closing tag opens a type-7 block",
+   "text_sha256": "251ea7eeb8e84c8959d92eaa5885bc01f72ec3eef60571c3fa641e339f41877a"
+  },
+  {
+   "family": "walk",
+   "name": "a type-7 block ends at the blank line, so the heading renders",
+   "text_sha256": "68607cf1d546e4666484b38f9c37a3e11df698ddcbeac37524215157be343cd4"
+  },
+  {
+   "family": "walk",
+   "name": "a lone inline tag after visible text continues the paragraph",
+   "text_sha256": "76f0e5f2a338c394f98fc3d185e25ffde1ee8513087975749e415972ee604e0a"
+  },
+  {
+   "family": "walk",
+   "name": "a tag line carrying anything but the tag opens no type-7 block",
+   "text_sha256": "b7ba1fc54c0fe0b08d1b7f6d207aeda670c2ef24afe14d782b5cc59329481de9"
+  },
+  {
+   "family": "walk",
+   "name": "a comment opened after visible text leaves that line alone",
+   "text_sha256": "b14dfbfaca5f3439fe37095737a73ffa3622a5f49498b7ee4308f683a7163537"
+  },
+  {
+   "family": "walk",
+   "name": "a second comment opened on a closing line stays open",
+   "text_sha256": "346df512ac3b8cea3dc29dfd3c4bac139d7127fc6a36783308e15ae444ff5db6"
+  },
+  {
+   "family": "walk",
+   "name": "a comment closed and reopened inside a span stays open",
+   "text_sha256": "3e4a648e0f7c922753383bc0a21e60bd3d919338a00f55c4f67a745052fb7386"
+  },
+  {
+   "family": "walk",
+   "name": "a comment that really closes ends the span",
+   "text_sha256": "a6b719d5d61a1c0ee3c5100e23fd62b4c056c9d45feb0ef913dfb108509d39bc"
+  },
+  {
+   "family": "walk",
+   "name": "a line of a no-break space does not end a type-7 block",
+   "text_sha256": "a7e41ee4e63e4dcf81f8fbc4fe872209497e090ef641d76a8389ed2f6fc47988"
+  },
+  {
+   "family": "walk",
+   "name": "a line of a form feed does not end a type-6 block",
+   "text_sha256": "ca45b8c54a01d767ca7cd2bb82a313e5f4188763d2ccbbda16342a7fd08b5516"
+  },
+  {
+   "family": "walk",
+   "name": "a line of spaces and tabs does end one",
+   "text_sha256": "f84b13a3694f65246e7a8ba7bfd32814708d6f8a0c39cc45b0ec72bcf98b25ac"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 name ending its line opens the block that survives a blank line",
+   "text_sha256": "6b68091fe2cc207e90d7a34e5e873f677130ee189e60d3fa358a42d5375317e3"
+  },
+  {
+   "family": "walk",
+   "name": "a self-closing type-1 name opens a type-7 block instead, which the blank line ends",
+   "text_sha256": "568eee80b8870ca2dedabc87a0b36c5abe8064a1a0470b8e3f62ea5844c62e65"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 name the renderer carries interrupts a paragraph",
+   "text_sha256": "ec44c9bed76ec75dbde0148672f75879796b457f661f5bfcab981f94d5f45397"
+  },
+  {
+   "family": "walk",
+   "name": "a name the renderer does not carry is type 7, so it may not",
+   "text_sha256": "e178d0b0aa82b0d57acedd5f40824729d90ab863db1a4b200fbd31663c84d449"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 name that ends its line opens the block",
+   "text_sha256": "8f6054c59d704975041f242242fabf0bab6879c058cb0a7c8b16007cfdd8d16a"
+  },
+  {
+   "family": "walk",
+   "name": "a self-closing type-6 tag opens it too",
+   "text_sha256": "d57f7adbcec1f7b861fd89e915f3315ac99ee4829a331e90069818b29d1a6337"
+  },
+  {
+   "family": "walk",
+   "name": "a line of a no-break space after paragraph text does not close the paragraph, so a lone tag under it continues it",
+   "text_sha256": "7e71337a57864c5b8498133a30af0046cf28e99a77b08e1beb46a7a35cb97534"
+  },
+  {
+   "family": "walk",
+   "name": "a line of a form feed does not close it either",
+   "text_sha256": "2d02f23cfe1856ea1af9af849510a80b3da72ac51a2946f137162e521c7cbf53"
+  },
+  {
+   "family": "walk",
+   "name": "a line of a no-break space ends an indented code run, which only a blank line carries through",
+   "text_sha256": "693ee318184bf6a97d807120a90cee29d9358f2a13a6a9a1ef1f15565ee6997a"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 name a blank follows is still read first, so its block survives a blank line",
+   "text_sha256": "a5c52acf495a4328cd855c27c468ac5ec3d4e5328f5b5e67755487273a6460ba"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 name a form feed follows opens the block, interrupting a paragraph",
+   "text_sha256": "aea61bb66de2fff2194f31b664694b02587e306c39f8df6b4f1ca1b52500e928"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 name a line tabulation follows opens it on a line that carries more",
+   "text_sha256": "4202ca1165898d7a37d7d1477d10a765852a5d293fdeafe8492c69168f44aec8"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 name a form feed follows opens the block that survives a blank line",
+   "text_sha256": "18e3240c670401fcf460dcf47feae4a54b4554bbbbd4021a9932fba46c2afca5"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 name a line tabulation follows opens it interrupting a paragraph",
+   "text_sha256": "65c86fec20ee7ff3cda0dab7309bb9b45830e4629ad23a685f3555d206e86fe1"
+  },
+  {
+   "family": "walk",
+   "name": "a type-6 name in capitals opens the block",
+   "text_sha256": "afa3c11c2ef20f5c72f746d2d43011b9ef5ca834ffb08f6312820c85c5876f16"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 name in capitals opens one that its lowercase closing tag ends",
+   "text_sha256": "8564a57d99cdf1400d742871dec00b1e880ac5e80ef93a403a304c3db1908368"
+  },
+  {
+   "family": "walk",
+   "name": "a name only a UNICODE fold reads as a type-6 name is no tag",
+   "text_sha256": "3d77a7e3cac4598f20c275cd0fb9ecc0e34fb52b369471ba088076944b5a127d"
+  },
+  {
+   "family": "walk",
+   "name": "nor is one only a Unicode fold reads as a type-1 name",
+   "text_sha256": "37c5af9a580734bbdec7a7d88f99720b9497ed01761d0857ebcdb57d23417f2c"
+  },
+  {
+   "family": "walk",
+   "name": "a type-1 block is not closed by a name only a Unicode fold matches",
+   "text_sha256": "2192cc57b8e48e1ea1ec39484e875b75ec3c6d6eb6f6af5b31c402879208d404"
+  },
+  {
+   "family": "tag",
+   "name": "a type-1 tag is read before the type-7 grammar, so its block survives a blank line",
+   "text_sha256": "10cbdb707af09efd062fdba385a6efbd33ea01ec7d8d104568f76ec07baf9014"
+  },
+  {
+   "family": "tag",
+   "name": "a tag indented three spaces opens a type-7 block",
+   "text_sha256": "d66e475bd9f7edd7ff19e1defbfae21fd774fe44bdaaf770c361e3254807462b"
+  },
+  {
+   "family": "tag",
+   "name": "a tag indented four spaces after a blank line is code",
+   "text_sha256": "1dbd5d4dc93f7a7b6612091ac005fe5f0d4390ae504b2e2664ec240f436d2aff"
+  },
+  {
+   "family": "tag",
+   "name": "a self-closing tag alone on its line opens a type-7 block",
+   "text_sha256": "b57c84bca0b73db9a657f1793c516b7063527a657a7b000701a24f1c32f97c7d"
+  },
+  {
+   "family": "tag",
+   "name": "a tag indented four spaces under a list item is that item's text, so the heading under it renders",
+   "text_sha256": "d056e0a8f11e1112e169af9dfbde056b1a36c872060d9ffd8f49ea3a82335593"
+  },
+  {
+   "family": "tag",
+   "name": "a tag indented four spaces under a heading is code, so a lone tag under it opens a block",
+   "text_sha256": "98a878e26f5726d50e335ff9463e78a30b2bfb6878306562afbbc9dfdf859719"
+  },
+  {
+   "family": "tag",
+   "name": "a name that does not begin with an ASCII letter is no tag, so the heading under it renders",
+   "text_sha256": "f79980faf871cb881d9145593e0fc128f70f0f5b87457ca553e0899ca18324c8"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a name of letters, digits and hyphens after its first letter opens a type-7 block",
+   "text_sha256": "3f4937e55f7b4bbe00452b1a02b791a625e7cc3d059c6cbed3708f6f454f736d"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with an attribute name carrying every character the grammar allows after its first opens a type-7 block",
+   "text_sha256": "291f0db2aae2cece0e7f22ed219fa4003b04cd0aa7d2ebcc7f2fa014ebe02c4b"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a tab between attributes, and tabs around an equals sign opens a type-7 block",
+   "text_sha256": "58b4a2e1af0aa364160188679f3bc90249b55428517ce6f3a032a1a0a43dbb3e"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a quoted value that is empty opens a type-7 block",
+   "text_sha256": "aecd24037066f7ba6002b5a79e17e5713e4e2f8de28b84f5b33b54967da51b6f"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with blanks between the last attribute and the self-closing slash opens a type-7 block",
+   "text_sha256": "098646b0bcae5b38dcd2163d7bff0298b90a7317796d8b03f760fd0c01ada958"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with blanks after the closing angle bracket opens a type-7 block",
+   "text_sha256": "265576fe2309d82143544b4f4d2a68375d5ced9255c7e13648432b4c85df30a4"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with blanks inside a CLOSING tag opens a type-7 block",
+   "text_sha256": "f1e84e4c1cf9d22b01f0d9e0e7ca008ea76adc6a6fed82edca603b531e4f79f6"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with an attribute name that starts with a capital opens a type-7 block",
+   "text_sha256": "1784de003e4921259c35c7a8bc444efbfee957e39db358f5b69be2b8dc67612c"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a CLOSING tag name of letters, digits and hyphens after its first letter opens a type-7 block",
+   "text_sha256": "a4f69edc5c80652e59f6ef6d7876a29f6b9b74f58fc6191f1de0b85ce2597ecb"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a line tabulation between the tag name and an attribute opens a type-7 block",
+   "text_sha256": "6eab01b59e915cad70bfa1d025c5f21fb7b8800afb2816096ad1c6056c9fda91"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a form feed between the tag name and an attribute opens a type-7 block",
+   "text_sha256": "d821f2dd1b3ea6cc908c60703238f80acbe2271c824d6d77a06232bf1d6481c2"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with line tabulations around an equals sign opens a type-7 block",
+   "text_sha256": "a6a203e29f339952d8455c49b8ba36efd5b4eed63020810c1148b62bd1aca294"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with form feeds around an equals sign opens a type-7 block",
+   "text_sha256": "46d3988ecdc9ac6f582658689b212d7339be9cc7e4ea19c389038f1879dc1067"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a line tabulation before the self-closing slash opens a type-7 block",
+   "text_sha256": "a9b36f339f6d941fd97a0808ecbc7ee5ba291ec5dcfbd09b3dbf219f6b0fb532"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a form feed before the self-closing slash opens a type-7 block",
+   "text_sha256": "fd04fdd7214a27ebd4f402214d5cc3516cb34b224a5a8e1b4e6b33bcabd4a482"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a line tabulation inside a CLOSING tag opens a type-7 block",
+   "text_sha256": "ceba0f29772730958c861553e616823005fdc770c4125a2745e6674aff37b328"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a form feed inside a CLOSING tag opens a type-7 block",
+   "text_sha256": "a336f06ce94836074a593529c5dff25638a7e030dddca9ec24e784994717f254"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a form feed after the closing angle bracket opens a type-7 block",
+   "text_sha256": "1b4c06043fe31ecfc9aa0499d21eed44a42530cca695ef0876546a7ab1bed906"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a single-quoted value carrying everything but its own quote opens a type-7 block",
+   "text_sha256": "7b99f3f7a036be21811b16f15cbf83e612f451b98ec1d2d434a6ac824819eab1"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with a double-quoted value carrying everything but its own quote opens a type-7 block",
+   "text_sha256": "962a9833a0335c8b66cf8f635958e8f8a37dc14e543bb2adec7164fbdfe7f28b"
+  },
+  {
+   "family": "tag",
+   "name": "a lone tag with an unquoted value carrying every character that does not end it opens a type-7 block",
+   "text_sha256": "e11fa4e64ab77d23f531ca43e58e67729c3acfd68b527c5b3c9adc6b3bff5e48"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an attribute that no blank separates from the name is no tag, so the heading under it renders",
+   "text_sha256": "1d6133af44c0db8e16be38b34dfc23cb5a4ae14235dd652daeb41c36b10e43e7"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an attribute name that starts with a hyphen is no tag, so the heading under it renders",
+   "text_sha256": "eec6d7d68f68fcaf6233c3943c406579aafb2fd9879dd828e31e00b1813c7076"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an equals sign with no value after it is no tag, so the heading under it renders",
+   "text_sha256": "d30eadb8752a28c224aa734d0d04bd230b8bb5403a79f797ae15d56842a2a297"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying a closing angle bracket is no tag, so the heading under it renders",
+   "text_sha256": "2f48ce39451ab079b80edec0192bc7b983e80173a7b582209998d631bbcc3ad2"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying an opening angle bracket is no tag, so the heading under it renders",
+   "text_sha256": "244a4c110ca32e4e4c6a7fa70315622741f8808140244830614900302e202368"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying an equals sign is no tag, so the heading under it renders",
+   "text_sha256": "8f539e6a5803bb15b60f50844ac4d786898eb764c5bac2f44efb13ab257d2cc0"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying a backtick is no tag, so the heading under it renders",
+   "text_sha256": "26e71ede7503b2d51b934038796a464d7da23adc5c3fa507aae1a06efbb2816d"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying a single quote is no tag, so the heading under it renders",
+   "text_sha256": "527d04ac876dd9826b5b08e0c8a413e7ba777acfcb95f04f27e8c54b1e7c66c2"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value carrying a double quote is no tag, so the heading under it renders",
+   "text_sha256": "9c30071cbf77ec7984bae0241d716d3dd06c894c61681a06cc32538febef0f69"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value and then a word no attribute name may start is no tag, so the heading under it renders",
+   "text_sha256": "881c2ba74a24debfd65905891e4f59f54a3419d87575ed34ebe16941de38317f"
+  },
+  {
+   "family": "tag",
+   "name": "a line with the same past a tab is no tag, so the heading under it renders",
+   "text_sha256": "b2392d12fe1f2e22557c003b6ad71623278389dbed6cee54ac5084c48b01feac"
+  },
+  {
+   "family": "tag",
+   "name": "a line with a CLOSING tag name that does not begin with an ASCII letter is no tag, so the heading under it renders",
+   "text_sha256": "9f89a67164bb10dc49ee8c5141d577e0459bd8da1d6f5f598ca939b48fe2178e"
+  },
+  {
+   "family": "tag",
+   "name": "a line with a line tabulation after the closing angle bracket is no tag, so the heading under it renders",
+   "text_sha256": "0401b3724ec8fe3dd631735ad3f922b88e6f052ecdd5a46e2c8dcd927e851099"
+  },
+  {
+   "family": "tag",
+   "name": "a line with an unquoted value a line tabulation ends, and then a word no attribute name may start is no tag, so the heading under it renders",
+   "text_sha256": "862cbd2f3d03e0cd5778b642a291969db10abe090f2718c24913a63fab9fb65f"
+  },
+  {
+   "family": "tag",
+   "name": "a line with the same past a form feed is no tag, so the heading under it renders",
+   "text_sha256": "98a98a64e8485b7593cf660ad83e91731ee11a4e7a43059524370a19251a5671"
+  },
+  {
+   "family": "guard",
+   "name": "the family names are the seven the runner scores, spelled here and not read from the constant the guard reads",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the tally guard passes a full set of families",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a family dropped from the runner's import",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a family that is present and empty",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a total below the recorded floor",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a runner that scores fewer arms than the tables hold",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the ownership guard passes this module's own source and values",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a module that imports the expression engine",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names one that imports a name OUT of the engine",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a package whose LAST segment is the engine's name is not it",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "nor is a relative import, which names no module at all",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "it names a module that holds a compiled expression",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the renderer's classes are the ones spelled here, and not read from the table the walk reads",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the refused characters are exactly Python's whitespace less the space, the tab and the line feed",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the walk roots are the two functions the walk answers through",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the type-1 names are the renderer's four",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the type-6 names are the renderer's own list, which carries `source` and not `search`",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the shipped walk carries no decision site of its own",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the shipped walk carries decision sites in both kinds",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a class spelled inline in an expression is refused",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "so is a blank quantified in one",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "so is a refused character in one",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "so is Python's digit class",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "so is a class inline in a string the expression interpolates",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a class read from the table by name is not",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a strip with a class of its own is refused",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "so is asking Python what a character is",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a strip from the table is a single-sourced site",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a bare strip is a refusal site, not a refused one",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "and so is Python's whitespace class",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a decision the walk reaches through another function is in the enumeration",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a decision the walk never calls is not",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "a walk root that is no function of the module is named",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "every Python character test the guard names is refused",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "every strip the guard names is a site of its own",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the walk carries the number of decision sites recorded here",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "guard",
+   "name": "the site enumerator beside the walk holds no rule of its own",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "heading",
+   "name": "a run of hashes that does not end the line is heading text",
+   "text_sha256": "ec3abbc07399fb87a16ce99b99ea648c41650b304bc6a9b489caa059bcebc173"
+  },
+  {
+   "family": "heading",
+   "name": "a closing sequence takes a space or a tab before it",
+   "text_sha256": "afc9ad377b27a8f2932c9513cbcb035af41261627071edc857738d25c8d16faf"
+  },
+  {
+   "family": "heading",
+   "name": "a TAB before the closing sequence drops it too",
+   "text_sha256": "80b100f3851aac4f224738804442c2ac70863d7235ad335632070c615864b101"
+  },
+  {
+   "family": "heading",
+   "name": "the blanks a heading line ends with are not its text",
+   "text_sha256": "15895985dbe10312d9188c49f0a18c9f2eb398aa9a7414883254d74fc4c9f860"
+  },
+  {
+   "family": "heading",
+   "name": "seven hashes are no heading at all",
+   "text_sha256": "6d590b339fc4e6caf767c59234ba381eabb9dbeee6fc9d6de2467ee993745e49"
+  },
+  {
+   "family": "heading",
+   "name": "a heading may carry no text",
+   "text_sha256": "b254da9beee4584485703e77c543358a2d57f91f9bc97f955bddab31b983fcea"
+  },
+  {
+   "family": "heading",
+   "name": "a tab after the hashes opens a heading",
+   "text_sha256": "34c6cd0860d0aab4423526dbcc6116e38839b74e6acf1b72cbff34494179dea3"
+  },
+  {
+   "family": "heading",
+   "name": "a no-break space after a run of hashes is not a closing sequence",
+   "text_sha256": "d6110e959e2596f6a64b9c6cd247562599d56da34239c367dcb5ff88942be068"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an ATX heading hides the heading it wraps",
+   "text_sha256": "a935001a92592dd1f94fdbaaf31797874eecbdc62f305ecd113c628442734cd2"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a closing fence hides the heading it wraps",
+   "text_sha256": "ceb75318e489ad28bea97e6d1afd2c70bbdd7432940dffe77329776f0c1d6c0f"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break hides the heading it wraps",
+   "text_sha256": "a4bd683c01780e9665050a89a209d3ccff875e826f5febe72fba262818abc85a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a closing comment line hides the heading it wraps",
+   "text_sha256": "c9c4337fc327a4cc61f73c006d2f80f18681d955993d0895958282c1bf04bd55"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a list item hides the heading it wraps",
+   "text_sha256": "f657e38fea365044b2576b617405b21e4f2ef9f3c0052000e746de62da52b84a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a block quote hides the heading it wraps",
+   "text_sha256": "e0c864703f5f5c9ee8d7505dd53d77cbbfad2e4e1677478f8047bf7e79f2b2e3"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a table row hides the heading it wraps",
+   "text_sha256": "ca17847f82268636d61848c4b61a55c9b92c8c851726986962273be7037c1a41"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a setext underline hides the heading it wraps",
+   "text_sha256": "b44f403e96c899f060ce9478ca0e270a485b3e2f58fc3df9eac3c906e5faa7e5"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a type-1 block's closing tag hides the heading it wraps",
+   "text_sha256": "ceb49df2af13c8984229cab66f5a648f57dd31462e2407e5183085377bceddf7"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line hides the heading it wraps",
+   "text_sha256": "d0d3ce6244e5a5d3025ec9c56d67fdc4ae27feb72a5f50d58dfd8bf74e955e14"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps",
+   "text_sha256": "2fc27c120fc45a3d77502b06a8de9cb23e1da585f43feeee4be97d3d9ef48f10"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a table row without a pipe hides the heading it wraps",
+   "text_sha256": "eb14f64c402f2abb7d44942dd3950481c29d1276e9c3dbe72b609ba740b42879"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an empty list item hides the heading it wraps",
+   "text_sha256": "f2c1c38a3be30ed4cdb9e7af5a4c24bcd8d0936194f738cd574005cfd74268c7"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a pipeless delimiter row under a paragraph line hides the heading it wraps",
+   "text_sha256": "7405272460941367b1e685c5943891d274f7c04166b332721da3ff0a33dc4356"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a pipeless delimiter row under a pipe-led line hides the heading it wraps",
+   "text_sha256": "22667c35ecd1e40d7f8e551796330086b9ba0093d6093ddfb7a4d8e22a815b97"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote definition hides the heading it wraps",
+   "text_sha256": "d3fffc2954153a29b9404edfe9b0bffe0194fa6a54724562492f53355281304e"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote definition interrupting a paragraph hides the heading it wraps",
+   "text_sha256": "3334eca2c8b8d24817aaba3417a1aa5158ddf2e4c493f9b676b6569646099928"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps",
+   "text_sha256": "d6e07ddfb3a471aaa3740ea9fedddc1fff692bae68b5d81390801b272a29caa3"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under CommonMark 4.4's own `# Heading` then `    foo` hides the heading it wraps",
+   "text_sha256": "8aaf5aed7d9b6010ca99ce259edefe584971556a3b0c54226453aa4e3d4dd8ea"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a tab-indented line under a heading hides the heading it wraps",
+   "text_sha256": "d26f849ac0feef8b83768fb7ddef88982d77ab0ebdba2fe6bc4a7e7a79ba76f5"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a pipeless delimiter row indented three spaces hides the heading it wraps",
+   "text_sha256": "9eb54b544fcc7d39b60df5b049ff339d8dc4d5bc29cff6f96b129d0b81c2222e"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a list item interrupting a paragraph hides the heading it wraps",
+   "text_sha256": "aa2fb0536db8ee6eff4a93ed8de223b134a7f74231ed9f7fee9265efc01503bb"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an ordered item interrupting a paragraph hides the heading it wraps",
+   "text_sha256": "1064a0bd295e83ad800fc9c294afe9afc902d8b43b775d2d36f951f348e8761b"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps",
+   "text_sha256": "3a1b4c0504f57c7ac6efd047ae5d93de9788d63816cfb91702879a24be0a817f"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a closed ATX heading hides the heading it wraps",
+   "text_sha256": "f5868fc9601385b868a1b01eb9e4c7e2c9a945494ccaa0456450fe6c02c3537c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an ATX heading indented three spaces hides the heading it wraps",
+   "text_sha256": "a59cd2c01425d9160e0e482804f76d316bfb326a8d99ea4f5c7387aab45f99d0"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an empty ATX heading hides the heading it wraps",
+   "text_sha256": "a86332f50b251cbb43bc85c28a628b1d38f527f6636313ce53f27702252091c8"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a block quote indented two spaces hides the heading it wraps",
+   "text_sha256": "703563cb50ba8acc9fee79bd42b51eda874ca6f1415f5d833596d37e78a512ac"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a list item indented two spaces hides the heading it wraps",
+   "text_sha256": "5db56af9e05de0b122b6e84c1b4bf243d838cd4ee84504ddb21d34b60044a9b4"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote definition indented two spaces hides the heading it wraps",
+   "text_sha256": "faeade9ecda233bd800a68091fad5482170549848de9a6094b1e312a6dd58f14"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break indented one space hides the heading it wraps",
+   "text_sha256": "b9f0f04fdce82517e348c213b32e8f14a63d2ae21e97cde5cc5245efc03754ef"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break ending in a space hides the heading it wraps",
+   "text_sha256": "3344d4a46a0af7d2f6663fd096487a0048d4da5aa38c0ecafabc4897eb65f0a9"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break ending in a tab hides the heading it wraps",
+   "text_sha256": "df030dadb8edac45cefc83f92fc6da1330d9f2350b4008d3018862f25a984f79"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of hyphens hides the heading it wraps",
+   "text_sha256": "1da20ddd245504649265db91f7b566c7f6ef3b2a2f77108a88bc0e1978050dda"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of hyphens ending in a space hides the heading it wraps",
+   "text_sha256": "79b240fb7617fbca7bb3c139403bbd96905f254b98b743f9fa5fafdeac696061"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of hyphens ending in a tab hides the heading it wraps",
+   "text_sha256": "ef4ee5706e8354067544836eca61f3f8ecc8e1670cd042de63cf5c3bd665778d"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of underscores hides the heading it wraps",
+   "text_sha256": "1c3c55cf55270ff2097554d6060163a64f8c0f2813cb20a6f94a17127bae71c8"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of underscores ending in a space hides the heading it wraps",
+   "text_sha256": "902727d1674cafe3346c074b10d1ef5b1dfae405d093488d0effd14ffc23e736"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a thematic break of underscores ending in a tab hides the heading it wraps",
+   "text_sha256": "5da1182dc94ed2f418152a71e2b3c98f0b18bb67c5a6d0afd4593d8980c86dbe"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an ATX opener followed by a tab hides the heading it wraps",
+   "text_sha256": "383cbb6ea88b254b143a684dce5d714b55b2e0bea82d6625493d64caf0a4703a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a bullet item introduced by a plus hides the heading it wraps",
+   "text_sha256": "f98062d5c11182299b1d4a385d59b887ebc5b56fcbe5d56c67be52f517d34e47"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a bullet item introduced by an asterisk hides the heading it wraps",
+   "text_sha256": "61e8d68b68ee72542d51c27aaa4cb6a2f37dc1c7eecaef5f8ba5650416595886"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an ordered item closed by a parenthesis hides the heading it wraps",
+   "text_sha256": "671376fa64fec3db61a459fd4821ace9414e673f606c600f7572a8c2d1f98d8c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an empty item followed by a space hides the heading it wraps",
+   "text_sha256": "bc275711ebfbea4d960eb548f86372fb7e34a3dacbe9a5ebb2c253c75eea94be"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an empty item followed by a tab hides the heading it wraps",
+   "text_sha256": "8c25478ac6e835a921e5ceeef3c2397169fefcff2b88cadacaa9d112ed10b183"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an item whose content is separated by tabs hides the heading it wraps",
+   "text_sha256": "5e2c2cd0468ed98a344c751f5359e072cd8eee8ae9e11489a73679e52c0301c8"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a setext underline indented one space hides the heading it wraps",
+   "text_sha256": "8f5e0ed0789157721e75bdd53ced333d6c3e1042a70c8061ba9f629a465e38bb"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a setext underline ending in a space hides the heading it wraps",
+   "text_sha256": "a6c9500b82f0819f9859b9de78a6d70278651470d04d6d55074432f19a29bbcc"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a setext underline ending in a tab hides the heading it wraps",
+   "text_sha256": "24a7a91c896f04dcd441c4b82053c62620ec19c40a2240b69c75033b90ca8f71"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose only cell ends in a space hides the heading it wraps",
+   "text_sha256": "488af4c2a085e2d480d153b54582c9d246ac558b5876ab20f8a565ff1437487a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose only cell ends in a tab hides the heading it wraps",
+   "text_sha256": "36d9f9f83191dae59577acc2bc16b44950e6ba86f8e223198ff35cacce684fb0"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose leading pipe is followed by a space hides the heading it wraps",
+   "text_sha256": "4434e58120c1c24842f7910bc539c295c07ca47937c5220dbbe625cbaa1f55cd"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose leading pipe is followed by tabs hides the heading it wraps",
+   "text_sha256": "c329d22569e8cfabeb50b5f606c41319a1b9bdd64b635ad017dba9dac3af50c9"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose cells end in spaces hides the heading it wraps",
+   "text_sha256": "c3d75cab7706928b3691f25077dceb46f1c9e54f17dfd1b8d870aed82ee7f858"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose cells begin with spaces hides the heading it wraps",
+   "text_sha256": "af74f29d33ba18e131762cc05768d7e4f9975508a1adb723dee74b58f2e37cff"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose cells end in tabs hides the heading it wraps",
+   "text_sha256": "a8848287907f88a7e4779ae4fc48967f003abab4a35455d2ed029ff460269d7a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose cells begin with tabs hides the heading it wraps",
+   "text_sha256": "92dbc956342a2c9bcc3ccfeadd024c834f736c15d3ddd99ae7619f23a90f29cf"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row of right-aligned cells hides the heading it wraps",
+   "text_sha256": "77704ff980bee5fbf509ff976a5e5c9b0f114dcb47d166645edbe8abda0bbda3"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row of left-aligned cells hides the heading it wraps",
+   "text_sha256": "65e682261465e73f9b82a122e1c65618ed597ca7e8e962145dbd106958654c0f"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a one-cell delimiter row under a one-character header row hides the heading it wraps",
+   "text_sha256": "0861563aa34fe78274fd2dbd8b9de2fcf6b34b779920929216126c9525358757"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row under a header row whose first cell is empty hides the heading it wraps",
+   "text_sha256": "1cb429e64fb8193fc91ed673a244a396dc761cc1a2018ca5ae839835a52a701a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose first cell ends in a space hides the heading it wraps",
+   "text_sha256": "55f32fdb00465f56a3b890228524d3b0ab659ec5607f152c7162cf13cf77c1f2"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose first cell ends in tabs hides the heading it wraps",
+   "text_sha256": "663cc5e69cc8064c0bb9441cfae6c2374635c4eaff959b2d7b4f05ab96192eea"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under two plain lines lazily continuing a list item hides the heading it wraps",
+   "text_sha256": "9c0eb7be2208c5dfef5a9fba5a0e7af540c0d6a8d50e685024f09d6d82985b28"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote label carrying a no-break space hides the heading it wraps",
+   "text_sha256": "8a85b62407cae0ae7fc00cb55f0dafca36e17d9c70adf5ac39540c08243f9683"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote label carrying a form feed hides the heading it wraps",
+   "text_sha256": "30c1b19da09c1819e9734ba921b41bef64a1e8550a046960c8df62c5494d4d39"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row padded by a form feed hides the heading it wraps",
+   "text_sha256": "b94d53c97daed83c7aecef2918a236ca07d68cf5281915a25e46a2548a19adc3"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a delimiter row whose cell a line tabulation pads hides the heading it wraps",
+   "text_sha256": "8110de9f27f68695ae77859eb79a8537792baf3037717331587de6b606867909"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an item whose content is a no-break space hides the heading it wraps",
+   "text_sha256": "519b9ee411cdb9b3ea94e6399bd7b1361ede45e286cfc01f628de825e39beb66"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an item interrupting a paragraph whose content is a form feed hides the heading it wraps",
+   "text_sha256": "955ba8bcfa21c012ef2e3935d76c466c6ba7a40296ab415b2dc4288089f2287c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a line indented by one space and a tab under a heading hides the heading it wraps",
+   "text_sha256": "f9de19a498f707e11a93e279212641191bfd7530f86ecdb26e06ab10018ec33c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a line indented by two spaces and a tab under a heading hides the heading it wraps",
+   "text_sha256": "9630268665d4c2a38a845a0990a3187c115aecdcbbd9c8e986066eb15dfad369"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a line indented by three spaces and a tab under a heading hides the heading it wraps",
+   "text_sha256": "8494e1c2f9e953971ef42078f81ea44b3690eb172687ffbd353b001f38bcc43e"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a header row whose escaped backslash leaves its pipe escaped hides the heading it wraps",
+   "text_sha256": "be8ed58b790d30f8fe06a6ddf93d16418fd34f29351f37ad9d4947da3ee19928"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under a footnote label carrying a NUL hides the heading it wraps",
+   "text_sha256": "cdc637ad3cfa66542f3f8ee4cee0d91ecec21df6e274bb30c7639c05cbfe6b2d"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line under a closing fence hides the heading it wraps",
+   "text_sha256": "24d51a0fee2645283d9fc257911cf5142183e375f68508510adab9462a0a3804"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line under a thematic break hides the heading it wraps",
+   "text_sha256": "f8691883c74809a9e3861cfd838caa5008335385a5b4f96be92a5a5b1c660bab"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line under a closing comment line hides the heading it wraps",
+   "text_sha256": "270c949c7b0c79d53af75838c72e6bb4ef6de8f211ed844be7480abee2c3ea6a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line under a setext underline hides the heading it wraps",
+   "text_sha256": "95636a7424bc11b28b27f7b56ac3fff881404aa322411a85b5643a9cc68b4f23"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag directly under an indented code line under a type-1 block's closing tag hides the heading it wraps",
+   "text_sha256": "e4b2a564bc2b0854660b78532e18b9620427d773041a125a491e7a304e0e1112"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under paragraph text continues it, so the heading renders",
+   "text_sha256": "230cd0dd7a0dd7ffc330b860a88461289103fa85cf7405fd67729662b1a78102"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a pipe-led line with no delimiter row under it continues it, so the heading renders",
+   "text_sha256": "aa0756160a5f46322e323bb6bacd19ebc67f25634ddd58df7846c605375da573"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders",
+   "text_sha256": "31e94b8718776dc4e8d919ab970492169802af52eddabbffd82486d1aebd1d37"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an equals-sign line that no paragraph precedes continues it, so the heading renders",
+   "text_sha256": "f22e6c5d7fe0a93a9b0598f64a1b8cfc2affe1d37cb1efddf8daf8e521ad20a3"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a delimiter row with fewer cells than its header row continues it, so the heading renders",
+   "text_sha256": "30e36cc2f91656a115ce70af1efdbd890300079ced0771aad302fe84739f6aaf"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a delimiter row with more cells than its header row continues it, so the heading renders",
+   "text_sha256": "c1cb62794a51bbe1ce3eac0f8986ffe6cd02314646f86e92081f5110171ca747"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a delimiter row whose header row's only pipe is escaped continues it, so the heading renders",
+   "text_sha256": "141fb9be693f95ece2f02588b49ee9fe46222fa97bc1ddb048a27d8049ae3a77"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a pipeless delimiter row indented four spaces continues it, so the heading renders",
+   "text_sha256": "3619a7486da37848e26e5d811e15d135bb8b9c449c21c85ed8b03d9ca7b75a0b"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a pipeless delimiter row indented by a tab continues it, so the heading renders",
+   "text_sha256": "31e43894ea6d13ea0ac044fa9306defc9e67d2f338da1bc4daa119015a02f0c8"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an empty item that cannot interrupt a paragraph continues it, so the heading renders",
+   "text_sha256": "60fc5b7d4ac818e06009e7ade1c4537a5233443f8f59fc6aa98ad4c047c44166"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote definition indented four spaces continues it, so the heading renders",
+   "text_sha256": "b53cc37afc333897311d290c34c44d301b8d10d0f3a9817428e64c4e113e3d98"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a plain line after a setext underline of one hyphen continues it, so the heading renders",
+   "text_sha256": "a9a96733a60d8830799a5426a1ca485b0930be79aec7e742d57c3e3255e75a13"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a run of seven hashes, which is no ATX opener continues it, so the heading renders",
+   "text_sha256": "5b78b74efe571700e8316e1047c3f6bfaf34c294c07e7818d91ed47339e19daa"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a run of hashes with text right after it continues it, so the heading renders",
+   "text_sha256": "8a49987cda3bb12ff43ad2ab69f43f2bd330b818c1845a955729f74f21437216"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an ATX opener indented four spaces continues it, so the heading renders",
+   "text_sha256": "b7a6ac5d31d4028605abfe6189e4f8a3121f5bfe88c365d670aac7e51d89c811"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a block quote indented four spaces continues it, so the heading renders",
+   "text_sha256": "effdf7df8f342ed74a36405189c2ce0f048ab816c6514f5f0f2505fc494f4cc2"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a setext underline indented four spaces continues it, so the heading renders",
+   "text_sha256": "80e876d4f0a33bdb4e83803a6c78f021af2f8518fd929eaea1c884f760a0e8ce"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an ordered item of ten digits continues it, so the heading renders",
+   "text_sha256": "7bdfbaf5911bbcad0078448f905cf6716d0d4f3d4e6db9e5a85fa023b9b08f0a"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an ordinal terminator with no ordinal before it continues it, so the heading renders",
+   "text_sha256": "1f8224c486c8ec695a55f62767f18de83c4963ec83027b5f3d3894df8b6b2df8"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a bullet whose content no blank separates continues it, so the heading renders",
+   "text_sha256": "b55c3b4ca59957dbd8b7a00267111fd7e7ed3ec8429a88e895b3588341705f67"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a list item indented four spaces continues it, so the heading renders",
+   "text_sha256": "0e7c5e7712e221eb5fceefabcf0a806bbc47ab56dc4873abac46d56dffe58bcd"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a hyphen run with text after it continues it, so the heading renders",
+   "text_sha256": "42e4b2867634b70a60081c6d6feea17c46a655ff39d4f11cbbd350a605f137ad"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a row of hyphens and pipes with an empty cell continues it, so the heading renders",
+   "text_sha256": "bed1f8960e8e7152e17d0acc47752eb334e9f9407d49272a3ae20fd318826dfe"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote label that is empty continues it, so the heading renders",
+   "text_sha256": "02d503f4e17806664f7f7ceade425b37b5fed3ed7b1b423d5bb9167914b02787"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a bracketed label with no caret before it continues it, so the heading renders",
+   "text_sha256": "ff532302de2e40c061a4ea011c097de4964b52f6fcb8ccad3f502ce7ed2bdcea"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote label with no colon after it continues it, so the heading renders",
+   "text_sha256": "27b9cef9ef6bfde814c5a11e9d03cc2fd8b1fd3400c996b7a74e56600ce5cbd0"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote label carrying a closing bracket continues it, so the heading renders",
+   "text_sha256": "7b78ea2de06a72a81b37c78ce078986470449e8dfa50f3bd47b210eeb18c564b"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote label of blanks continues it, so the heading renders",
+   "text_sha256": "ab887a034e51fcd46bbb3f1366c6a5fe51967c7a25c0b13205ad2b903228be7c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a thematic break indented four spaces continues it, so the heading renders",
+   "text_sha256": "a22547953b9c04a101668aae304daab27777b6b5ca03cf4faf8cfeee467954dd"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a run of asterisks with text after it continues it, so the heading renders",
+   "text_sha256": "0e897ebb86063fb4b8f7a82d6ab851d6e023218cc92f7f72c300cbd390589f94"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a lone colon under a paragraph line continues it, so the heading renders",
+   "text_sha256": "4054710836c53ad205dcc8f86254620092f38bf58e875b2a9cb4b53df3cc8b50"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a one-cell delimiter row that no paragraph precedes continues it, so the heading renders",
+   "text_sha256": "90a48608fdd12ff6ca95bd9b67b14f83ad7ae42e96c7ba4e88dad3e5035c2f00"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under an ordered item whose ordinal is no ASCII digit continues it, so the heading renders",
+   "text_sha256": "2e22ac8266101ef9280e9f2293eadbc8a6f652b6f61e8a283de83516dbc8b57c"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a line indented by a tab and nothing else under a paragraph continues it, so the heading renders",
+   "text_sha256": "ee3b7c593541b2bfe9b5dce2a64856b664a45955636f53de3b9f5ca4d35962ae"
+  },
+  {
+   "family": "predecessor",
+   "name": "a lone tag under a footnote label carrying a space continues it, so the heading renders",
+   "text_sha256": "e936924bbbbe96af93c6b21ca553b6f2c64779c303b45779a8821522e10b81b0"
+  },
+  {
+   "family": "provenance",
+   "name": "a block this script would write has provenance",
+   "text_sha256": "1e6726801864b184addda5c00e8c0a579fc4074f09bcd3f40b291bcbec8111e7"
+  },
+  {
+   "family": "provenance",
+   "name": "a block written with the older separator keeps its provenance",
+   "text_sha256": "516ef42d33ceab615072410ea14c2dbbf48162813443845463072950f1623312"
+  },
+  {
+   "family": "provenance",
+   "name": "a hand-edited entry loses it for the block",
+   "text_sha256": "d72fe677d0097c57cdc4b47c445f26826f4dc4339a6f98ebc6e795ef16a232ef"
+  },
+  {
+   "family": "provenance",
+   "name": "an entry indented four spaces loses it",
+   "text_sha256": "94d175aa8c0897132f286d451cb20d692feda4e097499cde1e327be1d20cc590"
+  },
+  {
+   "family": "provenance",
+   "name": "a block inside a fence is no block of this page",
+   "text_sha256": "e20b3cc8091b586b0e14d99c0d1a8691f0be074f97878852a3e071d74af9aa01"
+  },
+  {
+   "family": "provenance",
+   "name": "a block inside a comment is no block of this page",
+   "text_sha256": "a0d938ef6b51b7cc8a871c6c8f667b9076c06020915581f58fc0974e75263401"
+  },
+  {
+   "family": "provenance",
+   "name": "a block inside a raw HTML block is no block of this page",
+   "text_sha256": "24f35d97152040e329fa09116e3890c308f394adf7181fbb05d09452c96db450"
+  },
+  {
+   "family": "provenance",
+   "name": "a heading inside a tight type-6 block is no heading",
+   "text_sha256": "ae20563d5faeb5111da97ad66af9f70a9bba82c334e0ef96f3a2e81bb59919b1"
+  },
+  {
+   "family": "provenance",
+   "name": "a heading inside a type-6 block that closed IS a heading",
+   "text_sha256": "1d13706e635fb195efca8fed344dc6e51147b68f870b5b91875f47524e1462b1"
+  },
+  {
+   "family": "provenance",
+   "name": "a heading inside a tight type-7 block is no heading",
+   "text_sha256": "08bb518ee478c78810ddafb4d8b9b3cadff2b26b79d2ec2d711f093e84300573"
+  },
+  {
+   "family": "provenance",
+   "name": "a heading after a tag that continues a paragraph IS a heading",
+   "text_sha256": "62d40f40bc6db3dc25fd592f90c747bb45f894e0214df0503baf98969ce7d3ed"
+  },
+  {
+   "family": "provenance",
+   "name": "a heading inside a comment is no heading",
+   "text_sha256": "d5766dad087cd5d9a70571305e58dc7328b16505f817b5a540b92b5585795704"
+  },
+  {
+   "family": "provenance",
+   "name": "a contents heading with nothing after it has no provenance",
+   "text_sha256": "da83dd700492a1886c582c162b882d5ffc18c12467d20b0b4181a1a803e85e06"
+  },
+  {
+   "family": "provenance",
+   "name": "nor has one whose block runs to the last line of the page",
+   "text_sha256": "0c795371f99bcfc6951256a39660ac2c334cb48d978a49e732730d60282e4517"
+  },
+  {
+   "family": "provenance",
+   "name": "a page this script skips has no provenance",
+   "text_sha256": "1e6726801864b184addda5c00e8c0a579fc4074f09bcd3f40b291bcbec8111e7"
+  },
+  {
+   "family": "provenance",
+   "name": "nor has a historical page",
+   "text_sha256": "1e6726801864b184addda5c00e8c0a579fc4074f09bcd3f40b291bcbec8111e7"
+  },
+  {
+   "family": "provenance",
+   "name": "nor has a generator-owned page",
+   "text_sha256": "96366596e5d7fbe1530a5f3d1837e45dc0fee8ef12cca54e13787911eae6e811"
+  },
+  {
+   "family": "provenance",
+   "name": "a page this script owns still has provenance",
+   "text_sha256": "1e6726801864b184addda5c00e8c0a579fc4074f09bcd3f40b291bcbec8111e7"
+  },
+  {
+   "family": "refusal",
+   "name": "no page of spaces and tabs is refused",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "refusal",
+   "name": "every refused character is refused, with its line and column",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "refusal",
+   "name": "a carriage return is one of them",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "refusal",
+   "name": "the note names the page, the line, the column and the character",
+   "text_sha256": "6f49cdbd80e1b95d5e6427e1501fc217790daee87055fa5b4e71064288bddede"
+  },
+  {
+   "family": "refusal",
+   "name": "a page carrying one obtains no provenance",
+   "text_sha256": "9aa08f1d9f108e16e4408cd3c9b2c863ad05a15e31366382d5da9a575ba12ce1"
+  },
+  {
+   "family": "refusal",
+   "name": "the same page without it does",
+   "text_sha256": "1e6726801864b184addda5c00e8c0a579fc4074f09bcd3f40b291bcbec8111e7"
+  },
+  {
+   "family": "refusal",
+   "name": "nor does one whose Contents block carries one",
+   "text_sha256": "218d4110eacb781c2ab5bf99c555065e917a1f6e17e5cec3c9d04c341d294e3c"
+  }
+ ]
+}

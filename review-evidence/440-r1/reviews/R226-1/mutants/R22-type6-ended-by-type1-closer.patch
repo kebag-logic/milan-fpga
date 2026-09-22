@@ -1,0 +1,11 @@
+--- a/scripts/gen_toc.py
++++ b/scripts/gen_toc.py
+@@ -490,7 +490,7 @@
+         return (COMMENT if _comment_after(line, True) else TEXT), "", ""
+     if state == HTML:
+         if not tag:                     # type 6: a blank line ends it
+-            return (TEXT if not line.strip(CLASSES["blank"])
++            return (TEXT if not line.strip(CLASSES["blank"]) or _type_1_end(line)
+                     else HTML), "", tag
+         return (TEXT if _type_1_end(line) else HTML), "", tag
+     m = FENCE_RE.match(line)         # closes on the SAME character, a run

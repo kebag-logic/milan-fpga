@@ -1,0 +1,14 @@
+--- a/scripts/check_em_dash.py
++++ b/scripts/check_em_dash.py
+@@ -135,8 +135,9 @@
+     """stdout of one git command in ``repo``; a failure is a Refusal."""
+     try:
+         out = subprocess.run(["git", "-C", str(repo), *args],
+-                             capture_output=True, text=True,
+-                             encoding="utf-8", errors="replace", env=env)
++                             capture_output=True, env=env)
++        out = subprocess.CompletedProcess(out.args, out.returncode,
++            out.stdout.decode("utf-8", "replace"), out.stderr.decode("utf-8", "replace"))
+     except OSError as exc:
+         raise Refusal(f"cannot run git: {exc}") from exc
+     if out.returncode != 0:

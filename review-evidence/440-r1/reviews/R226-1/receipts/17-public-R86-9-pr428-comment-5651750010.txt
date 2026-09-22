@@ -1,0 +1,453 @@
+[R86] POSITIVE - exact head e2f7c0c0ada3cce2a3ef7a9e895db6e58f54321f
+
+Round R86-9 of PR #428 (issue #413). Tree 5e4d4e29c4cf6f193ea89ac8f702c67d288b80bc,
+base 55518b470935f5478e0879bfc4ff183cc5d5ccc4, ten commits on the base. Reviewed
+in an isolated public clone detached at that head with the three public
+submodules at their pinned commits; nothing outside `REVIEW.md` and
+`review-evidence/` was written, every temporary mutation was applied to the
+tracked file and restored with its sha256 compared before and after.
+
+Verdict: POSITIVE. All three acceptance criteria of #413 are met and I
+reproduced each of them. Three MINOR findings are open, all of them about the
+TERMINATION CLAIM rather than about the type-7 reading the issue asks for, and
+all three concern shapes that no tracked file carries. `RTL` is banked clean.
+`Conformance`, `Robustness`, `Tests` and `Docs` are not.
+
+## What this round measured
+
+Independent instruments, all in `review-evidence/`:
+
+1. A renderer oracle of my own (`oracle.py`), 106 synthetic rows through
+   GitHub's Markdown rendering API in gfm mode, comparing the headings
+   `gen_toc.headings()` lists with the headings the renderer emits. The same
+   rows were then replayed against the walk at the base, at the round-7 head,
+   at the round-8 head and here (`rows_at.py`, `rows-at-heads.txt`).
+2. A structural probe of `_class_guards()` on synthetic module sources
+   (`probe_guard.py`), which touches no file at all.
+3. Bounded reversion controls on the tracked `scripts/gen_toc.py`
+   (`controls.py`, `controls2.py`), sha256 verified before and after each one.
+4. An end-to-end run of the shipped em-dash gate over scratch repositories
+   (`e2e_exemption.py`), which is the only instrument that answers whether the
+   exemption is actually granted.
+5. A per-page dump of `blocks()`, `headings()` and `generated_block()` over all
+   159 tracked pages at the base and at this head (`perpage.py`).
+
+Renderer agreement over my 106 rows, walk against renderer:
+
+| head | AGREE | ESCAPE (walk keeps a heading the renderer hides) | WITHHOLD |
+|---|---:|---:|---:|
+| base 55518b47 | 37 | 64 | 5 |
+| round 7, 2e86442d | 69 | 30 | 7 |
+| round 8, e0315b19 | 72 | 27 | 7 |
+| this head, e2f7c0c0 | 84 | 19 | 3 |
+
+The change closes 45 of the 64 escapes my rows found at the base and introduces
+none. The 19 that remain are four families, and every one of them answers
+identically at the base, at round 7, at round 8 and here: 13 rows in the type-1
+closing-tag site (F1 below), 2 in the fence closer at a refused character (F2
+below), 1 in the container content column of #437, and 3 in HTML block types 3
+to 5. The last two families are declared truthfully in `blocks()` and in the PR
+limitations, with the right direction, and my rows confirm both.
+
+## Does the termination claim hold?
+
+Partly, and not as stated. The round asked me to try to break it four ways.
+
+**A decision site the enumeration does not see: YES, several.**
+`_class_guards()` collects sites from two places only: module-level
+`ast.Assign` nodes with `ast.Name` targets that contain a `.compile(` call
+(`scripts/gen_toc.py:854`), and `ast.Call` nodes with an `ast.Attribute` func
+inside the functions reachable from `WALK_ROOTS` (`scripts/gen_toc.py:858`).
+Measured on synthetic sources (`probe_guard.out`) and then on the tracked file
+(`controls.out`):
+
+- an annotated binding, `X: re.Pattern = re.compile(...)`, is not an
+  `ast.Assign`, so the site vanishes. Control C3 rebinds `BLOCK_QUOTE_RE` that
+  way on the tracked file: `--sites` drops from 26 to 25, no `GUARD` note is
+  printed, and `--selftest` still reports `PASS (267/267 arm(s))`. No arm pins
+  the site count: `_class_guard_arms()` asserts that the note list is empty and
+  that both kinds are present, never how many sites there are.
+- a tuple-target assignment and `from re import compile` lose the site the same
+  way (probes A2 and A3).
+- a decision reached through a module-level alias or a module-level lambda is
+  outside the call walk (probes A11 and A13).
+
+**A spelling the guard does not refuse: YES.**
+The guard refuses a hand-spelled class in a compiled expression and in a
+`strip`, and nothing else. Measured:
+
+- a membership test. Control C1 replaces `char not in CLASSES["blank"]` with
+  `char not in " \t"` at `scripts/gen_toc.py:277`, the walk's own indentation
+  decision: 26 sites, no `GUARD` note, `PASS (267/267)`. Control C2 widens the
+  same inline class with a character of its own: same result. That decision is
+  the one that says whether a line is an indented code block, which is what
+  gates the type-7 escape under a heading, and it is neither enumerated nor
+  judged.
+- `str.startswith`, `endswith`, `replace`, `find`, `count`, `partition`,
+  `index`, `removeprefix`, `translate` and `split` WITH an argument all carry a
+  class past the guard (probes A6 and A7, control C5). A bare `split()` is a
+  refusal site, so the asymmetry is deliberate for `strip` and accidental
+  everywhere else.
+- inside an expression the guard does judge, a blank flanked by two
+  alphanumerics is exempted by the heuristic at `scripts/gen_toc.py:846`, so
+  `[a b]` passes (probes A8 and A9). That exemption exists for `GENERATED_RE`'s
+  prose and is reasonable; it is simply not airtight.
+
+The `_class_guards()` docstring declares what it cannot see as "a class reached
+through `getattr`, built at run time or imported ... as does a rule the walk
+never calls" (`scripts/gen_toc.py:816`). None of the shapes above is any of
+those. They are ordinary Python, written plainly, at module level or in the
+walk.
+
+**A class the table does not own: YES, one that matters.**
+See F1. The class between a type-1 name and its closing angle bracket is
+spelled `\s` and classified REFUSAL, and the renderer's class at that position
+is empty.
+
+**A position where a single-sourced class is the wrong class: none found.**
+Every one of the 16 bodies in `CLASSES` matched the renderer at the position
+that reads it over my rows: the 53-row tag-grammar sweep agrees on 52
+(`oracle-rows-tag.txt`), and the twelve class rows B1 to B12 all agree
+(`oracle-rows-head.txt`). The three inline single characters the walk still
+spells outside the table are the tab in `_indent_columns`, the backtick in
+`_opens` and the pipe in `line_kinds` and `_table_cells`; each is the right
+character for its position, and the pipe is the only one the table also owns
+(`CLASSES["cell stop"]`), which is a cosmetic inconsistency rather than a
+defect.
+
+**Is the refusal at the three #440 sites honest?**
+For one of the three, yes. For the other two, no: it refuses nothing that
+matters. `REFUSED` is exactly right as a set, verified independently over the
+whole code space: `str.isspace()`, `str.strip()` and the expression engine's
+`\s` name the identical set of characters, and `REFUSED` is that set less the
+space, the tab and the line feed, 26 characters, and no tracked file carries
+one of them (`probe_refused.out`, and 0 of 768 tracked readable text files).
+The argument the head builds on it is sound for the fence closer, where the
+renderer's own class really is the blank: rows E1 and E2 need a no-break space
+or a form feed to diverge, and row E3 with ordinary spaces agrees. It is not
+sound for the two type-1 closers, and that is F1.
+
+## Findings
+
+```text
+[R86] MINOR Conformance, Robustness, Docs - scripts/gen_toc.py:462 and :489 (the type-1 closer), declared at :99 and :811 - the two type-1 closing-tag sites are declared held by the refusal, and the refusal cannot see what escapes them
+Requirement/evidence: `_still_open()` and `_opens()` read a type-1 block's end
+  with `re.search(r"</%s\s*>" % tag, line, re.IGNORECASE)`. `_class_guards()`
+  classifies both as REFUSAL, on the stated ground that "it spells Python's own
+  whitespace, whose excess over the renderer's blank is exactly `REFUSED`, so a
+  page that could tell the two apart is refused before the site is asked"
+  (scripts/gen_toc.py:810). That premise does not hold at this position: the
+  renderer admits NO character between a type-1 name and its closing angle
+  bracket, so the excess over the renderer's class there is `REFUSED` plus the
+  space and the tab, and neither of those is refused. Measured against GitHub's
+  renderer, 13 rows escape at this head with ordinary characters
+  (review-evidence/oracle-rows-refusal.txt, rows F1 to F9 and G1, and
+  oracle-rows-head.txt rows A1, A2, A4, A6): `<pre>` ... `</pre >` has the walk
+  close the block and list the heading after it, where the renderer keeps the
+  block open and shows no heading at all. `</pre\t>`, `</pre  >`, `</PRE >`,
+  `</script >`, `</style >` and `</textarea >` behave the same, and so does the
+  closer inside a longer line. The same site runs the other way too: the
+  renderer ends a type-1 block at any of the four closing tags, the walk only at
+  the one that opened it, so `<pre>` closed by `</style>` withholds a heading
+  the page shows (oracle-rows-head.txt row A5). End to end through the shipped
+  gate, case T2 of review-evidence/e2e-exemption.out grants the exemption for a
+  Contents label copied from a heading the base page does not render, with no
+  refused character anywhere on either version of the page.
+Impact: the exemption #413 exists to withhold is granted one position over, for
+  a label that mirrors a heading the base page renders as raw HTML, so the entry
+  keeps a U+2014 and points at an anchor the page does not have. Reachability
+  today is nil: no tracked file carries a type-1 closing tag at all, and the
+  reading itself is byte-identical at the base, at round 7 and at round 8, so
+  this change neither introduces nor widens it. What is new at this head is the
+  claim that the refusal holds it, which is what makes the family look closed.
+Required change: either read the renderer's end condition at these two sites
+  (a literal `</pre>`, `</script>`, `</style>` or `</textarea>`, any of the four
+  ending any type-1 block), which is #440's work, or correct the three places
+  that say the refusal holds them (scripts/gen_toc.py:99, :810, and the PR's
+  "Known limitations" bullet on #440) to say what is measured: the refusal holds
+  the fence closer, and the two type-1 closers are an open escape reachable with
+  a space or a tab. A REFUSAL site should not be accepted without naming the
+  renderer's class at that position, since the whole argument is a claim about
+  the difference between the two.
+Verification: rerun review-evidence/rows_r86_9b.py; rows F1 to F9 and G1 must
+  AGREE, or the limitation must name them. Case T2 of e2e_exemption.py must
+  report a finding rather than an exempt label.
+```
+
+```text
+[R86] MINOR Conformance, Tests, Docs - scripts/check_em_dash.py:210-217 (`base_labels`), against scripts/gen_toc.py:283-303 (`refusals`) - the refusal is wired into the head side of the exemption only, and the base side is what decides it
+Requirement/evidence: `refusals()` and its wiring are this head's central new
+  safety mechanism, and the head states its reach as "a page carrying one of
+  those is not walked at all ... it obtains no provenance, and no label copied
+  from it can be exempt". The gate applies it twice, both times to the HEAD text
+  of the page: `judge_page` calls `refusal_notes(change.path, text)` on
+  `git show HEAD:path`, and `generated_block` refuses the same text. But the
+  AUTHORITY for the exemption is the BASE version: `base_labels()` runs
+  `headings(git show base:path)` with no refusal check at all. A page that
+  carries a refused character at the base and not at the head therefore obtains
+  its exemption from a walk that was never refused. Measured end to end: case T3
+  of review-evidence/e2e-exemption.out, a base page whose fence closer is padded
+  with one no-break space, where the renderer keeps the fence open and shows no
+  heading (review-evidence/oracle-rows-refusal.txt row E1) and the gate grants
+  the exemption with 0 findings.
+Impact: the one shape the refusal was added to stop, at the one site it was
+  added for, passes when it sits on the base version of the page. No tracked
+  page carries any of the 26 characters, so nothing on the tree is affected.
+Required change: refuse the base text where the exemption is decided, so that a
+  base page the walk does not read authorises no label, with an arm that fails
+  when the call is removed. The existing round-9 control plants its character in
+  the HEAD page only, so it does not reach this path.
+Verification: case T3 of review-evidence/e2e_exemption.py must report a finding
+  and exempt nothing; a new control in `_provenance_controls()` planting the
+  character in the BASE page must fail when the refusal on `base_labels` is
+  reverted.
+```
+
+```text
+[R86] MINOR Tests, Docs - scripts/gen_toc.py:798-880 (`_class_guards`) and scripts/gen_toc_cases.py:762-848 (`_class_guard_arms`) - the enumeration can lose a site silently, and the guard passes ordinary spellings its docstring implies it refuses
+Requirement/evidence: the claim that closes the family by construction is that
+  "a decision added later is in the enumeration whether or not anyone remembers
+  it" (scripts/gen_toc.py:806). Measured on the tracked file with sha256
+  verified before and after each control (review-evidence/controls.out):
+  C3 rebinds one compiled expression as an annotated assignment, `--sites` falls
+  from 26 to 25, no GUARD note is printed and `--selftest` still passes
+  267/267, because no arm pins the site count. C1 spells the walk's own
+  indentation class inline at its own decision site, and C2 widens it there:
+  both silent, both 267/267. C5 puts a class of its own in a `startswith()` in
+  the walk: silent. On synthetic sources (review-evidence/probe_guard.out) a
+  tuple-target binding, `from re import compile`, a module-level alias, a
+  module-level lambda, eight further `str` methods, `split` with an argument,
+  and a blank flanked by alphanumerics inside a judged expression all pass. The
+  docstring's declared blind spots are "a class reached through `getattr`, built
+  at run time or imported ... as does a rule the walk never calls"; none of the
+  shapes above is one of those. The control C6, the same widening written inside
+  a compiled expression, is caught with a GUARD note and two failing arms, which
+  is the subset the guard really covers.
+Impact: the guard is a useful structural proxy over compiled expressions and
+  strips, and it is presented as a closure over every decision site. A later
+  contributor who writes a membership test, a `startswith`, or an annotated
+  binding gets no signal, and the site is not in `--sites` either, so the
+  enumeration a reader consults to check the claim does not list it.
+Required change: state the real reach in the docstring (compiled module-level
+  `ast.Assign` expressions, `re.*` calls and strips inside the walk, and nothing
+  else), and add the two cheap arms that make a silent loss loud: one pinning
+  the number of sites `--sites` prints, and one refusing a class spelled in a
+  membership test or a `str` method inside the walk.
+Verification: control C3 of review-evidence/controls.py must fail an arm rather
+  than print 25 sites at 267/267; control C1 must print a GUARD note.
+```
+
+## Clean lens
+
+```text
+[R86] PASS RTL - `git diff --name-only 55518b47..e2f7c0c0` (three files, all under scripts/), plus check_rtl_source_lists.py, check_sweep_shape.py and check_hygiene.py --check at this head - no HDL, pin, constraint, workflow or suite inventory changed
+```
+
+The diff at this head touches `scripts/gen_toc.py`, `scripts/gen_toc_cases.py`
+and `scripts/check_em_dash.py` and nothing else: `hdl/`, `tb/`, `syn/`,
+`constraints/`, `sw/`, `tools/`, `configs/`, `.github/` and `docs/` are all
+absent from it, which I checked by path filter rather than by reading the
+summary. The inventories that would notice a change nonetheless all pass:
+`check_rtl_source_lists.py` reports the 100-file `milan_datapath` closure
+carried by 4 of 4 consumer lists and 32 of 38 protocol-processor tops with the
+6 recorded omissions, `check_sweep_shape.py` passes, and the hygiene ratchet
+passes over 3 populations and 653 files with CRLF at 0. No clock, reset, CDC,
+width or backpressure question is reachable from a documentation generator, and
+naming that is what covers the lens here.
+
+## The questions this round was asked
+
+**Conformance. A heading wrapped in a type-7 block yields no exemption
+(acceptance 1).** Met, and reproduced three ways. The shipped gate's own type-7
+control holds (`check_em_dash.py --selftest`, 33 arms, including the `<span>`
+wrapped heading, the `<div>` twin, the legitimate mirrored label and the
+fence-in-comment page). Reverting the classification drives it red: control R3
+in `controls2.out` removes the type-7 branch and the gate exits 2 naming its
+control three ways, while the TOC self-test falls to 156 of 267; control R1
+restores a blank-line guard on the tag and 46 arms fail; control N18 hands out
+provenance for a refused page and the gate exits 2 again. Against the renderer,
+the whole type-7 family agrees: 52 of my 53 tag-grammar rows and all eleven
+predecessor rows C1 to C10 (`oracle-rows-tag.txt`, `oracle-rows-head.txt`).
+
+**Is "cannot interrupt a paragraph" read as "opens only after a blank line"?**
+No longer, and that is the right answer. The head reads it as "opens only while
+no paragraph is open", tracked by `_paragraph_after()` with a HELD state, which
+is the faithful reading of CommonMark 4.6: the blank line is sufficient but not
+necessary, and any block that closed leaves no paragraph open. I measured the
+difference rather than reading it: at the base, rows C2 to C10 all escaped; at
+this head all ten agree with the renderer.
+
+**Can it ever hide a heading that renders?** Yes, in three measured shapes, all
+of them pre-existing and all of them declared. A setext heading is never listed
+(row C9; `HEAD_RE` is ATX-only, #437, declared). A line mixing visible text and
+a comment opener labels the rest of the page as commented (the `<span><!--` row
+in `oracle-rows-tag.txt`), which `blocks()` declares as "a line mixing commented
+and visible text is labelled by the block it STARTS in, which can withhold a
+heading but never invent one". And a type-1 block closed by a different type-1
+name stays open (row A5), which is the other direction of F1. All three withhold
+rather than invent, so each can only refuse a label.
+
+**The walk stays the single owner, and no second walk grew.**
+`scripts/check_em_dash.py` compiles exactly one expression of its own,
+`HUNK_RE` at line 90, which parses a diff hunk header, and imports
+`TOC_ENTRY_RE`, `generated_block`, `headings`, `label`, `refusal_notes` and
+`line_kinds` from the generator. `scripts/gen_toc_cases.py` holds fixture pages,
+predicate factories and literal copies of the tables used as arm oracles; it
+compiles nothing and imports no expression engine, and `_owner_guards()` checks
+both mechanically. The split is by kind, as claimed.
+
+**The rule, the provenance basis and the CI base derivation are untouched.**
+`CONTRIBUTING.md`, `AGENTS.md`, `docs/` and `.github/` are absent from the diff.
+`base_labels()` still decides the exemption from the base page's headings and
+`generated_block()` still decides provenance byte-for-byte at position, and
+`.github/workflows/docs.yml:78` still derives the base by merge base. F2 is a
+gap in the new refusal's wiring, not a change to the basis.
+
+**Robustness. The tag grammar against CommonMark's.** 53 rows against the
+renderer, 52 agree (`oracle-rows-tag.txt`): names of letters, digits and
+hyphens and every way a name can be wrong; attribute names starting with a
+letter, an underscore, a capital or a colon and refusing a hyphen, a full stop
+or a digit; unquoted values carrying a slash, a hash, a colon and refusing each
+of the six stop characters; empty and space-carrying quoted values; the
+self-closing form with and without a blank before the slash; closing tags with
+and without an inner blank, with digits and hyphens past the first letter, and
+refusing a leading digit; type-1 and type-6 names taken by ordering ahead of the
+grammar in both the plain and the self-closing forms; a tag line carrying
+anything else, in front, behind or doubled; and indentation at one, three and
+four spaces and at a tab. The one disagreement is the comment row described
+above, in the withholding direction.
+
+**Tests. Each new fixture fails when the classification is reverted.** Eight
+reversion controls run against the tracked file in `controls2.out`, every one
+biting, and six structural controls in `controls.out`. The tracked file's
+sha256 was `0d22894cae81a16ae815beb70fdd9b9eaa67043c3cbd5dc995dcaebfa06be80e`
+before the first control and after the last, and after every individual control
+in between. `MIN_ARMS` is 267 and the run scores 267, so the floor now equals
+the total and removing any single arm fails the tally guard, which is stronger
+than a floor usually is. Against that, F3: the site enumeration itself has no
+arm on its size.
+
+**The #378 rounds 4 to 8 corpus, the legitimate mirrored label and the
+fence-in-comment page.** `check_em_dash.py --selftest` passes 33 of 33 at this
+head, and `--base 55518b47` reports 0 findings over 0 added lines with arms
+33/33. The mirrored-label control and the `FENCE_COMMENT.md` control are inside
+that set and hold.
+
+**Docs. The docstring and CONTRIBUTING 6.1 state the rule that is enforced.**
+CONTRIBUTING 6.1 is unchanged and still true of the enforcement: the exemption
+is provenance-bound, only the label span is exempt, added lines are judged and
+the population follows `owns()`. The `blocks()` docstring now states the domain
+the walk answers for and what it does outside it, which is an honest frame. Two
+sentences inside the module are not true as written, and they are the subject of
+F1 and F3. The declarations I checked and found truthful are the #437 container
+content column, named with the escape direction and its boundary, which my row
+C11 confirms in exactly that direction, and HTML block types 3 to 5, named as
+the escape direction, which my rows D7, D8 and D9 confirm for `<?`, `<!X` and
+`<![CDATA[`.
+
+**Acceptance 3's last clause, reproduced.** I dumped `blocks()`, `headings()`
+and `generated_block()` for all 159 tracked pages with the base module and with
+the head module and diffed the two: identical, 477 records each
+(`perpage-base.txt`, `perpage-head.txt`). The author's claim stands. I also
+confirmed the two corpus facts it rests on: 0 of 159 pages carry any of the 26
+refused characters (0 of 768 tracked readable text files do), and 0 tracked
+Markdown lines match the type-7 tag grammar.
+
+## Are the earlier rounds' findings closed?
+
+Measured with the same rows replayed against each head (`rows-at-heads.txt`),
+not taken from the report.
+
+- **Round 8 (the two findings published at e0315b19): CLOSED, both.** The
+  escape count over my rows falls from 27 at e0315b19 to 19 here, and the eight
+  rows that close are exactly the positions those findings named: indentation
+  counted in columns so that one, two or three spaces and a tab is an indented
+  code line (B10); a table cell that ends at a pipe only when no backslash
+  precedes it (B11); the delimiter row's padding at a form feed and at a line
+  tabulation (B6, B7); the footnote label's class (B8); a list item's first
+  content character (B9); a type-1 name that ends its line (D2); and the
+  renderer's own type-6 name list carrying `source` (D3). The attribute value
+  classes are now armed at every character their class admits rather than a
+  sample (`gen_toc_cases.py:305-311`), and control N8 in the author's table plus
+  my C6-style guard arms hold the table itself. I found no position named by
+  either round-8 finding still escaping.
+- **Round 7 (the tag-grammar whitespace and the closing-tag branch): CLOSED.**
+  Rows B2, B4 and B5 escape at 2e86442d and agree at e0315b19 and here, which is
+  the whitespace class widened inside the tag; the closing-tag rows
+  `</AbC0-9>`, `</b >` and `</1>` all agree.
+- **Round 6 (the ten unheld bounds, and the module split): CLOSED.** The split
+  holds: `gen_toc_cases.py` compiles nothing and the runner and every rule stay
+  with the walk, checked mechanically by `_owner_guards()` and by reading the
+  module. The walk is still the single owner.
+- **Rounds 1 to 5: CLOSED and still closed at this head.** The paragraph
+  interruption guard (rows C1 to C10), the pipeless delimiter row and the
+  footnote definition (C6, C7), the indented-code opener after any closed block
+  (C8), the interrupting list item (C10) and the closed ATX heading all agree
+  with the renderer here, and each has a reversion control that bites.
+
+## Personally assessed validation
+
+I read the completed validation record at this exact head
+(https://github.com/kebag-logic/milan-fpga/pull/428#issuecomment-5651390751) and
+treat it as gate evidence, not as a verdict. What I could re-run locally, I
+re-ran at this head in this checkout, and every figure I checked reproduced:
+the TOC self-test at 267/267, `--check` at 101 pages carrying a list, 80
+cross-page fragment links, `--sites` at 26 sites with 23 single-sourced and 3
+refusing, the em-dash self-test at 33 arms and its base run at 0 findings,
+`docs_check.py` at 0 findings over 159 pages, `ci_events.py` at 1030 contract
+items and 443 arms, and the Python idiom ratchets at `long module: 10 <= 10` and
+`long function: 9 <= 9` (`review-evidence/gate-log.txt`). The bank's RTL rows
+(lint ratchet, xvlog, behaviour suite, Verilator suites, Yosys, builder) are
+outside what a documentation-generator change can move and outside what I can
+reproduce here; I did confirm that the inventories those banks read are
+untouched. The record's own statement that the head does not descend from the
+live dev tip and that the candidate merge tree is gated separately matches what
+I see: `git merge-base e2f7c0c0 dev` is 55518b47, the stated base. One
+observation rather than a finding: the PR's Definition of Done still has "Self-
+test evidence is posted in a PR comment" unchecked, and I found no self-test
+evidence comment at this head; the figures are in the PR description instead,
+and I verified them directly, so nothing turns on it for this verdict.
+
+## Lens, round and head ledger
+
+| Lens | Covering round | Head | Result |
+|---|---|---|---|
+| Conformance | R86-9 | e2f7c0c0 | not banked: F1 and F2 open |
+| RTL | R86-9 | e2f7c0c0 | PASS |
+| Robustness | R86-9 | e2f7c0c0 | not banked: F1 open |
+| Tests | R86-9 | e2f7c0c0 | not banked: F2 and F3 open |
+| Docs | R86-9 | e2f7c0c0 | not banked: F1, F2 and F3 open |
+
+All five lenses were applied at this head. Coverage is banked against the
+commit, and `scripts/gen_toc.py` is in every lens's scope here, so no earlier
+round's coverage carries forward.
+
+## Evidence index
+
+All paths relative to `review-evidence/` in this checkout.
+
+| Artifact | What it is |
+|---|---|
+| `oracle.py`, `oracle-cache.json` | the renderer oracle and its cached responses |
+| `rows_r86_9.py`, `oracle-rows-head.txt` | 40 rows: the refusal sites, the class table, the paragraph state, block-type ordering |
+| `rows_r86_9b.py`, `oracle-rows-refusal.txt` | 13 rows pinning the fence closer and the two type-1 closers |
+| `rows_tag.py`, `oracle-rows-tag.txt` | the 53-row tag-grammar sweep |
+| `rows_at.py`, `rows-at-heads.txt` | all 106 rows replayed at the base, round 7, round 8 and this head |
+| `withholds-head.txt` | the three withholding rows at this head |
+| `probe_guard.py`, `probe_guard.out` | 22 synthetic probes of the site enumerator |
+| `probe_refused.py`, `probe_refused.out` | the refused set derived independently over the whole code space |
+| `controls.py`, `controls.out` | six structural controls on the tracked file, sha256 verified |
+| `controls2.py`, `controls2.out` | eight reversion controls on the tracked file, sha256 verified |
+| `e2e_exemption.py`, `e2e-exemption.out` | three scratch repositories through the shipped em-dash gate |
+| `perpage.py`, `perpage-base.txt`, `perpage-head.txt` | the per-page dump at both commits, diffed empty |
+| `sites-head.txt`, `gate-log.txt` | the 26 decision sites and every gate run at this head |
+| `gen_toc_base.py`, `gen_toc_r7.py`, `gen_toc_r8.py` | the walk at the base, round 7 and round 8, for replay |
+
+No product file was modified. `git status` reports only `review-evidence/`, and
+the three changed scripts carry the same sha256 they did at checkout:
+`gen_toc.py 0d22894cae81a16ae815beb70fdd9b9eaa67043c3cbd5dc995dcaebfa06be80e`,
+`gen_toc_cases.py 681b2850cfe1ce90022a99247c99d1683fc1f10635eb66ed6d0fa18be89ec86d`,
+`check_em_dash.py 4fb49bf2c48c205c74feae4f62e0ce0cedd8235a5eb0ae106e15fbe61e9ddaec`.
+
+R86-9 FINISHED
+
