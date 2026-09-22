@@ -1,0 +1,96 @@
+[
+  {
+    "source": "previous",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/scripts/check_parent_locale.py",
+      "/tmp/r251-parent-locale-nj251ktg/old",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/corrected/previous-utf-8",
+      "--child",
+      "utf-8"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "previous",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/scripts/check_parent_locale.py",
+      "/tmp/r251-parent-locale-nj251ktg/old",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/corrected/previous-iso8859-1",
+      "--child",
+      "iso8859-1"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "corrected",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/scripts/check_parent_locale.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/corrected/corrected-utf-8",
+      "--child",
+      "utf-8"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "corrected",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/scripts/check_parent_locale.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/corrected/corrected-iso8859-1",
+      "--child",
+      "iso8859-1"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "kind": "full-default-selftest",
+    "locale": "C.UTF-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "kind": "full-default-selftest",
+    "locale": "en_US.ISO-8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit": 0
+  }
+]

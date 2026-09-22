@@ -1,0 +1,3 @@
+check_merge_containment.py
+- os.fsdecode(p.stdout)
++ p.stdout.decode("utf-8", "surrogateescape")

@@ -1,0 +1,3 @@
+check_merge_containment.py
+- os.fsencode(patch)
++ patch.encode("utf-8", "surrogateescape")
