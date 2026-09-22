@@ -1,0 +1,70 @@
+make: Entering directory '$VALIDATION/tb/verilator/render_setpoint'
+verilator --cc --exe --build -j 0 --top-module KL_render_setpoint -GN_STREAMS_P=2 -GN_CH_P=8 -GDEPTH_LOG2_P=5 -GPDU_EVENTS_P=6 -GSETPOINT_EVT_P=8 -GCONV_BAND_EVT_P=3 -GRESET_BAND_EVT_P=6 -GCLK_FREQ_HZ_P=100000 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000" --Mdir obj_dir ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv sim_main.cpp -o VKL_render_setpoint_sim
+======================================================================
+make -s run N_CH=7 MDIR=obj_odd
+======================================================================
+python3 mutants.py
+make[1]: Entering directory '$VALIDATION/tb/verilator/render_setpoint/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_render_setpoint.cpp VKL_render_setpoint___024root__0.cpp VKL_render_setpoint___024root__Slow.cpp VKL_render_setpoint___024root__0__Slow.cpp VKL_render_setpoint__Syms__Slow.cpp > VKL_render_setpoint__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DDEPTH_LOG2_TB=5 -DPDU_EVENTS_TB=6 -DSETPOINT_TB=8 -DCONV_BAND_TB=3 -DRESET_BAND_TB=6 -DCLK_HZ_TB=100000   -c -o VKL_render_setpoint__ALL.o VKL_render_setpoint__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_render_setpoint__ALL.a    -pthread -lpthread -latomic   -o VKL_render_setpoint_sim
+rm VKL_render_setpoint__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/render_setpoint/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.152 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.446 s (elab=0.003, cvt=0.015, bld=5.419); cpu 0.030 s on 8 threads; allocated 17.953 MB
+======================================================================
+./obj_dir/VKL_render_setpoint_sim
+== KL_render_setpoint: 2 streams x 8 lanes, 32 rows, PDU 6 events, setpoint 8, bands 3/6 ==
+[P] prefill holds until a PDU end finds fill >= 14
+[L] the delay law over 24 PDUs (setpoint 8 events)
+  first-event delay: min 871 max 871 cycles = 8.710..8.710 ticks (law: 8 < d <= 9 ticks)
+[S] the pop schedule and the delayed render tick
+[C] beats for 3, 1 and 12 wire channels on stream 1
+[U] underrun: one bounded gap, then prefill
+[R] the reset rails (band +/-6 events at PDU ends)
+[V] convergence hold and the one-shot recentre
+[F] flush, queued tick, overrun
+[X] state changes inside the pop window, the coincident pop, the walker
+  contract counters: wrong beat count 0, truncated 0, mixed 0, walker 0
+== render_setpoint: checks: 131   failures: 0 ==
+RESULT: PASS
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.152 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.470 s (elab=0.003, cvt=0.016, bld=5.443); cpu 0.029 s on 8 threads; allocated 17.945 MB
+======================================================================
+== KL_render_setpoint: 2 streams x 7 lanes, 32 rows, PDU 6 events, setpoint 8, bands 3/6 ==
+[P] prefill holds until a PDU end finds fill >= 14
+[L] the delay law over 24 PDUs (setpoint 8 events)
+  first-event delay: min 871 max 871 cycles = 8.710..8.710 ticks (law: 8 < d <= 9 ticks)
+[S] the pop schedule and the delayed render tick
+[C] beats for 3, 1 and 12 wire channels on stream 1
+[U] underrun: one bounded gap, then prefill
+[R] the reset rails (band +/-6 events at PDU ends)
+[V] convergence hold and the one-shot recentre
+[F] flush, queued tick, overrun
+[X] state changes inside the pop window, the coincident pop, the walker
+  contract counters: wrong beat count 0, truncated 0, mixed 0, walker 0
+== render_setpoint: checks: 131   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated RTL still passes the harness on the default shape
+[PASS] the unmutated RTL still passes the harness on N_CH=7
+[PASS] mutant caught: prefill target three events high - breaks "[L] every PDU's first event inside the law band"
+[PASS] mutant caught: recentre pulse ignored - breaks "[V] the pulse was consumed at the next PDU end"
+[PASS] mutant caught: recentre re-armed after the snap (not one-shot) - breaks "[V] still two recentres"
+[PASS] mutant caught: even-lane channel mask dropped - breaks "[C] 3 channels (straddle): lanes >= C read zero"
+[PASS] mutant caught: straddled even lane never written to an odd row - breaks "[C] 3 channels (straddle): lanes < C byte-exact" and "[C] mono: lanes < C byte-exact"
+[PASS] mutant caught: underrun leaves prefill off (repeat storm) - breaks "[U] no repeat storm: still one underrun"
+[PASS] mutant caught: high rail never snaps - breaks "[R] ...to TARGET"
+[PASS] mutant caught: pop re-reads the prefill flag every beat (a flush or prefill entry inside the window truncates) - breaks "[X] A: the event in flight reached the crossbar whole"
+[PASS] mutant caught: pop re-reads the head pointer every beat (a snap inside the window tears the event) - breaks "[X] B: the event in flight reached the crossbar whole (no tear)"
+[PASS] mutant caught: push ignores a concurrent pop - breaks "[X] D: a PDU end on the pop's own edge: dev +6 exactly trips no rail"
+[PASS] mutant caught: overrun drop re-judged at every lane (a pop inside a dropped event stores its tail) - breaks "[X] E: every rendered row is one event's (no half-stored row)"
+[PASS] mutant caught: crossbar told N_CH_P lanes (the pad lane of an odd count wraps onto channel 0) - breaks "[X] the crossbar contract held on every beat of the run"
+[PASS] mutant caught: wire channel count change ignored - breaks "[X] G: the first beat at the new count flushed and re-prefilled the stream"
+
+15 checks: 15 PASS, 0 FAIL
+make: Leaving directory '$VALIDATION/tb/verilator/render_setpoint'
