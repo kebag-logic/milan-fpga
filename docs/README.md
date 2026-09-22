@@ -79,6 +79,7 @@ Publish conflicts before continuing.
 | Run complete gates | [Running tests](testing/RUNNING_TESTS.md) |
 | Understand CI scheduling | [CI workflow policy](testing/CI_WORKFLOWS.md) |
 | Run RTL harnesses | [Verilator suites](../tb/verilator/README.md) |
+| Add bound assertions | [Assertion guide](testing/ASSERTIONS.md) |
 | Run behavior tests | [Behavior tests](../tests/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
