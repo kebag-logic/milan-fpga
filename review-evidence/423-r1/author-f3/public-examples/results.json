@@ -1,0 +1,134 @@
+[
+  {
+    "kind": "original_negative_examples",
+    "argv": [
+      "rtk",
+      "proxy",
+      "bash",
+      "-x",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/public-examples/locale_transport_probe-corrected.sh",
+      "$CANDIDATE",
+      "/tmp/r251-original-examples-0mvyluz8",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/public-examples"
+    ],
+    "runner_exit": 0,
+    "rows": [
+      "linear/utf8/head-4671e582 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, \u00e9.txt]",
+      "linear/utf8/base-52711029 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, \u00e9.txt]",
+      "linear/latin1/head-4671e582 fs=iso8859-1 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, \u00e9.txt]",
+      "linear/latin1/base-52711029 fs=iso8859-1 rc=1 | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: keep.txt, \u00e9.txt]",
+      "merge/utf8/head-4671e582 fs=utf-8 rc=1 | UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\u00e9.txt'",
+      "merge/utf8/base-52711029 fs=utf-8 rc=1 | STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, \u00e9.txt]",
+      "merge/latin1/head-4671e582 fs=iso8859-1 rc=1 | UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\u00e9.txt'",
+      "merge/latin1/base-52711029 fs=iso8859-1 rc=1 | STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, \u00e9.txt]"
+    ]
+  },
+  {
+    "kind": "linear-utf8-positive",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "b25f8e0020e3a57764fe2412d2944e7df0a77b0a",
+    "target": "cc0d0e01f826570c0160ab35869ce9da2ba4f8b2"
+  },
+  {
+    "kind": "linear-ascii-positive",
+    "encoding": "ascii",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "b25f8e0020e3a57764fe2412d2944e7df0a77b0a",
+    "target": "cc0d0e01f826570c0160ab35869ce9da2ba4f8b2"
+  },
+  {
+    "kind": "linear-latin1-positive",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "b25f8e0020e3a57764fe2412d2944e7df0a77b0a",
+    "target": "cc0d0e01f826570c0160ab35869ce9da2ba4f8b2"
+  },
+  {
+    "kind": "merge-utf8-positive",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "de848a331248a394ca0256c55932f937ff762b66",
+    "target": "470499617b9ecdb467093357fd304ab786fe2714"
+  },
+  {
+    "kind": "merge-ascii-positive",
+    "encoding": "ascii",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "de848a331248a394ca0256c55932f937ff762b66",
+    "target": "470499617b9ecdb467093357fd304ab786fe2714"
+  },
+  {
+    "kind": "merge-latin1-positive",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$CANDIDATE/scripts/check_merge_containment.py",
+      "--no-fetch",
+      "--base",
+      "main",
+      "pr"
+    ],
+    "exit": 0,
+    "source": "de848a331248a394ca0256c55932f937ff762b66",
+    "target": "470499617b9ecdb467093357fd304ab786fe2714"
+  }
+]

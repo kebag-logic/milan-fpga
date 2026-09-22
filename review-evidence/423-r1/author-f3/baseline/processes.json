@@ -1,0 +1,70 @@
+[
+  {
+    "source": "previous",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/check_parent_locale.py",
+      "/tmp/r251-parent-locale-38zzdxy8/old",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/baseline/previous-utf-8",
+      "--child",
+      "utf-8"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "previous",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/check_parent_locale.py",
+      "/tmp/r251-parent-locale-38zzdxy8/old",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/baseline/previous-iso8859-1",
+      "--child",
+      "iso8859-1"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "corrected",
+    "encoding": "utf-8",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/check_parent_locale.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/baseline/corrected-utf-8",
+      "--child",
+      "utf-8"
+    ],
+    "exit": 0,
+    "expected": 0
+  },
+  {
+    "source": "corrected",
+    "encoding": "iso8859-1",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r2-r251/scripts/check_parent_locale.py",
+      "$CANDIDATE",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-f3-author/baseline/corrected-iso8859-1",
+      "--child",
+      "iso8859-1"
+    ],
+    "exit": 1,
+    "expected": 1
+  }
+]
