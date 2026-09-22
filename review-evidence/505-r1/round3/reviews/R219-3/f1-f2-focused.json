@@ -1,0 +1,30 @@
+[
+  {
+    "label": "carrier-script-407 docs-check step 34 or-true-line-1",
+    "expected_reason": "job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py'",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "label": "carrier-script-407 docs-check step 41 drop-flag",
+    "expected_reason": "job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test'",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`Sweep/build shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_sweep_shape.py --self-test' (found 'python3 scripts/check_sweep_shape.py'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "carrier-script-407 docs-check step 42 drop-flag",
+    "expected_reason": "job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test'",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test' (found 'python3 scripts/check_deploy_shape.py'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "carrier-script-407 docs-check step 43 drop-flag",
+    "expected_reason": "job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test'",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 43 (`Entity shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_entity_shape.py --self-test' (found 'python3 scripts/check_entity_shape.py'); 1 line(s) expected, 1 found"
+    ]
+  }
+]

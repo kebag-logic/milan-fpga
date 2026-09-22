@@ -1,0 +1,34 @@
+commit 5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 09:49:01 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 09:49:01 2026 +0200
+
+    Clarify remaining RTL workflow script pin gaps
+
+ docs/testing/CI_WORKFLOWS.md | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit ad62493186576144f9fa1568babad012bc9ad8ca
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 07:49:36 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 07:49:36 2026 +0200
+
+    Add per-line carrier script regression controls
+
+ docs/testing/CI_WORKFLOWS.md | 30 +++++++++++++++++++++---------
+ scripts/ci_events.py         | 38 +++++++++++++++++++++++++++-----------
+ 2 files changed, 48 insertions(+), 20 deletions(-)
+
+commit 6af65a151663e1301f1983a6c9d22650a0b35da9
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Tue Sep 22 05:45:28 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Tue Sep 22 05:45:28 2026 +0200
+
+    Pin every non-RTL carrier script and its mutation controls
+
+ docs/testing/CI_WORKFLOWS.md |  39 +++-
+ scripts/ci_events.py         | 444 +++++++++++++++++++++++++++++++++++++------
+ 2 files changed, 414 insertions(+), 69 deletions(-)
