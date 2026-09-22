@@ -6,9 +6,9 @@ gen_aem_store.py - generate descriptor bytes and a legacy SVH rendering.
 
 The end-station builder supplies the current model through an overlay. The
 default compatibility model contains ENTITY, CONFIGURATION, AUDIO_UNIT,
-STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x3,
+STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x2,
 CLOCK_DOMAIN, CONTROL (IDENTIFY), LOCALE, STRINGS, STREAM_PORT_IN/OUT,
-AUDIO_CLUSTER x16, AUDIO_MAP x2.
+AUDIO_CLUSTER x16, AUDIO_MAP x1.
 
 The historical JSON snapshot declares eight AUDIO_UNIT external ports but no
 EXTERNAL_PORT descriptors. The compatibility model keeps both counts at zero
@@ -64,6 +64,9 @@ See static_map_tables() for the clause behind each bound.
 
   python3 avdecc/gen_aem_store.py --self-test   # prove the gate bites
 
+The docs-check job runs that self-test (#464). Nothing did before, so it
+failed unseen once the model's AUDIO_MAP geometry changed under it.
+
 
 WHERE THE CODE LIVES (2026-09-03).  This module passed 2 400 lines and Rule 12
 (docs/development/CODE_QUALITY.md) refuses a module over a thousand, so it is
@@ -94,6 +97,7 @@ than part of it.
 """
 import argparse
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -150,31 +154,74 @@ __all__ = [
     "spec_from_overlay", "static_map_tables", "two_level_directory",
 ]
 
+def _map_fixture() -> dict[str, Any]:
+    """The geometry the AUDIO_MAP bounds vectors mutate: one static map a side.
+
+    The deployed model cannot host them. Milan v1.2 5.3.3.9 makes its Stream
+    Port Input dynamic, so it has no input AUDIO_MAP, and since da71309c its
+    one static map is the output port's, at index 0. Vectors written against
+    the older two-map deployed shape then indexed a map that no longer
+    existed, or landed on the output map and were refused by another bound
+    (#464). The gate still bounds any static input map a spec or overlay
+    declares, so the vectors declare the geometry they bound, here:
+
+      STREAM_INPUT   0 = AAF (FORMATS, up to 8 channels), 1 = the CRF sink
+      STREAM_OUTPUT  0 = AAF (OUT_FORMATS, 2 channels)
+      AUDIO_MAP[0]   serves STREAM_PORT_INPUT[0],  8 clusters from 0
+      AUDIO_MAP[1]   serves STREAM_PORT_OUTPUT[0], 8 clusters from 8
+
+    Every field that bounds no mapping is the deployed model's. Each call
+    returns fresh objects, so one vector's mutation cannot reach the next.
+    """
+    spec = builtin_spec()
+    spec.update(
+        stream_inputs=[
+            dict(name="AAF in", kind="aaf", formats=list(FORMATS),
+                 buffer=2126000),
+            dict(name="CRF in", kind="crf", formats=list(CRF_FORMATS),
+                 buffer=2126000)],
+        stream_outputs=[dict(name="AAF out", formats=list(OUT_FORMATS))],
+        ports_in=[dict(clusters=8, base_cluster=0, maps=1, base_map=0)],
+        ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=1)],
+        audio_maps=[[[0, ch, ch, 0] for ch in range(8)],
+                    [[0, ch, ch, 0] for ch in range(8)]],
+        cluster_names_in=None, cluster_names_out=None)
+    return spec
+
+
 def _selftest_map_bounds():
     """The AUDIO_MAP bounds gate: every vector is a model that must be refused.
 
-    Methodology R2 - a check that cannot fail is not a check - so the arm
-    ends by proving the recorded-deviation allowlist is load-bearing too.
+    Methodology R2 - a check that cannot fail is not a check. Each vector
+    mutates a fresh _map_fixture() and must be refused by ITS OWN bound: the
+    refusal has to carry the text that bound raises, so a model some other
+    check refuses first fails the vector instead of passing it.
     """
     ok = [True]
 
-    def refuses(name: str, mutate: Callable[[dict[str, Any]], None]) -> None:
-        """Assert `mutate`'s model is REFUSED by build_model()."""
-        spec = builtin_spec()
+    def mutated(mutate: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
+        """A fresh _map_fixture() with `mutate` applied."""
+        spec = _map_fixture()
         mutate(spec)
+        return spec
+
+    def refuses(name: str, mutate: Callable[[dict[str, Any]], None],
+                cause: str) -> None:
+        """Assert `mutate`'s model is REFUSED by build_model() for `cause`."""
         try:
-            build_model(spec)
+            build_model(mutated(mutate))
         except ValueError as e:
-            print(f"  [ok  ] {name}\n         -> {str(e)[:150]}")
+            if cause in str(e):
+                print(f"  [ok  ] {name}\n         -> {str(e)[:150]}")
+                return
+            ok[0] = False
+            print(f"  [FAIL] {name}: refused, but not for {cause!r} - {e}")
             return
         ok[0] = False
         print(f"  [FAIL] {name}: built without complaint")
 
-    def accepts(name: str,
-                mutate: Callable[[dict[str, Any]], None] = lambda s: None) -> None:
-        """Assert `mutate`'s model still BUILDS - the gate's negative control."""
-        spec = builtin_spec()
-        mutate(spec)
+    def accepts(name: str, spec: dict[str, Any]) -> None:
+        """Assert `spec` still BUILDS - the gate's negative control."""
         try:
             build_model(spec)
             print(f"  [ok  ] {name}")
@@ -183,8 +230,10 @@ def _selftest_map_bounds():
             print(f"  [FAIL] {name}: refused - {e}")
 
     print("=== gen_aem_store AUDIO_MAP bounds gate self-test ===")
-    # POSITIVE control first: the gate must not refuse what ships.
-    accepts("the deployed model still builds")
+    # POSITIVE controls first: the gate must not refuse what ships, nor the
+    # fixture every vector below mutates, or each refusal would be vacuous.
+    accepts("the deployed model still builds", builtin_spec())
+    accepts("the two-map fixture the vectors mutate builds", _map_fixture())
 
     def global_index(s: dict[str, Any]) -> None:
         """Rewrite the output map with GLOBAL cluster indices - defect A."""
@@ -193,19 +242,25 @@ def _selftest_map_bounds():
         #! The output port's clusters are 8..15 globally and 0..7 relative.
         s["audio_maps"][1] = [[0, c, 8 + c, 0] for c in range(8)]
     refuses("global cluster index where 7.2.19 wants a port-relative offset",
-            global_index)
+            global_index, "cluster_offset 8 >= this port's number_of_clusters")
     refuses("base_map naming an AUDIO_MAP the model does not define",
-            lambda s: s["ports_out"][0].update(base_map=7))
+            lambda s: s["ports_out"][0].update(base_map=7),
+            "base_map=7 names an AUDIO_MAP this model does not define")
     refuses("number_of_maps != 1 on a static port (pages it cannot answer)",
-            lambda s: s["ports_out"][0].update(maps=2))
+            lambda s: s["ports_out"][0].update(maps=2),
+            "declares number_of_maps=2")
     refuses("cluster_channel past the cluster's channel_count (7.2.16)",
-            lambda s: s["audio_maps"][0].__setitem__(0, [0, 0, 0, 1]))
+            lambda s: s["audio_maps"][0].__setitem__(0, [0, 0, 0, 1]),
+            "cluster_channel 1 >= channel_count")
     refuses("stream_index past the descriptors this direction has (7.2.13)",
-            lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]))
+            lambda s: s["audio_maps"][0].__setitem__(0, [9, 0, 0, 0]),
+            "stream_index 9 >= the 2 stream descriptors")
     refuses("INPUT: two mappings onto the SAME cluster channel (7.2.19)",
-            lambda s: s["audio_maps"][0].__setitem__(1, [0, 0, 0, 0]))
+            lambda s: s["audio_maps"][0].__setitem__(1, [0, 0, 0, 0]),
+            "for a STREAM_PORT_INPUT")
     refuses("a mapping onto the CRF sink, which carries no audio channels",
-            lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]))
+            lambda s: s["audio_maps"][0].__setitem__(0, [1, 0, 0, 0]),
+            "advertises no audio format with channels")
     #! 7.2.19's two directions are DIFFERENT rules, and this pair is the
     #! negative control for that: the first version of this gate applied the
     #! INPUT rule to both and would have refused the second model, which the
@@ -213,35 +268,58 @@ def _selftest_map_bounds():
     refuses("OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "
             "\"across the entire Configuration\")",
             lambda s: s["audio_maps"].__setitem__(
-                1, [[0, 0, 0, 0], [0, 0, 1, 0]]))
+                1, [[0, 0, 0, 0], [0, 0, 1, 0]]),
+            "for a STREAM_PORT_OUTPUT")
     accepts("OUTPUT: the same cluster_offset twice IS allowed (7.2.19 "
             "\"there may be multiple entries for each mapping_cluster_"
             "offset\")",
-            lambda s: s["audio_maps"].__setitem__(
-                1, [[0, 0, 0, 0], [0, 1, 0, 0]]))
+            mutated(lambda s: s["audio_maps"].__setitem__(
+                1, [[0, 0, 0, 0], [0, 1, 0, 0]])))
+    #! 63 distinct stream channels onto the output port's clusters break no
+    #! refusing bound but the count: the OUTPUT rule lets a cluster_offset
+    #! repeat, and a stream_channel past the format is recorded, not raised.
+    #! An input map cannot show that, since its eight cluster channels are
+    #! spent before the count is reached.
     refuses("more mappings in one AUDIO_MAP than Table 7-32 allows (62)",
             lambda s: s["audio_maps"].__setitem__(
-                0, [[0, c % 8, c, 0] for c in range(63)]))
+                1, [[0, c, c % 8, 0] for c in range(63)]),
+            "has 63 mappings")
+    return ok[0]
 
-    # ...and the recorded deviation is exactly the recorded one, no more.
+
+def _selftest_map_deviations():
+    """The deployed model's recorded deviations, held exact both ways.
+
+    The recorded list must name every deviation the model carries and
+    nothing it no longer carries, so neither a new deviation nor a stale or
+    widened allowlist passes. The empty-allowlist arm proves the list is
+    load-bearing.
+    """
+    ok = True
     M = build_model(builtin_spec())
     got = M["SMAP"]["DEVIATIONS"]
     try:
         assert_no_map_deviations(M)
+    except ValueError as e:
+        ok = False
+        print(f"  [FAIL] a NEW deviation appeared: {e}")
+    stale = sorted(set(KNOWN_MAP_DEVIATIONS) - set(got))
+    if stale:
+        ok = False
+        print("  [FAIL] recorded deviation(s) the deployed model does not "
+              "carry:\n  " + "\n  ".join(stale))
+    if ok:
         print(f"  [ok  ] the {len(got)} open stream_channel deviation(s) are "
               "exactly the recorded ones")
-    except ValueError as e:
-        ok[0] = False
-        print(f"  [FAIL] a NEW deviation appeared: {e}")
     # ...and that allowlist is not vacuous either: drop it and it must fail.
     try:
         assert_no_map_deviations(M, allow=set())
-        ok[0] = False
+        ok = False
         print("  [FAIL] the deviation allowlist is not asserting anything")
     except ValueError:
         print("  [ok  ] with an empty allowlist the deviation FAILS "
               "(the list is load-bearing)")
-    return ok[0]
+    return ok
 
 
 def _selftest_two_level():
@@ -343,6 +421,7 @@ def self_test() -> int:
     to build silently, and the deployed model passing is not evidence that the
     gate bites - only a refused model is."""
     ok = _selftest_map_bounds()
+    ok = _selftest_map_deviations() and ok
     ok = _selftest_two_level() and ok
     ok = _selftest_base_formats() and ok
     print("\ngen_aem_store self-test:", "PASS" if ok else "FAIL")
