@@ -1,0 +1,98 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "exit": 0,
+    "seconds": 0.15947198867797852,
+    "stdout": "TOC selftest: PASS (683/683 arm(s))\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--sites"
+    ],
+    "exit": 0,
+    "seconds": 0.04594898223876953,
+    "stdout": "ATX_HEADING_RE: single source\nBLOCK_QUOTE_RE: single source\nFENCE_RE: single source\nFOOTNOTE_DEFINITION_RE: single source\nGENERATED_RE: single source\nHEAD_RE: single source\nHTML_BLOCK_OPEN_RE: single source\nHTML_TAG_LINE_RE: single source\nLIST_ITEM_RE: single source\nRAW_HTML_OPEN_RE: single source\nSETEXT_UNDERLINE_RE: single source\nTABLE_CELL_END_RE: single source\nTABLE_CELL_RE: single source\nTABLE_DELIMITER_RE: single source\nTHEMATIC_BREAK_RE: single source\nTOC_ENTRY_RE: single source\n_opens() lstrip(): single source\n_opens() strip(): single source\n_paragraph_after() strip(): single source\n_still_open() strip(): single source\n_still_open() strip(): single source\n_table_cells() lstrip(): single source\n_table_cells() strip(): single source\n_type_1_end() search(): single source\nline_kinds() lstrip(): single source\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.3645784854888916,
+    "stdout": "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "exit": 0,
+    "seconds": 0.3842628002166748,
+    "stdout": "anchor check: 144 existing cross-page fragment links reproduced\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8"
+    ],
+    "exit": 0,
+    "seconds": 0.9270784854888916,
+    "stdout": "check_em_dash: 0 finding(s) over 32 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 51/51 [b17580b9..HEAD]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "exit": 0,
+    "seconds": 3.7451250553131104,
+    "stdout": "docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit": 2,
+    "seconds": 0.08746933937072754,
+    "stdout": "",
+    "stderr": "REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor; -424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`\n"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+      "HEAD"
+    ],
+    "exit": 0,
+    "seconds": 0.00520777702331543,
+    "stdout": "",
+    "stderr": ""
+  }
+]

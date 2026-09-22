@@ -1,0 +1,1132 @@
+{
+  "walk": [
+    [
+      "a fence delimiter inside a comment opens no fence",
+      "<!--\n```\n-->\n\n## Contents\n"
+    ],
+    [
+      "a comment delimiter inside a fence opens no comment",
+      "```\n<!--\n```\n\n## Contents\n"
+    ],
+    [
+      "a short delimiter inside a longer fence is content",
+      "````\n```\n## Contents\n````\ntext\n"
+    ],
+    [
+      "a tilde fence does not close on backticks",
+      "~~~\n```\n## Contents\n~~~\ntext\n"
+    ],
+    [
+      "a closer carrying an info string does not close",
+      "```\n``` text\n## Contents\n```\ntext\n"
+    ],
+    [
+      "a backtick in a backtick opener's info string voids the opener",
+      "``` `x\ntext\n"
+    ],
+    [
+      "a backtick in a tilde opener's info string does not",
+      "~~~ `x\ntext\n"
+    ],
+    [
+      "an opener indented three spaces still opens, and its closer at the same indentation still closes",
+      "   ```\ntext\n   ```\n## Real\n"
+    ],
+    [
+      "an indented closer shorter than its opener does not close",
+      "````\n   ```\n## Old\n````\n## Real\n"
+    ],
+    [
+      "a backtick in an INDENTED backtick opener's info string voids it the same way",
+      "   ``` `x\ntext\n"
+    ],
+    [
+      "four spaces after a blank line is code, not a fence",
+      "text\n\n    ```\n"
+    ],
+    [
+      "an indented line continuing a paragraph is not code",
+      "text\n    more text\n"
+    ],
+    [
+      "an indented code run carries the blank line inside it",
+      "    code\n\n    more\n## Real\n"
+    ],
+    [
+      "a raw HTML block's content is not Markdown",
+      "<pre>\n## Contents\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a raw HTML block closed on its own line ends there",
+      "<pre>x</pre>\n\n## Real\n"
+    ],
+    [
+      "a tight type-6 block hides the heading it wraps",
+      "<div>\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a type-6 block INTERRUPTS a paragraph, where a type-7 block may not",
+      "text\n<div>\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a type-6 block ends at the blank line, so the heading renders",
+      "<div>\n\n## Alpha\n\n</div>\n"
+    ],
+    [
+      "a details block hides its heading the same way",
+      "<details>\n<summary>s</summary>\n## Alpha\n</details>\n\n## Real\n"
+    ],
+    [
+      "a tight type-7 block on an unknown tag hides the heading it wraps",
+      "<custom-tag a=1 _b='2' :c = \"3\" d>\n## Alpha\n</custom-tag>\n\n## Real\n"
+    ],
+    [
+      "an inline tag alone on its line opens a type-7 block the same way",
+      "<span>\n## Alpha\n</span>\n\n## Real\n"
+    ],
+    [
+      "a lone closing tag opens a type-7 block",
+      "</b>\n## Alpha\n\n## Real\n"
+    ],
+    [
+      "a type-7 block ends at the blank line, so the heading renders",
+      "<span>\n\n## Alpha\n\n</span>\n"
+    ],
+    [
+      "a lone inline tag after visible text continues the paragraph",
+      "text\n<span>\n## Real\n</span>\n"
+    ],
+    [
+      "a tag line carrying anything but the tag opens no type-7 block",
+      "<span>x\n## Real\n"
+    ],
+    [
+      "a comment opened after visible text leaves that line alone",
+      "## Head <!-- note\n-->\n## B\n"
+    ],
+    [
+      "a second comment opened on a closing line stays open",
+      "<!-- first --> <!-- second\n## Contents\n-->\ntext\n"
+    ],
+    [
+      "a comment closed and reopened inside a span stays open",
+      "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n"
+    ],
+    [
+      "a comment that really closes ends the span",
+      "<!-- one --> two\n## Contents\n"
+    ],
+    [
+      "a line of a no-break space does not end a type-7 block",
+      "<span>\n\u00a0\n## Alpha\n</span>\n\n## Real\n"
+    ],
+    [
+      "a line of a form feed does not end a type-6 block",
+      "<div>\n\f\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a line of spaces and tabs does end one",
+      "<span>\n \t\n## Alpha\n"
+    ],
+    [
+      "a type-1 name ending its line opens the block that survives a blank line",
+      "<pre\n\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a self-closing type-1 name opens a type-7 block instead, which the blank line ends",
+      "<pre/>\n## Alpha\n\n## Real\n"
+    ],
+    [
+      "a type-6 name the renderer carries interrupts a paragraph",
+      "text\n<source>\n## Alpha\n\n## Real\n"
+    ],
+    [
+      "a name the renderer does not carry is type 7, so it may not",
+      "text\n<search>\n## Alpha\n"
+    ],
+    [
+      "a type-6 name that ends its line opens the block",
+      "text\n<div\n>\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a self-closing type-6 tag opens it too",
+      "text\n<div/>\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a line of a no-break space after paragraph text does not close the paragraph, so a lone tag under it continues it",
+      "text\n\u00a0\n<span>\n## Alpha\n</span>\n\n## Real\n"
+    ],
+    [
+      "a line of a form feed does not close it either",
+      "text\n\f\n<span>\n## Alpha\n</span>\n\n## Real\n"
+    ],
+    [
+      "a line of a no-break space ends an indented code run, which only a blank line carries through",
+      "## Head\n\n    code\n\u00a0\n    more\n\n## Alpha\n"
+    ],
+    [
+      "a type-1 name a blank follows is still read first, so its block survives a blank line",
+      "## Head\n<pre x>\n\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a type-6 name a form feed follows opens the block, interrupting a paragraph",
+      "text\n<div\f>\n## Alpha\n</div>\n\n## Real\n"
+    ],
+    [
+      "a type-6 name a line tabulation follows opens it on a line that carries more",
+      "<div\u000b>x</div>\n## Alpha\n\n## Real\n"
+    ],
+    [
+      "a type-1 name a form feed follows opens the block that survives a blank line",
+      "<pre\f>\n\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a type-1 name a line tabulation follows opens it interrupting a paragraph",
+      "text\n<pre\u000b>\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a type-6 name in capitals opens the block",
+      "text\n<DIV>\n## Alpha\n</DIV>\n\n## Real\n"
+    ],
+    [
+      "a type-1 name in capitals opens one that its lowercase closing tag ends",
+      "<PRE>\n\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a name only a UNICODE fold reads as a type-6 name is no tag",
+      "text\n<d\u0131v>\n## Alpha\n"
+    ],
+    [
+      "nor is one only a Unicode fold reads as a type-1 name",
+      "## Head\n<\u017fcript>\n## Old\n"
+    ],
+    [
+      "a type-1 block is not closed by a name only a Unicode fold matches",
+      "<script>\n## Alpha\n</\u017fcript>\n## Beta\n"
+    ]
+  ],
+  "tag": [
+    [
+      "a type-1 tag is read before the type-7 grammar, so its block survives a blank line",
+      "<pre>\n\n## Alpha\n</pre>\n\n## Real\n"
+    ],
+    [
+      "a tag indented three spaces opens a type-7 block",
+      "   <span>\n## Alpha\n</span>\n\n## Real\n"
+    ],
+    [
+      "a tag indented four spaces after a blank line is code",
+      "    <span>\n## Alpha\n"
+    ],
+    [
+      "a self-closing tag alone on its line opens a type-7 block",
+      "<img src=\"x\" />\n## Alpha\n\n## Real\n"
+    ],
+    [
+      "a tag indented four spaces under a list item is that item's text, so the heading under it renders",
+      "- item\n    <span>\n## Old\n"
+    ],
+    [
+      "a tag indented four spaces under a heading is code, so a lone tag under it opens a block",
+      "## Head\n    <span>\n<b>\n## Old\n"
+    ],
+    [
+      "a name that does not begin with an ASCII letter is no tag, so the heading under it renders",
+      "## Head\n<1>\n## Old\n"
+    ],
+    [
+      "a lone tag with a name of letters, digits and hyphens after its first letter opens a type-7 block",
+      "## Head\n<AbC0-9>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with an attribute name carrying every character the grammar allows after its first opens a type-7 block",
+      "## Head\n<x a0_.:-E>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a tab between attributes, and tabs around an equals sign opens a type-7 block",
+      "## Head\n<x\ta=1\tb\t=\t2>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a quoted value that is empty opens a type-7 block",
+      "## Head\n<x a='' b=\"\">\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with blanks between the last attribute and the self-closing slash opens a type-7 block",
+      "## Head\n<x a=\"1\" \t/>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with blanks after the closing angle bracket opens a type-7 block",
+      "## Head\n<x> \t\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with blanks inside a CLOSING tag opens a type-7 block",
+      "## Head\n</b \t>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with an attribute name that starts with a capital opens a type-7 block",
+      "## Head\n<x Ab>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a CLOSING tag name of letters, digits and hyphens after its first letter opens a type-7 block",
+      "## Head\n</AbC0-9>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a line tabulation between the tag name and an attribute opens a type-7 block",
+      "## Head\n<x\u000ba=1>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a form feed between the tag name and an attribute opens a type-7 block",
+      "## Head\n<x\fa=1>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with line tabulations around an equals sign opens a type-7 block",
+      "## Head\n<x a\u000b=\u000b1>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with form feeds around an equals sign opens a type-7 block",
+      "## Head\n<x a\f=\f1>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a line tabulation before the self-closing slash opens a type-7 block",
+      "## Head\n<x a=\"1\"\u000b/>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a form feed before the self-closing slash opens a type-7 block",
+      "## Head\n<x a=\"1\"\f/>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a line tabulation inside a CLOSING tag opens a type-7 block",
+      "## Head\n</b\u000b>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a form feed inside a CLOSING tag opens a type-7 block",
+      "## Head\n</b\f>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a form feed after the closing angle bracket opens a type-7 block",
+      "## Head\n<x>\f\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a single-quoted value carrying everything but its own quote opens a type-7 block",
+      "## Head\n<x a='b c\t\u000b\f=<>`\"d\u00e9'>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with a double-quoted value carrying everything but its own quote opens a type-7 block",
+      "## Head\n<x a=\"b c\t\u000b\f=<>`'d\u00e9\">\n## Old\n\n## Real\n"
+    ],
+    [
+      "a lone tag with an unquoted value carrying every character that does not end it opens a type-7 block",
+      "## Head\n<x a=b/c#d:e.f\u00e9>\n## Old\n\n## Real\n"
+    ],
+    [
+      "a line with an attribute that no blank separates from the name is no tag, so the heading under it renders",
+      "## Head\n<A::>\n## Old\n"
+    ],
+    [
+      "a line with an attribute name that starts with a hyphen is no tag, so the heading under it renders",
+      "## Head\n<x -a>\n## Old\n"
+    ],
+    [
+      "a line with an equals sign with no value after it is no tag, so the heading under it renders",
+      "## Head\n<x a=>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying a closing angle bracket is no tag, so the heading under it renders",
+      "## Head\n<x a=b>c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying an opening angle bracket is no tag, so the heading under it renders",
+      "## Head\n<x a=b<c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying an equals sign is no tag, so the heading under it renders",
+      "## Head\n<x a=b=c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying a backtick is no tag, so the heading under it renders",
+      "## Head\n<x a=b`c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying a single quote is no tag, so the heading under it renders",
+      "## Head\n<x a=b'c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value carrying a double quote is no tag, so the heading under it renders",
+      "## Head\n<x a=b\"c>\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value and then a word no attribute name may start is no tag, so the heading under it renders",
+      "## Head\n<x a=1 2>\n## Old\n"
+    ],
+    [
+      "a line with the same past a tab is no tag, so the heading under it renders",
+      "## Head\n<x a=1\t2>\n## Old\n"
+    ],
+    [
+      "a line with a CLOSING tag name that does not begin with an ASCII letter is no tag, so the heading under it renders",
+      "## Head\n</1>\n## Old\n"
+    ],
+    [
+      "a line with a line tabulation after the closing angle bracket is no tag, so the heading under it renders",
+      "## Head\n<x>\u000b\n## Old\n"
+    ],
+    [
+      "a line with an unquoted value a line tabulation ends, and then a word no attribute name may start is no tag, so the heading under it renders",
+      "## Head\n<x a=b\u000b1>\n## Old\n"
+    ],
+    [
+      "a line with the same past a form feed is no tag, so the heading under it renders",
+      "## Head\n<x a=b\f1>\n## Old\n"
+    ]
+  ],
+  "guard": [
+    [
+      "the family names are the eight the runner scores, spelled here and not read from the constant the guard reads",
+      ""
+    ],
+    [
+      "the tally guard passes a full set of families",
+      ""
+    ],
+    [
+      "it names a family dropped from the runner's import",
+      ""
+    ],
+    [
+      "it names a family that is present and empty",
+      ""
+    ],
+    [
+      "it names a total below the recorded floor",
+      ""
+    ],
+    [
+      "it names a runner that scores fewer arms than the tables hold",
+      ""
+    ],
+    [
+      "the ownership guard passes this module's own source and values",
+      ""
+    ],
+    [
+      "it names a module that imports the expression engine",
+      ""
+    ],
+    [
+      "it names one that imports a name OUT of the engine",
+      ""
+    ],
+    [
+      "a package whose LAST segment is the engine's name is not it",
+      ""
+    ],
+    [
+      "nor is a relative import, which names no module at all",
+      ""
+    ],
+    [
+      "it names a module that holds a compiled expression",
+      ""
+    ],
+    [
+      "the renderer's classes are the ones spelled here, and not read from the table the walk reads",
+      ""
+    ],
+    [
+      "the refused characters are exactly Python's whitespace less the space, the tab and the line feed",
+      ""
+    ],
+    [
+      "the walk roots are the two functions the walk answers through",
+      ""
+    ],
+    [
+      "the type-1 names are the renderer's four",
+      ""
+    ],
+    [
+      "the type-6 names are the renderer's own list, which carries `source` and not `search`",
+      ""
+    ],
+    [
+      "the shipped walk carries no decision site of its own",
+      ""
+    ],
+    [
+      "the shipped walk carries only single-source decision sites",
+      ""
+    ],
+    [
+      "a class spelled inline in an expression is refused",
+      ""
+    ],
+    [
+      "so is a blank quantified in one",
+      ""
+    ],
+    [
+      "so is a refused character in one",
+      ""
+    ],
+    [
+      "so is Python's digit class",
+      ""
+    ],
+    [
+      "so is a class inline in a string the expression interpolates",
+      ""
+    ],
+    [
+      "a class read from the table by name is not",
+      ""
+    ],
+    [
+      "a strip with a class of its own is refused",
+      ""
+    ],
+    [
+      "so is asking Python what a character is",
+      ""
+    ],
+    [
+      "a strip from the table is a single-sourced site",
+      ""
+    ],
+    [
+      "a bare strip is a refusal site, not a refused one",
+      ""
+    ],
+    [
+      "and so is Python's whitespace class",
+      ""
+    ],
+    [
+      "a decision the walk reaches through another function is in the enumeration",
+      ""
+    ],
+    [
+      "a decision the walk never calls is not",
+      ""
+    ],
+    [
+      "a walk root that is no function of the module is named",
+      ""
+    ],
+    [
+      "every Python character test the guard names is refused",
+      ""
+    ],
+    [
+      "every strip the guard names is a site of its own",
+      ""
+    ],
+    [
+      "the walk carries the number of decision sites recorded here",
+      ""
+    ],
+    [
+      "the site enumerator beside the walk holds no rule of its own",
+      ""
+    ]
+  ],
+  "heading": [
+    [
+      "a run of hashes that does not end the line is heading text",
+      "## Old ## bar\n"
+    ],
+    [
+      "a closing sequence takes a space or a tab before it",
+      "## Old#\n"
+    ],
+    [
+      "a TAB before the closing sequence drops it too",
+      "## Old\t#\n"
+    ],
+    [
+      "the blanks a heading line ends with are not its text",
+      "## Old \t\n"
+    ],
+    [
+      "seven hashes are no heading at all",
+      "####### Old\n"
+    ],
+    [
+      "a heading may carry no text",
+      "# \n"
+    ],
+    [
+      "a tab after the hashes opens a heading",
+      "#\tOld\n"
+    ],
+    [
+      "a no-break space after a run of hashes is not a closing sequence",
+      "## Old #\u00a0\n"
+    ]
+  ],
+  "predecessor": [
+    [
+      "a lone tag directly under an ATX heading hides the heading it wraps",
+      "## Alpha\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a closing fence hides the heading it wraps",
+      "```\ncode\n```\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break hides the heading it wraps",
+      "***\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a closing comment line hides the heading it wraps",
+      "<!-- note\n-->\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a list item hides the heading it wraps",
+      "- item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a block quote hides the heading it wraps",
+      "> quoted\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a table row hides the heading it wraps",
+      "| a | b |\n|---|---|\n| c | d |\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a setext underline hides the heading it wraps",
+      "Alpha\n===\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a type-1 block's closing tag hides the heading it wraps",
+      "<pre>\ncode\n</pre>\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line hides the heading it wraps",
+      "    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps",
+      "- item\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a table row without a pipe hides the heading it wraps",
+      "| a |\n|---|\nrow\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an empty list item hides the heading it wraps",
+      "-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a pipeless delimiter row under a paragraph line hides the heading it wraps",
+      "text\n:-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a pipeless delimiter row under a pipe-led line hides the heading it wraps",
+      "| a |\n:-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote definition hides the heading it wraps",
+      "[^1]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote definition interrupting a paragraph hides the heading it wraps",
+      "text\n[^1]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps",
+      "[^1]: note\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under CommonMark 4.4's own `# Heading` then `    foo` hides the heading it wraps",
+      "# Heading\n    foo\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a tab-indented line under a heading hides the heading it wraps",
+      "# H\n\tcode\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a pipeless delimiter row indented three spaces hides the heading it wraps",
+      "text\n   :-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a list item interrupting a paragraph hides the heading it wraps",
+      "text\n- item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an ordered item interrupting a paragraph hides the heading it wraps",
+      "text\n1. item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps",
+      "text\n- item\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a closed ATX heading hides the heading it wraps",
+      "## Alpha ##\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an ATX heading indented three spaces hides the heading it wraps",
+      "text\n   # H\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an empty ATX heading hides the heading it wraps",
+      "text\n##\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a block quote indented two spaces hides the heading it wraps",
+      "text\n  > quoted\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a list item indented two spaces hides the heading it wraps",
+      "text\n  - item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote definition indented two spaces hides the heading it wraps",
+      "text\n  [^1]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break indented one space hides the heading it wraps",
+      " ***\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break ending in a space hides the heading it wraps",
+      "*** \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break ending in a tab hides the heading it wraps",
+      "***\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of hyphens hides the heading it wraps",
+      "## H\n\n---\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of hyphens ending in a space hides the heading it wraps",
+      "## H\n\n--- \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of hyphens ending in a tab hides the heading it wraps",
+      "## H\n\n---\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of underscores hides the heading it wraps",
+      "___\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of underscores ending in a space hides the heading it wraps",
+      "___ \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a thematic break of underscores ending in a tab hides the heading it wraps",
+      "___\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an ATX opener followed by a tab hides the heading it wraps",
+      "#\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a bullet item introduced by a plus hides the heading it wraps",
+      "+ item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a bullet item introduced by an asterisk hides the heading it wraps",
+      "* item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an ordered item closed by a parenthesis hides the heading it wraps",
+      "7) item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an empty item followed by a space hides the heading it wraps",
+      "- \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an empty item followed by a tab hides the heading it wraps",
+      "-\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an item whose content is separated by tabs hides the heading it wraps",
+      "-\t\titem\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a setext underline indented one space hides the heading it wraps",
+      "text\n =\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a setext underline ending in a space hides the heading it wraps",
+      "text\n= \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a setext underline ending in a tab hides the heading it wraps",
+      "text\n=\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose only cell ends in a space hides the heading it wraps",
+      "text\n-| \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose only cell ends in a tab hides the heading it wraps",
+      "text\n-|\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose leading pipe is followed by a space hides the heading it wraps",
+      "text\n| -\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose leading pipe is followed by tabs hides the heading it wraps",
+      "text\n|\t\t-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose cells end in spaces hides the heading it wraps",
+      "| a || b |\n-|- |- \n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose cells begin with spaces hides the heading it wraps",
+      "| a || b |\n-| -| -\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose cells end in tabs hides the heading it wraps",
+      "| a || b |\n-|-\t\t|-\t\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose cells begin with tabs hides the heading it wraps",
+      "| a || b |\n-|\t\t-|\t\t-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row of right-aligned cells hides the heading it wraps",
+      "| a || b |\n-|-:|-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row of left-aligned cells hides the heading it wraps",
+      "| a || b |\n-|:-|:-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a one-cell delimiter row under a one-character header row hides the heading it wraps",
+      "a\n:-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row under a header row whose first cell is empty hides the heading it wraps",
+      "|| b |\n-|-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose first cell ends in a space hides the heading it wraps",
+      "text\n:- |\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose first cell ends in tabs hides the heading it wraps",
+      "text\n:-\t\t|\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under two plain lines lazily continuing a list item hides the heading it wraps",
+      "- item\nlazy\nmore\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote label carrying a no-break space hides the heading it wraps",
+      "[^a\u00a0b]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote label carrying a form feed hides the heading it wraps",
+      "[^a\fb]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row padded by a form feed hides the heading it wraps",
+      "text\n:-:\f\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a delimiter row whose cell a line tabulation pads hides the heading it wraps",
+      "| a || b |\n-|-\u000b|-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an item whose content is a no-break space hides the heading it wraps",
+      "- \u00a0\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an item interrupting a paragraph whose content is a form feed hides the heading it wraps",
+      "text\n- \f\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a line indented by one space and a tab under a heading hides the heading it wraps",
+      "## H\n \tcode\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a line indented by two spaces and a tab under a heading hides the heading it wraps",
+      "## H\n  \tcode\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a line indented by three spaces and a tab under a heading hides the heading it wraps",
+      "## H\n   \tcode\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a header row whose escaped backslash leaves its pipe escaped hides the heading it wraps",
+      "a\\\\|b\n:-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under a footnote label carrying a NUL hides the heading it wraps",
+      "[^a\u0000b]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line under a closing fence hides the heading it wraps",
+      "```\ncode\n```\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line under a thematic break hides the heading it wraps",
+      "***\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line under a closing comment line hides the heading it wraps",
+      "<!-- note\n-->\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line under a setext underline hides the heading it wraps",
+      "Alpha\n===\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag directly under an indented code line under a type-1 block's closing tag hides the heading it wraps",
+      "<pre>\ncode\n</pre>\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under paragraph text continues it, so the heading renders",
+      "text\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a pipe-led line with no delimiter row under it continues it, so the heading renders",
+      "| a |\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders",
+      "text\n2. item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an equals-sign line that no paragraph precedes continues it, so the heading renders",
+      "===\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a delimiter row with fewer cells than its header row continues it, so the heading renders",
+      "| a | b |\n|---|\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a delimiter row with more cells than its header row continues it, so the heading renders",
+      "| a |\n|---|---|\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a delimiter row whose header row's only pipe is escaped continues it, so the heading renders",
+      "a \\| b\n-|-\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a pipeless delimiter row indented four spaces continues it, so the heading renders",
+      "text\n    :-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a pipeless delimiter row indented by a tab continues it, so the heading renders",
+      "text\n\t:-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an empty item that cannot interrupt a paragraph continues it, so the heading renders",
+      "text\n*\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote definition indented four spaces continues it, so the heading renders",
+      "text\n    [^1]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a plain line after a setext underline of one hyphen continues it, so the heading renders",
+      "text\n-\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a run of seven hashes, which is no ATX opener continues it, so the heading renders",
+      "####### x\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a run of hashes with text right after it continues it, so the heading renders",
+      "#x\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an ATX opener indented four spaces continues it, so the heading renders",
+      "text\n    # x\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a block quote indented four spaces continues it, so the heading renders",
+      "text\n    > quoted\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a setext underline indented four spaces continues it, so the heading renders",
+      "text\n    =\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an ordered item of ten digits continues it, so the heading renders",
+      "7777777777) item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an ordinal terminator with no ordinal before it continues it, so the heading renders",
+      ") item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a bullet whose content no blank separates continues it, so the heading renders",
+      "-item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a list item indented four spaces continues it, so the heading renders",
+      "text\n    - item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a hyphen run with text after it continues it, so the heading renders",
+      "text\n-x\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a row of hyphens and pipes with an empty cell continues it, so the heading renders",
+      "| a | b |\n-||\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote label that is empty continues it, so the heading renders",
+      "[^]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a bracketed label with no caret before it continues it, so the heading renders",
+      "[x]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote label with no colon after it continues it, so the heading renders",
+      "[^x] note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote label carrying a closing bracket continues it, so the heading renders",
+      "[^]]]:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote label of blanks continues it, so the heading renders",
+      "[^  ]:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a thematic break indented four spaces continues it, so the heading renders",
+      "text\n    ***\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a run of asterisks with text after it continues it, so the heading renders",
+      "***x\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a lone colon under a paragraph line continues it, so the heading renders",
+      "text\n:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a one-cell delimiter row that no paragraph precedes continues it, so the heading renders",
+      "***\n:-:\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under an ordered item whose ordinal is no ASCII digit continues it, so the heading renders",
+      "text\n\u0661. item\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a line indented by a tab and nothing else under a paragraph continues it, so the heading renders",
+      "text\n\tcode\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a lone tag under a footnote label carrying a space continues it, so the heading renders",
+      "text\n[^a b]: note\n<span>\n## Old\n</span>\n\n## Beta\n"
+    ]
+  ],
+  "provenance": [
+    [
+      "a block this script would write has provenance",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a block written with the older separator keeps its provenance",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** \u2014 What alpha holds.\n- **[Beta](#beta)** \u2014 What beta holds.\n- **[Gamma](#gamma)** \u2014 What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a hand-edited entry loses it for the block",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)**  -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "an entry indented four spaces loses it",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n    - **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a block inside a fence is no block of this page",
+      "# Page\n\n```\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n```\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a block inside a comment is no block of this page",
+      "# Page\n\n<!--\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n-->\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a block inside a raw HTML block is no block of this page",
+      "# Page\n\n<pre>\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n</pre>\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a heading inside a tight type-6 block is no heading",
+      "<div>\n## Alpha\n</div>\n\n## Beta\n"
+    ],
+    [
+      "a heading inside a type-6 block that closed IS a heading",
+      "<div>\n\n## Alpha\n\n</div>\n\n## Beta\n"
+    ],
+    [
+      "a heading inside a tight type-7 block is no heading",
+      "<span>\n## Alpha\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a heading after a tag that continues a paragraph IS a heading",
+      "text\n<span>\n## Alpha\n</span>\n\n## Beta\n"
+    ],
+    [
+      "a heading inside a comment is no heading",
+      "<!--\n## Alpha\n-->\n\n## Beta\n"
+    ],
+    [
+      "a contents heading with nothing after it has no provenance",
+      "# Page\n\n## Contents\n"
+    ],
+    [
+      "nor has one whose block runs to the last line of the page",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n"
+    ],
+    [
+      "a page this script skips has no provenance",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "nor has a historical page",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "nor has a generator-owned page",
+      "# Page\n\n**GENERATED** - do not hand-edit.\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "a page this script owns still has provenance",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ]
+  ],
+  "refusal": [
+    [
+      "no page of spaces and tabs is refused",
+      ""
+    ],
+    [
+      "every refused character is refused, with its line and column",
+      ""
+    ],
+    [
+      "a carriage return is one of them",
+      ""
+    ],
+    [
+      "the note names the page, the line, the column and the character",
+      ""
+    ],
+    [
+      "a page carrying one obtains no provenance",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\u2003\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "the same page without it does",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ],
+    [
+      "nor does one whose Contents block carries one",
+      "# Page\n\n## Contents\n\n- **[Alpha](#alpha)** -- What alpha holds.\n- **[Beta](#beta)** -- What\u00a0beta holds.\n- **[Gamma](#gamma)** -- What gamma holds.\n\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    ]
+  ]
+}

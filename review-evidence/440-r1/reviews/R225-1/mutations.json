@@ -1,0 +1,529 @@
+[
+  {
+    "mutant": "fence-python-strip",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-F-invalid '```' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+000D]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+001C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+001D]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+001E]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+001F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+0085]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+00A0]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+1680]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2000]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2001]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2002]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2003]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2004]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2005]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2006]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2007]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2008]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2009]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+200A]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2028]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+2029]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+202F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+205F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '```' U+3000]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+000B]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+000C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+000D]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+001C]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+001D]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+001E]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+001F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+0085]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+00A0]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+1680]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2000]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2001]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2002]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2003]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2004]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2005]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2006]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2007]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2008]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2009]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+200A]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2028]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+2029]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+202F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+205F]: ['fenced line', 'fenced line', 'prose line', 'prose line']",
+          "  FAIL [I440-F-invalid '~~~' U+3000]: ['fenced line', 'fenced line', 'prose line', 'prose line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 0,
+        "i440_failures": []
+      }
+    }
+  },
+  {
+    "mutant": "fence-no-tab",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-F-valid '```' '\\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+          "  FAIL [I440-F-valid '```' ' \\t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+          "  FAIL [I440-F-valid '~~~' '\\t']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']",
+          "  FAIL [I440-F-valid '~~~' ' \\t ']: ['fenced line', 'fenced line', 'fenced line', 'fenced line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-fence-tab] findings/exempt expected 0/1, got 1/0: ['I440-E-fence-tab.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "inner-blank",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-inner pre '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' ' ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' '\\t']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' '  ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre '\\n' ' \\t ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' '\\x0b']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' '\\x0c']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' '\\r']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' ' ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' '\\t']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' '  ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner pre 'x' ' \\t ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' ' ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' '\\t']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' '  ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script '\\n' ' \\t ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' '\\x0b']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' '\\x0c']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' '\\r']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' ' ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' '\\t']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' '  ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner script 'x' ' \\t ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' ' ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' '\\t']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' '  ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style '\\n' ' \\t ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' '\\x0b']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' '\\x0c']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' '\\r']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' ' ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' '\\t']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' '  ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner style 'x' ' \\t ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' '\\x0b']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' '\\x0c']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' '\\r']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' ' ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' '\\t']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' '  ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea '\\n' ' \\t ']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' '\\x0b']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' '\\x0c']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' '\\r']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' ' ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' '\\t']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' '  ']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-inner textarea 'x' ' \\t ']: ['raw HTML line', 'prose line', 'prose line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-space] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-space] copied label was not judged against the base heading",
+          "  - [I440-E-tab] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-tab] copied label was not judged against the base heading",
+          "  - [I440-E-inline] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-inline] copied label was not judged against the base heading",
+          "  - [I440-E-inline-tab] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-inline-tab] copied label was not judged against the base heading"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "unicode-fold",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-fold pre/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/scr\u0131pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/scr\u0130pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/\u017fcript 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/\u017ftyle 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/scr\u0131pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold pre/scr\u0130pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/scr\u0131pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/scr\u0130pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/\u017fcript 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/\u017ftyle 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/scr\u0131pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold script/scr\u0130pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/scr\u0131pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/scr\u0130pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/\u017fcript 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/\u017ftyle 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/scr\u0131pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold style/scr\u0130pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/\u017fcript '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/\u017ftyle '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/scr\u0131pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/scr\u0130pt '\\n']: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/\u017fcript 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/\u017ftyle 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/scr\u0131pt 'x']: ['raw HTML line', 'prose line', 'prose line']",
+          "  FAIL [I440-T-fold textarea/scr\u0130pt 'x']: ['raw HTML line', 'prose line', 'prose line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-long-s] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-long-s] copied label was not judged against the base heading",
+          "  - [I440-E-dotless-i] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-dotless-i] copied label was not judged against the base heading",
+          "  - [I440-E-dotted-i] findings/exempt expected 1/0, got 0/1: []",
+          "  - [I440-E-dotted-i] copied label was not judged against the base heading"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "case-sensitive",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "no-later-close",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-ascii] findings/exempt expected 0/1, got 1/0: ['I440-E-ascii.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "no-opening-close",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "only-line-start",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "drop-style-close",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "matching-name-only",
+    "results": {
+      "gen_toc.py": {
+        "exit": 1,
+        "i440_failures": [
+          "  FAIL [I440-T-valid pre/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid pre/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid script/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/textarea '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/textarea 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid style/TEXTAREA 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/pre '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/script '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/pre 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/PRE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/script 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/SCRIPT 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/style 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-valid textarea/STYLE 'x']: ['raw HTML line', 'raw HTML line', 'raw HTML line']",
+          "  FAIL [I440-T-embedded closer anywhere in the line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line']"
+        ]
+      },
+      "check_em_dash.py": {
+        "exit": 2,
+        "i440_failures": [
+          "  - [I440-E-cross] findings/exempt expected 0/1, got 1/0: ['I440-E-cross.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+          "  - [I440-E-cross-inline] findings/exempt expected 0/1, got 1/0: ['I440-E-cross-inline.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+        ]
+      }
+    }
+  },
+  {
+    "mutant": "exact-fence-length",
+    "results": {
+      "gen_toc.py": {
+        "exit": 0,
+        "i440_failures": []
+      },
+      "check_em_dash.py": {
+        "exit": 0,
+        "i440_failures": []
+      }
+    }
+  }
+]

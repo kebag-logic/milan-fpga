@@ -1,0 +1,104 @@
+{
+  "head": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit": 0,
+    "stdout": "0d43ff25d38917e77bb5c3d2ddb6473013cea3ba\n",
+    "stderr": ""
+  },
+  "symbolic_head": {
+    "command": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "tree": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD^{tree}"
+    ],
+    "exit": 0,
+    "stdout": "c0e67508d3b753c21a28a243d365c4c37ed86d43\n",
+    "stderr": ""
+  },
+  "status": {
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "worktree_diff": {
+    "command": [
+      "git",
+      "diff",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "index_diff": {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "index_entries_identical": true,
+  "index_entries_sha256": "64afe894f0b1c5af7da78c314e2e06b82a010a9a63025a5af6d454ff17ec7d26",
+  "submodule_status": {
+    "command": [
+      "git",
+      "submodule",
+      "status"
+    ],
+    "exit": 0,
+    "stdout": "-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external\n-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor\n-424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor\n-48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis\n",
+    "stderr": ""
+  },
+  "submodules": [
+    {
+      "path": "external",
+      "pin": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "exists": true,
+      "empty_directory": true
+    },
+    {
+      "path": "gptp-processor",
+      "pin": "c1b617435824929a790739ea8585c3fe1a328cc0",
+      "exists": true,
+      "empty_directory": true
+    },
+    {
+      "path": "protocol-processor",
+      "pin": "424c688fa2205b934a7689a58f2aa766420f2326",
+      "exists": true,
+      "empty_directory": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "pin": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "exists": true,
+      "empty_directory": true
+    }
+  ],
+  "tracked_files_verified": 851,
+  "bad_files": []
+}
