@@ -1,0 +1,3246 @@
+{
+  "checked_at": "2026-09-22T16:07:36.176717+02:00",
+  "pr": {
+    "headRefOid": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+    "isDraft": false,
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "state": "OPEN"
+  },
+  "reviewed_head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+  "live_base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "candidate_commit": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+  "candidate_tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+  "receipts": {
+    "manager-builder": {
+      "complete": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "exit_code": 0,
+        "finished": "2026-09-22T13:55:51.952198+02:00"
+      },
+      "results": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+        "results": [
+          {
+            "command": [
+              "python3",
+              "avdecc/gen_aem_store.py",
+              "--self-test"
+            ],
+            "exit_code": 0,
+            "seconds": 0.066,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/01.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/pp_srcs.py",
+              "--check",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 0.187,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/02.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/lint_rtl.py",
+              "--check",
+              "--self-test"
+            ],
+            "exit_code": 0,
+            "seconds": 9.536,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/03.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/suite_shards.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 0.053,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/04.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/ci_events.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 0.162,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/05.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/ci_scope.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 1.823,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/06.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/ci_events.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 7.081,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/07.log"
+          },
+          {
+            "command": [
+              "python3",
+              "docs/traceability/gen_module_matrix.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 0.925,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/08.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_feature_status.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.556,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/09.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_submodule_docs.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.405,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/10.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_cpp_idiom.py"
+            ],
+            "exit_code": 0,
+            "seconds": 1.041,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/11.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_py_idiom.py"
+            ],
+            "exit_code": 0,
+            "seconds": 2.767,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/12.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/docs_check.py"
+            ],
+            "exit_code": 0,
+            "seconds": 3.747,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/13.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_doc_style.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.045,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/14.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_doc_style.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 0.034,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/15.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_solution_docs.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.105,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/16.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_doc_paths.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.059,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/17.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_archive.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.239,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/18.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/gen_toc.py",
+              "--verify-anchors"
+            ],
+            "exit_code": 0,
+            "seconds": 0.387,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/19.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/gen_toc.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 0.36,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/20.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_hygiene.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 0.285,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/21.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_todo_ownership.py"
+            ],
+            "exit_code": 0,
+            "seconds": 1.207,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/22.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_sv_idiom.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.392,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/23.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_sh_idiom.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.197,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/24.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_rtl_source_lists.py"
+            ],
+            "exit_code": 0,
+            "seconds": 1.283,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/25.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_soc_sources.py"
+            ],
+            "exit_code": 0,
+            "seconds": 0.103,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/26.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_port_contracts.py"
+            ],
+            "exit_code": 0,
+            "seconds": 2.145,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/27.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_nvm_record_space.py"
+            ],
+            "exit_code": 0,
+            "seconds": 1.808,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/28.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_baremetal_only.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 13.052,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/29.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_baremetal_only.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 2.381,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/30.log"
+          },
+          {
+            "command": [
+              "python3",
+              "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+              "--self-test"
+            ],
+            "exit_code": 0,
+            "seconds": 38.735,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/31.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_sweep_shape.py",
+              "--self-test"
+            ],
+            "exit_code": 0,
+            "seconds": 11.505,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/32.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/xvlog_gate.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 133.948,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/33.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/measure_control_flow.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 0.11,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/34.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/measure_cohesion.py",
+              "--selftest"
+            ],
+            "exit_code": 0,
+            "seconds": 0.05,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/35.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/check_em_dash.py",
+              "--base",
+              "88e9276b2a220c716f64a843f7e1eb8f9265e896"
+            ],
+            "exit_code": 0,
+            "seconds": 0.934,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/36.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/measure_fail_fast.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 1.351,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/37.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/measure_test_evidence.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 4.502,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/38.log"
+          },
+          {
+            "command": [
+              "python3",
+              "scripts/measure_naming.py",
+              "--check"
+            ],
+            "exit_code": 0,
+            "seconds": 0.406,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/39.log"
+          },
+          {
+            "command": [
+              "git",
+              "diff",
+              "--check",
+              "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+              "a769d9dbc937fb324c4726e60dee5b2f7ad349e3"
+            ],
+            "exit_code": 0,
+            "seconds": 0.008,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/40.log"
+          },
+          {
+            "command": [
+              "python3",
+              "sw/builder/test_builder.py"
+            ],
+            "exit_code": 0,
+            "seconds": 428.434,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/manager-builder/41.log"
+          }
+        ]
+      }
+    },
+    "full-native": {
+      "complete": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "exit_code": 0,
+        "finished": "2026-09-22T14:50:06.759953+02:00"
+      },
+      "results": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+        "results": [
+          {
+            "command": [
+              "bash",
+              "scripts/run_all_suites.sh",
+              "$VALIDATION_STORAGE/464-manager-candidate1/full-suite-logs",
+              "--wait"
+            ],
+            "exit_code": 0,
+            "seconds": 2355.586,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/full-native/01.log"
+          },
+          {
+            "command": [
+              "bash",
+              "syn/yosys/run.sh",
+              "--results",
+              "$VALIDATION_STORAGE/464-manager-candidate1/yosys-results"
+            ],
+            "exit_code": 0,
+            "seconds": 651.562,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/full-native/02.log"
+          },
+          {
+            "command": [
+              "bash",
+              "-c",
+              "cd protocol-processor && bash scripts/run_suites.sh"
+            ],
+            "exit_code": 0,
+            "seconds": 358.03,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/full-native/03.log"
+          },
+          {
+            "command": [
+              "make",
+              "-C",
+              "gptp-processor",
+              "all"
+            ],
+            "exit_code": 0,
+            "seconds": 560.877,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/full-native/04.log"
+          },
+          {
+            "command": [
+              "behave",
+              "tests/features"
+            ],
+            "exit_code": 0,
+            "seconds": 1.145,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/full-native/05.log"
+          }
+        ]
+      }
+    },
+    "act-ready": {
+      "complete": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "exit_code": 0,
+        "finished": "2026-09-22T16:07:14.286118+02:00"
+      },
+      "results": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+        "results": [
+          {
+            "command": [
+              "python3",
+              "-I",
+              "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-507/scripts/act_ci.py",
+              "--pr",
+              "513",
+              "--act-bin",
+              "$VALIDATION_TOOLS/act-0.2.89/act",
+              "--sudo"
+            ],
+            "exit_code": 0,
+            "seconds": 4534.164,
+            "log": "$VALIDATION_STORAGE/464-manager-candidate1/act-ready/01.log"
+          }
+        ]
+      }
+    },
+    "native-tree-integrity.json": {
+      "checked_at": "2026-09-22T14:51:31.041166+02:00",
+      "root": "$VALIDATION",
+      "parent": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+        "files_verified": 851,
+        "gitlinks": {
+          "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+          "gptp-processor": "c1b617435824929a790739ea8585c3fe1a328cc0",
+          "protocol-processor": "424c688fa2205b934a7689a58f2aa766420f2326",
+          "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+        }
+      },
+      "required_submodules": {
+        "third_party/verilog-axis": {
+          "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+          "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+          "files_verified": 214,
+          "gitlinks": {}
+        },
+        "protocol-processor": {
+          "head": "424c688fa2205b934a7689a58f2aa766420f2326",
+          "tree": "1b073c8be20fde9bc4362f87c2dc735902d78aec",
+          "files_verified": 222,
+          "gitlinks": {}
+        },
+        "gptp-processor": {
+          "head": "c1b617435824929a790739ea8585c3fe1a328cc0",
+          "tree": "25909c4d74015a9a843513cbf36054b1dda60df5",
+          "files_verified": 103,
+          "gitlinks": {}
+        }
+      },
+      "optional_external": "Unused SSH-only external remains outside required local-gate population; no physical campaign evidence inferred.",
+      "result": "PASS"
+    },
+    "builder-final-tree-integrity.json": {
+      "checked_at": "2026-09-22T14:51:31.229677+02:00",
+      "root": "$BUILDER_VALIDATION",
+      "parent": {
+        "head": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+        "tree": "31ddc6b5615ff91ceed7a6b52afca61c5fb9653d",
+        "files_verified": 851,
+        "gitlinks": {
+          "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+          "gptp-processor": "c1b617435824929a790739ea8585c3fe1a328cc0",
+          "protocol-processor": "424c688fa2205b934a7689a58f2aa766420f2326",
+          "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+        }
+      },
+      "required_submodules": {
+        "third_party/verilog-axis": {
+          "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+          "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+          "files_verified": 214,
+          "gitlinks": {}
+        },
+        "protocol-processor": {
+          "head": "424c688fa2205b934a7689a58f2aa766420f2326",
+          "tree": "1b073c8be20fde9bc4362f87c2dc735902d78aec",
+          "files_verified": 222,
+          "gitlinks": {}
+        },
+        "gptp-processor": {
+          "head": "c1b617435824929a790739ea8585c3fe1a328cc0",
+          "tree": "25909c4d74015a9a843513cbf36054b1dda60df5",
+          "files_verified": 103,
+          "gitlinks": {}
+        }
+      },
+      "optional_external": "Unused SSH-only external remains outside required local-gate population; no physical campaign evidence inferred.",
+      "result": "PASS"
+    }
+  },
+  "hosted_full": {
+    "conclusion": "success",
+    "event": "pull_request",
+    "headSha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+    "jobs": [
+      {
+        "completedAt": "2026-09-22T12:52:03Z",
+        "conclusion": "success",
+        "databaseId": 106752128963,
+        "name": "full-ci-gate",
+        "startedAt": "2026-09-22T12:51:46Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:51:47Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:51:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:51:55Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:51:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:51:55Z",
+            "conclusion": "success",
+            "name": "Print the event and pin the one SHA this run validates",
+            "number": 3,
+            "startedAt": "2026-09-22T12:51:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:51:56Z",
+            "conclusion": "success",
+            "name": "Assert the repository default branch is dev",
+            "number": 4,
+            "startedAt": "2026-09-22T12:51:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:51:59Z",
+            "conclusion": "success",
+            "name": "Hold every workflow file to its contract",
+            "number": 5,
+            "startedAt": "2026-09-22T12:51:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:01Z",
+            "conclusion": "success",
+            "name": "Decide whether this exact head needs the exhaustive gates",
+            "number": 6,
+            "startedAt": "2026-09-22T12:51:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:02Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:02Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:02Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752128963"
+      },
+      {
+        "completedAt": "2026-09-22T12:52:34Z",
+        "conclusion": "success",
+        "databaseId": 106752243311,
+        "name": "Yosys shard 3/4",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:09Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:13Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:13Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Yosys build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:24Z",
+            "conclusion": "success",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:24Z",
+            "conclusion": "success",
+            "name": "Install the pinned sv2v release",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:25Z",
+            "conclusion": "success",
+            "name": "Restore the portability result cache seeded from dev",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:24Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:30Z",
+            "conclusion": "success",
+            "name": "Run this weighted portability shard",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:31Z",
+            "conclusion": "success",
+            "name": "Upload per-top and structural evidence",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:30Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:32Z",
+            "conclusion": "success",
+            "name": "Post Restore the portability result cache seeded from dev",
+            "number": 20,
+            "startedAt": "2026-09-22T12:52:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:32Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Yosys build",
+            "number": 21,
+            "startedAt": "2026-09-22T12:52:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:32Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "startedAt": "2026-09-22T12:52:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:32Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-22T12:52:32Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243311"
+      },
+      {
+        "completedAt": "2026-09-22T13:03:58Z",
+        "conclusion": "success",
+        "databaseId": 106752243314,
+        "name": "Verilator shard 0/5",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Verilator build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "skipped",
+            "name": "Build Verilator from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Put Verilator on PATH and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "success",
+            "name": "Prove specialized suite ownership",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Install sv2v for the netlist-level suite owner",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:03:56Z",
+            "conclusion": "success",
+            "name": "Run this exhaustive suite shard",
+            "number": 14,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:03:56Z",
+            "conclusion": "success",
+            "name": "Upload this shard's suite logs",
+            "number": 15,
+            "startedAt": "2026-09-22T13:03:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:03:57Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Verilator build",
+            "number": 29,
+            "startedAt": "2026-09-22T13:03:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:03:57Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 30,
+            "startedAt": "2026-09-22T13:03:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:03:57Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 31,
+            "startedAt": "2026-09-22T13:03:57Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243314"
+      },
+      {
+        "completedAt": "2026-09-22T12:57:41Z",
+        "conclusion": "success",
+        "databaseId": 106752243321,
+        "name": "Verilator shard 3/5",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:09Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:09Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Verilator build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:09Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "skipped",
+            "name": "Build Verilator from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Put Verilator on PATH and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Prove specialized suite ownership",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:20Z",
+            "conclusion": "success",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:20Z",
+            "conclusion": "success",
+            "name": "Install sv2v for the netlist-level suite owner",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:20Z",
+            "conclusion": "skipped",
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:39Z",
+            "conclusion": "success",
+            "name": "Run this exhaustive suite shard",
+            "number": 14,
+            "startedAt": "2026-09-22T12:52:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:40Z",
+            "conclusion": "success",
+            "name": "Upload this shard's suite logs",
+            "number": 15,
+            "startedAt": "2026-09-22T12:57:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:40Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 28,
+            "startedAt": "2026-09-22T12:57:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:40Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Verilator build",
+            "number": 29,
+            "startedAt": "2026-09-22T12:57:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:40Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 30,
+            "startedAt": "2026-09-22T12:57:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:57:40Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 31,
+            "startedAt": "2026-09-22T12:57:40Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243321"
+      },
+      {
+        "completedAt": "2026-09-22T12:52:41Z",
+        "conclusion": "success",
+        "databaseId": 106752243356,
+        "name": "Yosys shard 2/4",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:17Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Yosys build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:17Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:31Z",
+            "conclusion": "success",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:32Z",
+            "conclusion": "success",
+            "name": "Install the pinned sv2v release",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:31Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:33Z",
+            "conclusion": "success",
+            "name": "Restore the portability result cache seeded from dev",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:37Z",
+            "conclusion": "success",
+            "name": "Run this weighted portability shard",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:33Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:38Z",
+            "conclusion": "success",
+            "name": "Upload per-top and structural evidence",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:39Z",
+            "conclusion": "success",
+            "name": "Post Restore the portability result cache seeded from dev",
+            "number": 20,
+            "startedAt": "2026-09-22T12:52:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:39Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Yosys build",
+            "number": 21,
+            "startedAt": "2026-09-22T12:52:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:39Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "startedAt": "2026-09-22T12:52:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:39Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-22T12:52:39Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243356"
+      },
+      {
+        "completedAt": "2026-09-22T12:55:46Z",
+        "conclusion": "success",
+        "databaseId": 106752243388,
+        "name": "Verilator shard 2/5",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Verilator build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "skipped",
+            "name": "Build Verilator from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "success",
+            "name": "Put Verilator on PATH and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "success",
+            "name": "Prove specialized suite ownership",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Install sv2v for the netlist-level suite owner",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:55:44Z",
+            "conclusion": "success",
+            "name": "Run this exhaustive suite shard",
+            "number": 14,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:55:44Z",
+            "conclusion": "success",
+            "name": "Upload this shard's suite logs",
+            "number": 15,
+            "startedAt": "2026-09-22T12:55:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:55:45Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Verilator build",
+            "number": 29,
+            "startedAt": "2026-09-22T12:55:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:55:45Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 30,
+            "startedAt": "2026-09-22T12:55:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:55:45Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 31,
+            "startedAt": "2026-09-22T12:55:45Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243388"
+      },
+      {
+        "completedAt": "2026-09-22T13:15:30Z",
+        "conclusion": "success",
+        "databaseId": 106752243438,
+        "name": "Verilator shard 1/5",
+        "startedAt": "2026-09-22T12:52:41Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:43Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:42Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:45Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:46Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:46Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Verilator build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "skipped",
+            "name": "Build Verilator from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "success",
+            "name": "Put Verilator on PATH and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "success",
+            "name": "Prove specialized suite ownership",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "skipped",
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "skipped",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:47Z",
+            "conclusion": "skipped",
+            "name": "Install sv2v for the netlist-level suite owner",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:53:19Z",
+            "conclusion": "success",
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:15:28Z",
+            "conclusion": "success",
+            "name": "Run this exhaustive suite shard",
+            "number": 14,
+            "startedAt": "2026-09-22T12:53:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:15:29Z",
+            "conclusion": "success",
+            "name": "Upload this shard's suite logs",
+            "number": 15,
+            "startedAt": "2026-09-22T13:15:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:15:29Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Verilator build",
+            "number": 29,
+            "startedAt": "2026-09-22T13:15:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:15:29Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 30,
+            "startedAt": "2026-09-22T13:15:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:15:29Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 31,
+            "startedAt": "2026-09-22T13:15:29Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243438"
+      },
+      {
+        "completedAt": "2026-09-22T12:52:40Z",
+        "conclusion": "success",
+        "databaseId": 106752243440,
+        "name": "Yosys shard 0/4",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:14Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:14Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Yosys build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:25Z",
+            "conclusion": "success",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:26Z",
+            "conclusion": "success",
+            "name": "Install the pinned sv2v release",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:26Z",
+            "conclusion": "success",
+            "name": "Restore the portability result cache seeded from dev",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:36Z",
+            "conclusion": "success",
+            "name": "Run this weighted portability shard",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:37Z",
+            "conclusion": "success",
+            "name": "Upload per-top and structural evidence",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:36Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:38Z",
+            "conclusion": "success",
+            "name": "Post Restore the portability result cache seeded from dev",
+            "number": 20,
+            "startedAt": "2026-09-22T12:52:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:38Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Yosys build",
+            "number": 21,
+            "startedAt": "2026-09-22T12:52:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:38Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "startedAt": "2026-09-22T12:52:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:38Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-22T12:52:38Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243440"
+      },
+      {
+        "completedAt": "2026-09-22T13:25:57Z",
+        "conclusion": "success",
+        "databaseId": 106752243477,
+        "name": "Verilator shard 4/5",
+        "startedAt": "2026-09-22T12:52:06Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:10Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:13Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:13Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Verilator build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:15Z",
+            "conclusion": "skipped",
+            "name": "Build Verilator from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "success",
+            "name": "Put Verilator on PATH and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "success",
+            "name": "Prove specialized suite ownership",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Install sv2v for the netlist-level suite owner",
+            "number": 12,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:16Z",
+            "conclusion": "skipped",
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "number": 13,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:25:52Z",
+            "conclusion": "success",
+            "name": "Run this exhaustive suite shard",
+            "number": 14,
+            "startedAt": "2026-09-22T12:52:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:25:54Z",
+            "conclusion": "success",
+            "name": "Upload this shard's suite logs",
+            "number": 15,
+            "startedAt": "2026-09-22T13:25:52Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:25:54Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Verilator build",
+            "number": 29,
+            "startedAt": "2026-09-22T13:25:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:25:54Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 30,
+            "startedAt": "2026-09-22T13:25:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:25:54Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 31,
+            "startedAt": "2026-09-22T13:25:54Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243477"
+      },
+      {
+        "completedAt": "2026-09-22T12:52:30Z",
+        "conclusion": "success",
+        "databaseId": 106752243610,
+        "name": "Yosys shard 1/4",
+        "startedAt": "2026-09-22T12:52:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T12:52:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T12:52:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:08Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T12:52:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Fetch RTL dependencies",
+            "number": 3,
+            "startedAt": "2026-09-22T12:52:08Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:11Z",
+            "conclusion": "success",
+            "name": "Record the tree this worker validates",
+            "number": 4,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "success",
+            "name": "Cache the pinned Yosys build",
+            "number": 5,
+            "startedAt": "2026-09-22T12:52:11Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:12Z",
+            "conclusion": "skipped",
+            "name": "Build Yosys from source on cache miss",
+            "number": 6,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:22Z",
+            "conclusion": "success",
+            "name": "Install the pinned Yosys and prove the version",
+            "number": 7,
+            "startedAt": "2026-09-22T12:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:22Z",
+            "conclusion": "success",
+            "name": "Install the pinned sv2v release",
+            "number": 8,
+            "startedAt": "2026-09-22T12:52:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:23Z",
+            "conclusion": "success",
+            "name": "Restore the portability result cache seeded from dev",
+            "number": 9,
+            "startedAt": "2026-09-22T12:52:22Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:26Z",
+            "conclusion": "success",
+            "name": "Run this weighted portability shard",
+            "number": 10,
+            "startedAt": "2026-09-22T12:52:23Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:27Z",
+            "conclusion": "success",
+            "name": "Upload per-top and structural evidence",
+            "number": 11,
+            "startedAt": "2026-09-22T12:52:26Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:28Z",
+            "conclusion": "success",
+            "name": "Post Restore the portability result cache seeded from dev",
+            "number": 20,
+            "startedAt": "2026-09-22T12:52:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:28Z",
+            "conclusion": "success",
+            "name": "Post Cache the pinned Yosys build",
+            "number": 21,
+            "startedAt": "2026-09-22T12:52:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:28Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "startedAt": "2026-09-22T12:52:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T12:52:28Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "startedAt": "2026-09-22T12:52:28Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752243610"
+      },
+      {
+        "completedAt": "2026-09-22T12:52:03Z",
+        "conclusion": "skipped",
+        "databaseId": 106752244484,
+        "name": "Physical gPTP (nightly and manual)",
+        "startedAt": "2026-09-22T12:52:03Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106752244484"
+      },
+      {
+        "completedAt": "2026-09-22T13:26:06Z",
+        "conclusion": "success",
+        "databaseId": 106764437216,
+        "name": "verilator-suites",
+        "startedAt": "2026-09-22T13:25:59Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T13:26:01Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T13:26:00Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:03Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T13:26:01Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:03Z",
+            "conclusion": "success",
+            "name": "Download every shard's logs",
+            "number": 3,
+            "startedAt": "2026-09-22T13:26:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:03Z",
+            "conclusion": "success",
+            "name": "Require every shard to have validated this run's SHA",
+            "number": 4,
+            "startedAt": "2026-09-22T13:26:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:04Z",
+            "conclusion": "success",
+            "name": "Prove exhaustive ownership and tally every log",
+            "number": 5,
+            "startedAt": "2026-09-22T13:26:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:04Z",
+            "conclusion": "success",
+            "name": "Require every Verilator worker to pass",
+            "number": 6,
+            "startedAt": "2026-09-22T13:26:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:04Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 12,
+            "startedAt": "2026-09-22T13:26:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:04Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-09-22T13:26:04Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764437216"
+      },
+      {
+        "completedAt": "2026-09-22T13:26:19Z",
+        "conclusion": "success",
+        "databaseId": 106764503957,
+        "name": "yosys-portability",
+        "startedAt": "2026-09-22T13:26:11Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-09-22T13:26:13Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-09-22T13:26:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:16Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "startedAt": "2026-09-22T13:26:13Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:16Z",
+            "conclusion": "success",
+            "name": "Download every shard's evidence",
+            "number": 3,
+            "startedAt": "2026-09-22T13:26:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:17Z",
+            "conclusion": "success",
+            "name": "Require every shard to have validated this run's SHA",
+            "number": 4,
+            "startedAt": "2026-09-22T13:26:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:17Z",
+            "conclusion": "success",
+            "name": "Reconcile the live inventory and structural gates",
+            "number": 5,
+            "startedAt": "2026-09-22T13:26:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:17Z",
+            "conclusion": "success",
+            "name": "Require every Yosys worker to pass",
+            "number": 6,
+            "startedAt": "2026-09-22T13:26:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:17Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 12,
+            "startedAt": "2026-09-22T13:26:17Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-09-22T13:26:17Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-09-22T13:26:17Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764503957"
+      }
+    ],
+    "status": "completed",
+    "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672"
+  },
+  "latest_required_checks": {
+    "yosys-portability": {
+      "id": 106764503957,
+      "name": "yosys-portability",
+      "node_id": "CR_kwDOP42Xbc8AAAAY26kLlQ",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "15d5ab4b-f7dc-53fb-b187-bf2f112973a1",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106764503957",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764503957",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764503957",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T13:26:11Z",
+      "completed_at": "2026-09-22T13:26:19Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106764503957/annotations"
+      },
+      "check_suite": {
+        "id": 96737964727
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "verilator-suites": {
+      "id": 106764437216,
+      "name": "verilator-suites",
+      "node_id": "CR_kwDOP42Xbc8AAAAY26gG4A",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "4569ccd9-f2b6-59d9-851d-974b5e4082f6",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106764437216",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764437216",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759672/job/106764437216",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T13:25:59Z",
+      "completed_at": "2026-09-22T13:26:06Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106764437216/annotations"
+      },
+      "check_suite": {
+        "id": 96737964727
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "rtl-fast": {
+      "id": 106755355389,
+      "name": "rtl-fast",
+      "node_id": "CR_kwDOP42Xbc8AAAAY2x1y_Q",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "101cd3f6-1803-5a80-a865-4751f72feedc",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106755355389",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759744/job/106755355389",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759744/job/106755355389",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T13:01:03Z",
+      "completed_at": "2026-09-22T13:01:05Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 1,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106755355389/annotations"
+      },
+      "check_suite": {
+        "id": 96737964855
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "docs-check": {
+      "id": 106752129822,
+      "name": "docs-check",
+      "node_id": "CR_kwDOP42Xbc8AAAAY2uw7Hg",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "7c10e4eb-86be-5aa7-a80a-4ec1c25d5691",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129822",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129822",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129822",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T12:51:46Z",
+      "completed_at": "2026-09-22T13:00:11Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129822/annotations"
+      },
+      "check_suite": {
+        "id": 96737965044
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "docs-check-no-git": {
+      "id": 106752129796,
+      "name": "docs-check-no-git",
+      "node_id": "CR_kwDOP42Xbc8AAAAY2uw7BA",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "04756c89-9055-533a-a71e-2525175791c4",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129796",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129796",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129796",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T12:51:46Z",
+      "completed_at": "2026-09-22T12:51:54Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129796/annotations"
+      },
+      "check_suite": {
+        "id": 96737965044
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "wire-accountability": {
+      "id": 106752129512,
+      "name": "wire-accountability",
+      "node_id": "CR_kwDOP42Xbc8AAAAY2uw56A",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "c9bed38a-0c5a-5f39-b44f-3b2fc05a2468",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129512",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129512",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129512",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T12:51:46Z",
+      "completed_at": "2026-09-22T12:51:57Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129512/annotations"
+      },
+      "check_suite": {
+        "id": 96737965044
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    },
+    "elaborate": {
+      "id": 106752129083,
+      "name": "elaborate",
+      "node_id": "CR_kwDOP42Xbc8AAAAY2uw4Ow",
+      "head_sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+      "external_id": "23707f0f-ba7c-5086-94d7-74ed0f973d8e",
+      "url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129083",
+      "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759723/job/106752129083",
+      "details_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/35729759723/job/106752129083",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-09-22T12:51:46Z",
+      "completed_at": "2026-09-22T13:00:48Z",
+      "output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 2,
+        "annotations_url": "https://api.github.com/repos/kebag-logic/milan-fpga/check-runs/106752129083/annotations"
+      },
+      "check_suite": {
+        "id": 96737964832
+      },
+      "app": {
+        "id": 15368,
+        "client_id": "Iv1.05c79e9ad1f6bdfa",
+        "slug": "github-actions",
+        "node_id": "MDM6QXBwMTUzNjg=",
+        "owner": {
+          "login": "github",
+          "id": 9919,
+          "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/github",
+          "html_url": "https://github.com/github",
+          "followers_url": "https://api.github.com/users/github/followers",
+          "following_url": "https://api.github.com/users/github/following{/other_user}",
+          "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+          "organizations_url": "https://api.github.com/users/github/orgs",
+          "repos_url": "https://api.github.com/users/github/repos",
+          "events_url": "https://api.github.com/users/github/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/github/received_events",
+          "type": "Organization",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "name": "GitHub Actions",
+        "description": "Automate your workflow from idea to production",
+        "external_url": "https://help.github.com/en/actions",
+        "html_url": "https://github.com/apps/github-actions",
+        "created_at": "2018-07-30T09:30:17Z",
+        "updated_at": "2026-06-18T16:17:48Z",
+        "permissions": {
+          "actions": "write",
+          "administration": "read",
+          "artifact_metadata": "write",
+          "attestations": "write",
+          "checks": "write",
+          "code_quality": "write",
+          "contents": "write",
+          "copilot_requests": "write",
+          "deployments": "write",
+          "discussions": "write",
+          "drives": "write",
+          "issues": "write",
+          "merge_queues": "write",
+          "metadata": "read",
+          "models": "read",
+          "packages": "write",
+          "pages": "write",
+          "pull_requests": "write",
+          "repository_hooks": "write",
+          "repository_projects": "write",
+          "security_events": "write",
+          "statuses": "write",
+          "vulnerability_alerts": "read"
+        },
+        "events": [
+          "branch_protection_rule",
+          "check_run",
+          "check_suite",
+          "create",
+          "delete",
+          "deployment",
+          "deployment_status",
+          "discussion",
+          "discussion_comment",
+          "fork",
+          "gollum",
+          "issues",
+          "issue_comment",
+          "label",
+          "merge_group",
+          "milestone",
+          "page_build",
+          "public",
+          "pull_request",
+          "pull_request_review",
+          "pull_request_review_comment",
+          "push",
+          "registry_package",
+          "release",
+          "repository",
+          "repository_dispatch",
+          "status",
+          "watch",
+          "workflow_dispatch",
+          "workflow_run"
+        ]
+      },
+      "pull_requests": [
+        {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/pulls/513",
+          "id": 4602286017,
+          "number": 513,
+          "head": {
+            "ref": "464-aem-store-selftest",
+            "sha": "a769d9dbc937fb324c4726e60dee5b2f7ad349e3",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          },
+          "base": {
+            "ref": "dev",
+            "sha": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+            "repo": {
+              "id": 1066243949,
+              "url": "https://api.github.com/repos/kebag-logic/milan-fpga",
+              "name": "milan-fpga"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "reviews": {
+    "R235": {
+      "comment": {
+        "url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/comments/5777556715",
+        "html_url": "https://github.com/kebag-logic/milan-fpga/pull/513#issuecomment-5777556715",
+        "issue_url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/513",
+        "id": 5777556715,
+        "node_id": "IC_kwDOP42Xbc8AAAABWF6E6w",
+        "user": {
+          "login": "Mister-M-alt",
+          "id": 161579364,
+          "node_id": "U_kgDOCaGBZA",
+          "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Mister-M-alt",
+          "html_url": "https://github.com/Mister-M-alt",
+          "followers_url": "https://api.github.com/users/Mister-M-alt/followers",
+          "following_url": "https://api.github.com/users/Mister-M-alt/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Mister-M-alt/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Mister-M-alt/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Mister-M-alt/subscriptions",
+          "organizations_url": "https://api.github.com/users/Mister-M-alt/orgs",
+          "repos_url": "https://api.github.com/users/Mister-M-alt/repos",
+          "events_url": "https://api.github.com/users/Mister-M-alt/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Mister-M-alt/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "created_at": "2026-09-22T13:38:43Z",
+        "updated_at": "2026-09-22T13:38:43Z",
+        "body": "[R235] POSITIVE - exact head a769d9dbc937fb324c4726e60dee5b2f7ad349e3\n\n# R235-1 independent review: issue #464 / PR #513\n\n- Reviewer: R235, cleared-context internal Opus session. Round: R235-1.\n- Review start (public): PR #513 comment 5777127589.\n- Head under review: `a769d9dbc937fb324c4726e60dee5b2f7ad349e3`, tree `31ddc6b5615ff91ceed7a6b52afca61c5fb9653d`.\n  Parents: dev `88e9276b2a220c716f64a843f7e1eb8f9265e896` (first) and author head `1576f0893ae9781074fffb105f5384fe774ff11e`.\n- Validation base: live `dev` `88e9276b`, re-read at 2026-09-22T13:31:38Z. The PR head was still `a769d9db`, ready (not draft) and open.\n- Read, in order: AGENTS.md, CONTRIBUTING.md, docs/README.md, the issue #464 body and all 14 public comments, and the PR #513 body and 3 comments. Then REQUIREMENTS.md REQ-VER-03/04, IEEE 1722.1-2021 7.2.19 and Table 7-32, Milan v1.2 5.3.3.7 to 5.3.3.9, and docs/testing/CI_WORKFLOWS.md (item 11 and the docs-check shape-gate section). Then the PR diff, its three commits, and the hosted logs for the exact head.\n- Not read: author private reasoning, any other reviewer's report, or lane-local material. Of the manager's public evidence packet, only identity and exit-status files were read (listed under Limits).\n\n## Verdict\n\nPOSITIVE. I applied all five lenses at the exact head. No BLOCKER, MAJOR or MINOR finding is open. Three SUGGESTIONs are recorded; by definition they are optional and do not affect coverage.\n\n## Clean-lens results\n\n[R235] PASS Conformance - avdecc/gen_aem_store.py:157-322, .github/workflows/docs.yml:384-391, scripts/ci_events.py:1065-1068 at a769d9db - Acceptance criteria 1 to 3 hold, and so do the readiness decision (issue comment 5770832953) and scope confirmation (5775302273).\n- The causes are reproduced (E1, E2).\n- `--self-test` exits 0 at the head on 3.14.7, 3.12.13 and 3.11.15. Hosted docs-check step 42 prints 20 ok and PASS (E8).\n- The new step is pinned and recognised (E7).\n- No arm was removed; the same six deviations are held exact both ways (E3); no validator or allowlist was widened; no generated byte changed (E9).\n- The quoted Milan v1.2 5.3.3.9 and IEEE 1722.1-2021 7.2.19 / Table 7-32 text matches the standards (E12).\n\n[R235] PASS RTL - receipts/delta-name-status.txt, gitlinks at ec34fcde/88e9276b/1576f089/a769d9db, receipts/regen-builtin-outputs.txt, avdecc/aem_emit.py:271-293 and :407-431 - The PR changes no RTL and no processor pin, and leaves the protocol-processor-facing contracts intact.\n- No HDL/SV/V/SVH path and no gitlink is in the delta; file modes are preserved.\n- protocol-processor stays at 424c688f, gptp-processor at c1b61743 and verilog-axis at 48ff7a7e.\n- The builtin `aecp_aem_rom.svh` (AEM_SMAP_* tables included) and `aem_rom.json` are byte-identical at base and head.\n- The emitters read only the SMAP serving tables, never DEVIATIONS or KNOWN_MAP_DEVIATIONS.\n\n[R235] PASS Robustness - avdecc/gen_aem_store.py:202-231, receipts/mutation-matrix/SUMMARY.txt, receipts/workflow-mutations/SUMMARY.txt - The self-test fails closed under every failure mode I planted.\n- A fixture shared across vectors is caught (S01), and so is an invalid fixture (M20, X7).\n- A wrong-cause ValueError is caught (M05). Removed index bounds fail closed through an uncaught IndexError, rc=1 (M04, M09).\n- The CI step cannot be skipped, swallowed, redirected, re-shelled, given injected env, reordered, renamed or duplicated without `ci_events --check` refusing (W01 to W17).\n- The self-test writes no product file (content hashes unchanged). It runs with no submodule contents and without PyYAML (3.12 and 3.11 git-archive extracts).\n\n[R235] PASS Tests - receipts/mutation-matrix/SUMMARY.txt, receipts/raise-site-binding.txt, receipts/selftest-matrix/, receipts/ci_events/head-selftest.log - Loss of each claimed bound is detected, and every arm is preserved.\n- 42 of 42 expectation-bearing plants met on both 3.14 and 3.12: 33 caught, 5 neutral controls, 4 load-bearing demonstrations.\n- Each of the nine AUDIO_MAP vectors raises at exactly its named guard line. Each oracle fragment occurs in exactly 1 of the 34 ValueError raise sites in avdecc/.\n- All 19 base arm names survive verbatim, plus 1 new fixture arm.\n- `ci_events --selftest` has 1150 arms, including the 6 new step-41 arms. My 18 independent workflow plants all met their expectations.\n- S2 and S3 are open as SUGGESTION only.\n\n[R235] PASS Docs - docs/testing/CI_WORKFLOWS.md:1059-1067, docs/testing/RUNNING_TESTS.md:24, .github/workflows/docs.yml:384-389, avdecc/gen_aem_store.py:9-11 and :67-68, avdecc/aem_maps.py:103-106 - Every changed sentence was checked against the code and the runs (E11), and the PR and issue carry reproducible evidence.\n- Step placement, command, own-bound refusal, fixture, positive control, \"no step ran it before\", \"first-party files only / no submodule / no dependency\", and the descriptor counts all hold.\n- The sweep found no stale current documentation.\n- Em-dash: 0 in all added lines. The hosted gate judged `[88e9276b..HEAD]`: 11 lines, 0 findings.\n- `git diff --check` is clean. All three commits are one line with no trailers.\n- S1 is open as SUGGESTION only.\n\n## Findings\n\n[R235] SUGGESTION Docs - avdecc/gen_aem_store.py:173 (overrides at :178-188) - fixture docstring says every non-bounding field is the deployed model's, but the names are not\nRequirement/evidence: The docstring says \"Every field that bounds no mapping is the deployed model's.\" The fixture does more than that:\n- It re-declares the stream names as `AAF in`, `CRF in` and `AAF out`. The deployed model's names are `Stream 1`, `CRF` and `Stream Output 0` (avdecc/aem_specs.py:52-56).\n- It sets `cluster_names_in/out=None`, so its clusters take the generic `Input`/`Output` names (avdecc/aem_assemble.py:284-285). The deployed names are `I2S Out n`/`Virtual Out n`/`I2S In n`/`Virtual In n` (avdecc/aem_specs.py:80-83).\n\nNames bound no mapping, and no cause fragment contains a name (receipts/raise-site-binding.txt).\nImpact: None on the gate or on any arm's verdict. A reader could take the sentence to mean the fixture differs from the deployed model only in fields that bound mappings.\nRequired change: Optional. Either state that the fixture also re-declares the stream names and defaults the cluster names, or keep the deployed names.\nVerification: Read the docstring against the keys in `_map_fixture()`'s `spec.update(...)`. The self-test stays 20/20.\n\n[R235] SUGGESTION Tests - avdecc/gen_aem_store.py:268-286 with avdecc/aem_maps.py:171, :293, :306 - boundary and rule-scope coverage (pre-existing; not claimed by this PR)\nRequirement/evidence: See receipts/boundary-mutations/SUMMARY.txt.\n- Detected: tightening of the cluster_offset, stream_index and base_map bounds (B2, B3, B4), because the fixture uses each range in full.\n- B1, not detected: refusing a 62-mapping map. No arm accepts exactly 62, although IEEE 1722.1-2021 Table 7-32 allows 62.\n- L1, not detected: narrowing the 7.2.19 OUTPUT rule from \"across the entire Configuration\" to a single port. The fixture has one output port, although the arm's label quotes that scope.\n- L2, not detected: widening the INPUT rule from one map to every input port. The fixture has one input port.\n\nThe base self-test had the same single-port geometry and no 62-accept arm (b7d0bbcd, 88e9276b). The PR claims detection of a bound's loss, and that holds (M06, M07, M10, M11).\nImpact: A change that refuses a conformant 62-mapping map, or mis-scopes either duplicate rule across ports, would pass this self-test. Whether the builder gates would catch it was not measured.\nRequired change: Optional. This is new coverage, so it belongs in a follow-up Issue rather than this lane:\n- an accept arm at exactly 62 mappings on the output map, for example `[[0, c, c % 8, 0] for c in range(62)]`;\n- two-port fixture variants with cross-port vectors for both directions.\n\nVerification: B1, L1 and L2 in scripts/boundary_mutations.py report DETECTED.\n\n[R235] SUGGESTION Tests - avdecc/gen_aem_store.py:335-381 with avdecc/aem_assemble.py:56-65 and :112-118 - the directory arms carry no cause oracle (pre-existing; byte-unchanged by this PR)\nRequirement/evidence: In receipts/mutation-matrix (P01, P02), removing only the contiguity assertion, or only the zero-based ascending assertion, leaves the self-test green. `check_two_level` refuses the same layouts for a different reason, and `dir_refuses` accepts any ValueError. The larger failures are caught: the whole layout-assertion set removed (P05), the equivalence check neutered (P03), or the name check neutered (P04). The PR's own-bound claim is scoped to AUDIO_MAP vectors (docs/testing/CI_WORKFLOWS.md:1062).\nImpact: None today, because the equivalence check still refuses these layouts. A loss of one layer stays invisible until the second layer is lost too.\nRequired change: Optional, as a follow-up Issue: give each directory arm a cause fragment, the way #464 did for the AUDIO_MAP vectors.\nVerification: P01 and P02 in scripts/mutation_matrix.py become DETECTED.\n\n## Evidence\n\nAll runs used isolated `git archive` extracts, or minimal copies made from them. Nothing ran in the review checkout. Receipt paths are relative to this report's directory.\n\nE1. First failure and causal roots. Source: receipts/selftest-matrix/selftest-matrix.txt and its logs.\n\n| Commit | 3.14.7 | 3.12.13 and 3.11.15 |\n|---|---|---|\n| head `a769d9db` | rc=0, 20 ok | rc=0, 20 ok |\n| source `1576f089` | rc=0, 20 ok | rc=0, 20 ok |\n| base `88e9276b` (and `ec34fcde`) | rc=1 after 1 ok: IndexError at gen_aem_store.py:194, `s[\"audio_maps\"][1] = ...` | rc=1: NameError `Callable`, at :161 `def refuses(...)` |\n| `b7d0bbcd`, parent of `da71309c` | rc=0, 19 ok | rc=0, 19 ok |\n| `da71309c` | rc=1, IndexError in `global_index` | rc=1, IndexError in `global_index` |\n\n- `da71309c` made the input port dynamic, moved `base_map` from 1 to 0, and cut two maps to one (verified in its diff).\n- `25f543b9` (2026-09-04) postdates `b7d0bbcd` and added the unimported `Callable` annotation.\n- The head's 3.14 and 3.12 transcripts are byte-identical.\n\nE2. Base vectors replayed on the base deployed model (receipts/probe-base-vectors.txt):\n- Three raise IndexError while the vector is applied: global_index, OUTPUT dup and OUTPUT accept.\n- Two are refused for another cause: INPUT dup (by the OUTPUT rule) and CRF (by stream_index).\n- base_map, maps, cluster_channel, stream_index and 63-mappings are refused for their own cause. cluster_channel and stream_index hit the output port.\n- The base allowlist matched none of the model's 6 deviations (6 new, 6 stale).\n\nE3. Deviations (receipts/deviation-identity.txt):\n- Head set = base set with `AUDIO_MAP[1]` changed to `AUDIO_MAP[0]`. Each string differs from its base twin in exactly one character.\n- Head deployed deviations: 6 listed, 6 distinct. model minus recorded is empty; recorded minus model is empty.\n- The fixture's own 6 deviations are the old `AUDIO_MAP[1]` strings and do not intersect the recorded set.\n- Readers of `KNOWN_MAP_DEVIATIONS`/`assert_no_map_deviations`: only avdecc/aem_maps.py (definition and default argument) and the self-test in avdecc/gen_aem_store.py. None exist in sw/, scripts/, tb/, tests/ or the processor trees.\n\nE4. Mutation matrix (scripts/mutation_matrix.py; receipts/mutation-matrix/SUMMARY.txt). 44 plants of exact single-count edits, run on 3.14 and 3.12 with identical exit codes. Every plant's edit applied exactly once (no INVALID).\n- Caught (33):\n  - Each AUDIO_MAP bound removed: M01, M03, M04, M05, M06, M07, M08, M09, M10.\n  - Bounds loosened: cluster_offset `>` (M02) and Table 7-32 max 63 (M11).\n  - The INPUT rule applied to both directions (M12) and the OUTPUT rule applied to both (M13).\n  - Allowlist stale (M14), widened (M15, caught by the reverse check only), narrowed (M16) and neutered (M17). Deviation no longer recorded (M18). Gate bypassed (M19). Static inputs refused (M20).\n  - A deployed deviation added (D01, forward check only) or removed (D02, reverse check only).\n  - Fixture shared (S01) or replaced by the deployed geometry (S02).\n  - Oracle kept with the base 62-vector (X4). New geometry without the oracle (X5). Acceptance arm removed plus static inputs refused (X7).\n  - Directory-gate pieces: P03, P04 and P05. Base-format pieces: P06, P07 and P08.\n- Neutral controls pass (5): P00, S03, S04, S05, S06.\n- Load-bearing demonstrations, which pass as designed (4):\n  - X1: no oracle, CRF refusal removed.\n  - X2: no reverse check, widened allowlist.\n  - X3: no oracle, base 62-vector, count bound removed.\n  - X6: no oracle, OUTPUT rule applied to both.\n- Observe only (2): P01 and P02 not detected (S3).\n\nE5. Boundary and scope, observe only (scripts/boundary_mutations.py): B2, B3 and B4 detected; B1, L1 and L2 not detected (S2).\n\nE6. Raise-site binding (receipts/raise-site-binding.txt): each head vector raises at its own guard. Lines in aem_maps.py:\n- 189 (cluster_offset), 165 (base_map), 158 (number_of_maps)\n- 198 (cluster_channel), 204 (stream_index), 258 (INPUT rule)\n- 226 (CRF), 272 (OUTPUT rule), 171 (Table 7-32)\n\nEach fragment is carried by exactly 1 of the 34 ValueError raise sites in avdecc/*.py.\n\nE7. CI contract.\n- Local `ci_events` counts, head against base: `--check` 1513 against 1505 items; `--selftest` PASS with 1150 against 1144 arms (receipts/ci_events/).\n- The new arms are exactly six, all on docs-check step 41: no-op, or-true, append-command, drop-flag, continue-on-error, and missing record. The vacuity arms go from 1046 to 1051.\n- The record at scripts/ci_events.py:1065-1068 pins the step's name, its position (after \"Per-page contents gate\", before \"Sweep/build shape gate\") and the exact normalized script `python3 avdecc/gen_aem_store.py --self-test`. That binds the source path and the proof flag. As item 11 specifies for every carrier, it pins the command, not the script's bytes.\n- The five `44 steps` count arms (scripts/ci_events.py:6875, 6889, 6902, 6905, 6951) are the only step-count literals. No stale `43` remains in the tree.\n- The 18 independent plants all met expectation (receipts/workflow-mutations/SUMMARY.txt). W13 shows that removing the step and its record together still fails `--selftest` through the count arms.\n- `scripts/act_ci.py` vets only `uses:` steps, so the new `run:` step leaves it unaffected.\n- docs.yml runs on every `pull_request` and on pushes to `dev`/`main` with no path filter, and the step has no `if`.\n\nE8. Hosted execution at the exact head: docs run 35729759797 (pull_request, head_sha a769d9db, attempt 1), job 106752129822 `docs-check` on the ubuntu-24.04 image.\n- Step 42 \"AEM store generator self-test\" ran 12:59:18.44 to 12:59:18.52Z: 20 `[ok]`, 0 `[FAIL]`, \"gen_aem_store self-test: PASS\" (receipts/hosted-docs-check-job.log:3734-3777).\n- Step 37: `ci_events: OK (1513 ...)` at log line 2266, and `selftest: PASS (1513 contract items, 1150 arms)` at line 3418.\n- At 13:31:38Z all seven required contexts had concluded `success` on a769d9db: rtl-fast, docs-check, wire-accountability, docs-check-no-git, elaborate, verilator-suites and yosys-portability (receipts/hosted-check-runs-final.json).\n\nE9. Shipping-byte scope.\n- The only non-test production edit is the `KNOWN_MAP_DEVIATIONS` index text and its comment. The census in E3 shows no generation path reads it.\n- The gen_aem_store.py edits are its docstring, one import, the fixture and the self-test functions. None of these is on the emit path.\n- Regenerated builtin outputs are byte-identical at base and head: `--out-dir` `aecp_aem_rom.svh` and `aem_rom.json`, the default-target `aem_rom.json`, and the CLI transcripts (receipts/regen-builtin-outputs.txt).\n- The author's 83-file comparison is attributed to 1576f089 against ec34fcde (issue comment 5775408351, PR body). It covers the five configs in `sw/builder/test_builder.py` `CONFIGS`. It transfers to the candidate only because #507's six paths (docs/DOC_GENERATION.md and scripts/gen_toc*.py/check_em_dash.py) are disjoint from every generation path. The PR body states that scope correctly.\n- The tracked `avdecc/aem_rom.json` differs from its own regeneration at both base and head. It is identical between them, pre-existing, and routed to #495; it is not a finding here.\n\nE10. Identity.\n- `git diff --full-index 88e9276b a769d9db` is byte-identical to `git diff --full-index ec34fcde 1576f089` (sha256 bcf40aee...).\n- #507 and #464 paths are disjoint.\n- `git merge-tree --write-tree 88e9276b 1576f089` reproduces tree `31ddc6b5`.\n- The public candidate records name a769d9db, tree 31ddc6b5 and base 88e9276b, with 41/41 builder/static and 5/5 native exit 0. Both clones carry integrity PASS with the same four gitlinks. These are manager evidence, inspected for identity only.\n\nE11. Docs checks.\n- Every CI_WORKFLOWS.md:1059-1067 sentence is verified by E1, E4, E7 and E8, and by the base-tree search showing that no workflow or script invoked the store self-test before this change.\n- \"First-party files only / no submodule / no dependency\" is verified three ways: extracts without submodule contents, minimal trees holding only avdecc/ and hdl/common/csr/milan_csr.sv, and 3.12/3.11 without PyYAML.\n- Docstring counts match the built model: CLOCK_SOURCE x2, AUDIO_MAP x1, AUDIO_CLUSTER x16, STREAM_INPUT x2 (receipts/builtin-descriptor-counts.txt).\n- The stale-text sweep over current Markdown, Python, YAML, SV and feature files found no outdated self-test or deviation-index text. The hits outside the changed files are history pages and dated narrative.\n\nE12. Standards and product boundary.\n- Milan v1.2 5.3.3.9 says a Stream Port Input \"shall not contain any AUDIO_MAP descriptor\". The fixture's static input map is therefore a non-Milan, non-shipping shape. The author disclosed this, and it is in the PR's known limitations.\n- sw/builder/endstation_builder.py:1419-1423 refuses a static Stream Port Input, so only a hand-written spec or overlay reaches the generator's INPUT-direction bounds that the fixture exercises.\n- IEEE 1722.1-2021 7.2.19 gives the INPUT rule (unique cluster_offset/cluster_channel) and the OUTPUT rule (unique stream_index/stream_channel \"across the entire Configuration\", repeated cluster_offset allowed). Table 7-32 caps number_of_mappings at 62. This matches the self-test's statements and the new comment at gen_aem_store.py:278-282.\n\nE13. Checkout integrity. receipts/integrity-before.txt equals receipts/integrity-after.txt in every field: head, tree, index `ls-files -s` hash, HEAD tree listing, gitlinks, submodule status, status, modes, and untracked/ignored counts. The raw `.git/index` sha256 (109de19d...) is unchanged. The three required submodules are clean at their pins (receipts/submodule-final.txt). Both scratch extracts still match their commits blob for blob (receipts/verify-extract-*.txt).\n\n## Completion ledger (R235-1)\n\n| Lens | Covering round | Exact head | Result | Open BLOCKER/MAJOR/MINOR |\n|---|---|---|---|---|\n| Conformance | R235-1 | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 | covered clean | none |\n| RTL | R235-1 | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 | covered clean | none |\n| Robustness | R235-1 | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 | covered clean | none |\n| Tests | R235-1 | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 | covered clean (S2, S3 SUGGESTION) | none |\n| Docs | R235-1 | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 | covered clean (S1 SUGGESTION) | none |\n\nThis ledger covers only this internal round. AGENTS section 7 also needs the external review (R236) and every other bullet. Any commit after a769d9db that touches a lens's scope un-covers that lens.\n\n## Open findings\n\nNone at BLOCKER, MAJOR or MINOR. Open SUGGESTIONs, all optional: S1 (Docs), S2 (Tests) and S3 (Tests). S2 and S3 describe pre-existing coverage and are follow-up Issue material; they are not required in this lane.\n\n## Limits\n\n- I did not rerun the end-station builder. So I did not regenerate the five configs' aem_desc.bin/.json/.map at the candidate. The byte claim rests on E9's census, the builtin regeneration, #507 disjointness and the author's attributed comparison.\n- I did not rerun the full native Verilator, Yosys, processor or behave suites, and did not run act or Docker. Hosted and manager results are reported as observed, with their identities.\n- The hosted interpreter's version is not printed in the job log. I infer 3.12 from the ubuntu-24.04 image. My direct 3.12 evidence is local 3.12.13, plus 3.11.15.\n- I ran `ci_events.py` locally only on 3.14. The local 3.12/3.11 interpreters lack PyYAML, and installs were out of bounds. The hosted run covers the hosted interpreter.\n- Clause text came from local copies of IEEE 1722.1-2021 and Milan v1.2, extracted with `pdftotext`.\n- The mutation plants ran in minimal trees. The P00 control and the extract runs show those trees are sufficient for the self-test. B1, L1, L2, P01 and P02 characterise coverage and are not graded against any PR claim.\n- From the manager's public evidence commit `6ae76b6a` I read only: candidate.json, source-publication.json, full-native.json, full-native/{results,complete}.json, manager-builder/{results,complete}.json, native-tree-integrity.json and builder-final-tree-integrity.json. I did not read the author evidence or author receipts.\n- Process deviation: one read-only interpreter-discovery command (`python3.x --version` and a PyYAML import probe) ran without the `rtk` prefix. It changed nothing.\n\n## Outstanding manager duties\n\n- Trusted act replica: PR comment 5776957449 records its start at 12:59Z. No completion was public during this review, and a start is not a pass.\n- Hosted required contexts: observed all-success at a769d9db (E8). The manager records them.\n- External review R236-1 is outstanding. The merge bar needs two positives and a reviewer-owned five-lens ledger.\n- Final current-base validation: dev was `88e9276b` at 13:31:38Z. If dev moves, rebuild and validate the actual candidate.\n- Merge only on explicit maintainer authorization. Afterwards: post-merge containment (`check_merge_containment.py`, `check_merge_review_integrity.py`), closure of #464 through `Closes #464`, and project Done.\n- #495 (tracked aem_rom.json drift) and #509 (descriptor ownership) remain outside this task. The PP and gPTP pins are unchanged.\n\n## Reproduction\n\nPlaceholders: `<checkout>` is the review clone at a769d9db, `<scratch>` is an empty scratch directory, and `<report>` is this directory.\n\n```sh\nbash <report>/scripts/integrity_snapshot.sh <checkout> before\nbash <report>/scripts/setup_scratch.sh <checkout> <scratch>\nbash <report>/scripts/run_selftest_matrix.sh <scratch> <report>/receipts/selftest-matrix\n(cd <scratch>/base && python3.14 -B -E -s <report>/scripts/probe_base_vectors.py)\npython3.14 -B -E -s <report>/scripts/check_deviation_identity.py <scratch>\nbash <report>/scripts/regen_builtin_outputs.sh <scratch>\npython3.14 -B <report>/scripts/mutation_matrix.py <scratch>/head <scratch>/mut <report>/receipts/mutation-matrix\npython3.14 -B <report>/scripts/boundary_mutations.py <scratch>/head <scratch>/bmut <report>/receipts/boundary-mutations\n(cd <scratch>/head && python3.14 -B -E -s <report>/scripts/raise_site_binding.py)\n(cd <scratch>/head && python3.14 -B -E -s scripts/ci_events.py --check && python3.14 -B -E -s scripts/ci_events.py --selftest)\npython3.14 -B <report>/scripts/workflow_mutations.py <scratch>/head <scratch>/wfmut <report>/receipts/workflow-mutations\nbash <report>/scripts/verify_extract.sh <checkout> <scratch>/head a769d9dbc937fb324c4726e60dee5b2f7ad349e3\nbash <report>/scripts/integrity_snapshot.sh <checkout> after\n```\n\n`python3.12` in the scripts is an interpreter without PyYAML, used for the self-test only. Hosted evidence was fetched with `gh run view --job 106752129822 --log` and `gh api repos/kebag-logic/milan-fpga/commits/<head>/check-runs`. `MANIFEST.sha256` lists a hash for every script and receipt.\n\nR235-1 FINISHED\n",
+        "author_association": "MEMBER",
+        "reactions": {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/comments/5777556715/reactions",
+          "total_count": 0,
+          "+1": 0,
+          "-1": 0,
+          "laugh": 0,
+          "hooray": 0,
+          "confused": 0,
+          "heart": 0,
+          "rocket": 0,
+          "eyes": 0
+        },
+        "performed_via_github_app": null,
+        "minimized": null
+      },
+      "execution": {
+        "requested_model": "claude-opus-5",
+        "requested_effort": "max",
+        "exit_code": 0,
+        "wall_seconds": 1493.8631517379981,
+        "cwd": "$VALIDATION_STORAGE/reviews/r235-464-r1",
+        "subtype": "success",
+        "duration_ms": 1491201,
+        "num_turns": 131,
+        "is_error": false,
+        "requested_model_present": true
+      }
+    },
+    "R236": {
+      "comment": {
+        "url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/comments/5777469596",
+        "html_url": "https://github.com/kebag-logic/milan-fpga/pull/513#issuecomment-5777469596",
+        "issue_url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/513",
+        "id": 5777469596,
+        "node_id": "IC_kwDOP42Xbc8AAAABWF0wnA",
+        "user": {
+          "login": "Mister-M-alt",
+          "id": 161579364,
+          "node_id": "U_kgDOCaGBZA",
+          "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Mister-M-alt",
+          "html_url": "https://github.com/Mister-M-alt",
+          "followers_url": "https://api.github.com/users/Mister-M-alt/followers",
+          "following_url": "https://api.github.com/users/Mister-M-alt/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Mister-M-alt/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Mister-M-alt/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Mister-M-alt/subscriptions",
+          "organizations_url": "https://api.github.com/users/Mister-M-alt/orgs",
+          "repos_url": "https://api.github.com/users/Mister-M-alt/repos",
+          "events_url": "https://api.github.com/users/Mister-M-alt/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Mister-M-alt/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "created_at": "2026-09-22T13:32:49Z",
+        "updated_at": "2026-09-22T13:32:49Z",
+        "body": "[R236] POSITIVE - exact head a769d9dbc937fb324c4726e60dee5b2f7ad349e3\n\nIndependent external review R236-1 of issue #464 / PR #513. Reviewed tree: `31ddc6b5615ff91ceed7a6b52afca61c5fb9653d`. All five lenses were applied. No BLOCKER, MAJOR, MINOR, or SUGGESTION findings remain open in this scoped change. This is a source-review verdict; it does not authorize merge or assert that the outstanding manager duties have completed.\n\nThe contract was reconstructed from AGENTS.md, CONTRIBUTING.md, docs/README.md, REQUIREMENTS.md (particularly REQ-VER-03/04), the [issue body and public decisions](https://github.com/kebag-logic/milan-fpga/issues/464), architecture/interface documentation, the complete six-file PR delta and commit history, and executable evidence. Governing decisions are comments 5770832953, 5774939905 and 5775302273. No private author reasoning, other reviewer report, or local author-lane material was used. The [public review start](https://github.com/kebag-logic/milan-fpga/pull/513#issuecomment-5777127589) identifies this independent round.\n\nThe reviewed commit has parents `88e9276b2a220c716f64a843f7e1eb8f9265e896` and original author head `1576f0893ae9781074fffb105f5384fe774ff11e`. Its complete binary-capable diff against the former is byte-for-byte equal to the original issue diff from `ec34fcdee0ca9ffa63564a9af8ad70a3a618de29` to the latter. Original author evidence remains attributed to `1576f089`; manager candidate evidence and this review belong to `a769d9d`. See `issue-delta.patch` and `static-equivalence.json`.\n\n[R236] PASS Conformance - `avdecc/gen_aem_store.py:157`, `avdecc/aem_maps.py:107`, issue #464 acceptance 1-3 - the retained self-test repairs the identified fixture failures without changing production validation policy.\n\nEvidence: independent historical runs pass at `b7d0bbcd` and fail at `da71309c7b5067c0cb43ceb211a364c5ab037202`. On Python 3.14, the first failure is the `global_index` assignment to absent `audio_maps[1]`, before the generator can reject anything. That historical change made the input dynamic and renumbered the remaining output map to index 0. The original input-duplicate and CRF vectors therefore reached the wrong direction/bound; two later output-map vectors also indexed a nonexistent map. On Python 3.12, the missing `Callable` import causes an earlier `NameError`. The added import is necessary there; removing it remains invisible on 3.14 because annotations are deferred. These are test/entry-point defects, not evidence of a production validator defect.\n\nPrimary clauses were read from IEEE 1722.1-2021 7.2.13/Table 7-23, 7.2.16/Table 7-27, 7.2.19/Tables 7-32/7-33; Milan v1.2 5.3.3.7-5.3.3.9, 6.4 and 6.5/Table 6.2; and IEEE 1722-2016 Annex I.2.4. PDF identities and examined pages are in `standards-identities.json`. The static input fixture is a supported IEEE generator shape, expressly not the Milan shipping input model. Static `number_of_maps == 1` is this generator's retained serving limitation, not a claim that IEEE/Milan generally permits only one map. The 62-row limit concerns an AUDIO_MAP descriptor, not a dynamic GET_AUDIO_MAP response.\n\nThe fixture declares two input streams (AAF and CRF), one two-channel AAF output, eight clusters per direction, input map 0 at cluster base 0, and output map 1 at cluster base 8. It builds before mutation and each call returns independent nested objects. Its output still records six format-width deviations; fixture acceptance does not falsely certify their absence. The deployed model remains a separate positive control. The repaired self-test passes 20 arms on both Python 3.14.7 and 3.12.13. Acceptance 1 is publicly documented; acceptance 2's runnable repair is demonstrated at the exact PR head, with landing on dev still a manager duty; acceptance 3 is implemented and has real hosted execution.\n\n[R236] PASS RTL - `docs/overview/ARCHITECTURE.md:58`, `docs/reference/SUBMODULES.md:23`, `avdecc/aem_assemble.py:585`, and `issue-delta.patch` - the descriptor-image boundary and imported processor interfaces are preserved.\n\nEvidence: the complete issue diff contains no RTL, configuration, builder, encoder, assembly, or processor-pin change. AST comparison of production portions of the two changed Python modules is equal after excluding self-test functions, the explicit Callable import, the module docstring, and the reviewed deviation-label assignment. The production validator bodies are unchanged. `KNOWN_MAP_DEVIATIONS` is consumed by the self-test path, not shipping image generation. PP remains `424c688fa2205b934a7689a58f2aa766420f2326`; gPTP remains `c1b617435824929a790739ea8585c3fe1a328cc0`. There is no changed clock, reset, CDC, FSM, backpressure, latency, or resource contract to validate in this delta. No #509 descriptor-ownership requirement is introduced.\n\nShipping-byte attribution is bounded: the published author manifests contain 83 identical generated files, comprising 50 builder CLI files, 20 image/overlay files, 12 store out-directory files, and the default JSON. I inspected their generation script and verified manifest equality and published hashes. I independently regenerated the default JSON and both builtin `--out-dir` outputs against current base/head in scratch; all were byte-identical. These are generated-artifact comparisons, not bitstream, installed firmware, physical-wire, or hardware measurements. The unused tracked snapshot drift remains #495 and is not a finding or scope expansion here.\n\n[R236] PASS Robustness - `avdecc/gen_aem_store.py:199`, `avdecc/gen_aem_store.py:289`, `avdecc/aem_maps.py:153`, and `geometry-results.json` - the repaired refusals have valid starting geometry and fail for the intended causes.\n\nEvidence: all nine map refusal guards were removed independently in scratch, on both interpreters. Each removal makes the self-test fail at the corresponding artifact. Removing base-map or stream-index guards causes an uncaught IndexError at the relevant lookup, so those runs fail closed; I do not describe them as successful explicit diagnostic assertions. Removing the CRF guard produces an unrelated `max()` ValueError, which the new cause check correctly rejects. Applying either directional duplicate rule to both directions fails. Complementary direct controls accept input fan-out and repeated output cluster offsets, and reject an output stream/channel duplicated across two output ports.\n\nThe new 63-row vector uses distinct output stream channels and cluster offsets modulo eight. It breaches the row count without also breaching a refusing row/duplicate bound. Independent boundary controls accept 0, 1 and 62 rows, reject 63, and accept those same 63 rows when only the row limit is raised; the 61 format-width deviations are recorded, not refusals. A fixture-only refusal trips the fixture positive control, and sharing the fixture between vectors produces wrong-cause failures.\n\nThe deployed deviation set is exactly six strings for output stream 0, channels/cluster offsets 2 through 7, cluster channel 0, format `0x0205022000806000`, now at AUDIO_MAP[0]. There is no size increase or production refusal relaxation. Missing, extra, and stale-index records fail. Disabling the new-deviation assertion fails the empty-allowlist arm. Disabling the reverse comparison permits an extra recorded entry, confirming that the reverse check is necessary.\n\n[R236] PASS Tests - `avdecc/gen_aem_store.py:157`, `.github/workflows/docs.yml:390`, `scripts/ci_events.py:1065`, and the focused receipts - the preserved arms and new CI carrier are executable and sensitive to the claimed guard losses.\n\nIndependent evidence consists of 52 expected focused execution outcomes, 14 geometry/boundary controls, eight supplementary causal controls, and 13 carrier controls. The 52 include historical baselines, pristine scratch controls, both interpreter runs, mutations, and the CI contract checks; they are not 52 distinct product behaviors. The earlier mutation harness attempt lacking its CSR version input is explicitly invalid and excluded from every pass count. Its receipts are retained under `invalid-harness-*`.\n\n| Check | Result and limitation |\n|---|---|\n| Nine map refusals | Each original arm retained, with fresh valid geometry and cause-specific matching; independent guard-loss controls fail. |\n| Two positive map controls plus allowed output duplicate-cluster case | All pass; fixture refusal and shared-state plants fail. |\n| Two deviation cases | Exact deployed set and empty-allowlist control pass; stale, widened, reduced, and neutered variants fail. |\n| Four directory/name cases | Contiguity, index ordering, off-by-one lookup base, and unnamed-type mask remain exercised. Disabling their checks produces the corresponding failures. |\n| Two Base-format cases | Complete 48-kHz input family passes; missing ut coverage and a neutered family checker fail. |\n| Cause-oracle controls | CRF guard removal passes only when the cause oracle is also disabled. Old count geometry with the oracle disabled misses count-guard removal; new geometry alone and the oracle alone each detect it. |\n| CI check/self-test | 1513 contract items and 1150 arms pass. The six new step-derived arms include no-op, swallowed failure, appended command, missing flag, continue-on-error, and missing canonical record. |\n| Independent carrier controls | Reject the preceding rewrites plus wrong source path, step removal, `if`, shell, working-directory and checkout-ref overrides. |\n\nThe canonical record pins the workflow command `python3 avdecc/gen_aem_store.py --self-test`, its position, name and key set. This is command/source-path binding to the event checkout, not a cryptographic pin of the Python file's contents. The checker does not derive the canonical record from the workflow under test. YAML step 41 runs before the three shape gates; GitHub's job API numbers it 42 after its setup step.\n\nReal execution is proven by [docs-check job 106752129822](https://github.com/kebag-logic/milan-fpga/actions/runs/35729759797/job/106752129822), which ran the new command and printed all 20 successful arms and the final PASS. The run names head `a769d9d`; the checkout log names GitHub test merge `e8e3f66527b3bbc93f3a72b7bcedbb968e4886fc`. Its API commit record gives parents `88e9276b` and `a769d9d` and tree `31ddc6b5615ff91ceed7a6b52afca61c5fb9653d`, exactly the reviewed tree. Receipts preserve both identities.\n\nCoverage is bounded to this repair. The inherited nine vectors are not exhaustive testing of every possible malformed spec or every boundary. In particular, the embedded output-duplicate vector uses one output port; configuration-wide behavior was additionally checked directly in this review. No claim is made that its embedded vector alone detects every possible cross-port scoping mutation.\n\n[R236] PASS Docs - `docs/testing/CI_WORKFLOWS.md:1059`, `docs/testing/RUNNING_TESTS.md:24`, `avdecc/gen_aem_store.py:6`, issue public decisions and the immutable evidence packet - documentation matches the repaired behavior and preserves evidence identities and limits.\n\nThe pages document the command, explicit fixture, deployed positive control and carrier pin. The generator overview now correctly says two CLOCK_SOURCE descriptors and one AUDIO_MAP. No authoritative requirement is changed. Published [candidate evidence](https://github.com/kebag-logic/milan-fpga/tree/6ae76b6a31b496a6b636c7a9ea71959b34a479a0/review-evidence/464-r1/candidate1) has 41 completed static/builder commands and five completed native groups, all exit 0 at `a769d9d`, with completion markers and final blob/index/pin integrity. I verified 204 downloaded Git blobs and 203 corresponding published-manifest digests, and inspected the relevant raw results. The native parent sweep reports 55 passing suites and 2,118,264 checks; four optional campaign skips add zero checks. Builder gate 11 is NOT RUN and supplies no hardware evidence. The superseded original-source native attempt is explicitly NOT PASS. Native Verilator 5.052 evidence is not relabeled as the replicas'/hosted pin 5.050.\n\nReviewer-owned coverage ledger:\n\n| Lens | Covering round | Exact head |\n|---|---|---|\n| Conformance | R236-1 CLEAN | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 |\n| RTL | R236-1 CLEAN | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 |\n| Robustness | R236-1 CLEAN | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 |\n| Tests | R236-1 CLEAN | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 |\n| Docs | R236-1 CLEAN | a769d9dbc937fb324c4726e60dee5b2f7ad349e3 |\n\nOpen findings: none in this review's scope. Existing recorded product deviations are preserved, not asserted resolved or newly approved as product compliance.\n\nLimits and manager duties: the last captured public state is 2026-09-22 13:23:56 UTC. PR head remains `a769d9d`; live dev remains `88e9276b`. Hosted docs, elaborate and rtl-fast are complete/success. Hosted rtl-full is still in progress, with neither final `verilator-suites` nor `yosys-portability` aggregate present in that captured job list. The trusted act public comment records a real start, not a completed pass. Manager must obtain its completed result and both required hosted aggregates, finish the independent review bar without a round in flight, recheck then-current dev/candidate identity, obtain explicit maintainer merge authorization, verify the actual merge result, perform containment and review-integrity checks after the branch stops moving, verify post-merge hosted results, and finish Issue/Project state. This report neither reads nor substitutes for the other review.\n\nNo source fixes, commits, pushes, public comments, metadata changes, hardware operations, installs, privilege changes, Docker/act execution, or full native/builder/processor reruns were performed. Candidate `act_ci.py` and its self-test were never executed on the host. Focused computation was sequential; evidence downloads used at most four workers, within the eight-job cap.\n\nFinal checkout integrity equals initial integrity: 851 parent blobs, 103 gPTP blobs, 222 PP blobs, and 214 AXIS blobs matched their committed bytes, file kinds and executable modes; index records and raw index hashes are unchanged; all four populated repositories are clean. The optional unused historical `external` import remains uninitialized. See `integrity-before.json`, `integrity-after.json`, and `integrity-comparison.json`. Reproduction and receipt scope are documented in `README.md`. Manager publishes this report faithfully with workstation-path neutralization; R236 has not self-published.\n\nR236-1 FINISHED\n",
+        "author_association": "MEMBER",
+        "reactions": {
+          "url": "https://api.github.com/repos/kebag-logic/milan-fpga/issues/comments/5777469596/reactions",
+          "total_count": 0,
+          "+1": 0,
+          "-1": 0,
+          "laugh": 0,
+          "hooray": 0,
+          "confused": 0,
+          "heart": 0,
+          "rocket": 0,
+          "eyes": 0
+        },
+        "performed_via_github_app": null,
+        "minimized": null
+      },
+      "execution": {
+        "requested_model": "gpt-6-astra",
+        "requested_effort": "xhigh",
+        "exit_code": 0,
+        "wall_seconds": 1092.6841123710037,
+        "cwd": "$VALIDATION_STORAGE/reviews/r236-464-r1",
+        "last_message_present": true,
+        "error_events": 0,
+        "malformed_events": 0,
+        "terminal_completed": true,
+        "credit_exhausted": false,
+        "is_error": false
+      }
+    }
+  },
+  "merge_performed": false,
+  "authorization": "Standing maintainer authorization at PR503 comment5764802190",
+  "limits": "Manager must confirm public reviewer-owned clean ledgers and every finding disposition. Physical calibration and campaign skips are not hardware evidence. A changed dev base requires a new validated candidate."
+}
