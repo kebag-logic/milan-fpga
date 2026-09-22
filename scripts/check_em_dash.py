@@ -945,7 +945,9 @@ def selftest() -> tuple[list[str], int]:
         except Refusal:
             pass
     found, more = _base_derivation_arms()
-    return problems + found, arms + more
+    from gen_toc_closer_cases import em_dash_arms
+    closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
+    return problems + found + closer_problems, arms + more + closer_arms
 
 
 def main(argv: list[str] | None = None) -> int:

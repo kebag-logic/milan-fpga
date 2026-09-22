@@ -759,11 +759,11 @@ def guard_arms() -> list[tuple[str, str, object]]:
     short = {name: arms for name, arms in plenty.items() if name != "tag"}
     here = Path(__file__)
     return [
-        ("the family names are the seven the runner scores, spelled here "
+        ("the family names are the eight the runner scores, spelled here "
          "and not read from the constant the guard reads", "",
          lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
                                     "predecessor", "provenance",
-                                    "refusal")),
+                                    "refusal", "I440")),
         ("the tally guard passes a full set of families", "",
          lambda t: _tally_guards(plenty, whole) == []),
         ("it names a family dropped from the runner's import", "",
@@ -824,10 +824,9 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
          lambda t: HTML_BLOCK_TAGS == _TYPE_6_SPELLED),
         ("the shipped walk carries no decision site of its own", "",
          lambda t: _class_guards(Path(gen_toc_file()).read_text())[1] == []),
-        ("the shipped walk carries decision sites in both kinds", "",
+        ("the shipped walk carries only single-source decision sites", "",
          lambda t: {site.split(": ")[1] for site in _class_guards(
-             Path(gen_toc_file()).read_text())[0]} == {"single source",
-                                                       "refusal"}),
+             Path(gen_toc_file()).read_text())[0]} == {"single source"}),
         ("a class spelled inline in an expression is refused", "",
          lambda t: len(_notes(pattern='"[ \\t]+"')) == 1),
         ("so is a blank quantified in one", "",
@@ -909,10 +908,8 @@ def gen_toc_file() -> str:
 def refusal_arms() -> list[tuple[str, str, object]]:
     """What the walk REFUSES to read, and what a page carrying one gets.
 
-    The second honest answer a decision site can give, and what holds the
-    fence closer of #440 and the positions nobody has found yet. It does
-    NOT hold the type-1 closers, whose class the renderer reads narrower
-    than the blank (`gen_toc._type_1_end`, [R85] F2, [R86] F1, round 10).
+    The global policy survives #440's exact closing rules. These arms
+    hold refusal independently of the raw walk's delimiter decisions.
     A page carrying a character at which Python's whitespace and the
     renderer's disagree is named with its line, its column and its code
     point and obtains no provenance, so no label copied from it can be
