@@ -1,0 +1,6 @@
+++ /usr/bin/time -f 'wall %e s' python3 -B scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+wall 0.16 s
+++ echo exit=0
+exit=0

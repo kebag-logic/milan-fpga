@@ -1,0 +1,29 @@
+# command: bash probes/p6_residue_claims_grep.sh $VALIDATION_STORAGE/reviews/r220-505-r3
+### git grep -i -E '#439|content gap|remaining content|seven RTL jobs|#407' at 5d45ecc0 (docs/archive excluded)
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:344:   (#295), the seven RTL jobs -- the two shard workers, the two exhaustive
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:635:    Every recognized carrier `run` body is also pinned (#407).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:717:    the seven RTL jobs -- the two shard workers, the two exhaustive
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:768:    The seven RTL jobs still have scripts without specialized pins.
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:771:    Both remaining content gaps are future work under #439.
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:772:    The four non-RTL carriers now pin every recognized script (#407).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:897:name; every recognized non-RTL carrier body (#407) replaced by `true`,
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:docs/testing/CI_WORKFLOWS.md:1055:Removing, reordering, or rewriting one is refused by name (#407).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:865:#: Each carrier run entry also records its normalized script (#407).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:1981:#: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:1992:#: Unlike the carriers, these lists do not record every script (#439).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:2016:#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields,
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:3576:    """Compare one carrier body with its recorded normalized script (#407).
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:3598:    the seven RTL jobs): count, order, each step's identity, key set, env
+5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7:scripts/ci_events.py:3601:    non-RTL carriers also pin every normalized run body (#407). The
+### same at base b17580b9
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:docs/testing/CI_WORKFLOWS.md:344:   (#295), the seven RTL jobs -- the two shard workers, the two exhaustive
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:docs/testing/CI_WORKFLOWS.md:694:    the seven RTL jobs -- the two shard workers, the two exhaustive
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:docs/testing/CI_WORKFLOWS.md:751:    is #407 and the seven RTL jobs' is #439.
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:docs/testing/CI_WORKFLOWS.md:1022:pinned yet (#407).
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:scripts/ci_events.py:1775:#: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:scripts/ci_events.py:1809:#: The seven RTL jobs #406 pins, in the shape CARRIER_STEP_LISTS records the
+b17580b91deb11f3441dfc5d7f9fafe539d929b8:scripts/ci_events.py:3371:    the seven RTL jobs): count, order, each step's identity, key set, env
+### the removed F3 sentence at 5d45ecc0 (exit 1 = absent)
+exit=1
+### the removed F1 wording at 5d45ecc0 (exit 1 = absent)
+exit=1

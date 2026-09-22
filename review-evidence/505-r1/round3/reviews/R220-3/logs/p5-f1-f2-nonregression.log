@@ -1,0 +1,15 @@
+# command: python3 -B probes/p5_f1_f2_nonregression.py /tmp/r220-3-scratch/head
+carrier-script-407 arms at head: 456
+  append-command: 56
+  continue-on-error: 56
+  drop-command: 40
+  drop-flag: 35
+  no-op: 56
+  or-true: 56
+  or-true-line-N: 117
+  reorder-lines: 40
+AC5 or-true-line-1 arm present: True carrier-script-407 docs-check step 34 or-true-line-1
+docs-check step 41: name='Sweep/build shape gate' run-record=('python3 scripts/check_sweep_shape.py --self-test',)
+docs-check step 42: name='Deploy shape gate' run-record=('python3 scripts/check_deploy_shape.py --self-test',)
+docs-check step 43: name='Entity shape gate' run-record=('python3 scripts/check_entity_shape.py --self-test',)
+exit=0
