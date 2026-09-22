@@ -1,0 +1,424 @@
+{
+  "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+  "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.186,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/01.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 9.324,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/02.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/03.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.165,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/04.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.7,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/05.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 7.029,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/06.log"
+    },
+    {
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.936,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/07.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.567,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/08.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.408,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/09.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.049,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/10.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.777,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/11.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.751,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/12.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/13.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/14.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.106,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/15.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.061,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/16.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.241,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/17.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit_code": 0,
+      "seconds": 0.426,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/18.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.388,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/19.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.281,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/20.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.198,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/21.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.391,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/22.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.193,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/23.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.278,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/24.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.104,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/25.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.14,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/26.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.821,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/27.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 13.014,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/28.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 2.356,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/29.log"
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 38.728,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/30.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 11.38,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/31.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 133.029,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/32.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.109,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/33.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.05,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/34.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "88e9276b2a220c716f64a843f7e1eb8f9265e896"
+      ],
+      "exit_code": 0,
+      "seconds": 1.171,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/35.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.353,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/36.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 4.593,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/37.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.402,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/38.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.164,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/39.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.154,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/40.log"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.12,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/41.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+        "65df1df50a80cd5f540a93d8f0cfabc97da3da75"
+      ],
+      "exit_code": 0,
+      "seconds": 0.004,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/42.log"
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "exit_code": 0,
+      "seconds": 429.418,
+      "log": "$VALIDATION_STORAGE/437-manager-r1/manager-builder/43.log"
+    }
+  ]
+}
