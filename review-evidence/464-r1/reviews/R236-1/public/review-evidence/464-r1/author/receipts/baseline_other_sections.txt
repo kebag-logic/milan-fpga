@@ -1,0 +1,16 @@
+
+=== two-level directory gate self-test ===
+  [ok  ] a shuffled directory entry (contiguity)
+         -> descriptor type 0x0005 rows are not contiguous in the directory (row 4 re-opens a run closed at row 1) - the two-level accessor needs one run per type
+  [ok  ] same-type entries out of index order
+         -> type 0x0005 descriptor_index not zero-based ascending: row 3 carries index 1, expected 0
+  [ok  ] an off-by-one level-1 row base is refused
+         -> two-level directory diverges from the linear scan at type 0x0005 index 0: linear (1, 574, 154), two-level (1, 728, 146)
+  [ok  ] a mask bit on an unnamed type is refused
+         -> structural name lookup diverges from the NAMED table at type 0x000D index 0 name_index 0: table (0, 0), structural (1, 1563)
+two_level -> True
+
+=== Milan 6.4 Base format family (builtin model) ===
+  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)
+  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing
+base_formats -> True

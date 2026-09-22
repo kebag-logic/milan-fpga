@@ -1,0 +1,9 @@
+docs/traceability/gen_module_matrix.py --check -> exit 0 | traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+scripts/check_baremetal_only.py --check -> exit 0 | baremetal-only: OK (0 findings across 824 tracked first-party file(s))
+scripts/check_solution_docs.py -> exit 0 | solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+scripts/check_submodule_docs.py -> exit 0 | submodule documentation: OK (4 exact gitlinks)
+scripts/check_gptp_docs.py -> exit 0 | gPTP documentation: OK (8 current pages)
+scripts/check_doc_style.py --selftest -> exit 0 | documentation style selftest: OK
+scripts/gen_toc.py --selftest -> exit 0 | TOC selftest: PASS (279/279 arm(s))
+scripts/check_hygiene.py --selftest -> exit 0 | 35 checks: 35 PASS, 0 FAIL
+scripts/check_py_idiom.py --selftest -> exit 0 | 54 checks: 54 PASS, 0 FAIL

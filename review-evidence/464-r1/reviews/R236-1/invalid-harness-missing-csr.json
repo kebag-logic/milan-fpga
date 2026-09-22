@@ -1,0 +1,702 @@
+[
+  {
+    "name": "python3.14-head",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/head",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 20,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-base",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/base",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 1,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-historical-good",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/historical-good",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 19,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-historical-bad",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/historical-bad",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 1,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-head",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/head",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 20,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-base",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/base",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-historical-good",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/historical-good",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 19,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-historical-bad",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/historical-bad",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 1,
+    "fail_arms": 0
+  },
+  {
+    "name": "ci-check",
+    "interpreter": "python3",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/head",
+    "args": [
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "ci-selftest",
+    "interpreter": "python3",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/head",
+    "args": [
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "returncode": 0,
+    "expected_zero": true,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-cluster-offset",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-base-map",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-map-count",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-cluster-channel",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-stream-index",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-input-duplicate",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-output-duplicate",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-row-count",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-crf-refusal",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-input-rule-both",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-output-rule-both",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-stale-deviation-index",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-widen-deviations",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-drop-deviation",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-ignore-new-deviation",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-directory-gate",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-name-gate",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-base-format-gate",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-lost-callable",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": true,
+    "expectation_met": false,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.14-mutant-builtin-instead-of-fixture",
+    "interpreter": "python3.14",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-cluster-offset",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-base-map",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-map-count",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-cluster-channel",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-stream-index",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-input-duplicate",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-output-duplicate",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-row-count",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-crf-refusal",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-input-rule-both",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-output-rule-both",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-stale-deviation-index",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-widen-deviations",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-drop-deviation",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-ignore-new-deviation",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-directory-gate",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-name-gate",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-base-format-gate",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-lost-callable",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  },
+  {
+    "name": "python3.12-mutant-builtin-instead-of-fixture",
+    "interpreter": "python3.12",
+    "cwd": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant",
+    "args": [
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "returncode": 1,
+    "expected_zero": false,
+    "expectation_met": true,
+    "ok_arms": 0,
+    "fail_arms": 0
+  }
+]

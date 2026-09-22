@@ -1,0 +1,98 @@
+[
+  {
+    "label": "pristine",
+    "expected_fragment": "",
+    "findings": []
+  },
+  {
+    "label": "no-op",
+    "expected_fragment": "script is not the canonical form",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'true'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "swallowed",
+    "expected_fragment": "script is not the canonical form",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 avdecc/gen_aem_store.py --self-test || true'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "appended",
+    "expected_fragment": "script is not the canonical form",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 2 must be None (found 'echo appended'); 1 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "label": "flag removed",
+    "expected_fragment": "script is not the canonical form",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 avdecc/gen_aem_store.py'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "wrong source",
+    "expected_fragment": "script is not the canonical form",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) script is not the canonical form: line 1 must be 'python3 avdecc/gen_aem_store.py --self-test' (found 'python3 old/avdecc/gen_aem_store.py --self-test'); 1 line(s) expected, 1 found"
+    ]
+  },
+  {
+    "label": "if",
+    "expected_fragment": "must carry no `if`",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `if` (found False): it decides whether or how the script runs",
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: if"
+    ]
+  },
+  {
+    "label": "continue-on-error",
+    "expected_fragment": "must carry no `continue-on-error`",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `continue-on-error` (found True): it decides whether or how the script runs",
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: continue-on-error"
+    ]
+  },
+  {
+    "label": "working-directory",
+    "expected_fragment": "surplus: working-directory",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: working-directory"
+    ]
+  },
+  {
+    "label": "shell",
+    "expected_fragment": "surplus: shell",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must carry no `shell` (found 'bash'): it decides whether or how the script runs",
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) keys must be exactly name, run; surplus: shell"
+    ]
+  },
+  {
+    "label": "removed",
+    "expected_fragment": "exactly 44 steps",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` must carry exactly 44 steps, in the recorded order (found 43): an inserted step of ANY content runs before every later step and can set their inherited environment at run time -- a `BASH_ENV` written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action -- which the declared allowlists cannot see, and a removed one takes its gate with it",
+      ".github/workflows/docs.yml: job `docs-check` step 41 must be the step named `AEM store generator self-test` (found `Sweep/build shape gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind",
+      ".github/workflows/docs.yml: job `docs-check` step 42 must be the step named `Sweep/build shape gate` (found `Deploy shape gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind",
+      ".github/workflows/docs.yml: job `docs-check` step 43 must be the step named `Deploy shape gate` (found `Entity shape gate`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind",
+      ".github/workflows/docs.yml: job `docs-check` step 44 must be the step named `Entity shape gate` (found no step at this position): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+    ]
+  },
+  {
+    "label": "missing source record",
+    "expected_fragment": "must record a canonical normalized `run` script",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 41 (`AEM store generator self-test`) must record a canonical normalized `run` script"
+    ]
+  },
+  {
+    "label": "checkout source redirected",
+    "expected_fragment": "with",
+    "findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 1 (`actions/checkout@v4`) `with` must be exactly {'fetch-depth': 0} (found {'fetch-depth': 0, 'ref': 'dev'}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers"
+    ]
+  }
+]

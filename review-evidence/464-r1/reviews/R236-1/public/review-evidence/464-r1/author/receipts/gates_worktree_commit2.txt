@@ -1,0 +1,16 @@
+scripts/ci_events.py --check -> exit 0 | ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+scripts/ci_events.py --selftest -> exit 0 | selftest: PASS (1513 contract items, 1150 arms)
+scripts/docs_check.py -> exit 0 | docs_check: 0 finding(s) across 163 md files + 826 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+scripts/check_doc_paths.py -> exit 0 | doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+scripts/gen_toc.py --check -> exit 0 | TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+scripts/gen_toc.py --verify-anchors -> exit 0 | anchor check: 144 existing cross-page fragment links reproduced
+scripts/check_em_dash.py --base ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 -> exit 0 | check_em_dash: 0 finding(s) over 0 added line(s) in 0 changed Markdown page(s), 0 mirrored label(s) exempt, arms 34/34 [ec34fcde..HEAD]
+scripts/check_em_dash.py --selftest -> exit 0 | check_em_dash selftest: PASS (34 arm(s))
+scripts/check_feature_status.py -> exit 0 | feature_status: 0 finding(s)
+scripts/check_feature_status.py --self-test -> exit 0 | feature_status: 0 finding(s)
+scripts/check_hygiene.py --check -> exit 0 | HYGIENE RATCHET: PASS (3 population(s), 705 file(s))
+scripts/check_py_idiom.py -> exit 0 |   over-long line: 0 <= 0
+scripts/check_sh_idiom.py -> exit 0 |   top-heavy long script: 0 <= 0
+scripts/check_doc_style.py -> exit 0 | documentation style: OK (22 current documents)
+scripts/check_todo_ownership.py -> exit 0 | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 755 first-party file(s) read)
+scripts/check_archive.py -> exit 0 | archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
