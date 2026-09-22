@@ -1,0 +1,1703 @@
+{
+ "0124e1a00ed0ba755d3010bbb407179485b553d6bda4928f92a61afb9bd0001a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n text\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:14.872939+00:00"
+ },
+ "017a6eff8c155702686486e9f282c41acbba1feb1ad2c08bf32ecfba5857428f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-     code\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:24.612004+00:00"
+ },
+ "01cebf6da5c74f96573d08e85f23d7320564055e3c2ef156f3d9871297a32e06": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n text\\nlazy\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:12.137983+00:00"
+ },
+ "01f687b26ca66911c1b657b912a895b7246c2c343d4b607f046e6506aa70235a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n <span>\\n## Old\\n </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n## Old\n </span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:31.553385+00:00"
+ },
+ "037be3a4b3cc16507f501711ee146907f1b7f3477a3cc9331e5c0e552bdd12ce": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:20.793517+00:00"
+ },
+ "0380c42521501e94cfbd3fea52c83ccdd75d96b83f05746f352525998aa34a77": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n- item\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:27.526807+00:00"
+ },
+ "0764382fa2482eca8b75990b2f9ab5637a7d5e5b10e4dc207c61b16522d59c1c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- [ ] item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul class=\"contains-task-list\">\n<li class=\"task-list-item\">\n<p dir=\"auto\"><input type=\"checkbox\" id=\"\" disabled=\"\" class=\"task-list-item-checkbox\" aria-label=\"Incomplete task\"> item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:27.369938+00:00"
+ },
+ "07f47bd7db086242cd8a760b7335f06e57b5a2e1a4e6ab0067dbb66d3aaa96f7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\noutside\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">outside</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:28.678755+00:00"
+ },
+ "09cac823cf5211458900c2b858b499f63baf121004f1f001d10d3abfe80aa462": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n text\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item<br>\ntext</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:14.378861+00:00"
+ },
+ "0a63ad63441d3e65b22cd33262b02492e29b559ae43576b92da69e49cff959f5": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<br/>\\n## Old\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<br>\n## Old\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:31.160909+00:00"
+ },
+ "0c1f7360832ccdbfb34f9ce695636f26dbb8f917d9a82446efb9e1a3847eb970": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:47.663028+00:00"
+ },
+ "0cc5e7f27d8fcbd8ee6511264e9667fbe7eb446b75140a8a314117c025b53be3": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n```\\ncode\\n```\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:58.653797+00:00"
+ },
+ "0d6d63e8d9e4ccf21535c7d22551087c40d90da3a40c67883fe97530eed1986f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-   \\n  first\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:27.363449+00:00"
+ },
+ "0feeafe77bd0e1d684c5a985fbb7e6a8fd3a8dd9d5cc593cc3282ab8804d1348": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n-\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:04.719350+00:00"
+ },
+ "0feef8e71ee06ad4b062ff1300e52f243b935a06c4f9313503351279f40a0d22": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"[^1]: note\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:35.199037+00:00"
+ },
+ "11f2633564a3204961ce7cc07d172209c5ff96a3c8f4f209f376d7b7e8f3bdef": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ol>\n  <span>\n## Old\n  </span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:13.745177+00:00"
+ },
+ "125fff0bff289f1ccaeebef21e1596f537348bc71e6f1ca29fb1312825ab9513": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   text\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore<br>\ntext</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:13.535719+00:00"
+ },
+ "12f5f8ef89f7249d2eefd99beeded098a4ed373d748f0d0dbea0d4319067d31e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\ntext\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:09.089495+00:00"
+ },
+ "13a99fbe88fc549cd77f542bc9f3933f8c7076618c3b5af027b51511cc17a91e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n===\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n===</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:24.994523+00:00"
+ },
+ "13f06dd2a99116cc8cf0860e71af5bb73f0be1bcfb8c805ee6a4f01dc29a86c8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n- item\\n  more\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:16.352241+00:00"
+ },
+ "14e683afd951cc6ef2e0df3abfb783241ba39badee71a9b82d3063a5c2561c97": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n    text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:26.664734+00:00"
+ },
+ "1761c1aed809ca260b735b959148e6d121f7d41dce874f9a0757e8be1ddc66e1": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n   text\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:01.559563+00:00"
+ },
+ "1846398e90fcd5a340e17ec2aeafb407f31349c30482667de1eced919e3d0935": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"    - item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:31.388160+00:00"
+ },
+ "18548b57e2ef2317e4df64d38f9a6cbe4b2901fd5e62675176415e1eb1580901": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n   text\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:32.142417+00:00"
+ },
+ "1870ada6b56b3ce9022d6bbe9ae849c81aafbb89aa13dff174e9d1e400b78ddf": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n   text\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item<br>\ntext</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:13.925565+00:00"
+ },
+ "18d4edbeff0bc658b08f7405cac9513b0a124a9c0bef01a3bfecbff41d70a748": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\nlazy\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:24.163356+00:00"
+ },
+ "1ae98e650cb2b908e14922d16859dce51a169ca815e7a2a948de5b5bb8590d0f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n1. item\\n\\n   text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old — heading\n</span>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:45.373601+00:00"
+ },
+ "1b17622186e6857572dbcf097ee00297428c3894c4cf9e597fe88aa5184b9803": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ol>\n  <span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:30.188400+00:00"
+ },
+ "1ddf1448e3271368694cf0e5099071cbf8dae94af7d9ab7cfef9fd0989c3afcf": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\nlazy\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:39.187380+00:00"
+ },
+ "1e30ece530fc8a60c29f5e2b047ff8c00f3bd8ebc4c71244b160f755bd2221ad": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   text\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:15.831032+00:00"
+ },
+ "1ec10e2e6477e5539e23a0dc55d56f9c9e52d4789eb8425da584997da7f09253": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<custom-tag>\\n## Old\\n</custom-tag>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:29.833689+00:00"
+ },
+ "1f193e4bae4501566f0cb441e910acb1294fde8a25cddd764374c75759661976": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n---\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<hr>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:59.975455+00:00"
+ },
+ "1f596dee7cae0158a3b809a10d5ba3ba67e327cf9f53c6d888a4e866a5692b3d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\nlazy\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nlazy</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:02.915550+00:00"
+ },
+ "1f6b037f04f4811fce0944a3c8e0c0777a99af4163fe7afa1aad4a7bfa732a19": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"> item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<blockquote>\n<p dir=\"auto\">item</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:34.791917+00:00"
+ },
+ "1fc7707ada21ff2b5c127e47b65321f812b09a1ba1e7c7c8408d2355a5cb2399": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\ntext\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:10.507079+00:00"
+ },
+ "205875e77a3469a1e3b12bca8654fb14a9612cb088d9639edcefbdda238a9f1a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old — heading</h2>\n\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:46.259927+00:00"
+ },
+ "2381ed5e872800d8656f05461aa8d4dcbc13f88e29c46cb005527ad5e136197f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n```\\ncode\\n```\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:12.508748+00:00"
+ },
+ "24a485064cbe1d7fed357bc8e346b41f84cfac8ebe944565d0cb541bcc8cd705": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:33.911449+00:00"
+ },
+ "24dae9682c2be77180b460a50db69e00a4bfa1fe8004153fbee379a3dcdcf4cb": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n text\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:08.254907+00:00"
+ },
+ "2539b9cc426e9aeeee0e954d66d92f7b2d64fc9985d7831381a2b0651dee0d05": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n   text\\nlazy\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\nlazy</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:42.829809+00:00"
+ },
+ "25d78841b20bce044341e2cd6d460311af623a622b67e5f7a20800cbea9d3dec": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n- item\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n</li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:38.176661+00:00"
+ },
+ "26cf0e7e6b52de92b1bb4975f6c2fa5f30625497adced2f72054fc833b48ee5b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n[^1]: note\\n\\n  text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old — heading</h2>\n\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:51.013110+00:00"
+ },
+ "26e98b32fff2c0dcce3fd9f21ce06686a6a3c89f56f54de85f6e09de0afdd98e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:28.615171+00:00"
+ },
+ "2757748138d64088e5f278718e9210af12a17a256b91dcdc1e909b465480dd39": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:25.092266+00:00"
+ },
+ "285c03b06ce4601be6a4ff777b993ae06896a8e9c4733dcf6873a6c1454145a6": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:25.477011+00:00"
+ },
+ "2961a6042e56688c06bbcec0f8f125debe91fee7976835ee5662a4cee6cb34ea": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\ntext\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\ntext</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:58.164614+00:00"
+ },
+ "2998fdc37e7f298c57e9e284a2d3132c3f4c049558443e901aad957e09b1221b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n- item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:45.914431+00:00"
+ },
+ "2c3b110da20e113d50ebc98c8fc95b98d296a373929df04f490a12e5f865c274": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  first\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:26.933637+00:00"
+ },
+ "2c71b1918568ba108dff0654d41e2b2391b4abdc2933306c7426e3b46ed92811": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n===\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">===<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:06.694742+00:00"
+ },
+ "2cf18782fff6743674179bece031530ca5209f076069f029a10d11fe22122587": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<span class=\\\"x\\\">\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:30.749973+00:00"
+ },
+ "2d113e345729847063c8e80f12123cdfd8a67336415c8695d3b905c4c8ffcb6e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n   <span>\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n <span>\n<p dir=\"auto\">text</p>\n</span></li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:40.668687+00:00"
+ },
+ "2d901fd6dff96a8a0084664293ba23c81999e997c54f0481f7b6936288374fe0": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-    item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:25.060806+00:00"
+ },
+ "2df0e4e9c657f6e4e11d02d41559174a85a65205c3494efdbf6a27b4a725fde1": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  <div>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:40.939093+00:00"
+ },
+ "3120059182fcdd3d8cf18977f1db82d3b63464a8f2088dfff81b20c0317f3149": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\ntext\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:07.078449+00:00"
+ },
+ "31c8b73e77f032f455997c2a3413d490e7231000b658c60cb1740f0d3742600a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"0. item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol start=\"0\" dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:33.456252+00:00"
+ },
+ "3205d7120ac1ed974ae46e30968818f9260da6c3c9e7263cca81dd1cd3773572": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"```\\n- item\\n```\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:30.094646+00:00"
+ },
+ "32616ba8c437908a427342e9247cae1fc1e9aecc4e8f789b2a542eb0ba35102e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n text\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:32.542029+00:00"
+ },
+ "32be57e1818416b40b755c59554c39d582c3c2e9445e07580a115bc7444a9294": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n  text\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:32.916256+00:00"
+ },
+ "32c0d666e9c98faeca9eaa5eea57564f65e461c0c3a7b09cf90e2278afc0285f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  <span>\\n<!--\\n\\n## Old\\n-->\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:38.420195+00:00"
+ },
+ "34cf78158685f1359bc696926360032892e205c6c2ea62b16f790f124bfe18cb": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n</b>\\n## Old\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:30.313067+00:00"
+ },
+ "3753e8fa81eed89a2173e06d24b47f906f0ef69d3c746d54fdf85f3e77198ec4": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\nOld — heading\\n-\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Old — heading</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:05:31.440933+00:00"
+ },
+ "379af4eededa7a35c9774c089eff860eb054e616dbb0a0109136c6584bd0a100": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n <span>\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n <span>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:11.700286+00:00"
+ },
+ "39088e8e8f683e2c07fd580cdb8dcd83e53e3aa58a3a265c81ea46d9b09c0494": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n[^1]: note\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:09.987760+00:00"
+ },
+ "399c28fa8a0dbe70f3a76d5661efd5b2475b1c53073dc56e5926cd22a10c5a03": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   <span>\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n<span></span></p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:34.256430+00:00"
+ },
+ "39c62fa849b5fc35cbe56db091336221f6dbe300f527f6da26383e142f7902ff": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n    text\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:25.447179+00:00"
+ },
+ "3b288e2c94da3df3dc3400ce1d87b5819af5c488f663947bcc0866929efa1fcf": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n1. item\\n\\n   text\\n   <span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:49.320937+00:00"
+ },
+ "3b969e964eec12bcacfaa3da774100aebbc3d90db5280f914ddb93db7c4e3381": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1) item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:29.467707+00:00"
+ },
+ "3c4a1f72a0fa7ac55e74ec18671e537dc1df4503d4dedcabc53ccd2451c5109c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:19.931320+00:00"
+ },
+ "3d649ad0ce28964c3b24d460cbe99e54047e49953ea4d1cdf16a026a8f379f61": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<!--\\n\\n## Old — heading\\n-->\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:48.109462+00:00"
+ },
+ "3d8f204ab9cf9a18dc206641791e2fee4763ba5089a55247af09f8f2d5e75f07": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:18.979010+00:00"
+ },
+ "3dd53bb9466ec6dfa2799f53e10f90287170f683e11b6d187a658fe6245fb95d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-  item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:22.312759+00:00"
+ },
+ "3e2dd40eaeefc9e222648239190265f656d4be72a7a48d928e629fd94896e911": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n> quote\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:43.427493+00:00"
+ },
+ "3e4eb7c434ddfd6d74086992a1135c243ae2b36c66b798f3ab07a3f5a904390a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old — heading\n</span>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:44.990458+00:00"
+ },
+ "3ee874ad531122d44d910b48860f906489bdb47ace5811678b9c19a940a98168": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n\\ttext\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:36.108379+00:00"
+ },
+ "4020789e45dbbc54e1fe68e408434e37f35708f673c6446c1220899545fd19d8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  ===\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h1 dir=\"auto\">text</h1>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:47.366646+00:00"
+ },
+ "43baa250ba2c86827c8fbb5a57e8fdd41b1d9ab5d65bbab0b66ee30a90f41b2e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\ntext\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:31.345315+00:00"
+ },
+ "459df42763295c127fcf0c4e7ea962ca915c423a064338400c9857f3be386b07": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n   <span>\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span><br>\n<span></span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:15.036968+00:00"
+ },
+ "45ccc7505051e0debbcb78c899cf2be442dc356d141561c6429acb19922c7b8f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old — heading</h2>\n\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:50.562143+00:00"
+ },
+ "45d2966c1850ff153d1e97827b9361754863a5c010da78bf9b886590575cfdbf": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n[^1]: note\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:17.240887+00:00"
+ },
+ "4631bff1e960561d2f7250aeb927beb9ea8a58cb81f0db08c12500beb0158226": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"<div>\\n- item\\n</div>\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<div dir=\"auto\">\n- item\n</div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:30.964570+00:00"
+ },
+ "46f692f5bed124dc537457772ddd48d92325a41623ee9861670710d754f7efcd": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-   item\\n  > quote\\n\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\">text\n</code></pre>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:44.238328+00:00"
+ },
+ "4798f4b078b54217cbf53c440977660660dc63bcde6e831c25502be2e8204769": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n2. item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">text<br>\n2. item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:32.259959+00:00"
+ },
+ "48921bbfd85c664be9dea3b29b76bb6033d31726106da08b86738cfa698c53b7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"para\\n- item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">para</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:27.760842+00:00"
+ },
+ "4ad12d7c7230bfbedc84d069d49256144d622daf692c4821c94fbdb2726ede4d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n   <span>\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:39.234927+00:00"
+ },
+ "4b310c9b131bfa7f3aba8a5afb0708d806ae20825e4b4c306f5c4317e21a741a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n- item\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  ",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:35.543712+00:00"
+ },
+ "4bd4b95528a2c0b00b624b0a695cb62ec60b54c34f30f8653933b3a24bb2b0dd": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n    text\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:08.623382+00:00"
+ },
+ "4bf4910696e5ddacf3ff523796d0717924ebbbaf862306da4e3398b89ae600f7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ol>\n  <span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:35.118373+00:00"
+ },
+ "4d8571b37b4e091df7d6cb8401a265b5643781fe3fb197303f8608b0f5bfb60d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n   text\\n    text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:20.371087+00:00"
+ },
+ "4db10041a98a8d1ea8ca059c7da404d9bf5bb07dbd863782fdf58bc4829f6b4a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   text\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:12.110976+00:00"
+ },
+ "4e7bca2130c8cd51b3899a1a0ca9755f9ccf231c017a1dc47f6179f32d1f02fc": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:42.647645+00:00"
+ },
+ "51877ed4131375b597c857167971f72d25943cbeeeeb9ae295ae3f3f8a275868": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\nlazy\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:36.797694+00:00"
+ },
+ "5261f257a68b85b4770c8b88827d39e394649348b18c92c73ea1ada9ddead4b5": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n text\\n <span>\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span><br>\n<span></span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:08.684550+00:00"
+ },
+ "5338dcd79c016035cf59a5982abbc241c94dd1531238ecfd6a525582323e646e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   text\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:36.028184+00:00"
+ },
+ "53af700d6ecabb0942595cc828186894dbcbf4df26ad8f0d9db210d8b3accc62": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"<!--\\n- item\\n-->\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:30.533945+00:00"
+ },
+ "55d35fec80226e17910248b2e4d55adbf25b1283148a1ab8ebf1c4e516730363": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n## Old\n  </span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:31.946014+00:00"
+ },
+ "560716a90953ed32edd92c2fcaa9cbbcf94527fc473c82256a9c7415c09d63d4": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n    text\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:41.108520+00:00"
+ },
+ "5969ae4b0493fffbedf6efdb26ca9cd228b27ee790e89e142859d4dbe67d6160": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n===\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item<br>\n===</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:13.118068+00:00"
+ },
+ "59bd6d4603adaeb9e9062fe71a3fa539735408b0242640d9da412432d1ce3c9e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n\\n   text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:26.292459+00:00"
+ },
+ "5a1f5fff78f60f70b03163a4e94d98776b46a76585ea1e12345e35d79ea7713e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  a | b\\n  --|--\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:46.955841+00:00"
+ },
+ "5a2fa0751331f09fc1f5603a6f776aad448605f3296b78362ecf4b57650fa41c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:25.920899+00:00"
+ },
+ "5a350ef30b35aa3d99294f6167612d5d75597136b6b83c721f7ca0f37911d14c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n> quote\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:09.909951+00:00"
+ },
+ "5afe04e1bd422c1c64f524cceea6556f22a0c3cdec30313dd4b2eba0399681ac": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \" - item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:24.202074+00:00"
+ },
+ "5b5fa19fa544ea9a8c8244aba272fe3c1dd50a527fcde3a3617f5d6ccd99b80d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n    text\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:14.614227+00:00"
+ },
+ "5c17cd92f81eb66b5585a5cc809b50f7e9f5adbe030985cf71bfbe9cf7cd9269": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n- item\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:18.103459+00:00"
+ },
+ "5d029468d09a1959e9ab7228b7622c2cab5012741c16222f19ce7d75ead35a0b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n- other\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">other</p>\n</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:45.519243+00:00"
+ },
+ "5dc4c129facb6172c2c1cdf9f3205c0ac2c5d334970ae9a290b4f8b79fd4cdba": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n===\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">===<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:03.663189+00:00"
+ },
+ "5f943057ff66f8a881b68b9487fb831f26a84b8f8237031e5881208724728a56": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \" - item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:23.729606+00:00"
+ },
+ "5f957c8b0cf8a7c187ff997518a8141ba9ee3317a17ba31b704f11ad1d5a04d8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n <span>\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n <span>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:41.601864+00:00"
+ },
+ "601299f9758b14a128a8306ced3c23453a1dacfe848a7b9c6a1d430f54a5af41": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n   text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:22.939384+00:00"
+ },
+ "639d9a60b9ef37410d2b351ef7160d6b48124e67dd2789dbb5d52a70a4b09f5a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n-\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<h2 dir=\"auto\">text</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:32.700210+00:00"
+ },
+ "63f9db85d33f087857246cb302a8cc0d737c0c27357018bb168154fdf9b0e0ac": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\nlazy\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:06.913510+00:00"
+ },
+ "6425ef2fa8e46ad8f71adb34a9653ed664cc4d5bf1085062a7249a361f1c5824": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\nlazy\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:07.828177+00:00"
+ },
+ "689263c6693d5ede813870fa2a92ebb70843e423b30ffde061c9b52df692d664": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n  text\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:29.368113+00:00"
+ },
+ "68c4634d6c96b7346d3e3eb07f5db12e6e87c7b391cef3f741e8b57c536d892f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:40.025731+00:00"
+ },
+ "6b7873bed96b311f6820ddf169d9dfd3648c54ed42e2f4c789993046d2bdb356": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n    text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:17.649364+00:00"
+ },
+ "6c027dc648351374e9c097dae2d2ab19090f098d366819fde3a10f01c265c109": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<b>\\n## Old\\n</b>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<b>\n## Old\n</b>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:28.220898+00:00"
+ },
+ "6c4f52ed10da19d2f0845436114f9a27f19a4e324471ed9605cdc22e18a0d7d7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\nlazy\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:29.126934+00:00"
+ },
+ "6d1f211ba9fd7b634b8b14b20478587302e8e9d7348fae69d1580532609635db": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n===\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">===<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:11.289189+00:00"
+ },
+ "70145919e967b87ad9503cb0eebe9a53dfef065005abb1d6935c6b417b1476ea": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:20.446365+00:00"
+ },
+ "7143c596a72aa5c6813e921b81dd5b3fb274d0f3d5a57654e66bf21c1ff295ab": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n0. item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">text<br>\n0. item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:46.439101+00:00"
+ },
+ "71b62bf5c2384049d12332f9d4cf5cc5bb3ed11892f82684f069ec921e71e49c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  <span>\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:39.826333+00:00"
+ },
+ "724fb7fd0eb06f09b35e4526a827e6291d2f9ed28bcac6f8f99b313274e715ed": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n> quote\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:59.576899+00:00"
+ },
+ "73d1bb0fdc1516108c02142e51e17e5eac76fbf492a918a551067ddf4f3d992e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n text\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:41.980539+00:00"
+ },
+ "7631f7bfa99dad3b295cffa4ca297fec470fcb3f60973b415468b15bbadfa3bb": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n   text\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:28.424955+00:00"
+ },
+ "76ad7c26eada24ba9e78c312a4461956a8ff871c88445bb288c5e5c15d49a8de": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n1. item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:28.275337+00:00"
+ },
+ "775ace457cf8c910af70d4b0b2683aa54cc2942c762c5cf0e4341f7ebea21781": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n> ## Old — heading\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<blockquote>\n<h2 dir=\"auto\">Old — heading</h2>\n</blockquote>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:05:31.908295+00:00"
+ },
+ "79f7a10b2abd3b8264fbd6b0cf56d749ecfec07a2f89ae9ef0200e2832feba5d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:36.513051+00:00"
+ },
+ "7a370a00c34f574a269acd8df5df540243660fb5c68557435c1fbde771a6fe29": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<pre>\\n\\n## Old — heading\\n</pre>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old — heading\n</pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:48.549663+00:00"
+ },
+ "7b4526d814c570e18766296ba2acf0893b8589408d435b2b0f1c82d37fd84863": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  text\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:10.818455+00:00"
+ },
+ "8303dd4fea9d2fd3fd07758299ba480dc2b69ce3435eb9ab36a22cfe6577add8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n[^1]: note\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:42.267447+00:00"
+ },
+ "8406e297ec995629c68b5ea8cb7897191b263e751d19926293a0581ec8b16dce": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n  text\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>text</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:02.491009+00:00"
+ },
+ "856a344e8419fb6cc7475a2cd7266da7d7b083ac7c20c0865f31976764c15cb4": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n- item\\n  more\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:12.510449+00:00"
+ },
+ "85dc1163a11bbfbf5b5fe3f0e2329be1b3d644f970a01058b8ff0917d55a4f03": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n   text\\n text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:24.573048+00:00"
+ },
+ "86f060471ef15477c0d861b87054fa3d393b1b7b54fd17cb277b42dfb43552a1": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\nlazy\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">lazy<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:56.855653+00:00"
+ },
+ "88cc39a806d7d67cee35d077f1f4263503d3116b4660a59dd31ad4eae23143ba": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"Alpha\\n===\\n\"}",
+  "response": "<h1 dir=\"auto\">Alpha</h1>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:50.075726+00:00"
+ },
+ "89e5943574e834ee222c4b693d67c1104a321dc11a1578081e657913c50dde42": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n  first\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:26.885913+00:00"
+ },
+ "8b0fa6a2834bd912cde9f32a74316df1ec732d45796128c00597ac187358528b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:23.271538+00:00"
+ },
+ "8b21cac46617aff7bff5b7d326a0c83df329858cc3c0b0415c92578731ada7cf": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:37.547199+00:00"
+ },
+ "8d4f0660fb35c06818781c934edcd23662dfe36b8dcce6c5a8a0cf8f725f2e99": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:37.016295+00:00"
+ },
+ "8e4b5a2b7a8637dc8cbd26f447429f36816d40ab9e4a2ba24a2d040df98e7f05": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:34.671201+00:00"
+ },
+ "8e7dc43994831862ba063daf4074de9aa86c070a508e4a99c5573fad26cb5a8d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n[^1]: note\\n\\n  text\\n<span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:51.845936+00:00"
+ },
+ "8f2d9765f9b673738d574b00f9572ed68f74a5ee671bc993f9b3c25c86cdc3e7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n   text\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:38.600234+00:00"
+ },
+ "90a57bc9974ec2c9753163d5fefef3c326201f5ff0c8feef23641d193fe2745d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"> ## Q\\n\"}",
+  "response": "<blockquote>\n<h2 dir=\"auto\">Q</h2>\n</blockquote>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:51.242447+00:00"
+ },
+ "91a9c75c0401a186e8be10fb9d59cf57fb4426e6be9ee10a5a14ec92d0a80027": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:41.389457+00:00"
+ },
+ "91f353dcfcb19e030fbeb152b6e1e81d4e2f39ca2875d634fedf12a7be83fe79": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n   <span>\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\n<span></span></p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:35.518475+00:00"
+ },
+ "927ebb0cc89b5c4b16fd4ea6ef974c75009ad1d0beb6afc99e0e077646bb5a0a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  - nested\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:27.824095+00:00"
+ },
+ "930b894cc8b741bad1d7cba25fe2c36bdb90df6d003f9aecc43f95d404bad088": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:19.573191+00:00"
+ },
+ "93b1ac8d1972acf912b572f0b2342c42ca67ef4fd83602666cd43fd1291c1561": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n1. item\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:00.399922+00:00"
+ },
+ "93cb481de2cd8fbc53b076349834c9db0bec219534a18630391dc54f8b9ba3bc": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  ```\\n  code\\n  ```\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:48.017389+00:00"
+ },
+ "9478801c82c0f0fbee40af265f927265ddccb3a825d627a36a2b68371c9e5225": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n[^1]: note\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:16.801295+00:00"
+ },
+ "966ae4696d424e334e65adc05e192f6032fcf06be75ae9684452c78452b073e8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n  <span>\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:37.718542+00:00"
+ },
+ "97d6ead888c0b4035fd36c9a074970f0a774079390b5df44bdffefd50f4c467b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\ntext\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:09.491144+00:00"
+ },
+ "98b1b96c1e99c5ea1f28cb4d7dbbc2a8a6d22345e11fce4fac65ec190f6d4d39": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\nOld — heading\\n---\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Old — heading</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:05:31.029434+00:00"
+ },
+ "993151f79bfa806126a604060d486a47e78ddd5315c5f55a6a088aaed44e64f0": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n  text\\ntext\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:07.351062+00:00"
+ },
+ "9b58854215fdb508918fda5ff5b645d50d0df6bdbf76a76d27b6db4457aae3ae": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:34.679685+00:00"
+ },
+ "9f9a6b90616f4a5c1303a5d12cc7dcbf689ba5d08971685e85d959444ab42670": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n<pre>\\n## Old\\n</pre>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:48.845155+00:00"
+ },
+ "a0461233e1faf8c0486d19dc17cea28dc2d02329731b74a043b00f928dd5f80e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n---\\n\"}",
+  "response": "<h2 dir=\"auto\">text</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:50.451868+00:00"
+ },
+ "a0472405dd4d0c91cb0dd24b143d2e0ad72a335424bc6d50020b6c0baa9185a3": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  > quote\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:43.860272+00:00"
+ },
+ "a0fbb1d0ce9ac8540784c215c1d9a1871a582cf87980c6e71d3bddb2c97c236f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\npara\\n- item\\n\\n  text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">para</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old — heading\n</span>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:45.800381+00:00"
+ },
+ "a1aadf6a9a7871a2eca0c4673675a5d71e6e223b732b59730cdd28c40f5d6829": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:07.846382+00:00"
+ },
+ "a28cd18b9e8e697cec051a1b3be64b29abedd98acaf274e0b39f8467690e7ca6": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   <span>\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n<span></span></p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:43.501446+00:00"
+ },
+ "a4a747fc14901a25ae66be69635576e26b2b04fd36970652696fbf7d971f65d7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:28.874866+00:00"
+ },
+ "a567d1e6979e4378eb2496aab2029a39a988a90ad3db915a84cf684c41da6948": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n===\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\n===</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:43.981896+00:00"
+ },
+ "a693c8acc767d6036d8d290e60780a298654677e9268f4f2eb40b3cfe24c7e8e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   text\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:12.946894+00:00"
+ },
+ "a887b3539bdf82408714fd6b398bb964afb3c8c17f2b42008d71334eaf62e3fa": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n  <span>\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n  <span>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:02.007385+00:00"
+ },
+ "a94404b9737d298233503fae0f3da44213cc519820bcb32bc7db5f91d33d05a7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n\\n  text\\ntext\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:06.237626+00:00"
+ },
+ "a9b37cd6b224ee640e0f34457df2a22d2efa56a0751a9892edce5b42c04a6bd3": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n[^1]: note\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:43.052967+00:00"
+ },
+ "a9f966c7d785fd707cf14f32fcdfa386fdb6cafb496abc91778f7f81d22df3ef": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n> item\\n\\n  text\\n<span>\\n## Old — heading\\n</span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<blockquote>\n<p dir=\"auto\">item</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old — heading</h2>\n\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:46.698645+00:00"
+ },
+ "ab8ce3040c13880cfd1d03f2e947e8349a27427063e4cdf576ed83ab3a95cc48": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  <span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<span>\n</span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:50.145065+00:00"
+ },
+ "ac541b9bf39234a0bc4dc4faa2575938768ddc66b2a13c78e31effce859355ca": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n text\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:42.379395+00:00"
+ },
+ "b017576f5cd9472a0f83e3fb7e0f327dabdcf3a1e5d8d6426d8ae551c0c67494": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n  <span>\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<span>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:18.554620+00:00"
+ },
+ "b12d27abe4c2392bf7d28cd8fa359ed068d84cd21969c410a45737ca8aa4741c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"*\\n  first\\nlazy\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:49.693833+00:00"
+ },
+ "b1f3f13cc131e5ffd0f86a6629da1c62a62d0104689097799d3811610ca0fa97": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n```\\ncode\\n```\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:57.278394+00:00"
+ },
+ "b229d6baa12137ba5bd39b9025d480b4923a6f4d66fe03c5dbd9e293520f48d2": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n1. item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:06.478599+00:00"
+ },
+ "b31147f927095f4b8e706a1a0299e82f449eb2bd86136fba897d23997ff61c18": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:59.157570+00:00"
+ },
+ "b4c47264739b7013f459b9ee1b17bc00b48aadcbd4f98fb2564793ce12abf6a9": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:35.122696+00:00"
+ },
+ "b4ebea2884522b145e0830fd8ebe6fab9e55431a33c0d3724baaa5038f3e366f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:09.134967+00:00"
+ },
+ "b56a1d9644a5e8577fbddd62129727016beb5b0207f2e06bd6e1e3b0956f067e": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n   <span>\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:05.594779+00:00"
+ },
+ "b5b001761ccf1eb9b484f85faad04b38d7d4afe9ee54cc2b1301200e21ad4ec7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n  text\\n\\n   text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\ntext</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:23.325084+00:00"
+ },
+ "b65071e28ff2bb62a2d65f0e22df14695ed5ad1bf85f79b97ac8b0a236fcf791": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\nOld — heading\\n===\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<h1 dir=\"auto\">Old — heading</h1>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:05:30.610574+00:00"
+ },
+ "b86cbd35799646ffc75b607018073b5967a756b1a1113c9001f0758977e1ed02": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:41.864350+00:00"
+ },
+ "bc09a2e6afeff6b3e4e4957ec54500652f8efe032763100175923e210d7b6fee": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n  text\\n  <span>\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\n<span><br>\n<span></span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:22.059500+00:00"
+ },
+ "bc745086d1ea6de7ef6e6fde5df3c85f6eecd1ba5665cf52032854d651f15e89": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:51.407811+00:00"
+ },
+ "bd09f4f4843540cc4f6dc5ad265ba53f98b2d72dfc388daf86cc9d7ed873f3ab": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"[^1]: note\\n\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:35.609744+00:00"
+ },
+ "bdb73a210c116a3d039a702088997ab0693a31d1b244e8df4e09b567e3427133": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n- item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">text</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:21.463969+00:00"
+ },
+ "be7900b3db44e91e00769dfdbfe8b24941de84490f921665d865356a1b7eed81": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n  <span>\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span><br>\n<span></span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:23.759261+00:00"
+ },
+ "bf579df38646d267e0d3d4e77c8a4f6ed2ff1392a3f742a49317133f2addb6cc": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n- item\\n  more\\n\\n   text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n</li>\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:21.212669+00:00"
+ },
+ "c03c85b52f21c6b87402bf96dedf6148fd9fa8d0a5f19a95b21a51124f5c61e5": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:37.973270+00:00"
+ },
+ "c136285a3d11d1f3f27a64f9f26a83a6a68504c166dd397e3d8230aeb02652bc": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n  <span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:49.745914+00:00"
+ },
+ "c1657ef665d028e25d678bf90b9d7b21c8be873869f352203b2240a00f23620a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:32.387790+00:00"
+ },
+ "c37aef883709432079565f1dd78826d6ba6b6f94e8206992e5cc05168f6c42f1": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n   text\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:21.638759+00:00"
+ },
+ "c52ebbde28c4a9900dfa8eab30d2018030e11aa851373bd3c3e1eb78a7a30337": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:33.831204+00:00"
+ },
+ "c58c33eaf7e3de6904381260a8120b86d5e77894e19ce44e46cf5e7313a0c4b8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:08.223132+00:00"
+ },
+ "c72d9f34e7f5e64a98728d7e43b2e353dbd97078fda96677ab89f788f6d47c71": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n   <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:39.598542+00:00"
+ },
+ "c98403168f74088fd4998bcc6a03ddb51513c711dac03bd9ae2bf17f5717f987": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-   \\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:26.320789+00:00"
+ },
+ "c98473df5abee8a59d150c4fd9bf01267c4ad36ff96f4789d2be9994c5232a4b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n- item\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li></li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:30.959082+00:00"
+ },
+ "c9fbb332f1bfcc0cfbac6d47d5134d66ebeb2a5b136eb7858f749afb7b04f563": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-  item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:22.809384+00:00"
+ },
+ "ca317655efe725ddf748b88fc1aa283f3e8fb0660dd06b20a1647931586632cb": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n> quote\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:13.315605+00:00"
+ },
+ "cc318bc8209927448a1402c6ec8cbd8c27199564e491ea8e7d53eba5e43e1676": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n> quote\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:05.151880+00:00"
+ },
+ "cf5ad02717bd291586067c81abd9034506e2c82d18c76610fcf481febef50452": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n## Old — heading\\n  </span>\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old — heading</h2>\n  \n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:47.153878+00:00"
+ },
+ "cf5d66b73fa215c9090e7603a6a652d88bd4122a8dff43d8aec58cf846105721": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\nlazy\\n\\n   text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n## Old\n  </span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:15.418163+00:00"
+ },
+ "d0472403412184ab38027f51d5ec6ee22dd84f860f6474189e9d792630ffeb25": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n## Outside\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<h2 dir=\"auto\">Outside</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:29.679472+00:00"
+ },
+ "d0856a72c31dae063ebcedef84c7bf5610a229a428ee7cbeb849369a9fea79c6": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n- item\\n\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n</li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:20.003409+00:00"
+ },
+ "d0c9c656b0c21b7f20903b6a768cfaf91d5bb862c7ab42bdcb1f8652039ef31a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n   text\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\ntext</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:36.406238+00:00"
+ },
+ "d1b1da1671ed726a195147e88dc21a1082e07a892a224107653b7af8f702b6b8": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n    text\\n  text\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:14.142124+00:00"
+ },
+ "d265a5a4d5a1beb41467ccd737ce9f17fc3f99021c6777850dfc8f993abc9804": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n```\\ncode\\n```\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:07:57.691706+00:00"
+ },
+ "d3438303c00199afc7040eebb7c0d245a5986e6b61c9d9d8cb8ce385bf18889b": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n[^1]: note\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:04.073430+00:00"
+ },
+ "d3ef182e239c2ce32ad988782eacf60916e6bbf7138f3f569d3a9ef193a3eb20": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n===\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n===</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:49.252397+00:00"
+ },
+ "d6bd7e8fead5c52941b0a4d75e259665bd02a02a1d280a7ebae6a1b48b8f8edc": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:09.616230+00:00"
+ },
+ "d73cf6a20d44c79d928a2a449b775fca52bce93af0f029e016d4ac8a8c0a44ad": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:11.227822+00:00"
+ },
+ "d83a931142cbd9ffd9b95fbbf12dc2d1cb62986680a93dac8fd8958b8fec7d19": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n\\n  again\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">again</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:32.910368+00:00"
+ },
+ "d9b62f5915ab92c7bd89c696fa7b2f3b29c5a34a0562cc0def8118a16b5e8e24": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  ## Inner\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Inner</h2>\n</li>\n</ul>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:51.762436+00:00"
+ },
+ "da7f2997e3351c552651b0cac174833b7e9c32aebc8386b87d5d0ddfb8247428": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- - -\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<hr>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:31.835629+00:00"
+ },
+ "daade3ec1f09f6bcc56515d94b97840d4e5793ddc57e7666f697a9f14995a990": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n2. other\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol start=\"2\" dir=\"auto\">\n<li>\n<p dir=\"auto\">other</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:44.647294+00:00"
+ },
+ "db831b5d22fa38fe94598dd0b97fbd3202361806df0c88350a69be0c9e103a77": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n   text\\n text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:27.103093+00:00"
+ },
+ "dbc2954c503133910d2db73c6e17fe07e6c0270d77e73448d3a03deee5624a4c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n> quote\\n\\n  text\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:28.040120+00:00"
+ },
+ "e03bfdd20d6a10ef6db9abb67e653fa434e2dd3baa663fe4b989a93d58a45e23": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\nlazy\\n  <span>\\n```\\n\\n## Old — heading\\n```\\n\\n## Real\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old — heading\n</code></pre>\n<h2 dir=\"auto\">Real</h2>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T13:53:48.934186+00:00"
+ },
+ "e05e2ae603d58822cbc1428e0d856a31681ed2465ea1589e0126026081e3723f": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"text\\n-\\n\"}",
+  "response": "<h2 dir=\"auto\">text</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:50.855731+00:00"
+ },
+ "e10ca3f7b417501442cf0a1880e1b6d01aa88873f86582de5a4679591df6df04": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n  text\\ntext\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text<br>\ntext<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:25.888323+00:00"
+ },
+ "e38cca2aa5d9000c3dd07c71776761d030cecc5293ba186d746a028c9877fc90": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n\\n  <span>\\n## Old\\n  </span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n<span>\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:48.417634+00:00"
+ },
+ "e395340429dbeecef8d107ae34d478318ace56272f0aa9e399552336f1259207": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n===\\n\\n   text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\n===</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:31.718929+00:00"
+ },
+ "e498697d640e8040a87e8983b0998a26a92f621c9feb9a0176250c9e960e5e80": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n```\\ncode\\n```\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:07.452873+00:00"
+ },
+ "e565b9aff01a1d0737f8f6dabf8b8b482fe39fc2333f33faf1d299708953e71a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n   <span>\\n   <span>\\n## Old\\n   </span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span><br>\n<span></span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:22.486765+00:00"
+ },
+ "e5fddb070a6b33f4f7ee320716ce844524067a277bab5d38c32d432da86bd827": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"+ item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:29.014408+00:00"
+ },
+ "e61dcf963355e43d90a71f4b4ec8438ad352e51750caafce61525f59ad215ccd": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n   <span>\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n<span></span></p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:10.403527+00:00"
+ },
+ "e78cd1283fcd0ff597a68223479ede5d0982b425b70fa10ecb9155b4df90c286": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"* item\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:25.897981+00:00"
+ },
+ "e8fd1cf59f24775528be574db60af3997fd6849b2277a1bae209400129b3cf68": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\nlazy\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\nlazy</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:33.411322+00:00"
+ },
+ "ea06ec3f5ef5afc4dc92579f91fc3a102ec72934bc8f7bb8acce29f8b253f224": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n <span>\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item<br>\nmore</li>\n</ul>\n <span>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:01.166680+00:00"
+ },
+ "ea2cf548b25def3bb68471403e341f09a2190f4a3e383d8d370e82ce38ef2ee9": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<span>\n</span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:40.528560+00:00"
+ },
+ "ed35c15b7abf57145b67c3b392ef7c27105f3507ffda030cd9a78438743c2a0c": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:26.508133+00:00"
+ },
+ "eda19c2f4c20f0c65112f95987b8d085e068ef9f92b9b0b7719ab20445ccceed": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"plain\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<p dir=\"auto\">plain</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:21.900949+00:00"
+ },
+ "ef9b2d1644cc05ceff7b2cba804375ecba1f269e4fb4d9071c0e0db731f8091a": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n    text\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:30.580350+00:00"
+ },
+ "f41636d4ac3d03ef62df995df0510026556302ba3ef3346b83088f366880d9a3": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:06:19.512304+00:00"
+ },
+ "f4a3ad38c95f22db03fe60a3c66c577d51ee171a6e587d07efea5d92a9c1936d": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"# Page\\n\\n- item\\n\\n  ## Old — heading\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\"}",
+  "response": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Old — heading</h2>\n</li>\n</ul>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+  "stderr": "",
+  "utc": "2026-09-22T14:05:32.301847+00:00"
+ },
+ "f64fe065deb19471da6767da79d961888c137165c1b25f2b050a1b3f0998ecab": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n  <span>\\n\\n   text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n<span></span></p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:40.249363+00:00"
+ },
+ "f82cce434cbf92a604c0af75bd9d71d2e7de378a68e16352e913d3631a9ab5a3": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n* other\\n\\n  text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">other</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:45.052385+00:00"
+ },
+ "fab90bf338d9429dfcf23d929ca771f30db5a42a1903e84629c1303dae0b3e67": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n\\n   text\\n <span>\\n  <span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n  <span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:29.784163+00:00"
+ },
+ "faea84dcfb32a9c4ccd553f394f40a2d6fd04c6dbbf1212ddb239b9640902ec7": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"-\\n  <span>\\n\\n text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<span>\n</span></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:08:15.260102+00:00"
+ },
+ "fc7254574a33b53690ff21ec3f2eeac62e66c35075187c006415269850e42958": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"1. item\\n> quote\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:11.674327+00:00"
+ },
+ "fe8eba5889f10bac7ec1e85591f2d8dc145380736ee936e4d38a22a8e1b1a026": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n    text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:34.328012+00:00"
+ },
+ "fec58feaa0645c622a50b2baa107b26fbad5a4663d44e5266f4c89a062fc77dd": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n\\n  text\\n  <span>\\n<pre>\\n\\n## Old\\n</pre>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T13:52:38.809477+00:00"
+ },
+ "ff855468f4b8b141023421ead5bb1452b4e09475df699729641d120f347259e9": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- item\\n  more\\n===\\n\\n  text\\n<span>\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore<br>\n===</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre></span>",
+  "stderr": "",
+  "utc": "2026-09-22T14:03:37.234654+00:00"
+ },
+ "ffb4887dd76220a748583254f29f62898236f0824d2949a5dc956fb180255ad6": {
+  "exit": 0,
+  "request": "{\"context\": \"kebag-logic/milan-fpga\", \"mode\": \"gfm\", \"text\": \"- \\titem\\n\\n   text\\n<span>\\n## Old\\n</span>\\n\\n## Real\\n\"}",
+  "response": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "stderr": "",
+  "utc": "2026-09-22T14:00:25.494147+00:00"
+ }
+}

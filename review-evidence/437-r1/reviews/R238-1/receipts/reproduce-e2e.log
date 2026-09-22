@@ -1,0 +1,18 @@
+id | renderer shows Old on exact base page | expected label | base gate label | head gate label | other findings base/head
+A01 two spaces | False | refused | exempt WRONG | refused ok | 1/1
+A04 ordered item | False | refused | exempt WRONG | refused ok | 1/1
+A07 list after paragraph | False | refused | exempt WRONG | refused ok | 1/1
+B01 one space | True | exempt | exempt ok | exempt ok | 1/1
+B03 block quote | True | exempt | exempt ok | exempt ok | 1/1
+C01 tag at col 2 under resumed paragraph | True | exempt | exempt ok | refused WRONG | 1/1
+C04 C01 then column-0 fence | False | refused | refused ok | exempt WRONG | 0/0
+C05 C01 then column-0 comment | False | refused | refused ok | exempt WRONG | 0/0
+C06 C01 then column-0 type-1 pre | False | refused | refused ok | exempt WRONG | 0/0
+C07 C04 after a lazy line | False | refused | refused ok | exempt WRONG | 0/0
+C08 C04 with a col-3 item | False | refused | refused ok | exempt WRONG | 0/0
+P01 tag at col 2 under the FIRST item paragraph, then fence | False | refused | exempt WRONG | exempt WRONG | 1/1
+P02 tag at col 2 after a blank inside the item, then fence | False | refused | exempt WRONG | exempt WRONG | 0/0
+D01 column-0 quote after item, resumed text, tag | True | exempt | exempt ok | refused WRONG | 1/1
+D02 column-0 footnote after item, resumed text, tag | True | exempt | exempt ok | refused WRONG | 1/1
+D03 D01 then column-0 fence | False | refused | refused ok | exempt WRONG | 0/0
+D04 D02 then column-0 fence | False | refused | refused ok | exempt WRONG | 0/0
