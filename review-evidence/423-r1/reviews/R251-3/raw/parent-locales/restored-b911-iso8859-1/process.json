@@ -1,0 +1,32 @@
+{
+  "source": "restored-b911",
+  "encoding": "iso8859-1",
+  "environment": {
+    "LC_ALL": "en_US.ISO-8859-1",
+    "LOCPATH": "/tmp/r251-r3-locale-mc8ypbj4/locales",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0"
+  },
+  "focused_argv": [
+    "/usr/bin/python3",
+    "-B",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r3-r251/scripts/check_parent_locale.py",
+    "/tmp/r251-r3-locale-mc8ypbj4/restored-b911",
+    "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-r3-r251/raw/parent-locales/restored-b911-iso8859-1",
+    "--child",
+    "iso8859-1"
+  ],
+  "focused_exit": 1,
+  "expected_exit": 1,
+  "full_argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/tmp/r251-r3-locale-mc8ypbj4/restored-b911/scripts/check_merge_containment.py",
+    "--selftest"
+  ],
+  "full_exit": 1,
+  "full_assertions": 455,
+  "failure_lines": [
+    "  FAIL retention-literal-revert-'raw-\\udcff'-path the unproved literal path is named without decoding loss"
+  ]
+}

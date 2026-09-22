@@ -1,0 +1,6 @@
+https://github.com/kebag-logic/milan-fpga/pull/519#issuecomment-5781814720
+[A10] COMPLETE SOURCE REVIEW READY
+
+Source `b911c11671cae329a99f5e413133b4bf6357fa7f`, tree `4dd73d4c4f2ff352e65703d476dcd44494ffdb8e`, base `52711029f374650dc93830d5ea28e81cb5c8f410` passes all 49 static/builder commands and five complete native groups. Final committed blob/mode/index and three required submodule checks pass. The filename correction addresses R251 F1 BLOCKER Conformance/Robustness and F2 MAJOR Tests/Conformance. Their classification and open status remain reviewer-owned. Default selftest, original public locale examples and single-site restoration controls are public; all three filesystem encodings actually ran locally. R251 internal Codex and R244 external Opus must review the corrected head.
+
+[Exact commands, raw results and integrity](https://github.com/kebag-logic/milan-fpga/tree/bdd708eb8a5548f8ab1a011b8402b715f5a00ff5/review-evidence/423-r1/corrected-source2/manager). Scoped Verilator 5.050 is recorded. Physical calibration NOT RUN and field skips supply no hardware evidence. Trusted replica, new exact-head hosted results, two positive reviews, final current-dev candidate and post-merge checks remain required. External Opus availability does not waive its review.

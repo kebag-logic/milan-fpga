@@ -1,0 +1,403 @@
+{
+  "commits": {
+    "9790ac736e6d10301ad814ffdf73dbe37b59768b": {
+      "parents": [
+        "7fa64e99490b4648797374d3fdb1fedf08145e91"
+      ],
+      "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+    },
+    "f27b45500cb02a5277b5cb32cef408658c1f914e": {
+      "parents": [
+        "7fa64e99490b4648797374d3fdb1fedf08145e91",
+        "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+      ],
+      "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+    },
+    "3db86812096830fada2f5f276fa5f4d9f37d1d14": {
+      "parents": [
+        "f27b45500cb02a5277b5cb32cef408658c1f914e"
+      ],
+      "tree": "df933eb87527e1a91218e668a3558b5a6013940b"
+    },
+    "20927af74752620b2ad0f973e8be3203994b5547": {
+      "parents": [
+        "7fa64e99490b4648797374d3fdb1fedf08145e91"
+      ],
+      "tree": "cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7"
+    },
+    "5602e70bb4cf70c2e0e39e846e26925e27659e32": {
+      "parents": [
+        "377b8c428b226a796adde099fe07152151fd6c5d"
+      ],
+      "tree": "df933eb87527e1a91218e668a3558b5a6013940b"
+    },
+    "f0f1c055ee5226f08e656c27cb1bf4c355be11ae": {
+      "parents": [
+        "bacf812178ea0e0ca843b5c332dd62414f701fad",
+        "a6d78cb13f54345119ea555d1ef6edfee4dc1825"
+      ],
+      "tree": "0f138d51d04050fef43ae1a9d70ecb45a216fa0c"
+    },
+    "c1b617435824929a790739ea8585c3fe1a328cc0": {
+      "parents": [
+        "382ebaf77afa2a22fbdcf71d89f413840430d4e5",
+        "04de063b6cfcbdd0409294dfdc967457eef99d08"
+      ],
+      "tree": "25909c4d74015a9a843513cbf36054b1dda60df5"
+    }
+  },
+  "patch_pairs": [
+    {
+      "source": "9790ac736e6d10301ad814ffdf73dbe37b59768b",
+      "replay": "20927af74752620b2ad0f973e8be3203994b5547",
+      "sha256": "d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3",
+      "byte_identical": true,
+      "postimages_equal": true
+    },
+    {
+      "source": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+      "replay": "5602e70bb4cf70c2e0e39e846e26925e27659e32",
+      "sha256": "fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f",
+      "byte_identical": true,
+      "postimages_equal": true
+    }
+  ],
+  "targets": [
+    {
+      "target": "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+      "G": true,
+      "H": [
+        true,
+        null
+      ],
+      "T_unproved": [
+        "'tb/tsngen/mutants.py'",
+        "'tb/verilator/gaskets/mutants.py'"
+      ],
+      "commands": [
+        {
+          "label": "source-pr62",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$VALIDATION_STORAGE/reviews/r251-423-r2/scripts/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+            "3db86812096830fada2f5f276fa5f4d9f37d1d14"
+          ],
+          "exit": 1,
+          "stdout": "  UNKNOWN    3db86812096830fada2f5f276fa5f4d9f37d1d14: historical whitespace-exact replay in f0f1c055ee5226f08e656c27cb1bf4c355be11ae; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+        },
+        {
+          "label": "base-pr62",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "/tmp/r251-history-baseline-l9zy05zj/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+            "3db86812096830fada2f5f276fa5f4d9f37d1d14"
+          ],
+          "exit": 1,
+          "stdout": "  STRANDED   3db86812096830fada2f5f276fa5f4d9f37d1d14: 3 commit(s) not in f0f1c055ee5226f08e656c27cb1bf4c355be11ae  [paths differing: bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/MANAGER.md, docs/SOURCE_EVIDENCE.md, docs/TEST_DEVELOPER.md]\n\n1 branch tip(s) have work that f0f1c055ee5226f08e656c27cb1bf4c355be11ae does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n"
+        },
+        {
+          "label": "source-pr61",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$VALIDATION_STORAGE/reviews/r251-423-r2/scripts/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+            "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+          ],
+          "exit": 0,
+          "stdout": "  contained  9790ac736e6d10301ad814ffdf73dbe37b59768b  [every commit has a whitespace-exact equivalent in f0f1c055ee5226f08e656c27cb1bf4c355be11ae (1 not ancestors -- rebase merge)]\n"
+        },
+        {
+          "label": "base-pr61",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "/tmp/r251-history-baseline-l9zy05zj/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+            "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+          ],
+          "exit": 0,
+          "stdout": "  contained  9790ac736e6d10301ad814ffdf73dbe37b59768b  [every commit has a whitespace-exact equivalent in f0f1c055ee5226f08e656c27cb1bf4c355be11ae (1 not ancestors -- rebase merge)]\n"
+        }
+      ],
+      "entries": {
+        "tb/mutation_verdict.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+            ],
+            [
+              "100644",
+              "blob",
+              "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/tsngen/Makefile": {
+          "ancestor_tip_source": [
+            [
+              "100644",
+              "blob",
+              "946eee06d9d9526abf0c2b83e325a2908ea9351d"
+            ],
+            [
+              "100644",
+              "blob",
+              "3f34608c8a6b71e0a1da9cf22dfb326ecb31bc1b"
+            ],
+            [
+              "100644",
+              "blob",
+              "219478fd638cf865c28d57567479e1d38b51db46"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/tsngen/mutants.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "36d0e141fb2a9cf5b3b6a5ba1859b8648e76f785"
+            ],
+            [
+              "100644",
+              "blob",
+              "5361f01e16ec3d57b936e654d1f4364f891c5d33"
+            ]
+          ],
+          "retained": false
+        },
+        "tb/verilator/gaskets/Makefile": {
+          "ancestor_tip_source": [
+            [
+              "100644",
+              "blob",
+              "a44897e3c131cb617740877a789761b3b6046357"
+            ],
+            [
+              "100644",
+              "blob",
+              "c98135a4c163f95a3e797430c7e5d1a843dbfa71"
+            ],
+            [
+              "100644",
+              "blob",
+              "bd1a2d3094699f2dffcf7a4eba7a35c3d74b9b16"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/verilator/gaskets/mutants.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "37ecf1c1ecc5fb40e334ca92ee94f53da81d41e8"
+            ],
+            [
+              "100644",
+              "blob",
+              "def12883e09df81ecc9047d375a0246d3a856338"
+            ]
+          ],
+          "retained": false
+        }
+      }
+    },
+    {
+      "target": "c1b617435824929a790739ea8585c3fe1a328cc0",
+      "G": true,
+      "H": [
+        true,
+        null
+      ],
+      "T_unproved": [
+        "'tb/tsngen/mutants.py'",
+        "'tb/verilator/gaskets/mutants.py'"
+      ],
+      "commands": [
+        {
+          "label": "source-pr62",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$VALIDATION_STORAGE/reviews/r251-423-r2/scripts/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "c1b617435824929a790739ea8585c3fe1a328cc0",
+            "3db86812096830fada2f5f276fa5f4d9f37d1d14"
+          ],
+          "exit": 1,
+          "stdout": "  UNKNOWN    3db86812096830fada2f5f276fa5f4d9f37d1d14: historical whitespace-exact replay in c1b617435824929a790739ea8585c3fe1a328cc0; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+        },
+        {
+          "label": "base-pr62",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "/tmp/r251-history-baseline-l9zy05zj/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "c1b617435824929a790739ea8585c3fe1a328cc0",
+            "3db86812096830fada2f5f276fa5f4d9f37d1d14"
+          ],
+          "exit": 1,
+          "stdout": "  STRANDED   3db86812096830fada2f5f276fa5f4d9f37d1d14: 3 commit(s) not in c1b617435824929a790739ea8585c3fe1a328cc0  [paths differing: README.md, bench/arty/bench_arty_top.sv, bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/HDL_DEVELOPER.md]\n\n1 branch tip(s) have work that c1b617435824929a790739ea8585c3fe1a328cc0 does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n"
+        },
+        {
+          "label": "source-pr61",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$VALIDATION_STORAGE/reviews/r251-423-r2/scripts/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "c1b617435824929a790739ea8585c3fe1a328cc0",
+            "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+          ],
+          "exit": 0,
+          "stdout": "  contained  9790ac736e6d10301ad814ffdf73dbe37b59768b  [every commit has a whitespace-exact equivalent in c1b617435824929a790739ea8585c3fe1a328cc0 (1 not ancestors -- rebase merge)]\n"
+        },
+        {
+          "label": "base-pr61",
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "/tmp/r251-history-baseline-l9zy05zj/check_merge_containment.py",
+            "--no-fetch",
+            "--base",
+            "c1b617435824929a790739ea8585c3fe1a328cc0",
+            "9790ac736e6d10301ad814ffdf73dbe37b59768b"
+          ],
+          "exit": 0,
+          "stdout": "  contained  9790ac736e6d10301ad814ffdf73dbe37b59768b  [every commit has a whitespace-exact equivalent in c1b617435824929a790739ea8585c3fe1a328cc0 (1 not ancestors -- rebase merge)]\n"
+        }
+      ],
+      "entries": {
+        "tb/mutation_verdict.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+            ],
+            [
+              "100644",
+              "blob",
+              "e25b17efbacee3c5b67ecace76eec9b39c4de97c"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/tsngen/Makefile": {
+          "ancestor_tip_source": [
+            [
+              "100644",
+              "blob",
+              "946eee06d9d9526abf0c2b83e325a2908ea9351d"
+            ],
+            [
+              "100644",
+              "blob",
+              "3f34608c8a6b71e0a1da9cf22dfb326ecb31bc1b"
+            ],
+            [
+              "100644",
+              "blob",
+              "219478fd638cf865c28d57567479e1d38b51db46"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/tsngen/mutants.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "36d0e141fb2a9cf5b3b6a5ba1859b8648e76f785"
+            ],
+            [
+              "100644",
+              "blob",
+              "5361f01e16ec3d57b936e654d1f4364f891c5d33"
+            ]
+          ],
+          "retained": false
+        },
+        "tb/verilator/gaskets/Makefile": {
+          "ancestor_tip_source": [
+            [
+              "100644",
+              "blob",
+              "a44897e3c131cb617740877a789761b3b6046357"
+            ],
+            [
+              "100644",
+              "blob",
+              "c98135a4c163f95a3e797430c7e5d1a843dbfa71"
+            ],
+            [
+              "100644",
+              "blob",
+              "bd1a2d3094699f2dffcf7a4eba7a35c3d74b9b16"
+            ]
+          ],
+          "retained": true
+        },
+        "tb/verilator/gaskets/mutants.py": {
+          "ancestor_tip_source": [
+            null,
+            [
+              "100644",
+              "blob",
+              "37ecf1c1ecc5fb40e334ca92ee94f53da81d41e8"
+            ],
+            [
+              "100644",
+              "blob",
+              "def12883e09df81ecc9047d375a0246d3a856338"
+            ]
+          ],
+          "retained": false
+        }
+      }
+    }
+  ]
+}

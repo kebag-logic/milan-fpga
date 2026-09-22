@@ -1,0 +1,294 @@
+{
+  "encoding": "ascii",
+  "rows": [
+    {
+      "label": "enumerated bytes",
+      "got": [
+        null,
+        [
+          "3a286578636c756465297461620963720d0a656e640a",
+          "7261772dff2e747874",
+          "c3a92e747874",
+          "e282ac2e747874",
+          "f09f8eb52e747874"
+        ]
+      ],
+      "expected": [
+        null,
+        [
+          "3a286578636c756465297461620963720d0a656e640a",
+          "7261772dff2e747874",
+          "c3a92e747874",
+          "e282ac2e747874",
+          "f09f8eb52e747874"
+        ]
+      ],
+      "pass": true
+    },
+    {
+      "label": "shared unequal postimage",
+      "got": [
+        false,
+        null
+      ],
+      "expected": [
+        false,
+        null
+      ],
+      "pass": true
+    },
+    {
+      "label": "shared path proof refuses missing work",
+      "got": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "label": "entry c3a92e747874",
+      "got": [
+        "100644",
+        "blob",
+        "8665d80d1e1ba192e3b9b091079ba88a88c62a47"
+      ],
+      "expected": [
+        "100644",
+        "blob",
+        "8665d80d1e1ba192e3b9b091079ba88a88c62a47"
+      ],
+      "pass": true
+    },
+    {
+      "label": "entry 7261772dff2e747874",
+      "got": [
+        "100644",
+        "blob",
+        "43be4ca296b1e9e1ee6422d796b91a8e102ab171"
+      ],
+      "expected": [
+        "100644",
+        "blob",
+        "43be4ca296b1e9e1ee6422d796b91a8e102ab171"
+      ],
+      "pass": true
+    },
+    {
+      "label": "entry e282ac2e747874",
+      "got": [
+        "100644",
+        "blob",
+        "a7498f8ca5eba287916e3665cd20bad771b118ca"
+      ],
+      "expected": [
+        "100644",
+        "blob",
+        "a7498f8ca5eba287916e3665cd20bad771b118ca"
+      ],
+      "pass": true
+    },
+    {
+      "label": "entry f09f8eb52e747874",
+      "got": [
+        "100644",
+        "blob",
+        "e4d2fc0268c827e511ad625553280dd28f8a3529"
+      ],
+      "expected": [
+        "100644",
+        "blob",
+        "e4d2fc0268c827e511ad625553280dd28f8a3529"
+      ],
+      "pass": true
+    },
+    {
+      "label": "entry 3a286578636c756465297461620963720d0a656e640a",
+      "got": [
+        "100644",
+        "blob",
+        "3c8fa677c3ca6494ac0f567c3f5d4d70ea712d12"
+      ],
+      "expected": [
+        "100644",
+        "blob",
+        "3c8fa677c3ca6494ac0f567c3f5d4d70ea712d12"
+      ],
+      "pass": true
+    },
+    {
+      "label": "exact patch inverse",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "CRLF preserved in patch",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "invalid bytes preserved in patch",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "verbatim ID",
+      "got": [
+        "b50028dad40aefae99f117c6fafbb13711eb364a",
+        null
+      ],
+      "expected": [
+        "b50028dad40aefae99f117c6fafbb13711eb364a",
+        null
+      ],
+      "pass": true
+    },
+    {
+      "label": "retention lists original paths",
+      "got": [
+        "':(exclude)tab\\tcr\\r\\nend\\n'",
+        "'\\udcc3\\udca9.txt'",
+        "'\\udce2\\udc82\\udcac.txt'",
+        "'\\udcf0\\udc9f\\udc8e\\udcb5.txt'",
+        "'raw-\\udcff.txt'"
+      ],
+      "expected": [
+        "':(exclude)tab\\tcr\\r\\nend\\n'",
+        "'\\udcc3\\udca9.txt'",
+        "'\\udce2\\udc82\\udcac.txt'",
+        "'\\udcf0\\udc9f\\udc8e\\udcb5.txt'",
+        "'raw-\\udcff.txt'"
+      ],
+      "pass": true
+    },
+    {
+      "label": "retention positive",
+      "got": [],
+      "expected": [],
+      "pass": true
+    },
+    {
+      "label": "returned record refusal 0",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "returned record refusal 1",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "returned record refusal 2",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "graft path absent",
+      "got": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "label": "graft path active",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "linear-missing",
+      "got": [
+        1,
+        "STRANDED"
+      ],
+      "expected": [
+        1,
+        "STRANDED"
+      ],
+      "pass": true
+    },
+    {
+      "label": "linear-positive",
+      "got": [
+        0,
+        "contained"
+      ],
+      "expected": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "label": "merge-reverted",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "expected": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "label": "merge-positive",
+      "got": [
+        0,
+        "contained"
+      ],
+      "expected": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "label": "positive fallback",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "literal argv bytes c3a92e747874",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "literal argv bytes 7261772dff2e747874",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "literal argv bytes e282ac2e747874",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "literal argv bytes f09f8eb52e747874",
+      "got": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "label": "literal argv bytes 3a286578636c756465297461620963720d0a656e640a",
+      "got": true,
+      "expected": true,
+      "pass": true
+    }
+  ],
+  "patch_sha256": "d2b0c39b967d78a212174e8bd537b75eb88cbb168e4cabd69c13ad44e2978f01",
+  "names_hex": [
+    "c3a92e747874",
+    "7261772dff2e747874",
+    "e282ac2e747874",
+    "f09f8eb52e747874",
+    "3a286578636c756465297461620963720d0a656e640a"
+  ],
+  "alias_hex": "e92e747874"
+}

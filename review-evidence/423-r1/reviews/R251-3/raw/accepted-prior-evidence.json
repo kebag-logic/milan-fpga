@@ -1,0 +1,118 @@
+{
+  "covering_round": "R251-2",
+  "head": "b911c11671cae329a99f5e413133b4bf6357fa7f",
+  "accepted_at": "4671e582cfa4bba4809b9e3a354ce5b6eb967f99",
+  "untouched_production_artifacts": {
+    "AGENTS.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "b9d500cc4a16d63103921c7aff1e7c5356eb3476"
+    },
+    "CONTRIBUTING.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "011c516b9320bb327b0076221e5dc8ec35978ee6"
+    },
+    "REQUIREMENTS.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "340a0eb1aeeb57d12340da12032ee3a73a28d701"
+    },
+    "docs/README.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "1297a51530ed9447308353764fa4fd174eb8343d"
+    },
+    "docs/reference/SUBMODULES.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "ba4d121a46f7ebc9ce5c6b43f2d764c03ed67a9e"
+    },
+    "docs/overview/ARCHITECTURE.md": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "dc26b32fbbf9d604c42fd624aa1697a85c84bb8c"
+    },
+    "scripts/check_merge_containment.py": {
+      "mode": "100755",
+      "kind": "blob",
+      "oid": "38f55b7ad41c389606baaf770ffc30d4b7dd444c"
+    },
+    "scripts/merge_containment_replay.py": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "7305c5da5ce3932e32eefa786877499c2eb11b2e"
+    },
+    "scripts/merge_containment_selftest.py": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "6b766421c4f05b7076a956d13598dd6df6cf9700"
+    },
+    "scripts/merge_containment_selftest_locale.py": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "251d5abe0374dbdd7b1a83079bc475b5cc8dac2d"
+    },
+    "scripts/merge_containment_selftest_mutations.py": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "39e8281123ab875f6d7685817ccbaf38feb9014d"
+    },
+    "scripts/merge_containment_selftest_replay.py": {
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "79b62201224e2c6bb0690a0ec8c7a3998ba691d1"
+    },
+    "scripts/run_all_suites.sh": {
+      "mode": "100755",
+      "kind": "blob",
+      "oid": "2a02c7f3c02ed2fa7e1ac68420126f30f1e1f3fe"
+    }
+  },
+  "public_matrix_rows": 31,
+  "all_expected_verdicts": true,
+  "donor_commit_objects_and_raw_patches_identical": true,
+  "patch_pairs": [
+    {
+      "source": "9790ac736e6d10301ad814ffdf73dbe37b59768b",
+      "replay": "20927af74752620b2ad0f973e8be3203994b5547",
+      "sha256": "d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3",
+      "byte_identical": true,
+      "postimages_equal": true
+    },
+    {
+      "source": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+      "replay": "5602e70bb4cf70c2e0e39e846e26925e27659e32",
+      "sha256": "fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f",
+      "byte_identical": true,
+      "postimages_equal": true
+    }
+  ],
+  "donor_targets": [
+    {
+      "target": "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+      "G": true,
+      "H": [
+        true,
+        null
+      ],
+      "T_unproved": [
+        "'tb/tsngen/mutants.py'",
+        "'tb/verilator/gaskets/mutants.py'"
+      ]
+    },
+    {
+      "target": "c1b617435824929a790739ea8585c3fe1a328cc0",
+      "G": true,
+      "H": [
+        true,
+        null
+      ],
+      "T_unproved": [
+        "'tb/tsngen/mutants.py'",
+        "'tb/verilator/gaskets/mutants.py'"
+      ]
+    }
+  ],
+  "fresh_matrix_execution": false
+}

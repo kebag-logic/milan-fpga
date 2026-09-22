@@ -1,0 +1,15 @@
+diff --git a/scripts/merge_containment_selftest_retention.py b/scripts/merge_containment_selftest_retention.py
+index 1e95a499e314aa2b711cdcb0050cfde943df22a5..389a4bb65e552ed8a0e052672e07f46dc383c987 100644
+--- a/scripts/merge_containment_selftest_retention.py
++++ b/scripts/merge_containment_selftest_retention.py
+@@ -74,7 +74,9 @@ def _check(fx, name, expected, path=None):
+         fx.case("retention-" + name + "-proof", "raw no-op retention" in output,
+                 True, "acceptance requires both historical replay and raw retention")
+     if path is not None:
+-        fx.case("retention-" + name + "-path", repr(path) in output, True,
++        # _tree fixes the filename bytes independently of the process locale.
++        literal_path = os.fsdecode(path.encode("utf-8", "surrogateescape"))
++        fx.case("retention-" + name + "-path", repr(literal_path) in output, True,
+                 "the unproved literal path is named without decoding loss")
+ 
+ 

@@ -1,0 +1,322 @@
+{
+  "encoding": "utf-8",
+  "assertions": 22,
+  "failures": [],
+  "rows": [
+    {
+      "name": "retention-literal-':(exclude)magic'",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-':(exclude)magic'-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-':(exclude)magic'",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "want": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-':(exclude)magic'-path",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'tab\\tnewline\\nend\\n'",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'tab\\tnewline\\nend\\n'-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'tab\\tnewline\\nend\\n'",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "want": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'tab\\tnewline\\nend\\n'-path",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'crlf\\r\\npath'",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'crlf\\r\\npath'-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'crlf\\r\\npath'",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "want": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'crlf\\r\\npath'-path",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'raw-\\udcff'",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-'raw-\\udcff'-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'raw-\\udcff'",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "want": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-literal-revert-'raw-\\udcff'-path",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-crlf-exact",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-crlf-exact-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-crlf-normalized-tip",
+      "got": [
+        1,
+        "UNKNOWN"
+      ],
+      "want": [
+        1,
+        "UNKNOWN"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-crlf-normalized-tip-path",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "name": "retention-raw-blob-bytes",
+      "got": [
+        0,
+        "contained"
+      ],
+      "want": [
+        0,
+        "contained"
+      ],
+      "pass": true
+    },
+    {
+      "name": "retention-raw-blob-bytes-proof",
+      "got": true,
+      "want": true,
+      "pass": true
+    }
+  ],
+  "runs": [
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 1,
+      "output": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: ':(exclude)magic'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 1,
+      "output": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tab\\tnewline\\nend\\n'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 1,
+      "output": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'crlf\\r\\npath'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 1,
+      "output": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'raw-\\udcff'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 1,
+      "output": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'crlf'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n"
+    },
+    {
+      "argv": [
+        "--no-fetch",
+        "--base",
+        "main",
+        "pr"
+      ],
+      "exit": 0,
+      "output": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n"
+    }
+  ],
+  "fixture_name_hex": "7261772dff",
+  "raw_tree_record_hex": "31303036343420626c6f622061623239653634316665353439333462373736643430363731656535336335393962346137356663097261772dff00",
+  "input_repr": "'raw-\\udcff'",
+  "filesystem_repr": "'raw-\\udcff'",
+  "roundtrip_hex": "7261772dff"
+}

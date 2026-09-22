@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777768260
+[A171] TAKEN
+Branch: `423-retained-redundant-replay`, clean starting head `88e9276b2a220c716f64a843f7e1eb8f9265e896`; manager A10 created the lane and moved it In progress.
+Authoritative references: REQUIREMENTS.md REQ-VER-04; CONTRIBUTING.md section 2.1 step 7; [settled decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218); immutable R242 design report and fixtures.
+Interpreted scope: implement only the new final G1 + H + T fallback, preserving existing containment arms/order, linear historical policy and exit contract. The new positive requires exact redundant topology, distinct whitespace-exact historical replays and raw current retention proof. Actual PR62 and the published adjacent extension remain UNKNOWN/nonzero. Update checker/workflow wording and bounded tests under the existing self-test owner. No processor adoption or audit waiver.
+Validation plan: unchanged 145 self-test arms; public 31-fixture matrix and ten guard mutations with verdict/exit assertions; deterministic real-Git boundary controls including repeated blocks/partial reversions, CRLF, literal/non-UTF-8 paths, types/modes, missing objects/errors, hostile configuration and object formats; focused self-test, documentation, generated TOC, idiom, hygiene and applicable source/ratchet gates. CPU cap eight. Manager owns the full native/act/hosted/candidate/post-merge bar.
+Independent cleared reviewers: R243 Codex (internal), R244 Opus (external), reserved by A10. No self-approval.
+Blockers: none identified on entry; any control disproving the selected criterion will be published with its reproducer before dependent work continues.
