@@ -1,0 +1,304 @@
+{
+  "head": "65df1df50a80cd5f540a93d8f0cfabc97da3da75",
+  "tree": "da06c8609b7a574e3df121fbcb8a1fc8f207dcb7",
+  "status": "",
+  "utc": "2026-09-22T11:53:00.391017+00:00",
+  "results": [
+    {
+      "name": "toc",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "toc-check",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "toc-anchors",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "toc-sites",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--sites"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "em-dash",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_em_dash.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "em-dash-base",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_em_dash.py",
+        "--base",
+        "88e9276b2a220c716f64a843f7e1eb8f9265e896"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "docs",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "docs-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "doc-style",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_doc_style.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "doc-style-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "doc-paths",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "py-idiom",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "py-idiom-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "hygiene",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "hygiene-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "test-evidence",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "test-evidence-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "fail-fast",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "fail-fast-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "todo",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "todo-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "cohesion-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "control-flow-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "ci-events",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "ci-events-selftest",
+      "command": [
+        "rtk",
+        "proxy",
+        "python3",
+        "-B",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit": 0
+    }
+  ]
+}
