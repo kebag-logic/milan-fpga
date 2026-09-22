@@ -1,0 +1,172 @@
+make: Entering directory '$VALIDATION/tb/verilator/aaf'
+verilator --cc --exe --build -j 0 --top-module aaf_talker_i2s -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/common/cdc_pair_fifo.sv sim_main.cpp
+verilator --cc --exe --build -j 0 --top-module aaf_nx_wrap --Mdir obj_nx \
+  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  -Wno-PINCONNECTEMPTY -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+  ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/common/cdc_pair_fifo.sv aaf_nx_wrap.sv sim_main_nx.cpp -o Vaaf_nx_wrap
+%Warning-UNUSEDPARAM: ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv:38:19: Parameter is not used: 'MCLK_DIV_LOG2'
+                                                                       : ... note: In instance 'aaf_talker_i2s'
+   38 |     parameter int MCLK_DIV_LOG2 = 2    
+      |                   ^~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.052
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-PINMISSING: aaf_nx_wrap.sv:101:40: Instance has missing pin: 'frame_idx_o'
+  101 |   KL_aaf_packetizer #(.N_TALKERS_P(1)) u_pkt1 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: aaf_nx_wrap.sv:101:40: Instance has missing pin: 'frame_mr_o'
+  101 |   KL_aaf_packetizer #(.N_TALKERS_P(1)) u_pkt1 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: aaf_nx_wrap.sv:123:40: Instance has missing pin: 'frame_p_o'
+  123 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt2 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:185:23: ... Location of port declaration
+  185 |   output logic        frame_p_o,          
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: aaf_nx_wrap.sv:123:40: Instance has missing pin: 'frame_idx_o'
+  123 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt2 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: aaf_nx_wrap.sv:123:40: Instance has missing pin: 'frame_tu_o'
+  123 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt2 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:190:23: ... Location of port declaration
+  190 |   output logic        frame_tu_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: aaf_nx_wrap.sv:123:40: Instance has missing pin: 'frame_mr_o'
+  123 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt2 (
+      |                                        ^~~~~~
+                     ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.052
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv:41:25: Signal flopped as both synchronous and async: 'rst_n'
+                       ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv:166:10: ... Location of async usage
+  166 |     if (!rst_n) begin
+      |          ^~~~~
+                       ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv:99:33: ... Location of sync usage
+   99 |     tarst_n_r <= {tarst_n_r[0], rst_n};
+      |                                 ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.052
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '$VALIDATION/tb/verilator/aaf/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vaaf_talker_i2s.cpp Vaaf_talker_i2s___024root__0.cpp Vaaf_talker_i2s___024root__Slow.cpp Vaaf_talker_i2s___024root__0__Slow.cpp Vaaf_talker_i2s__Syms__Slow.cpp > Vaaf_talker_i2s__ALL.cpp
+%Warning-SYNCASYNCNET: aaf_nx_wrap.sv:17:23: Signal flopped as both synchronous and async: 'rst_n'
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:136:10: ... Location of async usage
+  136 |     if (!rst_n) begin
+      |          ^~~~~
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:71:33: ... Location of sync usage
+   71 |     tarst_n_r <= {tarst_n_r[0], rst_n};
+      |                                 ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.052
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vaaf_talker_i2s__ALL.o Vaaf_talker_i2s__ALL.cpp
+make[1]: Entering directory '$VALIDATION/tb/verilator/aaf/obj_nx'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main_nx.o ../sim_main_nx.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vaaf_nx_wrap.cpp Vaaf_nx_wrap___024root__0.cpp Vaaf_nx_wrap___024root__Slow.cpp Vaaf_nx_wrap___024root__0__Slow.cpp Vaaf_nx_wrap__Syms__Slow.cpp > Vaaf_nx_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vaaf_nx_wrap__ALL.o Vaaf_nx_wrap__ALL.cpp
+../sim_main.cpp: In member function ‘int {anonymous}::AafTalkerI2sHarness::run()’:
+../sim_main.cpp:40:2: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   40 |  for(int i=0;i<8;i++)step(); dut->rst_n=1; dut->enable_i=1;
+      |  ^~~
+../sim_main.cpp:40:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   40 |  for(int i=0;i<8;i++)step(); dut->rst_n=1; dut->enable_i=1;
+      |                              ^~~
+g++    sim_main.o verilated.o verilated_threads.o Vaaf_talker_i2s__ALL.a    -pthread -lpthread -latomic   -o Vaaf_talker_i2s
+rm Vaaf_talker_i2s__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/aaf/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.058 MB sources in 3 modules, into 0.149 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.258 s (elab=0.002, cvt=0.012, bld=5.237); cpu 0.024 s on 8 threads; allocated 17.434 MB
+g++    sim_main_nx.o verilated.o verilated_threads.o Vaaf_nx_wrap__ALL.a    -pthread -lpthread -latomic   -o Vaaf_nx_wrap
+rm Vaaf_nx_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/aaf/obj_nx'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.221 MB sources in 6 modules, into 0.571 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.389 s (elab=0.007, cvt=0.051, bld=5.311); cpu 0.086 s on 8 threads; allocated 22.660 MB
+./obj_dir/Vaaf_talker_i2s
+== aaf_talker_i2s ==
+aaf: 27 checks, 0 failures
+RESULT: PASS
+./obj_nx/Vaaf_nx_wrap
+== NxN talker lane harness (NXN P4) ==
+
+[GB] golden byte-compare: flat talker vs capture+packetizer
+  [ ok ] golden produced 4 frames                       = 1
+  [ ok ] DUT produced 4 frames                          = 1
+  [ ok ] frame length 90 on both sides                  = 1
+  [ ok ] 4 frames BYTE-EXACT gold vs shared packetizer  = 1
+  [ ok ] synchronised clock: tu=0 on every frame        = 1
+  [ ok ] DUT seq chain 0..3                             = 1
+  [ ok ] DUT ts = ptp+transit                           = 289454020
+  [ ok ] frames_sent_o alias tracks                     = 1
+  [ ok ] completion tu matches every emitted PDU        = 1
+
+[GBU] golden byte-compare with tu asserted
+  [ ok ] tu=1: golden still streams                     = 1
+  [ ok ] tu=1: DUT still streams                        = 1
+  [ ok ] tu=1: gold and packetizer still BYTE-EXACT     = 1
+  [ ok ] tu=1: frames still 90 bytes                    = 1
+  [ ok ] tu=1: byte 21 bit 0 set on the wire            = 1
+  [ ok ] tu=1: tv untouched (1722-2016 7.5)             = 1
+  [ ok ] tu transition: completion tuple stays wire-aligned = 1
+
+[I2T] two-talker interleave (N=2, direct pair injection)
+  [ ok ] two frames emitted                             = 2
+  [ ok ] both streams present (uid 0 + uid 1)           = 1
+  [ ok ] t0 DMAC = CSR alias                            = 1
+  [ ok ] t1 DMAC = TCTX (base+1)                        = 1
+  [ ok ] t0 seq 0                                       = 0
+  [ ok ] t1 seq 0                                       = 0
+  [ ok ] t0 payload = its own samples                   = 1
+  [ ok ] t1 payload = its own samples                   = 1
+  [ ok ] both ts = ptp+transit                          = 1
+
+[I2T2] second epoch: per-stream seq/ts independence
+  [ ok ] two more frames                                = 2
+  [ ok ] t0 seq advanced to 1                           = 1
+  [ ok ] t1 seq advanced to 1                           = 1
+  [ ok ] epoch-2 ts latched fresh                       = 1
+  [ ok ] t1 epoch-2 payload                             = 1
+  [ ok ] t0 epoch-2 payload                             = 1
+
+[I2T3] TCTX records: seq/frames per stream via the window
+  [ ok ] t0 TCTX SEQ = 2                                = 2
+  [ ok ] t1 TCTX SEQ = 2                                = 2
+  [ ok ] t0 TCTX FRAMES = 2                             = 2
+  [ ok ] t1 TCTX FRAMES = 2                             = 2
+
+[I2T4] per-stream gate: disabling t1 stops only t1
+  [ ok ] only t0 emitted                                = 1
+  [ ok ] the emitted frame is t0's                      = 0
+
+[TSL] avtp_timestamp = per-epoch PHC latch (125000 ns law)
+  [ ok ] TSL: 6 paced epochs emitted 6 PDUs             = 6
+  [ ok ] TSL: EVERY consecutive-PDU delta = 125000 ns   = 1
+  [ ok ] TSL: and never the t532 99-for-100 constant 123750 = 1
+  [ ok ] TSL warp: 4 epochs emitted 4 PDUs              = 4
+  [ ok ] TSL warp: deltas doubled with the PHC (latch, not adder) = 1
+
+======================================================================
+NxN talker lane: 42 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/aaf'

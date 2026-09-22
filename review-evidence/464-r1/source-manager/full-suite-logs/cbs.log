@@ -1,0 +1,60 @@
+make: Entering directory '$VALIDATION/tb/verilator/cbs'
+verilator --cc --exe --build -j 0 --top-module cbs_ver_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM +incdir+../../../hdl/common +incdir+../../../hdl/ieee8021q/ts -CFLAGS "-std=c++17 -O2 -I$VALIDATION/tb/verilator/cbs -Wall -Wextra" cbs_ver_wrap.sv ../../../hdl/ieee8021q/ts/credit_based_shaper.sv sim_main.cpp -o Vcbs_sim
+%Warning-IMPORTSTAR: ../../../hdl/ieee8021q/ts/../../../hdl/ieee8021q/ts/credit_based_shaper.sv:78:8: 'import::*' in $unit scope may pollute global namespace
+   78 | import ethernet_packet_pkg::*;
+      |        ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/IMPORTSTAR?v=5.052
+                     ... Use "/* verilator lint_off IMPORTSTAR */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: cbs_ver_wrap.sv:21:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   21 |   parameter int CLK_FREQ_HZ = 100_000_000   
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.052
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../hdl/ieee8021q/ts/../../../hdl/ieee8021q/ts/credit_based_shaper.sv:83:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   83 |   parameter int CLK_FREQ_HZ = 100_000_000   
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+make[1]: Entering directory '$VALIDATION/tb/verilator/cbs/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$VALIDATION/tb/verilator/cbs -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$VALIDATION/tb/verilator/cbs -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$VALIDATION/tb/verilator/cbs -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vcbs_ver_wrap.cpp Vcbs_ver_wrap___024root__0.cpp Vcbs_ver_wrap___024root__Slow.cpp Vcbs_ver_wrap___024root__0__Slow.cpp Vcbs_ver_wrap___024unit__Slow.cpp Vcbs_ver_wrap__Syms__Slow.cpp > Vcbs_ver_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$VALIDATION/tb/verilator/cbs -Wall -Wextra   -c -o Vcbs_ver_wrap__ALL.o Vcbs_ver_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vcbs_ver_wrap__ALL.a    -pthread -lpthread -latomic   -o Vcbs_sim
+rm Vcbs_ver_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/cbs/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.071 MB sources in 5 modules, into 0.072 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.192 s (elab=0.002, cvt=0.007, bld=5.175); cpu 0.020 s on 8 threads; allocated 17.219 MB
+======================================================================
+./obj_dir/Vcbs_sim
+== CBS verification harness (runtime config; default slope @1G idleSlope=500Mbps HI=761 LO=-761 clk=100MHz) ==
+  [PASS] idle saturates at HI: credit=761.000 (HI=761) allow=1
+  [PASS] tx drains to LO: credit=-761.000 (LO=-761) allow=0
+  [PASS] empty & credit>0 -> credit=0.000 (expect 0)
+  [PASS] negative(-396.00) recovers to credit=0.000 (expect 0)
+  [PASS] randomized 50000 cycles (frames + tlast): DUT tracks fixed-point ref exactly
+  [INFO] 100M idle_slope_per_cycle=4096 send_slope_per_byte=-32768
+  [PASS] strict-priority (shaped=0): allow always high, credit=0.000 (expect 0)
+  [PASS] granted+backpressure accrues to HI: credit=761.000 (expect ~761)
+  [PASS] live reconfig 500M/HI761 -> 200M/HI304: credit=304.000 (expect ~304)
+  [PASS] REQ-CBS-05 allow_transmit is not stale (lag 0 cycle(s), 0 P1 misses)
+  [PASS] REQ-CBS-05 residual input-pipeline lag pinned at 1 CBS-port cycle
+  [PASS] REQ-CBS-06 slope quotients round to nearest (both terms)
+  [INFO] REQ-CBS-06 residual over 20000 free-accrual cycles @ idleSlope 1007081:
+         fixed-point 25.328323 B, ideal 25.175766 B, drift 0.152557 B (6059.69 ppm)
+  [PASS] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound
+  [INFO] REQ-CBS-06 residual over 20000 free-accrual cycles @ idleSlope 490000000:
+         fixed-point 12249.448532 B, ideal 12249.387500 B, drift 0.061032 B (4.98 ppm)
+  [PASS] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound
+  [PASS] REQ-CBS-07 L=64+V=24: wire window 70 cyc (oracle 71), credit frozen inside it, accrual resumes after
+  [PASS] REQ-CBS-07 L=46+V=38: wire window 67 cyc (oracle 68), credit frozen inside it, accrual resumes after
+--------------------------------------------------------------
+cycle checks: 130256   mismatches: 0   max |DUT-ideal|: 0.1526 bytes
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/cbs'

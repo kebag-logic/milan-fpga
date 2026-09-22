@@ -1,0 +1,34 @@
+{
+  "cwd": "$VALIDATION",
+  "head": "1576f0893ae9781074fffb105f5384fe774ff11e",
+  "base": "ec34fcdee0ca9ffa63564a9af8ad70a3a618de29",
+  "commands": [
+    [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/464-manager-r1/full-suite-logs",
+      "--wait"
+    ],
+    [
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/464-manager-r1/yosys-results"
+    ],
+    [
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "behave",
+      "tests/features"
+    ]
+  ]
+}
