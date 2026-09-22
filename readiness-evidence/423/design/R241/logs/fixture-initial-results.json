@@ -1,0 +1,439 @@
+{
+  "objects": {
+    "origin": "e90ab60801c7f5fb4ced5728cd10efe0ee8345bd",
+    "source-A": "a4e96c0ae4e350240d36b128ff7c88c85811ce8f",
+    "source-M": "4b9836c8f47f2ad7cff254b5edba3266f29ce8fc",
+    "source-C": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+    "replay-A": "5caa715a96c628fa9eb9300f77c13e198b807714",
+    "replay-C": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+    "unrelated-extension": "c868705a4a2e13b4106fafe879d5ced7afa454cc",
+    "published-same-path-extension": "d8dd9caf14b4882f1bad600bfad8380457066300",
+    "exact-revert-A": "7955a68e3639c8ee2a8e8a00599cef3016116765",
+    "revert-plus-unrelated-extension": "326671fb49adf47b8b79350fc8d9f2ca51fdd403",
+    "exact-revert-C": "2c4ff561d8d86c64c2c83676555eed1c5dc35fc3",
+    "missing-A": "26cb9dbfe997b3c00ff52a36a0986e34ee45ee6b",
+    "whitespace-replay-A": "c5fdc5bb77ff0af6b8524671c11213548a802dd9",
+    "whitespace-replay-C": "e2b898b5a4902eba7a6e78264a36aaf9e775bab5",
+    "later-whitespace-change": "2aa54cc83634d76ad320e7cd53a3f365504768c0",
+    "later-mode-change": "9924d53b547d836c95d9d95789dd675aba901fd0",
+    "later-kind-change": "99d642f80f28b19f28dadc9750129b34edce96f2",
+    "merge-with-resolution": "63889d7722c758eb37ad2f2e59a4f1aceeacce1e",
+    "tip-with-resolution": "51d4123dd03b67771e0e49b1f382ee83dfe9ec76",
+    "unrelated-origin": "7bc1268e1071cce9cd2c061157aa42e205ba0231",
+    "unrelated-incoming": "a166981519e139c8e94d48ae16ea0bf9364bec74",
+    "merge-unrelated": "7d452768c9653387ae383c0b23795565c00433c8",
+    "tip-unrelated": "18e0ec253a118bc96517e83627a9c9a61b2b697e",
+    "extra-incoming-parent": "39ecad85795b794c0e8ca021b899a9fc63e181e2",
+    "octopus": "bd452256a46a9f7b1e00b1e77acacb1817607f1e",
+    "tip-octopus": "164bf0bf5a711dd61f5799d9d01eb1dc3de504f3",
+    "second-merge": "ac70be38cce7efbc37fe26c5313e4488705cbba1",
+    "tip-two-merges": "a66a28bd61a282462b9ed6ed9fd3879f037ae342",
+    "replay-two-merges-tail": "3b27c96c708387fb9713eb380e0984c5b2c46178",
+    "two-merges-later-extension": "b209cdb57dcd64eb57ec70e9a95ca0d11f4370ad",
+    "incoming-intermediate": "ab4dfbcaaf240eaa8bf3f4e80da31a174b217c8d",
+    "incoming-not-immediate": "47878dd47e794bec96f470b746d60c195e8aa411",
+    "merge-long-incoming": "d86f9c0db4fdc3f55e7019116085128a9f37a323",
+    "tip-long-incoming": "cfeebe1cc3700f206b6e5cf25a6a888d1979755b",
+    "target-discarding-merge": "320b87506424e0c96a8b3a8b53819148dec37651",
+    "target-retaining-merge": "c2b00faecab8791b97239f4ee8b6a3ab641c1c8e",
+    "pure-linear-C": "9d45f17dff25ccea9f6f0c74cb616c87f6b60136",
+    "ancestry-revert-A": "8229d70e31ab1804bc1eecd394898d6441862d43",
+    "delete-origin": "3c8973a1b424f9f4d7bc5c3e3228bd0e56cd3925",
+    "delete-A": "42f31a734540abf9f300ac5e786a153cd340ff7a",
+    "delete-M": "2ae87d9b54e01e2325e173fe9643d4bc1f8b6a83",
+    "delete-C": "1ea5532784c03e0aa985f1a38600f18d829ea22b",
+    "delete-replay-A": "310493af611a3ad584f8daa4f45fbbc0956df3bd",
+    "delete-replay-C": "e514d26a65d4a47ac725381722cab2873a625cf1",
+    "append-is-exact-revert": "4cad06916d1f9531fcb7f16f2d006e4a6cf403b8",
+    "partial-A": "60cc60cb53e97161c1d77e61eae56c7c5a850a1c",
+    "partial-M": "e559c62d249f4d7271843846925498b18b3bb93e",
+    "partial-C": "aced5454a4d6fa240d4040b3c9af33db7679c359",
+    "partial-replay-A": "34aa796314ee6d670ffe587c4ddf0157a9e06653",
+    "partial-replay-C": "b08eb6222473536bd0f1868e83b3ab09ca95aefb",
+    "partial-revert": "40bfaea9024d921c8cc2d5b2182ab60d0d25c2c4"
+  },
+  "cases": [
+    {
+      "case": "exact-replay",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+      "expected": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      },
+      "note": "Exact endpoint bytes, including mode/kind, are present.",
+      "actual": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      }
+    },
+    {
+      "case": "unrelated-extension",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "c868705a4a2e13b4106fafe879d5ced7afa454cc",
+      "expected": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      },
+      "note": "A later extension outside all source-touched paths is permitted.",
+      "actual": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      }
+    },
+    {
+      "case": "published-same-path-extension",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "d8dd9caf14b4882f1bad600bfad8380457066300",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Legitimate append retained the original bytes, but strict whole-entry equality is unresolved.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "exact-revert-A",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "7955a68e3639c8ee2a8e8a00599cef3016116765",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "A exact reverse tree delta after both replays, not just a revert message.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "revert-plus-unrelated-extension",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "326671fb49adf47b8b79350fc8d9f2ca51fdd403",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Aggregate later delta is not an exact inverse; lost work still refuses.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "exact-revert-C",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "2c4ff561d8d86c64c2c83676555eed1c5dc35fc3",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "The final linear change can also be reverted.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "missing-linear-A",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "26cb9dbfe997b3c00ff52a36a0986e34ee45ee6b",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "The second linear patch alone cannot replace the missing first.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "missing-linear-C",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "5caa715a96c628fa9eb9300f77c13e198b807714",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "The first linear patch alone cannot replace the missing second.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "whitespace-different-replay",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "e2b898b5a4902eba7a6e78264a36aaf9e775bab5",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Whitespace differs at replay time; exact patch/postimage proof fails.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "later-whitespace-change",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "2aa54cc83634d76ad320e7cd53a3f365504768c0",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Exact historical replay does not certify whitespace-different current bytes.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "later-mode-change",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "9924d53b547d836c95d9d95789dd675aba901fd0",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Blob bytes remain but executable mode changes.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "later-kind-change",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "99d642f80f28b19f28dadc9750129b34edce96f2",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Same blob bytes as a symlink cannot equal a regular file.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "missing-merge-resolution",
+      "source": "51d4123dd03b67771e0e49b1f382ee83dfe9ec76",
+      "target": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Same parent shape but merge tree differs from incoming parent.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "unrelated-parents-same-tree",
+      "source": "18e0ec253a118bc96517e83627a9c9a61b2b697e",
+      "target": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Incoming tree equality cannot erase unrelated ancestry.",
+      "actual": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "octopus-same-incoming-tree",
+      "source": "164bf0bf5a711dd61f5799d9d01eb1dc3de504f3",
+      "target": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "No permission to erase third-parent work.",
+      "actual": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "multiple-source-merges",
+      "source": "a66a28bd61a282462b9ed6ed9fd3879f037ae342",
+      "target": "b209cdb57dcd64eb57ec70e9a95ca0d11f4370ad",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Multiple source merges are deliberately outside the bounded rule.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "omitted-linear-incoming-work",
+      "source": "cfeebe1cc3700f206b6e5cf25a6a888d1979755b",
+      "target": "b9036be392f27f2f525dbd18beddc5dded2c5aa4",
+      "expected": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Ancestor-only first-parent condition must not silently omit intermediate work.",
+      "actual": {
+        "baseline": 1,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "target-merge-discards-work",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "320b87506424e0c96a8b3a8b53819148dec37651",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Replay in a second-parent/history path is insufficient at the target tip.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "target-merge-retains-work",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "c2b00faecab8791b97239f4ee8b6a3ab641c1c8e",
+      "expected": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      },
+      "note": "Target integration topology is allowed when current protected entries agree.",
+      "actual": {
+        "baseline": 0,
+        "historical": 0,
+        "retention": 0
+      }
+    },
+    {
+      "case": "existing-linear-policy-revert",
+      "source": "9d45f17dff25ccea9f6f0c74cb616c87f6b60136",
+      "target": "7955a68e3639c8ee2a8e8a00599cef3016116765",
+      "expected": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Existing linear historical fallback passes; the scratch rule refuses as out of scope.",
+      "actual": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "existing-ancestry-policy-revert",
+      "source": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+      "target": "8229d70e31ab1804bc1eecd394898d6441862d43",
+      "expected": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      },
+      "note": "Existing ancestry proof passes; no global retention-policy change is proposed.",
+      "actual": {
+        "baseline": 0,
+        "historical": 1,
+        "retention": 1
+      }
+    },
+    {
+      "case": "append-is-deletion-revert",
+      "source": "1ea5532784c03e0aa985f1a38600f18d829ea22b",
+      "target": "4cad06916d1f9531fcb7f16f2d006e4a6cf403b8",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "Current file starts with the full branch postimage, yet exactly reverts the source deletion.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    },
+    {
+      "case": "partial-revert",
+      "source": "aced5454a4d6fa240d4040b3c9af33db7679c359",
+      "target": "40bfaea9024d921c8cc2d5b2182ab60d0d25c2c4",
+      "expected": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      },
+      "note": "One path of a multi-path source patch is undone; no whole-commit inverse is required.",
+      "actual": {
+        "baseline": 1,
+        "historical": 0,
+        "retention": 1
+      }
+    }
+  ],
+  "failures": [
+    [
+      "unrelated-parents-same-tree",
+      "baseline",
+      1,
+      0
+    ],
+    [
+      "octopus-same-incoming-tree",
+      "baseline",
+      1,
+      0
+    ]
+  ]
+}

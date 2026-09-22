@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+    "node_id": "C_kwDOT4nUStoAKDNkYjg2ODEyMDk2ODMwZmFkYTJmNWYyNzZmYTVmNGQ5ZjM3ZDFkMTQ",
+    "commit": {
+      "author": {
+        "name": "hackerman-kl",
+        "email": "alexandremalki89@gmail.com",
+        "date": "2026-09-03T06:49:35Z"
+      },
+      "committer": {
+        "name": "hackerman-kl",
+        "email": "alexandremalki89@gmail.com",
+        "date": "2026-09-03T06:49:35Z"
+      },
+      "message": "The mutation arms bound their waits in DUT cycles, not host time, because both harnesses already do\n\nThe arms landed with a host deadline around each mutant run, which was\nbelt-and-braces for a hang that neither harness can actually produce. Both\nbound their own waits in DUT CYCLES: the gasket harness does it so that a\nwedged gasket FAILS the suite instead of hanging it - the very property\nthe first gasket mutant exercises - and tsngen puts an explicit tick\nceiling on every wait it performs.\n\nSo the deadline answered a question the DUT already answers, and answered\nit in a machine-dependent way: the same mutant could be a catch on one\nhost and a TIMEOUT on a slower one. A mutation arm whose verdict depends\non how fast the machine is cannot be evidence about the assertions.\n\nThe runs are now plain subprocess calls, the TIMEOUT branch and the\nprocess-group kill machinery are gone with the deadline that needed them,\nand the reason is recorded where the verdict is read. Both arms still\npass unchanged: the gasket arm at 5/5 and tsngen at 4/4, every mutant\ncaught and both positive controls passing.\n\nCo-Authored-By: Claude Opus 5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01PeGPJEKDwL5BrX2E5PUTJT",
+      "tree": {
+        "sha": "df933eb87527e1a91218e668a3558b5a6013940b",
+        "url": "https://api.github.com/repos/Mister-M-alt/FPGA-gPTP/git/trees/df933eb87527e1a91218e668a3558b5a6013940b"
+      },
+      "url": "https://api.github.com/repos/Mister-M-alt/FPGA-gPTP/git/commits/3db86812096830fada2f5f276fa5f4d9f37d1d14",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/Mister-M-alt/FPGA-gPTP/commits/3db86812096830fada2f5f276fa5f4d9f37d1d14",
+    "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/commit/3db86812096830fada2f5f276fa5f4d9f37d1d14",
+    "comments_url": "https://api.github.com/repos/Mister-M-alt/FPGA-gPTP/commits/3db86812096830fada2f5f276fa5f4d9f37d1d14/comments",
+    "author": {
+      "login": "Mister-M-alt",
+      "id": 161579364,
+      "node_id": "U_kgDOCaGBZA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Mister-M-alt",
+      "html_url": "https://github.com/Mister-M-alt",
+      "followers_url": "https://api.github.com/users/Mister-M-alt/followers",
+      "following_url": "https://api.github.com/users/Mister-M-alt/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Mister-M-alt/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Mister-M-alt/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Mister-M-alt/subscriptions",
+      "organizations_url": "https://api.github.com/users/Mister-M-alt/orgs",
+      "repos_url": "https://api.github.com/users/Mister-M-alt/repos",
+      "events_url": "https://api.github.com/users/Mister-M-alt/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Mister-M-alt/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "Mister-M-alt",
+      "id": 161579364,
+      "node_id": "U_kgDOCaGBZA",
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/Mister-M-alt",
+      "html_url": "https://github.com/Mister-M-alt",
+      "followers_url": "https://api.github.com/users/Mister-M-alt/followers",
+      "following_url": "https://api.github.com/users/Mister-M-alt/following{/other_user}",
+      "gists_url": "https://api.github.com/users/Mister-M-alt/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/Mister-M-alt/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/Mister-M-alt/subscriptions",
+      "organizations_url": "https://api.github.com/users/Mister-M-alt/orgs",
+      "repos_url": "https://api.github.com/users/Mister-M-alt/repos",
+      "events_url": "https://api.github.com/users/Mister-M-alt/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/Mister-M-alt/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "f27b45500cb02a5277b5cb32cef408658c1f914e",
+        "url": "https://api.github.com/repos/Mister-M-alt/FPGA-gPTP/commits/f27b45500cb02a5277b5cb32cef408658c1f914e",
+        "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/commit/f27b45500cb02a5277b5cb32cef408658c1f914e"
+      }
+    ]
+  }
+]

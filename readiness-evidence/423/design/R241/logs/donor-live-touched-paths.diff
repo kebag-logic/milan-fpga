@@ -1,0 +1,152 @@
+diff --git a/tb/tsngen/Makefile b/tb/tsngen/Makefile
+index 219478f..3f34608 100644
+--- a/tb/tsngen/Makefile
++++ b/tb/tsngen/Makefile
+@@ -8,7 +8,7 @@ VFLAGS = --cc --exe --build -j 0 \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 \
+-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
++         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CURDIR)"
+ SRCS = $(RTL_DIR)/ucpu/gptp_ucpu_pkg.sv $(RTL_DIR)/ucpu/KL_gptp_ucpu.sv \
+        $(RTL_DIR)/wire/KL_gptp_rx_parser.sv $(RTL_DIR)/wire/KL_gptp_tx_slot.sv \
+        $(RTL_DIR)/common/KL_gptp_timer.sv $(RTL_DIR)/top/KL_gptp_engine.sv
+diff --git a/tb/tsngen/mutants.py b/tb/tsngen/mutants.py
+index 5361f01..36d0e14 100644
+--- a/tb/tsngen/mutants.py
++++ b/tb/tsngen/mutants.py
+@@ -77,8 +77,16 @@ VFLAGS = [
+ ]
+ 
+ 
+-def stage(work, tag, mutate=None):
+-    """A self-contained copy of the suite, with at most one source mutated."""
++def stage(work: Path, tag: str,
++          mutate: tuple[str, str, str] | None = None) -> Path:
++    """A self-contained copy of the suite, with at most one source mutated.
++
++    `mutate` is the (source, pattern, replacement) triple of MUTATIONS; the
++    replacement is applied to that one source as it is copied, so the staged
++    tree differs from the tree under test in exactly one place. The returned
++    directory holds the harness, its microcode image and the RTL, and nothing
++    outside it is written.
++    """
+     suite = work / f"suite_{tag}"
+     (suite / "rtl").mkdir(parents=True)
+     for rel in SOURCES:
+@@ -90,10 +98,21 @@ def stage(work, tag, mutate=None):
+         dst.write_text(text)
+     for name in ("run_tsngen.py", "tsngen_main.cpp", "gptp_ucode.hex"):
+         shutil.copy2(HERE / name, suite / name)
++    # `tsngen_main.cpp` includes the shared model owner as
++    # `../common/verilator_harness.hpp` (Core Guidelines R.11, and the copy
++    # `check_cpp_idiom.py` refuses to let drift). That header lives one
++    # directory up from the suite, so the staged tree needs it at the same
++    # relative place. Without it every build below fails to compile, and a
++    # build that fails is reported as a mutant that proves nothing -- four
++    # red checks on a host whose only real answer is the skip below.
++    common = suite.parent / "common"
++    common.mkdir(exist_ok=True)
++    shutil.copy2(HERE.parent / "common" / "verilator_harness.hpp",
++                 common / "verilator_harness.hpp")
+     return suite
+ 
+ 
+-def build(suite):
++def build(suite: Path) -> bool:
+     """Build the staged suite into its own obj_dir; True when it produced one."""
+     out = subprocess.run(
+         ["verilator", *VFLAGS, "--Mdir", str(suite / "obj_dir"),
+@@ -104,7 +123,7 @@ def build(suite):
+     return (suite / "obj_dir" / "Vtsngen").is_file() and out.returncode == 0
+ 
+ 
+-def run_harness(suite):
++def run_harness(suite: Path) -> tuple[int, str]:
+     """(rc, stdout) of the staged run_tsngen.py.
+ 
+     No host deadline: tsngen_main.cpp puts an explicit tick ceiling on every
+@@ -117,7 +136,14 @@ def run_harness(suite):
+ 
+ 
+ 
+-def main():
++def main() -> int:
++    """Run the control and every mutant, and report the arm's exit status.
++
++    0 when the unmutated engine passes and every mutant is caught, or when
++    the suite skips because there is no tsn-gen checkout to judge against;
++    1 when any mutant survived, failed to build, or no longer matches its
++    pattern - each of which is printed with the assertion it was defending.
++    """
+     passes = fails = 0
+     with tempfile.TemporaryDirectory(prefix="tsngen-mutants-") as td:
+         work = Path(td)
+diff --git a/tb/verilator/gaskets/Makefile b/tb/verilator/gaskets/Makefile
+index bd1a2d3..c98135a 100644
+--- a/tb/verilator/gaskets/Makefile
++++ b/tb/verilator/gaskets/Makefile
+@@ -7,7 +7,7 @@ VFLAGS = --cc --exe --build -j 0 \
+          --top-module $(TOP) \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+-         -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
++         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CURDIR)"
+ SRCS = $(BENCH_DIR)/bench_afifo.sv $(BENCH_DIR)/bench_mii_tx.sv \
+        $(BENCH_DIR)/bench_mii_rx.sv gasket_tb_top.sv
+ CPP  = sim_main.cpp
+diff --git a/tb/verilator/gaskets/mutants.py b/tb/verilator/gaskets/mutants.py
+index def1288..37ecf1c 100644
+--- a/tb/verilator/gaskets/mutants.py
++++ b/tb/verilator/gaskets/mutants.py
+@@ -76,7 +76,7 @@ VFLAGS = [
+ ]
+ 
+ 
+-def build(srcdir, workdir, tag):
++def build(srcdir: Path, workdir: Path, tag: str) -> Path | None:
+     """Build the harness against the sources in `srcdir`; the exe, or None."""
+     mdir = workdir / f"obj_{tag}"
+     exe_name = f"Vgasket_{tag}"
+@@ -92,7 +92,7 @@ def build(srcdir, workdir, tag):
+     return exe
+ 
+ 
+-def run_harness(exe):
++def run_harness(exe: Path) -> tuple[int, str]:
+     """(rc, stdout) of one harness run.
+ 
+     No host deadline: sim_main.cpp bounds its own waits in DUT cycles, so a
+@@ -104,8 +104,15 @@ def run_harness(exe):
+ 
+ 
+ 
+-def stage(work, tag, mutate=None):
+-    """A directory holding the four sources, with at most one mutated."""
++def stage(work: Path, tag: str,
++          mutate: tuple[str, str, str] | None = None) -> Path:
++    """A directory holding the four sources, with at most one mutated.
++
++    `mutate` is the (source, pattern, replacement) triple of MUTATIONS; the
++    replacement is applied to that one source as it is copied, so the staged
++    tree differs from bench/arty in exactly one place. Nothing outside the
++    returned directory is written.
++    """
+     srcdir = work / f"src_{tag}"
+     srcdir.mkdir()
+     for name in SOURCES:
+@@ -117,7 +124,13 @@ def stage(work, tag, mutate=None):
+     return srcdir
+ 
+ 
+-def main():
++def main() -> int:
++    """Run the control and every mutant, and report the arm's exit status.
++
++    0 when the unmutated bench RTL passes and all four mutants are caught;
++    1 when any mutant survived, failed to build, or no longer matches its
++    pattern - each of which is printed with the assertion it was defending.
++    """
+     passes = fails = 0
+     with tempfile.TemporaryDirectory(prefix="gasket-mutants-") as td:
+         work = Path(td)

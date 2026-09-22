@@ -1,0 +1,9 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$VALIDATION_STORAGE/reviews/r241-423-design/scripts/check_merge_containment.py', '--no-fetch', '--base', 'f0f1c055ee5226f08e656c27cb1bf4c355be11ae', '3db86812096830fada2f5f276fa5f4d9f37d1d14']
+EXIT 1
+  STRANDED   3db86812096830fada2f5f276fa5f4d9f37d1d14: 3 commit(s) not in f0f1c055ee5226f08e656c27cb1bf4c355be11ae  [paths differing: bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/MANAGER.md, docs/SOURCE_EVIDENCE.md, docs/TEST_DEVELOPER.md]
+
+1 branch tip(s) have work that f0f1c055ee5226f08e656c27cb1bf4c355be11ae does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.

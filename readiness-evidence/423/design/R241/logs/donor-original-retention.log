@@ -1,0 +1,26 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/scripts/predicate.py', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/fixtures/donor.git', '3db86812096830fada2f5f276fa5f4d9f37d1d14', 'f0f1c055ee5226f08e656c27cb1bf4c355be11ae']
+EXIT 1
+{
+  "scope": "SCRATCH ONLY; one A/M/C source shape",
+  "branch": "3db86812096830fada2f5f276fa5f4d9f37d1d14",
+  "target": "f0f1c055ee5226f08e656c27cb1bf4c355be11ae",
+  "historical_only": false,
+  "origin": "7fa64e99490b4648797374d3fdb1fedf08145e91",
+  "incoming": "9790ac736e6d10301ad814ffdf73dbe37b59768b",
+  "merge": "f27b45500cb02a5277b5cb32cef408658c1f914e",
+  "historical_replay": true,
+  "protected_paths": [
+    "tb/mutation_verdict.py",
+    "tb/tsngen/Makefile",
+    "tb/tsngen/mutants.py",
+    "tb/verilator/gaskets/Makefile",
+    "tb/verilator/gaskets/mutants.py"
+  ],
+  "different_at_tip": [
+    "tb/tsngen/Makefile",
+    "tb/tsngen/mutants.py",
+    "tb/verilator/gaskets/Makefile",
+    "tb/verilator/gaskets/mutants.py"
+  ],
+  "result": "NOT PROVED: current protected entries differ; retention not proved"
+}

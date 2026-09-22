@@ -1,0 +1,9 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$VALIDATION_STORAGE/reviews/r241-423-design/scripts/check_merge_containment.py', '--no-fetch', '--base', '320b87506424e0c96a8b3a8b53819148dec37651', '583b1fd9cc8e94535bc11bca4e02f08c8809170b']
+EXIT 1
+  STRANDED   583b1fd9cc8e94535bc11bca4e02f08c8809170b: 3 commit(s) not in 320b87506424e0c96a8b3a8b53819148dec37651  [paths differing: feature.txt]
+
+1 branch tip(s) have work that 320b87506424e0c96a8b3a8b53819148dec37651 does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.

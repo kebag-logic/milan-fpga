@@ -1,0 +1,9 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/scripts/predicate.py', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/fixtures/counterexamples.git', '583b1fd9cc8e94535bc11bca4e02f08c8809170b', '8229d70e31ab1804bc1eecd394898d6441862d43', '--historical']
+EXIT 1
+{
+  "scope": "SCRATCH ONLY; one A/M/C source shape",
+  "branch": "583b1fd9cc8e94535bc11bca4e02f08c8809170b",
+  "target": "8229d70e31ab1804bc1eecd394898d6441862d43",
+  "historical_only": true,
+  "result": "NOT PROVED: only the exact two-linear/one-merge source scope is supported"
+}

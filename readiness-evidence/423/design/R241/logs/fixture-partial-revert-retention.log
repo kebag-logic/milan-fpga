@@ -1,0 +1,21 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/scripts/predicate.py', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/fixtures/counterexamples.git', 'aced5454a4d6fa240d4040b3c9af33db7679c359', '40bfaea9024d921c8cc2d5b2182ab60d0d25c2c4']
+EXIT 1
+{
+  "scope": "SCRATCH ONLY; one A/M/C source shape",
+  "branch": "aced5454a4d6fa240d4040b3c9af33db7679c359",
+  "target": "40bfaea9024d921c8cc2d5b2182ab60d0d25c2c4",
+  "historical_only": false,
+  "origin": "e90ab60801c7f5fb4ced5728cd10efe0ee8345bd",
+  "incoming": "60cc60cb53e97161c1d77e61eae56c7c5a850a1c",
+  "merge": "e559c62d249f4d7271843846925498b18b3bb93e",
+  "historical_replay": true,
+  "protected_paths": [
+    "feature.txt",
+    "other.txt",
+    "third.txt"
+  ],
+  "different_at_tip": [
+    "feature.txt"
+  ],
+  "result": "NOT PROVED: current protected entries differ; retention not proved"
+}

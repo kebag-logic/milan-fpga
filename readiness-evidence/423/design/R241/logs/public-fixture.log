@@ -1,0 +1,54 @@
+COMMAND ['rtk', 'proxy', 'python3', '-B', '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/public/readiness-evidence/423/probe/probe_ff_merge.py', '$VALIDATION_STORAGE/reviews/r241-423-design/scripts/check_merge_containment.py']
+EXIT 0
+{
+  "fixture": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-design-r241/fixtures/milan-423-readiness-kxbusr1s",
+  "objects": {
+    "O": "ac825bbd0b44aba0cd94cb7cd6cef8002fce8c81",
+    "A": "2dc278f51f876d17a2af5f1797acedae4e4ecd95",
+    "M": "f357774bd3640d1dccae70792433655a55dba85e",
+    "C": "8d2e1477f64496b58a1a17085d6a520d9c4fa59a",
+    "A_replay": "da923575aeaf120ffea99c87aae5516338b9f2ae",
+    "C_replay": "4702c9719ad5bd9b5202746422debc71d5ea5464",
+    "D_extension": "bec977be163afa5f3dee5728098b9ab3bcde69c6",
+    "R_revert": "dd3eacf51909ec2cd05fd25cf5e5f19a28c406ae"
+  },
+  "merge": {
+    "parents": [
+      "ac825bbd0b44aba0cd94cb7cd6cef8002fce8c81",
+      "2dc278f51f876d17a2af5f1797acedae4e4ecd95"
+    ],
+    "first_parent_ancestor_of_second": true,
+    "same_tree_as_second": true
+  },
+  "cases": [
+    {
+      "case": "exact_replay_then_extension",
+      "base": "bec977be163afa5f3dee5728098b9ab3bcde69c6",
+      "candidate": "8d2e1477f64496b58a1a17085d6a520d9c4fa59a",
+      "current_verdict": [
+        false,
+        3,
+        "paths differing: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    },
+    {
+      "case": "replay_then_exact_reversion",
+      "base": "dd3eacf51909ec2cd05fd25cf5e5f19a28c406ae",
+      "candidate": "8d2e1477f64496b58a1a17085d6a520d9c4fa59a",
+      "current_verdict": [
+        false,
+        3,
+        "paths differing: feature.txt"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ]
+    }
+  ],
+  "claim": "This probes existing helpers only; no production change or proof adoption."
+}
