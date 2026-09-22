@@ -1,0 +1,28 @@
+{
+  "cwd": "$VALIDATION",
+  "head": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "note": "Actual PR513 merge tree verified equal to full validated candidate",
+  "commands": [
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-507/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "origin/464-aem-store-selftest"
+    ],
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-507/scripts/check_merge_containment.py",
+      "--base",
+      "origin/dev",
+      "--merged-prs"
+    ],
+    [
+      "python3",
+      "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-507/scripts/check_merge_review_integrity.py",
+      "--base",
+      "dev"
+    ]
+  ]
+}
