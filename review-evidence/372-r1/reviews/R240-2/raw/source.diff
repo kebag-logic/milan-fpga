@@ -1,0 +1,2397 @@
+diff --git a/docs/README.md b/docs/README.md
+index 1297a515..0ec390a1 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -79,6 +79,7 @@ Publish conflicts before continuing.
+ | Run complete gates | [Running tests](testing/RUNNING_TESTS.md) |
+ | Understand CI scheduling | [CI workflow policy](testing/CI_WORKFLOWS.md) |
+ | Run RTL harnesses | [Verilator suites](../tb/verilator/README.md) |
++| Add bound assertions | [Assertion guide](testing/ASSERTIONS.md) |
+ | Run behavior tests | [Behavior tests](../tests/README.md) |
+ | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
+ | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
+diff --git a/docs/guides/VERIFICATION_DEVELOPER.md b/docs/guides/VERIFICATION_DEVELOPER.md
+index f2595bc7..c6295519 100644
+--- a/docs/guides/VERIFICATION_DEVELOPER.md
++++ b/docs/guides/VERIFICATION_DEVELOPER.md
+@@ -92,6 +92,7 @@ flowchart LR
+ - Add malformed inputs.
+ - Add backpressure when applicable.
+ - Add timeout and recovery cases.
++- Bind interface laws as [SVA assertions](../testing/ASSERTIONS.md).
+ - Plant one deliberate mutation.
+ - Confirm the mutation fails.
+ - Remove the mutation.
+diff --git a/docs/testing/ASSERTIONS.md b/docs/testing/ASSERTIONS.md
+new file mode 100644
+index 00000000..03d3bb6d
+--- /dev/null
++++ b/docs/testing/ASSERTIONS.md
+@@ -0,0 +1,301 @@
++# Assertion-based verification with bound SVA checkers
++
++This page is the guide for adding SystemVerilog Assertions (SVA) to a
++first-party module without editing its RTL. The representative instance is
++[`hdl/common/axis_mux_rr_2in_1out.sv`](../../hdl/common/axis_mux_rr_2in_1out.sv),
++checked in the `ptp_ts` suite since #372. Every tool behaviour stated below was
++measured on the pinned Verilator 5.050 (the CI pin); a later Verilator manual
++is not evidence for it.
++
++## Contents
++
++- **[What is in the tree](#what-is-in-the-tree)** -- The checker, bind, harness and campaign files, and every property with its owner, law and the campaign row that shows it failing.
++- **[What the pinned Verilator does with assertions](#what-the-pinned-verilator-does-with-assertions)** -- Behaviour measured on Verilator 5.050: default-on assertions, silent mistyped binds, the failure line, pass actions on vacuous edges, two-state values.
++- **[How to add a checker](#how-to-add-a-checker)** -- Names, binding, enabling, reset and past state, witnesses, and the campaign row every new property owes.
++- **[Running and reproducing](#running-and-reproducing)** -- The commands, the harness plusargs and exit codes, where raw logs go, and how to read one failure line.
++- **[What this does not establish](#what-this-does-not-establish)** -- Four-state behaviour, CDC, formal proof, timing closure and product coverage stay outside this evidence.
++
++## What is in the tree
++
++```mermaid
++flowchart LR
++    MK["ptp_ts Makefile<br/>mux-sva-build"] --> VL["Verilator 5.050<br/>--assert"]
++    RTL["axis_mux_rr_2in_1out.sv<br/>unmodified"] --> VL
++    CHK["axis_mux_rr_2in_1out_sva.sv<br/>axis_stream_source_sva.sv"] --> VL
++    BIND["axis_mux_rr_2in_1out_bind.sv"] --> VL
++    VL --> SIM["mux_sva_main.cpp<br/>stimulus, sink, scoreboard"]
++    SIM -. "DPI witness per pass" .-> LEDGER["witness ledger<br/>vs port counts"]
++    CAMP["sva_campaign.py"] --> MK
++```
++
++| File | Role |
++|---|---|
++| [`tb/common/sva/axis_stream_source_sva.sv`](../../tb/common/sva/axis_stream_source_sva.sv) | Reusable: the source obligations of one AXI4-Stream interface (Arm IHI0051A section 2.2). TVALID, TDATA, TKEEP and TLAST hold from the first stalled edge until the handshake. |
++| [`tb/common/sva/axis_mux_rr_2in_1out_sva.sv`](../../tb/common/sva/axis_mux_rr_2in_1out_sva.sv) | The mux checker: one interface instance per port, plus the mux's grant, ownership, state, reset and forwarding laws. |
++| [`tb/common/sva/axis_mux_rr_2in_1out_bind.sv`](../../tb/common/sva/axis_mux_rr_2in_1out_bind.sv) | Attaches the checker, as `u_sva`, to every instance of the mux. |
++| [`tb/verilator/ptp_ts/mux_sva_main.cpp`](../../tb/verilator/ptp_ts/mux_sva_main.cpp) | The harness: compliant sources, a sink, an independent scoreboard, the witness ledger and eight scenarios, at TDATA_WIDTH 8 and 64. |
++| [`tb/verilator/ptp_ts/sva_campaign.py`](../../tb/verilator/ptp_ts/sva_campaign.py) | The detection campaign: every property must fail on a defect written against it. |
++| [`tb/verilator/ptp_ts/Makefile`](../../tb/verilator/ptp_ts/Makefile) | `make` runs the original `ptp_ts_top` harness, then `mux-sva`, then `sva-campaign`. One recipe, `mux-sva-build`, builds every shape. |
++
++The properties, whose obligation each one is, and the campaign row that shows
++it failing. A stimulus property binds the testbench: the mux is only held to
++its own laws while the sources keep theirs.
++
++| Label | Instance | Obligation of | Law | Form | Fails in |
++|---|---|---|---|---|---|
++| `ap_tvalid_held_until_handshake` | `u_s0_stimulus`, `u_s1_stimulus` | stimulus | a stalled TVALID stays high until TREADY takes the beat | concurrent | `stimulus-s0_drop_tvalid`, `stimulus-s1_drop_tvalid` (both widths) |
++| `ap_tvalid_held_until_handshake` | `u_m_dut` | DUT | the same, on the output | concurrent | `mutant-released_while_tlast_stalled-w64` |
++| `ap_tdata_stable_until_handshake` | all three | as above | TDATA does not move while its beat is stalled | concurrent | `stimulus-s*_flip_tdata`, `mutant-tdata_hidden_while_stalled-w8` |
++| `ap_tkeep_stable_until_handshake` | all three | as above | TKEEP does not move while its beat is stalled | concurrent | `stimulus-s*_flip_tkeep`, `mutant-tkeep_hidden_while_stalled-w64` |
++| `ap_tlast_stable_until_handshake` | all three | as above | TLAST does not move while its beat is stalled | concurrent | `stimulus-s*_flip_tlast`, `mutant-tlast_hidden_while_stalled-w8` |
++| `ap_state_legal` | `u_sva` | DUT | the state decodes to exactly one of IDLE, STREAM_0 and STREAM_1 | concurrent | `mutant-illegal_state_reached-w64` |
++| `ap_grant_only_to_requester` | `u_sva` | DUT | a grant from IDLE goes only to a source that offered a beat | concurrent | `mutant-granted_without_request-w8` |
++| `ap_owner_held_until_tlast_handshake` | `u_sva` | DUT | the owning packet keeps the output until its TLAST beat is taken | concurrent | `mutant-released_before_tlast_s0-w8`, `mutant-released_before_tlast_s1-w64` |
++| `ap_owner_released_after_tlast` | `u_sva` | DUT | the owner lets go after its TLAST beat | concurrent | `mutant-kept_after_tlast-w8` |
++| `ap_reset_releases_owner` | `u_sva` | DUT | a reset sampled at one edge leaves no owner at the next | concurrent, no `disable iff` | `mutant-reset_ignored-w64` |
++| `ai_grants_mutually_exclusive` | `u_sva` | DUT | s0 and s1 never both see TREADY | deferred immediate | `mutant-both_sources_ready-w64` |
++| `ai_ready_only_for_owner_and_ready_sink` | `u_sva` | DUT | a source sees TREADY exactly when it owns the output and the sink is ready | deferred immediate | `mutant-ready_ignores_sink-w8` |
++| `ai_tvalid_forwarded` | `u_sva` | DUT | m TVALID is the owner's TVALID, and low with no owner | deferred immediate | `mutant-tvalid_waits_for_tready-w64` |
++| `ai_payload_forwarded_on_transfer` | `u_sva` | DUT | an accepted m beat carries the owner's TDATA, TKEEP and TLAST | deferred immediate | `mutant-tkeep_from_other_source-w64` |
++
++Round-robin order is deliberately not a property. The scoreboard grades it,
++and `scoreboard-round_robin_inverted-w8` shows the scoreboard failing while no
++property does.
++
++## What the pinned Verilator does with assertions
++
++Each fact was measured on Verilator 5.050, with a synthetic probe or with the
++campaign row named.
++
++- **Assertions are on by default.** Since 5.038, `--no-assert` turns them off;
++  before 5.038 they were off unless `--assert` was given. The checker builds
++  pass `--assert` anyway, so the intent survives an older tool.
++- **`--no-assert` removes everything.** Concurrent assertions, immediate
++  assertions and both kinds of action block are compiled out, including a DPI
++  call in an action (`coverage-assertions_disabled-w64`).
++- **Bind is by module name only**, never by instance path.
++- **A bind to a module that does not exist is accepted silently.** It builds
++  with no diagnostic, even under `-Wall`, and the design then has no checker
++  (`coverage-bind_target_mistyped-w8`).
++- **A failure is one line, then a stop.** It reads `[<time>] %Error: <file>:<line>:
++  Assertion failed in <path>.<label>: <message>`. At the default error limit
++  the model then prints `Verilog $stop` and exits 1. With
++  `+verilator+error+limit+<n>` it continues, so every assertion failing at
++  that edge is reported.
++- **Reset affects the two edges differently in the measured 5.050 setup.**
++  For `disable iff (!rst_n) a |=> b`, an attempt completing on a reset edge
++  is skipped: neither action runs. An attempt starting on a reset edge
++  passes vacuously when the next edge is out of reset: its pass action runs
++  with witness flag 0.
++- **A pass action runs at every passing edge, vacuous or not.**
++  `$assertvacuousoff` changes nothing. Counting pass actions therefore counts
++  clock edges, not checks.
++- **`$past` works inside a pass action**, which is how a witness reports
++  whether its antecedent really held.
++- **`cover`, immediate or concurrent, runs only under `--coverage-user`.** No
++  suite here passes it.
++- **`assume property` is checked like `assert property`**, with the same
++  `Assertion failed` line.
++- **A DPI scope exists only while a DPI call remains in the module.** Under
++  `--no-assert` the checker instances have no scope at all.
++- **The simulation is two-state.** An X reads as 0 and `$isunknown` of it is
++  0, so an X-propagation assertion cannot fire.
++
++## How to add a checker
++
++### Files and names
++
++- Put checkers in [`tb/common/sva/`](../../tb/common/sva): `<module>_sva.sv`
++  for a module's checker and `<module>_bind.sv` for its bind. A checker for an
++  interface that several modules share is its own module, like
++  `axis_stream_source_sva`.
++- Follow the HDL house style of [CONTRIBUTING.md](../../CONTRIBUTING.md): the
++  SPDX banner, `` `default_nettype `` none and wire, typed `_P` parameters,
++  inputs documented inline with `//!`, and named blocks. Refuse an impossible
++  parameter at elaboration, as `gen_guard_tdata_width` does.
++- Label every assertion. `ap_` is a concurrent property and `ai_` an
++  immediate one; the rest of the label names the law, not the expression.
++- Give every assertion an `else $error(...)` that states the broken rule and
++  cites its clause when there is one.
++- Say whose obligation an interface check is in its instance name:
++  `u_<port>_stimulus` where the testbench or an upstream block drives TVALID,
++  `u_<port>_dut` where the module under test does.
++- A checker only observes. It never drives a signal, and the product RTL is
++  never edited to host one.
++
++### Binding
++
++- One bind file per target module:
++  `bind <module> <module>_sva #(...) u_sva (...);`. Every instance of the
++  module in the elaborated design gets the checker.
++- Connection expressions resolve in the scope of the bound instance. Read
++  internal state there, against the module's own names: the mux bind passes
++  `state == IDLE` rather than copying the enum encoding into the checker.
++- Pass parameters from the instance, `.TDATA_WIDTH_P(TDATA_WIDTH)`, so each
++  instance gets a checker of its own shape.
++- A build carries the checker only if it lists the checker files and the
++  bind. Because a mistyped bind target builds silently, the harness must prove
++  the checker is present (see [Witnesses](#witnesses)).
++
++### Enabling
++
++- List the DUT, the checker files and the bind in one build recipe, and pass
++  `--assert` explicitly.
++- Do not add `-Wno-fatal` to a checker build: a new warning in the checker or
++  the bind should fail it. Waive the DUT's standing findings exactly as its
++  existing suite already does. `mux-sva-build` waives only `CASEINCOMPLETE`.
++- Build every shape a campaign needs through that same recipe, overriding
++  variables, so the negative controls cannot drift from the positive build.
++
++### Reset and past state
++
++The reset and first-edge results come from the
++[R239-1 pinned 5.050 probes and receipts](https://github.com/kebag-logic/milan-fpga/tree/7795e487048867fde07a224ec1a5885acfb4375b/review-evidence/372-r1/review/R239-1).
++
++- A protocol law on a synchronously reset interface is a concurrent property
++  sampled at the rising edge, with `disable iff (!rst_n)`. A source may then
++  drop a stalled beat into reset without failing it.
++- A law about reset itself has no `disable iff`. `ap_reset_releases_owner` is
++  `!rst_n |=> owner_none_i`.
++- `|=>` delays an obligation by one edge; `$past` and `$stable` use previous
++  samples. In the measured Verilator 5.050 two-state setup, the first-edge
++  previous value is 0, regardless of the signal's declared initial value.
++  A probe with `one = 1'b1` held constant fails both `$past(one) == 1'b1`
++  and `$stable(one)` at that first edge. Hold reset for the first edges,
++  as every harness here does.
++- A combinational law that holds at every settled point, reset included, is a
++  deferred immediate assertion (`assert final`) in an `always_comb` block.
++  Every `ai_` law is written that way.
++- Do not write an X check. The simulation is two-state (see
++  [What this does not establish](#what-this-does-not-establish)).
++
++### Witnesses
++
++A property that never saw its antecedent passes every run, and so does a
++checker that is not there. Every property therefore reports each completed
++attempt through a DPI pass action, with a non-vacuity flag computed from
++`$past`:
++
++```systemverilog
++ap_tvalid_held_until_handshake: assert property (
++    @(posedge clk_i) disable iff (!rst_n) stalled_w |=> tvalid_i)
++  axis_sva_witness("ap_tvalid_held_until_handshake", $past(rst_n && stalled_w));
++else
++  $error("TVALID fell before TREADY took the beat (IHI0051A 2.2)");
++```
++
++- Keep `rst_n` inside the witness flag's `$past`, beside the antecedent.
++  In the pinned 5.050 probe, a stalled offer on a reset edge produces a
++  vacuous pass action at the next running edge. `$past(stalled_w)` alone
++  would incorrectly count that as non-vacuous; testing current `rst_n`
++  would not exclude it. `$past(rst_n && stalled_w)` reports flag 0,
++  matching the reset-qualified antecedent used by the tool.
++- The import is `context`, so the harness finds its ledger through the
++  calling scope (`svPutUserData`), with no global state.
++- The harness looks each expected checker scope up by name at start-up. A
++  missing scope is a failed check: the bind is missing or mistyped, or
++  `--no-assert` compiled every call out.
++- The harness compares 21 witness pairs with its own port counts: 15 require
++  equality. Two use a floor: `ap_owner_held_until_tlast_handshake` and
++  `ap_grant_only_to_requester` also involve internal state, so port-visible
++  events give a lower bound. Four immediate laws require presence only:
++  both counts must be above zero, without an equality or floor comparison,
++  because these assertions re-evaluate whenever an input moves.
++- Only the flagged calls are counted, and none of them is added to the
++  suite's check total. The tally counts graded verdicts, never assertion
++  evaluations or clock edges.
++
++### Proving each property can fail
++
++Every new property needs a campaign row that makes it fail, read by the
++property's own name. A property never seen to fail cannot be told apart from
++one that cannot fail (Rule 8 of the
++[code quality guide](../development/CODE_QUALITY.md)).
++
++- **Mutant.** Rewrite one span of a scratch copy of the product module. The
++  span must occur exactly once, so a moved line fails the row instead of
++  mutating nothing. The mutant must build.
++- **Stimulus fault.** Break one source rule from the harness on purpose, with
++  a plusarg on the clean build.
++- **Scoreboard row.** A defect no property claims must be caught by the
++  harness's own verdict while no property fires.
++- **Elaboration row.** An illegal parameter must be refused by the checker's
++  own guard message (`elaboration-tdata_width_12`), with the legal widths
++  building in the clean rows.
++- **Lost-coverage control.** Build or run the clean design with its checker
++  unable to vouch for it. The four controls are `--no-assert`, a mistyped
++  bind target, s0 and s1 swapped in the bind, and one scenario that never
++  stalls the output (`+grade_witnesses`). The harness must refuse each
++  positive run by its own scope or witness check, and every stimulus fault
++  must be injected and go undetected, or the detection check could pass
++  without the checker. The swapped bind breaks no law, so only the witness
++  counts the harness takes from the ports can catch it.
++- **Detection** means the build succeeded, the harness exited 3 (its
++  assertion stop), and an `Assertion failed in` line names the expected path.
++  A compile failure, a crash, a watchdog or a usage error is not a detection.
++- Keep expected failures out of the suite log. Raw logs go under the
++  campaign's directory, and only one verdict line per row is printed.
++- Never weaken a property to make a run pass. A failure on the unmodified
++  product RTL is a finding to publish for a scoped decision.
++
++## Running and reproducing
++
++Pass the pinned tool to every command that builds (`VERILATOR=...` for make,
++`--verilator` for the campaign):
++
++```sh
++# the whole suite: ptp_ts_top, the mux at both widths, the campaign
++make -C tb/verilator/ptp_ts VERILATOR=<path to verilator 5.050>
++
++# the bound checker alone, at TDATA_WIDTH 8 and 64
++make -C tb/verilator/ptp_ts mux-sva VERILATOR=<path to verilator 5.050>
++
++# one scenario with one stimulus fault, exactly as the campaign runs it
++tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva +verilator+error+limit+1000 \
++    +scenario=single_beats +stimulus_fault=s0_drop_tvalid
++
++# the campaign's row names, then one row (it needs the mux-sva builds)
++python3 tb/verilator/ptp_ts/sva_campaign.py --list
++python3 tb/verilator/ptp_ts/sva_campaign.py --only mutant-reset_ignored \
++    --verilator <path to verilator 5.050>
++```
++
++- The harness takes `+scenario=<name>` (default: all eight, in order),
++  `+stimulus_fault=<s0|s1>_<drop_tvalid|flip_tdata|flip_tkeep|flip_tlast>`,
++  `+seed=<n>`, and `+grade_witnesses`, which grades the witnesses after a
++  single scenario too. It prints the seed of its random scenario in its first
++  line, so a random failure replays from its own log.
++- It exits 0 on a pass, 1 when a graded check fails, 2 on a bad plusarg, and
++  3 when an assertion stopped a run whose error limit was raised.
++- Raw campaign logs are kept per row in
++  `tb/verilator/ptp_ts/obj_dir_sva_campaign/<row>/`: the build log, the run
++  log, and the scratch source of a mutant or a mistyped bind.
++
++A failure reads like this (from `stimulus-s0_drop_tvalid-w8`):
++
++```text
++[6000] %Error: axis_stream_source_sva.sv:71: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake: TVALID fell before TREADY took the beat (IHI0051A 2.2)
++SVA-STOP: an assertion failed at the edge ending cycle 6 (the %Error lines above name it); the run stops at that edge
++```
++
++- `[6000]` is simulation time in picoseconds. The harness runs one clock per
++  nanosecond, so this is the rising edge that ends cycle 6.
++- The path is the bind instance (`u_sva`), then the checker instance, whose
++  name says whose obligation broke (`u_s0_stimulus`), then the label.
++- The message names the rule and its clause.
++
++## What this does not establish
++
++- **Four-state behaviour.** Verilator is two-state: X and Z are never
++  observed, so nothing here shows that an X cannot propagate.
++- **CDC correctness.** The checker samples one clock. No crossing is modelled
++  or checked.
++- **A formal proof.** Only simulation ran. No formal tool has read these
++  properties.
++- **Timing closure.** The simulation is cycle-based and zero-delay.
++- **Coverage of the product.** One module carries assertions. The mux
++  instance inside `ptp_ts_top` is not bound: the original `run` leg is
++  unchanged and does not compile the checker. No functional coverage is
++  collected, and no `covergroup` or `cover` is part of this rollout.
++- **Completeness of a property.** Each campaign row shows that its property
++  can fail on one defect, not that it catches every defect of that kind.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5f544fc5..2e90daf1 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -440,7 +440,7 @@ verdicts and for check counts.
+ | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
+ | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model, in **two elaborations**. The default `PPS_P=0` shape adds the option-off proof that `pps_o` is a structural zero while the PPS inputs are driven. The `PPS_P=1` shape (`pps_main.cpp`) grades the #260 output: twelve pulses on an ABSOLUTE `base + k*1e9` grid rather than pulse-to-pulse spacing, each within one counter increment of its boundary, the stretcher exactly `PPS_WIDTH_CYC_P` wide, and three negative controls  -  a fine fractional addend must move the edge in ticks and not in ns, the runtime enable alone must gate the pin, and enable arriving before the arm (the CDC order the one-word `PTP_PPS_CTRL` write produces) must emit no pulse and leave the target unadvanced |
+ | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | the CSR↔PHC crossing, in **two elaborations**. Both grade the settime/adjtime payload alignment and the snapshot return; the `PPS_P=1` `obj_pps` leg adds the #260 alarm crossing: the enable reaches `ts_clk`, the arm lands as exactly one pulse with its 64-bit target already captured, and the live target publishes back to `aclk` on the free-running beat. A target that does not land with its arm pulse arms the comparator at a **stale boundary**, which is a pulse at the wrong time rather than a dead pin, so the default leg proves the parked arm holds a structural zero under the same stimulus |
+-| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |
++| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | `ptp_ts_top`'s record pipeline (its interference harness, unchanged), then **#372's representative bound-assertion target**: `axis_mux_rr_2in_1out` alone at TDATA_WIDTH 8 and 64, with the checker in `tb/common/sva/` bound by module name. An independent scoreboard grades every beat and round-robin order, 21 non-vacuous witness pairs are graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and `sva_campaign.py` makes every property fail on a defect written against it, with assertions-disabled, mistyped-bind, swapped-port and unused-path controls that the harness must refuse and the detection check must fail ([assertion guide](ASSERTIONS.md)) |
+ | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
+ | [`tb/verilator/render_setpoint`](../../tb/verilator/render_setpoint) | `KL_render_setpoint`, the #386 listener render setpoint stage: the fill law per PDU (prefill to the setpoint, the sawtooth, the first-event delay), byte-exact beats for 8, 3, 1 and 12 wire channels, the pop schedule, both rails, the observer, the one-shot recentre, a flush, an overrun, the event-atomic pop (a recentre or a flush inside the pop window leaves the crossbar whole events), a PDU end on a pop's own edge, an event judged full past a pop inside it, a wire channel count change, and a model of the crossbar's walker on every beat, run on an 8-lane and a 7-lane build -- and a thirteen-mutant arm that proves every one of those checks can fail. The datapath-level law rides `milan_dp`'s true-ratio leg (a live clock-source change under the running stream included) with its own four-mutant arm |
+ | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index e53cc6ff..6cc05f9a 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -617,6 +617,10 @@ DUT_READER_DISPOSITIONS = {
+         "pre-contract copy for the non-vacuity control. It grades nothing "
+         "from the text: every verdict is a named check in cosim_checks.py "
+         "over a dumped journal",
++    "tb/verilator/ptp_ts/sva_campaign.py":
++        "mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a "
++        "scratch copy and requires the named SVA property, or for one row the scoreboard, "
++        "to fail; no expected value is read from the text",
+     "tb/verilator/render_setpoint/mutants.py":
+         "mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure",
+     "tb/verilator/rx_filter/binding_mutant.py":
+diff --git a/tb/common/sva/axis_mux_rr_2in_1out_bind.sv b/tb/common/sva/axis_mux_rr_2in_1out_bind.sv
+new file mode 100644
+index 00000000..beaebb47
+--- /dev/null
++++ b/tb/common/sva/axis_mux_rr_2in_1out_bind.sv
+@@ -0,0 +1,60 @@
++/*
++ * SPDX-FileCopyrightText: 2026 Kebag Logic
++ * SPDX-License-Identifier: CERN-OHL-W-2.0
++ */
++//---------------------------------------------------------------------------//
++//  File        : axis_mux_rr_2in_1out_bind.sv
++//  Project     : Milan TSN NIC -- assertion-based verification (#372)
++//
++//  Description : Attaches axis_mux_rr_2in_1out_sva, as instance `u_sva`, to
++//                EVERY instance of axis_mux_rr_2in_1out in the elaborated
++//                design. The product RTL is not edited and carries no
++//                simulation-only code; compiling this file is what adds the
++//                checker, and leaving it out removes it.
++//
++//                Pinned Verilator 5.050 binds by MODULE name only, never by
++//                instance path, and it accepts a bind whose target module
++//                does not exist without any diagnostic, even under -Wall.
++//                A mistyped target therefore builds a design with no checker
++//                in it. The harness that compiles this file must prove the
++//                checker is present (docs/testing/ASSERTIONS.md), because the
++//                tool will not.
++//
++//                Every connection below is resolved in the scope of the bound
++//                mux instance, so the ownership flags are its own `state`
++//                decoded against its own enum literals, and TDATA_WIDTH_P
++//                follows each instance's TDATA_WIDTH.
++//---------------------------------------------------------------------------//
++
++`default_nettype none
++
++bind axis_mux_rr_2in_1out axis_mux_rr_2in_1out_sva #(
++  .TDATA_WIDTH_P(TDATA_WIDTH)
++) u_sva (
++  .clk_i       (clk),
++  .rst_n       (rst_n),
++
++  .s0_tdata_i  (s0_tdata),
++  .s0_tvalid_i (s0_tvalid),
++  .s0_tready_i (s0_tready),
++  .s0_tlast_i  (s0_tlast),
++  .s0_tkeep_i  (s0_tkeep),
++
++  .s1_tdata_i  (s1_tdata),
++  .s1_tvalid_i (s1_tvalid),
++  .s1_tready_i (s1_tready),
++  .s1_tlast_i  (s1_tlast),
++  .s1_tkeep_i  (s1_tkeep),
++
++  .m_tdata_i   (m_tdata),
++  .m_tvalid_i  (m_tvalid),
++  .m_tready_i  (m_tready),
++  .m_tlast_i   (m_tlast),
++  .m_tkeep_i   (m_tkeep),
++
++  .owner_none_i(state == IDLE),
++  .owner_s0_i  (state == STREAM_0),
++  .owner_s1_i  (state == STREAM_1)
++);
++
++`default_nettype wire
+diff --git a/tb/common/sva/axis_mux_rr_2in_1out_sva.sv b/tb/common/sva/axis_mux_rr_2in_1out_sva.sv
+new file mode 100644
+index 00000000..0ffd67a1
+--- /dev/null
++++ b/tb/common/sva/axis_mux_rr_2in_1out_sva.sv
+@@ -0,0 +1,191 @@
++/*
++ * SPDX-FileCopyrightText: 2026 Kebag Logic
++ * SPDX-License-Identifier: CERN-OHL-W-2.0
++ */
++//---------------------------------------------------------------------------//
++//  File        : axis_mux_rr_2in_1out_sva.sv
++//  Project     : Milan TSN NIC -- assertion-based verification (#372)
++//
++//  Description : Simulation-only checker for hdl/common/axis_mux_rr_2in_1out.sv,
++//                attached to every instance of that module by the bind in
++//                axis_mux_rr_2in_1out_bind.sv. It never drives anything.
++//
++//                Whose obligation each property is:
++//                  u_s0_stimulus, u_s1_stimulus  the two input streams obey
++//                      AXI4-Stream (axis_stream_source_sva). These belong to
++//                      whatever drives s0/s1 - the testbench here - and the
++//                      mux is only correct while they hold.
++//                  u_m_dut                       the output stream obeys
++//                      AXI4-Stream. This is the mux's obligation.
++//                  every ap_/ai_ property below  grant, ownership, state and
++//                      forwarding laws of the mux itself: DUT obligations.
++//
++//                The one design decision that matters: packet OWNERSHIP is the
++//                mux's state, so it is read from the DUT rather than guessed
++//                from its ports. The bind decodes `state` against the DUT's
++//                own enum literals and hands this checker three flags, so no
++//                encoding is copied here. A state that decodes to none of them
++//                is exactly what ap_state_legal exists to report.
++//
++//                Clocked laws (ap_*) are concurrent assertions sampled at the
++//                rising edge and disabled while rst_n is low, except
++//                ap_reset_releases_owner, which is ABOUT reset and so has no
++//                disable. Combinational laws (ai_*) are deferred immediate
++//                assertions: they hold at every settled point, in reset too.
++//
++//                Witness flags follow axis_stream_source_sva: a pass action
++//                runs at every passing edge (pinned Verilator 5.050), so each
++//                one reports whether the interesting case really occurred,
++//                and the harness counts only those reports.
++//                See docs/testing/ASSERTIONS.md.
++//---------------------------------------------------------------------------//
++
++`default_nettype none
++
++module axis_mux_rr_2in_1out_sva #(
++  parameter int unsigned TDATA_WIDTH_P = 64 //! the mux's TDATA_WIDTH
++) (
++  input wire                       clk_i,        //! the mux clock
++  input wire                       rst_n,        //! the mux's synchronous, active-low reset
++
++  input wire [TDATA_WIDTH_P-1:0]   s0_tdata_i,   //! input stream 0, as driven into the mux
++  input wire                       s0_tvalid_i,  //! input stream 0 TVALID
++  input wire                       s0_tready_i,  //! input stream 0 TREADY, as the mux drives it
++  input wire                       s0_tlast_i,   //! input stream 0 TLAST
++  input wire [TDATA_WIDTH_P/8-1:0] s0_tkeep_i,   //! input stream 0 TKEEP
++
++  input wire [TDATA_WIDTH_P-1:0]   s1_tdata_i,   //! input stream 1, as driven into the mux
++  input wire                       s1_tvalid_i,  //! input stream 1 TVALID
++  input wire                       s1_tready_i,  //! input stream 1 TREADY, as the mux drives it
++  input wire                       s1_tlast_i,   //! input stream 1 TLAST
++  input wire [TDATA_WIDTH_P/8-1:0] s1_tkeep_i,   //! input stream 1 TKEEP
++
++  input wire [TDATA_WIDTH_P-1:0]   m_tdata_i,    //! output stream, as the mux drives it
++  input wire                       m_tvalid_i,   //! output stream TVALID
++  input wire                       m_tready_i,   //! output stream TREADY, as the sink drives it
++  input wire                       m_tlast_i,    //! output stream TLAST
++  input wire [TDATA_WIDTH_P/8-1:0] m_tkeep_i,    //! output stream TKEEP
++
++  input wire                       owner_none_i, //! the mux is IDLE: no packet owns the output
++  input wire                       owner_s0_i,   //! STREAM_0: a packet from s0 owns the output
++  input wire                       owner_s1_i    //! STREAM_1: a packet from s1 owns the output
++);
++
++  //! See axis_stream_source_sva.
++  import "DPI-C" context function void axis_sva_witness(input string rule_name,
++                                                        input bit nonvacuous);
++
++  // ---- AXI4-Stream source obligations, one instance per interface ---------
++  axis_stream_source_sva #(.TDATA_WIDTH_P(TDATA_WIDTH_P)) u_s0_stimulus (
++    .clk_i   (clk_i),
++    .rst_n   (rst_n),
++    .tvalid_i(s0_tvalid_i),
++    .tready_i(s0_tready_i),
++    .tdata_i (s0_tdata_i),
++    .tkeep_i (s0_tkeep_i),
++    .tlast_i (s0_tlast_i)
++  );
++
++  axis_stream_source_sva #(.TDATA_WIDTH_P(TDATA_WIDTH_P)) u_s1_stimulus (
++    .clk_i   (clk_i),
++    .rst_n   (rst_n),
++    .tvalid_i(s1_tvalid_i),
++    .tready_i(s1_tready_i),
++    .tdata_i (s1_tdata_i),
++    .tkeep_i (s1_tkeep_i),
++    .tlast_i (s1_tlast_i)
++  );
++
++  axis_stream_source_sva #(.TDATA_WIDTH_P(TDATA_WIDTH_P)) u_m_dut (
++    .clk_i   (clk_i),
++    .rst_n   (rst_n),
++    .tvalid_i(m_tvalid_i),
++    .tready_i(m_tready_i),
++    .tdata_i (m_tdata_i),
++    .tkeep_i (m_tkeep_i),
++    .tlast_i (m_tlast_i)
++  );
++
++  // ---- events the ownership laws are written in ---------------------------
++  //! the owning source hands over its TLAST beat at this edge
++  logic owner_last_handshake_w;
++  //! a source owns the output and has not yet handed over its TLAST beat
++  logic s0_mid_packet_w;
++  logic s1_mid_packet_w;
++  assign owner_last_handshake_w = (owner_s0_i && s0_tvalid_i && s0_tready_i && s0_tlast_i)
++                               || (owner_s1_i && s1_tvalid_i && s1_tready_i && s1_tlast_i);
++  assign s0_mid_packet_w = owner_s0_i && !(s0_tvalid_i && s0_tready_i && s0_tlast_i);
++  assign s1_mid_packet_w = owner_s1_i && !(s1_tvalid_i && s1_tready_i && s1_tlast_i);
++
++  // ---- clocked laws: state, grant and packet ownership (DUT) --------------
++  ap_state_legal: assert property (
++      @(posedge clk_i) disable iff (!rst_n) $onehot({owner_none_i, owner_s0_i, owner_s1_i}))
++    axis_sva_witness("ap_state_legal", 1'b1);
++  else
++    $error("the mux state decodes to none, or to more than one, of IDLE, STREAM_0 and STREAM_1");
++
++  ap_grant_only_to_requester: assert property (
++      @(posedge clk_i) disable iff (!rst_n)
++      owner_none_i |=> (!owner_s0_i || $past(s0_tvalid_i)) && (!owner_s1_i || $past(s1_tvalid_i)))
++    axis_sva_witness("ap_grant_only_to_requester",
++                     $past(rst_n && owner_none_i) && (owner_s0_i || owner_s1_i));
++  else
++    $error("the arbiter granted the output to a source that was not offering a beat");
++
++  ap_owner_held_until_tlast_handshake: assert property (
++      @(posedge clk_i) disable iff (!rst_n)
++      (s0_mid_packet_w || s1_mid_packet_w) |=> $stable({owner_s0_i, owner_s1_i}))
++    axis_sva_witness("ap_owner_held_until_tlast_handshake",
++                     $past(rst_n && (s0_mid_packet_w || s1_mid_packet_w)));
++  else
++    $error("the output changed owner before the owning packet's TLAST beat was taken");
++
++  ap_owner_released_after_tlast: assert property (
++      @(posedge clk_i) disable iff (!rst_n) owner_last_handshake_w |=> owner_none_i)
++    axis_sva_witness("ap_owner_released_after_tlast", $past(rst_n && owner_last_handshake_w));
++  else
++    $error("the owner kept the output after its TLAST beat was taken");
++
++  //! No disable: this law is about reset. A reset sampled at one edge must
++  //! leave no owner at the next, whatever was stalled when it arrived.
++  ap_reset_releases_owner: assert property (
++      @(posedge clk_i) !rst_n |=> owner_none_i)
++    axis_sva_witness("ap_reset_releases_owner", $past(!rst_n));
++  else
++    $error("an owner survived a reset");
++
++  // ---- combinational laws: grant and forwarding (DUT) ---------------------
++  always_comb begin : forwarding_laws
++    ai_grants_mutually_exclusive: assert final (!(s0_tready_i && s1_tready_i))
++      axis_sva_witness("ai_grants_mutually_exclusive", s0_tready_i || s1_tready_i);
++    else
++      $error("s0 and s1 were both given TREADY in the same cycle");
++
++    ai_ready_only_for_owner_and_ready_sink: assert final (
++        s0_tready_i == (owner_s0_i && m_tready_i) && s1_tready_i == (owner_s1_i && m_tready_i))
++      axis_sva_witness("ai_ready_only_for_owner_and_ready_sink",
++                       (owner_s0_i || owner_s1_i) && m_tready_i);
++    else
++      $error("a source's TREADY is not exactly 'it owns the output and the sink is ready'");
++
++    ai_tvalid_forwarded: assert final (
++        m_tvalid_i == ((owner_s0_i && s0_tvalid_i) || (owner_s1_i && s1_tvalid_i)))
++      axis_sva_witness("ai_tvalid_forwarded",
++                       (owner_s0_i && s0_tvalid_i) || (owner_s1_i && s1_tvalid_i));
++    else
++      $error("m TVALID is not the owning source's TVALID, or is high with no owner");
++
++    if (m_tvalid_i && m_tready_i) begin
++      ai_payload_forwarded_on_transfer: assert final (
++          owner_s0_i ? (m_tdata_i == s0_tdata_i && m_tkeep_i == s0_tkeep_i && m_tlast_i == s0_tlast_i)
++                     : (owner_s1_i && m_tdata_i == s1_tdata_i && m_tkeep_i == s1_tkeep_i
++                        && m_tlast_i == s1_tlast_i))
++        axis_sva_witness("ai_payload_forwarded_on_transfer", 1'b1);
++      else
++        $error("an accepted m beat does not carry the owning source's TDATA, TKEEP and TLAST");
++    end
++  end : forwarding_laws
++
++endmodule
++
++`default_nettype wire
+diff --git a/tb/common/sva/axis_stream_source_sva.sv b/tb/common/sva/axis_stream_source_sva.sv
+new file mode 100644
+index 00000000..bc04393c
+--- /dev/null
++++ b/tb/common/sva/axis_stream_source_sva.sv
+@@ -0,0 +1,93 @@
++/*
++ * SPDX-FileCopyrightText: 2026 Kebag Logic
++ * SPDX-License-Identifier: CERN-OHL-W-2.0
++ */
++//---------------------------------------------------------------------------//
++//  File        : axis_stream_source_sva.sv
++//  Project     : Milan TSN NIC -- assertion-based verification (#372)
++//
++//  Description : The source obligations of ONE AXI4-Stream interface, as a
++//                simulation-only checker (Arm IHI0051A section 2.2). Once a
++//                source raises TVALID it holds TVALID, TDATA, TKEEP and TLAST
++//                unchanged until the rising edge at which TREADY takes the
++//                beat. Each signal is its own labelled property, so a failure
++//                names the one signal that moved.
++//
++//                The one design decision that matters is WHOSE obligation a
++//                failure is. The properties are the same on every interface,
++//                so the owner is carried by the instance name: a bound checker
++//                instantiates this module as `u_<port>_stimulus` where the
++//                testbench or an upstream block drives TVALID, and as
++//                `u_<port>_dut` where the design under test does. A stimulus
++//                failure is a testbench defect, a DUT failure a design defect.
++//
++//                Reset: every property samples the rising edge and is
++//                disabled while rst_n is low, so an attempt that overlaps a
++//                reset is abandoned, not failed. A stalled beat that a reset
++//                discards is legal.
++//
++//                Witness: each property's pass action reports, through the
++//                `axis_sva_witness` DPI call, whether the attempt it completed
++//                was non-vacuous (the beat really was stalled at the previous
++//                edge). Pinned Verilator 5.050 runs a pass action at EVERY
++//                passing edge, vacuous or not, so the flag is the witness and
++//                the call is not: a harness counts flagged calls only, and
++//                compares them with its own port-level count of the same
++//                stalls. See docs/testing/ASSERTIONS.md.
++//---------------------------------------------------------------------------//
++
++`default_nettype none
++
++module axis_stream_source_sva #(
++  parameter int unsigned TDATA_WIDTH_P = 64 //! TDATA width in bits; a whole, non-zero number of bytes
++) (
++  input wire                       clk_i,    //! the interface clock; every property samples its rising edge
++  input wire                       rst_n,    //! synchronous, active-low; every property is disabled while it is low
++  input wire                       tvalid_i, //! TVALID, as the source drives it
++  input wire                       tready_i, //! TREADY, as the sink drives it
++  input wire [TDATA_WIDTH_P-1:0]   tdata_i,  //! TDATA, as the source drives it
++  input wire [TDATA_WIDTH_P/8-1:0] tkeep_i,  //! TKEEP, as the source drives it
++  input wire                       tlast_i   //! TLAST, as the source drives it
++);
++
++  if (TDATA_WIDTH_P == 0 || TDATA_WIDTH_P % 8 != 0) begin : gen_guard_tdata_width
++    $error("axis_stream_source_sva: TDATA_WIDTH_P=%0d is not a whole, non-zero number of bytes",
++           TDATA_WIDTH_P);
++  end
++
++  //! Reports one completed attempt of the property named `rule_name`;
++  //! `nonvacuous` is set when the antecedent really held one edge earlier.
++  import "DPI-C" context function void axis_sva_witness(input string rule_name,
++                                                        input bit nonvacuous);
++
++  //! the source offers a beat that the sink does not take at this edge
++  logic stalled_w;
++  assign stalled_w = tvalid_i && !tready_i;
++
++  ap_tvalid_held_until_handshake: assert property (
++      @(posedge clk_i) disable iff (!rst_n) stalled_w |=> tvalid_i)
++    axis_sva_witness("ap_tvalid_held_until_handshake", $past(rst_n && stalled_w));
++  else
++    $error("TVALID fell before TREADY took the beat (IHI0051A 2.2)");
++
++  ap_tdata_stable_until_handshake: assert property (
++      @(posedge clk_i) disable iff (!rst_n) stalled_w |=> $stable(tdata_i))
++    axis_sva_witness("ap_tdata_stable_until_handshake", $past(rst_n && stalled_w));
++  else
++    $error("TDATA changed while the beat was stalled (IHI0051A 2.2)");
++
++  ap_tkeep_stable_until_handshake: assert property (
++      @(posedge clk_i) disable iff (!rst_n) stalled_w |=> $stable(tkeep_i))
++    axis_sva_witness("ap_tkeep_stable_until_handshake", $past(rst_n && stalled_w));
++  else
++    $error("TKEEP changed while the beat was stalled (IHI0051A 2.2)");
++
++  ap_tlast_stable_until_handshake: assert property (
++      @(posedge clk_i) disable iff (!rst_n) stalled_w |=> $stable(tlast_i))
++    axis_sva_witness("ap_tlast_stable_until_handshake", $past(rst_n && stalled_w));
++  else
++    $error("TLAST changed while the beat was stalled (IHI0051A 2.2)");
++
++endmodule
++
++`default_nettype wire
+diff --git a/tb/verilator/README.md b/tb/verilator/README.md
+index 9c600fe0..38464399 100644
+--- a/tb/verilator/README.md
++++ b/tb/verilator/README.md
+@@ -48,6 +48,7 @@ Reserved bits and twoStepFlag remain ignored on reception.
+ | [`cls/`](cls) | `traffic_class_map.sv` | 802.1Q classification (`REQ-VER-03`): PCP→regen→TC→queue, untagged default priority, legacy EtherType fallback, reserved-DMAC validation of the gPTP fast path (`REQ-CLS-07`, with its spoof negatives), and the **DMAC-keyed control fast path** (`REQ-CLS-10`): the whole q2 protocol table, the gPTP/MSRP split at the shared `01-80-C2-00-00-0E`, AECP on the unicast arm, and four negatives — a tagged `0x22F0` still on the SR classes, an address with no table row (including the Bridge Group Address RSTP will use), a forged `0x22F0` to a foreign multicast, and `CLS_CTRL[2]=0` restoring VERSION `0x0011`. All vs a reference over 200 k random configs × 9 destination MACs. | `cd cls && make` |
+ | [`ptp/`](ptp) | `timestamp_counter.sv` | PTP hardware clock: nominal rate, adjfine (fractional carry), settime, adjtime, gettime snapshot, disable — vs a 128-bit accumulator model (201 k checks). | `cd ptp && make` |
+ | [`ptp_sync/`](ptp_sync) | `ptp_csr_sync.sv` | CSR↔PHC CDC: settime/adjtime command-pulse ↔ payload alignment, one pulse per command, rate-config passthrough, gettime snapshot return path. | `cd ptp_sync && make` |
++| [`ptp_ts/`](ptp_ts) | `ptp_ts_top.sv`, then `axis_mux_rr_2in_1out.sv` with its bound SVA checker (`tb/common/sva/`) at TDATA_WIDTH 8 and 64 | The timestamp record pipeline's interference suite, then the round-robin mux on its own: an independent scoreboard, 21 non-vacuity witness pairs graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and a detection campaign in which every property fails on a defect written against it ([assertion guide](../../docs/testing/ASSERTIONS.md)). | `cd ptp_ts && make` |
+ | [`clkvalid/`](clkvalid) | `KL_ptp_clock_validity.sv` | The AVTP **`tu`** verdict every talker stamps. Product mode consumes the fabric owner's sync/asCapable/GM publication, detects discontinuity and applies the Milan holdover; verification-only option OFF is ownerless, holds `tu=1`, reports sync/asCapable zero and ignores every retired write. `CLKV_TUCNT` counts Milan Table 5.4 observation intervals. Both compressed behavioural timing and the shipping divider are covered. | `cd clkvalid && make` |
+ | [`csr/`](csr) | `milan_csr.sv` | AXI4-Lite CSR: reset values, RO/RW/W1C, IRQ mask+event, hardware-set-beats-W1C, PTP command strobes + TOD-valid snapshot, stats snapshot, output wiring (check count printed at run time). | `cd csr && make` |
+ | [`adp_tx/`](adp_tx) | `adp_tx_arbiter.sv` | 2-input AXIS packet arbiter merging the ADP stream into the MAC TX: no frame interleave, per-source in-order byte-exact delivery, round-robin fairness, back-pressure integrity (26 checks). | `cd adp_tx && make` |
+@@ -80,7 +81,7 @@ scripts/run_all_suites.sh /tmp/physical-suite-logs --physical-gptp
+ The table above is not complete — **`ls` is**. Run `ls tb/verilator/` for the
+ authoritative suite list; these have no prose row here:
+ 
+-[`aaf/`](aaf) · [`aaf_audio_loop/`](aaf_audio_loop) · [`aaf_latency_taps/`](aaf_latency_taps) · [`avtp_rxmon/`](avtp_rxmon) · [`chmap_capture/`](chmap_capture) · [`chmap_render/`](chmap_render) · [`crf_rx/`](crf_rx) · [`crf_tx/`](crf_tx) · [`eth_tx_reset/`](eth_tx_reset) · [`i2spb/`](i2spb) · [`ifg/`](ifg) · [`lat_history_ring/`](lat_history_ring) · [`link_guard/`](link_guard) · [`maap/`](maap) · [`mmcm_servo/`](mmcm_servo) · [`mmcm_servo_autorepair/`](mmcm_servo_autorepair) · [`pcmlpf/`](pcmlpf) · [`ptp_ts/`](ptp_ts) · [`tcam_csr/`](tcam_csr) · [`tdm_render/`](tdm_render) · [`tsn_fuzz/`](tsn_fuzz)
++[`aaf/`](aaf) · [`aaf_audio_loop/`](aaf_audio_loop) · [`aaf_latency_taps/`](aaf_latency_taps) · [`avtp_rxmon/`](avtp_rxmon) · [`chmap_capture/`](chmap_capture) · [`chmap_render/`](chmap_render) · [`crf_rx/`](crf_rx) · [`crf_tx/`](crf_tx) · [`eth_tx_reset/`](eth_tx_reset) · [`i2spb/`](i2spb) · [`ifg/`](ifg) · [`lat_history_ring/`](lat_history_ring) · [`link_guard/`](link_guard) · [`maap/`](maap) · [`mmcm_servo/`](mmcm_servo) · [`mmcm_servo_autorepair/`](mmcm_servo_autorepair) · [`pcmlpf/`](pcmlpf) · [`tcam_csr/`](tcam_csr) · [`tdm_render/`](tdm_render) · [`tsn_fuzz/`](tsn_fuzz)
+ 
+ Rather than guess at what each proves, use the two authoritative sources: the
+ suite's own `README.md` where it has one, and
+diff --git a/tb/verilator/ptp_ts/Makefile b/tb/verilator/ptp_ts/Makefile
+index 2cd5a68e..900bd30a 100644
+--- a/tb/verilator/ptp_ts/Makefile
++++ b/tb/verilator/ptp_ts/Makefile
+@@ -6,8 +6,15 @@
+ # ZERO records on silicon: the block had no metadata-path coverage anywhere
+ # (tb/verilator/ptp_sync only covers the CSR CDC). Reproduces the ingress-rate
+ # races (slow MII beats vs the SOP->timestamp CDC handshake) and gates the fix.
+-#   make        - build and run the self-checking harness
+-#   make clean  - remove build artifacts
++# Since #372 the suite also runs that RR mux on its own, with a bound SVA
++# checker, and proves the checker's assertions can fail
++# (docs/testing/ASSERTIONS.md).
++#   make              - all three legs below, in order
++#   make run          - build and run the ptp_ts_top self-checking harness
++#   make mux-sva      - axis_mux_rr_2in_1out with its bound checker, at
++#                       TDATA_WIDTH 8 and 64
++#   make sva-campaign - the assertion detection campaign (sva_campaign.py)
++#   make clean        - remove build artifacts
+ 
+ VERILATOR ?= verilator
+ RTL_DIR    = ../../../hdl
+@@ -34,13 +41,57 @@ SRCS = $(RTL_DIR)/common/ethernet_packet_pkg.sv \
+        $(RTL_DIR)/ieee8021as/ptp_timestamp/ptp_ts_top.sv
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run clean
+-all: run
++# ---- axis_mux_rr_2in_1out with its bound SVA checker (#372) -----------------
++# ONE recipe builds every shape: the two below, and every scratch mutant and
++# lost-coverage control sva_campaign.py asks for by overriding the MUX_SVA_*
++# variables, so the campaign cannot drift from these flags.
++#  --assert  explicit, although Verilator 5.050 enables assertions by default
++#            (since 5.038): before 5.038 a build without it compiled every
++#            assertion out and still passed. --no-assert is the campaign's
++#            assertions-disabled control.
++#  -j 8      bounds the C++ build's parallelism.
++#  no -Wno-fatal: a new warning in the checker or the bind fails the build.
++#            CASEINCOMPLETE is the mux's own standing finding, waived exactly
++#            as VFLAGS above waives it.
++SVA_DIR         = ../../common/sva
++MUX_SVA_WIDTH  ?= 64
++MUX_SVA_OBJ    ?= obj_dir_mux_sva_w$(MUX_SVA_WIDTH)
++MUX_SVA_DUT    ?= $(RTL_DIR)/common/axis_mux_rr_2in_1out.sv
++MUX_SVA_BIND   ?= $(SVA_DIR)/axis_mux_rr_2in_1out_bind.sv
++MUX_SVA_ASSERT ?= --assert
++MUX_SVA_VFLAGS = --cc --exe --build -j 8 $(MUX_SVA_ASSERT) \
++                 --top-module axis_mux_rr_2in_1out -GTDATA_WIDTH=$(MUX_SVA_WIDTH) \
++                 -Wall -Wno-CASEINCOMPLETE \
++                 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DAXIS_MUX_TDATA_WIDTH=$(MUX_SVA_WIDTH)"
++MUX_SVA_SRCS = $(MUX_SVA_DUT) \
++               $(SVA_DIR)/axis_stream_source_sva.sv \
++               $(SVA_DIR)/axis_mux_rr_2in_1out_sva.sv \
++               $(MUX_SVA_BIND)
++
++.PHONY: all run mux-sva mux-sva-build sva-campaign clean
++all: run mux-sva sva-campaign
+ 
+ run:
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vptp_ts_sim
+ 	@echo "======================================================================"
+ 	./obj_dir/Vptp_ts_sim
+ 
++mux-sva-build:
++	$(VERILATOR) $(MUX_SVA_VFLAGS) -Mdir $(MUX_SVA_OBJ) $(MUX_SVA_SRCS) mux_sva_main.cpp -o Vmux_sva
++
++mux-sva:
++	@echo "======================================================================"
++	$(MAKE) --no-print-directory mux-sva-build MUX_SVA_WIDTH=8
++	./obj_dir_mux_sva_w8/Vmux_sva
++	@echo "======================================================================"
++	$(MAKE) --no-print-directory mux-sva-build MUX_SVA_WIDTH=64
++	./obj_dir_mux_sva_w64/Vmux_sva
++
++# Rule 8: every property must be seen to fail. Expected failures stay in
++# obj_dir_sva_campaign/; only the verdict table reaches this log.
++sva-campaign: mux-sva
++	@echo "======================================================================"
++	python3 sva_campaign.py --verilator "$(VERILATOR)"
++
+ clean:
+-	rm -rf obj_dir
++	rm -rf obj_dir obj_dir_mux_sva_w8 obj_dir_mux_sva_w64 obj_dir_sva_campaign
+diff --git a/tb/verilator/ptp_ts/mux_sva_main.cpp b/tb/verilator/ptp_ts/mux_sva_main.cpp
+new file mode 100644
+index 00000000..d580d910
+--- /dev/null
++++ b/tb/verilator/ptp_ts/mux_sva_main.cpp
+@@ -0,0 +1,1006 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++//
++// Self-checking harness for hdl/common/axis_mux_rr_2in_1out.sv with its bound
++// SVA checker (tb/common/sva/, issue #372). The ptp_ts Makefile builds it
++// twice, at TDATA_WIDTH 8 and 64, and passes that width in as
++// AXIS_MUX_TDATA_WIDTH. The product module is compiled unmodified.
++//
++// Three things are graded, and none of them reads the checker's internals:
++//
++//   1. A SCOREBOARD: every beat a source hands over leaves the mux once,
++//      unchanged, in that source's order, never inside the other source's
++//      packet; nothing leaves that was not handed over; and when both sources
++//      offer back-to-back packets the output alternates between them.
++//   2. WITNESSES: every checker instance must be elaborated (its DPI scope
++//      exists), and every property must report non-vacuous passes. Of the
++//      21 witness pairs, 15 must equal this harness's port counts, 2 use
++//      those counts as floors, and 4 immediate laws require only presence:
++//      both counts above zero. See docs/testing/ASSERTIONS.md.
++//   3. The assertions themselves stop the simulation on a violation.
++//
++// The AXI4-Stream source rules on s0/s1 are THIS harness's obligations
++// (u_s0_stimulus, u_s1_stimulus hold it to them). The negative campaign,
++// sva_campaign.py, breaks one on purpose with +stimulus_fault=, and runs
++// mutated copies of the mux with +verilator+error+limit+ raised so that
++// every assertion failing at the first failing edge is reported; the
++// harness then stops at the end of that edge and exits 3.
++//
++// Plusargs: +scenario=<name> runs one scenario (default: all, in order);
++// +stimulus_fault=<s0|s1>_<drop_tvalid|flip_tdata|flip_tkeep|flip_tlast>;
++// +seed=<n> replays the random scenario; +grade_witnesses grades the
++// witnesses after one scenario too (the campaign's unused-path control).
++// Exit: 0 pass, 1 a graded check failed, 2 bad plusarg, 3 an assertion
++// stopped the run (campaign mode).
++
++#include <verilated.h>
++
++#include "Vaxis_mux_rr_2in_1out.h"
++#include "Vaxis_mux_rr_2in_1out__Dpi.h"
++#include "../../common/verilator_harness.hpp"
++
++#include <array>
++#include <charconv>
++#include <cstdint>
++#include <cstdio>
++#include <deque>
++#include <map>
++#include <random>
++#include <set>
++#include <string>
++#include <string_view>
++#include <type_traits>
++#include <utility>
++#include <vector>
++
++#ifndef AXIS_MUX_TDATA_WIDTH
++#error "build with -DAXIS_MUX_TDATA_WIDTH=<the -GTDATA_WIDTH the model was verilated with>"
++#endif
++
++namespace {
++
++using Mux = Vaxis_mux_rr_2in_1out;
++using DataWord = std::remove_reference_t<decltype(std::declval<Mux&>().s0_tdata)>;
++using KeepWord = std::remove_reference_t<decltype(std::declval<Mux&>().s0_tkeep)>;
++
++constexpr unsigned kTdataWidth = AXIS_MUX_TDATA_WIDTH;
++static_assert(kTdataWidth == 8 || kTdataWidth == 64, "this harness drives the 8- and 64-bit shapes");
++static_assert(sizeof(DataWord) * 8 == kTdataWidth, "AXIS_MUX_TDATA_WIDTH disagrees with the model");
++constexpr unsigned kTkeepWidth = kTdataWidth / 8;
++constexpr std::uint64_t kDataMask = kTdataWidth == 64 ? ~std::uint64_t{0}
++                                                      : (std::uint64_t{1} << kTdataWidth) - 1;
++constexpr std::uint64_t kKeepMask = (std::uint64_t{1} << kTkeepWidth) - 1;
++//! TDATA's top bit names the source, so a beat of one source can never pass
++//! for a beat of the other.
++constexpr unsigned kSourceBit = kTdataWidth - 1;
++constexpr std::uint64_t kPoisonStride = 0x9E37'79B9'7F4A'7C15;
++constexpr unsigned kSources = 2;
++//! Differs per width, so the two builds do not replay identical traffic.
++constexpr std::uint64_t kDefaultSeed = 3720 + kTdataWidth;
++//! Simulation time per clock, in the 1 ps precision of the mux's
++//! `timescale. Both evaluations of a cycle happen at one timestamp and
++//! time advances after the rising edge, so every edge lands on a whole
++//! nanosecond and the [time] an assertion prints is 1000 * cycle:
++//! [6000] is the rising edge that ends cycle 6.
++constexpr std::uint64_t kCycleTicks = 1000;
++constexpr int kExitAssertionStop = 3;
++constexpr int kExitUsage = 2;
++
++//! What a clock edge can carry on one AXI4-Stream interface.
++struct Beat {
++    std::uint64_t data = 0;
++    std::uint64_t keep = 0;
++    bool last = false;
++};
++
++bool same_beat(const Beat& a, const Beat& b) {
++    return a.data == b.data && a.keep == b.keep && a.last == b.last;
++}
++
++unsigned source_of(const Beat& beat) {
++    return static_cast<unsigned>((beat.data >> kSourceBit) & 1U);
++}
++
++//! The TKEEP of a packet's last beat: a low-aligned partial tail on the
++//! 64-bit shape, the single byte on the 8-bit one.
++std::uint64_t last_keep(unsigned serial) {
++    const unsigned bytes = 1 + serial % kTkeepWidth;
++    return (std::uint64_t{1} << bytes) - 1;
++}
++
++//! Packet `serial` of `source`, `length` beats long. Contents are a pure
++//! function of those three numbers and never zero, so the scoreboard needs
++//! nothing from the DUT to know what a beat should be.
++std::vector<Beat> packet_beats(unsigned source, unsigned serial, unsigned length) {
++    std::vector<Beat> beats;
++    for (unsigned index = 0; index < length; ++index) {
++        const std::uint64_t body = kTdataWidth == 64
++            ? (std::uint64_t{serial} << 32) | (std::uint64_t{index} << 16) | 0xA5U
++            : 1U + (serial * 37U + index * 11U) % 127U;
++        Beat beat;
++        beat.data = (std::uint64_t{source} << kSourceBit) | body;
++        beat.last = index + 1 == length;
++        beat.keep = beat.last ? last_keep(serial) : kKeepMask;
++        beats.push_back(beat);
++    }
++    return beats;
++}
++
++//! What an input shows while its TVALID is low: arbitrary and changing
++//! every cycle, which AXI4-Stream allows. A DUT that forwarded or accepted
++//! it would put a beat on the output that no source handed over.
++Beat poison_beat(unsigned source, std::uint64_t cycle) {
++    Beat beat;
++    beat.data = (~(cycle * kPoisonStride) ^ source) & kDataMask;
++    beat.keep = cycle & kKeepMask;
++    beat.last = (cycle & 1U) != 0;
++    return beat;
++}
++
++//! The four stimulus faults the negative campaign can inject, one at a time.
++enum class FaultKind { none, drop_tvalid, flip_tdata, flip_tkeep, flip_tlast };
++
++struct StimulusFault {
++    unsigned source = 0;
++    FaultKind kind = FaultKind::none;
++};
++
++//! One input port of the mux, seen from the source that drives it.
++struct SourcePins {
++    CData& tvalid;
++    CData& tready;
++    DataWord& tdata;
++    KeepWord& tkeep;
++    CData& tlast;
++};
++
++//! A compliant AXI4-Stream source: it presents one beat at a time and holds
++//! TVALID, TDATA, TKEEP and TLAST until the edge that takes it; between beats
++//! it may idle, showing poison. On reset it drops TVALID, abandons the rest
++//! of a packet it has started, and re-offers one it has not.
++class StreamSource {
++ public:
++    StreamSource(unsigned index, SourcePins pins) : index_(index), pins_(pins) {}
++
++    //! Queue a packet; `gaps[i]` idle cycles precede beat i.
++    void add_packet(unsigned length, std::vector<unsigned> gaps) {
++        Planned planned;
++        planned.beats = packet_beats(index_, next_serial_++, length);
++        planned.gaps = std::move(gaps);
++        planned.gaps.resize(length, 0);
++        const bool was_empty = queue_.empty();
++        queue_.push_back(std::move(planned));
++        if (was_empty) {
++            gap_left_ = queue_.front().gaps[0];
++        }
++    }
++
++    void arm_fault(FaultKind kind) { fault_ = kind; }
++    bool fault_injected() const { return fault_done_; }
++
++    //! Drive the pins for the coming edge.
++    void drive(std::uint64_t cycle) {
++        const bool ready_to_offer = !queue_.empty() && gap_left_ == 0 && holdoff_ == 0;
++        const bool offer = ready_to_offer && !withdrawn_;
++        //! A withdrawn beat keeps its payload: that fault breaks TVALID alone.
++        Beat beat = ready_to_offer ? queue_.front().beats[beat_] : poison_beat(index_, cycle);
++        if (offer && corrupt_) {
++            beat = corrupted(beat);
++        }
++        pins_.tvalid = offer ? 1 : 0;
++        pins_.tdata = static_cast<DataWord>(beat.data & kDataMask);
++        pins_.tkeep = static_cast<KeepWord>(beat.keep & kKeepMask);
++        pins_.tlast = beat.last ? 1 : 0;
++    }
++
++    bool taken() const { return pins_.tvalid != 0 && pins_.tready != 0; }
++    bool stalled() const { return pins_.tvalid != 0 && pins_.tready == 0; }
++    Beat presented() const { return Beat{pins_.tdata, pins_.tkeep, pins_.tlast != 0}; }
++    std::size_t beat_index() const { return beat_; }
++
++    //! Advance after the edge: next beat on a handshake, the armed fault on
++    //! the first stall, and one idle cycle off any gap being served.
++    void after_edge(bool handshake, bool stalled, std::uint64_t cycle) {
++        withdrawn_ = false;
++        corrupt_ = false;
++        if (holdoff_ > 0) {
++            --holdoff_;
++        } else if (gap_left_ > 0) {
++            --gap_left_;
++        } else if (handshake) {
++            next_beat();
++        } else if (stalled && fault_ != FaultKind::none && !fault_done_) {
++            inject(cycle);
++        }
++    }
++
++    //! Called for every edge that samples reset, before driving it: TVALID
++    //! drops, a started packet is abandoned (its accepted prefix is all the
++    //! output will ever see of it), an unstarted one is re-offered, and
++    //! TVALID also stays low at the first edge after release (IHI0051A).
++    void on_reset() {
++        if (!queue_.empty() && beat_ > 0) {
++            queue_.pop_front();
++        }
++        beat_ = 0;
++        gap_left_ = queue_.empty() ? 0 : queue_.front().gaps[0];
++        holdoff_ = 2;
++        withdrawn_ = false;
++        corrupt_ = false;
++    }
++
++    bool done() const { return queue_.empty(); }
++
++ private:
++    struct Planned {
++        std::vector<Beat> beats;
++        std::vector<unsigned> gaps;
++    };
++
++    void next_beat() {
++        ++beat_;
++        if (beat_ == queue_.front().beats.size()) {
++            queue_.pop_front();
++            beat_ = 0;
++        }
++        gap_left_ = queue_.empty() ? 0 : queue_.front().gaps[beat_];
++    }
++
++    void inject(std::uint64_t cycle) {
++        fault_done_ = true;
++        if (fault_ == FaultKind::drop_tvalid) {
++            withdrawn_ = true;
++        } else {
++            corrupt_ = true;
++        }
++        std::printf("stimulus fault injected: s%u, after the stall sampled at cycle %llu\n",
++                    index_, static_cast<unsigned long long>(cycle));
++    }
++
++    Beat corrupted(Beat beat) const {
++        if (fault_ == FaultKind::flip_tdata) {
++            beat.data ^= 1U;
++        } else if (fault_ == FaultKind::flip_tkeep) {
++            beat.keep ^= 1U;
++        } else if (fault_ == FaultKind::flip_tlast) {
++            beat.last = !beat.last;
++        }
++        return beat;
++    }
++
++    unsigned index_;
++    SourcePins pins_;
++    std::deque<Planned> queue_;
++    unsigned next_serial_ = 0;
++    std::size_t beat_ = 0;
++    unsigned gap_left_ = 0;
++    unsigned holdoff_ = 0;
++    FaultKind fault_ = FaultKind::none;
++    bool fault_done_ = false;
++    bool withdrawn_ = false;
++    bool corrupt_ = false;
++};
++
++//! How the sink paces m_tready.
++struct SinkPlan {
++    unsigned stall_at_beat = 0;      //!< stall the beat with this 1-based index in each packet (0: never)
++    bool stall_last_beat = false;    //!< stall every packet's TLAST beat
++    unsigned stall_cycles = 0;       //!< how long each stall lasts
++    unsigned ready_percent = 100;    //!< random TREADY otherwise; 100 is always ready
++};
++
++//! The sink behind m. It may look at the beat on offer before deciding
++//! TREADY for the same edge, which AXI4-Stream allows (TREADY may depend on
++//! TVALID); the harness settles the model again after it decides.
++class Sink {
++ public:
++    explicit Sink(CData& tready) : tready_(tready) {}
++
++    void set_plan(const SinkPlan& plan) {
++        plan_ = plan;
++        stall_left_ = 0;
++        stalled_this_beat_ = false;
++    }
++
++    //! TREADY while the beat on offer settles; decide() may then lower it.
++    void open() { tready_ = 1; }
++
++    //! Decide TREADY for this edge from the beat on offer.
++    void decide(bool m_tvalid, bool m_tlast, std::mt19937_64& rng) {
++        const bool pick = m_tvalid && !stalled_this_beat_ && plan_.stall_cycles > 0
++            && ((plan_.stall_last_beat && m_tlast) || (plan_.stall_at_beat != 0
++                && beat_in_packet_ + 1 == plan_.stall_at_beat));
++        if (pick) {
++            stall_left_ = plan_.stall_cycles;
++            stalled_this_beat_ = true;
++        }
++        bool ready = true;
++        if (stall_left_ > 0) {
++            --stall_left_;
++            ready = false;
++        } else if (plan_.ready_percent < 100) {
++            ready = rng() % 100 < plan_.ready_percent;
++        }
++        tready_ = ready ? 1 : 0;
++    }
++
++    void after_edge(bool transfer, bool last) {
++        if (transfer) {
++            stalled_this_beat_ = false;
++            beat_in_packet_ = last ? 0 : beat_in_packet_ + 1;
++        }
++    }
++
++    void on_reset() {
++        beat_in_packet_ = 0;
++        stalled_this_beat_ = false;
++        stall_left_ = 0;
++    }
++
++ private:
++    CData& tready_;
++    SinkPlan plan_;
++    unsigned stall_left_ = 0;
++    unsigned beat_in_packet_ = 0;
++    bool stalled_this_beat_ = false;
++};
++
++//! Grades what leaves m against what s0 and s1 handed over, and nothing
++//! else: it never reads the checker or the mux's state.
++class Scoreboard {
++ public:
++    explicit Scoreboard(milan::tb::Checker& check) : check_(check) {}
++
++    void accepted(unsigned source, const Beat& beat) { pending_[source].push_back(beat); }
++
++    void delivered(const Beat& beat, std::uint64_t cycle) {
++        const unsigned source = source_of(beat);
++        if (!open_packet_) {
++            open_packet_ = true;
++            open_source_ = source;
++            open_intact_ = true;
++        } else if (source != open_source_) {
++            fail_beat("a beat of the other source inside an open packet", beat, cycle);
++        }
++        if (pending_[source].empty()) {
++            fail_beat("a beat that no source handed over", beat, cycle);
++        } else if (!same_beat(pending_[source].front(), beat)) {
++            fail_beat("a beat that differs from the one handed over", beat, cycle);
++            pending_[source].pop_front();
++        } else {
++            pending_[source].pop_front();
++        }
++        if (beat.last) {
++            check_.that("an output packet leaves the mux intact and in its source's order",
++                        open_intact_);
++            order_.push_back(open_source_);
++            open_packet_ = false;
++        }
++    }
++
++    //! Reset sampled: an open output packet may end here without TLAST, but
++    //! a mux with no storage must not be holding any accepted beat.
++    void on_reset() {
++        open_packet_ = false;
++        check_.that("no accepted beat is still inside the mux when reset arrives",
++                    pending_[0].empty() && pending_[1].empty());
++        pending_[0].clear();
++        pending_[1].clear();
++    }
++
++    //! End of a scenario: everything handed over has left, as whole packets.
++    void close(const char* scenario) {
++        char what[160];
++        std::snprintf(what, sizeof what, "%s: every accepted beat left the mux", scenario);
++        check_.that(what, pending_[0].empty() && pending_[1].empty());
++        std::snprintf(what, sizeof what, "%s: no output packet is left open", scenario);
++        check_.that(what, !open_packet_);
++    }
++
++    std::vector<unsigned> take_order() { return std::exchange(order_, {}); }
++
++ private:
++    void fail_beat(const char* what, const Beat& beat, std::uint64_t cycle) {
++        char message[200];
++        std::snprintf(message, sizeof message, "%s (cycle %llu, data 0x%llx keep 0x%llx last %d)", what,
++                      static_cast<unsigned long long>(cycle), static_cast<unsigned long long>(beat.data),
++                      static_cast<unsigned long long>(beat.keep), beat.last ? 1 : 0);
++        check_.fail(message);
++        open_intact_ = false;
++    }
++
++    milan::tb::Checker& check_;
++    std::array<std::deque<Beat>, kSources> pending_;
++    std::vector<unsigned> order_;
++    bool open_packet_ = false;
++    unsigned open_source_ = 0;
++    bool open_intact_ = true;
++};
++
++//! What one (checker instance, property) pair reported through its pass
++//! action. Only the calls flagged non-vacuous are kept: a pass action runs at
++//! every passing edge, so the number of calls counts edges, not checks.
++struct WitnessTally {
++    std::uint64_t nonvacuous = 0;
++};
++
++//! The ledger the DPI callback writes into. svPutUserData files it under each
++//! checker scope the harness expects, so the callback reaches it through the
++//! scope that called, and no state lives at file scope.
++class WitnessLedger {
++ public:
++    //! The identity the ledger is filed under; only its address is used.
++    static void* user_data_key() {
++        static char key = 0;
++        return &key;
++    }
++
++    void record(const char* scope, const char* rule, bool nonvacuous) {
++        WitnessTally& tally = tallies_[std::string(scope) + "." + rule];
++        if (nonvacuous) {
++            ++tally.nonvacuous;
++        }
++    }
++
++    const std::map<std::string, WitnessTally>& tallies() const { return tallies_; }
++
++ private:
++    std::map<std::string, WitnessTally> tallies_;
++};
++
++}  // namespace
++
++//! Called by every checker property's pass action (tb/common/sva/). A scope
++//! the harness did not register has no ledger, and that is a harness defect.
++void axis_sva_witness(const char* rule_name, svBit nonvacuous) {
++    const svScope scope = svGetScope();
++    auto* ledger = static_cast<WitnessLedger*>(svGetUserData(scope, WitnessLedger::user_data_key()));
++    if (ledger == nullptr) {
++        vl_fatal(__FILE__, __LINE__, "", "axis_sva_witness: a checker scope the harness never registered");
++        return;
++    }
++    ledger->record(svGetNameFromScope(scope), rule_name, nonvacuous != 0);
++}
++
++namespace {
++
++//! Where the bind puts the checker, and the per-interface instances in it.
++constexpr std::string_view kCheckerScope = "TOP.axis_mux_rr_2in_1out.u_sva";
++constexpr std::array<std::string_view, 3> kInterfaceScopes = {".u_s0_stimulus", ".u_s1_stimulus",
++                                                              ".u_m_dut"};
++constexpr std::array<std::string_view, 4> kHandshakeRules = {
++    "ap_tvalid_held_until_handshake", "ap_tdata_stable_until_handshake",
++    "ap_tkeep_stable_until_handshake", "ap_tlast_stable_until_handshake"};
++
++//! Thrown by tick() once an assertion has failed: the campaign raises the
++//! error limit so that every assertion failing at that edge is reported,
++//! and the run stops there.
++struct AssertionStop {
++    std::uint64_t cycle;
++};
++
++//! The harness's own count, from the ports alone, of what each property
++//! must have seen. An attempt is counted at the edge that completes it, and
++//! reset is handled the way `disable iff (!rst_n)` handles it.
++struct PortCounts {
++    std::array<std::uint64_t, 3> stall_attempts{};  //!< s0, s1, m: a stall, rst_n high there and next edge
++    std::uint64_t running_edges = 0;          //!< edges sampling rst_n high
++    std::uint64_t reset_attempts = 0;         //!< edges sampling reset that another edge follows
++    std::uint64_t tlast_handshakes = 0;       //!< s0/s1 TLAST handshakes, rst_n high there and next edge
++    std::uint64_t mid_packet_handshakes = 0;  //!< the same for the other handshakes: each keeps an owner
++    std::uint64_t packet_starts = 0;          //!< first-beat handshakes on s0/s1: each needed a grant
++    std::uint64_t granted_edges = 0;          //!< edges where s0 or s1 saw TREADY
++    std::uint64_t valid_edges = 0;            //!< edges where m showed TVALID
++    std::uint64_t transfers = 0;              //!< handshakes on m
++};
++
++//! The previous edge, as much of it as PortCounts needs.
++struct PreviousEdge {
++    std::array<bool, 3> stalled{};
++    bool in_reset = false;
++    bool tlast_handshake = false;
++    bool mid_packet_handshake = false;
++};
++
++//! What one edge carried, as the sources and the sink need to hear it.
++struct EdgeSample {
++    std::array<bool, kSources> taken{};
++    std::array<bool, kSources> stalled{};
++    bool transfer = false;
++    bool m_last = false;
++};
++
++//! How a witness count must relate to the harness's own count.
++enum class Bound { exact, floor, present };
++
++struct WitnessExpectation {
++    std::string key;
++    std::uint64_t harness;
++    Bound bound;
++};
++
++class MuxSvaHarness;
++
++struct Scenario {
++    std::string_view name;
++    void (MuxSvaHarness::*run)();
++};
++
++//! Parse `+name=value`; empty when the plusarg is absent.
++std::string plusarg(const char* name_equals) {
++    const std::string match(Verilated::commandArgsPlusMatch(name_equals));
++    const std::size_t eq = match.find('=');
++    return eq == std::string::npos ? std::string{} : match.substr(eq + 1);
++}
++
++bool parse_fault(const std::string& text, StimulusFault& fault) {
++    constexpr std::array<std::pair<std::string_view, FaultKind>, 4> kKinds = {{
++        {"drop_tvalid", FaultKind::drop_tvalid}, {"flip_tdata", FaultKind::flip_tdata},
++        {"flip_tkeep", FaultKind::flip_tkeep}, {"flip_tlast", FaultKind::flip_tlast}}};
++    if (text.size() < 4 || text[0] != 's' || (text[1] != '0' && text[1] != '1') || text[2] != '_') {
++        return false;
++    }
++    for (const auto& [name, kind] : kKinds) {
++        if (std::string_view(text).substr(3) == name) {
++            fault.source = static_cast<unsigned>(text[1] - '0');
++            fault.kind = kind;
++            return true;
++        }
++    }
++    return false;
++}
++
++class MuxSvaHarness {
++ public:
++    MuxSvaHarness()
++        : top_(model_.get()),
++          check_(kTdataWidth == 8 ? "ptp_ts mux sva w8" : "ptp_ts mux sva w64"),
++          sources_{{StreamSource{0, SourcePins{top_->s0_tvalid, top_->s0_tready, top_->s0_tdata,
++                                                top_->s0_tkeep, top_->s0_tlast}},
++                    StreamSource{1, SourcePins{top_->s1_tvalid, top_->s1_tready, top_->s1_tdata,
++                                                top_->s1_tkeep, top_->s1_tlast}}}},
++          sink_(top_->m_tready),
++          scoreboard_(check_) {}
++
++    int run() {
++        if (const int usage = parse_plusargs(); usage != 0) {
++            return usage;
++        }
++        rng_.seed(seed_);
++        std::printf("axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=%u seed=%llu "
++                    "(+seed=<n> replays random_mix) scenario=%s stimulus_fault=%s\n",
++                    kTdataWidth, static_cast<unsigned long long>(seed_),
++                    only_scenario_.empty() ? "all" : only_scenario_.c_str(),
++                    fault_name_.empty() ? "none" : fault_name_.c_str());
++        register_checker_scopes();
++        if (fault_.kind != FaultKind::none) {
++            sources_[fault_.source].arm_fault(fault_.kind);
++        }
++        try {
++            run_scenarios();
++        } catch (const AssertionStop& stop) {
++            std::printf("SVA-STOP: an assertion failed at the edge ending cycle %llu (the %%Error "
++                        "lines above name it); the run stops at that edge\n",
++                        static_cast<unsigned long long>(stop.cycle));
++            return kExitAssertionStop;
++        }
++        if (fault_.kind != FaultKind::none) {
++            check_.that("the requested stimulus fault was injected",
++                        sources_[fault_.source].fault_injected());
++        }
++        if (only_scenario_.empty() || Verilated::commandArgsPlusMatch("grade_witnesses")[0] != '\0') {
++            grade_witnesses();
++        } else {
++            std::printf("witness grading needs every scenario (+scenario= selected one; "
++                        "+grade_witnesses grades it anyway)\n");
++        }
++        return check_.report();
++    }
++
++ private:
++    static std::array<Scenario, 8> scenarios() {
++        return {{{"single_beats", &MuxSvaHarness::scenario_single_beats},
++                 {"multi_beats", &MuxSvaHarness::scenario_multi_beats},
++                 {"valid_gaps", &MuxSvaHarness::scenario_valid_gaps},
++                 {"simultaneous_offers", &MuxSvaHarness::scenario_simultaneous_offers},
++                 {"backpressure_mid_packet", &MuxSvaHarness::scenario_backpressure_mid_packet},
++                 {"backpressure_last_beat", &MuxSvaHarness::scenario_backpressure_last_beat},
++                 {"reset_while_stalled", &MuxSvaHarness::scenario_reset_while_stalled},
++                 {"random_mix", &MuxSvaHarness::scenario_random_mix}}};
++    }
++
++    int parse_plusargs() {
++        only_scenario_ = plusarg("scenario=");
++        bool known = only_scenario_.empty();
++        for (const Scenario& scenario : scenarios()) {
++            known = known || scenario.name == only_scenario_;
++        }
++        if (!known) {
++            std::printf("unknown +scenario=%s\n", only_scenario_.c_str());
++            return kExitUsage;
++        }
++        fault_name_ = plusarg("stimulus_fault=");
++        if (!fault_name_.empty() && !parse_fault(fault_name_, fault_)) {
++            std::printf("unknown +stimulus_fault=%s (want s0_ or s1_ then drop_tvalid, flip_tdata, "
++                        "flip_tkeep or flip_tlast)\n", fault_name_.c_str());
++            return kExitUsage;
++        }
++        const std::string seed = plusarg("seed=");
++        if (!seed.empty()) {
++            const auto [end, error] = std::from_chars(seed.data(), seed.data() + seed.size(), seed_);
++            if (error != std::errc{} || end != seed.data() + seed.size()) {
++                std::printf("unreadable +seed=%s\n", seed.c_str());
++                return kExitUsage;
++            }
++        }
++        return 0;
++    }
++
++    //! A checker instance that is not elaborated has no DPI scope: the bind
++    //! is missing or mistyped, or --no-assert compiled every call out.
++    void register_checker_scopes() {
++        for (std::string_view suffix : {std::string_view{}, kInterfaceScopes[0], kInterfaceScopes[1],
++                                        kInterfaceScopes[2]}) {
++            const std::string name = std::string(kCheckerScope) + std::string(suffix);
++            const svScope scope = svGetScopeFromName(name.c_str());
++            check_.that(("checker instance " + name + " is elaborated with its assertions").c_str(),
++                        scope != nullptr);
++            if (scope != nullptr) {
++                svPutUserData(scope, WitnessLedger::user_data_key(), &ledger_);
++            }
++        }
++    }
++
++    void run_scenarios() {
++        reset_for(4);
++        for (const Scenario& scenario : scenarios()) {
++            if (aborted_ || (!only_scenario_.empty() && scenario.name != only_scenario_)) {
++                continue;
++            }
++            std::printf("scenario %s from cycle %llu\n", scenario.name.data(),
++                        static_cast<unsigned long long>(cycle_));
++            (this->*scenario.run)();
++            scoreboard_.close(scenario.name.data());
++        }
++    }
++
++    // ---- clocking -------------------------------------------------------------
++
++    //! One clock: drive, settle, let the sink decide, sample the edge, clock
++    //! it, then let the sources and the sink react to what the edge took.
++    void tick() {
++        top_->rst_n = reset_asserted_ ? 0 : 1;
++        for (StreamSource& source : sources_) {
++            if (reset_asserted_) {
++                source.on_reset();
++            }
++            source.drive(cycle_);
++        }
++        sink_.open();
++        top_->clk = 0;
++        top_->eval();
++        sink_.decide(top_->m_tvalid != 0, top_->m_tlast != 0, rng_);
++        top_->eval();
++        const EdgeSample sample = observe();
++        top_->clk = 1;
++        top_->eval();
++        Verilated::threadContextp()->timeInc(kCycleTicks);
++        for (unsigned index = 0; index < kSources; ++index) {
++            sources_[index].after_edge(sample.taken[index], sample.stalled[index], cycle_);
++        }
++        sink_.after_edge(sample.transfer, sample.m_last);
++        ++cycle_;
++        if (Verilated::threadContextp()->errorCount() > 0) {
++            throw AssertionStop{cycle_ - 1};
++        }
++    }
++
++    EdgeSample observe() {
++        EdgeSample sample;
++        for (unsigned index = 0; index < kSources; ++index) {
++            sample.taken[index] = sources_[index].taken();
++            sample.stalled[index] = sources_[index].stalled();
++        }
++        sample.transfer = top_->m_tvalid != 0 && top_->m_tready != 0;
++        sample.m_last = top_->m_tlast != 0;
++        const bool running = top_->rst_n != 0;
++        count_properties(sample, running);
++        grade_handshakes(sample, running);
++        m_stall_run_ = top_->m_tvalid != 0 && top_->m_tready == 0 ? m_stall_run_ + 1 : 0;
++        return sample;
++    }
++
++    void count_properties(const EdgeSample& sample, bool running) {
++        const std::array<bool, 3> stalled = {sample.stalled[0], sample.stalled[1],
++                                             top_->m_tvalid != 0 && top_->m_tready == 0};
++        for (std::size_t index = 0; index < stalled.size(); ++index) {
++            counts_.stall_attempts[index] += previous_.stalled[index] && running ? 1 : 0;
++            previous_.stalled[index] = running && stalled[index];
++        }
++        counts_.running_edges += running ? 1 : 0;
++        counts_.reset_attempts += previous_.in_reset ? 1 : 0;
++        previous_.in_reset = !running;
++        bool tlast_handshake = false;
++        bool mid_packet_handshake = false;
++        for (unsigned index = 0; index < kSources; ++index) {
++            if (sample.taken[index]) {
++                const bool last = sources_[index].presented().last;
++                tlast_handshake = tlast_handshake || last;
++                mid_packet_handshake = mid_packet_handshake || !last;
++                counts_.packet_starts += running && sources_[index].beat_index() == 0 ? 1 : 0;
++            }
++        }
++        counts_.tlast_handshakes += previous_.tlast_handshake && running ? 1 : 0;
++        counts_.mid_packet_handshakes += previous_.mid_packet_handshake && running ? 1 : 0;
++        previous_.tlast_handshake = running && tlast_handshake;
++        previous_.mid_packet_handshake = running && mid_packet_handshake;
++        counts_.granted_edges += running && (top_->s0_tready != 0 || top_->s1_tready != 0) ? 1 : 0;
++        counts_.valid_edges += running && top_->m_tvalid != 0 ? 1 : 0;
++        counts_.transfers += running && sample.transfer ? 1 : 0;
++    }
++
++    void grade_handshakes(const EdgeSample& sample, bool running) {
++        if (!running) {
++            handshake_in_reset_ = handshake_in_reset_ || sample.transfer || sample.taken[0]
++                || sample.taken[1];
++            return;
++        }
++        for (unsigned index = 0; index < kSources; ++index) {
++            if (sample.taken[index]) {
++                scoreboard_.accepted(index, sources_[index].presented());
++            }
++        }
++        if (sample.transfer) {
++            scoreboard_.delivered(Beat{top_->m_tdata, top_->m_tkeep, top_->m_tlast != 0}, cycle_);
++        }
++    }
++
++    void reset_for(unsigned edges) {
++        scoreboard_.on_reset();
++        sink_.on_reset();
++        handshake_in_reset_ = false;
++        reset_asserted_ = true;
++        for (unsigned edge = 0; edge < edges; ++edge) {
++            tick();
++        }
++        reset_asserted_ = false;
++        check_.that("no handshake at an edge that samples reset", !handshake_in_reset_);
++    }
++
++    //! Clock until `condition` holds; a watchdog in DUT cycles, never in host
++    //! time, fails the run and abandons the remaining scenarios.
++    template <class Condition>
++    void run_until(const char* what, std::uint64_t budget_cycles, Condition condition) {
++        const std::uint64_t start = cycle_;
++        while (!aborted_ && !condition()) {
++            if (cycle_ - start >= budget_cycles) {
++                check_.fail((std::string(what) + ": not reached within "
++                             + std::to_string(budget_cycles) + " cycles").c_str());
++                aborted_ = true;
++                return;
++            }
++            tick();
++        }
++    }
++
++    //! Clock until both sources have handed everything over, then let the
++    //! mux return to IDLE.
++    void drain(const char* what, std::uint64_t budget_cycles) {
++        run_until(what, budget_cycles, [this] { return sources_[0].done() && sources_[1].done(); });
++        for (unsigned settle = 0; settle < 4 && !aborted_; ++settle) {
++            tick();
++        }
++    }
++
++    // ---- scenarios --------------------------------------------------------------
++
++    void scenario_single_beats() {
++        sink_.set_plan(SinkPlan{});
++        for (unsigned packet = 0; packet < 4; ++packet) {
++            sources_[0].add_packet(1, {});
++        }
++        drain("single_beats, s0 alone", 200);
++        for (unsigned packet = 0; packet < 4; ++packet) {
++            sources_[1].add_packet(1, {});
++        }
++        drain("single_beats, s1 alone", 200);
++    }
++
++    void scenario_multi_beats() {
++        sink_.set_plan(SinkPlan{});
++        for (unsigned length : {2U, 5U, 8U}) {
++            sources_[0].add_packet(length, {});
++        }
++        drain("multi_beats, s0 alone", 200);
++        for (unsigned length : {3U, 6U}) {
++            sources_[1].add_packet(length, {});
++        }
++        drain("multi_beats, s1 alone", 200);
++    }
++
++    void scenario_valid_gaps() {
++        sink_.set_plan(SinkPlan{});
++        sources_[0].add_packet(4, {0, 2, 1, 3});
++        sources_[0].add_packet(3, {1, 0, 2});
++        sources_[1].add_packet(5, {2, 1, 0, 3, 1});
++        sources_[1].add_packet(2, {0, 4});
++        drain("valid_gaps", 400);
++    }
++
++    //! Both sources offer back-to-back packets from the same edge: a round
++    //! robin must hand the output over after every packet.
++    void scenario_simultaneous_offers() {
++        sink_.set_plan(SinkPlan{});
++        scoreboard_.take_order();
++        constexpr unsigned kPacketsEach = 6;
++        for (unsigned packet = 0; packet < kPacketsEach; ++packet) {
++            sources_[0].add_packet(1 + packet % 4, {});
++            sources_[1].add_packet(1 + (packet + 2) % 4, {});
++        }
++        drain("simultaneous_offers", 400);
++        const std::vector<unsigned> order = scoreboard_.take_order();
++        bool alternates = order.size() == 2 * kPacketsEach;
++        for (std::size_t index = 1; index < order.size(); ++index) {
++            alternates = alternates && order[index] != order[index - 1];
++        }
++        check_.that("simultaneous_offers: saturated sources alternate packet by packet", alternates);
++    }
++
++    void scenario_backpressure_mid_packet() {
++        SinkPlan plan;
++        plan.stall_at_beat = 3;
++        plan.stall_cycles = 4;
++        sink_.set_plan(plan);
++        for (unsigned packet = 0; packet < 2; ++packet) {
++            sources_[0].add_packet(6, {});
++            sources_[1].add_packet(6, {});
++        }
++        drain("backpressure_mid_packet", 400);
++    }
++
++    void scenario_backpressure_last_beat() {
++        SinkPlan plan;
++        plan.stall_last_beat = true;
++        plan.stall_cycles = 5;
++        sink_.set_plan(plan);
++        for (unsigned length : {1U, 4U}) {
++            sources_[0].add_packet(length, {});
++            sources_[1].add_packet(length, {});
++        }
++        drain("backpressure_last_beat", 400);
++    }
++
++    //! Reset lands while the owner is stalled - on a middle beat, then on
++    //! its TLAST beat - and the other source is waiting; traffic resumes.
++    void scenario_reset_while_stalled() {
++        SinkPlan hold_middle;
++        hold_middle.stall_at_beat = 3;
++        hold_middle.stall_cycles = 50;
++        sink_.set_plan(hold_middle);
++        sources_[0].add_packet(6, {});
++        sources_[1].add_packet(4, {});
++        run_until("reset_while_stalled, stall on a middle beat", 100, [this] { return m_stall_run_ >= 3; });
++        reset_for(3);
++        sink_.set_plan(SinkPlan{});
++        sources_[0].add_packet(3, {});
++        drain("reset_while_stalled, resume after the middle-beat reset", 200);
++
++        SinkPlan hold_last;
++        hold_last.stall_last_beat = true;
++        hold_last.stall_cycles = 50;
++        sink_.set_plan(hold_last);
++        sources_[1].add_packet(3, {});
++        sources_[0].add_packet(2, {});
++        run_until("reset_while_stalled, stall on a TLAST beat", 100, [this] { return m_stall_run_ >= 2; });
++        reset_for(2);
++        sink_.set_plan(SinkPlan{});
++        sources_[1].add_packet(2, {});
++        drain("reset_while_stalled, resume after the TLAST reset", 200);
++    }
++
++    //! Seeded traffic: random lengths, gaps and TREADY on both sources, and
++    //! one reset at a random edge in the middle of it.
++    void scenario_random_mix() {
++        SinkPlan plan;
++        plan.ready_percent = 70;
++        sink_.set_plan(plan);
++        for (StreamSource& source : sources_) {
++            for (unsigned packet = 0; packet < 40; ++packet) {
++                const unsigned length = 1 + static_cast<unsigned>(rng_() % 8);
++                std::vector<unsigned> gaps(length);
++                for (unsigned& gap : gaps) {
++                    gap = rng_() % 10 < 6 ? 0 : 1 + static_cast<unsigned>(rng_() % 3);
++                }
++                source.add_packet(length, std::move(gaps));
++            }
++        }
++        const std::uint64_t reset_at = cycle_ + 40 + rng_() % 160;
++        run_until("random_mix, to its reset", 1000, [this, reset_at] { return cycle_ >= reset_at; });
++        reset_for(1 + static_cast<unsigned>(rng_() % 3));
++        drain("random_mix", 4000);
++    }
++
++    // ---- witnesses ----------------------------------------------------------------
++
++    std::vector<WitnessExpectation> witness_expectations() const {
++        const std::string root(kCheckerScope);
++        std::vector<WitnessExpectation> expected;
++        for (std::size_t index = 0; index < kInterfaceScopes.size(); ++index) {
++            for (std::string_view rule : kHandshakeRules) {
++                expected.push_back({root + std::string(kInterfaceScopes[index]) + "." + std::string(rule),
++                                    counts_.stall_attempts[index], Bound::exact});
++            }
++        }
++        expected.push_back({root + ".ap_state_legal", counts_.running_edges, Bound::exact});
++        expected.push_back({root + ".ap_reset_releases_owner", counts_.reset_attempts, Bound::exact});
++        expected.push_back({root + ".ap_owner_released_after_tlast", counts_.tlast_handshakes, Bound::exact});
++        expected.push_back({root + ".ap_owner_held_until_tlast_handshake", counts_.mid_packet_handshakes,
++                            Bound::floor});
++        expected.push_back({root + ".ap_grant_only_to_requester", counts_.packet_starts, Bound::floor});
++        expected.push_back({root + ".ai_grants_mutually_exclusive", counts_.granted_edges, Bound::present});
++        expected.push_back({root + ".ai_ready_only_for_owner_and_ready_sink", counts_.granted_edges,
++                            Bound::present});
++        expected.push_back({root + ".ai_tvalid_forwarded", counts_.valid_edges, Bound::present});
++        expected.push_back({root + ".ai_payload_forwarded_on_transfer", counts_.transfers, Bound::present});
++        return expected;
++    }
++
++    //! Every property must have passed non-vacuously, as often as the ports
++    //! say it had to (exact), at least that often (floor: the antecedent
++    //! also covers internal state), or at all (present: an immediate
++    //! assertion re-evaluates whenever an input moves, not once per edge).
++    void grade_witnesses() {
++        const std::map<std::string, WitnessTally>& tallies = ledger_.tallies();
++        std::set<std::string> expected_keys;
++        for (const WitnessExpectation& expectation : witness_expectations()) {
++            expected_keys.insert(expectation.key);
++            const auto found = tallies.find(expectation.key);
++            const std::uint64_t seen = found == tallies.end() ? 0 : found->second.nonvacuous;
++            bool ok = expectation.harness > 0 && seen > 0;
++            if (expectation.bound == Bound::exact) {
++                ok = ok && seen == expectation.harness;
++            } else if (expectation.bound == Bound::floor) {
++                ok = ok && seen >= expectation.harness;
++            }
++            const char* relation = expectation.bound == Bound::exact ? "equal"
++                                   : expectation.bound == Bound::floor ? "at least" : "both above zero";
++            std::printf("witness %-78s nonvacuous=%llu harness=%llu (%s)\n", expectation.key.c_str(),
++                        static_cast<unsigned long long>(seen),
++                        static_cast<unsigned long long>(expectation.harness), relation);
++            check_.that(("witness " + expectation.key).c_str(), ok);
++        }
++        for (const auto& [key, tally] : tallies) {
++            if (expected_keys.count(key) == 0) {
++                check_.fail(("a witness this harness does not expect: " + key).c_str());
++            }
++        }
++    }
++
++    const milan::tb::Model<Mux> model_;
++    Mux* top_;
++    milan::tb::Checker check_;
++    std::array<StreamSource, kSources> sources_;
++    Sink sink_;
++    Scoreboard scoreboard_;
++    WitnessLedger ledger_;
++    PortCounts counts_;
++    PreviousEdge previous_;
++    std::mt19937_64 rng_;
++    std::uint64_t seed_ = kDefaultSeed;
++    std::uint64_t cycle_ = 0;
++    std::string only_scenario_;
++    std::string fault_name_;
++    StimulusFault fault_;
++    bool reset_asserted_ = false;
++    bool handshake_in_reset_ = false;
++    bool aborted_ = false;
++    unsigned m_stall_run_ = 0;
++};
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    MuxSvaHarness harness;
++    return harness.run();
++}
+diff --git a/tb/verilator/ptp_ts/sva_campaign.py b/tb/verilator/ptp_ts/sva_campaign.py
+new file mode 100644
+index 00000000..e149d336
+--- /dev/null
++++ b/tb/verilator/ptp_ts/sva_campaign.py
+@@ -0,0 +1,554 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Detection campaign for the checker bound to axis_mux_rr_2in_1out (#372).
++
++Why this exists. An assertion that has never been seen to fail cannot be told
++apart from one that cannot fail (Rule 8, docs/development/CODE_QUALITY.md).
++The suite's positive leg, `make mux-sva`, shows the checker is bound, enabled
++and exercised. This script shows that every property it claims fails, by its
++own name, on a defect it exists for, and that the check deciding "detected"
++itself fails once the checker is disabled or unbound.
++
++Six kinds of row, each graded on its own:
++
++  clean       the suite's own two builds, run exactly as a mutant is run: they
++              must pass with no assertion failing.
++  stimulus    a clean build with one source rule broken on purpose
++              (+stimulus_fault=): the named u_s<N>_stimulus property must stop
++              the run.
++  mutant      a scratch copy of the product mux with one span rewritten
++              (MUTATIONS). It must build, and the named property must be among
++              the assertions failing at the first failing edge.
++  scoreboard  one rewrite that no property covers (round-robin order): the
++              harness's own scoreboard must fail, and no assertion may.
++  elaboration the checker built at a TDATA width that is not whole bytes:
++              gen_guard_tdata_width must refuse it with its own message. The
++              clean rows are its legal counterpart.
++  coverage    the clean mux with its checker unable to vouch for it: built
++              with --no-assert, with a mistyped bind target (pinned Verilator
++              5.050 builds both without a word), with s0 and s1 swapped in the
++              bind, and run on one scenario that never stalls the output. The
++              harness must refuse each positive run by its own scope or
++              witness check, no assertion firing, and every stimulus fault
++              must be injected and go UNDETECTED: the detection check has to
++              fail here, or it could pass without the checker.
++
++"Detected" means all of: the build succeeded; the fault was injected (stimulus
++rows); the harness exited 3, its assertion stop; and an `Assertion failed in
++<path>` line names the expected property. A compile failure, a crash, a
++watchdog, a usage error or a scoreboard verdict is not a detection. Runs raise
+++verilator+error+limit+ so every assertion failing at the first failing edge
++is reported before the harness stops at that edge. The harness bounds every
++run in DUT cycles, so nothing here needs a wall clock.
++
++Expected failures stay out of the suite log. Every build and run log is kept
++under obj_dir_sva_campaign/<row>/, and this script prints one verdict line per
++row and the tally. A row that did NOT behave as required prints [FAIL].
++
++Usage: python3 sva_campaign.py [--verilator PATH] [--only ROW] [--list]
++Exit 0 when every row behaved as required, 1 when one did not, 2 on bad usage.
++"""
++
++import argparse
++import re
++import shutil
++import subprocess
++import sys
++from collections.abc import Callable, Iterator
++from pathlib import Path
++from typing import NamedTuple
++
++HERE = Path(__file__).resolve().parent
++#: The product module, read and rewritten only into scratch copies under WORK.
++DUT = (HERE / "../../../hdl/common/axis_mux_rr_2in_1out.sv").resolve()
++BIND = (HERE / "../../common/sva/axis_mux_rr_2in_1out_bind.sv").resolve()
++WORK = HERE / "obj_dir_sva_campaign"
++CHECKER = "TOP.axis_mux_rr_2in_1out.u_sva"
++EXIT_ASSERTION_STOP = 3
++ERROR_LIMIT = "+verilator+error+limit+1000"
++FAILED_LINE = re.compile(r"Assertion failed in ([\w.$]+):")
++INJECTED = "stimulus fault injected"
++SCOPE_REFUSAL = "is elaborated with its assertions"
++
++sys.path.insert(0, str(HERE / "../../../scripts"))
++from suite_tally import FAIL_MARKER  # noqa: E402
++
++
++class Mutation(NamedTuple):
++    """One rewrite of the product mux and the verdict it must draw."""
++
++    name: str
++    width: int
++    pattern: str
++    replacement: str
++    scenario: str
++    expect: str
++    why: str
++
++
++#: One row per claimed DUT property, plus one row for the scoreboard (`expect`
++#: empty). Each `pattern` must appear in the pristine mux EXACTLY ONCE, or the
++#: row fails instead of quietly mutating nothing.
++MUTATIONS = (
++    Mutation("tvalid_waits_for_tready", 64,
++             "m_tvalid = s0_tvalid;", "m_tvalid = s0_tvalid && m_tready;",
++             "backpressure_mid_packet", "forwarding_laws.ai_tvalid_forwarded",
++             "the defect the mux's own comment records: TVALID made to wait for TREADY"),
++    Mutation("tdata_hidden_while_stalled", 8,
++             "m_tdata  = s1_tdata;", "m_tdata  = s1_tdata & {TDATA_WIDTH{m_tready}};",
++             "backpressure_mid_packet", "u_m_dut.ap_tdata_stable_until_handshake",
++             "the output TDATA is gated by TREADY, so it moves while stalled"),
++    Mutation("tkeep_hidden_while_stalled", 64,
++             "m_tkeep  = s0_tkeep;", "m_tkeep  = s0_tkeep & {(TDATA_WIDTH/8){m_tready}};",
++             "backpressure_mid_packet", "u_m_dut.ap_tkeep_stable_until_handshake",
++             "the output TKEEP is gated by TREADY, so it moves while stalled"),
++    Mutation("tlast_hidden_while_stalled", 8,
++             "m_tlast  = s1_tlast;", "m_tlast  = s1_tlast && m_tready;",
++             "backpressure_last_beat", "u_m_dut.ap_tlast_stable_until_handshake",
++             "the output TLAST is gated by TREADY, so it rises only at the handshake"),
++    Mutation("released_while_tlast_stalled", 64,
++             "if (s0_tvalid && s0_tlast && m_tready)", "if (s0_tvalid && s0_tlast)",
++             "backpressure_last_beat", "u_m_dut.ap_tvalid_held_until_handshake",
++             "s0 gives up the output on a TLAST beat the sink has not taken"),
++    Mutation("released_before_tlast_s0", 8,
++             "if (s0_tvalid && s0_tlast && m_tready)", "if (s0_tvalid && m_tready)",
++             "multi_beats", "ap_owner_held_until_tlast_handshake",
++             "s0 gives up the output after any beat, not after its TLAST beat"),
++    Mutation("released_before_tlast_s1", 64,
++             "if (s1_tvalid && s1_tlast && m_tready)", "if (s1_tvalid && m_tready)",
++             "multi_beats", "ap_owner_held_until_tlast_handshake",
++             "s1 gives up the output after any beat, not after its TLAST beat"),
++    Mutation("kept_after_tlast", 8,
++             "if (s1_tvalid && s1_tlast && m_tready)\n          next_state = IDLE;",
++             "if (s1_tvalid && s1_tlast && m_tready)\n          next_state = STREAM_1;",
++             "single_beats", "ap_owner_released_after_tlast",
++             "s1 keeps the output after its TLAST beat"),
++    Mutation("reset_ignored", 64,
++             "if (!rst_n)\n      state <= IDLE;", "if (1'b0)\n      state <= IDLE;",
++             "reset_while_stalled", "ap_reset_releases_owner",
++             "the state register ignores reset, so an owner survives it"),
++    Mutation("illegal_state_reached", 64,
++             "if (!last_served) begin\n          if (s1_tvalid)\n            next_state = STREAM_1;",
++             "if (!last_served) begin\n          if (s1_tvalid)\n            next_state = state_t'(2'b11);",
++             "single_beats", "ap_state_legal",
++             "a grant decodes to the encoding no state name owns"),
++    Mutation("granted_without_request", 8,
++             "if (!last_served) begin\n          if (s1_tvalid)",
++             "if (!last_served) begin\n          if (1'b1)",
++             "single_beats", "ap_grant_only_to_requester",
++             "the arbiter grants s1 whether or not it offers a beat"),
++    Mutation("both_sources_ready", 64,
++             "assign s1_tready = (state == STREAM_1) && m_tready;",
++             "assign s1_tready = (state != IDLE) && m_tready;",
++             "single_beats", "forwarding_laws.ai_grants_mutually_exclusive",
++             "s1 also sees TREADY while s0 owns the output"),
++    Mutation("ready_ignores_sink", 8,
++             "assign s0_tready = (state == STREAM_0) && m_tready;",
++             "assign s0_tready = (state == STREAM_0);",
++             "backpressure_mid_packet", "forwarding_laws.ai_ready_only_for_owner_and_ready_sink",
++             "s0 sees TREADY while the sink is stalling the output"),
++    Mutation("tkeep_from_other_source", 64,
++             "m_tkeep  = s1_tkeep;", "m_tkeep  = s0_tkeep;",
++             "multi_beats", "forwarding_laws.ai_payload_forwarded_on_transfer",
++             "an s1 beat leaves with s0's TKEEP"),
++    Mutation("round_robin_inverted", 8,
++             "last_served <= (state == STREAM_0) ? 1'b0 : 1'b1;",
++             "last_served <= (state == STREAM_0) ? 1'b1 : 1'b0;",
++             "simultaneous_offers", "",
++             "the arbiter prefers the source it just served; no property claims fairness, "
++             "so the scoreboard must catch it"),
++)
++
++#: The four source rules, the +stimulus_fault= that breaks each, and the scenario
++#: whose first stall of each port is an arbitration wait, so the fault is not
++#: forwarded to m and only the stimulus property can fire.
++STIMULUS_FAULTS = (
++    ("drop_tvalid", "ap_tvalid_held_until_handshake"),
++    ("flip_tdata", "ap_tdata_stable_until_handshake"),
++    ("flip_tkeep", "ap_tkeep_stable_until_handshake"),
++    ("flip_tlast", "ap_tlast_stable_until_handshake"),
++)
++FAULT_SCENARIO = "single_beats"
++SCOREBOARD_FAILURE = "alternate packet by packet"
++#: A shape the checker must refuse at elaboration, and the message it must say.
++GUARD_WIDTH = 12
++GUARD_MESSAGE = (f"axis_stream_source_sva: TDATA_WIDTH_P={GUARD_WIDTH} is not a whole, "
++                 "non-zero number of bytes")
++GUARD_ROW = f"elaboration-tdata_width_{GUARD_WIDTH}"
++
++
++class CoverageControl(NamedTuple):
++    """The CLEAN mux, built or run so that its checker cannot vouch for it:
++    absent, disabled, wired to the wrong port, or never exercised."""
++
++    name: str
++    width: int
++    rebuild: bool
++    assert_flag: str
++    bind_rewrites: tuple[tuple[str, str, int], ...]
++    run_plusargs: tuple[str, ...]
++    refusal: str
++    with_faults: bool
++    why: str
++
++
++#: (pattern, replacement, occurrences): mirror s0 and s1 in the bind, the
++#: connections and the ownership flags alike, so every law still holds and
++#: only the per-port witness counts can tell the checker is miswired.
++SWAP_PORTS = (
++    ("(s0_", "(sX_", 5), ("(s1_", "(s0_", 5), ("(sX_", "(s1_", 5),
++    ("(state == STREAM_0)", "(state == STREAM_X)", 1),
++    ("(state == STREAM_1)", "(state == STREAM_0)", 1),
++    ("(state == STREAM_X)", "(state == STREAM_1)", 1),
++)
++
++COVERAGE_CONTROLS = (
++    CoverageControl("assertions_disabled", 64, True, "--no-assert", (), (), SCOPE_REFUSAL, True,
++                    "--no-assert compiles every assertion, and every witness with it, out of a bound checker"),
++    CoverageControl("bind_target_mistyped", 8, True, "--assert",
++                    (("bind axis_mux_rr_2in_1out ", "bind axis_mux_rr_2in_1out_mistyped ", 1),), (),
++                    SCOPE_REFUSAL, True,
++                    "a bind naming a module that does not exist binds nothing, and 5.050 builds it silently"),
++    CoverageControl("bind_ports_swapped", 64, True, "--assert", SWAP_PORTS, (),
++                    f"witness {CHECKER}.u_s0_stimulus.", True,
++                    "a checker wired to the wrong ports still sees legal traffic; only the witness "
++                    "counts the harness takes from the ports can tell"),
++    CoverageControl("unused_path", 8, False, "--assert", (), ("+scenario=single_beats", "+grade_witnesses"),
++                    f"witness {CHECKER}.u_m_dut.", False,
++                    "single_beats never stalls the output, so every u_m_dut property passes vacuously"),
++)
++
++
++class Shape(NamedTuple):
++    """Everything `make mux-sva-build` is told about one build."""
++
++    width: int
++    dut: Path
++    bind: Path
++    assert_flag: str
++
++
++class Verdict(NamedTuple):
++    """Whether a row behaved as required, and the evidence line for it."""
++
++    ok: bool
++    text: str
++
++
++#: Which rows to run, by name; a row that is not wanted does no work at all.
++Wanted = Callable[[str], bool]
++
++
++def clean_binary(width: int) -> Path:
++    """The suite's own build at `width`, made by `make mux-sva`."""
++    return HERE / f"obj_dir_mux_sva_w{width}" / "Vmux_sva"
++
++
++def build(row: Path, shape: Shape, verilator: str) -> Path | None:
++    """Build `shape` through the Makefile's one recipe; the binary, or None.
++
++    The build log stays in `row`. A build that fails is reported by the row
++    as a build failure, never as a detection.
++    """
++    obj = row / "obj"
++    command = ["make", "--no-print-directory", "-C", str(HERE), "mux-sva-build",
++               f"VERILATOR={verilator}", f"MUX_SVA_WIDTH={shape.width}", f"MUX_SVA_OBJ={obj}",
++               f"MUX_SVA_DUT={shape.dut}", f"MUX_SVA_BIND={shape.bind}",
++               f"MUX_SVA_ASSERT={shape.assert_flag}"]
++    with (row / "build.log").open("w") as log:
++        result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False)
++    binary = obj / "Vmux_sva"
++    return binary if result.returncode == 0 and binary.is_file() else None
++
++
++def run_harness(binary: Path, log_path: Path, plusargs: list[str]) -> tuple[int, str]:
++    """(exit status, log text) of one harness run; the log stays at `log_path`."""
++    with log_path.open("w") as log:
++        result = subprocess.run([str(binary), *plusargs], stdout=log, stderr=subprocess.STDOUT,
++                                check=False)
++    return result.returncode, log_path.read_text(errors="replace")
++
++
++def fired(text: str) -> list[str]:
++    """The distinct assertion paths a run reported failing, in order."""
++    paths: list[str] = []
++    for match in FAILED_LINE.finditer(text):
++        if match.group(1) not in paths:
++            paths.append(match.group(1))
++    return paths
++
++
++def fail_lines(text: str) -> list[str]:
++    """The harness's own failed checks, found with the sweep's [FAIL] marker
++    and quoted without it, so this script's log carries no [FAIL] of its own
++    for a failure the row expected."""
++    return [FAIL_MARKER.sub("", line).strip() for line in text.splitlines() if FAIL_MARKER.match(line)]
++
++
++def detection(status: int, text: str, expect: str) -> Verdict:
++    """Did the named property stop this run? The one rule every row uses."""
++    paths = fired(text)
++    target = f"{CHECKER}.{expect}"
++    if status != EXIT_ASSERTION_STOP:
++        return Verdict(False, f"exit {status}, not the assertion stop {EXIT_ASSERTION_STOP}; "
++                              f"properties named: {', '.join(paths) or 'none'}")
++    if target not in paths:
++        return Verdict(False, f"stopped, but by {', '.join(paths) or 'nothing named'}")
++    others = [path.removeprefix(CHECKER + ".") for path in paths if path != target]
++    also = f"; the same edge also failed {', '.join(others)}" if others else ""
++    return Verdict(True, f"stopped by {expect}{also}")
++
++
++def row_dir(name: str) -> Path:
++    """A fresh directory for one row's logs and scratch sources."""
++    path = WORK / name
++    path.mkdir(parents=True)
++    return path
++
++
++def clean_rows(wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """The suite's own builds must pass when run the way mutants are run."""
++    for width in (8, 64):
++        name = f"clean-w{width}"
++        if not wanted(name):
++            continue
++        binary = clean_binary(width)
++        if not binary.is_file():
++            yield name, Verdict(False, f"{binary.name} is missing; `make mux-sva` builds it")
++            continue
++        status, text = run_harness(binary, row_dir(name) / "run.log", [ERROR_LIMIT])
++        ok = status == 0 and not fired(text) and not fail_lines(text)
++        yield name, Verdict(ok, "passes, no property fails" if ok
++                            else f"exit {status}, failing: {fired(text) or fail_lines(text)[:1]}")
++
++
++def stimulus_rows(wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """Each source rule, broken on each port at each width, must be named."""
++    for width in (8, 64):
++        binary = clean_binary(width)
++        for port in (0, 1):
++            for fault, rule in STIMULUS_FAULTS:
++                name = f"stimulus-s{port}_{fault}-w{width}"
++                if not wanted(name):
++                    continue
++                if not binary.is_file():
++                    yield name, Verdict(False, f"{binary.name} is missing; `make mux-sva` builds it")
++                    continue
++                status, text = run_harness(binary, row_dir(name) / "run.log",
++                                           [ERROR_LIMIT, f"+scenario={FAULT_SCENARIO}",
++                                            f"+stimulus_fault=s{port}_{fault}"])
++                verdict = detection(status, text, f"u_s{port}_stimulus.{rule}")
++                if INJECTED not in text:
++                    verdict = Verdict(False, "the fault was never injected")
++                yield name, verdict
++
++
++def mutant_source(row: Path, pristine: str, mutation: Mutation) -> Path | None:
++    """Write the mutated scratch copy; None when the pattern is not unique."""
++    if pristine.count(mutation.pattern) != 1:
++        return None
++    scratch = row / DUT.name
++    scratch.write_text(pristine.replace(mutation.pattern, mutation.replacement))
++    return scratch
++
++
++def scoreboard_verdict(status: int, text: str) -> Verdict:
++    """The scoreboard row: the harness's own verdict, and no property."""
++    if fired(text):
++        return Verdict(False, f"a property fired ({', '.join(fired(text))}); this row is the scoreboard's")
++    caught = [line for line in fail_lines(text) if SCOREBOARD_FAILURE in line]
++    if status != 1 or not caught:
++        return Verdict(False, f"exit {status} without the scoreboard's '{SCOREBOARD_FAILURE}' failure")
++    return Verdict(True, f"no property fails; the scoreboard's check does: {caught[0]}")
++
++
++def mutation_row_name(mutation: Mutation) -> str:
++    """A mutant row, or the scoreboard row when no property is expected."""
++    kind = "mutant" if mutation.expect else "scoreboard"
++    return f"{kind}-{mutation.name}-w{mutation.width}"
++
++
++def mutant_rows(verilator: str, wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """Each DUT property must name the mutant written against it."""
++    pristine = DUT.read_text()
++    for mutation in MUTATIONS:
++        name = mutation_row_name(mutation)
++        if not wanted(name):
++            continue
++        row = row_dir(name)
++        source = mutant_source(row, pristine, mutation)
++        if source is None:
++            yield name, Verdict(False, f"its pattern appears {pristine.count(mutation.pattern)} times, "
++                                       "not once: the mux moved, so fix the pattern, not the row")
++            continue
++        binary = build(row, Shape(mutation.width, source, BIND, "--assert"), verilator)
++        if binary is None:
++            yield name, Verdict(False, "did not build: a compile failure is not a detection")
++            continue
++        status, text = run_harness(binary, row / "run.log",
++                                   [ERROR_LIMIT, f"+scenario={mutation.scenario}"])
++        yield name, (detection(status, text, mutation.expect) if mutation.expect
++                     else scoreboard_verdict(status, text))
++
++
++def guard_rows(verilator: str, wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """The checker's elaboration guard must refuse a width that is not whole
++    bytes, by its own diagnostic rather than by some other build failure."""
++    if not wanted(GUARD_ROW):
++        return
++    row = row_dir(GUARD_ROW)
++    binary = build(row, Shape(GUARD_WIDTH, DUT, BIND, "--assert"), verilator)
++    log = (row / "build.log").read_text(errors="replace")
++    if binary is not None:
++        yield GUARD_ROW, Verdict(False, "it built: the checker accepted a width that is not whole bytes")
++    elif GUARD_MESSAGE not in log:
++        yield GUARD_ROW, Verdict(False, "the build failed, but not with gen_guard_tdata_width's message")
++    else:
++        yield GUARD_ROW, Verdict(True, f"refused at elaboration by its own message: '{GUARD_MESSAGE}'")
++
++
++def coverage_binary(row: Path, control: CoverageControl, verilator: str) -> Path | None:
++    """The binary `control` runs: the clean build, or the clean mux rebuilt
++    the way the control loses its checker. None when it cannot be made, or
++    when a bind rewrite no longer matches exactly as often as it should."""
++    if not control.rebuild:
++        binary = clean_binary(control.width)
++        return binary if binary.is_file() else None
++    bind = BIND
++    if control.bind_rewrites:
++        text = BIND.read_text()
++        for pattern, replacement, occurrences in control.bind_rewrites:
++            if text.count(pattern) != occurrences:
++                return None
++            text = text.replace(pattern, replacement)
++        bind = row / BIND.name
++        bind.write_text(text)
++    return build(row, Shape(control.width, DUT, bind, control.assert_flag), verilator)
++
++
++def coverage_names(control: CoverageControl) -> list[str]:
++    """The control's own row, then one row per stimulus fault run on it."""
++    name = f"coverage-{control.name}-w{control.width}"
++    if not control.with_faults:
++        return [name]
++    return [name] + [f"{name}-s{port}_{fault}" for port in (0, 1) for fault, _rule in STIMULUS_FAULTS]
++
++
++def refusal_verdict(control: CoverageControl, status: int, text: str) -> Verdict:
++    """The control's positive run must fail on the harness's own check, the
++    one the control is about, with no assertion firing."""
++    refused = [line for line in fail_lines(text) if control.refusal in line]
++    if fired(text):
++        return Verdict(False, f"a property fired ({', '.join(fired(text))}); the refusal must be the harness's")
++    if status != 1 or not refused:
++        return Verdict(False, f"exit {status} and no '{control.refusal}' failure: lost coverage went unnoticed")
++    how = "rebuilt" if control.rebuild else "the clean build"
++    return Verdict(True, f"{how}; the harness refuses the run, failing '{refused[0]}'")
++
++
++def coverage_rows(verilator: str, wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """Without the checker in force, the harness must refuse to pass and the
++    detection check must fail for every injected fault."""
++    for control in COVERAGE_CONTROLS:
++        if not any(wanted(row_name) for row_name in coverage_names(control)):
++            continue
++        name = coverage_names(control)[0]
++        row = row_dir(name)
++        binary = coverage_binary(row, control, verilator)
++        if binary is None:
++            yield name, Verdict(False, "could not be built or found; the control must run to show anything")
++            continue
++        status, text = run_harness(binary, row / "run.log", list(control.run_plusargs))
++        yield name, refusal_verdict(control, status, text)
++        if not control.with_faults:
++            continue
++        for port in (0, 1):
++            for fault, rule in STIMULUS_FAULTS:
++                fault_name = f"{name}-s{port}_{fault}"
++                status, text = run_harness(binary, row / f"run-s{port}_{fault}.log",
++                                           [ERROR_LIMIT, f"+scenario={FAULT_SCENARIO}",
++                                            f"+stimulus_fault=s{port}_{fault}"])
++                verdict = detection(status, text, f"u_s{port}_stimulus.{rule}")
++                if INJECTED not in text:
++                    yield fault_name, Verdict(False, "the fault was never injected, so its "
++                                                     "non-detection shows nothing")
++                elif verdict.ok:
++                    yield fault_name, Verdict(False, f"DETECTED without the checker: {verdict.text}")
++                else:
++                    yield fault_name, Verdict(True, f"injected, not detected ({verdict.text}): "
++                                                    "the detection check fails, as it must")
++
++
++def tool_identity(verilator: str) -> str:
++    """The first line `verilator --version` prints, for the log."""
++    result = subprocess.run([verilator, "--version"], capture_output=True, text=True, check=False)
++    lines = result.stdout.strip().splitlines()
++    return lines[0] if result.returncode == 0 and lines else f"`{verilator} --version` failed"
++
++
++def all_rows(verilator: str, wanted: Wanted) -> Iterator[tuple[str, Verdict]]:
++    """Every wanted row, in the order the module docstring describes them.
++    A coverage control yields its fault rows too; the caller filters them."""
++    yield from clean_rows(wanted)
++    yield from stimulus_rows(wanted)
++    yield from mutant_rows(verilator, wanted)
++    yield from guard_rows(verilator, wanted)
++    yield from coverage_rows(verilator, wanted)
++
++
++def row_names() -> list[str]:
++    """Every row name, for --list, without building or running anything."""
++    names = [f"clean-w{width}" for width in (8, 64)]
++    names += [f"stimulus-s{port}_{fault}-w{width}" for width in (8, 64) for port in (0, 1)
++              for fault, _rule in STIMULUS_FAULTS]
++    names += [mutation_row_name(mutation) for mutation in MUTATIONS]
++    names.append(GUARD_ROW)
++    for control in COVERAGE_CONTROLS:
++        names += coverage_names(control)
++    return names
++
++
++def row_notes() -> dict[str, str]:
++    """Why each mutant and control row exists, keyed by row name, for --list."""
++    notes = {mutation_row_name(mutation): mutation.why for mutation in MUTATIONS}
++    notes[GUARD_ROW] = "gen_guard_tdata_width must refuse a TDATA width that is not whole bytes"
++    notes.update({coverage_names(control)[0]: control.why for control in COVERAGE_CONTROLS})
++    return notes
++
++
++def main() -> int:
++    """Run the campaign and print one verdict per row and the tally."""
++    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    parser.add_argument("--verilator", default="verilator", help="the Verilator the suite builds with")
++    parser.add_argument("--only", help="run the rows whose name starts with this prefix")
++    parser.add_argument("--list", action="store_true", help="print the row names and exit")
++    args = parser.parse_args()
++    if args.list:
++        notes = row_notes()
++        for name in row_names():
++            print(f"{name}: {notes[name]}" if name in notes else name)
++        return 0
++    if args.only and not any(name.startswith(args.only) for name in row_names()):
++        print(f"no row starts with {args.only!r}; --list prints them", file=sys.stderr)
++        return 2
++    shutil.rmtree(WORK, ignore_errors=True)
++    WORK.mkdir()
++    print(f"sva campaign: {tool_identity(args.verilator)}; raw logs in {WORK.relative_to(HERE)}/")
++    def wanted(name: str) -> bool:
++        """Every row, or the rows --only names by prefix."""
++        return not args.only or name.startswith(args.only)
++
++    checks = failures = 0
++    for name, verdict in all_rows(args.verilator, wanted):
++        if not wanted(name):
++            continue
++        checks += 1
++        failures += 0 if verdict.ok else 1
++        print(f"  [{'PASS' if verdict.ok else 'FAIL'}] {name}: {verdict.text}")
++    print(f"== ptp_ts sva campaign: checks: {checks}   failures: {failures} ==")
++    return 1 if failures or not checks else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())

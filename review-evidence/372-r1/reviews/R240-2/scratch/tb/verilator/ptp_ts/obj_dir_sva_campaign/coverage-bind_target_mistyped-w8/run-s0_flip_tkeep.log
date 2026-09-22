@@ -1,0 +1,10 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=single_beats stimulus_fault=s0_flip_tkeep
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_s1_stimulus is elaborated with its assertions
+  [FAIL] checker instance TOP.axis_mux_rr_2in_1out.u_sva.u_m_dut is elaborated with its assertions
+scenario single_beats from cycle 4
+stimulus fault injected: s0, after the stall sampled at cycle 5
+witness grading needs every scenario (+scenario= selected one; +grade_witnesses grades it anyway)
+== ptp_ts mux sva w8: checks: 17   failures: 4 ==
+RESULT: FAIL

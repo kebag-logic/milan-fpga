@@ -1,0 +1,828 @@
+[
+  {
+    "name": "original-ptp-ts",
+    "command": [
+      "rtk",
+      "proxy",
+      "make",
+      "--no-print-directory",
+      "-C",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts",
+      "run",
+      "VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+      "VFLAGS=--cc --exe --build -j 8          --top-module ptp_ts_top          +incdir+../../../hdl/common +incdir+../../../hdl/ieee8021as/ptp_timestamp          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE          -CFLAGS \"-std=c++17 -O2 -Wall -Wextra\""
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 5.328484296798706
+  },
+  {
+    "name": "seed-w8-0",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=0"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02179574966430664
+  },
+  {
+    "name": "seed-w8-1",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=1"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.023088932037353516
+  },
+  {
+    "name": "seed-w8-2",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02918720245361328
+  },
+  {
+    "name": "seed-w8-3",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=3"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02796030044555664
+  },
+  {
+    "name": "seed-w8-4",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=4"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.025630474090576172
+  },
+  {
+    "name": "seed-w8-5",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=5"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.019080162048339844
+  },
+  {
+    "name": "seed-w8-6",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=6"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.021741390228271484
+  },
+  {
+    "name": "seed-w8-7",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=7"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.025815486907958984
+  },
+  {
+    "name": "seed-w8-8",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=8"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.022704601287841797
+  },
+  {
+    "name": "seed-w8-9",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=9"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02700209617614746
+  },
+  {
+    "name": "seed-w8-10",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=10"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02572464942932129
+  },
+  {
+    "name": "seed-w8-11",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=11"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.027103900909423828
+  },
+  {
+    "name": "seed-w8-12",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=12"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.03284144401550293
+  },
+  {
+    "name": "seed-w8-13",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=13"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.018564939498901367
+  },
+  {
+    "name": "seed-w8-14",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=14"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.021059751510620117
+  },
+  {
+    "name": "seed-w8-15",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=15"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.027530193328857422
+  },
+  {
+    "name": "seed-w8-16",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=16"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02527308464050293
+  },
+  {
+    "name": "seed-w8-17",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=17"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.025403976440429688
+  },
+  {
+    "name": "seed-w8-18",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=18"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02314615249633789
+  },
+  {
+    "name": "seed-w8-19",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=19"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.1136329174041748
+  },
+  {
+    "name": "usage-w8-0",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+scenario=missing"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.09448361396789551
+  },
+  {
+    "name": "usage-w8-1",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+stimulus_fault=s2_flip_tdata"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.0331263542175293
+  },
+  {
+    "name": "usage-w8-2",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+stimulus_fault=s0_unknown"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.03199481964111328
+  },
+  {
+    "name": "usage-w8-3",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=12x"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.019864320755004883
+  },
+  {
+    "name": "usage-w8-4",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=-1"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.015183687210083008
+  },
+  {
+    "name": "usage-w8-5",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+seed=18446744073709551616"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.018669605255126953
+  },
+  {
+    "name": "default-stop-w8",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w8/Vmux_sva",
+      "+scenario=single_beats",
+      "+stimulus_fault=s0_drop_tvalid"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 1,
+    "expected": 1,
+    "seconds": 0.01904129981994629
+  },
+  {
+    "name": "seed-w64-0",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=0"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.022011280059814453
+  },
+  {
+    "name": "seed-w64-1",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=1"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.029007673263549805
+  },
+  {
+    "name": "seed-w64-2",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.03056955337524414
+  },
+  {
+    "name": "seed-w64-3",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=3"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.027406930923461914
+  },
+  {
+    "name": "seed-w64-4",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=4"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.028585195541381836
+  },
+  {
+    "name": "seed-w64-5",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=5"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02043008804321289
+  },
+  {
+    "name": "seed-w64-6",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=6"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.01903080940246582
+  },
+  {
+    "name": "seed-w64-7",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=7"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.0262601375579834
+  },
+  {
+    "name": "seed-w64-8",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=8"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02634429931640625
+  },
+  {
+    "name": "seed-w64-9",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=9"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02345561981201172
+  },
+  {
+    "name": "seed-w64-10",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=10"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.0316922664642334
+  },
+  {
+    "name": "seed-w64-11",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=11"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.03116321563720703
+  },
+  {
+    "name": "seed-w64-12",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=12"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.018862247467041016
+  },
+  {
+    "name": "seed-w64-13",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=13"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02452373504638672
+  },
+  {
+    "name": "seed-w64-14",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=14"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.023334980010986328
+  },
+  {
+    "name": "seed-w64-15",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=15"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.025957107543945312
+  },
+  {
+    "name": "seed-w64-16",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=16"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02374553680419922
+  },
+  {
+    "name": "seed-w64-17",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=17"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.03115391731262207
+  },
+  {
+    "name": "seed-w64-18",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=18"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.02747488021850586
+  },
+  {
+    "name": "seed-w64-19",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=19"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.020951032638549805
+  },
+  {
+    "name": "usage-w64-0",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+scenario=missing"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.01757025718688965
+  },
+  {
+    "name": "usage-w64-1",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+stimulus_fault=s2_flip_tdata"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.015466451644897461
+  },
+  {
+    "name": "usage-w64-2",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+stimulus_fault=s0_unknown"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.01889514923095703
+  },
+  {
+    "name": "usage-w64-3",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=12x"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.019649267196655273
+  },
+  {
+    "name": "usage-w64-4",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=-1"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.021955490112304688
+  },
+  {
+    "name": "usage-w64-5",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+seed=18446744073709551616"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 2,
+    "expected": 2,
+    "seconds": 0.022868871688842773
+  },
+  {
+    "name": "default-stop-w64",
+    "command": [
+      "rtk",
+      "proxy",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/372-r2-r240/scratch/tb/verilator/ptp_ts/obj_dir_mux_sva_w64/Vmux_sva",
+      "+scenario=single_beats",
+      "+stimulus_fault=s0_drop_tvalid"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 1,
+    "expected": 1,
+    "seconds": 0.02237725257873535
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 3.8190739154815674
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.07015490531921387
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.08724832534790039
+  },
+  {
+    "name": "toc",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.5148210525512695
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.4087979793548584
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "52711029f374650dc93830d5ea28e81cb5c8f410"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 1.0331039428710938
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "rtk",
+      "proxy",
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "059c3a60b8290873ed9fd14673f9981e8af754ce"
+    ],
+    "cwd": "$VALIDATION_STORAGE/reviews/r240-372-r2",
+    "exit": 0,
+    "expected": 0,
+    "seconds": 0.017643451690673828
+  }
+]
