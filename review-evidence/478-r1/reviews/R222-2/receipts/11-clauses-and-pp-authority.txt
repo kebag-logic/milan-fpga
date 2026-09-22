@@ -1,0 +1,25 @@
+## Standards evidence reference
+
+The reviewer consulted Milan v1.2 sections 5.3.3.3 and 5.3.5.1, and IEEE 1722.1-2021 Table 7-5. Verbatim standards excerpts are not republished in this receipt. The review report gives the factual interpretation and the reproducer names the source sections.
+
+Original receipt SHA-256: 612c2109fcd3a218991ce06fd16c6226a960b050e10014635b125fce5e1ed5e8
+
+## protocol-processor @ 424c688fa2205b934a7689a58f2aa766420f2326
+HEAD of scratch submodule: 424c688fa2205b934a7689a58f2aa766420f2326
+docs/architecture/07_memory_maps.md blob 5be7a4c49c34c6f5638d2a461eedc65dc4dc28a6
+docs/architecture/06_aecp_engine.md blob f8ccc9a78f5b7c2e7820525cf6206eff6d0babcd
+hdl/aecp/ucode/gen_ucode.py blob 0057cb179cef552e7db7889320b242a9dc3a48ac
+-- 07_memory_maps.md L10 row
+92:| L10 | AUDIO_UNIT `sampling_rates_offset` = 144 and `sampling_rates_count` ≤ 8, each entry the full sampling-rate word (pull field included): the processor's SET_SAMPLING_RATE reads the list at 144 and consults at most its first 8 entries ([06 §6.4](06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds)). Another offset refuses every rate, and a rate listed past the eighth entry is refused; neither can accept an unlisted rate | IEEE §7.2.3, §7.4.21.1; Milan §5.3.3.3 |
+-- gen_ucode.py SSR constants and walk loop
+1330:SSR_LIST_OFF = 144      # IEEE §7.2.3 sampling_rates_offset, this AEM version
+1331:SSR_WALK_MAX = 8        # entries the walk consults; 07 §3.1 L10's bound
+1384:for k in range(0, SSR_WALK_MAX, 2):
+1397:ssrwalk += [u('BRANCH', imm=SSR_NOTLISTED)]      # past the bound: refused
+-- builder constant and refusal at the head
+1197:BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
+1199:#: section 3.1, L10 (AUDIO_UNIT sampling_rates at offset 144).
+1200:MAX_AUDIO_UNIT_RATES = 8
+3802:    if len(rates) > MAX_AUDIO_UNIT_RATES:
+3807:    if len(set(rates)) != len(rates):
+3809:    if rate not in rates:

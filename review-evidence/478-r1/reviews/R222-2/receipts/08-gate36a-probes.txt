@@ -1,0 +1,91 @@
+head root /tmp/r222-478-r2-scratch/git-sub @ 1496558d82cf35fc98dda0e781b2a1be643c301a
+base root /tmp/r222-478-r2-scratch/base-sub @ 88e9276b2a220c716f64a843f7e1eb8f9265e896
+python 3.14.7; MAX_AUDIO_UNIT_RATES at head = 8
+
+== A: pristine head
+A1 gate 36a loader contract                                expect PASS got PASS MATCH    
+A2 gate 36a shipping images                                expect PASS got PASS MATCH    
+A3 gate 36a pp_shadow AU_RATES_C vs YAML                   expect PASS got PASS MATCH    
+A4 gate 32 builder doc key map                             expect PASS got PASS MATCH    
+
+== B: head gate 36a against the base (88e9276b) builder
+base builder has MAX_AUDIO_UNIT_RATES: False
+B1 loader contract vs base builder                         expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+B2 shipping images vs base builder                         expect PASS got PASS MATCH    
+B3 pp_shadow comparison vs base builder                    expect PASS got PASS MATCH    
+
+== C: builder mutants (head source, loaded separately)
+C1 bound 8 -> 9                                            expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+C2 bound 8 -> 7                                            expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 7 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)
+C3 '>' -> '>=' in the count test                           expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 8 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)
+C4 duplicate refusal removed                               expect FAIL got FAIL MATCH    AssertionError: gate 36a: duplicate accepted
+C5 duplicate test on raw (pre-int) values                  expect FAIL got FAIL MATCH    AssertionError: gate 36a: duplicate after integer conversion accepted
+C6 rates stored sorted                                     expect FAIL got FAIL MATCH    AssertionError: gate 36a: eight distinct entries must load in declared order
+C7 omitted list defaults to [48000] always                 expect FAIL got FAIL MATCH    ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+C8 duplicate test before count test (equivalent)           expect PASS got PASS MATCH    
+C9 current-rate membership removed                         expect FAIL got FAIL MATCH    AssertionError: gate 36a: empty list accepted
+C10 count refusal no longer names L10                      expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry refused for another cause: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (rule, protocol-
+C11 count refusal removed                                  expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+C12 count refusal truncates instead of refusing            expect FAIL got FAIL MATCH    AssertionError: gate 36a: distinct ninth entry accepted
+
+== D: real pp_shadow sim_main.cpp mutants (gate 36a pp_shadow arm)
+D1 value 96000u -> 88200u                                  expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C values [48000, 88200, 192000] != [48000, 96000, 192000]
+D2 order 48000u,96000u swapped                             expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C values [96000, 48000, 192000] != [48000, 96000, 192000]
+D3 declared length [3] -> [4]                              expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C declared length 4 != 3
+D4 initializer shortened (implicit zero fill)              expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C values [48000, 96000] != [48000, 96000, 192000]
+D5 declaration commented out (block comment)               expect FAIL got FAIL MATCH    AssertionError: gate 36a: expected one literal AU_RATES_C declaration
+D6 second literal declaration added                        expect FAIL got FAIL MATCH    AssertionError: gate 36a: expected one literal AU_RATES_C declaration
+D7 hex literal word 0xBB80u for 48000u                     expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C must contain literal rate words
+D8 declared length as expression [1 + 2]                   expect FAIL got FAIL MATCH    AssertionError: gate 36a: expected one literal AU_RATES_C declaration
+D9 trailing comma in initializer (legal C++)               expect PASS got PASS MATCH    
+D10 uppercase U suffix (legal C++)                         expect PASS got PASS MATCH    
+R1 AU_CUR_RATE_C 48000u -> 96000u (S1 residual)            expect PASS got PASS MATCH    
+R2 image sampling_rates_count literal 3 -> 2 (S1 residual) expect PASS got PASS MATCH    
+R3 fill loop bound k < 3 -> k < 2 (S1 residual)            expect PASS got PASS MATCH    
+R4 AU_LEN_C 144 + 4 * 3 -> 144 + 4 * 2 (S1 residual)       expect PASS got PASS MATCH    
+
+== E: real shipping YAML mutants (scratch only)
+E1 arty_current list shortened to [48000, 96000] -> pp_shadow expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C declared length 3 != 2
+E1 arty_current list shortened to [48000, 96000] -> shipping expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current shipping rate declaration changed
+E2 arty_current list reordered -> pp_shadow                expect FAIL got FAIL MATCH    AssertionError: gate 36a: AU_RATES_C values [48000, 96000, 192000] != [96000, 48000, 192000]
+E2 arty_current list reordered -> shipping                 expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_current shipping rate declaration changed
+E3 arty_current duplicate appended -> shipping             expect FAIL got FAIL MATCH    ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+E4 arty_4x4 advertises 96000 too -> shipping               expect FAIL got FAIL MATCH    AssertionError: gate 36a: arty_4x4 shipping rate declaration changed
+
+== F: loader versus image, head and base
+F1 eight distinct (gate 36a's legal eight)
+    head: loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+    base: loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+F2 nine distinct
+    head: load_config ConfigError: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (L10, protocol-processor/docs/architectu
+    base: loaded [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 22050]; image ValueError: unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 2205
+F3 nine copies of 48000
+    head: load_config ConfigError: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (L10, protocol-processor/docs/architectu
+    base: loaded [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]; image offset 144 count 9 rates [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+F4 [48000, '48000'] (duplicate after int())
+    head: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    base: loaded [48000, 48000]; image offset 144 count 2 rates [48000, 48000]
+F5 [48000, 48000.5] (duplicate after int())
+    head: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    base: loaded [48000, 48000]; image offset 144 count 2 rates [48000, 48000]
+F6 base rates reordered [192000, 48000, 96000]
+    head: loaded [192000, 48000, 96000]; image offset 144 count 3 rates [192000, 48000, 96000]
+    base: loaded [192000, 48000, 96000]; image offset 144 count 3 rates [192000, 48000, 96000]
+F7 omitted list, current 96000
+    head: loaded [96000]; image offset 144 count 1 rates [96000]
+    base: loaded [96000]; image offset 144 count 1 rates [96000]
+F8 empty list
+    head: load_config ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+    base: load_config ConfigError: sampling_rate_hz must appear in audio_unit_rates_hz
+F9 scalar 48000 (not a list)
+    head: load_config TypeError: 'int' object is not iterable
+    base: load_config TypeError: 'int' object is not iterable
+F10 null
+    head: load_config TypeError: 'NoneType' object is not iterable
+    base: load_config TypeError: 'NoneType' object is not iterable
+F11 eight copies of 48000
+    head: load_config ConfigError: clocking.audio_unit_rates_hz contains duplicate entries
+    base: loaded [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]; image offset 144 count 8 rates [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+
+graded mismatches: 0
+head scratch tracked changes after probes: 0

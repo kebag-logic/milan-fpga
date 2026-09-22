@@ -1,0 +1,108 @@
+## commit objects
+1496558d82cf35fc98dda0e781b2a1be643c301a tree=e8d797554a935c5514e25be9e1dda119f4f8c999 parents=2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 88e9276b2a220c716f64a843f7e1eb8f9265e896
+  subject-lines=1 subject=Merge dev after Markdown closer validation
+2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 tree=568c5db2804f789015708358ad2a2d9c842c7cff parents=d81a302760b84f32d2aa019643f57682bb6e052c
+  subject-lines=1 subject=docs: pin AUDIO_UNIT memory-map reference to processor commit
+d81a302760b84f32d2aa019643f57682bb6e052c tree=4903a00f30752bc86a99e9bf112ff5ad01827c5d parents=099e191137dd2797407fb8345a452bcc7a965608 ec34fcdee0ca9ffa63564a9af8ad70a3a618de29
+  subject-lines=1 subject=Merge dev for AUDIO_UNIT rate-list validation
+099e191137dd2797407fb8345a452bcc7a965608 tree=7de577a9164c412ea07cdd0c325d9c517d4998bf parents=b17580b91deb11f3441dfc5d7f9fafe539d929b8
+  subject-lines=1 subject=fix(builder): enforce AUDIO_UNIT rate-list contract
+88e9276b2a220c716f64a843f7e1eb8f9265e896 tree=c23dff6c0eafdf5ae89bb3e8a9416c55533a2332 parents=ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 9d6109ccf924c03308cb8aa202ce68a435cd4f8d
+  subject-lines=1 subject=Merge PR #507: enforce Markdown HTML and fence closer boundaries
+## merge-tree reproduction of the head (parents 2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 + 88e9276b2a220c716f64a843f7e1eb8f9265e896)
+merge-tree=e8d797554a935c5514e25be9e1dda119f4f8c999 head-tree=e8d797554a935c5514e25be9e1dda119f4f8c999 equal=yes
+## ancestry
+base 88e9276b2a220c716f64a843f7e1eb8f9265e896 is ancestor of head: yes
+old head d81a302760b84f32d2aa019643f57682bb6e052c is ancestor of head: yes
+author 099e191137dd2797407fb8345a452bcc7a965608 is ancestor of head: yes
+merge-base(head, base_now)=88e9276b2a220c716f64a843f7e1eb8f9265e896
+## changed paths per range
+-- b17580b91deb11f3441dfc5d7f9fafe539d929b8..099e191137dd2797407fb8345a452bcc7a965608
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+-- ec34fcdee0ca9ffa63564a9af8ad70a3a618de29..d81a302760b84f32d2aa019643f57682bb6e052c
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+-- d81a302760b84f32d2aa019643f57682bb6e052c..2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7
+M	docs/ENDSTATION_BUILDER.md
+-- 88e9276b2a220c716f64a843f7e1eb8f9265e896..1496558d82cf35fc98dda0e781b2a1be643c301a
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+-- d81a302760b84f32d2aa019643f57682bb6e052c..1496558d82cf35fc98dda0e781b2a1be643c301a
+M	docs/DOC_GENERATION.md
+M	docs/ENDSTATION_BUILDER.md
+M	scripts/check_em_dash.py
+M	scripts/gen_toc.py
+M	scripts/gen_toc_cases.py
+A	scripts/gen_toc_closer_cases.py
+M	scripts/gen_toc_guards.py
+-- ec34fcdee0ca9ffa63564a9af8ad70a3a618de29..88e9276b2a220c716f64a843f7e1eb8f9265e896
+M	docs/DOC_GENERATION.md
+M	scripts/check_em_dash.py
+M	scripts/gen_toc.py
+M	scripts/gen_toc_cases.py
+A	scripts/gen_toc_closer_cases.py
+M	scripts/gen_toc_guards.py
+## per-file blob ids
+b17580b91deb11f3441dfc5d7f9fafe539d929b8 47b82e9025c2 14a7495cc993 7eb6bdd513f1
+099e191137dd2797407fb8345a452bcc7a965608 7f167a12d009 95ffb669ecc9 ea24c58c32c3
+ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 47b82e9025c2 14a7495cc993 7eb6bdd513f1
+d81a302760b84f32d2aa019643f57682bb6e052c 7f167a12d009 95ffb669ecc9 ea24c58c32c3
+2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 b66600c8326b 95ffb669ecc9 ea24c58c32c3
+88e9276b2a220c716f64a843f7e1eb8f9265e896 47b82e9025c2 14a7495cc993 7eb6bdd513f1
+1496558d82cf35fc98dda0e781b2a1be643c301a b66600c8326b 95ffb669ecc9 ea24c58c32c3
+## full-index patch sha256 of the issue delta
+author  b17580b91deb11f3441dfc5d7f9fafe539d929b8..099e191137dd2797407fb8345a452bcc7a965608 : f072ec203633281a03ef10331e934a50bf0713091cd2b54bc28cd48391906ad6
+round-1 ec34fcdee0ca9ffa63564a9af8ad70a3a618de29..d81a302760b84f32d2aa019643f57682bb6e052c   : f072ec203633281a03ef10331e934a50bf0713091cd2b54bc28cd48391906ad6
+head    88e9276b2a220c716f64a843f7e1eb8f9265e896..1496558d82cf35fc98dda0e781b2a1be643c301a  : aec58c219738ab8c8e643283f674d8eec0879993a19629c4be7877344ed6cdda
+## code-only (builder + test) patch sha256 (excludes the doc row)
+author  : 7495cb1ddc8fc6bba4100917cd6e54829ef980e5ac2ab989947a40aaf2a11676
+round-1 : 7495cb1ddc8fc6bba4100917cd6e54829ef980e5ac2ab989947a40aaf2a11676
+head    : 7495cb1ddc8fc6bba4100917cd6e54829ef980e5ac2ab989947a40aaf2a11676
+## doc delta relative to round-1 head: only the link target differs
+-L10](../protocol-processor/docs/architecture/07_memory_maps.md#31-descriptor-tree).
++L10](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/424c688fa2205b934a7689a58f2aa766420f2326/docs/architecture/07_memory_maps.md#31-descriptor-tree).
+## gitlinks: base_now vs head vs old head
+-- 88e9276b2a220c716f64a843f7e1eb8f9265e896
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-- d81a302760b84f32d2aa019643f57682bb6e052c
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-- 1496558d82cf35fc98dda0e781b2a1be643c301a
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## .gitmodules identical base_now vs head: yes
+[submodule "external"]
+	path = external
+	url = git@github.com:kebag-logic/fpga-avb-ethernet.git
+[submodule "third_party/verilog-axis"]
+	path = third_party/verilog-axis
+	url = https://github.com/alexforencich/verilog-axis
+[submodule "protocol-processor"]
+	path = protocol-processor
+	url = https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+[submodule "gptp-processor"]
+	path = gptp-processor
+	url = https://github.com/Mister-M-alt/FPGA-gPTP.git
+## configs/ unchanged base_now..head: yes
+## tb/ hdl/ avdecc/ unchanged base_now..head: yes
+## .github/ unchanged base_now..head: yes
+## trailers in branch-only commits (base_now..head)
+1496558d82cf35fc98dda0e781b2a1be643c301a Merge dev after Markdown closer validation
+
+2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 docs: pin AUDIO_UNIT memory-map reference to processor commit
+
+d81a302760b84f32d2aa019643f57682bb6e052c Merge dev for AUDIO_UNIT rate-list validation
+
+099e191137dd2797407fb8345a452bcc7a965608 fix(builder): enforce AUDIO_UNIT rate-list contract
+

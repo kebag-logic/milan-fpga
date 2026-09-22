@@ -1,0 +1,49 @@
+## link line at head (line numbers from the head blob)
+963:| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sampl
+occurrences of the new target: 1
+occurrences of any ../protocol-processor/ link in tracked Markdown:
+  none
+
+########## context git-nosub
+submodule dirs empty: yes
+.git present: yes
+doc blob before: b66600c8326b7eeb91fc53de111f6585c7b3d47a (expect b66600c8326b7eeb91fc53de111f6585c7b3d47a)
+--- [git-nosub pristine docs_check] (cd git-nosub && python3 scripts/docs_check.py) -> exit 0
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc blob with old link restored: 7f167a12d0096986d7a340375c46f2038dbc8dcd
+--- [git-nosub old-link control docs_check] (cd git-nosub && python3 scripts/docs_check.py) -> exit 1
+docs/ENDSTATION_BUILDER.md:963: broken link -> ../protocol-processor/docs/architecture/07_memory_maps.md
+docs_check: 1 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs/ENDSTATION_BUILDER.md:963: broken link -> ../protocol-processor/docs/architecture/07_memory_maps.md
+docs_check: 1 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc blob restored: b66600c8326b7eeb91fc53de111f6585c7b3d47a (expect b66600c8326b7eeb91fc53de111f6585c7b3d47a)
+--- [git-nosub pristine-again docs_check] (cd git-nosub && python3 scripts/docs_check.py) -> exit 0
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+--- [git-nosub check_feature_status] (cd git-nosub && python3 scripts/check_feature_status.py) -> exit 0
+feature_status: 0 finding(s)
+feature_status: 0 finding(s)
+
+########## context nogit
+submodule dirs empty: yes
+.git present: no
+doc blob before: b66600c8326b7eeb91fc53de111f6585c7b3d47a (expect b66600c8326b7eeb91fc53de111f6585c7b3d47a)
+--- [nogit pristine docs_check] (cd nogit && python3 scripts/docs_check.py) -> exit 0
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+doc blob with old link restored: 7f167a12d0096986d7a340375c46f2038dbc8dcd
+--- [nogit old-link control docs_check] (cd nogit && python3 scripts/docs_check.py) -> exit 1
+docs/ENDSTATION_BUILDER.md:963: broken link -> ../protocol-processor/docs/architecture/07_memory_maps.md
+docs_check: 1 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+docs/ENDSTATION_BUILDER.md:963: broken link -> ../protocol-processor/docs/architecture/07_memory_maps.md
+docs_check: 1 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+doc blob restored: b66600c8326b7eeb91fc53de111f6585c7b3d47a (expect b66600c8326b7eeb91fc53de111f6585c7b3d47a)
+--- [nogit pristine-again docs_check] (cd nogit && python3 scripts/docs_check.py) -> exit 0
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+--- [nogit check_feature_status] (cd nogit && python3 scripts/check_feature_status.py) -> exit 0
+feature_status: 0 finding(s)
+feature_status: 0 finding(s)
+
+## git-nosub still clean: 0 changed paths

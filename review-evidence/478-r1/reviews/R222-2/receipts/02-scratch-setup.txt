@@ -1,0 +1,38 @@
+== git-nosub
+HEAD=1496558d82cf35fc98dda0e781b2a1be643c301a tree=e8d797554a935c5514e25be9e1dda119f4f8c999
+status-lines=0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor
+-424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor
+-48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+external entries=0
+third_party/verilog-axis entries=0
+protocol-processor entries=0
+gptp-processor entries=0
+== nogit
+.git present: no
+external exists=yes entries=0
+third_party/verilog-axis exists=yes entries=0
+protocol-processor exists=yes entries=0
+gptp-processor exists=yes entries=0
+archive blob check done
+Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+== git-sub
+HEAD=1496558d82cf35fc98dda0e781b2a1be643c301a tree=e8d797554a935c5514e25be9e1dda119f4f8c999
+status-lines=0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+== base-sub
+HEAD=88e9276b2a220c716f64a843f7e1eb8f9265e896 tree=c23dff6c0eafdf5ae89bb3e8a9416c55533a2332
+status-lines=0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
