@@ -1,0 +1,60 @@
+{
+  "at": "2026-09-22T19:27:30.769459+02:00",
+  "results": [
+    {
+      "name": "baseline",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/containment-locale-mutation-a8t5my7q/run.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.579,
+      "expected_exit": 0
+    },
+    {
+      "name": "shared-decode",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/containment-locale-mutation-18hcd4m1/run.py"
+      ],
+      "exit_code": 1,
+      "seconds": 2.701,
+      "expected_exit": 1
+    },
+    {
+      "name": "patch-inverse",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/containment-locale-mutation-mjg5iiwx/run.py"
+      ],
+      "exit_code": 1,
+      "seconds": 4.536,
+      "expected_exit": 1
+    },
+    {
+      "name": "retention-decode",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/containment-locale-mutation-krf_tg7z/run.py"
+      ],
+      "exit_code": 1,
+      "seconds": 2.99,
+      "expected_exit": 1
+    },
+    {
+      "name": "entry-name-check",
+      "argv": [
+        "python3",
+        "-B",
+        "/tmp/containment-locale-mutation-x1btdz_5/run.py"
+      ],
+      "exit_code": 1,
+      "seconds": 3.466,
+      "expected_exit": 1
+    }
+  ]
+}

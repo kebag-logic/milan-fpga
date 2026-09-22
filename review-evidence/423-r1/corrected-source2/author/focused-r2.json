@@ -1,0 +1,50 @@
+[
+  {
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.77,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/focused-r2-00.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.363,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/focused-r2-01.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.045,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/focused-r2-02.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 4.61,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/focused-r2-03.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 1.41,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/focused-r2-04.log"
+  }
+]
