@@ -1,0 +1,27 @@
+{
+  "head": "5d45ecc0cf2dc572d538cbc534b5d9f95c8688e7",
+  "base": "b17580b91deb11f3441dfc5d7f9fafe539d929b8",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$TRUSTED_DEV/scripts/act_ci.py",
+        "--pr",
+        "505",
+        "--act-bin",
+        "$VALIDATION_TOOLS/act-0.2.89/act",
+        "--sudo",
+        "--workflow",
+        "docs",
+        "--workflow",
+        "rtl-fast",
+        "--workflow",
+        "elaborate"
+      ],
+      "exit_code": 0,
+      "seconds": 2355.622,
+      "log": "$VALIDATION_STORAGE/407-manager-r3/act-draft-fast/01.log"
+    }
+  ]
+}
