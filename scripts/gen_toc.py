@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440", "I437")
-MIN_ARMS = 754
+MIN_ARMS = 909
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -218,8 +218,9 @@ HTML_TAG_LINE_RE = re.compile(
 #: one. NO_PARAGRAPH: none is, and the next plain line starts one.
 #: PARAGRAPH: a top-level paragraph is open. HELD: a list item, a block
 #: quote or a table holds the plain lines that follow (CommonMark's lazy
-#: continuation, GFM's rows without a pipe), so none is open and a plain
-#: line starts none; a blank line or an interrupting block ends the hold.
+#: continuation, GFM's rows without a pipe), so no TOP-LEVEL paragraph is
+#: open. A live nonempty list's content column supplies PARAGRAPH to the
+#: opener for lines inside that item. Blanks end paragraphs, not items.
 NO_PARAGRAPH, PARAGRAPH, HELD = "no paragraph", "paragraph", "held"
 #: CommonMark's ATX opener, not `HEAD_RE`: an indented or empty heading
 #: ends a paragraph even though `headings()` lists neither.
@@ -363,12 +364,20 @@ def blocks(text: str) -> list[str]:
 
     LIST PARAGRAPHS retain their item's content column across blank lines
     (#437, CommonMark 5.2). A plain TEXT line at that column is HELD by the
-    item, not a top-level paragraph; a lone unindented tag below it can
-    therefore open HTML. One space below `- item` is outside that item.
+    item, not a top-level paragraph; a lone tag outside that item can
+    therefore open HTML. At the content column the tag continues the
+    item's live paragraph. One space below `- item` is outside that item.
+    A dedented quote or footnote definition releases the item context.
     Indentation still labels blocks from column 0, with tab stops of four;
     this does not add a recursive container walk. Existing withholding
     remains for a quote or item holding plain lines after non-paragraph
-    content, and for a tag at four columns inside an item.
+    content, and for a tag at four columns inside an item. An HTML block
+    already opened inside an item still lasts until its flat-walk closer:
+    types 6/7 wait for a blank even when the item ends. That can withhold
+    a following heading or swallow a fence and invent one (#495).
+    An unclosed comment inside raw HTML can hide subsequent headings in
+    GitHub's rendered output while this flat walk lists them. The #437
+    correction does not model comments nested inside an HTML block.
 
     HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
     omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
@@ -384,7 +393,11 @@ def blocks(text: str) -> list[str]:
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
         else:
-            label, state, delim, tag = _opens(line, para, state)
+            opening_para = para
+            if para == HELD and item_context and not item_context[1] \
+                    and _indent_columns(line) >= item_context[0]:
+                opening_para = PARAGRAPH
+            label, state, delim, tag = _opens(line, opening_para, state)
             out.append(label)
         para, item_context = _list_paragraph_after(line, out[-1], para, prev, item_context)
         prev = line
@@ -466,6 +479,8 @@ def _list_paragraph_after(line: str, label: str, para: str, prev: str,
         if not item.group(2) or column - marker_end > 4:
             column = marker_end + 1
         return after, (column, not bool(item.group(2)))
+    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):
+        return after, None
     if para == HELD and after == HELD:
         return after, context
     return after, None

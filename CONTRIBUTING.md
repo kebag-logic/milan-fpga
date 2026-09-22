@@ -522,7 +522,14 @@ Five measured forms render headings but remain absent from Contents:
 Their copied labels receive no exemption because those headings are omitted.
 The walk does not supply their anchors.
 List paragraph context survives blank lines at the item's content column.
-This corrects the escaping HTML classification without adding container headings.
+Tags within that live paragraph continue it; tags outside may open HTML.
+Dedented quotes and footnote definitions release the item context.
+This adds no container headings or anchors.
+An already-open item HTML block still uses flat-walk termination (#495).
+Types 6/7 wait for a blank after the item ends.
+This can hide headings or swallow fences and invent headings.
+Unclosed comments inside raw HTML can also hide rendered headings.
+The flat walk may list those headings (#437 evidence).
 
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
 `HEAD` over every tracked `*.md` (renames followed, every page compared as
