@@ -10,7 +10,12 @@ Builder gate 11 lacks its physical calibration report.
 All five hosted fast contexts pass at the candidate head.
 The trusted local docs, rtl-fast and elaborate replicas pass.
 Measured AC5 passes its expected-failure requirements.
-The remaining full native gates and ready exhaustive replica are pending.
+All five native commands pass at the unchanged candidate.
+55 parent suites and 54 Yosys tops pass.
+Processor suites, gPTP make all and 316 behavior scenarios pass.
+Four field-campaign/freshness skips remain explicit in native/01.log.
+Final candidate/worktree integrity is recorded in candidate-final.json.
+The ready exhaustive replica and hosted long gates remain pending.
 Independent reviews have not started.
 No merge approval is represented by this evidence branch.
 Never merge this branch.
