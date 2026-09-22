@@ -103,6 +103,8 @@ def _fixture_cases(fx):
     #! Imported here, not at the top: the content half imports `_write` back
     #! out of this module, and no case ever runs outside this call.
     from merge_containment_selftest_content import content_cases
+    from merge_containment_selftest_replay import replay_cases
+    from merge_containment_selftest_retention import retention_cases
 
     with scratch(fx.leftovers) as td:
         cwd = os.getcwd()
@@ -129,6 +131,8 @@ def _fixture_cases(fx):
                 _deleted_origin_cases(fx)
             fx.remote = None
             content_cases(fx)
+            replay_cases(fx)
+            retention_cases(fx)
         finally:
             os.chdir(cwd)
 

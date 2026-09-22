@@ -41,19 +41,20 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
    Anything this tool cannot measure is an UNKNOWN and fails, the same rule
    ``scripts/suite_tally.py`` enforces on the sweep.
 
-THE ONE CASE IT STILL GETS WRONG, AND IN WHICH DIRECTION
---------------------------------------------------------
-A branch squash-merged as **two or more** commits, whose paths were then edited
-again on the base, reads ``STRANDED`` although nothing is missing: the squash
-left no matching patch-id, and the later edit means the paths no longer agree,
-so neither equivalence test can prove the work landed.
-
-That is a false **alarm**, not a false pass -- the direction that costs a
-reader a minute rather than costing them a regression -- and the verdict names
-the differing paths so it can be settled by looking.  It cannot be fixed by
-comparing harder: once the base has moved on, "these changes were applied and
-then superseded" and "these changes were never applied" are the same tree.
-Deciding it needs the merge commit, which only the sweep has.
+HISTORICAL REPLAY AND CURRENT RETENTION
+---------------------------------------
+Ancestry and the existing linear patch arm certify historical landing. Later
+reversions do not revoke those proofs; changing that policy belongs to #514.
+The final fallback (#423) admits exactly one source-only two-parent merge:
+P2's only parent is P1, and the merge tree equals P2's tree. Every non-merge
+commit still needs a distinct whitespace-exact replay with matching postimages.
+It additionally requires current retention: exact raw entries, or a regular-
+blob three-way merge producing precisely the tip bytes under the mode rule in
+CONTRIBUTING.md. Overlap, later reversions and unmeasurable retention are
+UNKNOWN/nonzero, with unproved paths named. No semantic intent is inferred.
+Multiple merges, distant/reversed parents and resolution work stay excluded.
+A multi-commit squash followed by edits can still read STRANDED: the checker
+cannot prove all legitimate later rewrites. Neither refusal is a waiver.
 
 WHY EXIT CODES AND BARE NUMBERS
 -------------------------------
@@ -67,6 +68,9 @@ are used rather than reading ``git log`` output.
 import subprocess
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from merge_containment_replay import replay_verdict  # noqa: E402
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
@@ -86,14 +90,14 @@ MINIMUM_GIT = "2.39.0"
 
 
 def _git(*args):
-    """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
+    """Return (rc, stdout) without normalizing newlines or undecodable bytes."""
     #! Replacement objects rewrite the commit graph for every plumbing command.
     #! A local refs/replace entry can otherwise make a stranded branch appear
     #! to be an ancestor of the base.  Containment must measure stored commits,
     #! not a caller-specific alternate history.
     p = subprocess.run(("git", "--no-replace-objects") + args,
-                       capture_output=True, text=True)
-    return p.returncode, p.stdout.rstrip("\n")
+                       capture_output=True)
+    return p.returncode, p.stdout.decode("utf-8", "surrogateescape").rstrip("\n")
 
 
 def verbatim_patch_id_error() -> str | None:
@@ -152,9 +156,9 @@ def _verbatim_patch_id(commit):
     if rc != 0:
         return (None, f"git show could not read {commit}")
     p = subprocess.run(("git", "--no-replace-objects", "patch-id",
-                        "--verbatim"), input=patch, capture_output=True,
-                       text=True)
-    fields = p.stdout.strip().split()
+                        "--verbatim"), input=patch.encode("utf-8", "surrogateescape"),
+                       capture_output=True)
+    fields = p.stdout.decode("ascii").strip().split()
     if p.returncode != 0 or len(fields) != 2:
         return (None, f"git patch-id could not measure {commit}")
     return (fields[0], None)
@@ -520,10 +524,9 @@ def contained(branch: str,
               base: str) -> tuple[bool | None, int | None, str | None]:
     """(is_contained, commits_ahead, note_or_error).
 
-    ``is_contained`` is True when ``base`` already has this branch's work --
-    either because every commit is an ancestor, or because the content landed
-    by another route (squash, rebase).  None means the question could not be
-    answered, which is a finding, never a pass.
+    True means an existing landing proof or the bounded retained replay.
+    None includes historical replay with unproved current retention, and
+    measurement failure. Neither is a pass.
     """
     graft_error = active_graft_error()
     if graft_error:
@@ -568,14 +571,11 @@ def contained(branch: str,
     if verdict is not None:
         return verdict
 
-    #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
-    #! this is real, and there is one case that reads STRANDED without being
-    #! so: a multi-commit squash whose paths were later edited on base. No
-    #! patch-id matches (the squash collapsed them) and the paths no longer
-    #! agree (the later edit), so neither arm above can prove it landed. That
-    #! is a false ALARM rather than a false pass -- the safe direction -- and
-    #! naming the paths is what lets a reader settle it in one look instead of
-    #! learning to ignore the check.
+    verdict = replay_verdict(branch, base, ahead, _git, _linear_patches_contained)
+    if verdict is not None:
+        return verdict
+
+    #! Name differing paths when no arm can prove landing or retention.
     differing = []
     if have_merge_base:
         differing, enumeration_error = _differing_paths(branch, base)
@@ -911,8 +911,8 @@ def _report(targets, base):
         print("  step 7.")
     if unknown:
         print()
-        print(f"{unknown} ref(s) could not be resolved, so the question was")
-        print("  not answered. An unknown is not a pass.")
+        print(f"{unknown} tip(s) lack a containment proof; see UNKNOWN above.")
+        print("  Unresolved history or current retention is not a pass.")
     return RC_FINDING if (stranded or unknown) else RC_OK
 
 
