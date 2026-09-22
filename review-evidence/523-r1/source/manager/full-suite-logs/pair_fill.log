@@ -1,0 +1,73 @@
+make: Entering directory '$VALIDATION/tb/verilator/pair_fill'
+verilator --cc --exe --build -j 0 --top-module pair_fill_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv pair_fill_tb_top.sv sim_main.cpp -o Vpair_fill_sim
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+make[1]: Entering directory '$VALIDATION/tb/verilator/pair_fill/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vpair_fill_tb_top.cpp Vpair_fill_tb_top___024root__0.cpp Vpair_fill_tb_top__ConstPool__0__Slow.cpp Vpair_fill_tb_top___024root__Slow.cpp Vpair_fill_tb_top___024root__0__Slow.cpp Vpair_fill_tb_top__Syms__Slow.cpp > Vpair_fill_tb_top__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vpair_fill_tb_top__ALL.o Vpair_fill_tb_top__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vpair_fill_tb_top__ALL.a    -pthread -lpthread -latomic   -o Vpair_fill_sim
+rm Vpair_fill_tb_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/pair_fill/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.118 MB sources in 4 modules, into 0.056 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 4.956 s (elab=0.002, cvt=0.011, bld=4.935); cpu 0.023 s on 8 threads; allocated 483.164 MB
+======================================================================
+./obj_dir/Vpair_fill_sim
+[blend] slot map + collision hold
+  [ok]   B1 lone I2S: one strobe                              = 0x1
+  [ok]   B1 out slot                                          = 0x0
+  [ok]   B1 L                                                 = 0x111111
+  [ok]   B1 R                                                 = 0x222222
+  [ok]   B2 lone TDM slot 2: one strobe                       = 0x1
+  [ok]   B2 out slot == 1 + tdm slot                          = 0x3
+  [ok]   B2 L                                                 = 0x333333
+  [ok]   B3 collision: two strobes total                      = 0x2
+  [ok]   B3 first is TDM (slot 1)                             = 0x1
+  [ok]   B3 first L is TDM data                               = 0xcccccc
+  [ok]   B3 second is held I2S (slot 0)                       = 0x0
+  [ok]   B3 second L is held I2S data                         = 0xaaaaaa
+  [ok]   B4 three strobes (2 TDM + 1 I2S)                     = 0x3
+  [ok]   B4 drained I2S is the FRESH sample                   = 0xb0b0b
+  [ok]   B5 pairs_merged_o == output strobes                  = 0x7
+[fill] 5.3.7.3 silence fill, fed-tracked
+  [ok]   Z1 no fills after the first tick                     = 0x0
+  [ok]   Z1 second tick fills every slot                      = 0x8
+  [ok]   Z1 fills carry zero samples                          = 0x1
+  [ok]   Z1 fills walk slots 0..7 in order                    = 0x1
+  [ok]   Z1 fill_cnt_o                                        = 0x8
+  [ok]   Z2 live slot passes through every period             = 0xa
+  [ok]   Z2 live slot NEVER filled (any phase)                = 0x0
+  [ok]   Z3 fill_cnt_o == 8 + 10*7                            = 0x4e
+  [ok]   Z4 grace window 1 after death                        = 0x0
+  [ok]   Z4 grace window 2 after death                        = 0x0
+  [ok]   Z4 dead slot fills once both windows empty           = 0x1
+  [ok]   Z4 all 8 filled once that period                     = 0x8
+  [ok]   Z5 live strobe + full pending walk                   = 0x9
+  [ok]   Z5 the live strobe leads the walk out                = 0x1
+  [ok]   Z6 out-of-span slot passes through                   = 0x1
+  [ok]   Z6 slot preserved                                    = 0xc
+  [ok]   Z6 fill span stays 8/period                          = 0x0
+  [ok]   Z7 output silent in the decision cycle               = 0x0
+  [ok]   Z7 strobe N sampled at N+1                           = 0x1
+  [ok]   Z7 slot intact                                       = 0x2
+  [ok]   Z7 L intact                                          = 0xabc123
+  [ok]   Z7 R intact                                          = 0xcafe
+  [ok]   Z7 back-to-back: strobe N+1 at N+2                   = 0x2
+  [ok]   Z7 second slot intact                                = 0x4
+  [ok]   Z7 second L intact                                   = 0xdef45
+  [ok]   Z7 no trailing strobe                                = 0x2
+--------------------------------------------------------------
+checks: 41   failures: 0
+RESULT: PASS
+make: Leaving directory '$VALIDATION/tb/verilator/pair_fill'
