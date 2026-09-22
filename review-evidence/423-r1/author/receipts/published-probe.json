@@ -1,0 +1,84 @@
+{
+  "fixture": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-author/probe-scratch/milan-423-readiness-irj0t73s",
+  "objects": {
+    "O": "dc453cb2db75b81fa89fc6f6250c489671cc9117",
+    "A": "0d207baa268a5b6d8f275349e740115b089b1067",
+    "M": "6567269740fc70337e3942898fd1b54a964df531",
+    "C": "b0bca37d2b1ec8497e90cf1515273e02857c1830",
+    "A_replay": "7cea3ae3934b73d0c2077e2c8b4e11c3ebf3b137",
+    "C_replay": "f1dcf6a8de23de632fcde778d593069f38010531",
+    "D_extension": "b5d8ae31ad8b57991379ce6a702f51eb6d476fa0",
+    "R_revert": "99585b5240729ab1019905fa6b37ff67a0699e2f"
+  },
+  "merge": {
+    "parents": [
+      "dc453cb2db75b81fa89fc6f6250c489671cc9117",
+      "0d207baa268a5b6d8f275349e740115b089b1067"
+    ],
+    "first_parent_ancestor_of_second": true,
+    "same_tree_as_second": true
+  },
+  "cases": [
+    {
+      "case": "exact_replay_then_extension",
+      "base": "b5d8ae31ad8b57991379ce6a702f51eb6d476fa0",
+      "candidate": "b0bca37d2b1ec8497e90cf1515273e02857c1830",
+      "current_verdict": [
+        null,
+        null,
+        "historical whitespace-exact replay in b5d8ae31ad8b57991379ce6a702f51eb6d476fa0; current retention unproved on: 'feature.txt'"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ],
+      "cli": {
+        "command": [
+          "/usr/bin/python3",
+          "-B",
+          "-I",
+          "$CANDIDATE/scripts/check_merge_containment.py",
+          "--no-fetch",
+          "--base",
+          "b5d8ae31ad8b57991379ce6a702f51eb6d476fa0",
+          "b0bca37d2b1ec8497e90cf1515273e02857c1830"
+        ],
+        "exit": 1,
+        "word": "UNKNOWN",
+        "stdout": "  UNKNOWN    b0bca37d2b1ec8497e90cf1515273e02857c1830: historical whitespace-exact replay in b5d8ae31ad8b57991379ce6a702f51eb6d476fa0; current retention unproved on: 'feature.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+        "stderr": ""
+      }
+    },
+    {
+      "case": "replay_then_exact_reversion",
+      "base": "99585b5240729ab1019905fa6b37ff67a0699e2f",
+      "candidate": "b0bca37d2b1ec8497e90cf1515273e02857c1830",
+      "current_verdict": [
+        null,
+        null,
+        "historical whitespace-exact replay in 99585b5240729ab1019905fa6b37ff67a0699e2f; current retention unproved on: 'feature.txt'"
+      ],
+      "existing_linear_proof": [
+        true,
+        null
+      ],
+      "cli": {
+        "command": [
+          "/usr/bin/python3",
+          "-B",
+          "-I",
+          "$CANDIDATE/scripts/check_merge_containment.py",
+          "--no-fetch",
+          "--base",
+          "99585b5240729ab1019905fa6b37ff67a0699e2f",
+          "b0bca37d2b1ec8497e90cf1515273e02857c1830"
+        ],
+        "exit": 1,
+        "word": "UNKNOWN",
+        "stdout": "  UNKNOWN    b0bca37d2b1ec8497e90cf1515273e02857c1830: historical whitespace-exact replay in 99585b5240729ab1019905fa6b37ff67a0699e2f; current retention unproved on: 'feature.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+        "stderr": ""
+      }
+    }
+  ],
+  "claim": "This probes existing helpers only; no production change or proof adoption."
+}

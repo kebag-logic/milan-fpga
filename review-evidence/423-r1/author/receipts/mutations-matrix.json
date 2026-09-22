@@ -1,0 +1,2436 @@
+{
+  "baseline": {
+    "1": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+      "stderr": ""
+    },
+    "2": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+      "stderr": ""
+    },
+    "3": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "4": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    "5": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+      "stderr": ""
+    },
+    "6": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "7": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "8": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "9": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "10": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "11": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "12": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "13": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "14": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "15": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "16": {
+      "exit": 1,
+      "word": "UNKNOWN",
+      "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+      "stderr": ""
+    },
+    "17": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "18": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "19": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "20": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "21": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "22": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "23": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "24": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "25": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "26": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "27": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "28": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "29": {
+      "exit": 1,
+      "word": "STRANDED",
+      "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+      "stderr": ""
+    },
+    "30": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    },
+    "31": {
+      "exit": 0,
+      "word": "contained",
+      "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+      "stderr": ""
+    }
+  },
+  "mutations": [
+    {
+      "guard": "merge-count",
+      "edits": [
+        [
+          "if len(rows) != 1:",
+          "if not rows:"
+        ]
+      ],
+      "changed": {
+        "3": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (6 not ancestors)]\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "parent-count",
+      "edits": [
+        [
+          "if len(fields) != 3:",
+          "if len(fields) < 3:"
+        ],
+        [
+          "merge, first, second = fields",
+          "merge, first, second = fields[:3]"
+        ]
+      ],
+      "changed": {
+        "25": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (4 not ancestors)]\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "direct-parent",
+      "edits": [
+        [
+          "if parents[1:] != [first]:",
+          "if False:"
+        ]
+      ],
+      "changed": {
+        "28": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (4 not ancestors)]\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "merge-tree",
+      "edits": [
+        [
+          "return merge_tree == second_tree",
+          "return True"
+        ]
+      ],
+      "changed": {
+        "21": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        },
+        "22": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'resolution.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "historical-proof",
+      "edits": [
+        [
+          "historical, error = replay(branch, base)",
+          "historical, error = True, None"
+        ]
+      ],
+      "changed": {
+        "17": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        },
+        "18": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        },
+        "19": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        },
+        "20": {
+          "before": [
+            1,
+            "STRANDED"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'rep.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "retention-proof",
+      "edits": [
+        [
+          "unproved = _retained_at_tip(branch, base, git)",
+          "unproved = []"
+        ]
+      ],
+      "changed": {
+        "6": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "7": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "8": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "9": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "10": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "11": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "12": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "13": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "14": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "15": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        },
+        "16": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "exact-only",
+      "edits": [
+        [
+          "return _merge_is_noop(original, tip, branch)",
+          "return False"
+        ]
+      ],
+      "changed": {
+        "1": {
+          "before": [
+            0,
+            "contained"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        },
+        "2": {
+          "before": [
+            0,
+            "contained"
+          ],
+          "after": [
+            1,
+            "UNKNOWN"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "mode-rule",
+      "edits": [
+        [
+          "if not (tip[0] == branch[0]\n            or (original is not None and original[0] == branch[0])):",
+          "if False:"
+        ]
+      ],
+      "changed": {
+        "10": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "tip-byte-equality",
+      "edits": [
+        [
+          "return rc == 0 and merged == blobs[0]",
+          "return rc == 0"
+        ]
+      ],
+      "changed": {
+        "14": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'data.bin' (raw merge-file failed (exit 255))\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    },
+    {
+      "guard": "merge-error",
+      "edits": [
+        [
+          "raise _MeasurementError(f\"raw merge-file failed (exit {rc})\")",
+          "return True"
+        ]
+      ],
+      "changed": {
+        "11": {
+          "before": [
+            1,
+            "UNKNOWN"
+          ],
+          "after": [
+            0,
+            "contained"
+          ]
+        }
+      },
+      "results": {
+        "1": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "2": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "3": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "4": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "5": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (3 commit(s) not ancestors -- squash or rebase merge)]\n",
+          "stderr": ""
+        },
+        "6": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "7": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "8": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "9": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "10": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tool.sh'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "11": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+          "stderr": ""
+        },
+        "12": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "13": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "14": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "15": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "16": {
+          "exit": 1,
+          "word": "UNKNOWN",
+          "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'added.py', 'mod.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+          "stderr": ""
+        },
+        "17": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "18": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "19": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: added.py, mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "20": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, rep.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "21": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt, resolution.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "22": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "23": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "24": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "25": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "26": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "27": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 6 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "28": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 4 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "29": {
+          "exit": 1,
+          "word": "STRANDED",
+          "stdout": "  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: mod.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+          "stderr": ""
+        },
+        "30": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (2 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        },
+        "31": {
+          "exit": 0,
+          "word": "contained",
+          "stdout": "  contained  refs/heads/pr  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]\n",
+          "stderr": ""
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+#! ---- R242 SCRATCH candidate arm for #423 (design evidence, not for adoption) ----
+#! Inserted by make_prototype.py into a scratch COPY of the trusted checker,
+#! between the patch-id arm and the final STRANDED verdict.  It uses only the
+#! host module's own helpers (_git, RAW_DIFF_FLAGS, _linear_patches_contained).
+#!
+#! G  base..branch holds EXACTLY ONE merge, of the exact redundant
+#!    no-fast-forward shape (the only shape public PR62 needs)
+#! H  the existing whitespace-exact linear replay proof over the non-merge
+#!    commits (unchanged helper; G makes that list the whole history)
+#! T  retention at the CURRENT base tip: re-merging the branch into base,
+#!    path by path from the unique merge base, is clean and changes nothing
+#! G and H and T -> contained; G and H without T -> UNKNOWN (explicitly
+#! unresolved); anything else falls through to the existing STRANDED.
+import os
+import tempfile
+
+REGULAR_MODES = ("100644", "100755")
+MAX_MERGES = 1
+
+
+def _git_bytes(*args):
+    """Run git for raw bytes: (rc, stdout bytes).  Never raises."""
+    p = subprocess.run(("git", "--no-replace-objects") + args,
+                       capture_output=True)
+    return p.returncode, p.stdout
+
+
+def _redundant_merge_shape(branch, base):
+    """(True, None) when base..branch holds exactly one merge and it is the
+    exact no-fast-forward shape; (False, why) when not; (None, err)."""
+    rc, out = _git("rev-list", "--min-parents=2", "--parents",
+                   f"{base}..{branch}")
+    if rc != 0:
+        return (None, f"rev-list could not enumerate merges in {branch}")
+    rows = [line.split() for line in out.splitlines() if line.strip()]
+    if len(rows) != MAX_MERGES:
+        return (False, f"{len(rows)} merge commit(s); the arm admits "
+                       f"exactly {MAX_MERGES}")
+    for merge, *parents in rows:
+        if len(parents) != 2:
+            return (False, f"{merge} has {len(parents)} parents")
+        first, second = parents
+        rc, line = _git("rev-list", "--parents", "--max-count=1", second)
+        fields = line.split()
+        if rc != 0 or not fields or fields[0] != second:
+            return (None, f"could not read the parents of {second}")
+        if fields[1:] != [first]:
+            return (False, f"{merge}: first parent is not the only parent "
+                           f"of its second parent")
+        rc1, merge_tree = _git("rev-parse", "--verify", "--quiet",
+                               merge + "^{tree}")
+        rc2, second_tree = _git("rev-parse", "--verify", "--quiet",
+                                second + "^{tree}")
+        if rc1 != 0 or rc2 != 0 or not merge_tree or not second_tree:
+            return (None, f"could not read the trees of {merge}")
+        if merge_tree != second_tree:
+            return (False, f"{merge} adds resolution content")
+    return (True, None)
+
+
+def _tree_entry(commit, path):
+    """((mode, type, oid) or None when absent, None) or (None, err)."""
+    rc, out = _git_bytes("--literal-pathspecs", "ls-tree", "-z",
+                         "--full-tree", commit, "--", path)
+    if rc != 0:
+        return (None, f"ls-tree could not read {path!r} in {commit}")
+    for rec in out.split(b"\0"):
+        if not rec:
+            continue
+        meta, name = rec.split(b"\t", 1)
+        if name == path.encode("utf-8", "surrogateescape"):
+            mode, kind, oid = meta.decode().split()
+            return ((mode, kind, oid), None)
+    return (None, None)
+
+
+def _blob(oid):
+    """(bytes, None) or (None, err) for one raw blob, no filters."""
+    rc, data = _git_bytes("cat-file", "blob", oid)
+    return (data, None) if rc == 0 else (None, f"cannot read blob {oid}")
+
+
+def _merge_is_noop(o, t, b):
+    """(True/False, None) or (None, err): does a raw three-way merge of the
+    branch blob into the tip blob, from the merge-base blob, leave the tip
+    byte-identical?  git merge-file reads no attributes, drivers or renames."""
+    blobs = []
+    for entry in (t, o, b):
+        if entry is None:
+            blobs.append(b"")
+            continue
+        data, err = _blob(entry[2])
+        if err:
+            return (None, err)
+        blobs.append(data)
+    with tempfile.TemporaryDirectory(prefix="r242-merge-file-") as td:
+        names = []
+        for label, data in zip(("tip", "base", "branch"), blobs):
+            name = os.path.join(td, label)
+            with open(name, "wb") as fh:
+                fh.write(data)
+            names.append(name)
+        p = subprocess.run(("git", "merge-file", "-p", "-q", *names),
+                           capture_output=True)
+    if p.returncode < 0 or p.returncode > 127:
+        return (None, "git merge-file could not merge (binary or error)")
+    return (p.returncode == 0 and p.stdout == blobs[0], None)
+
+
+def _retained_at_tip(branch, base):
+    """(True, []) when re-merging branch into base changes nothing;
+    (False, paths) naming what would change or conflict; (None, err)."""
+    rc, out = _git("merge-base", "--all", base, branch)
+    bases = out.split() if rc == 0 else []
+    if len(bases) != 1:
+        return (None, f"{len(bases)} merge bases; retention needs exactly one")
+    mb = bases[0]
+    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only", "--no-renames",
+                     "-z", mb, branch)
+    if rc != 0:
+        return (None, f"git diff could not enumerate {mb}..{branch}")
+    lost = []
+    for path in (n for n in names.split("\0") if n):
+        entries = []
+        for commit in (mb, base, branch):
+            entry, err = _tree_entry(commit, path)
+            if err:
+                return (None, err)
+            entries.append(entry)
+        o, t, b = entries
+        if t == b:
+            continue
+        regular = [e is None or (e[1] == "blob" and e[0] in REGULAR_MODES)
+                   for e in (o, t, b)]
+        if t is None or b is None or not all(regular):
+            lost.append(path)
+            continue
+        if not (t[0] == b[0] or (o is not None and o[0] == b[0])):
+            lost.append(path)
+            continue
+        if t[2] == b[2]:
+            continue
+        same, err = _merge_is_noop(o, t, b)
+        if err:
+            return (None, f"{path}: {err}")
+        if not same:
+            lost.append(path)
+    return (not lost, lost)
+
+
+def _redundant_merge_replay_verdict(branch, base, ahead):
+    """A contained/UNKNOWN triple for a redundant-merge replay, or None."""
+    shape, why = _redundant_merge_shape(branch, base)
+    if shape is None:
+        return (None, None, why)
+    if not shape:
+        return None
+    replayed, err = _linear_patches_contained(branch, base)
+    if replayed is None:
+        return (None, None, err)
+    if not replayed:
+        return None
+    retained, detail = _retained_at_tip(branch, base)
+    if retained is None:
+        return (None, None, f"replayed whitespace-exactly across one redundant "
+                            f"merge, but retention at {base} is "
+                            f"unmeasurable: {detail}")
+    if retained:
+        return (True, ahead, f"whitespace-exact replay across one redundant "
+                             f"no-fast-forward merge, and re-merging it "
+                             f"into {base} changes nothing ({ahead} not "
+                             f"ancestors)")
+    return (None, None, f"replayed whitespace-exactly in {base} history, but "
+                        f"retention at {base} is NOT proven -- re-merging "
+                        f"would change or conflict on: "
+                        + ", ".join(detail[:6]))
+#! ---- end R242 SCRATCH candidate arm ----
