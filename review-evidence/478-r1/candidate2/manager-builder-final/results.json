@@ -1,0 +1,519 @@
+{
+  "head": "72e16c6172db723734317b105cff6c6e9168571a",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 0.068,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/01.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 0
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.185,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/02.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 1
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 9.794,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/03.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 2
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/suite_shards.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.055,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/04.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 3
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.162,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/05.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 4
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 1.725,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/06.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 5
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 7.066,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/07.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 6
+    },
+    {
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.933,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/08.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 7
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.567,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/09.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 8
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.415,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/10.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 9
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.047,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/11.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 10
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.785,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/12.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 11
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.773,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/13.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 12
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.045,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/14.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 13
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.035,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/15.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 14
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.105,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/16.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 15
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/17.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 16
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.241,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/18.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 17
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "exit_code": 0,
+      "seconds": 0.386,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/19.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 18
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.354,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/20.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 19
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.291,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/21.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 20
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.203,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/22.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 21
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.399,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/23.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 22
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.193,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/24.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 23
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.27,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/25.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 24
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.102,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/26.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 25
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.141,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/27.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 26
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.82,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/28.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 27
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 13.1,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/29.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 28
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 2.402,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/30.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 29
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 38.862,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/31.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 30
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "exit_code": 0,
+      "seconds": 11.503,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/32.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 31
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/xvlog_gate.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 133.358,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/33.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 32
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.109,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/34.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 33
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.051,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/35.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 34
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "52711029f374650dc93830d5ea28e81cb5c8f410"
+      ],
+      "exit_code": 0,
+      "seconds": 0.905,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/36.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 35
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 1.34,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/37.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 36
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 4.547,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/38.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 37
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.414,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/39.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 38
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "52711029f374650dc93830d5ea28e81cb5c8f410",
+        "72e16c6172db723734317b105cff6c6e9168571a"
+      ],
+      "exit_code": 0,
+      "seconds": 0.017,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/whitespace-correction/01.log",
+      "receipt_origin": "whitespace-correction/results.json",
+      "receipt_row": 0
+    },
+    {
+      "command": [
+        "python3",
+        "sw/builder/test_builder.py"
+      ],
+      "exit_code": 0,
+      "seconds": 433.239,
+      "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/41.log",
+      "receipt_origin": "manager-builder/results.json",
+      "receipt_row": 40
+    }
+  ],
+  "kind": "Composed evidence from separately recorded terminal executions; not an additional gate execution",
+  "superseded_command": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "1496558d82cf35fc98dda0e781b2a1be643c301a"
+    ],
+    "exit_code": 0,
+    "seconds": 0.022,
+    "log": "$VALIDATION_STORAGE/478-manager-candidate2/manager-builder/40.log"
+  },
+  "decision": {
+    "public": "https://github.com/kebag-logic/milan-fpga/pull/512#issuecomment-5778469586",
+    "original_command": [
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "1496558d82cf35fc98dda0e781b2a1be643c301a"
+    ],
+    "corrected_command": [
+      "git",
+      "diff",
+      "--check",
+      "52711029f374650dc93830d5ea28e81cb5c8f410",
+      "72e16c6172db723734317b105cff6c6e9168571a"
+    ],
+    "at": "2026-09-22T16:37:46.515490+02:00"
+  },
+  "original_results_sha256": "3cb44bd10b255e7fe85fecfd9b8af6f227196cd68a8f8ad96188332f60cd8e9c",
+  "correction_results_sha256": "3f309cb45d2ca5c78ffe6cd8b2e93b0ea93426f0651c4a9a584bf0b613979d80"
+}
