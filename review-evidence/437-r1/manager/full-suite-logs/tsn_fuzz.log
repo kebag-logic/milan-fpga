@@ -1,0 +1,430 @@
+make: Entering directory '$VALIDATION/tb/verilator/tsn_fuzz'
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.. -Wall -Wextra" --top-module avtp_rxmon_wrap -GCLK_FREQ_HZ_P=10000 +incdir+../../../hdl/common +incdir+../../../hdl/ieee1722/avtp --Mdir obj_aaf ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../avtp_rxmon/avtp_rxmon_wrap.sv cosim_aaf.cpp -o Vaaf_cosim
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+python3 ../../../docs/traceability/gen_module_matrix.py --check
+gptp_ucode.hex: 1024 words, 989 real (96.6%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@957 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1014 PDREQ@898 TXLOST@103 TXT1OK@180
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:185:6: Instance pin connected by name with empty reference: 's_axis_tready'
+  185 |     .s_axis_tready(),
+      |      ^~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.052
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:195:6: Instance pin connected by name with empty reference: 'm_axis_tid'
+  195 |     .m_axis_tid   (),
+      |      ^~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:196:6: Instance pin connected by name with empty reference: 'm_axis_tdest'
+  196 |     .m_axis_tdest (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:197:6: Instance pin connected by name with empty reference: 'm_axis_tuser'
+  197 |     .m_axis_tuser (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:199:6: Instance pin connected by name with empty reference: 'status_bad_frame'
+  199 |     .status_bad_frame(),
+      |      ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:201:6: Instance pin connected by name with empty reference: 'status_depth'
+  201 |     .status_depth(),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:202:6: Instance pin connected by name with empty reference: 'status_depth_commit'
+  202 |     .status_depth_commit(),
+      |      ^~~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:204:6: Instance pin connected by name with empty reference: 'pause_ack'
+  204 |     .pause_ack()
+      |      ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:78:6: Instance pin connected by name with empty reference: 'match_index_o'
+   78 |     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
+      |      ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:78:25: Instance pin connected by name with empty reference: 'stream_id_o'
+   78 |     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
+      |                         ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:79:30: Instance pin connected by name with empty reference: 'ts_valid_o'
+   79 |     .subtype_o (subtype_w), .ts_valid_o (),
+      |                              ^~~~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'fsh2_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:94:37: ... Location of port declaration
+   94 |   output logic [63:0]               fsh2_o,           
+      |                                     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'parse_valid_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:95:37: ... Location of port declaration
+   95 |   output logic                      parse_valid_o,    
+      |                                     ^~~~~~~~~~~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:71:5: Instance has missing pin: 'b3_o'
+   71 |   ) u_par (
+      |     ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:96:37: ... Location of port declaration
+   96 |   output logic [7:0]                b3_o,             
+      |                                     ^~~~
+%Warning-PINMISSING: ../avtp_rxmon/avtp_rxmon_wrap.sv:85:55: Instance has missing pin: 'wire_chans_o'
+   85 |   KL_avtp_rx_monitor #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_mon (
+      |                                                       ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:145:23: ... Location of port declaration
+  145 |   output logic [7:0]  wire_chans_o,       
+      |                       ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:116:35: Instance pin connected by name with empty reference: 'm_axis_tkeep'
+  116 |     .m_axis_tdata (pcm_tdata_o), .m_axis_tkeep (),
+      |                                   ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:118:6: Instance pin connected by name with empty reference: 'm_axis_tuser'
+  118 |     .m_axis_tuser (),
+      |      ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:121:6: Instance pin connected by name with empty reference: 'pdu_out_p_o'
+  121 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_idx_o ()
+      |      ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:121:23: Instance pin connected by name with empty reference: 'pdu_out_idx_o'
+  121 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_idx_o ()
+      |                       ^~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:121:42: Instance pin connected by name with empty reference: 'drop_p_o'
+  121 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_idx_o ()
+      |                                          ^~~~~~~~
+%Warning-PINCONNECTEMPTY: ../avtp_rxmon/avtp_rxmon_wrap.sv:121:56: Instance pin connected by name with empty reference: 'drop_idx_o'
+  121 |     .pdu_out_p_o (), .pdu_out_idx_o (), .drop_p_o (), .drop_idx_o ()
+      |                                                        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.052
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:101:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  101 | module KL_avtp_rx_monitor #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.052
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-IMPORTSTAR: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:52:8: 'import::*' in $unit scope may pollute global namespace
+   52 | import ethernet_packet_pkg::*;
+      |        ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/IMPORTSTAR?v=5.052
+                     ... Use "/* verilator lint_off IMPORTSTAR */" and lint_on around source to disable this message.
+%Warning-IMPORTSTAR: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:53:8: 'import::*' in $unit scope may pollute global namespace
+   53 | import avtp_subtype_pkg::*;
+      |        ^~~~~~~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.052
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -I.. -Wall -Wextra" --top-module gptp_shadow_wrap -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 --Mdir obj_ptp ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv cosim_ptp.cpp -o Vptp_cosim
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.052
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.052
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+[single-kind and unknown-kind fields]
+  [ok  ] mask: no undefined bit set                                     pass=1/1 fail=0/0
+  [ok  ] mask: an undefined bit IS set                                  pass=0/0 fail=1/1  needles=('undefined=0x80',) found
+  [ok  ] mask: every defined bit set is still legal                     pass=1/1 fail=0/0
+  [ok  ] mask 16b talker_capabilities: legal                            pass=1/1 fail=0/0
+  [ok  ] mask 16b: undefined bit 14, above the low byte                 pass=0/0 fail=1/1  needles=('undefined=0x4000',) found
+  [ok  ] mask 32b acquire_entity_flags: legal                           pass=1/1 fail=0/0
+  [ok  ] mask 32b: undefined bit 29, above 16 bits                      pass=0/0 fail=1/1  needles=('undefined=0x20000000',) found
+  [ok  ] mask 64b msrp_flags: legal                                     pass=1/1 fail=0/0
+  [ok  ] mask 64b: undefined bit 58, above 32 bits                      pass=0/0 fail=1/1  needles=('undefined=0x400000000000000',) found
+  [ok  ] unknown kind fails closed                                      pass=0/0 fail=1/1  needles=('ungradeable constraint kind',) found
+  [ok  ] unknown kind names the field                                   pass=0/0 fail=1/1  needles=('t.f',) found
+  [ok  ] unknown kind names the KIND itself                             pass=0/0 fail=1/1  needles=('regex',) found
+  [ok  ] value: matching                                                pass=1/1 fail=0/0
+  [ok  ] value: mismatching                                             pass=0/0 fail=1/1  needles=('got=67',) found
+  [ok  ] range: inside                                                  pass=1/1 fail=0/0
+  [ok  ] range: outside                                                 pass=0/0 fail=1/1  needles=('got=200',) found
+  [ok  ] values: legal                                                  pass=1/1 fail=0/0
+  [ok  ] values: illegal                                                pass=0/0 fail=1/1  needles=('got=3',) found
+  [ok  ] no constraint at all still skips                               pass=0/0 fail=0/0
+[a field declaring more than one kind is refused]
+  [ok  ] value+values: frame carries the value (first-kind-wins passed it) pass=0/0 fail=1/1  needles=('dual_fld', '2 constraint kinds', '(value, values)') found
+  [ok  ] value+values: frame carries 1, legal upstream (first-kind-wins blamed the DUT) pass=0/0 fail=1/1  needles=('dual_fld', '(value, values)') found
+  [ok  ] value+range                                                    pass=0/0 fail=1/1  needles=('dual_fld', '(range, value)') found
+  [ok  ] values+mask                                                    pass=0/0 fail=1/1  needles=('dual_fld', '(mask, values)') found
+  [ok  ] value+mask                                                     pass=0/0 fail=1/1  needles=('dual_fld', '(mask, value)') found
+  [ok  ] values+range                                                   pass=0/0 fail=1/1  needles=('dual_fld', '(range, values)') found
+  [ok  ] range+mask                                                     pass=0/0 fail=1/1  needles=('dual_fld', '(mask, range)') found
+  [ok  ] three kinds: value+values+range                                pass=0/0 fail=1/1  needles=('dual_fld', '3 constraint kinds', '(range, value, values)') found
+  [ok  ] all four kinds                                                 pass=0/0 fail=1/1  needles=('dual_fld', '4 constraint kinds', '(mask, range, value, values)') found
+  [ok  ] known kind beside an unknown one: value+regex                  pass=0/0 fail=1/1  needles=('dual_fld', '(regex, value)') found
+  [ok  ] 16b values+mask                                                pass=0/0 fail=1/1  needles=('dual_fld', '(mask, values)') found
+[one predicate for grade_tx, legal() and illegal()]
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+values: frame carries the value (first-kind-wins passed it)
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+values: frame carries 1, legal upstream (first-kind-wins blamed the DUT)
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+range   
+  [ok  ] same refusal from grade_tx, legal(), illegal(): values+mask   
+  [ok  ] same refusal from grade_tx, legal(), illegal(): value+mask    
+  [ok  ] same refusal from grade_tx, legal(), illegal(): values+range  
+  [ok  ] same refusal from grade_tx, legal(), illegal(): range+mask    
+  [ok  ] same refusal from grade_tx, legal(), illegal(): three kinds: value+values+range
+  [ok  ] same refusal from grade_tx, legal(), illegal(): all four kinds
+  [ok  ] same refusal from grade_tx, legal(), illegal(): known kind beside an unknown one: value+regex
+  [ok  ] same refusal from grade_tx, legal(), illegal(): 16b values+mask
+  [ok  ] grade_tx asks tsn_model.kind_conflict before it dispatches    
+  [ok  ] legal() asks tsn_model.kind_conflict before it dispatches     
+  [ok  ] illegal() asks tsn_model.kind_conflict before it dispatches   
+  [ok  ] loaded model: the single-kind field grades legal() as before    got [3]
+  [ok  ] loaded model: legal() refuses the dual-kind field by name       got 'field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused'
+  [ok  ] loaded model: illegal() refuses the dual-kind field by name     got 'field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused'
+  [ok  ] loaded model: grade_tx grades solo and refuses dual_fld        pass=1/1 fail=1/1 field dual_fld declares 2 constraint kinds (value, values); a field takes exactly one of value/values/range/mask, so it is refused
+[the refusal cases can fail: mutants of the predicate]
+  [ok  ] mutant 'refusal bypassed: predicate returns None' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal bypassed: predicate returns None' leaves every single-kind case green (19/19)
+  [ok  ] mutant 'refusal names neither the field nor the kinds' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal names neither the field nor the kinds' leaves every single-kind case green (19/19)
+  [ok  ] mutant 'refusal names the field and only the FIRST kind' goes red in every refusal case (11/11)
+  [ok  ] mutant 'refusal names the field and only the FIRST kind' leaves every single-kind case green (19/19)
+
+grade_tx self-test: 54 checks: 54 PASS, 0 FAIL
+make[1]: Entering directory '$VALIDATION/tb/verilator/tsn_fuzz/obj_aaf'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -Os  -c -o cosim_aaf.o ../cosim_aaf.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vavtp_rxmon_wrap.cpp Vavtp_rxmon_wrap___024root__0.cpp Vavtp_rxmon_wrap__ConstPool__0__Slow.cpp Vavtp_rxmon_wrap___024root__Slow.cpp Vavtp_rxmon_wrap___024root__0__Slow.cpp Vavtp_rxmon_wrap___024unit__Slow.cpp Vavtp_rxmon_wrap__Syms__Slow.cpp > Vavtp_rxmon_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o Vavtp_rxmon_wrap__ALL.o Vavtp_rxmon_wrap__ALL.cpp
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_enable_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_arm_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: ../gptp_shadow/gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+make[1]: Entering directory '$VALIDATION/tb/verilator/tsn_fuzz/obj_ptp'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -Os  -c -o cosim_ptp.o ../cosim_ptp.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_shadow_wrap.cpp Vgptp_shadow_wrap___024root__0.cpp Vgptp_shadow_wrap__ConstPool__0__Slow.cpp Vgptp_shadow_wrap___024root__Slow.cpp Vgptp_shadow_wrap___024root__0__Slow.cpp Vgptp_shadow_wrap__Syms__Slow.cpp > Vgptp_shadow_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I.. -Wall -Wextra   -c -o Vgptp_shadow_wrap__ALL.o Vgptp_shadow_wrap__ALL.cpp
+g++    cosim_aaf.o verilated.o verilated_threads.o Vavtp_rxmon_wrap__ALL.a    -pthread -lpthread -latomic   -o Vaaf_cosim
+rm Vavtp_rxmon_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/tsn_fuzz/obj_aaf'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.489 MB sources in 9 modules, into 0.276 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 5.154 s (elab=0.008, cvt=0.024, bld=5.105); cpu 0.053 s on 8 threads; allocated 19.824 MB
+== AAF/AVTP stream field campaign (tsn-gen driven) ==
+  SKIP: tsn-gen not found at $WORKSPACE_HOME/tsn-gen/build/traffic-gen/packet_gen
+        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign
+SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  ..... campaign skipped (tsn-gen absent), not a failure
+SUITE-SKIP: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  the campaign did not run, so there is no fresh result to compare;
+  this is NOT a statement that the committed copy is current.
+g++    cosim_ptp.o verilated.o verilated_threads.o Vgptp_shadow_wrap__ALL.a    -pthread -lpthread -latomic   -o Vptp_cosim
+rm Vgptp_shadow_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$VALIDATION/tb/verilator/tsn_fuzz/obj_ptp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 2.679 MB sources in 18 modules, into 0.817 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.413 s (elab=0.026, cvt=0.096, bld=5.239); cpu 0.185 s on 8 threads; allocated 28.414 MB
+== gPTP/802.1AS field campaign (tsn-gen driven) ==
+  SKIP: tsn-gen not found at $WORKSPACE_HOME/tsn-gen/build/traffic-gen/packet_gen
+        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign
+SUITE-SKIP: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  ..... campaign skipped (tsn-gen absent), not a failure
+SUITE-SKIP: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  the campaign did not run, so there is no fresh result to compare;
+  this is NOT a statement that the committed copy is current.
+== tsn_fuzz: all campaigns passed ==
+make: Leaving directory '$VALIDATION/tb/verilator/tsn_fuzz'
