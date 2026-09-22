@@ -9,7 +9,8 @@ The 38 manager checks and complete builder test now pass.
 Builder gate 11 lacks its physical calibration report.
 All five hosted fast contexts pass at the candidate head.
 The trusted local docs, rtl-fast and elaborate replicas pass.
-Full native RTL and measured AC5 validation remain pending.
+Measured AC5 passes its expected-failure requirements.
+The remaining full native gates and ready exhaustive replica are pending.
 Independent reviews have not started.
 No merge approval is represented by this evidence branch.
 Never merge this branch.
@@ -17,7 +18,8 @@ Never merge this branch.
 Author HANDOFF names an optional, unexecuted AC5 fixture recipe.
 The manager instead follows the public PR 431 scratch-PR precedent.
 Scratch PR 506 carries one intentional workflow mutation.
-Its standard trusted-runner docs and rtl-full measurements are pending.
+Its standard trusted-runner docs and rtl-full measurements are complete.
+Read ac5/MEASUREMENT.md alongside the intentionally failing logs.
 No optional custom fixture was executed or claimed as evidence.
 
 Logs replace local workspace paths with neutral variables.
