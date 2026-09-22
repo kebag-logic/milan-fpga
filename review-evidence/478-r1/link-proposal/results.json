@@ -1,0 +1,59 @@
+{
+  "head": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "interpreter": "Python 3.12.13",
+  "old": "../protocol-processor/docs/architecture/07_memory_maps.md",
+  "proposed": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/424c688fa2205b934a7689a58f2aa766420f2326/docs/architecture/07_memory_maps.md",
+  "results": [
+    {
+      "mode": "git",
+      "state": "before",
+      "cwd": "$VALIDATION_STORAGE/478-link-probe/with-git",
+      "command": [
+        "$WORKSPACE_HOME/.local/bin/python3.12",
+        "scripts/docs_check.py"
+      ],
+      "started_at": "2026-09-22T13:58:21.616179+02:00",
+      "exit_code": 1,
+      "log": "git-before.log"
+    },
+    {
+      "mode": "git",
+      "state": "after",
+      "cwd": "$VALIDATION_STORAGE/478-link-probe/with-git",
+      "command": [
+        "$WORKSPACE_HOME/.local/bin/python3.12",
+        "scripts/docs_check.py"
+      ],
+      "started_at": "2026-09-22T13:58:24.292872+02:00",
+      "exit_code": 0,
+      "log": "git-after.log"
+    },
+    {
+      "mode": "no-git",
+      "state": "before",
+      "cwd": "$VALIDATION_STORAGE/478-link-probe/without-git",
+      "command": [
+        "$WORKSPACE_HOME/.local/bin/python3.12",
+        "scripts/docs_check.py"
+      ],
+      "started_at": "2026-09-22T13:58:26.954034+02:00",
+      "exit_code": 1,
+      "log": "no-git-before.log"
+    },
+    {
+      "mode": "no-git",
+      "state": "after",
+      "cwd": "$VALIDATION_STORAGE/478-link-probe/without-git",
+      "command": [
+        "$WORKSPACE_HOME/.local/bin/python3.12",
+        "scripts/docs_check.py"
+      ],
+      "started_at": "2026-09-22T13:58:29.601036+02:00",
+      "exit_code": 0,
+      "log": "no-git-after.log"
+    }
+  ],
+  "patch_sha256": "3869a55d2831e761563890371e4a68902f97af45b72a7e6539d1572bd3ae6ebd",
+  "source_unchanged": true,
+  "implementation_committed": false
+}

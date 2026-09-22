@@ -1,0 +1,21 @@
+{
+  "head": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "results": [
+    {
+      "command": [
+        "python3",
+        "-I",
+        "$VALIDATION_STORAGE/lanes/trusted-dev-20260922-507/scripts/act_ci.py",
+        "--pr",
+        "512",
+        "--act-bin",
+        "$VALIDATION_TOOLS/act-0.2.89/act",
+        "--sudo"
+      ],
+      "exit_code": 130,
+      "seconds": 501.791,
+      "log": "$VALIDATION_STORAGE/478-manager-r1/act-ready/01.log"
+    }
+  ]
+}

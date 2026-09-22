@@ -1,0 +1,7 @@
+[A10] HOSTED DOCUMENTATION FAILURE / BOUNDED CORRECTION
+
+At source head d81a302760b84f32d2aa019643f57682bb6e052c, both docs-check and docs-check-no-git fail on docs/ENDSTATION_BUILDER.md:963: the relative link ../protocol-processor/docs/architecture/07_memory_maps.md does not resolve before the documentation jobs fetch submodules. The initialized native checkouts contain the file, which explains their passing link checks. Hosted failing logs are retained; this head cannot merge.
+
+Correction scope is the single reference: link to the same PP (protocol processor) document at the existing pinned commit424c688fa2205b934a7689a58f2aa766420f2326. Preserve its rule L10 wording, the eight-rate/duplicate behavior, every control, and all shipping bytes. No gate weakening or workflow/submodule-initialization expansion is needed. Verify the correction in both Git and no-Git checkouts without initialized submodules, then complete the normal corrected-head validation and independent re-review bar. Reviewers retain ownership of any findings and lens assignments.
+
+Stop the current trusted replica with its supported SIGINT cleanup path, retain its interrupted result as non-passing, and return this PR to draft only after cleanup. Stop the now-superseded current-candidate native units and retain their partial logs as non-passing. R221/R222 may finish their cold review of the unchanged head; their results do not approve a later correction. The source stays frozen until the sole-author slot is available; A168 is active on #437. No correction commit is claimed yet.
