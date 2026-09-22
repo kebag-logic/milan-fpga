@@ -1,0 +1,62 @@
+[
+  {
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "exit_code": 1,
+    "seconds": 2.782,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-00.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.289,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-01.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 4.588,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-02.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 1.375,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-03.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_merge_containment.py",
+      "--selftest"
+    ],
+    "exit_code": 0,
+    "seconds": 22.306,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-04.log"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.003,
+    "log": "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/423-root-correction/staged-05.log"
+  }
+]

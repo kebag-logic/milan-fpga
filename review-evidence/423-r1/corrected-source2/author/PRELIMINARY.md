@@ -1,0 +1,5 @@
+# Preliminary correction evidence
+
+The first full selftest passed before the raw patch fixture was strengthened. The first mutation experiment detected shared-decoder restoration but its patch-inverse restoration survived: the original invalid byte was outside the changed diff hunk. That is a test-fixture weakness, not passing mutation coverage. The preserved mutation-*.stdout/stderr files at this directory root record that preliminary attempt. The fixture now places both invalid UTF-8 and valid multibyte bytes in the modified line. mutations-r2 records the positive baseline and all four single-site restorations failing as expected, with Latin-1 actually executed.
+
+focused-initial.json includes two invocation errors: check_py_idiom.py does not accept --check, and check_toc.py does not exist. These are not passes. focused-r2.json records corrected commands. Early repository scanners did not include the then-untracked new locale file; staged-checks.json is the explicit rerun after adding it to the index. Complete committed-head gates remain independently required.
