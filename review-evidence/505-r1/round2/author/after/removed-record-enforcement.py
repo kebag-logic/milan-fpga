@@ -1,0 +1,8135 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Hold the CI workflow files to their documented event and SHA contract.
+
+WHY THIS EXISTS (issues #174, #181). The hosted CI contract lives in four
+workflow files and one page of prose, docs/testing/CI_WORKFLOWS.md, and for
+three weeks they disagreed in ways nothing measured:
+
+  * rtl.yml carried a nightly cron that could not fire. GitHub schedules only
+    the default branch, the default was `main`, and main's rtl.yml had no
+    `schedule` at all. The page said the cron was "staged".
+  * docs.yml ran on `push: [main]` only, so the docs gate never ran on a merge
+    result, while CONTRIBUTING.md said "CI does not run on dev at all" after
+    rtl-fast.yml and rtl.yml had started running on every push to dev.
+  * The public check names the merge bar reads (`rtl-fast`, `verilator-suites`,
+    `yosys-portability`, `elaborate`) were held only by convention.
+
+Since 2026-08-22 `dev` is the repository default branch (#174, decision 3), so
+the cron and `gh workflow run rtl.yml --ref <branch>` are executable and the
+page states the contract. This gate keeps the files and the page from drifting
+apart again. `--check` parses the workflow files with pyyaml and asserts every
+item the page promises; `--selftest` removes or alters each item, one at a
+time, on in-memory copies and requires the check to catch each one, and fails
+if the checker is stubbed to find nothing.
+
+THE SHA CONTRACT (#174, decision 2). GitHub pins GITHUB_SHA once per run for
+every event: the pushed commit, the merge commit of a pull request, the tip of
+the default branch for a schedule, the tip of the chosen ref for a dispatch.
+Every checkout that does not override `ref` therefore validates one tree. The
+exhaustive workflow makes that explicit: the gate job prints event, ref and SHA
+and exports `target_sha`; every worker writes GITHUB_SHA into a TARGET_SHA file
+beside its evidence; both aggregates run `--require-target-sha` over the
+downloaded shards and refuse a missing record, a record naming another tree, or
+a gate/run/checkout SHA that is not one value. An aggregate skips only when the
+gate succeeded and explicitly published `run_full=false`; a gate failure,
+cancellation or missing output makes the aggregate run into that refusal path.
+A missing record is a failure, never a skip. `--check` refuses any
+`actions/checkout` step in rtl.yml that overrides `ref`, requires every
+artifact-uploading job to record the SHA and every artifact-downloading job to
+verify it.
+
+THE DEFAULT-BRANCH ASSERTION ([R1] on PR #204). The cron was inert because of
+a repository SETTING, and a gate that reads files cannot see a setting. So the
+gate job reads it live on every run (`gh api repos/$GITHUB_REPOSITORY --jq
+.default_branch`) and hands it to `--require-default-branch`: a scheduled or
+dispatched run refuses to continue unless the default branch is `dev`, naming
+the branch it saw, and refuses a value it could not read, since an unknown is
+not agreement. A pull-request or push run prints the value and carries on:
+those runs are about the tree, not the setting, and a contributor's PR must
+not go red for a setting it cannot change. `--check` requires the step, its
+token and its fail-closed shape (no `continue-on-error`, no `|| true`).
+
+WHETHER IT RUNS AT ALL (#209). The four items above hold what the gate job
+DOES. None of them held the conditions under which it does it, and GitHub has
+a separate lever for each of those: a `needs` on the gate makes it a dependent,
+and a dependent of a skipped job is skipped; an `if`, a `shell` or a
+`continue-on-error` on any step BESIDE the pinned one neuters that step while
+every pinned character stays put; a step inserted, removed or reordered
+changes what the steps after it read (an entry appended to GITHUB_PATH puts
+another `gh` first) or runs the assertion before the checkout has brought the
+script it calls; and an `env` on the job or on the workflow reaches the
+step's `gh` without appearing anywhere in the step. So `--check` also holds
+the gate job's `needs`, its exact step sequence, every step's key set, and
+the absence of any `GH_*` above the step. Separately, the worker shard
+denominator is carried as `${{ matrix.total }}`. The checker requires that
+matrix value to be a singleton equal to the shard list's size and requires
+every consumer to derive from it. This preserves one checked count while
+avoiding act v0.2.89's broken `strategy.job-total` value.
+
+THE FAST VERDICT ([R2] on PR #239). rtl-fast.yml's aggregate accepts skipped
+consumers on purpose, so its one verdict step is the entire conversion of
+four job results into the required `rtl-fast` context, and it was outside
+the perimeter: an `if` on the step, a result binding rebound to `success`,
+or a `case` widened to accept `failure` each made a FAILED fast job a green
+required context. So the aggregate must need every other job of that
+workflow; every job an aggregate needs is the selector, a consumer, or
+itself held; the verdict step's keys, env bindings and script are derived
+from that `needs` list; each public check name is carried by exactly one
+job; and the reference audit covers every static `needs` chain, `.result`
+included, not only `.outputs.`.
+
+THE NON-RTL REQUIRED CONTEXTS (#261). `docs-check`, `wire-accountability`,
+`docs-check-no-git` and `elaborate` are four of the seven names the merge bar
+reads, and docs.yml and elaborate.yml have no aggregate: the carrier job IS
+the context. Both workflows sat outside the perimeter above, so `if: false`
+on `docs-check` retired this gate itself and `continue-on-error` on
+`elaborate` retired the elaboration gate, each with every required context
+satisfied, because a skipped required context satisfies the ruleset. So the
+carrier of every public name in every workflow is held to the same rule as
+the RTL jobs -- no `needs`, `if`, `continue-on-error` or `defaults` -- the
+three documentation names join the one-carrier rule, and the job whose id is
+the public name must be the one carrying it ([R3] on PR #293): the content
+checks read that job by id, and a stub carrying the name under another id
+was the required context with 233 items and no finding. The gate steps
+inside those jobs are #295. Two more from the maintainer's review of that
+PR: the count is GLOBAL - every file under .github/workflows/ is read,
+inventoried or not, and each required name must map to exactly one
+(file, job id) across all of them - and `--check` has a SECOND hosted
+runner, a pinned step of rtl.yml's `full-ci-gate`, because docs.yml's
+`docs-check` could not police its own `if: false`: the lever that skips the
+job skips the only step that would have refused it, while a skipped
+required context satisfies the ruleset. A gate that fails or is skipped
+fails both required aggregates, so the finding reaches the merge bar from
+a job docs.yml does not gate. And the INHERITED EXECUTION ENVIRONMENT is held
+by exact allowlist at every level (maintainer [R0] on PR #293): none of the
+keys above is `env`, and `BASH_ENV: scripts/ci-bypass.sh` at the workflow,
+job or step level, with a checked-in file defining `python3() { return 0; }`,
+made every python gate of every protected job a no-op with every pinned
+character in place. Each file's workflow-level names, each job's absence of
+a job-level env, and each job's step-level names are what the tree carries
+today and nothing else; a blacklist of known variables is refused as a shape.
+
+    scripts/ci_events.py --check        # the live tree against the contract
+    scripts/ci_events.py --selftest     # mutation arms over in-memory copies
+    scripts/ci_events.py --require-target-sha --sha gate=<sha> \\
+        --sha run=<sha> --sha checkout=<sha> -- <shard-dir>...
+    scripts/ci_events.py --require-default-branch --event <event> \\
+        --observed <branch>
+
+Exit 0 = clean, 1 = a finding, 2 = cannot run (pyyaml absent, a file missing
+or unparseable, usage).
+"""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import itertools
+import pathlib
+import re
+import sys
+import tempfile
+import unicodedata
+from collections.abc import Callable, Iterator, Sequence
+from typing import Any, NamedTuple
+
+RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+
+#: A mapping PyYAML produced - a workflow, a job, a step, an `env` - typed
+#: loosely on purpose: every helper below judges the shape of what it finds
+#: rather than trusting it, because a mutated or hostile file can put
+#: anything under any key.
+YamlMap = dict[str, Any]
+
+#: One world: every path this gate reads, mapped to what the current stage
+#: holds for it. `read_tree` builds a world of text; `parse_world` turns the
+#: workflow entries into `YamlMap`s and leaves POLICY as the page's prose.
+#: The self-test's arms edit a deep copy of a parsed world in place.
+World = dict[str, Any]
+
+#: One job of one workflow file: the file's repository-relative path and
+#: the job's id, the key every step-list table and sequence pin is held by.
+JobKey = tuple[str, str]
+
+#: One self-test arm's edit, applied in place to a deep copy of the world.
+Mutator = Callable[[World], None]
+
+#: One self-test arm: its name, its edit, and the fragment the finding it
+#: provokes must carry.
+Arm = tuple[str, Mutator, str]
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+
+RTL_FULL = ".github/workflows/rtl.yml"
+RTL_FAST = ".github/workflows/rtl-fast.yml"
+DOCS = ".github/workflows/docs.yml"
+ELABORATE = ".github/workflows/elaborate.yml"
+PHYSICAL_GPTP_JOB = "physical-gptp"
+# Independent whole-job expectation: route, deadline, setup and evidence all matter.
+PHYSICAL_GPTP_CONTRACT: YamlMap = {
+    'name': 'Physical gPTP (nightly and manual)',
+    'needs': 'full-ci-gate',
+    'if': "${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == "
+          "'schedule' || github.event_name == 'workflow_dispatch') }}",
+    'runs-on': 'ubuntu-latest',
+    'timeout-minutes': 120,
+    'steps': [   {'uses': 'actions/checkout@v4'},
+                 {   'name': 'Fetch RTL dependencies',
+                     'run': 'set -euo pipefail\n'
+                            'git submodule update --init third_party/verilog-axis '
+                            'protocol-processor gptp-processor\n'
+                            'python3 -m pip install --quiet pyyaml\n'},
+                 {   'name': 'Record the tree this worker validates',
+                     'env': {'TARGET_SHA': '${{ needs.full-ci-gate.outputs.target_sha }}'},
+                     'run': 'set -euo pipefail\n'
+                            'head="$(git rev-parse HEAD)"\n'
+                            'if [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != '
+                            '"$TARGET_SHA" ]; then\n'
+                            '  echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target '
+                            '$TARGET_SHA must be one SHA" >&2\n'
+                            '  exit 1\n'
+                            'fi\n'
+                            'mkdir -p "$RUNNER_TEMP/physical-gptp-logs"\n'
+                            'printf \'%s\\n\' "$GITHUB_SHA" > '
+                            '"$RUNNER_TEMP/physical-gptp-logs/TARGET_SHA"\n'
+                            'echo "target_sha=$GITHUB_SHA"\n'},
+                 {   'name': 'Cache the pinned Verilator build',
+                     'id': 'cache-verilator',
+                     'uses': 'actions/cache@v4',
+                     'with': {   'path': '/opt/verilator',
+                                 'key': 'verilator-${{ env.VERILATOR_VERSION }}-${{ '
+                                        'runner.os }}'}},
+                 {   'name': 'Build Verilator from source on cache miss',
+                     'if': "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}",
+                     'run': 'set -euo pipefail\n'
+                            'sudo apt-get update -qq\n'
+                            'sudo apt-get install -y --no-install-recommends \\\n'
+                            '  git make autoconf g++ flex bison libfl2 libfl-dev help2man '
+                            'perl python3\n'
+                            'git clone --depth 1 --branch "$VERILATOR_VERSION" \\\n'
+                            '  https://github.com/verilator/verilator.git '
+                            '/tmp/verilator-src\n'
+                            'cd /tmp/verilator-src\n'
+                            'autoconf\n'
+                            './configure --prefix=/opt/verilator\n'
+                            'make -j"$(nproc)"\n'
+                            'sudo make install\n'},
+                 {   'name': 'Put Verilator on PATH and prove the version',
+                     'run': 'set -euo pipefail\n'
+                            'echo "/opt/verilator/bin" >> "$GITHUB_PATH"\n'
+                            '/opt/verilator/bin/verilator --version\n'
+                            '/opt/verilator/bin/verilator --version | grep -F '
+                            '"${VERILATOR_VERSION#v}"\n'},
+                 {   'name': 'Prove physical suite selection',
+                     'run': 'set -euo pipefail\n'
+                            'python3 scripts/suite_shards.py --selftest\n'
+                            'selected="$(scripts/run_all_suites.sh --physical-gptp --list)"\n'
+                            'test "$selected" = milan_dp_gptp\n'},
+                 {   'name': 'Run the physical gPTP suite with its own deadline',
+                     'run': 'set -euo pipefail\n'
+                            "/usr/bin/time -f 'driver_wall_seconds=%e driver_exit_status=%x' "
+                            '\\\n'
+                            '  env -u SUITE_TIMEOUT VERILATOR_JOBS=4 \\\n'
+                            '  scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" '
+                            '--physical-gptp\n'
+                            'python3 scripts/suite_tally.py '
+                            '"$RUNNER_TEMP/physical-gptp-logs" --quiet \\\n'
+                            '  --expect-suite-root tb/verilator --physical-gptp\n'
+                            'mkdir -p "$RUNNER_TEMP/physical-gptp-logs/controls"\n'
+                            'cp tb/verilator/milan_dp/obj_ax1x1gptp/*control.log \\\n'
+                            '  "$RUNNER_TEMP/physical-gptp-logs/controls/"\n'},
+                 {   'name': 'Upload the physical suite evidence',
+                     'if': '${{ always() }}',
+                     'uses': 'actions/upload-artifact@v4',
+                     'with': {   'name': 'physical-gptp-logs',
+                                 'path': '${{ runner.temp }}/physical-gptp-logs',
+                                 'if-no-files-found': 'error',
+                                 'retention-days': 3}}]}
+PHYSICAL_GPTP_IF = str(PHYSICAL_GPTP_CONTRACT["if"])
+PHYSICAL_GPTP_CONCURRENCY = (
+    "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-"
+    "${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') "
+    "&& 'physical' || 'default' }}"
+)
+
+
+POLICY = "docs/testing/CI_WORKFLOWS.md"
+WORKFLOWS = (RTL_FULL, RTL_FAST, DOCS, ELABORATE)
+FILES = WORKFLOWS + (POLICY,)
+#: Every other workflow file under this directory is read too (maintainer
+#: review on PR #293): GitHub binds a required check by NAME across every
+#: workflow, so a fifth file carrying `docs-check` is a second carrier the
+#: four-file inventory never opened.
+WORKFLOW_DIR = ".github/workflows"
+WORKFLOW_SUFFIXES = (".yml", ".yaml")
+
+#: The pull-request activity types both RTL workflows subscribe, exactly.
+PR_TYPES = ("opened", "reopened", "synchronize", "ready_for_review",
+            "converted_to_draft")
+#: The branch every workflow must run on when pushed to.
+PUSH_BRANCH = "dev"
+#: The record every worker writes beside its evidence.
+RECORD = "TARGET_SHA"
+#: The gate job of the exhaustive workflow and the outputs it exports. A job
+#: `outputs` map is a NAME -> EXPRESSION mapping exactly like a step's `env`,
+#: and these names are what the rest of this file derives its expressions and
+#: its consumer `if` conditions from, never a second literal.
+GATE_JOB = "full-ci-gate"
+GATE_OUTPUT = "target_sha"
+#: The published decision, and the scope answer behind it.
+RUN_FULL_OUTPUT = "run_full"
+RTL_OUTPUT = "rtl"
+#: How an aggregate invokes the verifier (the first token after the script).
+VERIFY_FLAG = "--require-target-sha"
+#: How the gate invokes the live default-branch assertion, and the events
+#: whose run the repository default-branch setting governs: a schedule runs
+#: on the default branch's tip, a dispatch exists only because the workflow
+#: is on that branch. The expected branch is PUSH_BRANCH, derived, not a
+#: second literal: the branch the workflows run on push is the branch that
+#: must be the default.
+DEFAULT_BRANCH_FLAG = "--require-default-branch"
+DEFAULT_BRANCH_EVENTS = ("schedule", "workflow_dispatch")
+#: The default-branch step's script, pinned verbatim after whitespace
+#: normalization ([R1] on PR #204, second round). A substring recognizer was
+#: fooled by a decoy: `observed=dev` beside a `gh api` inside `if false`.
+#: So the script is held to exactly these three lines, one unconditional
+#: live read into `observed` and one verifier call after it, and the
+#: structural reasons in check_default_branch_step name what a deviation
+#: did before the whole-script comparison refuses it.
+CANONICAL_OBSERVED = ('observed="$(gh api "repos/$GITHUB_REPOSITORY" '
+                      '--jq .default_branch 2>/dev/null || echo unreadable)"')
+CANONICAL_CALL = ("python3 scripts/ci_events.py --require-default-branch "
+                  '--event "$GITHUB_EVENT_NAME" --observed "$observed"')
+CANONICAL_DEFAULT_BRANCH_SCRIPT = ("set -euo pipefail", CANONICAL_OBSERVED,
+                                   CANONICAL_CALL)
+OBSERVED_ASSIGNMENT = re.compile(
+    r"(?:^|[;&|(]\s*|\b(?:export|local|declare|readonly|typeset)\s+)"
+    r"observed\s*\+?=")
+CONTROL_FLOW = re.compile(
+    r"(?:^|[;&|(]\s*)(?:if|case|for|while|until|select|function)\b"
+    r"|\b(?:then|fi|esac|do|done)\b|\(\)\s*\{")
+#: The SHA sources every aggregate passes to --require-target-sha, exactly:
+#: the gate's exported target, the aggregate's own run, and its checkout.
+#: The verifier refuses any other set ([R1], second round: with `run` and
+#: `checkout` dropped from both aggregates, everything stayed green).
+REQUIRED_SHA_LABELS = ("gate", "run", "checkout")
+REQUIRED_SHA_ARGS = {
+    "gate": '--sha gate="$GATE_SHA"',
+    "run": '--sha run="$GITHUB_SHA"',
+    "checkout": '--sha checkout="$(git rev-parse HEAD)"',
+}
+SHA_LABEL_RE = re.compile(r"--sha\s+([A-Za-z_]+)=")
+EXPECT_RE = re.compile(r"--expect\s+(\S+)")
+#: The keys a pinned step may carry, and nothing else ([R1] on PR #204,
+#: third round): a key beside the script decides whether, on which events,
+#: or by which interpreter the script runs. `if: false`, `if: ${{
+#: github.event_name == 'pull_request' }}`, `shell: bash -n {0}`,
+#: `continue-on-error: true`, a `timeout-minutes`, a `working-directory`,
+#: an extra `GH_HOST` or `GH_CONFIG_DIR` in env: each left the script text
+#: canonical and the assertion dead. So the key set is pinned, the env key
+#: set is pinned, and the verifier step's one permitted `if` is pinned.
+ASSERT_STEP_KEYS = ("name", "env", "run")
+#: THE SECOND RUNNER OF --check (maintainer review on PR #293). docs.yml's
+#: `docs-check` was the only hosted job that ran this gate, and every
+#: job-level lever that neuters `docs-check` (`if: false`, a `needs` on a
+#: skipped job, `continue-on-error`, `defaults.run.shell: bash -n`) also
+#: prevents or neuters the one step that would have refused it, while the
+#: skipped or falsely green required context satisfies the ruleset. So the
+#: gate job of rtl.yml runs `--check` too, as a pinned step: a gate that
+#: fails or is skipped makes both required aggregates fail closed (item 8),
+#: so the finding reaches the merge bar from a job docs.yml does not gate.
+CONTRACT_CHECK = "python3 scripts/ci_events.py --check"
+CONTRACT_STEP_KEYS = ("name", "run")
+CANONICAL_CONTRACT_SCRIPT = ("python3 -m pip install --quiet pyyaml",
+                             CONTRACT_CHECK)
+VERIFY_STEP_KEYS = ("name", "if", "env", "run")
+VERIFY_STEP_IF = "${{ always() }}"
+#: Every pinned step's `env`, as the BINDING each name must carry, never the
+#: name alone ([R0] on PR #239). Holding the names while leaving the
+#: expressions free held nothing where it mattered: `PR_DRAFT: "true"` is
+#: valid workflow YAML, keeps all three pinned names and all four pinned
+#: keys, and makes a ready RTL pull request publish `run_full=false`. Both
+#: worker matrices then skip, both aggregates skip under their documented
+#: no-op exception, and a skipped required context satisfies the ruleset, so
+#: the run is a false green rather than a refusal. `PR_BASE_SHA:
+#: ${{ github.sha }}` (a diff of a commit against itself, so `rtl=false`) and
+#: `EVENT_NAME: pull_request` (a push, schedule or dispatch run taking the
+#: pull-request branch) reach the same place by the same route. So the
+#: mapping is the contract and pinned_step_keys compares the value: there is
+#: no longer any way to pin an env name in this file without saying what it
+#: must be bound to. GATE_SHA is derived from the job and the output it
+#: reads, never restated.
+ASSERT_STEP_ENV = {"GH_TOKEN": "${{ github.token }}"}
+VERIFY_STEP_ENV = {
+    "GATE_SHA": f"${{{{ needs.{GATE_JOB}.outputs.{GATE_OUTPUT} }}}}",
+}
+#: Job keys that decide whether a job runs at all, or runs as written, each
+#: with the reason a refusal names. Before #209 this gate held what the gate
+#: job DOES and nothing about the conditions under which it does it, so
+#: `needs` is here now: a gate that needs another job is a dependent, and a
+#: dependent of a skipped job is skipped, taking every assertion inside it.
+#: The gate job carries none of these keys. An aggregate job legitimately
+#: needs the gate to read its output and carries its documented fail-closed
+#: `if`, and nothing else from this list. The workflow carries no top-level
+#: `defaults` (a `defaults.run.shell: bash -n {0}` parses every script and
+#: executes none).
+JOB_NEUTER_KEYS = {
+    "needs": ("it makes the job a dependent, and a dependent of a skipped "
+              "job is skipped, taking every assertion in it"),
+    "if": "it decides whether the job runs at all",
+    "continue-on-error": "it turns the job's failure into a pass",
+    "defaults": "it decides by which interpreter every script in the job runs",
+}
+#: The gate job's steps carry these keys and no others. Pinning the assert
+#: step's keys while its siblings were unpinned held the wrong perimeter
+#: (#209): `if: false` on the pin step or on the decision step leaves the
+#: assert step's script canonical and its output empty.
+CHECKOUT_ACTION = "actions/checkout"
+CHECKOUT_STEP_KEYS = ("uses", "with")
+CHECKOUT_STEP_OPTIONAL = ("name",)
+CHECKOUT_FETCH_DEPTH = 0
+PIN_STEP_ID = "target"
+PIN_STEP_KEYS = ("name", "id", "run")
+DECIDE_STEP_ID = "gate"
+DECIDE_STEP_KEYS = ("name", "id", "env", "run")
+DECIDE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_DRAFT": "${{ github.event.pull_request.draft }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+}
+#: The decision step's script, pinned verbatim after whitespace
+#: normalization, exactly as the default-branch step's is. The bindings above
+#: hold what this step READS; this holds what it DOES with what it read.
+#: `run_full=true` rewritten to `run_full=false`, or the selector's
+#: `--selftest` replaced by `true`, changes no pinned name and no pinned key,
+#: and each publishes the no-op decision (or drops the selector's own proof)
+#: with every other contract item green -- both measured on a copy of the
+#: tree while answering [R0] on PR #239. The lines are the NORMALIZED form
+#: (continuations joined, runs of blanks collapsed), so a re-indentation or a
+#: differently wrapped continuation is the same script and still passes.
+CANONICAL_DECIDE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'if [ "$EVENT_NAME" != pull_request ]; then',
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=true" >> "$GITHUB_OUTPUT"',
+    'echo "Non-PR event: exhaustive validation required."',
+    "exit 0",
+    "fi",
+    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+    "2>/dev/null; then",
+    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    '> "$RUNNER_TEMP/changed-files"',
+    "else",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    "sed 's/^/ /' \"$RUNNER_TEMP/changed-files\"",
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    "run_full=false",
+    'if [ "$PR_DRAFT" = false ] && [ "$rtl" = true ]; then',
+    "run_full=true",
+    "fi",
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "run_full=$run_full" >> "$GITHUB_OUTPUT"',
+    'echo "draft=$PR_DRAFT rtl=$rtl run_full=$run_full"',
+    # #444: the skipped required aggregates leave no log of their own, so
+    # the gate says why they skip, in the words of the rule ci_scope.py
+    # applied ([R197] F3).
+    'if [ "$rtl" = false ]; then',
+    'echo "docs-only: every changed path is a top-level *.md, under '
+    'LICENSES/, or a *.md, *.drawio, *.svg or *.png under docs/ that no '
+    'skipped gate reads unless docs-check reads it too; the exhaustive '
+    'workers and both required aggregates skip"',
+    "fi",
+)
+#: The selector's own proof, and the line that consumes the selector's
+#: answer: the proof runs once, and before the answer is read.
+SELECTOR_SELFTEST = "python3 scripts/ci_scope.py --selftest"
+SELECTOR_READ = "python3 scripts/ci_scope.py <"
+#: `gh` reads its host, its token and its config directory from the process
+#: environment. The assert step's own env is pinned to exactly GH_TOKEN, but
+#: an `env` on the JOB or on the WORKFLOW reaches that `gh` without appearing
+#: anywhere in the step (#209, O11/O12), so neither level names a `GH_*`.
+GH_ENV_PREFIX = "GH_"
+#: THE INHERITED EXECUTION ENVIRONMENT, by exact allowlist (maintainer [R0]
+#: on PR #293). check_job_keys holds the keys that decide whether a job runs;
+#: none of them is `env`, and a name set at the workflow or job level reaches
+#: every step's shell before any pinned script runs. `BASH_ENV` names a file
+#: bash sources at the start of every non-interactive shell, which is what a
+#: `run:` step is; a checked-in file holding `python3() { return 0; }` then
+#: turns every gate into a no-op with every pinned key and script character
+#: in place, and the required context is green. A blacklist of known names
+#: is the wrong shape for that: the runner's shell honours more than we can
+#: enumerate. So the environment is held the other way round - these are
+#: the only names each level may carry, and anything else is refused.
+INHERITED_WORKFLOW_ENV = {
+    RTL_FULL: ("VERILATOR_VERSION", "YOSYS_VERSION", "TSN_GEN_REV"),
+    RTL_FAST: ("VERILATOR_VERSION", "YOSYS_VERSION"),
+    DOCS: (),
+    # The elaboration job gained a Verilator (#360). One member of its LiteX
+    # simulation aggregate compares the CONVERTED MAC transmit chain against
+    # the migen objects it was converted from, which needs Verilator and the
+    # pinned LiteX stack in ONE job, and this is the only job in the tree
+    # that carries the stack. The pin is the string rtl.yml carries, under
+    # the same cache key, so the two workflows restore one artifact.
+    ELABORATE: ("VERILATOR_VERSION",),
+}
+#: THE VERILATOR PIN IS ONE VALUE. Three workflow files now name it and they
+#: share a cache key, so a bump in one and not the others would have two
+#: builds answering to one key - the file that bumped would read the other's
+#: binary out of the cache and its version proof would be the only thing that
+#: noticed. Held here as a value rather than as "they are equal", so the
+#: version a reviewer reads in this table is the version CI runs.
+VERILATOR_PIN = "v5.050"
+#: THE KEY SETS, by exact allowlist ([R4] round 6 on PR #293). `env` was
+#: not the only key that reaches every step's shell: `jobs.<id>.container`
+#: carries its own `env` map and chooses the image whose `python3` the steps
+#: call, `services` starts more of them, a step's `shell` picks the
+#: interpreter, and GitHub can add a key tomorrow. So every workflow, job
+#: and step may carry only the keys the tree carries today; a surplus key is
+#: refused by name whatever it does. `env` on a job and the neuter keys are
+#: reported by their own rules and left out of this one's surplus.
+WORKFLOW_KEYS = ("name", "on", "concurrency", "env", "jobs")
+JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if")
+#: Keys only some jobs carry, by (file, job) ([R3] round 9 SUGGESTION): a
+#: `strategy` on a carrier would be a matrix lever the carriers never need.
+JOB_KEY_EXTRAS = {
+    (RTL_FULL, GATE_JOB): ("outputs",),
+    (RTL_FAST, "changes"): ("outputs",),
+    (RTL_FULL, "verilator-shards"): ("strategy",),
+    (RTL_FULL, "yosys-shards"): ("strategy",),
+}
+STEP_KEYS = ("name", "run", "uses", "with", "id", "env", "if",
+             "continue-on-error")
+#: `working-directory` only on the one step that carries it, with its exact
+#: value ([R4] round 7, [R3] round 10 on PR #293): a job-wide licence let
+#: the behave step itself point at a checked-in decoy tree; on any other
+#: step the key redirects a gate the same way.
+STEP_KEY_EXTRAS = {
+    (RTL_FAST, "bdd-conformance", "Run the specification-facing suite"): {
+        "working-directory": "tests"},
+}
+#: THE ENVIRONMENT FILES ([R3] round 8 on PR #293). The runner sets the same
+#: inherited environment from `$GITHUB_ENV` and prepends `$GITHUB_PATH` for
+#: every later step of the job, and any `run:` step may write them - so one
+#: added line in any job without a pinned step sequence sets `BASH_ENV` at
+#: run time with every declared level clean. These are the steps that may
+#: mention either file, by (file, job, step name, variable); every other
+#: mention is refused naming the step. Likewise only the recorded actions
+#: may be `uses:`d: a local `./` action or a third-party one runs code this
+#: checker does not read.
+#: Each recorded writer is bound by its SCRIPT, not by its name ([R3] round
+#: 9 on PR #293): a name alone let the writer's own script gain a hostile
+#: line, and an added step under a recorded name write anything. The entry
+#: is (file, job, step name) -> the normalised script the step must equal,
+#: and the name must appear exactly once in that job.
+ENV_FILE_WRITERS = {
+    (RTL_FAST, "verilator-lint", "Run the ratcheted whole-tree lint gate"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+        'PATH="/opt/verilator/bin:$PATH" python3 scripts/lint_rtl.py --check --self-test',
+    ),
+    (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version"): (
+        'echo "/opt/verilator/bin" >> "$GITHUB_PATH"',
+        '/opt/verilator/bin/verilator --version',
+        '/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"',
+    ),
+    (RTL_FULL, "verilator-shards", "Build the pinned tsn-gen field oracle on its suite owner"): (
+        'set -euo pipefail',
+        'git clone --filter=blob:none https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"',
+        'git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"',
+        'git -C "$RUNNER_TEMP/tsn-gen" submodule update --init --depth 1 --recursive external/rapidyaml',
+        'cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" '
+        '-DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF',
+        'cmake --build "$RUNNER_TEMP/tsn-gen/build" --target packet_gen --parallel',
+        'test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"',
+        'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
+    ),
+    (ELABORATE, "elaborate", "Install sbt"): (
+        'sbt --version >/dev/null 2>&1 && exit 0',
+        'curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz',
+        'sudo tar xzf /tmp/sbt.tgz -C /opt',
+        'echo /opt/sbt/bin >> "$GITHUB_PATH"',
+    ),
+}
+ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")] = (
+    'set -euo pipefail',
+    *ENV_FILE_WRITERS[(RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")],
+)
+#: The elaboration job's copy (#360), the physical job's script exactly: one
+#: recipe for putting this tool on PATH, so a reviewer comparing the three
+#: reads one thing and a hostile line has nowhere quiet to sit.
+ENV_FILE_WRITERS[(ELABORATE, "elaborate", "Put Verilator on PATH and prove the version")] = \
+    ENV_FILE_WRITERS[(RTL_FULL, PHYSICAL_GPTP_JOB, "Put Verilator on PATH and prove the version")]
+
+#: Every checkout in the four files carries no `with` beyond `fetch-depth: 0`
+#: ([R3] round 9): `ref:` or `repository:` on an unpinned carrier's checkout
+#: computes the required context on another tree.
+CHECKOUT_WITH_ALLOWED = {"fetch-depth": CHECKOUT_FETCH_DEPTH}
+ENV_FILE_NAMES = ("GITHUB_ENV", "GITHUB_PATH")
+RECORDED_ACTIONS = frozenset({
+    "actions/checkout@v4", "actions/cache@v4", "actions/setup-python@v5",
+    "actions/upload-artifact@v4",
+    "actions/download-artifact@v4",
+})
+#: Step-level env names each job's steps may carry, across all of its steps.
+#: The pinned steps bind these exactly elsewhere; this table closes the
+#: unpinned steps too, and a job absent from it may carry none.
+INHERITED_STEP_ENV = {
+    (RTL_FULL, GATE_JOB): ("EVENT_NAME", "GH_TOKEN", "PR_BASE_SHA", "PR_DRAFT"),
+    (RTL_FULL, "verilator-shards"): ("SHARD", "SHARDS", "TARGET_SHA"),
+    (RTL_FULL, PHYSICAL_GPTP_JOB): ("TARGET_SHA",),
+    (RTL_FULL, "verilator-suites"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FULL, "yosys-shards"): ("TARGET_SHA",),
+    (RTL_FULL, "yosys-portability"): ("GATE_SHA", "SHARD_RESULT"),
+    (RTL_FAST, "changes"): ("EVENT_NAME", "PR_BASE_SHA", "PUSH_BEFORE_SHA"),
+    (RTL_FAST, "rtl-fast"): ("BDD_CONFORMANCE_RESULT", "CHANGES_RESULT",
+                             "VERILATOR_LINT_RESULT",
+                             "YOSYS_ELABORATION_RESULT"),
+    (ELABORATE, "elaborate"): ("EVENT_NAME", "PR_BASE_SHA"),
+    (DOCS, "docs-check"): ("EVENT_NAME", "PR_BASE_REF", "PUSH_BEFORE_SHA"),
+}
+#: The shard denominator a worker passes and states in its display name.
+#: `matrix.total` is the act-compatible carrier. check_shard_denominator proves
+#: it is a singleton equal to the `matrix.shard` list's size and that every
+#: consumer uses this expression rather than a literal (#209 O9, #268).
+DERIVED_SHARD_TOTAL = "${{ matrix.total }}"
+_EXPR = r"\$\{\{[^{}]*\}\}"   # one `${{ ... }}`, kept whole while scanning
+SHARD_ARG_RE = re.compile(r'--shard\s+"?((?:' + _EXPR + r'|[^\s"])+)"?')
+NAME_SHARD_RE = re.compile(r"\$\{\{\s*matrix\.shard\s*\}\}/((?:"
+                           + _EXPR + r'|[^\s"])+)')
+SHELL_VAR_RE = re.compile(r"^\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?$")
+#: A skipped required context satisfies a GitHub ruleset. Therefore an
+#: aggregate may skip only the gate's explicit successful no-op decision. A
+#: failed/cancelled gate or an absent/malformed output makes the aggregate run;
+#: its target-SHA and shard reconciliation then fail closed.
+AGGREGATE_JOB_IF = (
+    "${{ always() && "
+    f"(needs.{GATE_JOB}.result != 'success' || "
+    f"needs.{GATE_JOB}.outputs.{RUN_FULL_OUTPUT} != 'false') }}}}"
+)
+RUNNER_TEMP_PREFIX = "${{ runner.temp }}/"
+#: Public check names the merge bar reads (AGENTS.md section 7), per file.
+#: The three documentation contexts are here since #261: a name absent from
+#: this map is held by nobody, so a second job renamed to `docs-check`, or
+#: `docs-check` itself renamed, passed with every hosted context green.
+PUBLIC_NAMES = {
+    RTL_FULL: ("verilator-suites", "yosys-portability"),
+    RTL_FAST: ("rtl-fast",),
+    DOCS: ("docs-check", "wire-accountability", "docs-check-no-git"),
+    ELABORATE: ("elaborate",),
+}
+#: act v0.2.89 shares one action cache across concurrent jobs. Its first use
+#: of download-artifact can race when both exhaustive aggregates start
+#: together, leaving one action invocation with no downloaded evidence. This
+#: direct order keeps that local bootstrap serial without weakening either
+#: aggregate: the later job carries `always()` and still audits its own shards.
+ACT_ARTIFACT_AGGREGATE_ORDER = PUBLIC_NAMES[RTL_FULL]
+#: Every required name in every file: a rendered display name equal to any of
+#: them, in any file, is a second carrier ([R4] on PR #293).
+ALL_PUBLIC_NAMES = frozenset(n for names in PUBLIC_NAMES.values() for n in names)
+#: Which file owns each required name: the merge bar binds a check-run NAME,
+#: not a file, so a docs.yml job literally named `elaborate` is a second
+#: `elaborate` on the same pull request ([R4] round 2 on PR #293).
+PUBLIC_NAME_OWNER = {n: path for path, names in PUBLIC_NAMES.items() for n in names}
+EXPRESSION_RE = re.compile(r"\$\{\{.*?\}\}", re.DOTALL)
+MATRIX_REF_RE = re.compile(r"\$\{\{\s*matrix\.([A-Za-z_][A-Za-z0-9_-]*)\s*\}\}")
+
+
+def rendered_names(job: YamlMap) -> list[str] | None:
+    """Every display name an expression-valued `name` can render, enumerated
+    from the job's own literal `strategy.matrix`; None when the name uses
+    anything but `${{ matrix.<key> }}`, when a `${{` survives the expression
+    scan, when a referenced key is not a non-empty list of scalars, when a
+    value carries `${{` of its own (the runner evaluates `strategy` before
+    the matrix expands, so `n: ["${{ 'docs-check' }}"]` publishes the name
+    while this enumeration would see the text - [R3] round 4 on PR #293),
+    or when the matrix carries `include` or `exclude` (either can add a
+    combination this enumeration never saw)."""
+    name = job.get("name") if isinstance(job, dict) else None
+    if not isinstance(name, str):
+        return None
+    keys = []
+    for expr in EXPRESSION_RE.findall(name):
+        m = MATRIX_REF_RE.fullmatch(expr)
+        if m is None:
+            return None
+        if m.group(1) not in keys:
+            keys.append(m.group(1))
+    if "${{" in EXPRESSION_RE.sub("", name):
+        return None
+    strat = job.get("strategy")
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    if not isinstance(matrix, dict) or "include" in matrix or "exclude" in matrix:
+        return None
+    lists = []
+    for key in keys:
+        values = matrix.get(key)
+        if (not isinstance(values, list) or not values
+                or not all(isinstance(v, (str, int, float, bool)) for v in values)
+                or any(isinstance(v, str) and "${{" in v for v in values)):
+            return None
+        lists.append([str(v) for v in values])
+    out = []
+    for combo in itertools.product(*lists):
+        binding = dict(zip(keys, combo))
+        out.append(EXPRESSION_RE.sub(
+            lambda m: binding[MATRIX_REF_RE.fullmatch(m.group(0)).group(1)],
+            name))
+    return out
+ACT_CI_SELFTEST = "python3 scripts/act_ci.py --selftest"
+#: ``test_builder.py`` invokes both processor-image/source gates and the
+#: Vivado datapath-manifest consumer (syn/ooc/dp_srcs.py), which resolves the
+#: shipping AXIS primitives by path, so both hosted jobs which call the
+#: builder need this complete set before the call. Keep one canonical
+#: command: a split or decoy checkout is too easy to place after the builder
+#: or behind another condition.
+BUILDER_SUBMODULES = (
+    "third_party/verilog-axis",
+    "protocol-processor",
+    "gptp-processor",
+)
+BUILDER_COMMAND = "git submodule update --init " + " ".join(BUILDER_SUBMODULES)
+BUILDER_CALL = "sw/builder/test_builder.py"
+BUILDER_IF = "${{ steps.scope.outputs.rtl == 'true' }}"
+BUILDER_RUNS = {
+    DOCS: (
+        "python3 -m pip install --quiet pyyaml",
+        "python3 sw/builder/test_builder.py",
+    ),
+    ELABORATE: (
+        "python3 sw/builder/test_builder.py --require-elaboration",
+    ),
+}
+BUILDER_CHECKOUTS = {
+    # Full history since #378: the em-dash gate derives its base by
+    # merge-base against the base branch, which a depth-1 checkout cannot
+    # answer.
+    DOCS: {"uses": "actions/checkout@v4", "with": {"fetch-depth": 0}},
+    ELABORATE: {
+        "uses": "actions/checkout@v4",
+        "with": {"fetch-depth": 0},
+    },
+}
+#: dp_srcs.py answers top resolution with the sv2v front end and REFUSES when
+#: no front end exists (no model may stand in for the toolchain), and the
+#: builder runs that self-test unconditionally. So every builder job installs
+#: the same pinned release the portability gate uses, held here as one exact
+#: script: an unpinned version is a silent toolchain drift, and a missing
+#: install is a red job dressed as a candidate finding.
+#: The release artefact is checksum-verified since #287: a version pin
+#: without a digest is half a pin - the name is fetched, the bytes are not
+#: held. The digest was computed from the official v0.0.12 sv2v-Linux.zip
+#: release asset and lives in the workflow text, never fetched at run time.
+SV2V_INSTALL = (
+    "set -euo pipefail",
+    "ver=v0.0.12",
+    "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+    'url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"',
+    'curl -fsSL "$url" -o /tmp/sv2v.zip',
+    'echo "${sha256} /tmp/sv2v.zip" | sha256sum -c -',
+    "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+    'sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v',
+    "sv2v --version",
+)
+#: THE GATE STEPS OF THE NON-RTL REQUIRED CONTEXTS (#295). PR #293 holds the
+#: four carrier JOBS to the no-neuter-key rule and binds each name to its
+#: id; the [R3] rounds on that PR then measured the same levers one level
+#: down: a step-level `if: false`, `continue-on-error: true` or
+#: `--check || true` on `docs-check`'s ci_events step, on
+#: `wire-accountability`'s gate step and on `docs-check-no-git`'s single
+#: step each returned `ci_events: OK`, because check_docs held that step by
+#: a substring recogniser that `--check || true` still satisfies. So each
+#: gate step's script is pinned verbatim after whitespace normalization,
+#: exactly as the gate job's contract step is, and each must be PRESENT
+#: exactly once in the job of the required id ([R3] round 2): the id rule
+#: says which job must carry the name, but nothing said what that job
+#: contains, so the real body renamed to `wire-accountability-real` beside
+#: a `run: true` stub of the required id -- or the same through an appended
+#: duplicate `X:` mapping, which PyYAML parses last-wins -- was the
+#: required context with 237 items and no finding. #303 extends the same rule
+#: to the imported-gPTP step: its name remained in the pinned carrier list
+#: while replacing its complete two-command body with `true` produced no
+#: finding, so that canonical body is bound to that exact published name.
+CANONICAL_DOCS_GATE_SCRIPT = (CONTRACT_CHECK,
+                              "python3 scripts/ci_events.py --selftest")
+IMPORTED_GPTP_GATE_NAME = "Imported gPTP documentation gate"
+IMPORTED_GPTP_GATE_CALL = "python3 scripts/check_gptp_docs.py --with-submodule"
+CANONICAL_IMPORTED_GPTP_GATE_SCRIPT = (
+    IMPORTED_GPTP_GATE_CALL,
+    "make -C gptp-processor docs",
+)
+#: #378: the em-dash gate's body is bound to its published name the way the
+#: imported-gPTP body is. The event selection, the null and empty base
+#: refusals, the fetch of a base the shallow checkout lacks and the gate
+#: call are one script: `--base HEAD` judges no line, a `|| true` reports
+#: none, and either kept every recorded key, name and binding in place
+#: with the required context green ([R0] on PR #384).
+EM_DASH_GATE_CALL = 'python3 scripts/check_em_dash.py --base "$base"'
+EM_DASH_BASE_DERIVATION = 'base="$(git merge-base HEAD FETCH_HEAD || true)"'
+CANONICAL_EM_DASH_GATE_SCRIPT = (
+    'set -euo pipefail',
+    'case "$EVENT_NAME" in',
+    'pull_request)',
+    'if [ -z "$PR_BASE_REF" ]; then',
+    'echo "the pull_request event names no base branch"; exit 2',
+    'fi',
+    'git fetch --quiet origin "$PR_BASE_REF"',
+    'base="$(git merge-base HEAD FETCH_HEAD || true)"',
+    ';;',
+    'push) base="$PUSH_BEFORE_SHA" ;;',
+    '*) echo "a $EVENT_NAME event carries no base to judge from"; exit 2 ;;',
+    'esac',
+    'if [ -z "$base" ] || [ "$base" = 0000000000000000000000000000000000000000 ]; then',
+    'echo "the $EVENT_NAME event names no base commit"; exit 2',
+    'fi',
+    'git cat-file -e "$base^{commit}" 2>/dev/null || git fetch --quiet --depth=1 origin "$base"',
+    'python3 scripts/check_em_dash.py --base "$base"',
+)
+WIRE_GATE_CALL = "python3 scripts/check_wire_accountability.py --self-test"
+CANONICAL_WIRE_GATE_SCRIPT = ("python3 -m pip install --quiet pyyaml",
+                              WIRE_GATE_CALL)
+NO_GIT_GATE_CALL = "python3 scripts/docs_check.py"
+CANONICAL_NO_GIT_GATE_SCRIPT = ("rm -rf .git", NO_GIT_GATE_CALL,
+                                "python3 scripts/check_feature_status.py")
+#: elaborate's scope step is that workflow's whole run/no-run decision:
+#: every gate step's `if` is pinned to read `steps.scope.outputs.rtl`, and
+#: the step that PUBLISHES the output was not pinned ([R3] on PR #293) --
+#: `if: false` on it (an empty output compares unequal to 'true'), the
+#: script rewritten to publish a literal `rtl`, or its
+#: `ci_scope.py --selftest` line removed each retired the elaboration
+#: gates with every required context green. Held as the decide step is
+#: (#209 precedent): presence by id, the selector's own proof before its
+#: answer is read, and the script verbatim after whitespace normalization.
+#: BUILDER_IF above is the guard that reads this step's output.
+ELAB_SCOPE_STEP_ID = "scope"
+CANONICAL_ELAB_SCOPE_SCRIPT = (
+    "set -euo pipefail",
+    "# ci_scope.py arrives with PR #176. Until that lands this file may",
+    '# not exist, and the safe answer to "is this change RTL relevant"',
+    "# when the classifier is absent is yes.",
+    "if [ ! -f scripts/ci_scope.py ]; then",
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    'echo "no scripts/ci_scope.py yet: elaborating unconditionally"',
+    "exit 0",
+    "fi",
+    "python3 scripts/ci_scope.py --selftest",
+    'if [ "$EVENT_NAME" != pull_request ]; then',
+    'echo "rtl=true" >> "$GITHUB_OUTPUT"',
+    "exit 0",
+    "fi",
+    'if [ -n "$PR_BASE_SHA" ] && git cat-file -e "$PR_BASE_SHA^{commit}" '
+    "2>/dev/null; then",
+    'git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" '
+    '> "$RUNNER_TEMP/changed"',
+    "else",
+    'git ls-files > "$RUNNER_TEMP/changed"',
+    "fi",
+    'echo "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" '
+    '>> "$GITHUB_OUTPUT"',
+)
+#: The em-dash gate of `docs-check` (#378) judges the Markdown lines a change
+#: adds against a base it DERIVES, so its three bindings are held to their
+#: source expressions exactly as the fast selector's are. The pull-request
+#: binding is the base BRANCH, not `base.sha`: GitHub freezes that oid when
+#: the request opens while this job checks out the merge of the head into
+#: the current base tip, so the recorded oid attributed every line merged
+#: into the base since to the branch under test (the maintainer's finding on
+#: PR #384; the same lesson as #292 for the local runner). An event name
+#: hard-coded to `pull_request` reads the wrong base on a push.
+EM_DASH_GATE_NAME = "Added-line em-dash gate"
+EM_DASH_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_BASE_REF": "${{ github.event.pull_request.base.ref }}",
+    "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+}
+#: THE FOUR CARRIERS' STEP LISTS (#295, closing [R4] round 6 on PR #293).
+#: The declared allowlists above hold what a step SAYS; none of them holds
+#: which steps a carrier job runs. A `run:` step inserted before the gates
+#: of `docs-check` or `docs-check-no-git` writing `BASH_ENV=...` to
+#: `$GITHUB_ENV`, one in `wire-accountability` prepending `$GITHUB_PATH`,
+#: or an inserted `uses:` of any third-party action sets the inherited
+#: environment at RUN TIME for every later step -- and the same insertion
+#: in `full-ci-gate` is refused by its sequence pin (item 4). So each
+#: carrier's step list is pinned the same way: count, order, each step's
+#: identity (its literal `name`, or its `uses`), each step's exact key set
+#: and env bindings, each recorded `if` verbatim and each recorded `with`
+#: mapping exactly. An entry records only the keys the tree carries today;
+#: anything else on the step is a surplus key refused by name. The seven
+#: RTL jobs' lists are RTL_STEP_LISTS (#406), and STEP_LISTS is the union
+#: the rule reads.
+#: Each carrier run entry also records its normalized script (#407).
+#: These are reviewed constants, never read from the workflow at check time.
+#: A legitimate script edit explicitly updates this entry; mutation arms
+#: derive automatically from the live body, independently of this record.
+#: The specialized gate, setup and environment-writer checks remain independent.
+CARRIER_STEP_LISTS = {
+    (DOCS, "docs-check"): (
+        {"uses": "actions/checkout@v4",
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+        {"name": "Build the validated HDL reference",
+         "run": (
+             'set -euo pipefail',
+             'python3 -m pip install --quiet --require-hashes -r '
+             'tools/hdl_reference/requirements.txt',
+             'python3 scripts/gen_hdl_reference.py --selftest',
+             'python3 scripts/gen_hdl_reference.py --output "$RUNNER_TEMP/milan-hdl-reference"',
+         )},
+        {"name": "Upload the HDL reference HTML",
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "hdl-reference-html-${{ github.sha }}",
+                  "path": "${{ runner.temp }}/milan-hdl-reference/index.html",
+                  "if-no-files-found": "error",
+                  "retention-days": 14}},
+        {"name": "Install the python gate dependencies",
+         "run": (
+             'python3 -m pip install --quiet pyyaml',
+         )},
+        {"name": "Install diagram gate dependencies",
+         "run": (
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends librsvg2-bin',
+             'python3 -m pip install --quiet wavedrom==2.0.3.post3',
+         )},
+        {"name": "Link health, wording, dead-reference and local-info gate",
+         "run": (
+             'python3 scripts/docs_check.py',
+         )},
+        {"name": EM_DASH_GATE_NAME, "env": EM_DASH_STEP_ENV,
+         "run": CANONICAL_EM_DASH_GATE_SCRIPT},
+        {"name": "Concise audience documentation gate",
+         "run": (
+             'python3 scripts/check_doc_style.py',
+             'python3 scripts/check_doc_style.py --selftest',
+             'python3 scripts/check_gptp_docs.py',
+             'python3 scripts/check_gptp_docs.py --selftest',
+         )},
+        {"name": "Audience diagram no-drift gate",
+         "run": (
+             'python3 docs/DOC_MAP.gen.py --check',
+             'python3 docs/DOC_MAP.gen.py --selftest',
+             'python3 docs/diagrams/timesync_chain.gen.py --check',
+             'python3 docs/diagrams/timesync_chain.gen.py --selftest',
+         )},
+        {"name": "Product solution source-fact gate",
+         "run": (
+             'python3 scripts/check_solution_docs.py',
+             'python3 scripts/check_solution_docs.py --selftest',
+         )},
+        {"name": "Verified submodule documentation gate",
+         "run": (
+             'python3 docs/diagrams/submodule_boundaries.gen.py --check',
+             'python3 docs/diagrams/submodule_boundaries.gen.py --selftest',
+             'python3 scripts/check_submodule_docs.py',
+             'python3 scripts/check_submodule_docs.py --selftest',
+         )},
+        {"name": "HDL timing diagram no-drift gate",
+         "run": (
+             'python3 scripts/gen_wavedrom.py --selftest',
+             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json '
+             '--background=white --check',
+             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json '
+             '--background=white --check',
+             'python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white '
+             '--check',
+         )},
+        {"name": "Published diagram PNG gate",
+         "run": (
+             'python3 scripts/check_diagram_pngs.py',
+             'python3 scripts/check_diagram_pngs.py --selftest',
+         )},
+        {"name": "Milan feature-status consistency gate",
+         "run": (
+             'python3 scripts/check_feature_status.py --self-test',
+         )},
+        {"name": "Traceability matrix no-drift gate",
+         "run": (
+             'python3 docs/traceability/gen_module_matrix.py --check',
+         )},
+        {"name": "Fetch the builder source dependencies",
+         "run": (BUILDER_COMMAND,)},
+        {"name": IMPORTED_GPTP_GATE_NAME,
+         "run": CANONICAL_IMPORTED_GPTP_GATE_SCRIPT},
+        {"name": "Code-quality measurement self-tests",
+         "run": (
+             'python3 scripts/measure_control_flow.py --selftest',
+             'python3 scripts/measure_cohesion.py --selftest',
+         )},
+        {"name": "Install the pinned sv2v release",
+         "run": SV2V_INSTALL},
+        {"name": "Bare-metal scope gate",
+         "run": (
+             'python3 scripts/check_baremetal_only.py --check',
+             'python3 scripts/check_baremetal_only.py --selftest',
+         )},
+        {"name": "End-station builder gates",
+         "run": BUILDER_RUNS[DOCS]},
+        {"name": "NVM record-space gate",
+         "run": (
+             'python3 scripts/check_nvm_record_space.py',
+             'python3 scripts/check_nvm_record_space.py --self-test',
+         )},
+        {"name": "Saved-state writer gate",
+         "run": (
+             'python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test',
+         )},
+        {"name": "SoC source-list gate (Vivado would fail 40 min in "
+                 "without this)",
+         "run": (
+             'python3 scripts/check_soc_sources.py',
+             'python3 scripts/check_soc_sources.py --selftest',
+             'command -v tclsh >/dev/null || {',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends tcl',
+             '}',
+             'python3 sw/litex/iob_pack_selftest.py',
+         )},
+        {"name": "RTL source-list drift gate",
+         "run": (
+             'python3 scripts/check_rtl_source_lists.py',
+             'python3 scripts/check_rtl_source_lists.py --selftest',
+         )},
+        {"name": "Boundary-unit naming ratchet",
+         "run": (
+             'python3 scripts/measure_naming.py --check',
+             'python3 scripts/measure_naming.py --selftest',
+         )},
+        {"name": "Port contract gate",
+         "run": (
+             'python3 scripts/check_port_contracts.py',
+             'python3 scripts/check_port_contracts.py --selftest',
+         )},
+        {"name": "Fail-fast ratchet",
+         "run": (
+             'python3 scripts/measure_fail_fast.py --check',
+             'python3 scripts/measure_fail_fast.py --selftest',
+         )},
+        {"name": "TODO ownership gate",
+         "run": (
+             'python3 scripts/check_todo_ownership.py',
+             'python3 scripts/check_todo_ownership.py --selftest',
+         )},
+        {"name": "Test-evidence ratchet",
+         "run": (
+             'python3 scripts/measure_test_evidence.py --check',
+             'python3 scripts/measure_test_evidence.py --selftest',
+         )},
+        {"name": "Mechanical hygiene ratchet",
+         "run": (
+             'python3 scripts/check_hygiene.py --check',
+             'python3 scripts/check_hygiene.py --selftest',
+         )},
+        {"name": "SystemVerilog idiom gate",
+         "run": (
+             'python3 scripts/check_sv_idiom.py',
+             'python3 scripts/check_sv_idiom.py --selftest',
+         )},
+        {"name": "C and C++ idiom gate",
+         "run": (
+             'python3 scripts/check_cpp_idiom.py',
+             'python3 scripts/check_cpp_idiom.py --selftest',
+         )},
+        {"name": "Python idiom gate",
+         "run": (
+             'python3 scripts/check_py_idiom.py',
+             'python3 scripts/check_py_idiom.py --selftest',
+         )},
+        {"name": "Shell idiom gate",
+         "run": (
+             'python3 scripts/check_sh_idiom.py',
+             'python3 scripts/check_sh_idiom.py --selftest',
+         )},
+        {"name": "CI event and SHA contract gate",
+         "run": CANONICAL_DOCS_GATE_SCRIPT},
+        {"name": "Local act runner contract gate",
+         "run": (ACT_CI_SELFTEST,)},
+        {"name": "Doc cited-path gate",
+         "run": (
+             'python3 scripts/check_doc_paths.py',
+         )},
+        {"name": "Archive integrity gate",
+         "run": (
+             'python3 scripts/check_archive.py',
+             'python3 scripts/check_archive.py --selftest',
+         )},
+        {"name": "Per-page contents gate",
+         "run": (
+             'python3 scripts/gen_toc.py --selftest',
+             'python3 scripts/gen_toc.py --verify-anchors',
+             'python3 scripts/gen_toc.py --check',
+         )},
+        {"name": "Sweep/build shape gate",
+         "run": (
+             'python3 scripts/check_sweep_shape.py --self-test',
+         )},
+        {"name": "Deploy shape gate",
+         "run": (
+             'python3 scripts/check_deploy_shape.py --self-test',
+         )},
+        {"name": "Entity shape gate",
+         "run": (
+             'python3 scripts/check_entity_shape.py --self-test',
+         )},
+    ),
+    (DOCS, "wire-accountability"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch the engine authority the builder derives from",
+         "run": (
+             'git submodule update --init gptp-processor',
+         )},
+        {"name": "Advertised-vs-emitted gate (green since 2026-07-28, "
+                 "item 00)",
+         "run": CANONICAL_WIRE_GATE_SCRIPT},
+    ),
+    (DOCS, "docs-check-no-git"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Strip git metadata, then run the docs gate",
+         "run": CANONICAL_NO_GIT_GATE_SCRIPT},
+    ),
+    (ELABORATE, "elaborate"): (
+        {"uses": "actions/checkout@v4",
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+        {"name": "Decide whether this head needs an elaboration",
+         "id": ELAB_SCOPE_STEP_ID,
+         "env": {"EVENT_NAME": "${{ github.event_name }}",
+                 "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}"},
+         "run": CANONICAL_ELAB_SCOPE_SCRIPT},
+        {"name": "Fetch the source dependencies the elaboration reads",
+         "if": BUILDER_IF,
+         "run": (BUILDER_COMMAND,)},
+        {"name": "Install the pinned sv2v release", "if": BUILDER_IF,
+         "run": SV2V_INSTALL},
+        {"uses": "actions/setup-python@v5", "if": BUILDER_IF,
+         "with": {"python-version": "3.12"}},
+        {"name": "Cache the pinned pip downloads", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/.cache/pip",
+                  "key": "elaborate-pip-${{ runner.os }}-"
+                         "${{ hashFiles('sw/litex/litex_pins.txt') }}",
+                  "restore-keys": "elaborate-pip-${{ runner.os }}-"}},
+        {"name": "Install LiteX at the pinned revisions", "if": BUILDER_IF,
+         "run": (
+             'python3 -m pip install --quiet pyyaml',
+             'python3 -m pip install --quiet -r sw/litex/litex_pins.txt',
+         )},
+        {"name": "Cache the Scala toolchain", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/.cache/coursier\n~/.sbt\n~/.ivy2\n",
+                  "key": "elaborate-sbt-${{ runner.os }}",
+                  "restore-keys": "elaborate-sbt-"}},
+        {"name": "Cache the generated CPU metadata", "uses": "actions/cache@v4",
+         "if": BUILDER_IF,
+         "with": {"path": "~/vexii-netlist-args",
+                  "key": "elaborate-vexii-${{ hashFiles('configs/*.yaml', "
+                         "'sw/litex/milan_soc.py', 'sw/litex/build.sh', "
+                         "'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', "
+                         "'sw/litex/patches/**') }}"}},
+        {"name": "Install sbt", "if": BUILDER_IF,
+         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate", 'Install sbt')]},
+        {"name": "Place the VexiiRiscv source at the revision LiteX pins",
+         "if": BUILDER_IF,
+         "run": (
+             'python3 scripts/ci_litex_env.py',
+             'mkdir -p ~/vexii-netlist-args',
+             'cp -n ~/vexii-netlist-args/*.py "$(python3 -c \'import pythondata_cpu_vexiiriscv as p;'
+             ' print(p.data_location)\')/" 2>/dev/null || true',
+         )},
+        {"name": "Apply the toolchain patch series", "if": BUILDER_IF,
+         "run": (
+             'sw/litex/patches/apply.sh',
+         )},
+        {"name": "Elaboration gates", "if": BUILDER_IF,
+         "run": BUILDER_RUNS[ELABORATE]},
+        # Verilator, for the aggregate's converted-versus-source MAC
+        # comparison (#360). Same cache key and same three steps as rtl.yml,
+        # and BEFORE the aggregate: the PATH entry the third one appends is
+        # what the member reads, so their order is the contract.
+        {"name": "Cache the pinned Verilator build", "uses": "actions/cache@v4",
+         "id": "cache-verilator", "if": BUILDER_IF,
+         "with": {"path": "/opt/verilator",
+                  "key": "verilator-${{ env.VERILATOR_VERSION }}-"
+                         "${{ runner.os }}"}},
+        {"name": "Build Verilator from source on cache miss",
+         "if": "${{ steps.scope.outputs.rtl == 'true' && "
+               "steps.cache-verilator.outputs.cache-hit != 'true' }}",
+         "run": (
+             'set -euo pipefail',
+             'sudo apt-get update -qq',
+             'sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison '
+             'libfl2 libfl-dev help2man perl python3',
+             'git clone --depth 1 --branch "$VERILATOR_VERSION" '
+             'https://github.com/verilator/verilator.git /tmp/verilator-src',
+             'cd /tmp/verilator-src',
+             'autoconf',
+             './configure --prefix=/opt/verilator',
+             'make -j"$(nproc)"',
+             'sudo make install',
+         )},
+        {"name": "Put Verilator on PATH and prove the version",
+         "if": BUILDER_IF,
+         "run": ENV_FILE_WRITERS[(ELABORATE, "elaborate",
+                                  "Put Verilator on PATH and prove the version")]},
+        {"name": "Standalone LiteX simulation aggregate", "if": BUILDER_IF,
+         "run": (
+             'scripts/run_litex_sims.sh --selftest',
+             'scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"',
+         )},
+        {"name": "Keep the generated CPU netlist arguments for the next run",
+         "if": "${{ always() && steps.scope.outputs.rtl == 'true' }}",
+         "run": (
+             'cp -n "$(python3 -c \'import pythondata_cpu_vexiiriscv as p; '
+             'print(p.data_location)\')"/*.py ~/vexii-netlist-args/ 2>/dev/null || true',
+         )},
+    ),
+}
+#: The fast workflow's selector job and the step that computes its answer,
+#: and the aggregate that renders its required check name.
+FAST_SELECTOR_JOB = "changes"
+FAST_AGGREGATE_JOB = "rtl-fast"
+FAST_SCOPE_STEP_ID = "scope"
+#: #245: syn/yosys/ooc.sh's refusal self-test, pinned VERBATIM in the job
+#: that initialises both processor submodules it reads, and after
+#: that initialisation. It is the only thing that exercises ooc.sh's
+#: refusals anywhere hosted; deleting the whole step (or neutralising the
+#: line, or running it before the fetch) left every other contract item
+#: green -- measured by [R-parallel] on PR #262. Verbatim equality of the
+#: step's normalized script is the neutralisation guard: `true # ...`,
+#: `|| true`, an echo, or a second command are all a different script.
+OOC_SH_SELFTEST = "python3 syn/yosys/ooc_selftest.py"
+OOC_SH_SELFTEST_JOB = "yosys-elaboration"
+OOC_SH_SUBMODULE_FETCH = "git submodule update --init"
+#: ...and it must NAME the submodule. Holding the bare verb alone let the
+#: fetch be trimmed to `third_party/verilog-axis` with the ordering item and
+#: every mutation arm still green, while each self-test arm then died on
+#: setup - the checker would not have held what its own docstring claims.
+OOC_SH_SUBMODULES = ("protocol-processor", "gptp-processor")
+#: The fast selector is a second run/no-run decision, not merely a producer
+#: of metadata.  Its exact inputs and body are held for the same reason as
+#: the exhaustive selector: an empty or forced-false answer skips both RTL
+#: consumers, and the aggregate deliberately accepts those skips.
+FAST_CHECKOUT_USES = f"{CHECKOUT_ACTION}@v4"
+FAST_CHECKOUT_WITH = {"fetch-depth": "0"}
+FAST_SCOPE_STEP_KEYS = ("name", "id", "env", "run")
+FAST_SCOPE_STEP_ENV = {
+    "EVENT_NAME": "${{ github.event_name }}",
+    "PR_BASE_SHA": "${{ github.event.pull_request.base.sha }}",
+    "PUSH_BEFORE_SHA": "${{ github.event.before }}",
+}
+CANONICAL_FAST_SCOPE_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/ci_scope.py --selftest",
+    'base=""',
+    'if [ "$EVENT_NAME" = pull_request ]; then',
+    'base="$PR_BASE_SHA"',
+    "else",
+    'base="$PUSH_BEFORE_SHA"',
+    "fi",
+    'if [ -n "$base" ] && [ "$base" != '
+    '0000000000000000000000000000000000000000 ] && '
+    'git cat-file -e "$base^{commit}" 2>/dev/null; then',
+    'git diff --no-renames --name-only "$base" "$GITHUB_SHA" > '
+    '"$RUNNER_TEMP/changed-files"',
+    "else",
+    "# An unknown base must never turn a real change into docs-only.",
+    'git ls-files > "$RUNNER_TEMP/changed-files"',
+    "fi",
+    'echo "Changed files:"',
+    'sed \'s/^/ /\' "$RUNNER_TEMP/changed-files"',
+    'rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"',
+    'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"',
+    'echo "RTL/tooling relevant: $rtl"',
+)
+#: The fast workflow's aggregate `if`. It counts a skipped consumer as a pass
+#: deliberately (a docs-only change legitimately runs no RTL lint), which is
+#: exactly why that workflow's published answer has to be pinned by content
+#: too: rebind it and every consumer skips into that pass.
+FAST_AGGREGATE_JOB_IF = "${{ always() && !cancelled() }}"
+#: The fast aggregate's one verdict step. That step is the entire conversion
+#: of four job results into the required `rtl-fast` context ([R2] on PR
+#: #239): the job itself runs under `always() && !cancelled()`, so an `if` on
+#: the step, a rebound result binding, or a `case` widened to accept
+#: `failure` each leaves every job key canonical while a FAILED consumer
+#: still yields a green required context. So the step's keys are pinned, its
+#: env is derived from the aggregate's `needs` (one `<JOB>_RESULT` name per
+#: needed job, bound to `${{ needs.<job>.result }}`), and its script is the
+#: canonical form derived from the same list.
+FAST_VERDICT_STEP_KEYS = ("name", "env", "run")
+
+
+def step_output_ref(step_id: str, name: str) -> str:
+    """`${{ steps.<id>.outputs.<name> }}`, built rather than restated."""
+    return "${{ steps." + step_id + ".outputs." + name + " }}"
+
+
+def needs_output_ref(job_id: str, name: str) -> str:
+    """`needs.<job>.outputs.<name>`, built rather than restated."""
+    return "needs." + job_id + ".outputs." + name
+
+
+def needs_result_ref(job_id: str) -> str:
+    """`${{ needs.<job>.result }}`, built rather than restated."""
+    return "${{ needs." + job_id + ".result }}"
+
+
+def fast_result_env_name(job_id: str) -> str:
+    """The env name the fast verdict step reads one needed job's result
+    through, derived from the job id, never a second list:
+    `verilator-lint` -> `VERILATOR_LINT_RESULT`."""
+    return job_id.upper().replace("-", "_") + "_RESULT"
+
+
+def canonical_fast_verdict_script(needed: Sequence[str]) -> tuple[str, ...]:
+    """The fast verdict step's script, derived from the aggregate's `needs`:
+    one `job:$JOB_RESULT` pair per needed job, in `needs` order, and a `case`
+    that accepts exactly `success` and `skipped`."""
+    pairs = " ".join('"%s:$%s"' % (j, fast_result_env_name(j))
+                     for j in needed)
+    return (
+        "set -euo pipefail",
+        "bad=0",
+        f"for pair in {pairs}; do",
+        'name="${pair%%:*}"',
+        'result="${pair#*:}"',
+        "printf '%-24s %s\\n' \"$name\" \"$result\"",
+        'case "$result" in',
+        "success|skipped) ;;",
+        "*) bad=1 ;;",
+        "esac",
+        "done",
+        '[ "$bad" -eq 0 ]',
+    )
+
+
+def consumer_job_if(job_id: str, name: str) -> str:
+    """The exact `if` a job gated on a selector's published decision carries."""
+    return "${{ " + needs_output_ref(job_id, name) + " == 'true' }}"
+
+
+#: THE PUBLICATION PATH, per workflow: the job that publishes the decision,
+#: its `outputs` map as NAME -> BINDING, and the output its consumers gate on.
+#:
+#: Three rounds of [R0] on PR #239 each found one more member of a perimeter
+#: nobody had enumerated: the gate's sibling steps, then those steps' env
+#: BINDINGS, then this map. Each round pinned the instance and left the
+#: perimeter an allow-list written from the last review, so the next unlisted
+#: thing was outside it again. A job's `outputs` is the same
+#: NAME -> EXPRESSION mapping a step's `env` is, and checking only that
+#: `target_sha` existed let `run_full: ${{ 'false' }}` -- valid job-output
+#: YAML, every pinned step key, env binding and script character intact --
+#: publish the no-op decision: both worker matrices skip, both aggregates
+#: skip under their documented no-op exception, and a skipped required
+#: context satisfies a GitHub ruleset. The same hole is open a second time in
+#: rtl-fast.yml, whose `changes` job gates the two RTL fast checks the same
+#: way. So the maps are pinned by content here and check_publication_path
+#: closes the path around them: every consumer of a selector carries a pinned
+#: `if`, and no `needs.<job>.outputs.<name>` expression anywhere may name an
+#: output no job publishes or a job it does not need.
+SELECTOR_JOB = {RTL_FULL: GATE_JOB, RTL_FAST: FAST_SELECTOR_JOB}
+SELECTOR_OUTPUTS = {
+    RTL_FULL: {
+        RUN_FULL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RUN_FULL_OUTPUT),
+        RTL_OUTPUT: step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT),
+        GATE_OUTPUT: step_output_ref(PIN_STEP_ID, GATE_OUTPUT),
+    },
+    RTL_FAST: {
+        RTL_OUTPUT: step_output_ref(FAST_SCOPE_STEP_ID, RTL_OUTPUT),
+    },
+}
+#: The output whose value decides whether the consumers run at all.
+SELECTOR_DECISION = {RTL_FULL: RUN_FULL_OUTPUT, RTL_FAST: RTL_OUTPUT}
+#: The `if` each workflow's own aggregate carries. WHICH job that is is
+#: derived, not listed again: the aggregate is the job whose display name is
+#: the public required check the merge bar reads (PUBLIC_NAMES above).
+AGGREGATE_IF = {RTL_FULL: AGGREGATE_JOB_IF, RTL_FAST: FAST_AGGREGATE_JOB_IF}
+#: A `needs` context reference can use property syntax, index syntax, or mix
+#: them: `needs.changes.outputs.rtl`, `needs['changes'].outputs.rtl`, and
+#: `needs['changes']['outputs']['rtl']` are the same reference to GitHub.  A
+#: regex for only the first spelling made the second invisible to the gate.
+#: The small access-chain parser below resolves every static spelling and
+#: refuses dynamic brackets, whose producer/output cannot be audited here.
+NEEDS_WORD_RE = re.compile(r"\bneeds\b")
+CONTEXT_NAME_RE = re.compile(r"[A-Za-z0-9_-]+")
+
+SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+CRON_RE = re.compile(r"^\s*(\d{1,2})\s+(\d{1,2})\s+\*\s+\*\s+\*\s*$")
+
+
+class CannotRun(Exception):
+    """An input the check cannot judge: missing, unparseable, no pyyaml."""
+
+
+# --------------------------------------------------------------------------
+# Loading
+# --------------------------------------------------------------------------
+
+def load_yaml(text: str, path: str) -> YamlMap:
+    """One workflow file's text as a mapping. Raises CannotRun when pyyaml
+    is absent, the text does not parse, or its top level is not a mapping."""
+    try:
+        import yaml  # noqa: WPS433  (deliberately late: absence is rc 2)
+    except ImportError as exc:
+        raise CannotRun("pyyaml is not importable; install python3-yaml "
+                        "or `pip install pyyaml`") from exc
+    try:
+        doc = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise CannotRun(f"{path}: does not parse as YAML: {exc}") from exc
+    if not isinstance(doc, dict):
+        raise CannotRun(f"{path}: top level is not a mapping")
+    return doc
+
+
+def is_extra_workflow(rel: str) -> bool:
+    """A workflow file the inventory does not name."""
+    return (rel not in FILES and rel.startswith(WORKFLOW_DIR + "/")
+            and rel.endswith(WORKFLOW_SUFFIXES))
+
+
+def extra_workflows(world: World) -> list[str]:
+    """Every un-inventoried workflow path a world holds, sorted."""
+    return sorted(rel for rel in world if is_extra_workflow(rel))
+
+
+def read_tree(root: pathlib.Path) -> dict[str, str]:
+    """The five files as text, keyed by their repository-relative path, plus
+    every other workflow file the directory holds: the inventory decides
+    what is held, the directory decides what GitHub runs."""
+    world = {}
+    for rel in FILES:
+        path = root / rel
+        try:
+            world[rel] = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise CannotRun(f"{rel}: cannot read: {exc}") from exc
+    wdir = root / WORKFLOW_DIR
+    for path in sorted(wdir.iterdir()) if wdir.is_dir() else ():
+        rel = f"{WORKFLOW_DIR}/{path.name}"
+        if path.is_file() and is_extra_workflow(rel):
+            try:
+                world[rel] = path.read_text(encoding="utf-8")
+            except OSError as exc:
+                raise CannotRun(f"{rel}: cannot read: {exc}") from exc
+    return world
+
+
+def parse_world(world: World) -> World:
+    """Text world -> parsed world: YAML mappings for workflows, text for the
+    policy page. Raises CannotRun for anything it cannot judge. A workflow
+    file outside the inventory is parsed too, so the global carrier count
+    below can see it."""
+    parsed = {}
+    for rel in FILES:
+        if rel not in world:
+            raise CannotRun(f"{rel}: missing")
+        parsed[rel] = (load_yaml(world[rel], rel) if rel in WORKFLOWS
+                       else world[rel])
+    for rel in extra_workflows(world):
+        parsed[rel] = (world[rel] if isinstance(world[rel], dict)
+                       else load_yaml(world[rel], rel))
+    return parsed
+
+
+# --------------------------------------------------------------------------
+# Helpers over a parsed workflow
+# --------------------------------------------------------------------------
+
+def triggers(wf: YamlMap) -> YamlMap:
+    """The `on:` mapping. PyYAML 1.1 reads the bare key `on` as boolean True,
+    so accept both spellings; anything else is an empty contract."""
+    on = wf.get("on", wf.get(True))
+    return on if isinstance(on, dict) else {}
+
+
+def jobs(wf: YamlMap) -> YamlMap:
+    """A workflow's `jobs` mapping, or empty when it carries none or a
+    non-mapping: the checks then name the missing job, not the file's shape."""
+    j = wf.get("jobs")
+    return j if isinstance(j, dict) else {}
+
+
+def steps(job: Any) -> list[YamlMap]:
+    """One job's steps, mappings only; empty for a job that is absent, null
+    or not a mapping, so a check names what it cannot find."""
+    s = job.get("steps") if isinstance(job, dict) else None
+    return [x for x in s if isinstance(x, dict)] if isinstance(s, list) else []
+
+
+def display_name(job_id: str, job: Any) -> str:
+    """The name a job's check run appears under: its own `name`, or its id
+    when there is none or it is blank."""
+    name = job.get("name") if isinstance(job, dict) else None
+    return name if isinstance(name, str) and name.strip() else job_id
+
+
+def step_text(step: YamlMap) -> str:
+    """Everything a step says: its run script plus its env values, so an
+    expression passed through `env:` counts as referenced."""
+    parts = []
+    run = step.get("run")
+    if isinstance(run, str):
+        parts.append(run)
+    env = step.get("env")
+    if isinstance(env, dict):
+        parts.extend(str(v) for v in env.values())
+    return "\n".join(parts)
+
+
+def uses(step: YamlMap, action: str) -> bool:
+    """Whether a step `uses:` `action` at any version."""
+    u = step.get("uses")
+    return isinstance(u, str) and (u == action or u.startswith(action + "@"))
+
+
+def step_label(step: Any) -> str:
+    """What a finding calls a step: its name, its `uses`, or its `id`."""
+    if not isinstance(step, dict):
+        return "no step at this position"
+    for key in ("name", "uses", "id"):
+        value = step.get(key)
+        if isinstance(value, str) and value.strip():
+            return f"`{value.strip()}`"
+    return "an unnamed step"
+
+
+def _is_checkout_step(step):
+    return uses(step, CHECKOUT_ACTION)
+
+
+def _is_pin_step(step):
+    return step.get("id") == PIN_STEP_ID
+
+
+def _is_assert_step(step):
+    return DEFAULT_BRANCH_FLAG in step_text(step)
+
+
+def _is_decide_step(step):
+    return step.get("id") == DECIDE_STEP_ID
+
+
+def _is_contract_step(step):
+    return CONTRACT_CHECK in step_text(step)
+
+
+#: (label, recognizer, what it must be, keys, env keys, optional keys) for
+#: every step of the gate job, in the order they must appear. The SEQUENCE is
+#: the point: the assertion runs the `ci_events.py` the checkout brought and
+#: the decision diffs the tree that checkout produced, so a step moved before
+#: the checkout runs without the file it needs, a step inserted anywhere runs
+#: before everything after it and can change what they read, and a step
+#: removed takes its assertion with it. None of those three touches a single
+#: character of the pinned script text.
+GATE_STEPS = (
+    ("the gate checkout step", _is_checkout_step,
+     f"`uses: {CHECKOUT_ACTION}` with `fetch-depth: {CHECKOUT_FETCH_DEPTH}`",
+     CHECKOUT_STEP_KEYS, {}, CHECKOUT_STEP_OPTIONAL),
+    ("the pin step", _is_pin_step,
+     f"the step with `id: {PIN_STEP_ID}` that prints the event and exports "
+     f"`{GATE_OUTPUT}`", PIN_STEP_KEYS, {}, ()),
+    ("the default-branch step", _is_assert_step,
+     f"the step that runs `ci_events.py {DEFAULT_BRANCH_FLAG}`",
+     ASSERT_STEP_KEYS, ASSERT_STEP_ENV, ()),
+    ("the contract step", _is_contract_step,
+     f"the step that runs `{CONTRACT_CHECK}`",
+     CONTRACT_STEP_KEYS, {}, ()),
+    ("the decision step", _is_decide_step,
+     f"the step with `id: {DECIDE_STEP_ID}` that publishes `run_full`",
+     DECIDE_STEP_KEYS, DECIDE_STEP_ENV, ()),
+)
+
+
+def cron_time(cron: Any) -> str | None:
+    """`M H * * *` -> `HH:MM UTC`, or None for any other shape."""
+    m = CRON_RE.match(cron) if isinstance(cron, str) else None
+    if not m:
+        return None
+    minute, hour = int(m.group(1)), int(m.group(2))
+    if not (0 <= minute <= 59 and 0 <= hour <= 23):
+        return None
+    return f"{hour:02d}:{minute:02d} UTC"
+
+
+# --------------------------------------------------------------------------
+# The contract
+# --------------------------------------------------------------------------
+
+class Contract:
+    """The running tally of one `--check`: items counted, findings, notes."""
+
+    def __init__(self) -> None:
+        self.checked = 0
+        self.findings = []
+        self.notes = []
+
+    def item(self, ok: bool, path: str, what: str) -> None:
+        """Count one contract item and, when `ok` is false, record `path: what`
+        as a finding."""
+        self.checked += 1
+        if not ok:
+            self.findings.append(f"{path}: {what}")
+
+
+def check_push_and_pr(c: Contract, path: str, wf: YamlMap,
+                      exact_types: bool) -> None:
+    """The two events every workflow subscribes: a push to PUSH_BRANCH and
+    pull_request, with exactly PR_TYPES when `exact_types`."""
+    on = triggers(wf)
+    push = on.get("push")
+    branches = push.get("branches") if isinstance(push, dict) else None
+    c.item(isinstance(branches, list) and PUSH_BRANCH in branches, path,
+           f"push must subscribe branches including `{PUSH_BRANCH}` "
+           f"(found {branches!r})")
+    c.item("pull_request" in on, path, "must subscribe pull_request")
+    if exact_types:
+        pr = on.get("pull_request")
+        types = pr.get("types") if isinstance(pr, dict) else None
+        ok = (isinstance(types, list) and len(types) == len(PR_TYPES)
+              and set(types) == set(PR_TYPES))
+        c.item(ok, path, "pull_request.types must be exactly "
+               f"{list(PR_TYPES)} (found {types!r})")
+
+
+def check_cancel_in_progress(c: Contract, path: str, wf: YamlMap) -> None:
+    """Concurrency: a superseded run is cancelled, and the group is scoped to
+    the pull request number or the ref."""
+    conc = wf.get("concurrency")
+    cancel = conc.get("cancel-in-progress") if isinstance(conc, dict) else None
+    c.item(cancel is True, path,
+           f"concurrency.cancel-in-progress must be true (found {cancel!r})")
+    group = conc.get("group") if isinstance(conc, dict) else None
+    ok = (isinstance(group, str) and "github.event.pull_request.number" in group
+          and "github.ref" in group)
+    c.item(ok, path, "concurrency.group must scope to the PR number or the "
+           f"ref (found {group!r})")
+
+
+def check_public_names(c: Contract, path: str, wf: YamlMap) -> None:
+    """Each public check-run name the merge bar reads is carried by exactly
+    one job. Existence alone held nothing ([R2] on PR #239): a second job
+    renamed to the aggregate's display name publishes a second check run
+    under the required name, and which of the two the ruleset binds is
+    ambiguous."""
+    all_jobs = jobs(wf)
+    # A display name is read here as a literal string, and GitHub evaluates
+    # `jobs.<id>.name` as an expression ([R4] on PR #293): `name: ${{ 'X' }}`
+    # publishes a check run named X that no literal comparison sees, so a
+    # `run: true` job spelled that way was a second carrier of every
+    # required name with no finding. The only expression names this tree
+    # carries are the sharded workers' `... shard ${{ matrix.shard }}/${{
+    # matrix.total }}`, so the rule is: a `name` may reference nothing but
+    # `matrix.<key>` lists of the job's own literal `strategy.matrix`, every
+    # rendering is enumerated and none may be a required name, and any other
+    # expression is refused outright, because it cannot be enumerated here.
+    for jid, j in all_jobs.items():
+        shown = display_name(jid, j)
+        owner = PUBLIC_NAME_OWNER.get(shown)
+        c.item(owner is None or owner == path, path,
+               f"job `{jid}` carries the required check name `{shown}` owned "
+               f"by {owner}: the merge bar binds a name, not a file, so this "
+               "job is a second carrier of that context on every pull request "
+               "the two workflows share")
+    for jid, j in all_jobs.items():
+        name = j.get("name") if isinstance(j, dict) else None
+        if not (isinstance(name, str) and "${{" in name):
+            continue
+        rendered = rendered_names(j)
+        c.item(rendered is not None, path,
+               f"job `{jid}` `name` must be a literal or reference only "
+               f"`${{{{ matrix.<key> }}}}` lists of its own `strategy.matrix` "
+               f"(found {name!r}): any other expression evaluates on the "
+               "runner to a display name this rule cannot read, so it can "
+               "publish a check run under a required name unseen")
+        for got in rendered or ():
+            c.item(got not in ALL_PUBLIC_NAMES, path,
+                   f"job `{jid}` `name` renders `{got}` for one matrix "
+                   "combination, which is a required check name: a matrix "
+                   "job publishing that name is a second carrier the "
+                   "literal comparison above cannot see")
+    for want in PUBLIC_NAMES.get(path, ()):
+        carriers = [jid for jid, j in all_jobs.items()
+                    if display_name(jid, j) == want]
+        c.item(len(carriers) == 1, path,
+               f"public check name `{want}` must be carried by exactly one "
+               f"job (carried by {carriers or 'none'}, jobs are "
+               f"{sorted(all_jobs)}): the merge bar reads this name, and two "
+               "jobs publishing it make which run the ruleset binds "
+               "ambiguous")
+
+
+def check_required_context_carriers(c: Contract, path: str, wf: YamlMap,
+                                    held_by_builder: Sequence[str] = ()) -> None:
+    """Each public check name is carried by the job of that id, and that job
+    runs as written: no `needs`, no `if`, no `continue-on-error`, no
+    `defaults` (#261).
+
+    The RTL workflows reach every job through their aggregate's `needs` and
+    classify each one as the selector, a consumer or a held contributor. The
+    documentation and elaboration workflows have no aggregate: the carrier
+    IS the required context, and a skipped required context satisfies the
+    ruleset. So `if: false` on `docs-check` retired this gate itself (docs.yml
+    is the only workflow that runs `--check`), and the same lever on
+    `wire-accountability` or `docs-check-no-git` retired the item-00 record
+    or the no-git proof, with `checked=171 findings=0` at `70421f5c`.
+
+    The NAME and the CONTENT must be held on one job ([R3] on PR #293). The
+    merge bar binds a display name; the builder contract and the step pins
+    below read `docs-check` and `elaborate` by job id. Held apart, the real
+    job renamed to `docs-check-real` beside a `decoy` job named `docs-check`
+    with one `run: true` step passed with 233 items and no finding: the
+    unique carrier had no neuter key and the id-named job kept its pinned
+    content, while the required context ran nothing. So the job whose id is
+    the public name must carry it. `held_by_builder` names the ids whose
+    keys check_builder_dependencies already holds by the same function, so
+    each refusal is printed once. An ambiguous carrier is named by
+    check_public_names, not here."""
+    all_jobs = jobs(wf)
+    for want in PUBLIC_NAMES.get(path, ()):
+        job = all_jobs.get(want)
+        got = display_name(want, job) if isinstance(job, dict) else None
+        c.item(got == want, path,
+               f"required context `{want}` must be carried by the job of that "
+               f"id (found "
+               + ("no such job" if got is None else f"job `{want}` named `{got}`")
+               + "): the content checks read that job by id, so a job "
+               "carrying the name under another id is a stub the merge bar "
+               "binds while the real gates run under a name it does not read")
+        carriers = [jid for jid, j in all_jobs.items()
+                    if display_name(jid, j) == want]
+        if len(carriers) != 1 or carriers[0] in held_by_builder:
+            continue
+        check_job_keys(c, path, carriers[0], all_jobs[carriers[0]])
+
+
+def check_act_artifact_aggregate_order(c: Contract, path: str,
+                                       wf: YamlMap) -> None:
+    """Keep act's shared download-action bootstrap single-file.
+
+    The public-name check separately proves each display name has exactly one
+    carrier. Once those carriers are known, require each later aggregate to
+    directly need the prior one. A transitive or incidental order is too easy
+    to lose while editing unrelated worker dependencies.
+    """
+    all_jobs = jobs(wf)
+    carriers = {}
+    for name in ACT_ARTIFACT_AGGREGATE_ORDER:
+        found = [jid for jid, job in all_jobs.items()
+                 if display_name(jid, job) == name]
+        if len(found) == 1:
+            carriers[name] = found[0]
+    for earlier, later in zip(ACT_ARTIFACT_AGGREGATE_ORDER,
+                              ACT_ARTIFACT_AGGREGATE_ORDER[1:]):
+        earlier_id = carriers.get(earlier)
+        later_id = carriers.get(later)
+        if earlier_id is None or later_id is None:
+            continue
+        c.item(earlier_id in needs_list(all_jobs[later_id]), path,
+               f"job `{later_id}` must need `{earlier_id}` before starting "
+               "its artifact download: act v0.2.89 shares the action cache, "
+               "and concurrent first-use download actions can lose one "
+               "aggregate's evidence")
+
+
+def check_rtl_full(c: Contract, wf: YamlMap, policy: str) -> None:
+    """Everything rtl.yml owes, from its triggers to the publication path."""
+    path = RTL_FULL
+    check_push_and_pr(c, path, wf, exact_types=True)
+    on = triggers(wf)
+
+    # Dispatch: present, and no inputs. The documented command has none, and a
+    # required input would make `gh workflow run rtl.yml --ref <branch>` fail.
+    c.item("workflow_dispatch" in on, path, "must subscribe workflow_dispatch")
+    dispatch = on.get("workflow_dispatch")
+    has_inputs = isinstance(dispatch, dict) and bool(dispatch.get("inputs"))
+    c.item(not has_inputs, path, "workflow_dispatch must carry no inputs: the "
+           "dispatcher chooses the ref and nothing else")
+
+    # Schedule: exactly one cron of the `M H * * *` shape, stated on the page
+    # both as the literal string and as the rendered time.
+    sched = on.get("schedule")
+    crons = ([e.get("cron") for e in sched if isinstance(e, dict)]
+             if isinstance(sched, list) else [])
+    c.item(len(crons) == 1, path,
+           f"schedule must carry exactly one cron (found {crons!r})")
+    cron = crons[0] if len(crons) == 1 else None
+    when = cron_time(cron)
+    c.item(when is not None, path,
+           f"cron must be a daily `M H * * *` entry (found {cron!r})")
+    if when is not None:
+        c.item(f"`{cron}`" in policy, POLICY,
+               f"must state the cron string `{cron}`")
+        c.item(when in policy, POLICY,
+               f"must state the cron's time as {when}")
+        c.notes.append(f"cron `{cron}` renders {when}; the policy page states both")
+
+    check_cancel_in_progress(c, path, wf)
+    check_public_names(c, path, wf)
+    check_act_artifact_aggregate_order(c, path, wf)
+
+    # One authoritative SHA: no checkout overrides the event's pinned commit.
+    for jid, job in jobs(wf).items():
+        for n, step in enumerate(steps(job), 1):
+            if uses(step, "actions/checkout"):
+                with_ = step.get("with")
+                overrides = isinstance(with_, dict) and "ref" in with_
+                c.item(not overrides, path,
+                       f"job `{jid}` step {n}: actions/checkout must not "
+                       f"override `ref` (found {with_!r})")
+
+    # The gate prints the event and the SHA, and exports target_sha.
+    gate = jobs(wf).get(GATE_JOB)
+    c.item(isinstance(gate, dict), path, f"job `{GATE_JOB}` must exist")
+    if isinstance(gate, dict):
+        prints = any("GITHUB_EVENT_NAME" in step_text(s)
+                     and "GITHUB_SHA" in step_text(s) for s in steps(gate))
+        c.item(prints, path, f"job `{GATE_JOB}` must print the event name and "
+               "GITHUB_SHA in one step")
+        check_default_branch_step(c, path, gate)
+        check_contract_step(c, path, gate)
+        check_decide_step(c, path, gate)
+        check_gate_steps(c, path, gate)
+        check_job_keys(c, path, GATE_JOB, gate)
+        check_no_gh_env(c, path, f"job `{GATE_JOB}`", gate.get("env"))
+    check_no_gh_env(c, path, "the workflow's top-level", wf.get("env"))
+    c.item("defaults" not in wf, path, "the workflow must carry no top-level "
+           f"`defaults` (found {wf.get('defaults')!r}): a `defaults.run.shell` changes how every script runs")
+
+    # Every job that uploads evidence records the SHA first; every job that
+    # downloads evidence verifies it against the gate's output.
+    ref = f"needs.{GATE_JOB}.outputs.{GATE_OUTPUT}"
+    for jid, job in jobs(wf).items():
+        ss = steps(job)
+        upload_at = next((i for i, s in enumerate(ss)
+                          if uses(s, "actions/upload-artifact")), None)
+        if upload_at is not None:
+            recorded = any(RECORD in step_text(s) and "GITHUB_SHA" in step_text(s)
+                           and ref in step_text(s) for s in ss[:upload_at])
+            c.item(recorded, path, f"job `{jid}` uploads evidence and must "
+                   f"first write GITHUB_SHA into {RECORD}, checked against "
+                   f"{ref}")
+        if any(uses(s, "actions/download-artifact") for s in ss):
+            vsteps = [s for s in ss if VERIFY_FLAG in step_text(s)
+                      and "ci_events.py" in step_text(s)]
+            verifies = any(ref in step_text(s) for s in vsteps)
+            c.item(verifies, path, f"job `{jid}` downloads evidence and must "
+                   f"run scripts/ci_events.py {VERIFY_FLAG} against {ref}")
+            needs = job.get("needs")
+            needs = needs if isinstance(needs, list) else [needs]
+            c.item(GATE_JOB in needs, path,
+                   f"job `{jid}` must need `{GATE_JOB}` to read its output")
+            if vsteps:
+                check_sha_sources(c, path, jid, vsteps[0])
+                check_verify_step(c, path, wf, jid, job, vsteps[0])
+
+    # A sharded worker states its shard count once; the result cache (#350).
+    for jid, job in jobs(wf).items():
+        check_shard_denominator(c, path, jid, job)
+    check_yosys_result_cache(c, path, wf, policy)
+
+    # The decision's publication path: the outputs map that carries it and
+    # every job that runs on it. check_job_keys for the aggregates lives
+    # there now, beside the same call for the workers.
+    check_publication_path(c, path, wf)
+
+
+def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
+    """Pin the scheduled leg's entire job and keep the default shard command."""
+    c.item(wf.get("concurrency") == {"group": PHYSICAL_GPTP_CONCURRENCY,
+                                    "cancel-in-progress": True}, RTL_FULL,
+           "physical runs must survive push/PR cancellation in their pinned concurrency group")
+    job = jobs(wf).get(PHYSICAL_GPTP_JOB)
+    c.item(job == PHYSICAL_GPTP_CONTRACT, RTL_FULL,
+           "physical-gptp must match its pinned schedule, budget, steps and evidence")
+    shard = jobs(wf).get("verilator-shards", {})
+    run_steps = [s for s in steps(shard) if s.get("name") == "Run this exhaustive suite shard"]
+    expected_run = ('scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" '
+                    '--shard "${{ matrix.shard }}/${{ matrix.total }}"')
+    c.item(len(run_steps) == 1 and set(run_steps[0]) == {"name", "run"}
+           and normalize_script(run_steps[0].get("run", "")) == normalize_script(expected_run),
+           RTL_FULL, "default Verilator shards must use the pinned default inventory command")
+    for token in ("physical-gptp", "--physical-gptp", "5400", "120", "nightly"):
+        c.item(token in policy, POLICY, f"must document physical gPTP policy token `{token}`")
+
+
+#: #444: the Verilator workers' ownership proof, pinned verbatim after
+#: whitespace normalization like the decision step. Its `case` arms are the
+#: run-time half of suite_shards.py's landmarks: the tsn-gen and Yosys/sv2v
+#: installs are keyed to shards 1 and 3, and shard 4 is milan_dp's own worker.
+#: An arm dropped or widened here lets an assignment drift run green on a
+#: worker that no longer owns what it installs, or on a milan_dp worker that
+#: runs more than milan_dp.
+OWNERSHIP_STEP = "Prove specialized suite ownership"
+CANONICAL_OWNERSHIP_SCRIPT = (
+    "set -euo pipefail",
+    "python3 scripts/suite_shards.py --selftest",
+    'scripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list > '
+    '"$RUNNER_TEMP/owned-suites"',
+    'echo "Shard $SHARD owns:"',
+    "sed 's/^/ /' \"$RUNNER_TEMP/owned-suites\"",
+    'case "$SHARD" in',
+    '1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;',
+    '3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;',
+    '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;',
+    "esac",
+)
+
+
+def check_ownership_step(c: Contract, wf: YamlMap) -> None:
+    """Pin the Verilator workers' ownership proof, the dedicated arm included."""
+    shard = jobs(wf).get("verilator-shards", {})
+    found = [s for s in steps(shard) if s.get("name") == OWNERSHIP_STEP]
+    run = found[0].get("run") if len(found) == 1 else ""
+    lines = normalize_script(run if isinstance(run, str) else "")
+    c.item(len(found) == 1 and tuple(lines) == CANONICAL_OWNERSHIP_SCRIPT,
+           RTL_FULL,
+           f"the `{OWNERSHIP_STEP}` step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_OWNERSHIP_SCRIPT)
+           + "; its arms prove the specialized and dedicated owners at run "
+           "time")
+
+
+def canonical_worker_result_script(kind: str, job_id: str) -> tuple[str, ...]:
+    """An exhaustive aggregate's worker-result script: red unless
+    SHARD_RESULT, the matrix job's combined result, is exactly `success`."""
+    return (
+        'if [ "$SHARD_RESULT" != success ]; then',
+        f'echo "one or more {kind} workers ended: $SHARD_RESULT" >&2',
+        "exit 1",
+        "fi",
+        f'echo "{job_id}: every worker succeeded at $GITHUB_SHA"',
+    )
+
+
+#: #444 ([R197] F1, [R198] F1): the two exhaustive aggregates' judging
+#: scripts, pinned verbatim after whitespace normalization like the ownership
+#: proof above. RTL_STEP_LISTS holds each step's name, `if` and env binding,
+#: which is what the step READS; this holds what it DOES. The worker-result
+#: step is the only step that turns a failed or timed-out worker red: a
+#: killed suite's partial log still tallies and its SHA record still
+#: verifies, so on both hosted milan_dp timeouts (35351270355 and
+#: 35382045355, attempt 1) the verifier and the tally passed and only this
+#: step failed. Reduced to its final echo, made to tolerate `failure`, or
+#: turned into `exit 0`, it kept every recorded key green. The tally steps
+#: are held for the same reason: a glob narrowed to four workers, or the
+#: tally replaced by `true`, drops the missing and duplicate suite refusal.
+VERILATOR_TALLY_STEP = "Prove exhaustive ownership and tally every log"
+VERILATOR_RESULT_STEP = "Require every Verilator worker to pass"
+YOSYS_TALLY_STEP = "Reconcile the live inventory and structural gates"
+YOSYS_RESULT_STEP = "Require every Yosys worker to pass"
+AGGREGATE_SCRIPTS = {
+    ("verilator-suites", VERILATOR_TALLY_STEP): (
+        "shopt -s nullglob",
+        'roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)',
+        'if [ "${#roots[@]}" -eq 0 ]; then',
+        'mkdir -p "$RUNNER_TEMP/all-suite-logs/none"',
+        'roots=("$RUNNER_TEMP/all-suite-logs/none")',
+        "fi",
+        'python3 scripts/suite_tally.py "${roots[@]}" --quiet '
+        "--expect-suite-root tb/verilator",
+    ),
+    ("verilator-suites", VERILATOR_RESULT_STEP):
+        canonical_worker_result_script("Verilator", "verilator-suites"),
+    ("yosys-portability", YOSYS_TALLY_STEP): (
+        "set -euo pipefail",
+        'syn/yosys/run.sh --list > "$RUNNER_TEMP/expected-yosys-tops"',
+        "shopt -s nullglob",
+        'roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)',
+        'if [ "${#roots[@]}" -eq 0 ]; then',
+        'mkdir -p "$RUNNER_TEMP/all-yosys-results/none"',
+        'roots=("$RUNNER_TEMP/all-yosys-results/none")',
+        "fi",
+        'python3 scripts/yosys_tally.py "${roots[@]}" --expected '
+        '"$RUNNER_TEMP/expected-yosys-tops" --require-structural',
+    ),
+    ("yosys-portability", YOSYS_RESULT_STEP):
+        canonical_worker_result_script("Yosys", "yosys-portability"),
+}
+
+
+def check_aggregate_scripts(c: Contract, wf: YamlMap) -> None:
+    """Pin each exhaustive aggregate's tally and worker-result scripts."""
+    for (jid, name), want in AGGREGATE_SCRIPTS.items():
+        found = [s for s in steps(jobs(wf).get(jid, {}))
+                 if s.get("name") == name]
+        run = found[0].get("run") if len(found) == 1 else ""
+        lines = normalize_script(run if isinstance(run, str) else "")
+        c.item(len(found) == 1 and tuple(lines) == want, RTL_FULL,
+               f"the `{name}` step script of `{jid}` is not the canonical "
+               "form: " + script_difference(lines, want)
+               + "; it alone carries a failed, timed-out or missing worker "
+               "into the required context")
+
+
+#: #350: the Yosys workers' content-addressed result cache. The trust
+#: boundary is GitHub's cache scoping, so the contract pins the exact shape
+#: that makes the scoping do the work: one restore of one path, a save key
+#: that ends in the run's own SHA (per-head state), a restore prefix that is
+#: this worker's own lineage and nothing wider, the run step reading that
+#: path with `--cache` and passing no `--cache-seed` (the restored directory
+#: IS the seed), and the policy page stating the boundary.
+YOSYS_SHARDS_JOB = "yosys-shards"
+RESULT_CACHE_PATH = "${{ runner.temp }}/yosys-result-cache"
+RESULT_CACHE_KEY = ("yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}"
+                    "-${{ github.sha }}")
+RESULT_CACHE_RESTORE = "yosys-results-${{ env.YOSYS_VERSION }}-shard${{ matrix.shard }}-"
+RESULT_CACHE_FLAG = '--cache "$RUNNER_TEMP/yosys-result-cache"'
+RESULT_CACHE_POLICY_MARKS = ("`syn/yosys/result_cache.py`", "yosys-result-cache",
+                             "`restore-keys`")
+#: THE SEVEN RTL JOBS' STEP LISTS (#406, the residue policy item 12 carried
+#: from #295): the two shard workers, the two exhaustive aggregates,
+#: `verilator-lint`, `bdd-conformance` and `yosys-elaboration`, sharing
+#: CARRIER_STEP_LISTS' sequence and shape pins -- count, order,
+#: identity, exact key set, env bindings, recorded `if` verbatim, recorded
+#: `with` exactly -- and, where a step records one, its `id`, its
+#: `continue-on-error` and its `working-directory`. The workers'
+#: `strategy.matrix` stays with check_shard_denominator; the result cache's
+#: `with` is the one #350 pins, read from its constants rather than
+#: restated. The cost is stated on the policy page: a legitimate step change
+#: in any of these jobs is refused until its entry here changes with it.
+#: Unlike the carriers, these lists do not record every script (#439).
+VERILATOR_CACHE_WITH = {
+    "path": "/opt/verilator",
+    "key": "verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}",
+}
+YOSYS_CACHE_WITH = {
+    "path": "/opt/yosys",
+    "key": "yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}",
+}
+VERILATOR_CACHE_MISS_IF = "${{ steps.cache-verilator.outputs.cache-hit != 'true' }}"
+YOSYS_CACHE_MISS_IF = "${{ steps.cache-yosys.outputs.cache-hit != 'true' }}"
+NETLIST_OWNER_IF = "${{ matrix.shard == 3 }}"
+TSN_GEN_OWNER_IF = "${{ matrix.shard == 1 }}"
+#: The workers' upload steps and the aggregates' result steps run under
+#: `always()`, and two of the steps this table records ARE the verify steps
+#: check_verify_step pins with VERIFY_STEP_IF. That is one fact, so it is
+#: bound to the one constant rather than spelled a second time ([R97] on
+#: PR #431).
+ALWAYS_IF = VERIFY_STEP_IF
+#: The worker's record step binds TARGET_SHA to the same gate output the
+#: aggregate's verifier reads as GATE_SHA; the ownership proof binds the
+#: shard pair to the matrix.
+TARGET_SHA_STEP_ENV = {RECORD: VERIFY_STEP_ENV["GATE_SHA"]}
+SHARD_STEP_ENV = {"SHARD": "${{ matrix.shard }}", "SHARDS": DERIVED_SHARD_TOTAL}
+#: The seven RTL jobs #406 pins use the carriers' sequence/shape fields,
+#: without their per-body script records. WHICH jobs owe an entry is decided
+#: by neither this table nor any other constant: check_sequence_pin_coverage reads
+#: rtl.yml and rtl-fast.yml for their job lists and holds every job either
+#: declares against a RECORDED step list, so a job dropped from here is
+#: refused as a job whose whole step list nothing records, and a job appended
+#: to either file arrives the same way ([R96]/[R97] rounds 2 to 4 on PR
+#: #431). The carriers get the same closure from PUBLIC_NAMES, which
+#: CARRIER_STEP_LISTS does not own.
+RTL_STEP_LISTS = {
+    (RTL_FULL, "verilator-shards"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Record the tree this worker validates",
+         "env": TARGET_SHA_STEP_ENV},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF},
+        {"name": "Put Verilator on PATH and prove the version"},
+        {"name": "Prove specialized suite ownership", "env": SHARD_STEP_ENV},
+        {"name": "Cache the pinned Yosys build for the netlist-level suite "
+                 "owner",
+         "if": NETLIST_OWNER_IF, "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": "${{ matrix.shard == 3 && "
+               "steps.cache-yosys.outputs.cache-hit != 'true' }}"},
+        {"name": "Install the pinned Yosys and prove the version",
+         "if": NETLIST_OWNER_IF},
+        {"name": "Install sv2v for the netlist-level suite owner",
+         "if": NETLIST_OWNER_IF},
+        {"name": "Build the pinned tsn-gen field oracle on its suite owner",
+         "if": TSN_GEN_OWNER_IF},
+        {"name": "Run this exhaustive suite shard"},
+        {"name": "Upload this shard's suite logs", "if": ALWAYS_IF,
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "suite-logs-${{ matrix.shard }}",
+                  "path": "${{ runner.temp }}/suite-logs",
+                  "if-no-files-found": "error",
+                  "retention-days": 3}},
+    ),
+    (RTL_FULL, "verilator-suites"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Download every shard's logs", "id": "download-logs",
+         "continue-on-error": True, "uses": "actions/download-artifact@v4",
+         "with": {"pattern": "suite-logs-*",
+                  "path": "${{ runner.temp }}/all-suite-logs"}},
+        {"name": "Require every shard to have validated this run's SHA",
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
+        {"name": VERILATOR_TALLY_STEP, "if": ALWAYS_IF},
+        {"name": VERILATOR_RESULT_STEP, "if": ALWAYS_IF,
+         "env": {"SHARD_RESULT": needs_result_ref("verilator-shards")}},
+    ),
+    (RTL_FULL, YOSYS_SHARDS_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Record the tree this worker validates",
+         "env": TARGET_SHA_STEP_ENV},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF},
+        {"name": "Install the pinned Yosys and prove the version"},
+        {"name": "Install the pinned sv2v release"},
+        {"name": "Restore the portability result cache seeded from dev",
+         "uses": "actions/cache@v4",
+         "with": {"path": RESULT_CACHE_PATH, "key": RESULT_CACHE_KEY,
+                  "restore-keys": RESULT_CACHE_RESTORE}},
+        {"name": "Run this weighted portability shard"},
+        {"name": "Upload per-top and structural evidence", "if": ALWAYS_IF,
+         "uses": "actions/upload-artifact@v4",
+         "with": {"name": "yosys-results-${{ matrix.shard }}",
+                  "path": "${{ runner.temp }}/yosys-results",
+                  "if-no-files-found": "error",
+                  "retention-days": 3}},
+    ),
+    (RTL_FULL, "yosys-portability"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Download every shard's evidence", "id": "download-results",
+         "continue-on-error": True, "uses": "actions/download-artifact@v4",
+         "with": {"pattern": "yosys-results-*",
+                  "path": "${{ runner.temp }}/all-yosys-results"}},
+        {"name": "Require every shard to have validated this run's SHA",
+         "if": ALWAYS_IF, "env": VERIFY_STEP_ENV},
+        {"name": YOSYS_TALLY_STEP, "if": ALWAYS_IF},
+        {"name": YOSYS_RESULT_STEP, "if": ALWAYS_IF,
+         "env": {"SHARD_RESULT": needs_result_ref(YOSYS_SHARDS_JOB)}},
+    ),
+    (RTL_FAST, "verilator-lint"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Cache the pinned Verilator build", "id": "cache-verilator",
+         "uses": "actions/cache@v4", "with": VERILATOR_CACHE_WITH},
+        {"name": "Build Verilator from source on cache miss",
+         "if": VERILATOR_CACHE_MISS_IF},
+        {"name": "Run the ratcheted whole-tree lint gate"},
+        {"name": "Prove protocol-processor source lists are derived"},
+    ),
+    (RTL_FAST, "bdd-conformance"): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch the processor model inputs"},
+        {"name": "Install behave"},
+        {"name": "Run the specification-facing suite",
+         "working-directory": "tests"},
+    ),
+    (RTL_FAST, OOC_SH_SELFTEST_JOB): (
+        {"uses": "actions/checkout@v4"},
+        {"name": "Fetch RTL dependencies"},
+        {"name": "Cache the pinned Yosys build", "id": "cache-yosys",
+         "uses": "actions/cache@v4", "with": YOSYS_CACHE_WITH},
+        {"name": "Build Yosys from source on cache miss",
+         "if": YOSYS_CACHE_MISS_IF},
+        {"name": "Install the pinned Yosys and prove the version"},
+        {"name": "Install the pinned sv2v release"},
+        {"name": "Elaborate the integration-heavy tops"},
+        {"name": "Prove the OOC read sets come from run.sh and refuse a bad "
+                 "one"},
+        {"name": "Prove ooc.sh generates the ROMs and fails on a failed top"},
+        {"name": "Prove the result cache refuses a planted entry"},
+    ),
+}
+#: The other four jobs of the two RTL files, recorded in the same shape so
+#: that whether a job is pinned is a COMPARISON and never a claim: the gate
+#: job (item 4, #209), the physical leg, the fast selector and the fast
+#: verdict. Their keys, scripts, guards and bindings stay with their own
+#: rules -- check_gate_steps, check_physical_gptp, check_fast_selector and
+#: check_fast_aggregate, which is where a refusal about what those steps
+#: SAY comes from. What those rules do not give the coverage rule is a
+#: recorded list to hold the live job against, and a rule that merely
+#: refuses SOMETHING about a job is not evidence that the job's whole step
+#: list is pinned: round 4's observation credited exactly such a rule
+#: ([R97] round 4 on PR #431). An entry here restates no script and no key
+#: set: the licensed keys are derived from the entry, the physical leg's
+#: list is the contract it is already held against, and a disagreement
+#: between an entry and its rule turns the pristine tree red at once.
+RTL_SIBLING_STEP_LISTS = {
+    (RTL_FULL, GATE_JOB): (
+        {"uses": f"{CHECKOUT_ACTION}@v4",
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+        {"name": "Print the event and pin the one SHA this run validates",
+         "id": PIN_STEP_ID},
+        {"name": "Assert the repository default branch is dev",
+         "env": ASSERT_STEP_ENV},
+        {"name": "Hold every workflow file to its contract"},
+        {"name": "Decide whether this exact head needs the exhaustive gates",
+         "id": DECIDE_STEP_ID, "env": DECIDE_STEP_ENV},
+    ),
+    (RTL_FULL, PHYSICAL_GPTP_JOB): tuple(PHYSICAL_GPTP_CONTRACT["steps"]),
+    (RTL_FAST, FAST_SELECTOR_JOB): (
+        {"uses": FAST_CHECKOUT_USES,
+         "with": {"fetch-depth": CHECKOUT_FETCH_DEPTH}},
+        {"name": "Classify the change conservatively",
+         "id": FAST_SCOPE_STEP_ID, "env": FAST_SCOPE_STEP_ENV},
+    ),
+}
+#: The fast verdict step's `env` is not a second list: one `<JOB>_RESULT`
+#: binding per OTHER pinned job of rtl-fast.yml, which is the derivation
+#: check_fast_aggregate makes from the live `needs` and the same set the
+#: coverage rule requires that file's jobs to be. A fast job that arrives
+#: with a recorded step list therefore arrives in the verdict's env too.
+FAST_VERDICT_ENV = {
+    fast_result_env_name(jid): needs_result_ref(jid)
+    for path, jid in sorted({**RTL_STEP_LISTS, **RTL_SIBLING_STEP_LISTS})
+    if path == RTL_FAST
+}
+#: Every step list the two RTL files' jobs are held against, keyed by (file,
+#: job id): the one mapping check_sequence_pin_coverage compares with the
+#: live jobs, and the answer to "is this job pinned" for every job either
+#: file declares.
+RTL_SEQUENCE_PINS = {
+    **RTL_STEP_LISTS, **RTL_SIBLING_STEP_LISTS,
+    (RTL_FAST, FAST_AGGREGATE_JOB): (
+        {"name": "Require every applicable fast gate to pass",
+         "env": FAST_VERDICT_ENV},
+    ),
+}
+#: Every pinned step list, keyed by (file, job id): the one mapping
+#: check_carrier_steps reads.
+STEP_LISTS = {**CARRIER_STEP_LISTS, **RTL_SEQUENCE_PINS}
+
+
+def check_yosys_result_cache(c: Contract, path: str, wf: YamlMap,
+                             policy: str) -> None:
+    """The result cache's restore step, its keys, the run step's flags and
+    the policy page's statement of the trust boundary (#350)."""
+    job = jobs(wf).get(YOSYS_SHARDS_JOB)
+    if not isinstance(job, dict):
+        c.item(False, path, f"job `{YOSYS_SHARDS_JOB}` must exist")
+        return
+    ss = steps(job)
+    caches = [s for s in ss if uses(s, "actions/cache")
+              and isinstance(s.get("with"), dict)
+              and s["with"].get("path") == RESULT_CACHE_PATH]
+    c.item(len(caches) == 1, path, f"job `{YOSYS_SHARDS_JOB}` must restore the "
+           f"result cache exactly once, at `{RESULT_CACHE_PATH}` (found "
+           f"{len(caches)}): the cache the trust boundary is stated for")
+    runs = [s for s in ss if "syn/yosys/run.sh" in step_text(s)]
+    c.item(len(runs) == 1, path, f"job `{YOSYS_SHARDS_JOB}` must run "
+           f"syn/yosys/run.sh in exactly one step (found {len(runs)})")
+    if len(caches) == 1:
+        with_ = caches[0]["with"]
+        c.item(with_.get("key") == RESULT_CACHE_KEY, path,
+               f"the result cache save key must be exactly `{RESULT_CACHE_KEY}` "
+               f"(found {with_.get('key')!r}): it ends in the run's own SHA so a "
+               "candidate's writes are per-head state its branch alone reads")
+        c.item(with_.get("restore-keys") == RESULT_CACHE_RESTORE, path,
+               "the result cache `restore-keys` must be exactly "
+               f"`{RESULT_CACHE_RESTORE}` (found {with_.get('restore-keys')!r}): "
+               "this worker's own lineage from its branch or from dev, nothing wider")
+        if len(runs) == 1:
+            c.item(ss.index(caches[0]) < ss.index(runs[0]), path,
+                   "the result cache must be restored before the run step reads it")
+    if len(runs) == 1:
+        text = step_text(runs[0])
+        c.item(RESULT_CACHE_FLAG in text, path, "the run step must pass exactly "
+               f"`{RESULT_CACHE_FLAG}` so the restored cache is the one read")
+        c.item("--cache-seed" not in text, path, "the run step must pass no "
+               "`--cache-seed`: the restored directory is the seed, and a second "
+               "directory would be a source no scoping rule covers")
+    missing = [m for m in RESULT_CACHE_POLICY_MARKS if m not in policy]
+    c.item(not missing, POLICY, "must state the result cache and its trust "
+           f"boundary, naming {list(RESULT_CACHE_POLICY_MARKS)} (missing: {missing})")
+
+
+def all_scalars(node: Any) -> Iterator[str]:
+    """Every scalar in a parsed YAML subtree, as text. An expression can sit
+    in an `if`, a display `name`, a `run`, an `env` value or a `with` value,
+    so the walk is over the subtree rather than over a list of the places
+    somebody remembered to look in."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield from all_scalars(k)
+            yield from all_scalars(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from all_scalars(v)
+    elif node is not None:
+        yield str(node)
+
+
+def needs_list(job: Any) -> list[str]:
+    """A job's `needs`, as a list whether it was written as one or not."""
+    n = job.get("needs") if isinstance(job, dict) else None
+    if isinstance(n, list):
+        return [str(x) for x in n]
+    return [] if n is None else [str(n)]
+
+
+def context_bracket_end(text: str, start: int) -> int | None:
+    """Index of the `]` matching `text[start]`, or None.
+
+    GitHub expression strings use single quotes and escape one quote as two.
+    Accounting for them here keeps a `]` inside a dynamic expression's string
+    from ending the access early; nested brackets are handled as well.
+    """
+    depth = 0
+    quoted = False
+    i = start
+    while i < len(text):
+        ch = text[i]
+        if quoted:
+            if ch == "'":
+                if i + 1 < len(text) and text[i + 1] == "'":
+                    i += 2
+                    continue
+                quoted = False
+        elif ch == "'":
+            quoted = True
+        elif ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return None
+
+
+def context_access_chain(text: str,
+                         start: int) -> tuple[list[str | None], bool, int]:
+    """Parse static `.name` / `['name']` accesses after a context word.
+
+    Returns `(parts, dynamic, end)`. A None part is a dynamic bracket. The
+    caller refuses it because no static workflow audit can prove which job or
+    output it names.
+    """
+    parts = []
+    dynamic = False
+    pos = start
+    while True:
+        while pos < len(text) and text[pos].isspace():
+            pos += 1
+        if pos < len(text) and text[pos] == ".":
+            pos += 1
+            while pos < len(text) and text[pos].isspace():
+                pos += 1
+            match = CONTEXT_NAME_RE.match(text, pos)
+            if match is None:
+                dynamic = True
+                break
+            parts.append(match.group(0))
+            pos = match.end()
+            continue
+        if pos < len(text) and text[pos] == "[":
+            end = context_bracket_end(text, pos)
+            if end is None:
+                dynamic = True
+                pos = len(text)
+                break
+            inside = text[pos + 1:end].strip()
+            match = re.fullmatch(r"'([A-Za-z0-9_-]+)'", inside)
+            parts.append(match.group(1) if match else None)
+            dynamic = dynamic or match is None
+            pos = end + 1
+            continue
+        break
+    return parts, dynamic, pos
+
+
+def needs_context_references(
+        text: str) -> tuple[set[tuple[str, str]], set[str], set[str]]:
+    """Static `needs` context chains in one scalar: `(producer, output)`
+    refs, every producer any static chain names, and unresolved chains.
+
+    The producer set covers every second component, `.result` included, not
+    only `.outputs.` ([R2] on PR #239): a `needs.<job>.result` read from a
+    job outside `needs` is the same empty string the `.outputs.` audit
+    exists for, so stopping at `.outputs.` left `.result` a silent skip. A
+    bare `needs` with no chain (as in `toJSON(needs)`) names no producer and
+    is not audited here."""
+    refs = set()
+    producers = set()
+    unresolved = set()
+    for match in NEEDS_WORD_RE.finditer(text or ""):
+        parts, dynamic, end = context_access_chain(text, match.end())
+        if dynamic:
+            shown = text[match.start():end].strip() or "needs[...]"
+            unresolved.add(shown)
+            continue
+        if not parts:
+            continue
+        producers.add(parts[0])
+        if len(parts) >= 2 and parts[1] == "outputs":
+            if len(parts) < 3:
+                unresolved.add(text[match.start():end].strip())
+            else:
+                refs.add((parts[0], parts[2]))
+    return refs, producers, unresolved
+
+
+def check_publication_path(c: Contract, path: str, wf: YamlMap) -> None:
+    """The whole path a selector's decision travels: the step that computes
+    it, the job `outputs` map that publishes it, and the jobs that run on it.
+
+    The perimeter here is CLOSED rather than listed. The selector's `outputs`
+    map is pinned by content, exactly as a pinned step's `env` is; every job
+    that needs the selector is then classified with no residue -- the
+    workflow's aggregate is the job carrying the public required check name,
+    every other such job is a consumer gated on the decision -- and each
+    class carries a pinned `if`. A job added tomorrow that depends on the
+    selector lands in the consumer class and reddens until it carries that
+    `if`, instead of arriving outside every contract the way both worker
+    matrices and both fast-lane consumers did (#209, [R0] rounds 1-3).
+    Closure runs in both directions ([R2] on PR #239): every job an
+    aggregate needs is also classified, so a contributor wired straight into
+    the aggregate without needing the selector is held to run as written
+    rather than landing in no class."""
+    sel = SELECTOR_JOB[path]
+    want = SELECTOR_OUTPUTS[path]
+    decision = SELECTOR_DECISION[path]
+    all_jobs = jobs(wf)
+    selector = all_jobs.get(sel)
+    c.item(isinstance(selector, dict), path, f"job `{sel}` must exist: it "
+           "publishes the decision the rest of this workflow runs on")
+    outputs = selector.get("outputs") if isinstance(selector, dict) else None
+    pinned_bindings(c, path, f"job `{sel}` outputs",
+                    outputs if isinstance(outputs, dict) else {}, BindingRule(
+                        want,
+                        "a job output is what `needs.<job>.outputs.<name>` reads, "
+                        "so the decision step may write the right value and the "
+                        "job still export another one; every consumer then skips, "
+                        "and a skipped required context satisfies the ruleset"))
+
+    public = set(PUBLIC_NAMES.get(path, ()))
+    for jid, job in all_jobs.items():
+        if jid == sel or sel not in needs_list(job):
+            continue
+        aggregate = display_name(jid, job) in public
+        allowed_if = AGGREGATE_IF[path] if aggregate else consumer_job_if(sel, decision)
+        if path == RTL_FULL and jid == PHYSICAL_GPTP_JOB:
+            allowed_if = PHYSICAL_GPTP_IF
+        check_job_keys(c, path, jid, job, allow_needs=True, allowed_if=allowed_if)
+
+    # [R2] on PR #239: a job wired straight into an aggregate's `needs`
+    # without itself needing the selector, as `bdd-conformance` is, landed in
+    # no class above, so an `if: false` on it disabled the specification
+    # suite with every hosted context green and the aggregate accepting the
+    # skip. So every job an aggregate needs is classified: the selector, a
+    # consumer (classified above), or itself held to run as written.
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        for member in sorted(set(needs_list(job))):
+            mjob = all_jobs.get(member)
+            if not isinstance(mjob, dict):
+                c.item(False, path, f"job `{jid}` needs `{member}`, which "
+                       "must exist as a job in this workflow")
+                continue
+            if member == sel or sel in needs_list(mjob):
+                continue
+            check_job_keys(c, path, member, mjob)
+
+    for jid, job in all_jobs.items():
+        refs = set()
+        producers = set()
+        unresolved = set()
+        for scalar in all_scalars(job):
+            found, named, unknown = needs_context_references(scalar)
+            refs.update(found)
+            producers.update(named)
+            unresolved.update(unknown)
+        for expression in sorted(unresolved):
+            c.item(False, path, f"job `{jid}` uses `{expression}`, a dynamic "
+                   "or incomplete `needs` context the gate cannot resolve "
+                   "statically: use a dotted or single-quoted static job and "
+                   "output name so publication and dependency can be proved")
+        for producer, name in sorted(refs):
+            pj = all_jobs.get(producer)
+            declared = pj.get("outputs") if isinstance(pj, dict) else None
+            declared = declared if isinstance(declared, dict) else {}
+            c.item(name in declared, path,
+                   f"job `{jid}` reads `{needs_output_ref(producer, name)}`, "
+                   f"which job `{producer}` must publish (publishes "
+                   f"{sorted(declared)}): an expression naming an output no "
+                   "job declares is the empty string, so every comparison "
+                   "against it is false and every job gated on it skips")
+        for producer in sorted(producers):
+            c.item(producer in needs_list(job), path,
+                   f"job `{jid}` reads the `needs.{producer}` context and "
+                   f"must list `{producer}` in its `needs` (found "
+                   f"{needs_list(job)}): outside `needs` the expression is "
+                   "the empty string, so a `.result` or `.outputs` guard "
+                   "built on it is quietly false and the step or job it "
+                   "guards skips")
+
+
+def check_job_keys(c: Contract, path: str, jid: str, job: YamlMap,
+                   allowed_if: str | None = None,
+                   allow_needs: bool = False) -> None:
+    """A job that must run as written carries none of the keys that decide
+    whether it runs at all: no `needs`, no `if` (or exactly the one
+    documented), no `continue-on-error`, no `defaults`. Each refusal names
+    the key and what that key does."""
+    for key, reason in JOB_NEUTER_KEYS.items():
+        if key == "needs" and allow_needs:
+            continue
+        if key not in job:
+            continue
+        if key == "if" and allowed_if is not None:
+            got = str(job.get("if")).strip()
+            c.item(got == allowed_if, path, f"job `{jid}` `if` must be exactly "
+                   f"`{allowed_if}` (found `{got}`)")
+            continue
+        c.item(False, path, f"job `{jid}` must carry no `{key}` "
+               f"(found {job.get(key)!r}): {reason}")
+    if allowed_if is not None:
+        c.item("if" in job, path, f"job `{jid}` must carry its documented "
+               f"`if` `{allowed_if}`")
+
+
+class StepShape(NamedTuple):
+    """What a pinned step may carry: exactly `keys` (plus any of `optional`)
+    and an `env` of exactly these NAME -> EXPRESSION bindings."""
+    keys: tuple[str, ...]
+    env: dict[str, str]
+    optional: tuple[str, ...] = ()
+
+
+class BindingRule(NamedTuple):
+    """A NAME -> EXPRESSION mapping held by content: exactly `want`, the
+    `reason` a rebound value is refused with, and the `surplus_note` a
+    surplus name is reported with."""
+    want: dict[str, str]
+    reason: str
+    surplus_note: str = ""
+
+
+def pinned_step_keys(c: Contract, path: str, what: str, step: YamlMap,
+                     shape: StepShape) -> None:
+    """A pinned step carries exactly `shape.keys` (plus anything in
+    `shape.optional`), and its env is exactly `shape.env`, a NAME ->
+    EXPRESSION mapping: the names it carries and, for each, the source it is
+    bound to. Every surplus key, missing key and rebound value is named.
+    Holding the names alone let `PR_DRAFT: "true"` pass every item in this
+    file ([R0] on PR #239), so the binding is checked here, once, for every
+    pinned step there is."""
+    keys, env_keys, optional = shape
+    have = [k for k in step.keys() if isinstance(k, str)]
+    extra = sorted(set(have) - set(keys) - set(optional))
+    missing = [k for k in keys if k not in have]
+    for key in ("if", "shell", "continue-on-error"):
+        if key in extra:
+            c.item(False, path, f"{what} must carry no `{key}` "
+                   f"(found {step.get(key)!r}): it decides whether or how "
+                   "the script runs")
+    c.item(not extra and not missing, path, f"{what} keys must be exactly "
+           f"{', '.join(keys)}" + (f"; surplus: {', '.join(extra)}" if extra
+                                   else "")
+           + (f"; missing: {', '.join(missing)}" if missing else ""))
+    env = step.get("env") if isinstance(step.get("env"), dict) else {}
+    pinned_bindings(c, path, f"{what} env", env, BindingRule(
+        env_keys,
+        "the name is not the contract, the source expression "
+        "behind it is, and a rebound value leaves every pinned "
+        "name and key in place while changing what the script "
+        "reads",
+        surplus_note=" (a GH_HOST or GH_CONFIG_DIR redirects gh "
+                     "away from this repository)"))
+
+
+def pinned_bindings(c: Contract, path: str, what: str, mapping: YamlMap,
+                    rule: BindingRule) -> None:
+    """A NAME -> EXPRESSION mapping held by CONTENT: exactly these names, and
+    for each the exact source expression it is bound to. A step's `env` and a
+    job's `outputs` are the same object, and holding either by its key set
+    alone holds nothing: both escapes that reached [R0] on PR #239 kept every
+    pinned name in place and changed only what the name was bound to. So
+    there is one comparison, used by both."""
+    want, reason, surplus_note = rule
+    have = sorted(str(k) for k in mapping.keys())
+    extra = sorted(set(have) - set(want))
+    missing = [k for k in want if k not in have]
+    c.item(not extra and not missing, path, f"{what} must be exactly "
+           f"{', '.join(want) or 'empty'}"
+           + (f"; surplus: {', '.join(extra)}{surplus_note}" if extra else "")
+           + (f"; missing: {', '.join(missing)}" if missing else ""))
+    for name, expr in want.items():
+        if name not in mapping:
+            continue
+        got = str(mapping.get(name)).strip()
+        c.item(got == expr, path, f"{what} must bind `{name}` to `{expr}` "
+               f"(found `{got}`): {reason}")
+
+
+def check_gate_steps(c: Contract, path: str, gate: YamlMap) -> None:
+    """The gate job's steps: which ones exist, in which order, and the keys
+    each may carry. check_default_branch_step holds the assert step's script
+    TEXT; this holds everything around it, which is what decides whether that
+    script runs at all (#209)."""
+    ss = steps(gate)
+    c.item(len(ss) == len(GATE_STEPS), path,
+           f"job `{GATE_JOB}` must carry exactly {len(GATE_STEPS)} steps, "
+           + ", ".join(spec[0] for spec in GATE_STEPS)
+           + f", in that order (found {len(ss)}): a step inserted here runs "
+           "before every step after it and can change what they read (an "
+           "entry appended to GITHUB_PATH puts another `gh` first), and a "
+           "step removed takes its assertion with it")
+    for n, (label, recognizer, want, keys, env_keys, optional) in enumerate(
+            GATE_STEPS, 1):
+        found = [s for s in ss if recognizer(s)]
+        step = found[0] if found else None
+        at = ss[n - 1] if len(ss) >= n else None
+        c.item(step is not None and at is step, path,
+               f"job `{GATE_JOB}` step {n} must be {label}, {want} (found "
+               f"{step_label(at)}): the assertion runs the ci_events.py the "
+               "checkout brought and the decision diffs the tree that "
+               "checkout produced, so this order is the contract, not a "
+               "preference")
+        if step is not None:
+            pinned_step_keys(c, path, label, step,
+                             StepShape(keys, env_keys, optional))
+    checkout = next((s for s in ss if _is_checkout_step(s)), None)
+    with_ = checkout.get("with") if isinstance(checkout, dict) else None
+    depth = with_.get("fetch-depth") if isinstance(with_, dict) else None
+    c.item(depth == CHECKOUT_FETCH_DEPTH, path,
+           f"{GATE_STEPS[0][0]} must set `fetch-depth: "
+           f"{CHECKOUT_FETCH_DEPTH}` (found {depth!r}): the decision step "
+           "diffs this head against the pull request's base commit, which a "
+           "shallow clone does not carry, so a shallow gate silently falls "
+           "back to the whole file list")
+
+
+def script_difference(got: Sequence[str], want: Sequence[str]) -> str:
+    """The first line where a script differs from its canonical form, named
+    rather than dumped: a whole-script listing of a twenty-line script buries
+    the one line that moved."""
+    for i in range(max(len(got), len(want))):
+        g = got[i] if i < len(got) else None
+        w = want[i] if i < len(want) else None
+        if g != w:
+            return (f"line {i + 1} must be {w!r} (found {g!r}); "
+                    f"{len(want)} line(s) expected, {len(got)} found")
+    return f"{len(want)} line(s) expected, {len(got)} found"
+
+
+def check_contract_step(c: Contract, path: str, gate: YamlMap) -> None:
+    """The gate's own run of `--check`: exactly one such step, its script
+    verbatim (a `|| true` or a second command beside the call would let the
+    finding print and the job pass). Its keys and position are held by
+    check_gate_steps."""
+    found = [s for s in steps(gate) if _is_contract_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run "
+           f"`{CONTRACT_CHECK}` exactly once (found {len(found)}): this is "
+           "the runner of the contract that docs.yml cannot police for "
+           "itself, and a skipped or failed gate fails both aggregates")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == CANONICAL_CONTRACT_SCRIPT, path,
+           "the contract step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_CONTRACT_SCRIPT)
+           + "; a line beside the call can swallow its exit status")
+
+
+def check_decide_step(c: Contract, path: str, gate: YamlMap) -> None:
+    """The decision step publishes `run_full`, the one value that decides
+    whether the exhaustive gates run at all. Its keys and its env bindings
+    are held in check_gate_steps; this holds its script, verbatim after
+    whitespace normalization, the way the default-branch step's is. Binding
+    the inputs without holding the body would leave `run_full=true` ->
+    `run_full=false` a legal edit ([R0] on PR #239)."""
+    found = [s for s in steps(gate) if _is_decide_step(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must carry exactly one "
+           f"step with `id: {DECIDE_STEP_ID}` (found {len(found)})")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    proofs = [i for i, l in enumerate(lines) if l == SELECTOR_SELFTEST]
+    reads = [i for i, l in enumerate(lines) if SELECTOR_READ in l]
+    c.item(len(proofs) == 1 and bool(reads) and proofs[0] < min(reads), path,
+           f"the decision step must run `{SELECTOR_SELFTEST}` exactly once "
+           "and before it reads the selector's answer (self-test at "
+           f"{proofs}, reads at {reads}): a selector trusted without its own "
+           "proof decides whether this run validates anything")
+    c.item(tuple(lines) == CANONICAL_DECIDE_SCRIPT, path,
+           "the decision step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_DECIDE_SCRIPT)
+           + "; this script publishes `run_full`, so a line changed here "
+           "selects the no-op path with every pinned name and key still in "
+           "place")
+
+
+def check_inherited_env(c: Contract, path: str, wf: YamlMap) -> None:
+    """The inherited execution environment of every job in this file, by
+    exact allowlist (maintainer [R0] on PR #293): the workflow-level `env`
+    names exactly INHERITED_WORKFLOW_ENV[path]; no job carries a job-level
+    `env`; and the names a job's steps bind stay inside INHERITED_STEP_ENV.
+    `BASH_ENV: scripts/ci-bypass.sh` at any of the three levels, with a
+    checked-in file defining `python3() { return 0; }`, made every python
+    gate of every protected job a no-op with 273 items and no finding."""
+    want = set(INHERITED_WORKFLOW_ENV.get(path, ()))
+    top = wf.get("env")
+    c.item(top is None or isinstance(top, dict), path,
+           f"the workflow-level `env` must be a mapping (found {top!r})")
+    top = top if isinstance(top, dict) else {}
+    have = {str(k) for k in top}
+    c.item(have == want, path,
+           f"the workflow-level `env` must name exactly "
+           f"{sorted(want) or 'nothing'} (found {sorted(have) or 'nothing'}): "
+           "a name set here reaches every step's shell of every job before "
+           "any pinned script runs, and `BASH_ENV` makes a checked-in file "
+           "the startup script of each of them")
+    if "VERILATOR_VERSION" in have:
+        c.item(str(top["VERILATOR_VERSION"]) == VERILATOR_PIN, path,
+               f"the workflow-level `VERILATOR_VERSION` must be "
+               f"{VERILATOR_PIN} (found {top.get('VERILATOR_VERSION')!r}): "
+               "the three files that name it share one cache key, so a bump "
+               "in one of them reads another file's binary out of that key "
+               "and only its own version proof would notice")
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        jenv = job.get("env")
+        names = sorted(str(k) for k in jenv) if isinstance(jenv, dict) else []
+        c.item("env" not in job, path,
+               f"job `{jid}` must carry no job-level `env` (found "
+               f"{names or jenv!r}): it reaches every step's shell before any "
+               "pinned script runs, and `BASH_ENV` there turns every gate "
+               "into a shell function that returns 0")
+        allowed = set(INHERITED_STEP_ENV.get((path, jid), ()))
+        for n, step in enumerate(steps(job), 1):
+            raw = step.get("env")
+            c.item(raw is None or isinstance(raw, dict), path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` must be "
+                   f"a mapping (found {raw!r})")
+            senv = raw if isinstance(raw, dict) else {}
+            surplus = sorted(str(k) for k in senv if str(k) not in allowed)
+            c.item(not surplus, path,
+                   f"job `{jid}` step {n} ({step_label(step)}) `env` names "
+                   f"{surplus} outside this job's allowlist "
+                   f"{sorted(allowed) or '(none)'}: a step-level `BASH_ENV` "
+                   "reaches that step's shell the same way")
+
+
+def check_env_files(c: Contract, path: str, wf: YamlMap) -> None:
+    """Only the recorded steps may mention `$GITHUB_ENV` or `$GITHUB_PATH`,
+    and only the recorded actions may be `uses:`d ([R3] round 8 on PR
+    #293): `echo "BASH_ENV=..." >> "$GITHUB_ENV"` in one added step of a
+    job without a pinned sequence set the inherited environment at run
+    time for every later step with 390 items and no finding."""
+    for jid, job in jobs(wf).items():
+        names = [s.get("name") for s in steps(job)]
+        for n, step in enumerate(steps(job), 1):
+            text = step_text(step)
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            key = (path, jid, name)
+            if any(var in text for var in ENV_FILE_NAMES):
+                c.item(key in ENV_FILE_WRITERS, path,
+                       f"job `{jid}` step {n} ({step_label(step)}) mentions "
+                       f"an environment file and is not a recorded writer: "
+                       "whatever a step writes there is the inherited "
+                       "environment of every later step, so `BASH_ENV` set "
+                       "here turns the gates after it into no-ops with every "
+                       "declared `env` level clean")
+            if key in ENV_FILE_WRITERS:
+                run = step.get("run") if isinstance(step.get("run"), str) else ""
+                lines = normalize_script(run)
+                c.item(tuple(lines) == ENV_FILE_WRITERS[key], path,
+                       f"recorded writer `{name}` in job `{jid}` script is "
+                       "not the canonical form: "
+                       + script_difference(lines, ENV_FILE_WRITERS[key])
+                       + "; the name is not the binding, the script is")
+                c.item(names.count(name) == 1, path,
+                       f"recorded writer `{name}` must appear exactly once "
+                       f"in job `{jid}` (found {names.count(name)}): a second "
+                       "step under a recorded name would inherit its licence")
+            if _is_checkout_step(step):
+                with_ = step.get("with") if isinstance(step.get("with"), dict) else {}
+                bad = sorted(str(k) for k in with_
+                             if str(k) not in CHECKOUT_WITH_ALLOWED
+                             or with_[k] != CHECKOUT_WITH_ALLOWED[str(k)])
+                c.item(not bad, path, f"job `{jid}` step {n} checkout `with` "
+                       f"may carry only {CHECKOUT_WITH_ALLOWED} (found "
+                       f"{with_!r}): a `ref` or `repository` here computes the "
+                       "required context on another tree")
+            action = step.get("uses")
+            if action is not None:
+                c.item(action in RECORDED_ACTIONS, path,
+                       f"job `{jid}` step {n} uses `{action}`, which is not "
+                       f"a recorded action {sorted(RECORDED_ACTIONS)}: a "
+                       "local or third-party action runs code this checker "
+                       "does not read, before every step after it")
+
+
+def check_key_allowlists(c: Contract, path: str, wf: YamlMap) -> None:
+    """Every workflow-, job- and step-level key set is exactly a subset of
+    what the tree carries today ([R4] round 6 on PR #293): `container` with
+    its own `env` map put `BASH_ENV` into every step's shell of every
+    protected job with the three declared `env` levels clean and 390 items
+    green; `services`, a step `shell`, an `Env:` spelling and any key GitHub
+    adds later are the same gap. A surplus key is refused by name."""
+    top = {("on" if k is True else str(k)) for k in wf}
+    extra = sorted(top - set(WORKFLOW_KEYS))
+    c.item(not extra, path, f"the workflow may carry only the keys "
+           f"{list(WORKFLOW_KEYS)} (surplus: {extra}): a key outside that "
+           "set decides how or where every job runs")
+    # `env` is the inherited-environment rule's business; the other neuter
+    # keys are NOT excused here (maintainer [R0] round 4 on PR #293): the
+    # per-class rules report them only on the jobs they classify, so an
+    # ADDED standalone job carried `defaults` or `continue-on-error` with no
+    # finding. A held job with one of them now draws two true lines, its
+    # own rule's and this one's, which is the cheaper defect.
+    covered = {"env", "needs", "if"}
+    for jid, job in jobs(wf).items():
+        if not isinstance(job, dict):
+            continue
+        allowed_keys = set(JOB_KEYS) | set(JOB_KEY_EXTRAS.get((path, jid), ()))
+        extra = sorted({str(k) for k in job} - allowed_keys - covered)
+        c.item(not extra, path, f"job `{jid}` may carry only the keys "
+               f"{sorted(allowed_keys)} (surplus: {extra}): `container` carries "
+               "its own env map and picks the image every step's python3 "
+               "comes from, `services` starts more, and an unknown key is "
+               "refused for the same reason")
+        for n, step in enumerate(steps(job), 1):
+            name = step.get("name") if isinstance(step.get("name"), str) else ""
+            extras = STEP_KEY_EXTRAS.get((path, jid, name), {})
+            step_keys = set(STEP_KEYS) | set(extras)
+            extra = sorted({str(k) for k in step} - step_keys)
+            c.item(not extra, path, f"job `{jid}` step {n} "
+                   f"({step_label(step)}) may carry only the keys "
+                   f"{sorted(step_keys)} (surplus: {extra}): `shell` chooses "
+                   "the interpreter the script runs under and "
+                   "`working-directory` the tree it reads")
+            for key, value in extras.items():
+                if key in step:
+                    c.item(step[key] == value, path,
+                           f"job `{jid}` step {n} ({step_label(step)}) "
+                           f"`{key}` must be exactly {value!r} (found "
+                           f"{step[key]!r}): the licence is for that tree, "
+                           "not for a checked-in decoy")
+
+
+def check_no_gh_env(c: Contract, path: str, where: str, env: Any) -> None:
+    """No `GH_*` above the assert step. Its own env is pinned to exactly
+    GH_TOKEN, but a job- or workflow-level `env: GH_HOST` reaches its `gh`
+    without appearing in the step at all (#209, O11/O12)."""
+    env = env if isinstance(env, dict) else {}
+    named = sorted(str(k) for k in env if str(k).startswith(GH_ENV_PREFIX))
+    c.item(not named, path, f"{where} `env` must name no `{GH_ENV_PREFIX}*` "
+           f"variable (found {', '.join(named)}): it reaches the "
+           "default-branch step's `gh` without appearing in that step, whose "
+           f"own env is pinned to exactly {', '.join(ASSERT_STEP_ENV)}")
+
+
+def shard_denominators(text: str) -> list[str]:
+    """Every denominator of a `--shard <i>/<n>` argument in one script."""
+    out = []
+    for arg in SHARD_ARG_RE.findall(text or ""):
+        if "/" in arg:
+            out.append(arg.rsplit("/", 1)[1].strip())
+    return out
+
+
+def resolve_denominator(token: str, env: YamlMap | None) -> str:
+    """A denominator as written -> what it stands for. A `$NAME` is followed
+    once through the step's own env, which is where a derived value enters a
+    script; anything else stands for itself."""
+    m = SHELL_VAR_RE.match(token or "")
+    if m and isinstance(env, dict) and m.group(1) in env:
+        return str(env[m.group(1)]).strip()
+    return (token or "").strip()
+
+
+def check_shard_denominator(c: Contract, path: str, jid: str,
+                            job: YamlMap) -> None:
+    """A sharded worker carries one checked count through ``matrix.total``.
+
+    GitHub's ``strategy.job-total`` is naturally derived, but act v0.2.89
+    renders it as a negative value. A singleton matrix dimension is portable
+    to both engines. It remains derived in substance because this check proves
+    it equals the shard list's size and proves every consumer names it.
+    """
+    strat = job.get("strategy") if isinstance(job, dict) else None
+    matrix = strat.get("matrix") if isinstance(strat, dict) else None
+    shard = matrix.get("shard") if isinstance(matrix, dict) else None
+    if not isinstance(shard, list) or not shard:
+        return
+    size = str(len(shard))
+    expansions = [key for key in ("include", "exclude") if key in matrix]
+    c.item(
+        not expansions,
+        path,
+        f"job `{jid}` sharded matrix must not define `include` or `exclude` "
+        f"(found {expansions or 'none'}): those keys change the produced job "
+        "set without changing the checked shard-list denominator",
+    )
+    total = matrix.get("total")
+    total_ok = (isinstance(total, list) and len(total) == 1
+                and str(total[0]) == size)
+    c.item(total_ok, path,
+           f"job `{jid}` shard denominator matrix `total` must be a singleton "
+           f"equal to the `strategy.matrix.shard` list size, {size} "
+           f"(found {total!r}): GitHub and act workers must receive the same "
+           "checked count")
+    seen = []
+    name = job.get("name")
+    if isinstance(name, str):
+        seen += [(f"job `{jid}` name", d, None)
+                 for d in NAME_SHARD_RE.findall(name)]
+    for n, step in enumerate(steps(job), 1):
+        env = step.get("env") if isinstance(step.get("env"), dict) else {}
+        run = step.get("run") if isinstance(step.get("run"), str) else ""
+        seen += [(f"job `{jid}` step {n}", d, env)
+                 for d in shard_denominators(run)]
+    c.item(bool(seen), path, f"job `{jid}` carries a `strategy.matrix.shard` "
+           "list and must pass `--shard <i>/<n>` to the tool it shards: a "
+           "matrix nothing reads splits nothing")
+    for where, token, env in seen:
+        got = resolve_denominator(token, env)
+        c.item(got == DERIVED_SHARD_TOTAL, path,
+               f"{where}: the shard denominator `{token}` must be "
+               f"`{DERIVED_SHARD_TOTAL}` (it resolves to `{got}`): a literal "
+               "does not move when the matrix changes, while "
+               "`strategy.job-total` is not portable to the supported act "
+               "runner")
+
+
+def matrix_size(wf: YamlMap, job: YamlMap) -> int | None:
+    """The shard count of the worker job this aggregate needs: the length of
+    that job's `strategy.matrix.shard` list, derived, not restated."""
+    needs = job.get("needs")
+    needs = needs if isinstance(needs, list) else [needs]
+    for n in needs:
+        worker = jobs(wf).get(n) if isinstance(n, str) else None
+        strat = worker.get("strategy") if isinstance(worker, dict) else None
+        matrix = strat.get("matrix") if isinstance(strat, dict) else None
+        shard = matrix.get("shard") if isinstance(matrix, dict) else None
+        if isinstance(shard, list) and shard:
+            return len(shard)
+    return None
+
+
+def canonical_verify_script(wf: YamlMap, job: YamlMap) -> tuple[str, ...] | None:
+    """The verifier step's script, derived from the job's own download step
+    (where the shards land, what they are called) and the worker matrix
+    (how many there are). None when the job has no usable download step."""
+    dl = next((s for s in steps(job) if uses(s, "actions/download-artifact")),
+              None)
+    with_ = dl.get("with") if isinstance(dl, dict) and isinstance(
+        dl.get("with"), dict) else {}
+    pattern, dest = with_.get("pattern"), with_.get("path")
+    n = matrix_size(wf, job)
+    if (not isinstance(pattern, str) or not isinstance(dest, str)
+            or not dest.startswith(RUNNER_TEMP_PREFIX) or n is None):
+        return None
+    base = dest[len(RUNNER_TEMP_PREFIX):].strip("/")
+    return (
+        "shopt -s nullglob",
+        f'roots=("$RUNNER_TEMP"/{base}/{pattern})',
+        f"python3 scripts/ci_events.py {VERIFY_FLAG} --expect {n} "
+        + " ".join(REQUIRED_SHA_ARGS[l] for l in REQUIRED_SHA_LABELS)
+        + ' -- "${roots[@]}"',
+    )
+
+
+def check_verify_step(c: Contract, path: str, wf: YamlMap, jid: str,
+                      job: YamlMap, step: YamlMap) -> None:
+    """The aggregate's verifier step: pinned keys, the one permitted `if`,
+    env exactly GATE_SHA, and a script equal to the derived canonical form
+    (so `--expect` is the worker matrix size and no line can reassign a
+    source before the call)."""
+    what = f"job `{jid}` verifier step"
+    pinned_step_keys(c, path, what, step,
+                     StepShape(VERIFY_STEP_KEYS, VERIFY_STEP_ENV))
+    got_if = str(step.get("if", "")).strip()
+    c.item(got_if == VERIFY_STEP_IF, path, f"{what} `if` must be exactly "
+           f"`{VERIFY_STEP_IF}` (found `{got_if}`): any other condition can "
+           "skip the verification, and a skipped step passes the job")
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    lines = normalize_script(run)
+    canon = canonical_verify_script(wf, job)
+    c.item(canon is not None, path, f"{what}: the download step must name a "
+           f"`pattern` and a `path` under `{RUNNER_TEMP_PREFIX}`, and the "
+           "aggregate must need a worker with a `strategy.matrix.shard` list")
+    if canon is None:
+        return
+    script = " ".join(lines)
+    m = EXPECT_RE.search(script)
+    want_n = canon[2].split("--expect ")[1].split()[0]
+    c.item(m is not None and m.group(1) == want_n, path, f"{what} must pass "
+           f"--expect {want_n}, the worker matrix size "
+           f"(found {m.group(1) if m else 'no --expect'})")
+    c.item(tuple(lines) == canon, path, f"{what} script is not the canonical "
+           f"form derived from its download step and worker matrix: expected "
+           f"exactly {list(canon)} (found {lines})")
+
+
+def check_sha_sources(c: Contract, path: str, jid: str, step: YamlMap) -> None:
+    """An aggregate passes exactly the three SHA sources, each in the form
+    that binds it to what it claims: the gate's exported target through the
+    step env, the aggregate's own GITHUB_SHA, and its checkout HEAD."""
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    script = " ".join(normalize_script(run))
+    labels = SHA_LABEL_RE.findall(script)
+    missing = [l for l in REQUIRED_SHA_LABELS if l not in labels]
+    unknown = sorted(set(labels) - set(REQUIRED_SHA_LABELS))
+    dup = sorted({l for l in labels if labels.count(l) > 1})
+    c.item(not missing and not unknown and not dup, path,
+           f"job `{jid}` must pass --sha for exactly "
+           f"{', '.join(REQUIRED_SHA_LABELS)}"
+           + (f"; missing: {', '.join(missing)}" if missing else "")
+           + (f"; unknown: {', '.join(unknown)}" if unknown else "")
+           + (f"; repeated: {', '.join(dup)}" if dup else ""))
+    for label, want in REQUIRED_SHA_ARGS.items():
+        c.item(want in script, path, f"job `{jid}` must pass {want} "
+               f"(the {label} source in its binding form)")
+    # GATE_SHA's own binding is held by VERIFY_STEP_ENV through
+    # pinned_step_keys, with every other pinned step's env.
+
+
+#: #444 ([R197] F4, [R198] N1): the shell's own whitespace, and nothing
+#: else. bash separates words on space and tab, breaks lines on LF, and
+#: removes a backslash-newline with NOTHING in its place. Python's
+#: `str.split()` and `str.splitlines()` separate on U+00A0, U+2028, U+2029,
+#: U+0085 and the rest of the Unicode spaces, and the old normalizer joined a
+#: continuation with a space, so a pinned script could normalize to the
+#: canonical lines while bash read a different script: `!=\<LF>success` became
+#: the single word `!=success`, `[` answered "unary operator expected", and
+#: both worker-result steps exited 0 on a failed, cancelled or timed-out
+#: worker. Anything outside SHELL_BLANKS, SHELL_BREAK and the printable
+#: characters is therefore refused by name instead of normalized away.
+SHELL_BLANKS = " \t"
+SHELL_BREAK = "\n"
+REFUSED_PREFIX = "<<refused>> "
+SHELL_WORDS = re.compile(f"[{SHELL_BLANKS}]+")
+CONTINUATION = re.compile(r"\\\n")
+
+
+def refused_character(text: str) -> str | None:
+    """The first character of a step script that bash would read as part of a
+    word while a normalizer might read as whitespace, named with its code
+    point and position, or None when the script carries none. Space, tab and
+    LF are the shell's; every other space, separator, control or otherwise
+    unprintable character is refused."""
+    for number, line in enumerate(text.split(SHELL_BREAK), 1):
+        for column, char in enumerate(line, 1):
+            if char in SHELL_BLANKS or char.isprintable():
+                continue
+            name = unicodedata.name(char, "an unnamed character")
+            return (f"line {number} column {column} carries "
+                    f"U+{ord(char):04X} {name}; a pinned script may separate "
+                    "words with space or tab and lines with LF only, because "
+                    "bash reads every other space, separator or control "
+                    "character as part of a word")
+    return None
+
+
+def normalize_script(run: str | None) -> list[str]:
+    """The lines of a step script, normalized the way the SHELL reads them:
+    continuation lines joined with nothing, runs of spaces and tabs collapsed,
+    lines broken on LF, blank lines dropped. Comment lines stay, because a
+    comment is not canonical either.
+
+    A script carrying any other whitespace or unprintable character
+    normalizes to one refusal line naming that character. No canonical form
+    is one such line, so every pin that shares this function fails closed and
+    says what it refused ([R197] F4, [R198] N1)."""
+    text = run or ""
+    refusal = refused_character(text)
+    if refusal is not None:
+        return [REFUSED_PREFIX + refusal]
+    lines = []
+    for raw in CONTINUATION.sub("", text).split(SHELL_BREAK):
+        line = " ".join(word for word in SHELL_WORDS.split(raw) if word)
+        if line:
+            lines.append(line)
+    return lines
+
+
+def check_default_branch_step(c: Contract, path: str, gate: YamlMap) -> None:
+    """The gate reads the repository default branch live and hands it to
+    --require-default-branch, in a shape that cannot be neutered quietly."""
+    found = [s for s in steps(gate) if DEFAULT_BRANCH_FLAG in step_text(s)]
+    c.item(len(found) == 1, path, f"job `{GATE_JOB}` must run scripts/"
+           f"ci_events.py {DEFAULT_BRANCH_FLAG} in exactly one step "
+           f"(found {len(found)})")
+    if len(found) != 1:
+        return
+    step = found[0]
+    text = step_text(step)
+    # Its keys, its env names and the expression each name is bound to are
+    # pinned in check_gate_steps beside its siblings': the same key on any
+    # step of this job has the same effect, and ASSERT_STEP_ENV is the one
+    # place that says GH_TOKEN must be `${{ github.token }}`.
+    run = step.get("run") if isinstance(step.get("run"), str) else ""
+    lines = normalize_script(run)
+    code = [(i, l) for i, l in enumerate(lines) if not l.startswith("#")]
+    # Structural reasons first, so a refusal names what went wrong.
+    assigns = [(i, l) for i, l in code if OBSERVED_ASSIGNMENT.search(l)]
+    c.item(len(assigns) == 1, path, "the default-branch step must assign "
+           f"`observed` exactly once (found {len(assigns)}): a second "
+           "assignment shadows the live value")
+    c.item(bool(assigns) and all(l == CANONICAL_OBSERVED for _, l in assigns),
+           path, "the default-branch step's observed value is not sourced "
+           f"from the live API call: expected exactly {CANONICAL_OBSERVED} "
+           f"(found {[l for _, l in assigns] or 'no assignment'})")
+    flow = [l for _, l in code if CONTROL_FLOW.search(l)]
+    c.item(not flow, path, "the default-branch step must read the setting "
+           f"unconditionally: control flow found ({flow})")
+    comments = [l for l in lines if l.startswith("#")]
+    c.item(not comments, path, "the default-branch step script carries no "
+           "comment lines (a `gh api` in a comment reads nothing; comments "
+           f"belong above the step): {comments}")
+    calls = [(i, l) for i, l in code if DEFAULT_BRANCH_FLAG in l]
+    c.item(len(calls) == 1 and calls[0][1] == CANONICAL_CALL, path,
+           "the default-branch step must call the verifier exactly as "
+           f"`{CANONICAL_CALL}` (found {[l for _, l in calls]})")
+    c.item(bool(assigns) and bool(calls) and calls[-1][0] > assigns[0][0],
+           path, "the verifier call must follow the live read")
+    c.item(tuple(lines) == CANONICAL_DEFAULT_BRANCH_SCRIPT, path,
+           "the default-branch step script is not the canonical form: "
+           f"expected exactly {list(CANONICAL_DEFAULT_BRANCH_SCRIPT)} "
+           f"(found {lines})")
+    neutered = bool(step.get("continue-on-error")) or "|| true" in text
+    c.item(not neutered, path, "the default-branch step must fail closed: "
+           "no continue-on-error, no `|| true`")
+
+
+def check_fast_selector(c: Contract, wf: YamlMap) -> None:
+    """Hold the fast workflow's complete checkout -> scope decision.
+
+    `rtl-fast` accepts skipped RTL consumers for docs-only changes. Therefore
+    an `if: false` on this job or its scope step, a shallow/moved checkout, or
+    a scope body that publishes `rtl=false` is a false green unless the whole
+    producer is part of the contract.
+    """
+    selector = jobs(wf).get(FAST_SELECTOR_JOB)
+    c.item(isinstance(selector, dict), RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must exist as the fast RTL selector")
+    if not isinstance(selector, dict):
+        return
+
+    check_job_keys(c, RTL_FAST, FAST_SELECTOR_JOB, selector)
+    c.item("env" not in selector, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry no `env` (found "
+           f"{sorted(map(str, selector.get('env') or {}))}): a job-level "
+           "value reaches the scope script without appearing in the pinned "
+           "step, whose own env is the selector's whole input contract")
+    c.item("defaults" not in wf, RTL_FAST,
+           "the fast workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how the selector script runs")
+
+    raw_steps = selector.get("steps")
+    ss = raw_steps if isinstance(raw_steps, list) else []
+    mappings = [s for s in ss if isinstance(s, dict)]
+    c.item(len(ss) == 2 and len(mappings) == 2, RTL_FAST,
+           f"job `{FAST_SELECTOR_JOB}` must carry exactly two mapping steps, "
+           "checkout then scope, in that order (found "
+           f"{len(ss)} step(s), {len(mappings)} mapping(s)): an inserted or "
+           "removed step changes whether and how the selector runs")
+
+    checkouts = [s for s in mappings if _is_checkout_step(s)]
+    scopes = [s for s in mappings if s.get("id") == FAST_SCOPE_STEP_ID]
+    checkout = checkouts[0] if len(checkouts) == 1 else None
+    scope = scopes[0] if len(scopes) == 1 else None
+    c.item(len(checkouts) == 1 and len(scopes) == 1
+           and len(ss) == 2 and ss[0] is checkout and ss[1] is scope,
+           RTL_FAST, f"job `{FAST_SELECTOR_JOB}` steps must be exactly "
+           f"`{FAST_CHECKOUT_USES}` then the step with "
+           f"`id: {FAST_SCOPE_STEP_ID}` (found "
+           f"{[step_label(s) for s in mappings]}): scope must inspect the "
+           "tree the checkout brought")
+
+    if checkout is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector checkout step",
+                         checkout, StepShape(CHECKOUT_STEP_KEYS, {},
+                                             CHECKOUT_STEP_OPTIONAL))
+        got_uses = str(checkout.get("uses", "")).strip()
+        c.item(got_uses == FAST_CHECKOUT_USES, RTL_FAST,
+               "the fast selector checkout step must use exactly "
+               f"`{FAST_CHECKOUT_USES}` (found `{got_uses}`)")
+        with_ = checkout.get("with")
+        with_ = with_ if isinstance(with_, dict) else {}
+        pinned_bindings(c, RTL_FAST, "the fast selector checkout `with`",
+                        with_, BindingRule(
+                            FAST_CHECKOUT_WITH,
+                            "the scope step diffs against an earlier commit, so "
+                            "the checkout must carry full history"))
+
+    if scope is not None:
+        pinned_step_keys(c, RTL_FAST, "the fast selector scope step", scope,
+                         StepShape(FAST_SCOPE_STEP_KEYS, FAST_SCOPE_STEP_ENV))
+        run = scope.get("run") if isinstance(scope.get("run"), str) else ""
+        lines = normalize_script(run)
+        proofs = [i for i, line in enumerate(lines)
+                  if line == SELECTOR_SELFTEST]
+        reads = [i for i, line in enumerate(lines) if SELECTOR_READ in line]
+        c.item(len(proofs) == 1 and bool(reads)
+               and proofs[0] < min(reads), RTL_FAST,
+               f"the fast selector scope step must run `{SELECTOR_SELFTEST}` "
+               "exactly once and before it reads the selector's answer "
+               f"(self-test at {proofs}, reads at {reads})")
+        c.item(tuple(lines) == CANONICAL_FAST_SCOPE_SCRIPT, RTL_FAST,
+               "the fast selector scope script is not the canonical form: "
+               + script_difference(lines, CANONICAL_FAST_SCOPE_SCRIPT)
+               + "; this script publishes `rtl`, so an empty or false value "
+               "skips both RTL consumers into the aggregate's accepted "
+               "docs-only path")
+
+
+def check_fast_aggregate(c: Contract, wf: YamlMap) -> None:
+    """Hold the verdict half of the fast lane ([R2] on PR #239).
+
+    The fast aggregate runs under `always() && !cancelled()`, so once its job
+    keys are canonical the ONLY thing standing between a failed consumer and
+    a green required context is its verdict step. An `if` on that step skips
+    it and the job succeeds with `verilator-lint` FAILED; a result binding
+    rebound to the literal `success` converts one named failure into a pass;
+    a `case` widened to `success|skipped|failure` accepts them all. None of
+    those touches a job key or the selector's publication path. So the
+    verdict step is held the way the exhaustive workflow's verifier steps
+    are: pinned keys, env derived from the aggregate's `needs`, script
+    derived from the same list. The `needs` list itself must name every
+    other job of the workflow, so no fast job can fail outside the required
+    context's view and none can be quietly dropped from it."""
+    all_jobs = jobs(wf)
+    public = set(PUBLIC_NAMES.get(RTL_FAST, ()))
+    for jid, job in all_jobs.items():
+        if display_name(jid, job) not in public:
+            continue
+        needed = needs_list(job)
+        others = [j for j in all_jobs if j != jid]
+        missing = [j for j in others if j not in needed]
+        surplus = [j for j in needed if j not in others]
+        c.item(not missing and not surplus, RTL_FAST,
+               f"job `{jid}` must need every other job of this workflow, "
+               f"{', '.join(others)}"
+               + (f"; missing: {', '.join(missing)}" if missing else "")
+               + (f"; surplus: {', '.join(surplus)}" if surplus else "")
+               + ": a fast job outside the aggregate's `needs` can fail "
+               "with the required context still green, and a dropped entry "
+               "silently removes that job's result from the verdict")
+        ss = steps(job)
+        c.item(len(ss) == 1, RTL_FAST,
+               f"job `{jid}` must carry exactly one step, its verdict step "
+               f"(found {len(ss)}): a step inserted beside the verdict can "
+               "change what it reads, and a removed one takes the verdict "
+               "with it")
+        if len(ss) != 1:
+            continue
+        what = f"job `{jid}` verdict step"
+        env_want = {fast_result_env_name(j): needs_result_ref(j)
+                    for j in needed}
+        pinned_step_keys(c, RTL_FAST, what, ss[0],
+                         StepShape(FAST_VERDICT_STEP_KEYS, env_want))
+        run = ss[0].get("run") if isinstance(ss[0].get("run"), str) else ""
+        lines = normalize_script(run)
+        canon = canonical_fast_verdict_script(needed)
+        c.item(tuple(lines) == canon, RTL_FAST,
+               f"{what} script is not the canonical form derived from the "
+               "aggregate's `needs`: "
+               + script_difference(lines, canon)
+               + "; this script is the whole required fast verdict, so a "
+               "widened `case` or a dropped pair turns a named failure into "
+               "a pass")
+
+
+def check_fast_ooc_sh_selftest(c: Contract, wf: YamlMap) -> None:
+    """#245: the ooc.sh refusal self-test stays wired, verbatim, in order."""
+    path = RTL_FAST
+    job = jobs(wf).get(OOC_SH_SELFTEST_JOB)
+    c.item(job is not None, path,
+           f"job `{OOC_SH_SELFTEST_JOB}` must exist (it fetches the "
+           "submodule the ooc.sh refusal self-test reads)")
+    if job is None:
+        return
+    slist = steps(job)
+    hits = [i for i, s in enumerate(slist)
+            if isinstance(s.get("run"), str)
+            and tuple(normalize_script(s["run"])) == (OOC_SH_SELFTEST,)]
+    c.item(len(hits) == 1, path,
+           f"exactly one step must run `{OOC_SH_SELFTEST}` verbatim in "
+           f"`{OOC_SH_SELFTEST_JOB}` (found {len(hits)}): it is the only "
+           "hosted exercise of ooc.sh's refusals, and a neutralised or "
+           "wrapped spelling is a different script")
+    if len(hits) != 1:
+        return
+    # The step's KEYS are pinned too, exactly as the fast-verdict step's
+    # are: `if:`, `continue-on-error:` and `shell:` each leave the pinned
+    # run text byte-identical while disabling or reinterpreting its
+    # execution ([R0] round two on PR #262) - a skipped or reinterpreted
+    # self-test is the same false green as a deleted one.
+    extra = sorted(set(slist[hits[0]].keys()) - {"name", "run"})
+    c.item(not extra, path,
+           f"the `{OOC_SH_SELFTEST}` step carries key(s) {extra} beyond "
+           "name/run: any other key can disable or reinterpret the pinned "
+           "invocation while its text stays pinned")
+    fetch = [i for i, s in enumerate(slist)
+             if OOC_SH_SUBMODULE_FETCH in step_text(s)
+             and all(name in step_text(s) for name in OOC_SH_SUBMODULES)]
+    c.item(bool(fetch) and fetch[0] < hits[0], path,
+           f"`{OOC_SH_SELFTEST}` must run after a `{OOC_SH_SUBMODULE_FETCH}` "
+           f"step that names {OOC_SH_SUBMODULES!r} (it reads the trees that "
+           "step initialises; before it - or without it - every arm dies on "
+           "setup, proving nothing)")
+
+
+def check_rtl_fast(c: Contract, wf: YamlMap) -> None:
+    """Everything rtl-fast.yml owes: triggers, concurrency, one carrier per
+    public name, the selector, the verdict, the ooc.sh self-test and the
+    publication path."""
+    check_push_and_pr(c, RTL_FAST, wf, exact_types=True)
+    check_cancel_in_progress(c, RTL_FAST, wf)
+    check_public_names(c, RTL_FAST, wf)
+    check_fast_selector(c, wf)
+    check_fast_aggregate(c, wf)
+    check_fast_ooc_sh_selftest(c, wf)
+    # The same selector -> outputs -> consumer path as the exhaustive
+    # workflow, and the same false green if it is left unheld: this
+    # aggregate counts a skipped consumer as a pass.
+    check_publication_path(c, RTL_FAST, wf)
+
+
+def _check_builder_sv2v(c: Contract, path: str, jid: str,
+                        installers: list[tuple[int, YamlMap]],
+                        keys: tuple[str, ...]) -> None:
+    """The builder job's sv2v install, from check_builder_dependencies:
+    exactly one step, the pinned release script verbatim, the builder's key
+    set and, in elaborate.yml, the scope guard."""
+    c.item(len(installers) == 1, path,
+           f"job `{jid}` must install the pinned sv2v front end exactly once "
+           f"(found {len(installers)}): dp_srcs.py refuses without a front "
+           "end, so the builder gate is red on a bare runner, and a second "
+           "install could shadow the pin")
+    if len(installers) == 1:
+        sv2v_i, sv2v_step = installers[0]
+        sv2v_run = (sv2v_step.get("run")
+                    if isinstance(sv2v_step.get("run"), str) else "")
+        c.item(tuple(normalize_script(sv2v_run)) == SV2V_INSTALL, path,
+               f"job `{jid}` sv2v install must be exactly the pinned v0.0.12 "
+               f"release script (found {normalize_script(sv2v_run)}): an "
+               "unpinned front end is a silent toolchain drift under the "
+               "portability evidence")
+        pinned_step_keys(c, path, f"job `{jid}` sv2v install", sv2v_step,
+                         StepShape(keys, {}))
+        if path == ELABORATE:
+            sv2v_if = str(sv2v_step.get("if", "")).strip()
+            c.item(sv2v_if == BUILDER_IF, path,
+                   f"job `{jid}` sv2v install `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {sv2v_if!r})")
+
+
+def check_builder_dependencies(c: Contract, path: str, wf: YamlMap,
+                               jid: str) -> None:
+    """The hosted builder call is preceded by one complete, live checkout.
+
+    ``actions/checkout`` leaves submodules absent.  The builder reads both
+    processor trees and asks ``dp_srcs.py`` to resolve the verilog-axis
+    leaves, so a partial checkout is a setup failure rather than evidence
+    about the candidate.  Pin the setup as one command, before the call and
+    under the same step condition, so a decoy or late checkout cannot satisfy
+    the text recogniser.
+    """
+    c.item("defaults" not in wf, path,
+           "the builder workflow must carry no top-level `defaults` "
+           f"(found {wf.get('defaults')!r}): a `defaults.run.shell` changes "
+           "how every builder command runs")
+    job = jobs(wf).get(jid)
+    c.item(isinstance(job, dict), path,
+           f"builder job `{jid}` must exist")
+    if not isinstance(job, dict):
+        return
+    check_job_keys(c, path, jid, job)
+    ss = steps(job)
+    checkouts = [(i, s) for i, s in enumerate(ss)
+                 if uses(s, "actions/checkout")]
+    c.item(len(checkouts) == 1, path,
+           f"job `{jid}` must carry exactly one actions/checkout step "
+           f"(found {len(checkouts)})")
+    if len(checkouts) == 1:
+        _, checkout = checkouts[0]
+        c.item(checkout == BUILDER_CHECKOUTS[path], path,
+               f"job `{jid}` checkout step must be exactly "
+               f"{BUILDER_CHECKOUTS[path]!r} (found {checkout!r})")
+    callers = [(i, s) for i, s in enumerate(ss)
+               if BUILDER_CALL in (s.get("run")
+                                   if isinstance(s.get("run"), str) else "")]
+    c.item(len(callers) == 1, path,
+           f"job `{jid}` must call `{BUILDER_CALL}` exactly once "
+           f"(found {len(callers)})")
+    fetchers = [(i, s) for i, s in enumerate(ss)
+                if "git submodule update --init" in step_text(s)]
+    c.item(len(fetchers) == 1, path,
+           f"job `{jid}` must carry exactly one builder submodule checkout "
+           f"(found {len(fetchers)})")
+    if len(fetchers) != 1:
+        return
+    fetch_i, fetch = fetchers[0]
+    run = fetch.get("run") if isinstance(fetch.get("run"), str) else ""
+    for submodule in BUILDER_SUBMODULES:
+        c.item(submodule in run, path,
+               f"job `{jid}` builder checkout must initialize `{submodule}`")
+    c.item(tuple(normalize_script(run)) == (BUILDER_COMMAND,), path,
+           f"job `{jid}` builder checkout must be exactly `{BUILDER_COMMAND}` "
+           f"(found {normalize_script(run)})")
+    keys = (("name", "if", "run") if path == ELABORATE
+            else ("name", "run"))
+    pinned_step_keys(c, path, f"job `{jid}` builder checkout", fetch,
+                     StepShape(keys, {}))
+    installers = [(i, s) for i, s in enumerate(ss)
+                  if "sv2v" in (s.get("run")
+                                if isinstance(s.get("run"), str) else "")]
+    _check_builder_sv2v(c, path, jid, installers, keys)
+    if len(callers) == 1:
+        call_i, call = callers[0]
+        call_run = call.get("run") if isinstance(call.get("run"), str) else ""
+        c.item(tuple(normalize_script(call_run)) == BUILDER_RUNS[path], path,
+               f"job `{jid}` builder call must be exactly "
+               f"{list(BUILDER_RUNS[path])} "
+               f"(found {normalize_script(call_run)})")
+        pinned_step_keys(c, path, f"job `{jid}` builder call", call,
+                         StepShape(keys, {}))
+        if path == ELABORATE:
+            fetch_if = str(fetch.get("if", "")).strip()
+            call_if = str(call.get("if", "")).strip()
+            c.item(fetch_if == BUILDER_IF, path,
+                   f"job `{jid}` builder checkout `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {fetch_if!r})")
+            c.item(call_if == BUILDER_IF, path,
+                   f"job `{jid}` builder call `if` must be exactly "
+                   f"`{BUILDER_IF}` (found {call_if!r})")
+        if len(checkouts) == 1:
+            checkout_i, _ = checkouts[0]
+            c.item(checkout_i < fetch_i, path,
+                   f"job `{jid}` must check out the repository before "
+                   "initializing builder submodules")
+        c.item(fetch_i < call_i, path,
+               f"job `{jid}` must initialize builder submodules before "
+               f"calling `{BUILDER_CALL}`")
+        if len(installers) == 1:
+            c.item(installers[0][0] < call_i, path,
+                   f"job `{jid}` must install sv2v before calling "
+                   f"`{BUILDER_CALL}`: installed after the call it decorates "
+                   "a verdict already taken without a front end")
+
+
+class GatePin(NamedTuple):
+    """A carrier's gate step: the `call` that recognises it, its `canonical`
+    script, and `why` a script that drifts from it is refused."""
+    call: str
+    canonical: tuple[str, ...]
+    why: str
+
+
+def check_carrier_gate_step(c: Contract, path: str, wf: YamlMap, jid: str,
+                            pin: GatePin) -> None:
+    """The gate step of a non-RTL required context, pinned the way the gate
+    job's contract step is (#295): present exactly once in the job of the
+    required id, and its script equal to the canonical form after
+    whitespace normalization. Presence is the point ([R3] round 2 on PR
+    #293): the id rule of check_required_context_carriers says which job
+    must carry the name, but nothing said what that job CONTAINS, so a
+    stub body under the required id -- the real job's id renamed away, or
+    an appended duplicate `X:` mapping that PyYAML parses last-wins --
+    was the required context with no finding. The step's keys, `if` and
+    position are held by the step-list pin; this holds that it exists,
+    once, with the canonical script."""
+    call, canonical, why = pin
+    job = jobs(wf).get(jid)
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if call in step_text(s)]
+    c.item(len(found) == 1, path,
+           f"job `{jid}` must run `{call}` in exactly one step (found "
+           f"{len(found)}): this job IS the required context `{jid}`, so a "
+           "job body replaced wholesale, an appended duplicate mapping (the "
+           "last one wins when the file is parsed), or a removed gate step "
+           "is the context green with its gate never run")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == canonical, path,
+           f"job `{jid}`'s gate step script is not the canonical form: "
+           + script_difference(lines, canonical) + "; " + why)
+
+
+def check_named_carrier_gate_step(c: Contract, path: str, wf: YamlMap, jid: str,
+                                  gate: tuple[str, tuple[str, ...], str]) -> None:
+    """Pin a gate body to the exact named step that publishes its claim;
+    `gate` is the (name, canonical script, why) triple of that step.
+
+    Searching only for a command is insufficient: the canonical body can be
+    moved to an adjacent step while the recorded gate name becomes `run: true`.
+    The carrier sequence still has every expected name in that construction,
+    but the named evidence is false.
+    """
+    name, canonical, why = gate
+    job = jobs(wf).get(jid)
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if s.get("name") == name]
+    c.item(len(found) == 1, path,
+           f"job `{jid}` must carry exactly one step named `{name}` "
+           f"(found {len(found)})")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    c.item(tuple(lines) == canonical, path,
+           f"job `{jid}` step `{name}` script is not the canonical form: "
+           + script_difference(lines, canonical) + "; " + why)
+
+
+def check_scope_step(c: Contract, wf: YamlMap) -> None:
+    """elaborate's scope step, held as the decide step is (#295, the #209
+    precedent). Every gate step of `elaborate` is guarded by
+    `steps.scope.outputs.rtl == 'true'` and check_builder_dependencies
+    pins the guard -- but the step that PUBLISHES the output was not
+    pinned, so `if: false` on it (an empty output compares unequal to
+    'true', so every gate quietly skips), a script rewritten to publish a
+    literal `rtl`, or a dropped `ci_scope.py --selftest` retired the
+    elaboration gates with every required context green ([R3] on PR
+    #293). Keys and env bindings are held by the step-list pin; this
+    holds presence, the selector's own proof before its answer is read,
+    and the script verbatim after whitespace normalization."""
+    path = ELABORATE
+    job = jobs(wf).get("elaborate")
+    ss = steps(job) if isinstance(job, dict) else []
+    found = [s for s in ss if s.get("id") == ELAB_SCOPE_STEP_ID]
+    c.item(len(found) == 1, path,
+           f"job `elaborate` must carry exactly one step with `id: "
+           f"{ELAB_SCOPE_STEP_ID}` (found {len(found)}): every gate step's "
+           "`if` reads this step's `rtl` output, so a stub body -- a "
+           "wholesale replacement, a duplicate mapping's last-wins parse, "
+           "or the step removed -- publishes nothing and every gate "
+           "quietly skips")
+    if len(found) != 1:
+        return
+    run = found[0].get("run") if isinstance(found[0].get("run"), str) else ""
+    lines = normalize_script(run)
+    proofs = [i for i, l in enumerate(lines) if l == SELECTOR_SELFTEST]
+    reads = [i for i, l in enumerate(lines) if SELECTOR_READ in l]
+    c.item(len(proofs) == 1 and bool(reads) and proofs[0] < min(reads), path,
+           f"the elaborate scope step must run `{SELECTOR_SELFTEST}` exactly "
+           "once and before it reads the selector's answer (self-test at "
+           f"{proofs}, reads at {reads}): a selector trusted without its "
+           "own proof decides whether this workflow elaborates anything")
+    c.item(tuple(lines) == CANONICAL_ELAB_SCOPE_SCRIPT, path,
+           "the elaborate scope step script is not the canonical form: "
+           + script_difference(lines, CANONICAL_ELAB_SCOPE_SCRIPT)
+           + "; this script publishes `rtl`, so a line changed here skips "
+           "every elaboration gate with every pinned key still in place")
+
+
+def carrier_entry_keys(entry: YamlMap) -> tuple[str, ...]:
+    """The exact key set a step-list entry licenses, derived from the entry
+    rather than restated per step: a `run:` step carries its recorded
+    `name`, `id`, `env`, `if` and `working-directory` plus `run`; a `uses:`
+    step carries its recorded `name`, `id`, `if`, `continue-on-error` and
+    `with` plus `uses`. A key NEITHER vocabulary names (`shell`,
+    `timeout-minutes`) licenses nothing: the derivation drops it, so it
+    pins nothing and reddens nothing. A key the OTHER kind's vocabulary
+    names is a different case: the derivation drops it, but the value
+    checks in check_carrier_steps read `env` and the two recorded scalars
+    whatever the kind, so `env` on a `uses:` entry or `continue-on-error`
+    on a `run:` entry turns the pristine tree red as a binding or scalar
+    mismatch rather than passing unread ([R96]/[R97] round 2 on PR #431).
+    `with` is the exception: check_carrier_steps reads it only for a
+    `uses:` entry, so a `with` recorded on a `run:` entry is as inert as
+    `shell` ([R97] round 3 on PR #431).
+    Inside a step's own vocabulary the derivation is exact, so an entry
+    that records a licensed key the step does not carry turns the pristine
+    tree red at once as a missing key ([R96]/[R97] probe D on PR #431)."""
+    if "uses" in entry:
+        return tuple(k for k in ("name", "uses", "id", "if",
+                                 "continue-on-error", "with") if k in entry)
+    return tuple(k for k in ("name", "id", "env", "if", "working-directory")
+                 if k in entry) + ("run",)
+
+
+def carrier_entry_want(entry: YamlMap) -> str:
+    """What a finding calls a step-list entry: its `uses` together with the
+    `name` it records, or the step named by its `name`. Both identity
+    fields on an action entry, because the rule enforces both and a refusal
+    that prints one leaves the reader to open the file ([R96] round 2 on PR
+    #431)."""
+    if "uses" in entry:
+        named = f" named `{entry['name']}`" if "name" in entry else ""
+        return f"`uses: {entry['uses']}`{named}"
+    return f"the step named `{entry['name']}`"
+
+
+def step_found_label(step: Any) -> str:
+    """What a finding calls the step it FOUND at a pinned position: its
+    `name` with its `uses` when it carries both, so a step that keeps its
+    recorded name while changing what it runs, or an action step that keeps
+    its `uses` under another name, shows the difference in the refusal
+    itself ([R96] round 2 on PR #431). Otherwise step_label's one field."""
+    used = step.get("uses") if isinstance(step, dict) else None
+    named = step.get("name") if isinstance(step, dict) else None
+    if isinstance(used, str) and used.strip() and isinstance(named, str):
+        return f"{step_label(step)} (`uses: {used.strip()}`)"
+    return step_label(step)
+
+
+def check_carrier_script(c: Contract, path: str, what: str, step: YamlMap,
+                         entry: YamlMap) -> None:
+    """Compare one carrier body with its recorded normalized script (#407).
+
+    A missing record is a finding, never permission to stop checking a body.
+    Sequence and key checks still own identity and execution conditions.
+    """
+    canonical = entry.get("run")
+    recorded = (isinstance(canonical, tuple) and bool(canonical)
+                and all(isinstance(line, str) for line in canonical))
+    c.item(True, path,
+           f"{what} must record a canonical normalized `run` script")
+    if not recorded:
+        return
+    lines = normalize_script(step["run"])
+    c.item(tuple(lines) == canonical, path,
+           f"{what} script is not the canonical form: "
+           + script_difference(lines, canonical))
+
+
+def check_carrier_steps(c: Contract, path: str, wf: YamlMap, jid: str,
+                        spec: Sequence[YamlMap] | None = None) -> None:
+    """A job's whole step list, pinned the way item 4 pins the gate job's
+    (#295, closing [R4] round 6 on PR #293, for the four carriers; #406 for
+    the seven RTL jobs): count, order, each step's identity, key set, env
+    bindings, recorded `if`, recorded `with`, and the `id`,
+    `continue-on-error` and `working-directory` a step records. The four
+    non-RTL carriers also pin every normalized run body (#407). The
+    declared allowlists hold what a step says; only this holds WHICH steps
+    the job runs, so an inserted `run:` step writing `BASH_ENV=...` to
+    `$GITHUB_ENV`, one prepending `$GITHUB_PATH`, an inserted `uses:` of
+    any action, or an inserted step of any content at all is refused naming
+    the job and the position. `spec` is the recorded list, STEP_LISTS' entry
+    unless a caller passes one: check_sequence_pin_coverage passes the list
+    it decided the job is pinned by, so the decision and the comparison
+    cannot read two different tables ([R97] round 4 on PR #431)."""
+    spec = STEP_LISTS[(path, jid)] if spec is None else spec
+    job = jobs(wf).get(jid)
+    if not isinstance(job, dict):
+        return  # check_required_context_carriers names the missing job
+    raw = job.get("steps")
+    raw_count = len(raw) if isinstance(raw, list) else 0
+    ss = steps(job)
+    c.item(raw_count == len(spec) and len(ss) == len(spec), path,
+           f"job `{jid}` must carry exactly {len(spec)} steps, in the "
+           f"recorded order (found {raw_count}): an inserted step of ANY "
+           "content runs before every later step and can set their "
+           "inherited environment at run time -- a `BASH_ENV` written to "
+           "`$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action "
+           "-- which the declared allowlists cannot see, and a removed one "
+           "takes its gate with it")
+    for n, at in enumerate(ss[len(spec):], len(spec) + 1):
+        c.item(False, path,
+               f"job `{jid}` step {n} must be no step (found "
+               f"{step_found_label(at)}): the recorded list ends at step "
+               f"{len(spec)}, so this one runs after every gate the job "
+               "owes and inside the same checkout ([R97] round 2 on PR "
+               "#431)")
+    for n, entry in enumerate(spec, 1):
+        at = ss[n - 1] if len(ss) >= n else None
+        ident = entry.get("name", entry.get("uses"))
+        what = f"job `{jid}` step {n} (`{ident}`)"
+        if "uses" in entry:
+            ok = (isinstance(at, dict) and at.get("uses") == entry["uses"]
+                  and at.get("name") == entry.get("name"))
+        else:
+            ok = (isinstance(at, dict) and at.get("name") == entry["name"]
+                  and isinstance(at.get("run"), str))
+        c.item(ok, path,
+               f"job `{jid}` step {n} must be {carrier_entry_want(entry)} "
+               f"(found {step_found_label(at)}): the position is the "
+               "contract -- the steps before this one decide what it reads, "
+               "and the steps after it read what it leaves behind")
+        if not ok:
+            continue
+        pinned_step_keys(c, path, what, at,
+                         StepShape(carrier_entry_keys(entry), entry.get("env", {})))
+        if path in (DOCS, ELABORATE) and "uses" not in entry:
+            check_carrier_script(c, path, what, at, entry)
+        if "id" in entry:
+            c.item(at.get("id") == entry["id"], path, f"{what} `id` must be "
+                   f"`{entry['id']}` (found {at.get('id')!r}): the pinned "
+                   "step conditions of this job read the output through "
+                   "this id")
+        if "if" in entry:
+            got = str(at.get("if", "")).strip()
+            c.item(got == entry["if"], path, f"{what} `if` must be exactly "
+                   f"`{entry['if']}` (found `{got}`): any other condition "
+                   "changes when this step runs, and the recorded guard -- "
+                   "a scope answer, a cache miss, a shard's suite ownership "
+                   "or `always()` -- is the one this job legitimately "
+                   "carries")
+        for key in ("continue-on-error", "working-directory"):
+            if key in entry:
+                c.item(at.get(key) == entry[key], path, f"{what} `{key}` "
+                       f"must be exactly {entry[key]!r} (found "
+                       f"{at.get(key)!r}): the recorded value is the "
+                       "contract -- `continue-on-error` is how a failed "
+                       "download reaches the verifier that refuses it, and "
+                       "`working-directory` names the one tree the suite "
+                       "may read")
+        if "uses" in entry:
+            got_with = at.get("with")
+            want_with = entry.get("with")
+            c.item(got_with == want_with, path, f"{what} `with` must be "
+                   f"exactly {want_with!r} (found {got_with!r}): a `with` "
+                   "decides what an action reads and restores -- a widened "
+                   "cache key hands over generated metadata from another "
+                   "toolchain head, a moved upload path publishes other "
+                   "bytes, and a widened download pattern feeds the "
+                   "verifier evidence from other workers")
+
+
+def check_docs(c: Contract, wf: YamlMap) -> None:
+    """Everything docs.yml owes: triggers, one carrier per public name, the
+    builder setup, both ci_events runs, the act self-test, and each
+    carrier's gate step, pinned step list and scripts."""
+    check_push_and_pr(c, DOCS, wf, exact_types=False)
+    check_public_names(c, DOCS, wf)
+    check_required_context_carriers(c, DOCS, wf, held_by_builder=("docs-check",))
+    check_builder_dependencies(c, DOCS, wf, "docs-check")
+    texts = [step_text(s) for j in jobs(wf).values() for s in steps(j)]
+    for flag in ("--check", "--selftest"):
+        wired = any(f"scripts/ci_events.py {flag}" in t for t in texts)
+        c.item(wired, DOCS, f"must run `python3 scripts/ci_events.py {flag}` "
+               "(this gate is not a gate unless a workflow runs it)")
+    docs_job = jobs(wf).get("docs-check")
+    act_selftests = [s for s in steps(docs_job)
+                     if tuple(normalize_script(
+                         s.get("run") if isinstance(s.get("run"), str) else ""
+                     )) == (ACT_CI_SELFTEST,)]
+    c.item(len(act_selftests) == 1, DOCS,
+           f"job `docs-check` must run `{ACT_CI_SELFTEST}` exactly once "
+           f"(found {len(act_selftests)}): the runner's refusal and cleanup "
+           "controls are not a hosted gate unless the required docs context "
+           "executes their negative controls")
+    if len(act_selftests) == 1:
+        pinned_step_keys(c, DOCS, "local act runner contract step",
+                         act_selftests[0], StepShape(("name", "run"), {}))
+    # The gate step inside each carrier, and the carrier's whole step list
+    # (#295): the job-level rule above says which job carries the context,
+    # these say what that job runs.
+    check_carrier_gate_step(c, DOCS, wf, "docs-check", GatePin(
+        CONTRACT_CHECK, CANONICAL_DOCS_GATE_SCRIPT,
+        "a `|| true` beside either call swallows the finding this file "
+        "exists to raise while the required context stays green"))
+    check_named_carrier_gate_step(
+        c, DOCS, wf, "docs-check",
+        (IMPORTED_GPTP_GATE_NAME, CANONICAL_IMPORTED_GPTP_GATE_SCRIPT,
+         "this named step is the published proof for both the parent gPTP "
+         "documentation contract and the pinned donor documentation build"))
+    check_named_carrier_gate_step(
+        c, DOCS, wf, "docs-check",
+        (EM_DASH_GATE_NAME, CANONICAL_EM_DASH_GATE_SCRIPT,
+         "the base this step judges from and the exit status it returns "
+         "are the whole gate: `--base HEAD` judges no line and a `|| true` "
+         "reports none"))
+    check_carrier_gate_step(c, DOCS, wf, "wire-accountability", GatePin(
+        WIRE_GATE_CALL, CANONICAL_WIRE_GATE_SCRIPT,
+        "this step is the whole item-00 record, so a line beside the call "
+        "can swallow its exit status"))
+    check_carrier_gate_step(c, DOCS, wf, "docs-check-no-git", GatePin(
+        NO_GIT_GATE_CALL, CANONICAL_NO_GIT_GATE_SCRIPT,
+        "this step is the whole no-git proof, and with `rm -rf .git` gone "
+        "it proves a different claim"))
+    for jid in PUBLIC_NAMES[DOCS]:
+        check_carrier_steps(c, DOCS, wf, jid)
+
+
+def check_elaborate(c: Contract, wf: YamlMap) -> None:
+    """Everything elaborate.yml owes: trigger, its one carrier, the builder
+    setup, the scope step and the pinned step list and scripts."""
+    check_push_and_pr(c, ELABORATE, wf, exact_types=False)
+    check_public_names(c, ELABORATE, wf)
+    check_required_context_carriers(c, ELABORATE, wf,
+                                    held_by_builder=("elaborate",))
+    check_builder_dependencies(c, ELABORATE, wf, "elaborate")
+    check_scope_step(c, wf)
+    check_carrier_steps(c, ELABORATE, wf, "elaborate")
+
+
+def check_global_carriers(c: Contract, parsed: World) -> None:
+    """One carrier per required name across EVERY workflow file (maintainer
+    review on PR #293). GitHub binds a required check by name and does not
+    distinguish the workflow that published it, so the per-file counts above
+    are necessary and not sufficient: a job in a fifth file, one the
+    inventory never named, carrying `docs-check` is a second `docs-check` on
+    every pull request. The multimap is name -> [(file, job id)] over the
+    inventoried files and every other file the directory holds; each
+    required name must map to exactly one entry, in its owning file, under
+    its own id. A job in an un-inventoried file may carry no expression name
+    at all: that file has no shard workers, so nothing there is legitimately
+    named by an expression, and an expression is the one spelling the
+    literal count cannot see."""
+    files = list(WORKFLOWS) + extra_workflows(parsed)
+    carriers = {}
+    for rel in files:
+        for jid, job in jobs(parsed[rel]).items():
+            carriers.setdefault(display_name(jid, job), []).append((rel, jid))
+            if is_extra_workflow(rel):
+                name = job.get("name") if isinstance(job, dict) else None
+                c.item(not (isinstance(name, str) and "${{" in name), rel,
+                       f"job `{jid}` in the un-inventoried workflow `{rel}` "
+                       f"must not carry an expression `name` (found "
+                       f"{name!r}): nothing outside the inventory is "
+                       "legitimately named by an expression, and an "
+                       "expression can evaluate to a required check name")
+    for name in sorted(ALL_PUBLIC_NAMES):
+        found = carriers.get(name, [])
+        want = (PUBLIC_NAME_OWNER[name], name)
+        # Carriers inside the owning file are the per-file rules' business
+        # (one-carrier, ownership, id): reporting them here again printed
+        # every owner-file mutant twice ([R3] round 6 on PR #293). This item
+        # holds what only a global view can see - a carrier in any OTHER
+        # file, inventoried or not.
+        foreign = [entry for entry in found if entry[0] != want[0]]
+        c.item(not foreign, PUBLIC_NAME_OWNER[name],
+               f"required check name `{name}` must be carried by exactly "
+               f"one job across every workflow file, `{want[1]}` in "
+               f"`{want[0]}` (found {found or 'none'} over "
+               f"{len(files)} file(s)): the merge bar binds the name and "
+               "does not distinguish the workflow that published it")
+
+
+def check_sequence_pin_coverage(c: Contract, parsed: World,
+                                pins: dict[JobKey, Sequence[YamlMap]] | None
+                                = None) -> None:
+    """Every job the two RTL files declare, held against a RECORDED step
+    list (#406). WHICH jobs owe one is decided by the files and not by any
+    table here: rtl.yml and rtl-fast.yml are read for their job lists, a job
+    `pins` does not record is refused by name, and the recorded list is then
+    compared with the live job by count, order, identity, key set, env
+    bindings, recorded `if`, recorded `with` and recorded scalars -- the
+    whole finite contract of item 4, through the carriers' rule.
+
+    That comparison IS the pin, which is why nothing here asks whether some
+    rule refuses something about a job. Round 4 asked exactly that: it
+    inserted a step, ran each registered rule on a contract of its own and
+    credited any rule whose new finding named the job. A rule refusing every
+    `run: true` body, or counting a job's steps, then counted as whole-list
+    coverage while order, identity, bindings and the key set went unheld,
+    and a rule already refusing the live tree had its standing findings
+    discarded ([R97] round 4 on PR #431). Here there is no separate contract
+    and no classification: a job is pinned when its whole list is recorded
+    and compared, and every other rule this file runs reports into the one
+    verdict.
+
+    A job a recorded list names must also still exist in its file, or the
+    entry pins nothing while the respelt job runs unheld. `pins` is
+    RTL_SEQUENCE_PINS unless a caller passes one: the recorded lists are an
+    ARGUMENT, so _selftest_step_list_pins can hand this rule a narrowed, a
+    partial or a stray mapping and require the refusal by name instead of
+    describing it ([R97] rounds 2 and 4 on PR #431)."""
+    pins = RTL_SEQUENCE_PINS if pins is None else pins
+    for path in (RTL_FULL, RTL_FAST):
+        live = jobs(parsed[path])
+        for jid in live:
+            spec = pins.get((path, jid))
+            c.item(spec is not None, path,
+                   f"job `{jid}` must have its whole step list recorded in "
+                   "`RTL_SEQUENCE_PINS` (`RTL_STEP_LISTS` for the seven "
+                   "#406 jobs, `RTL_SIBLING_STEP_LISTS` for the gate, the "
+                   "physical leg, the fast selector and the fast verdict), "
+                   "which records no list for it: a job held by no recorded "
+                   "list runs any step it likes -- a `BASH_ENV` writer, a "
+                   "`$GITHUB_PATH` prepend, a third-party action -- beside "
+                   "the gates and inside the same checkout, and a rule that "
+                   "refuses something about the job is not a pin on which "
+                   "steps it runs")
+            if spec is not None:
+                check_carrier_steps(c, path, parsed[path], jid, spec)
+        for _, jid in sorted(k for k in pins if k[0] == path):
+            c.item(jid in live, path,
+                   f"job `{jid}` must exist in this file, because a step "
+                   f"list is recorded for it (found "
+                   f"{', '.join(live) or 'no jobs'}): a job id respelt here "
+                   "leaves the recorded list pinning nothing and the live "
+                   "job pinned by nothing")
+
+
+def check(parsed: World) -> Contract:
+    """The whole contract over a parsed world. Returns a Contract."""
+    c = Contract()
+    check_rtl_full(c, parsed[RTL_FULL], parsed[POLICY])
+    check_physical_gptp(c, parsed[RTL_FULL], parsed[POLICY])
+    check_ownership_step(c, parsed[RTL_FULL])
+    check_aggregate_scripts(c, parsed[RTL_FULL])
+    check_rtl_fast(c, parsed[RTL_FAST])
+    check_sequence_pin_coverage(c, parsed)
+    check_docs(c, parsed[DOCS])
+    check_elaborate(c, parsed[ELABORATE])
+    for rel in WORKFLOWS:
+        check_inherited_env(c, rel, parsed[rel])
+        check_key_allowlists(c, rel, parsed[rel])
+        check_env_files(c, rel, parsed[rel])
+    check_global_carriers(c, parsed)
+    return c
+
+
+# --------------------------------------------------------------------------
+# --require-target-sha: the aggregate-side verifier
+# --------------------------------------------------------------------------
+
+def check_records(shas: dict[str, str], roots: Sequence[pathlib.Path],
+                  expect: int | None) -> tuple[list[str], list[str]]:
+    """`shas` maps a label (gate, run, checkout) to the SHA that source
+    reports; `roots` are the downloaded shard directories; `expect` is the
+    worker matrix size, which the root count must equal. Returns
+    (findings, lines): every finding is a refusal, lines are the verdict."""
+    if not isinstance(expect, int) or expect < 1:
+        raise CannotRun("--expect <n> is required: the number of shard "
+                        "directories the worker matrix produces")
+    findings, lines = [], []
+    if len(roots) != expect:
+        findings.append(f"expected {expect} shard director(y/ies), the worker "
+                        f"matrix size, found {len(roots)}: a missing or "
+                        "surplus shard is a failure, not a skip")
+    missing = [l for l in REQUIRED_SHA_LABELS if l not in shas]
+    unknown = sorted(set(shas) - set(REQUIRED_SHA_LABELS))
+    if missing or unknown:
+        findings.append("the SHA sources must be exactly "
+                        f"{', '.join(REQUIRED_SHA_LABELS)}"
+                        + (f"; missing: {', '.join(missing)}" if missing else "")
+                        + (f"; unknown: {', '.join(unknown)}" if unknown else "")
+                        + ": an aggregate that drops a source cannot prove "
+                        "the gate, the run and its checkout agree")
+    for label, sha in shas.items():
+        if not SHA_RE.match(sha or ""):
+            findings.append(f"{label} SHA {sha!r} is not a 40-digit lowercase "
+                            "hexadecimal commit id")
+    distinct = sorted(set(shas.values()))
+    if len(distinct) != 1:
+        findings.append("the sources disagree on which tree this run "
+                        "validates: " + ", ".join(f"{k}={v}" for k, v in
+                                                  sorted(shas.items())))
+    expected = distinct[0] if len(distinct) == 1 else None
+    if not roots:
+        findings.append("no shard evidence directory to verify: the download "
+                        "produced nothing, which is a failure, not a skip")
+    for root in roots:
+        record = pathlib.Path(root) / RECORD
+        name = pathlib.Path(root).name
+        if not record.is_file():
+            findings.append(f"{name}: {RECORD} missing, the worker did not "
+                            "record the tree it validated")
+            continue
+        try:
+            got = record.read_text(encoding="utf-8").strip()
+        except (OSError, UnicodeDecodeError) as exc:
+            findings.append(f"{name}: {RECORD} unreadable: {exc}")
+            continue
+        if not SHA_RE.match(got):
+            findings.append(f"{name}: {RECORD} holds {got!r}, not a commit id")
+        elif expected is not None and got != expected:
+            findings.append(f"{name}: validated {got}, this run is {expected}")
+        else:
+            lines.append(f"  ok   {name}  {got}")
+    if findings:
+        lines.append(f"target-sha: {len(findings)} finding(s); refusing this "
+                     "evidence")
+    else:
+        lines.append(f"target-sha: OK, {len(roots)} record(s) all {expected}")
+    return findings, lines
+
+
+# --------------------------------------------------------------------------
+# --require-default-branch: the live repository-setting assertion
+# --------------------------------------------------------------------------
+
+def check_default_branch(event: str,
+                         observed: str) -> tuple[list[str], list[str]]:
+    """(findings, lines) for one run's view of the repository default branch.
+
+    `event` is GITHUB_EVENT_NAME, `observed` what `gh api` returned (or the
+    placeholder the gate substitutes when it could not read it). The events
+    in DEFAULT_BRANCH_EVENTS refuse anything but PUSH_BRANCH, an unreadable
+    value included; every other event prints and continues."""
+    if not event:
+        raise CannotRun("--event is required: the decision depends on it")
+    observed = (observed or "").strip()
+    governed = event in DEFAULT_BRANCH_EVENTS
+    shown = observed or "<empty>"
+    lines = [f"default_branch={shown} expected={PUSH_BRANCH} event={event} "
+             f"({'governed' if governed else 'informational'})"]
+    if observed == PUSH_BRANCH:
+        lines.append("default-branch: OK")
+        return [], lines
+    if governed:
+        return [f"the repository default branch is {shown!r}, not "
+                f"{PUSH_BRANCH!r}: a {event} run would validate the wrong "
+                "branch; refusing"], lines
+    lines.append(f"default-branch: WARNING, {shown!r} is not {PUSH_BRANCH!r}; "
+                 f"this {event} run continues, the next scheduled or "
+                 "dispatched run will refuse")
+    return [], lines
+
+
+# --------------------------------------------------------------------------
+# Self-test
+# --------------------------------------------------------------------------
+
+# The arms' editors. Each takes a parsed world - the deep copy the self-test
+# hands it - and breaks ONE contract item in place; the `_m_*` factories
+# return such an editor bound to a path, a job or a value, and the plain
+# helpers locate the step or mapping an editor works on. They lived inside
+# `_mutations()` until that made it a 2 000-line function; hoisted, the arms
+# themselves can be grouped by area of the contract (the `_*_arms` builders
+# that follow) instead of living in one list no reviewer can hold in their
+# head.
+
+def _on(w: World, path: str) -> YamlMap:
+    """The live `on:` mapping of `path` in `w`, where the trigger arms edit."""
+    return triggers(w[path])
+
+
+def _policy_replace(w: World, old: str, new: str) -> None:
+    """Rewrite one phrase of the policy page in `w`, refusing to edit nothing:
+    an arm whose fixture no longer matches the page proves nothing."""
+    assert old in w[POLICY], f"fixture drift: {old!r} not on the page"
+    w[POLICY] = w[POLICY].replace(old, new)
+
+
+def _first_checkout(w: World, path: str = RTL_FULL) -> YamlMap:
+    """The first `actions/checkout` step in `path`, whichever job holds it."""
+    for job in jobs(w[path]).values():
+        for s in steps(job):
+            if uses(s, "actions/checkout"):
+                return s
+    raise AssertionError("fixture drift: no checkout step")
+
+
+def _job_steps(w: World, path: str, jid: str) -> list[YamlMap]:
+    """One job's live `steps` list, so an arm can insert, remove or reorder
+    in place."""
+    return jobs(w[path])[jid]["steps"]
+
+
+def _strip_steps(w: World, path: str, jid: str, needle: str) -> None:
+    """Delete every step of `jid` whose text mentions `needle`, refusing to
+    delete nothing."""
+    ss = _job_steps(w, path, jid)
+    kept = [s for s in ss if needle not in step_text(s)]
+    assert len(kept) < len(ss), f"fixture drift: no step mentions {needle}"
+    jobs(w[path])[jid]["steps"] = kept
+
+
+def _m_push_main(path: str) -> Mutator:
+    """Point `path`'s push trigger at `main` instead of PUSH_BRANCH."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _on(w, path)["push"]["branches"] = ["main"]
+    return f
+
+
+def _m_drop_pr(path: str) -> Mutator:
+    """Unsubscribe `pull_request` in `path`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        del _on(w, path)["pull_request"]
+    return f
+
+
+def _m_pr_type_missing(path: str) -> Mutator:
+    """Drop `converted_to_draft` from `path`'s pull_request types."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _on(w, path)["pull_request"]["types"].remove("converted_to_draft")
+    return f
+
+
+def _m_pr_type_extra(path: str) -> Mutator:
+    """Add an undocumented `labeled` type to `path`'s pull_request types."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _on(w, path)["pull_request"]["types"].append("labeled")
+    return f
+
+
+def _m_cancel_false(path: str) -> Mutator:
+    """Turn `path`'s `cancel-in-progress` off."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        w[path]["concurrency"]["cancel-in-progress"] = False
+    return f
+
+
+def _m_no_concurrency(path: str) -> Mutator:
+    """Remove `path`'s `concurrency` block outright."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        del w[path]["concurrency"]
+    return f
+
+
+def _m_rename_job(path: str, jid: str) -> Mutator:
+    """Rename job `jid`, so the check name it carried is published by no job."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid]["name"] = jid + "-renamed"
+    return f
+
+
+def _m_job_key(path: str, jid: str, key: str, value: Any) -> Mutator:
+    """Set `key` to `value` on job `jid` itself, leaving its steps alone."""
+    # A neuter key on the JOB, not on one of its steps (#261): the step
+    # arms leave the job's own run conditions untouched.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid][key] = value
+    return f
+
+
+def _m_second_carrier(path: str, name: str) -> Mutator:
+    """Add a `decoy` job publishing the required check name `name`."""
+    # A second job publishing a required check name, so which run the
+    # ruleset binds is ambiguous ([R2] on PR #239, widened by #261).
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_expression_carrier(path: str, name: str) -> Mutator:
+    """Add a `decoy` job whose `name` is an expression evaluating to `name`."""
+    # The decoy's `name` is an EXPRESSION that evaluates to the required
+    # name on the runner ([R4] on PR #293); the real job is untouched.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])["decoy"] = {"name": "${{ '" + name + "' }}",
+                                  "runs-on": "ubuntu-latest",
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_matrix_carrier(path: str, name: str) -> Mutator:
+    """Add a `decoy` matrix job whose `name` renders `name` from its matrix."""
+    # A matrix job whose `name` RENDERS the required name from its own
+    # matrix list ([R4] on PR #293): the expression is the allowed
+    # `matrix.<key>` form, so only enumeration can see the collision.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
+                                  "runs-on": "ubuntu-latest",
+                                  "strategy": {"matrix": {"n": [name]}},
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_foreign_carrier(path: str, name: str) -> Mutator:
+    """Add a `decoy` job literally named `name`, a check name another file
+    owns."""
+    # A literal decoy carrying a required name ANOTHER file owns ([R4]
+    # round 2 on PR #293): the per-file carrier count never sees it.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_matrix_decoy(path: str, name: str, matrix: Any) -> Mutator:
+    """Add a `decoy` job named `name` over `matrix`, an edge the enumeration
+    must refuse or render."""
+    # The allowed `matrix.n` form over a matrix the enumeration must
+    # refuse or must render ([R3] round 4 on PR #293): a value that is
+    # itself an expression, `include`, a missing key, an empty list.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+                                  "strategy": {"matrix": matrix},
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_job_env(path: str, jid: str, name: str,
+               value: str = "scripts/ci-bypass.sh") -> Mutator:
+    """Give job `jid` a job-level `env` binding `name` to `value`."""
+    # The inherited environment (maintainer [R0] on PR #293).
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid]["env"] = {name: value}
+    return f
+
+
+def _m_workflow_env(path: str, name: str,
+                    value: str = "scripts/ci-bypass.sh") -> Mutator:
+    """Add `name: value` to `path`'s workflow-level `env`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        env = dict(w[path].get("env") or {})
+        env[name] = value
+        w[path]["env"] = env
+    return f
+
+
+def _ce_add(w: World, path: str, key: str, value: Any) -> None:
+    """Add a `standalone` job to `path` carrying `key: value`, which no
+    per-class rule classifies."""
+    # An ADDED standalone job carrying a neuter key (maintainer [R0]
+    # round 4 on PR #293): no per-class rule classifies it.
+    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
+                                   "steps": [{"run": "true"}]}
+
+
+def _m_job_key_any(path: str, jid: str, key: str, value: Any) -> Mutator:
+    """Set any `key` to `value` on job `jid`, inside or outside the allowlist."""
+    # Any job key outside the allowlist ([R4] round 6 on PR #293).
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid][key] = value
+    return f
+
+
+def _m_step_key_any(path: str, jid: str, needle: str, key: str,
+                    value: Any) -> Mutator:
+    """Set `key` to `value` on the one step of `jid` whose text mentions
+    `needle`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid) if needle in step_text(s)]
+        assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+        found[0][key] = value
+    return f
+
+
+def _m_insert_step(path: str, jid: str, step: YamlMap,
+                   index: int = 1) -> Mutator:
+    """Insert `step` into job `jid` at `index`."""
+    # A step inserted into an unpinned job ([R3] round 8 on PR #293).
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _job_steps(w, path, jid).insert(index, step)
+    return f
+
+
+def _m_step_env(path: str, jid: str, needle: str, name: str,
+                value: str = "scripts/ci-bypass.sh") -> Mutator:
+    """Bind `name` to `value` in the env of the one step of `jid` mentioning
+    `needle`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid) if needle in step_text(s)]
+        assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+        env = dict(found[0].get("env") or {})
+        env[name] = value
+        found[0]["env"] = env
+    return f
+
+
+def _m_swap_carrier(path: str, jid: str) -> Mutator:
+    """Rename job `jid` away and give a `run: true` stub its display name."""
+    # The real job renamed away and a `run: true` stub given the required
+    # name ([R3] on PR #293): the unique carrier has no neuter key, the
+    # id-named job keeps every pinned step, and the context runs nothing.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid]["name"] = jid + "-real"
+        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
+                                  "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_drop_dispatch(w: World) -> None:
+    """Unsubscribe rtl.yml's `workflow_dispatch`."""
+    del _on(w, RTL_FULL)["workflow_dispatch"]
+
+
+def _m_dispatch_inputs(w: World) -> None:
+    """Give rtl.yml's `workflow_dispatch` a required input."""
+    _on(w, RTL_FULL)["workflow_dispatch"] = {
+        "inputs": {"ref": {"type": "string", "required": True}}}
+
+
+def _m_drop_schedule(w: World) -> None:
+    """Remove rtl.yml's `schedule`."""
+    del _on(w, RTL_FULL)["schedule"]
+
+
+def _m_two_crons(w: World) -> None:
+    """Add a second cron to rtl.yml's `schedule`."""
+    _on(w, RTL_FULL)["schedule"].append({"cron": "17 13 * * *"})
+
+
+def _m_cron_moved(w: World) -> None:
+    """Move rtl.yml's cron to another hour, leaving the page unchanged."""
+    _on(w, RTL_FULL)["schedule"][0]["cron"] = "17 2 * * *"
+
+
+def _m_cron_shape(w: World) -> None:
+    """Replace rtl.yml's daily cron with a quarter-hourly one."""
+    _on(w, RTL_FULL)["schedule"][0]["cron"] = "*/15 * * * *"
+
+
+def _m_page_time(w: World) -> None:
+    """State another time for the cron on the policy page."""
+    _policy_replace(w, "01:17 UTC", "02:17 UTC")
+
+
+def _m_page_cron(w: World) -> None:
+    """State another cron string on the policy page."""
+    _policy_replace(w, "`17 1 * * *`", "`17 1 * * 1-5`")
+
+
+def _m_checkout_ref(w: World) -> None:
+    """Make rtl.yml's first checkout override `ref`."""
+    _first_checkout(w)["with"] = {"ref": "dev"}
+
+
+def _m_checkout_ref_deep(w: World) -> None:
+    """Make rtl.yml's first checkout override `ref` with the PR head
+    expression."""
+    s = _first_checkout(w)
+    s.setdefault("with", {})["ref"] = "${{ github.event.pull_request.head.sha }}"
+
+
+def _m_drop_gate_output(w: World) -> None:
+    """Drop the gate job's `target_sha` output."""
+    del jobs(w[RTL_FULL])[GATE_JOB]["outputs"][GATE_OUTPUT]
+
+
+def _m_gate_silent(w: World) -> None:
+    """Remove the gate step that prints the event name and SHA."""
+    _strip_steps(w, RTL_FULL, GATE_JOB, "GITHUB_EVENT_NAME")
+
+
+def _m_worker_no_record(w: World) -> None:
+    """Remove the Verilator workers' TARGET_SHA record step."""
+    _strip_steps(w, RTL_FULL, "verilator-shards", RECORD)
+
+
+def _m_yosys_no_record(w: World) -> None:
+    """Remove the Yosys workers' TARGET_SHA record step."""
+    _strip_steps(w, RTL_FULL, "yosys-shards", RECORD)
+
+
+def _m_record_after_upload(w: World) -> None:
+    """Move the Verilator workers' record step after their upload."""
+    ss = _job_steps(w, RTL_FULL, "verilator-shards")
+    rec = next(i for i, s in enumerate(ss) if RECORD in step_text(s))
+    ss.append(ss.pop(rec))
+
+
+def _m_aggregate_no_verify(w: World) -> None:
+    """Remove verilator-suites' verifier step."""
+    _strip_steps(w, RTL_FULL, "verilator-suites", VERIFY_FLAG)
+
+
+def _m_yosys_aggregate_no_verify(w: World) -> None:
+    """Remove yosys-portability's verifier step."""
+    _strip_steps(w, RTL_FULL, "yosys-portability", VERIFY_FLAG)
+
+
+def _m_aggregate_without_gate(w: World) -> None:
+    """Drop the gate from verilator-suites' `needs`."""
+    job = jobs(w[RTL_FULL])["verilator-suites"]
+    job["needs"] = [n for n in job["needs"] if n != GATE_JOB]
+
+
+def _m_artifact_aggregates_race(w: World) -> None:
+    """Drop verilator-suites from yosys-portability's `needs`, so both
+    bootstrap the download action at once."""
+    job = jobs(w[RTL_FULL])["yosys-portability"]
+    assert "verilator-suites" in job["needs"], (
+        "fixture drift: artifact aggregates are not ordered")
+    job["needs"] = [n for n in job["needs"]
+                    if n != "verilator-suites"]
+
+
+def _db_step(w: World) -> YamlMap:
+    """The gate job's default-branch step."""
+    for s in steps(jobs(w[RTL_FULL])[GATE_JOB]):
+        if DEFAULT_BRANCH_FLAG in step_text(s):
+            return s
+    raise AssertionError("fixture drift: no default-branch step")
+
+
+def _m_db_step_removed(w: World) -> None:
+    """Remove the default-branch step."""
+    _strip_steps(w, RTL_FULL, GATE_JOB, DEFAULT_BRANCH_FLAG)
+
+
+def _m_db_token_missing(w: World) -> None:
+    """Drop GH_TOKEN from the default-branch step's env."""
+    del _db_step(w)["env"]["GH_TOKEN"]
+
+
+def _m_db_no_live_read(w: World) -> None:
+    """Replace the default-branch step's `gh api` with `echo`."""
+    s = _db_step(w)
+    assert "gh api" in s["run"]
+    s["run"] = s["run"].replace("gh api", "echo")
+
+
+def _m_db_event_not_passed(w: World) -> None:
+    """Hard-code `--event push` in the default-branch step."""
+    s = _db_step(w)
+    assert '--event "$GITHUB_EVENT_NAME"' in s["run"]
+    s["run"] = s["run"].replace('--event "$GITHUB_EVENT_NAME"',
+                                "--event push")
+
+
+def _m_db_continue_on_error(w: World) -> None:
+    """Put `continue-on-error` on the default-branch step."""
+    _db_step(w)["continue-on-error"] = True
+
+
+def _m_db_or_true(w: World) -> None:
+    """Append `|| true` to the default-branch step's script."""
+    s = _db_step(w)
+    s["run"] = s["run"].rstrip("\n") + " || true\n"
+
+
+def _set_db_script(w: World, *lines: str) -> None:
+    """Replace the default-branch step's script with `lines`."""
+    _db_step(w)["run"] = "\n".join(lines) + "\n"
+
+
+def _m_db_decoy_if_false(w: World) -> None:
+    """The reviewer's decoy: a literal `observed=dev` beside an unreachable
+    live read."""
+    # The reviewer's decoy: a literal beside an unreachable live read.
+    _set_db_script(w, "set -euo pipefail", "observed=dev", "if false; then",
+                  "  " + CANONICAL_OBSERVED, "fi", CANONICAL_CALL)
+
+
+def _m_db_literal_after_call(w: World) -> None:
+    """A literal `observed=dev` after the canonical script."""
+    _set_db_script(w, *CANONICAL_DEFAULT_BRANCH_SCRIPT, "observed=dev")
+
+
+def _m_db_literal_after_read(w: World) -> None:
+    """A literal `observed=dev` after the live read, before the call."""
+    _set_db_script(w, "set -euo pipefail", CANONICAL_OBSERVED,
+                  "observed=dev", CANONICAL_CALL)
+
+
+def _m_db_gh_api_in_comment(w: World) -> None:
+    """The live read inside a comment, a literal in its place."""
+    _set_db_script(w, "set -euo pipefail", "# " + CANONICAL_OBSERVED,
+                  "observed=dev", CANONICAL_CALL)
+
+
+def _m_db_other_command(w: World) -> None:
+    """`observed` sourced from `git symbolic-ref` instead of the API."""
+    _set_db_script(w, "set -euo pipefail",
+                  'observed="$(git symbolic-ref --short '
+                  'refs/remotes/origin/HEAD | sed s,origin/,,)"',
+                  CANONICAL_CALL)
+
+
+def _m_db_two_assignments(w: World) -> None:
+    """The live read twice."""
+    _set_db_script(w, "set -euo pipefail", CANONICAL_OBSERVED,
+                  CANONICAL_OBSERVED, CANONICAL_CALL)
+
+
+def _m_db_call_before_read(w: World) -> None:
+    """The verifier called before the live read."""
+    _set_db_script(w, "set -euo pipefail", CANONICAL_CALL,
+                  CANONICAL_OBSERVED)
+
+
+def _m_db_extra_line(w: World) -> None:
+    """An `echo done` after the canonical script."""
+    _set_db_script(w, *CANONICAL_DEFAULT_BRANCH_SCRIPT, "echo done")
+
+
+def _m_db_no_set(w: World) -> None:
+    """The canonical script without `set -euo pipefail`."""
+    _set_db_script(w, CANONICAL_OBSERVED, CANONICAL_CALL)
+
+
+# #209: the conditions under which the gate job runs at all, rather than
+# what it does once it runs.
+def _gate_step_list(w: World) -> list[YamlMap]:
+    """The gate job's live `steps` list."""
+    return jobs(w[RTL_FULL])[GATE_JOB]["steps"]
+
+
+def _pin_step(w: World) -> YamlMap:
+    """The gate job's pin step, by id."""
+    return next(s for s in _gate_step_list(w)
+                if s.get("id") == PIN_STEP_ID)
+
+
+def _decide_step(w: World) -> YamlMap:
+    """The gate job's decision step, by id."""
+    return next(s for s in _gate_step_list(w)
+                if s.get("id") == DECIDE_STEP_ID)
+
+
+def _m_gate_needs_a_skippable_job(w: World) -> None:
+    """O1: a `noop` job that skips on schedule, and a gate that needs it."""
+    # O1: a `noop` job that skips on schedule, and a gate that needs it.
+    jobs(w[RTL_FULL])["noop"] = {
+        "if": "${{ github.event_name != 'schedule' }}",
+        "runs-on": "ubuntu-latest",
+        "steps": [{"run": "true"}],
+    }
+    jobs(w[RTL_FULL])[GATE_JOB]["needs"] = ["noop"]
+
+
+def _m_assert_before_checkout(w: World) -> None:
+    """O14: the assertion moved before the checkout that brings its script."""
+    # O14: the assertion runs before the checkout brings the script.
+    ss = _gate_step_list(w)
+    i = next(i for i, s in enumerate(ss)
+             if DEFAULT_BRANCH_FLAG in step_text(s))
+    ss.insert(0, ss.pop(i))
+
+
+def _m_pin_and_assert_swapped(w: World) -> None:
+    """The pin step and the step after it swapped."""
+    ss = _gate_step_list(w)
+    i = next(i for i, s in enumerate(ss) if s.get("id") == PIN_STEP_ID)
+    ss[i], ss[i + 1] = ss[i + 1], ss[i]
+
+
+def _m_gate_extra_path_step(w: World) -> None:
+    """O6: a GITHUB_PATH step inserted before the assertion."""
+    # O6: a step before the assertion that puts another `gh` first.
+    ss = _gate_step_list(w)
+    i = next(i for i, s in enumerate(ss)
+             if DEFAULT_BRANCH_FLAG in step_text(s))
+    ss.insert(i, {"name": "Prepare tools",
+                  "run": 'echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"\n'})
+
+
+def _m_pin_step_removed(w: World) -> None:
+    """The pin step removed."""
+    ss = _gate_step_list(w)
+    del ss[next(i for i, s in enumerate(ss)
+                if s.get("id") == PIN_STEP_ID)]
+
+
+def _contract_step(w: World) -> YamlMap:
+    """The gate job's one contract step."""
+    found = [s for s in _gate_step_list(w) if _is_contract_step(s)]
+    assert len(found) == 1, "fixture drift: no unique contract step"
+    return found[0]
+
+
+def _m_contract_step_removed(w: World) -> None:
+    """The contract step removed."""
+    _gate_step_list(w).remove(_contract_step(w))
+
+
+def _m_contract_step_swallowed(w: World) -> None:
+    """`|| true` appended to the contract step's script."""
+    _contract_step(w)["run"] = (_contract_step(w)["run"].rstrip("\n")
+                               + " || true\n")
+
+
+def _m_contract_step_after_decide(w: World) -> None:
+    """The contract step moved after the decision step."""
+    ss = _gate_step_list(w)
+    step = _contract_step(w)
+    ss.remove(step)
+    ss.append(step)
+
+
+def _m_fifth_workflow(jid: str, name: str | None = None) -> Mutator:
+    """Add an un-inventoried `decoy.yml` with one job `jid`, named `name` when
+    given."""
+    # A workflow file the inventory never named (maintainer review on
+    # PR #293): GitHub runs it and binds its check-run names all the same.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+        if name is not None:
+            job["name"] = name
+        w[f"{WORKFLOW_DIR}/decoy.yml"] = {
+            "name": "decoy", "on": ["pull_request"], "jobs": {jid: job}}
+    return f
+
+
+def _m_checkout_shallow(w: World) -> None:
+    """Drop `fetch-depth` from the gate checkout."""
+    del _gate_step_list(w)[0]["with"]["fetch-depth"]
+
+
+def _m_gate_env_gh_host(w: World) -> None:
+    """A job-level GH_HOST on the gate job."""
+    jobs(w[RTL_FULL])[GATE_JOB]["env"] = {"GH_HOST": "example.invalid"}
+
+
+def _m_workflow_env_gh_host(w: World) -> None:
+    """A workflow-level GH_HOST in rtl.yml."""
+    w[RTL_FULL]["env"]["GH_HOST"] = "example.invalid"
+
+
+def _m_decide_env_missing(w: World) -> None:
+    """Drop PR_BASE_SHA from the decision step's env."""
+    del _decide_step(w)["env"]["PR_BASE_SHA"]
+
+
+def _m_decide_script_no_op(w: World) -> None:
+    """O16: the guarded `run_full=true` becomes `run_full=false`."""
+    # O16: the guarded `run_full=true` becomes `run_full=false`. Every
+    # pinned key, every pinned name and every binding survives.
+    s = _decide_step(w)
+    assert re.search(r"^\s*run_full=true$", s["run"], re.M), (
+        "fixture drift: no bare `run_full=true` in the decision step")
+    s["run"] = re.sub(r"^(\s*)run_full=true$", r"\1run_full=false",
+                      s["run"], count=1, flags=re.M)
+
+
+def _m_decide_script_unproven_selector(w: World) -> None:
+    """O16b: the decision step's selector self-test replaced by `true`."""
+    # O16b: the selector decides the run without its own self-test.
+    s = _decide_step(w)
+    assert SELECTOR_SELFTEST in s["run"], (
+        "fixture drift: the decision step does not self-test the selector")
+    s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+
+# #209 O17-O20: the publication path. A selector's `outputs` map is a
+# NAME -> EXPRESSION mapping like a step's `env`, and every arm below
+# leaves every pinned step key, env binding and script character intact.
+def _sel_outputs(w: World, path: str = RTL_FULL) -> YamlMap:
+    """The selector job's live `outputs` map in `path`."""
+    return jobs(w[path])[SELECTOR_JOB[path]]["outputs"]
+
+
+def _m_output_rebound(path: str, name: str, expr: str) -> Mutator:
+    """Bind selector output `name` to `expr`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        outs = _sel_outputs(w, path)
+        assert name in outs, f"fixture drift: no `{name}` output"
+        outs[name] = expr
+    return f
+
+
+def _m_output_dropped(path: str, name: str) -> Mutator:
+    """Drop selector output `name`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        outs = _sel_outputs(w, path)
+        assert name in outs, f"fixture drift: no `{name}` output"
+        del outs[name]
+    return f
+
+
+def _m_output_surplus(w: World) -> None:
+    """A surplus `shadow` output on rtl.yml's gate."""
+    _sel_outputs(w)["shadow"] = step_output_ref(DECIDE_STEP_ID,
+                                               RUN_FULL_OUTPUT)
+
+
+def _m_outputs_map_dropped(w: World) -> None:
+    """rtl.yml's gate loses its `outputs` map."""
+    del jobs(w[RTL_FULL])[SELECTOR_JOB[RTL_FULL]]["outputs"]
+
+
+def _set_job_if(path: str, jid: str, value: Any) -> Mutator:
+    """Set job `jid`'s `if` to `value`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid]["if"] = value
+    return f
+
+
+def _set_job_key_at(path: str, jid: str, key: str, value: Any) -> Mutator:
+    """Set `key` to `value` on job `jid` of `path`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid][key] = value
+    return f
+
+
+def _fast_scope_step(w: World) -> YamlMap:
+    """The fast selector's one scope step."""
+    found = [s for s in _job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+             if isinstance(s, dict)
+             and s.get("id") == FAST_SCOPE_STEP_ID]
+    assert len(found) == 1, "fixture drift: no unique fast scope step"
+    return found[0]
+
+
+def _fast_checkout_step(w: World) -> YamlMap:
+    """The fast selector's one checkout step."""
+    found = [s for s in _job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+             if isinstance(s, dict) and _is_checkout_step(s)]
+    assert len(found) == 1, "fixture drift: no unique fast checkout step"
+    return found[0]
+
+
+def _fast_bdd_run_step(w: World) -> YamlMap:
+    """bdd-conformance's one `behave` step."""
+    found = [s for s in _job_steps(w, RTL_FAST, "bdd-conformance")
+             if "behave --no-capture" in step_text(s)]
+    assert len(found) == 1, "fixture drift: no unique BDD run step"
+    return found[0]
+
+
+def _fast_aggregate_job(w: World) -> YamlMap:
+    """The fast aggregate job `rtl-fast`."""
+    return jobs(w[RTL_FAST])["rtl-fast"]
+
+
+def _fast_verdict_step(w: World) -> YamlMap:
+    """The fast aggregate's one verdict step."""
+    ss = [s for s in _fast_aggregate_job(w).get("steps", [])
+          if isinstance(s, dict)]
+    assert len(ss) == 1, "fixture drift: fast aggregate is not one step"
+    return ss[0]
+
+
+def _m_fast_verdict_case_widened(w: World) -> None:
+    """The verdict's `case` widened to accept `failure`."""
+    s = _fast_verdict_step(w)
+    assert "success|skipped)" in s["run"], (
+        "fixture drift: no accept case in the fast verdict")
+    s["run"] = s["run"].replace("success|skipped)",
+                                "success|skipped|failure)", 1)
+
+
+def _m_fast_aggregate_forgets_bdd(w: World) -> None:
+    """bdd-conformance removed from the aggregate's `needs`, env and loop
+    consistently."""
+    # The whole trace of `bdd-conformance` removed from the aggregate
+    # consistently: the `needs` entry, the env binding and the loop pair,
+    # so the derived env and script agree with the shrunk `needs` and the
+    # only refusal left is the `needs` universe itself.
+    agg = _fast_aggregate_job(w)
+    assert "bdd-conformance" in agg["needs"], (
+        "fixture drift: the aggregate does not need bdd-conformance")
+    agg["needs"] = [n for n in agg["needs"] if n != "bdd-conformance"]
+    step = _fast_verdict_step(w)
+    del step["env"]["BDD_CONFORMANCE_RESULT"]
+    pair = '"bdd-conformance:$BDD_CONFORMANCE_RESULT"'
+    step["run"], n = re.subn(r"\s*" + re.escape(pair) + r" \\", "",
+                             step["run"])
+    assert n == 1, "fixture drift: no bdd pair line in the verdict loop"
+
+
+def _m_fast_new_unaggregated_job(w: World) -> None:
+    """A new fast job outside the aggregate's `needs`."""
+    jobs(w[RTL_FAST])["extra-check"] = {
+        "runs-on": "ubuntu-latest",
+        "steps": [{"run": "true"}],
+    }
+
+
+def _m_fast_lint_masquerades_as_aggregate(w: World) -> None:
+    """verilator-lint renamed to the public name `rtl-fast`."""
+    job = jobs(w[RTL_FAST])["verilator-lint"]
+    job["name"] = "rtl-fast"
+    job["if"] = FAST_AGGREGATE_JOB_IF
+
+
+def _m_fast_scope_publishes_false(w: World) -> None:
+    """The fast scope step exports a literal `rtl=false`."""
+    # The selector still self-tests and reads the real answer, but exports
+    # a literal false. Both RTL consumers skip and the aggregate passes.
+    scope = _fast_scope_step(w)
+    old = 'echo "rtl=$rtl" >> "$GITHUB_OUTPUT"'
+    assert old in scope["run"], "fixture drift: no fast rtl publication"
+    scope["run"] = scope["run"].replace(
+        old, 'echo "rtl=false" >> "$GITHUB_OUTPUT"', 1)
+
+
+def _m_fast_scope_unproven(w: World) -> None:
+    """The fast scope step's selector self-test replaced by `true`."""
+    scope = _fast_scope_step(w)
+    assert SELECTOR_SELFTEST in scope["run"], (
+        "fixture drift: fast scope does not self-test the selector")
+    scope["run"] = scope["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+
+def _m_fast_steps_swapped(w: World) -> None:
+    """The fast selector's checkout and scope steps swapped."""
+    ss = _job_steps(w, RTL_FAST, FAST_SELECTOR_JOB)
+    assert len(ss) == 2, "fixture drift: fast selector is not two steps"
+    ss[0], ss[1] = ss[1], ss[0]
+
+
+def _m_fast_checkout_shallow(w: World) -> None:
+    """Drop `fetch-depth` from the fast selector's checkout."""
+    del _fast_checkout_step(w)["with"]["fetch-depth"]
+
+
+def _m_fast_top_defaults(w: World) -> None:
+    """A workflow-level `defaults.run.shell` in rtl-fast.yml."""
+    w[RTL_FAST]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+
+
+def _m_fast_bdd_needs_expression(expression: str) -> Mutator:
+    """Put `expression` as the `if` of bdd-conformance's behave step."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _fast_bdd_run_step(w)["if"] = expression
+    return f
+
+
+def _m_worker_needs_dropped(w: World) -> None:
+    """verilator-shards loses its `needs`."""
+    del jobs(w[RTL_FULL])["verilator-shards"]["needs"]
+
+
+def _m_new_consumer_job(w: World) -> None:
+    """A new job that needs the gate and gates on nothing."""
+    # The perimeter closed under addition: a job that depends on the
+    # selector and carries no gate on its decision runs on every event.
+    jobs(w[RTL_FULL])["extra-worker"] = {
+        "needs": GATE_JOB,
+        "runs-on": "ubuntu-latest",
+        "steps": [{"run": "true"}],
+    }
+
+
+def _restate_shards(w: World, jid: str, value: str) -> None:
+    """Turn a derived denominator back into a literal, everywhere the job
+    states it: the display name, every script, every step env."""
+    job = jobs(w[RTL_FULL])[jid]
+    assert DERIVED_SHARD_TOTAL in job["name"], f"fixture drift: {jid} name"
+    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, value)
+    for st in steps(job):
+        if isinstance(st.get("run"), str):
+            st["run"] = st["run"].replace(DERIVED_SHARD_TOTAL, value)
+        env = st.get("env")
+        if isinstance(env, dict):
+            for k, v in list(env.items()):
+                if str(v).strip() == DERIVED_SHARD_TOTAL:
+                    env[k] = value
+
+
+def _m_shard_denominator_stale(w: World) -> None:
+    """O9: the Verilator matrix grows, the restated denominator does not."""
+    # O9: the matrix grows, the restated denominator does not.
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+    _restate_shards(w, "verilator-shards", "5")
+    shard.append(5)
+
+
+def _m_dedicated_worker_dropped(w: World) -> None:
+    """#444: milan_dp's own worker leaves the matrix, `total` stays five."""
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard[-1] == 4, "fixture drift: verilator-shards matrix"
+    shard.pop()
+
+
+def _m_dedicated_worker_reverted(w: World) -> None:
+    """#444: the matrix and its `total` return to four, `--expect` stays."""
+    matrix = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"]
+    assert matrix["shard"][-1] == 4, "fixture drift: verilator-shards matrix"
+    matrix["shard"].pop()
+    matrix["total"] = [4]
+
+
+def _ownership_step(w: World) -> YamlMap:
+    """The Verilator workers' ownership proof step."""
+    found = [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+             if s.get("name") == OWNERSHIP_STEP]
+    assert len(found) == 1, "fixture drift: no ownership proof step"
+    return found[0]
+
+
+def _m_ownership_dedicated_arm_dropped(w: World) -> None:
+    """#444: the proof that shard 4 runs milan_dp alone is deleted."""
+    s = _ownership_step(w)
+    arm = '4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;'
+    assert arm in s["run"], "fixture drift: no dedicated ownership arm"
+    s["run"] = "\n".join(l for l in s["run"].splitlines() if arm not in l)
+
+
+def _m_ownership_dedicated_arm_widened(w: World) -> None:
+    """#444: shard 4 need only include milan_dp, not run it alone."""
+    s = _ownership_step(w)
+    alone = 'test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp'
+    assert alone in s["run"], "fixture drift: no dedicated ownership arm"
+    s["run"] = s["run"].replace(
+        alone, 'grep -Fx milan_dp "$RUNNER_TEMP/owned-suites"')
+
+
+def _m_decide_docs_only_line_dropped(w: World) -> None:
+    """#444: the gate stops saying why both aggregates skip."""
+    s = _decide_step(w)
+    assert 'if [ "$rtl" = false ]; then' in s["run"], (
+        "fixture drift: no docs-only line in the decision step")
+    head, _, _ = s["run"].partition('if [ "$rtl" = false ]; then')
+    s["run"] = head
+
+
+def _m_aggregate_script(jid: str, name: str, old: str, new: str) -> Mutator:
+    """#444: replace `old` with `new` in one aggregate's judging script; an
+    empty `old` replaces the whole script."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, RTL_FULL, jid)
+                 if s.get("name") == name]
+        assert len(found) == 1 and old in found[0]["run"], (
+            f"fixture drift: `{name}` of `{jid}`")
+        found[0]["run"] = (found[0]["run"].replace(old, new) if old
+                           else new)
+    return f
+
+
+def _m_step_text(get: Callable[[World], YamlMap], old: str,
+                 new: str) -> Mutator:
+    """#444: replace `old` with `new` in the script of the step `get` finds."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = get(w)
+        assert old in step["run"], f"fixture drift: {old!r} is not in the step"
+        step["run"] = step["run"].replace(old, new)
+    return f
+
+
+#: #444 ([R197] F4, D2/D3/D23; [R198] N1, D6/D28): the three edits that read
+#: as whitespace and are not. bash joins a backslash-newline with nothing, so
+#: `!=\<LF>success` is the single word `!=success` and `[` answers "unary
+#: operator expected"; U+00A0 and U+2028 are ordinary characters to bash and
+#: word or line separators to Python. Each is planted on both worker-result
+#: steps, where the accepted script then exits 0 on a failed, cancelled or
+#: timed-out worker, and on the decision step, where it leaves
+#: `run_full=false` for a ready RTL pull request.
+_RESULT_INVISIBLES = (
+    ("a continuation inside its comparison", '!= success ]; then',
+     '!=\\\nsuccess ]; then', None),
+    ("a no-break space inside its comparison", '!= success',
+     '!= success', "U+00A0 NO-BREAK SPACE"),
+    ("a line separator before its exit", '>&2\n', '>&2 ',
+     "U+2028 LINE SEPARATOR"),
+)
+_DECIDE_INVISIBLES = (
+    ("a continuation inside its comparison", '[ "$rtl" = true ]',
+     '[ "$rtl" =\\\ntrue ]', None),
+    ("a no-break space inside its comparison", '[ "$rtl" = true ]',
+     '[ "$rtl" = true ]', "U+00A0 NO-BREAK SPACE"),
+    ("a line separator before its decision", "run_full=false\n",
+     "run_full=false ", "U+2028 LINE SEPARATOR"),
+)
+
+
+#: #444: judging the Verilator workers without the fifth. The combined
+#: result still reddens, but only when a log from workers 0 to 3 shows a
+#: failure, so a milan_dp TIMEOUT on shard 4 turns green.
+_FOUR_WORKER_RESULT = (
+    'if [ "$SHARD_RESULT" != success ]; then\n'
+    "  for shard in 0 1 2 3; do\n"
+    "    if grep -rqs -e TIMEOUT -e FAIL "
+    '"$RUNNER_TEMP/all-suite-logs/suite-logs-$shard"; then\n'
+    '      echo "one or more Verilator workers ended: $SHARD_RESULT" >&2\n'
+    "      exit 1\n"
+    "    fi\n"
+    "  done\n"
+    "fi\n"
+    'echo "verilator-suites: every worker succeeded at $GITHUB_SHA"\n')
+
+
+def _m_shard_total_missing(w: World) -> None:
+    """verilator-shards' matrix loses `total`."""
+    del jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "total"]
+
+
+def _m_shard_total_wrong(w: World) -> None:
+    """yosys-shards' matrix `total` disagrees with its shard list."""
+    jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"]["total"] = [3]
+
+
+def _m_shard_denominator_wrong(w: World) -> None:
+    """yosys-shards' denominator restated below its matrix size."""
+    _restate_shards(w, "yosys-shards", "3")
+
+
+def _m_shard_name_stale(w: World) -> None:
+    """verilator-shards' name restates a stale denominator."""
+    job = jobs(w[RTL_FULL])["verilator-shards"]
+    job["name"] = job["name"].replace(DERIVED_SHARD_TOTAL, "3")
+
+
+def _m_shard_matrix_include(w: World) -> None:
+    """verilator-shards' matrix gains an `include`."""
+    jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "include"
+    ] = [{"shard": 4, "total": 5}]
+
+
+def _m_shard_matrix_exclude(w: World) -> None:
+    """yosys-shards' matrix gains an `exclude`."""
+    jobs(w[RTL_FULL])["yosys-shards"]["strategy"]["matrix"][
+        "exclude"
+    ] = [{"shard": 3}]
+
+
+def _verify_step(w: World, jid: str) -> YamlMap:
+    """Job `jid`'s verifier step in rtl.yml."""
+    for s in steps(jobs(w[RTL_FULL])[jid]):
+        if VERIFY_FLAG in step_text(s):
+            return s
+    raise AssertionError(f"fixture drift: no verifier step in {jid}")
+
+
+def _m_drop_sha(jid: str, label: str) -> Mutator:
+    """Drop the `--sha label=...` argument from `jid`'s verifier."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        s = _verify_step(w, jid)
+        want = REQUIRED_SHA_ARGS[label]
+        assert want in s["run"], f"fixture drift: {want} not in {jid}"
+        s["run"] = s["run"].replace(want + " ", "").replace(want, "")
+    return f
+
+
+def _m_extra_sha(w: World) -> None:
+    """An unknown `--sha extra=` label on verilator-suites' verifier."""
+    s = _verify_step(w, "verilator-suites")
+    s["run"] = s["run"].replace(VERIFY_FLAG,
+                                VERIFY_FLAG + ' --sha extra="$GITHUB_SHA"')
+
+
+# The third-round escapes: keys beside a canonical script ([R1]).
+def _set_step_key(getter: Callable[[World], YamlMap], key: str,
+                  value: Any) -> Mutator:
+    """Set `key` to `value` on the step `getter` finds."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        getter(w)[key] = value
+    return f
+
+
+def _set_env_key(getter: Callable[[World], YamlMap], key: str,
+                 value: Any) -> Mutator:
+    """Bind `key` to `value` in the env of the step `getter` finds."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        getter(w)["env"][key] = value
+    return f
+
+
+def _set_job_key(jid: str, key: str, value: Any) -> Mutator:
+    """Set `key` to `value` on rtl.yml's job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[RTL_FULL])[jid][key] = value
+    return f
+
+
+def _m_top_defaults(w: World) -> None:
+    """A workflow-level `defaults.run.shell` in rtl.yml."""
+    w[RTL_FULL]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+
+
+def _m_verify_assigns_gate(w: World) -> None:
+    """verilator-suites' verifier reassigns GATE_SHA before the call."""
+    s = _verify_step(w, "verilator-suites")
+    s["run"] = 'GATE_SHA="$GITHUB_SHA"\n' + s["run"]
+
+
+def _m_verify_expect_wrong(w: World) -> None:
+    """yosys-portability's verifier passes `--expect 3` over four shards."""
+    s = _verify_step(w, "yosys-portability")
+    assert "--expect 4" in s["run"]
+    s["run"] = s["run"].replace("--expect 4", "--expect 3")
+
+
+def _m_verify_expect_missing(w: World) -> None:
+    """verilator-suites' verifier passes no `--expect`."""
+    s = _verify_step(w, "verilator-suites")
+    assert "--expect 5 " in s["run"]
+    s["run"] = s["run"].replace("--expect 5 ", "")
+
+
+def _m_matrix_grows_expect_stays(w: World) -> None:
+    """verilator-shards' matrix grows, the verifier's `--expect` does not."""
+    shard = jobs(w[RTL_FULL])["verilator-shards"]["strategy"]["matrix"][
+        "shard"]
+    assert shard == [0, 1, 2, 3, 4], "fixture drift: verilator-shards matrix"
+    shard.append(5)
+
+
+def _m_aggregate_if_loosened(w: World) -> None:
+    """verilator-suites' `if` loosened to `always()`."""
+    jobs(w[RTL_FULL])["verilator-suites"]["if"] = "${{ always() }}"
+
+
+def _m_aggregate_if_dropped(w: World) -> None:
+    """yosys-portability loses its `if`."""
+    del jobs(w[RTL_FULL])["yosys-portability"]["if"]
+
+
+def _m_aggregate_fail_open(w: World) -> None:
+    """verilator-suites' `if` skips when its selector fails."""
+    jobs(w[RTL_FULL])["verilator-suites"]["if"] = (
+        "${{ always() && !cancelled() && "
+        "needs.full-ci-gate.outputs.run_full == 'true' }}"
+    )
+
+
+def _va(w: World) -> YamlMap:
+    """verilator-suites' verifier step, for the key and env arms."""
+    return _verify_step(w, "verilator-suites")
+
+
+def _ya(w: World) -> YamlMap:
+    """yosys-portability's verifier step, for the key and env arms."""
+    return _verify_step(w, "yosys-portability")
+
+
+def _m_docs_no_check(w: World) -> None:
+    """docs.yml's `ci_events.py --check` replaced by `true`."""
+    for job in jobs(w[DOCS]).values():
+        for s in steps(job):
+            if "scripts/ci_events.py --check" in step_text(s):
+                s["run"] = s["run"].replace("scripts/ci_events.py --check",
+                                            "true")
+                return
+    raise AssertionError("fixture drift: docs.yml does not run --check")
+
+
+def _m_docs_no_selftest(w: World) -> None:
+    """docs.yml's `ci_events.py --selftest` replaced by `true`."""
+    for job in jobs(w[DOCS]).values():
+        for s in steps(job):
+            if "scripts/ci_events.py --selftest" in step_text(s):
+                s["run"] = s["run"].replace(
+                    "scripts/ci_events.py --selftest", "true")
+                return
+    raise AssertionError("fixture drift: docs.yml does not run --selftest")
+
+
+def _docs_act_selftest_step(w: World) -> YamlMap:
+    """docs-check's one act_ci.py self-test step."""
+    job = jobs(w[DOCS])["docs-check"]
+    found = [s for s in steps(job)
+             if tuple(normalize_script(
+                 s.get("run") if isinstance(s.get("run"), str) else ""
+             )) == (ACT_CI_SELFTEST,)]
+    assert len(found) == 1, (
+        "fixture drift: no unique act_ci.py self-test step")
+    return found[0]
+
+
+def _m_docs_no_act_selftest(w: World) -> None:
+    """The act_ci.py self-test step removed."""
+    job = jobs(w[DOCS])["docs-check"]
+    target = _docs_act_selftest_step(w)
+    job["steps"].remove(target)
+
+
+def _m_docs_act_selftest_key(key: str, value: Any) -> Mutator:
+    """Set `key` to `value` on the act_ci.py self-test step."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _docs_act_selftest_step(w)[key] = value
+    return mutate
+
+
+# #295: the gate steps of the non-RTL required contexts, their presence
+# in the id-named job, and the carriers' pinned step lists.
+def _m_gate_or_true(path: str, jid: str, needle: str) -> Mutator:
+    """`|| true` after the last command of the step of `jid` mentioning
+    `needle`."""
+    # `|| true` after the gate's own last command: every pinned key and
+    # name survives, the exit status does not.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid)
+                 if needle in step_text(s)]
+        assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+        found[0]["run"] = found[0]["run"].rstrip("\n") + " || true\n"
+    return f
+
+
+def _m_gate_line(path: str, jid: str, needle: str, old: str,
+                 new: str) -> Mutator:
+    """Rewrite `old` to `new` in the script of the step of `jid` mentioning
+    `needle`."""
+    # One line of a gate step's script rewritten.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid)
+                 if needle in step_text(s)]
+        assert len(found) == 1, f"fixture drift: {needle!r} in {jid}"
+        assert old in found[0]["run"], f"fixture drift: {old!r} absent"
+        found[0]["run"] = found[0]["run"].replace(old, new, 1)
+    return f
+
+
+def _m_named_gate_run(path: str, jid: str, name: str, run: str) -> Mutator:
+    """Replace the whole body of the step named `name` with `run`."""
+    def f(w: World) -> None:
+        """Apply the body swap to one in-memory world."""
+        found = [s for s in _job_steps(w, path, jid)
+                 if s.get("name") == name]
+        assert len(found) == 1, f"fixture drift: step {name!r} in {jid}"
+        found[0]["run"] = run
+    return f
+
+
+def _m_move_named_gate_body(path: str, jid: str, name: str,
+                            recipient: str) -> Mutator:
+    """Preserve the canonical commands elsewhere in the same pinned step
+    list while making the step whose name publishes the claim a stub."""
+    def f(w: World) -> None:
+        """Move the named body onto `recipient` and stub the named step."""
+        named = [s for s in _job_steps(w, path, jid)
+                 if s.get("name") == name]
+        recipients = [s for s in _job_steps(w, path, jid)
+                      if s.get("name") == recipient]
+        assert len(named) == len(recipients) == 1, "fixture drift: gate move"
+        recipients[0]["run"] = named[0]["run"]
+        named[0]["run"] = "true\n"
+    return f
+
+
+def _m_stub_job(path: str, jid: str) -> Mutator:
+    """The real body's id renamed away, a `run: true` stub under the required
+    id."""
+    # The [R3]-round-2 evasion measured on PR #293: the real body's id
+    # renamed away, a `run: true` stub under the required id. The id
+    # rule, the one-carrier rule and the key rule all pass; the gate
+    # step's presence (#295) does not.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        all_jobs = jobs(w[path])
+        all_jobs[jid + "-real"] = all_jobs.pop(jid)
+        all_jobs[jid] = {"runs-on": "ubuntu-latest",
+                         "steps": [{"run": "true"}]}
+    return f
+
+
+def _m_duplicate_mapping(path: str, jid: str) -> Mutator:
+    """What an appended duplicate `jid:` mapping parses to: the stub,
+    last-wins."""
+    # What an appended duplicate `<jid>:` mapping parses to: PyYAML
+    # keeps the LAST mapping, so the id-named job IS the stub while the
+    # file still shows the real body above it. The on-disk raw-text
+    # fixture in selftest() proves the parse; this arm proves the
+    # parsed world is refused.
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+                              "steps": [{"run": "true"}]}
+    return f
+
+
+def _elab_scope_step(w: World) -> YamlMap:
+    """elaborate's one scope step, by id."""
+    found = [s for s in _job_steps(w, ELABORATE, "elaborate")
+             if isinstance(s, dict)
+             and s.get("id") == ELAB_SCOPE_STEP_ID]
+    assert len(found) == 1, "fixture drift: no unique elaborate scope step"
+    return found[0]
+
+
+def _m_scope_step_removed(w: World) -> None:
+    """elaborate's scope step removed."""
+    _job_steps(w, ELABORATE, "elaborate").remove(_elab_scope_step(w))
+
+
+def _m_scope_publishes_false(w: World) -> None:
+    """elaborate's scope step exports a literal `rtl=false`."""
+    # The selector still self-tests and reads the real answer, but
+    # exports a literal false; every elaboration gate then skips.
+    s = _elab_scope_step(w)
+    old = ('echo "rtl=$(python3 scripts/ci_scope.py < '
+           '"$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"')
+    assert old in s["run"], "fixture drift: no scope rtl publication"
+    s["run"] = s["run"].replace(
+        old, 'echo "rtl=false" >> "$GITHUB_OUTPUT"', 1)
+
+
+def _m_scope_unproven(w: World) -> None:
+    """elaborate's scope step's selector self-test replaced by `true`."""
+    s = _elab_scope_step(w)
+    assert SELECTOR_SELFTEST in s["run"], (
+        "fixture drift: the elaborate scope step has no self-test")
+    s["run"] = s["run"].replace(SELECTOR_SELFTEST, "true", 1)
+
+
+def _m_scope_selftest_after_read(w: World) -> None:
+    """elaborate's scope self-test moved after the answer is read."""
+    s = _elab_scope_step(w)
+    line = SELECTOR_SELFTEST + "\n"
+    assert line in s["run"], "fixture drift: no scope self-test line"
+    s["run"] = (s["run"].replace(line, "", 1).rstrip("\n") + "\n"
+                + SELECTOR_SELFTEST + "\n")
+
+
+def _m_swap_steps(path: str, jid: str, i: int, j: int) -> Mutator:
+    """Swap steps `i` and `j` of job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        ss = _job_steps(w, path, jid)
+        assert len(ss) > max(i, j), "fixture drift: step list shrank"
+        ss[i], ss[j] = ss[j], ss[i]
+    return f
+
+
+def _m_rename_step(path: str, jid: str, old: str, new: str) -> Mutator:
+    """Rename the step of `jid` named `old` to `new`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid)
+                 if s.get("name") == old]
+        assert len(found) == 1, f"fixture drift: no step named {old!r}"
+        found[0]["name"] = new
+    return f
+
+
+def _m_with_key(path: str, jid: str, name: str, key: str,
+                value: Any) -> Mutator:
+    """Set `with.key` to `value` on the step of `jid` named `name`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        found = [s for s in _job_steps(w, path, jid)
+                 if s.get("name") == name]
+        assert len(found) == 1, f"fixture drift: no step named {name!r}"
+        found[0].setdefault("with", {})[key] = value
+    return f
+
+
+def _builder_fetch_step(w: World, path: str, jid: str) -> YamlMap:
+    """Job `jid`'s one builder submodule checkout step."""
+    found = [s for s in _job_steps(w, path, jid)
+             if "git submodule update --init" in
+             (s.get("run") if isinstance(s.get("run"), str) else "")]
+    assert len(found) == 1, (f"fixture drift: expected one builder "
+                             f"checkout in {path}:{jid}, found {len(found)}")
+    return found[0]
+
+
+def _builder_call_step(w: World, path: str, jid: str) -> YamlMap:
+    """Job `jid`'s one builder call step."""
+    found = [s for s in _job_steps(w, path, jid)
+             if BUILDER_CALL in
+             (s.get("run") if isinstance(s.get("run"), str) else "")]
+    assert len(found) == 1, (f"fixture drift: expected one builder call "
+                             f"in {path}:{jid}, found {len(found)}")
+    return found[0]
+
+
+def _m_builder_drop_submodule(path: str, jid: str, submodule: str) -> Mutator:
+    """Drop `submodule` from `jid`'s builder checkout."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        s = _builder_fetch_step(w, path, jid)
+        assert submodule in s["run"], (
+            f"fixture drift: {submodule} absent from {path}:{jid}")
+        s["run"] = s["run"].replace(" " + submodule, "")
+    return f
+
+
+def _m_builder_checkout_after_call(path: str, jid: str) -> Mutator:
+    """Move `jid`'s builder checkout after the builder call."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        ss = _job_steps(w, path, jid)
+        fetch = next(i for i, s in enumerate(ss)
+                     if "git submodule update --init" in
+                     (s.get("run") if isinstance(s.get("run"), str) else ""))
+        call = next(i for i, s in enumerate(ss)
+                    if BUILDER_CALL in
+                    (s.get("run") if isinstance(s.get("run"), str) else ""))
+        step = ss.pop(fetch)
+        if fetch < call:
+            call -= 1
+        ss.insert(call + 1, step)
+    return f
+
+
+def _m_builder_checkout_before_repo(path: str, jid: str) -> Mutator:
+    """Move `jid`'s builder checkout before the repository checkout."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        ss = _job_steps(w, path, jid)
+        fetch = next(i for i, s in enumerate(ss)
+                     if s is _builder_fetch_step(w, path, jid))
+        checkout = next(i for i, s in enumerate(ss)
+                        if uses(s, "actions/checkout"))
+        step = ss.pop(fetch)
+        if fetch < checkout:
+            checkout -= 1
+        ss.insert(checkout, step)
+    return f
+
+
+def _m_builder_checkout_key(path: str, jid: str, key: str,
+                            value: Any) -> Mutator:
+    """Set `key` to `value` on `jid`'s repository checkout step."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        checkout = next(s for s in _job_steps(w, path, jid)
+                        if uses(s, "actions/checkout"))
+        checkout[key] = value
+    return f
+
+
+def _m_builder_checkout_version(path: str, jid: str) -> Mutator:
+    """Pin `jid`'s repository checkout to `actions/checkout@v1`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        checkout = next(s for s in _job_steps(w, path, jid)
+                        if uses(s, "actions/checkout"))
+        checkout["uses"] = "actions/checkout@v1"
+    return f
+
+
+def _m_builder_decoy_env(path: str, jid: str) -> Mutator:
+    """Replace `jid`'s builder call with `true`, the call text kept in a
+    decoy env."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        s = _builder_call_step(w, path, jid)
+        line = next(line for line in BUILDER_RUNS[path]
+                    if BUILDER_CALL in line)
+        assert line in s["run"], f"fixture drift: {line!r} absent"
+        s["run"] = s["run"].replace(line, "true")
+        s["env"] = {"DECOY": BUILDER_CALL}
+    return f
+
+
+def _m_builder_continue_on_error(path: str, jid: str) -> Mutator:
+    """`continue-on-error` on `jid`'s builder call step."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _builder_call_step(w, path, jid)["continue-on-error"] = True
+    return f
+
+
+def _m_builder_job_defaults(path: str, jid: str) -> Mutator:
+    """A job-level `defaults.run.shell` on `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid]["defaults"] = {
+            "run": {"shell": "bash -n {0}"},
+        }
+    return f
+
+
+def _m_builder_top_defaults(path: str) -> Mutator:
+    """A workflow-level `defaults.run.shell` in `path`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        w[path]["defaults"] = {"run": {"shell": "bash -n {0}"}}
+    return f
+
+
+def _m_builder_both_if_false(w: World) -> None:
+    """elaborate's builder checkout and call both disabled by `if: false`."""
+    _builder_fetch_step(w, ELABORATE, "elaborate")["if"] = False
+    _builder_call_step(w, ELABORATE, "elaborate")["if"] = False
+
+
+def _sv2v_step(w: World, path: str, jid: str) -> YamlMap:
+    """Job `jid`'s one sv2v install step."""
+    found = [s for s in _job_steps(w, path, jid)
+             if "sv2v" in (s.get("run")
+                           if isinstance(s.get("run"), str) else "")]
+    assert len(found) == 1, (f"fixture drift: expected one sv2v install "
+                             f"in {path}:{jid}, found {len(found)}")
+    return found[0]
+
+
+def _m_sv2v_dropped(path: str, jid: str) -> Mutator:
+    """`jid`'s sv2v install step removed."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        ss = _job_steps(w, path, jid)
+        ss.remove(_sv2v_step(w, path, jid))
+    return f
+
+
+def _m_sv2v_unpinned(path: str, jid: str) -> Mutator:
+    """`jid`'s sv2v install moved off the v0.0.12 pin."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        s = _sv2v_step(w, path, jid)
+        assert "ver=v0.0.12" in s["run"], "fixture drift: pin absent"
+        s["run"] = s["run"].replace("ver=v0.0.12", "ver=v0.0.13")
+    return f
+
+
+def _m_sv2v_after_call(path: str, jid: str) -> Mutator:
+    """`jid`'s sv2v install moved after the builder call."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        ss = _job_steps(w, path, jid)
+        step = _sv2v_step(w, path, jid)
+        call = _builder_call_step(w, path, jid)
+        ss.remove(step)
+        ss.insert(ss.index(call) + 1, step)
+    return f
+
+
+def _m_sv2v_if_disabled(w: World) -> None:
+    """elaborate's sv2v install disabled by `if: false`."""
+    _sv2v_step(w, ELABORATE, "elaborate")["if"] = False
+
+
+# #245: the ooc.sh refusal self-test's step, by the three ways it was
+# shown to disappear undetected ([R-parallel] on PR #262).
+def _fast_ooc_job(w: World) -> YamlMap:
+    """rtl-fast.yml's ooc.sh self-test job."""
+    job = jobs(w[RTL_FAST]).get(OOC_SH_SELFTEST_JOB)
+    if job is None:
+        raise AssertionError("fixture drift: rtl-fast.yml has no "
+                             f"`{OOC_SH_SELFTEST_JOB}` job")
+    return job
+
+
+def _fast_ooc_index(job: YamlMap) -> int:
+    """The index of the ooc.sh self-test step in `job`."""
+    for i, s in enumerate(steps(job)):
+        if OOC_SH_SELFTEST in step_text(s):
+            return i
+    raise AssertionError("fixture drift: rtl-fast.yml does not run "
+                         "the ooc.sh self-test")
+
+
+def _m_ooc_selftest_removed(w: World) -> None:
+    """The ooc.sh self-test step removed."""
+    job = _fast_ooc_job(w)
+    job["steps"] = [s for s in steps(job)
+                    if OOC_SH_SELFTEST not in step_text(s)]
+
+
+def _m_ooc_selftest_neutralised(w: World) -> None:
+    """The ooc.sh self-test commented out behind `true`."""
+    job = _fast_ooc_job(w)
+    steps(job)[_fast_ooc_index(job)]["run"] = (
+        "true # " + OOC_SH_SELFTEST)
+
+
+def _m_ooc_selftest_fetch_drops_submodule(submodule: str) -> Mutator:
+    """Drop `submodule` from the ooc.sh job's submodule fetch."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        job = _fast_ooc_job(w)
+        for s in steps(job):
+            if OOC_SH_SUBMODULE_FETCH in step_text(s) \
+                    and submodule in step_text(s):
+                s["run"] = str(s["run"]).replace(" " + submodule, "")
+                return
+        raise AssertionError("fixture drift: rtl-fast.yml's ooc.sh job "
+                             f"does not fetch `{submodule}`")
+    return mutate
+
+
+def _m_ooc_selftest_before_fetch(w: World) -> None:
+    """The ooc.sh self-test moved before the submodule fetch."""
+    job = _fast_ooc_job(w)
+    slist = job["steps"]
+    slist.insert(0, slist.pop(_fast_ooc_index(job)))
+
+
+def _m_ooc_selftest_key(key: str, value: Any) -> Mutator:
+    """Set `key` to `value` on the ooc.sh self-test step."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        job = _fast_ooc_job(w)
+        steps(job)[_fast_ooc_index(job)][key] = value
+    return f
+
+
+def _rtl_trigger_arms() -> list[Arm]:
+    """rtl.yml's triggers: push, pull_request and its types, dispatch,
+    schedule and the page's cron statements, concurrency."""
+    return [
+        # rtl.yml triggers
+        ("rtl push on main, not dev", _m_push_main(RTL_FULL), "push must subscribe"),
+        ("rtl no pull_request", _m_drop_pr(RTL_FULL), "must subscribe pull_request"),
+        ("rtl PR type missing", _m_pr_type_missing(RTL_FULL), "pull_request.types"),
+        ("rtl PR type extra", _m_pr_type_extra(RTL_FULL), "pull_request.types"),
+        ("rtl no workflow_dispatch", _m_drop_dispatch, "workflow_dispatch"),
+        ("rtl dispatch with inputs", _m_dispatch_inputs, "no inputs"),
+        ("rtl no schedule", _m_drop_schedule, "exactly one cron"),
+        ("rtl two crons", _m_two_crons, "exactly one cron"),
+        ("rtl cron moved, page unchanged", _m_cron_moved, "cron's time"),
+        ("rtl cron not daily", _m_cron_shape, "daily"),
+        ("page states another time", _m_page_time, "cron's time"),
+        ("page states another cron string", _m_page_cron, "cron string"),
+        ("rtl cancel-in-progress false", _m_cancel_false(RTL_FULL),
+         "cancel-in-progress"),
+        ("rtl no concurrency block", _m_no_concurrency(RTL_FULL),
+         "cancel-in-progress"),
+    ]
+
+
+def _rtl_sha_arms() -> list[Arm]:
+    """rtl.yml's SHA contract: checkout `ref`, the gate's output and printout,
+    worker records, aggregate verifiers, the default-branch step's shape
+    and script, and the three `--sha` sources."""
+    return [
+        # rtl.yml SHA contract
+        ("rtl checkout overrides ref", _m_checkout_ref, "must not override `ref`"),
+        ("rtl checkout ref via expression", _m_checkout_ref_deep,
+         "must not override `ref`"),
+        ("rtl gate drops target_sha output", _m_drop_gate_output,
+         f"missing: {GATE_OUTPUT}"),
+        ("rtl gate prints nothing", _m_gate_silent, "print the event name"),
+        ("rtl Verilator worker records nothing", _m_worker_no_record,
+         f"write GITHUB_SHA into {RECORD}"),
+        ("rtl Yosys worker records nothing", _m_yosys_no_record,
+         f"write GITHUB_SHA into {RECORD}"),
+        ("rtl record written after the upload", _m_record_after_upload,
+         f"write GITHUB_SHA into {RECORD}"),
+        ("rtl verilator-suites skips the verifier", _m_aggregate_no_verify,
+         VERIFY_FLAG),
+        ("rtl yosys-portability skips the verifier",
+         _m_yosys_aggregate_no_verify, VERIFY_FLAG),
+        ("rtl aggregate no longer needs the gate", _m_aggregate_without_gate,
+         f"must need `{GATE_JOB}`"),
+        ("rtl artifact aggregates can initialize concurrently",
+         _m_artifact_aggregates_race, "concurrent first-use download actions"),
+        ("rtl default-branch step removed", _m_db_step_removed,
+         "exactly one step"),
+        ("rtl default-branch step without GH_TOKEN", _m_db_token_missing,
+         "GH_TOKEN"),
+        ("rtl default-branch step reads nothing live", _m_db_no_live_read,
+         "gh api"),
+        ("rtl default-branch step without the event", _m_db_event_not_passed,
+         "--event"),
+        ("rtl default-branch step neutered by continue-on-error",
+         _m_db_continue_on_error, "fail closed"),
+        ("rtl default-branch step neutered by || true", _m_db_or_true,
+         "fail closed"),
+        ("rtl default-branch decoy: observed=dev beside gh api in `if false`",
+         _m_db_decoy_if_false, "not sourced from the live API call"),
+        ("rtl default-branch decoy: control flow around the live read",
+         _m_db_decoy_if_false, "unconditionally"),
+        ("rtl default-branch literal observed=dev after the real call",
+         _m_db_literal_after_call, "exactly once (found 2)"),
+        ("rtl default-branch literal observed=dev after the real read",
+         _m_db_literal_after_read, "exactly once (found 2)"),
+        ("rtl default-branch gh api inside a comment only",
+         _m_db_gh_api_in_comment, "not sourced from the live API call"),
+        ("rtl default-branch comment line in the script",
+         _m_db_gh_api_in_comment, "no comment lines"),
+        ("rtl default-branch observed from a different command",
+         _m_db_other_command, "not sourced from the live API call"),
+        ("rtl default-branch two observed assignments",
+         _m_db_two_assignments, "exactly once (found 2)"),
+        ("rtl default-branch verifier called before the read",
+         _m_db_call_before_read, "must follow the live read"),
+        ("rtl default-branch script with an extra line", _m_db_extra_line,
+         "not the canonical form"),
+        ("rtl default-branch script without set -euo pipefail", _m_db_no_set,
+         "not the canonical form"),
+        ("rtl verilator-suites drops --sha gate",
+         _m_drop_sha("verilator-suites", "gate"), "missing: gate"),
+        ("rtl verilator-suites drops --sha run",
+         _m_drop_sha("verilator-suites", "run"), "missing: run"),
+        ("rtl verilator-suites drops --sha checkout",
+         _m_drop_sha("verilator-suites", "checkout"), "missing: checkout"),
+        ("rtl yosys-portability drops --sha gate",
+         _m_drop_sha("yosys-portability", "gate"), "missing: gate"),
+        ("rtl yosys-portability drops --sha run",
+         _m_drop_sha("yosys-portability", "run"), "missing: run"),
+        ("rtl yosys-portability drops --sha checkout",
+         _m_drop_sha("yosys-portability", "checkout"), "missing: checkout"),
+        ("rtl verilator-suites passes an unknown --sha label", _m_extra_sha,
+         "unknown: extra"),
+    ]
+
+
+def _gate_escape_arms() -> list[Arm]:
+    """[R1] third round: keys beside a canonical script - `if`, `shell`,
+    `continue-on-error`, `defaults`, a surplus env name - on the assert
+    step, the verifier steps and the aggregate jobs, and `--expect`."""
+    return [
+        # [R1] third round: escapes beside the script.
+        ("E9 assert step if: false", _set_step_key(_db_step, "if", False),
+         "must carry no `if`"),
+        ("E10 assert step if: pull_request only",
+         _set_step_key(_db_step, "if", "${{ github.event_name == 'pull_request' }}"),
+         "must carry no `if`"),
+        ("E11 assert step shell: bash -n",
+         _set_step_key(_db_step, "shell", "bash -n {0}"), "must carry no `shell`"),
+        ("E12 full-ci-gate continue-on-error",
+         _set_job_key(GATE_JOB, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("E13 full-ci-gate if: not schedule",
+         _set_job_key(GATE_JOB, "if", "${{ github.event_name != 'schedule' }}"),
+         "must carry no `if`"),
+        ("E14 assert step env GH_HOST",
+         _set_env_key(_db_step, "GH_HOST", "example.invalid"), "surplus: GH_HOST"),
+        ("E14b assert step env GH_CONFIG_DIR",
+         _set_env_key(_db_step, "GH_CONFIG_DIR", "/tmp/gh"), "surplus: GH_CONFIG_DIR"),
+        ("E17 full-ci-gate defaults.run.shell bash -n",
+         _set_job_key(GATE_JOB, "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+        ("workflow-level defaults.run.shell", _m_top_defaults,
+         "no top-level `defaults`"),
+        ("assert step extra key working-directory",
+         _set_step_key(_db_step, "working-directory", "/tmp"),
+         "surplus: working-directory"),
+        ("assert step continue-on-error",
+         _set_step_key(_db_step, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("S8 verilator-suites verifier if: false", _set_step_key(_va, "if", False),
+         "`if` must be exactly"),
+        ("yosys-portability verifier if: pull_request only",
+         _set_step_key(_ya, "if", "${{ github.event_name == 'pull_request' }}"),
+         "`if` must be exactly"),
+        ("verifier step shell: bash -n", _set_step_key(_ya, "shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("verifier step continue-on-error",
+         _set_step_key(_va, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("verifier step env GITHUB_SHA override",
+         _set_env_key(_va, "GITHUB_SHA", "0" * 40), "surplus: GITHUB_SHA"),
+        ("S5 verifier script reassigns GATE_SHA", _m_verify_assigns_gate,
+         "not the canonical form"),
+        ("R4 verifier --expect disagrees with the matrix", _m_verify_expect_wrong,
+         "--expect 4"),
+        ("R4 verifier without --expect", _m_verify_expect_missing,
+         "no --expect"),
+        ("R4 matrix grows, --expect stays", _m_matrix_grows_expect_stays,
+         "--expect 6"),
+        ("aggregate job if loosened", _m_aggregate_if_loosened,
+         "`if` must be exactly"),
+        ("aggregate job if dropped", _m_aggregate_if_dropped,
+         "documented `if`"),
+        ("aggregate skips when its selector fails", _m_aggregate_fail_open,
+         "`if` must be exactly"),
+        ("aggregate job continue-on-error",
+         _set_job_key("verilator-suites", "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("aggregate job defaults.run.shell",
+         _set_job_key("yosys-portability", "defaults",
+                     {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+    ]
+
+
+def _gate_condition_arms() -> list[Arm]:
+    """#209: the conditions under which the gate job and its steps run at
+    all - `needs`, step order and count, step keys - and O15/O16, the
+    decision step's env bindings and script."""
+    return [
+        # #209: the conditions under which the gate job and its steps run.
+        ("O1 full-ci-gate needs a job that skips on schedule",
+         _m_gate_needs_a_skippable_job, "must carry no `needs`"),
+        ("O10 decision step if: false",
+         _set_step_key(_decide_step, "if", False), "must carry no `if`"),
+        ("O10b decision step if: pull_request only",
+         _set_step_key(_decide_step, "if",
+                      "${{ github.event_name == 'pull_request' }}"),
+         "must carry no `if`"),
+        ("O13 pin step if: false", _set_step_key(_pin_step, "if", False),
+         "must carry no `if`"),
+        ("O13b pin step continue-on-error",
+         _set_step_key(_pin_step, "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O14 assert step moved before the checkout", _m_assert_before_checkout,
+         "step 1 must be the gate checkout step"),
+        ("O6 a GITHUB_PATH step inserted before the assertion",
+         _m_gate_extra_path_step, "must carry exactly 5 steps"),
+        ("gate pin step removed", _m_pin_step_removed,
+         "must carry exactly 5 steps"),
+        ("gate pin and assert steps swapped", _m_pin_and_assert_swapped,
+         "step 2 must be the pin step"),
+        ("gate checkout without fetch-depth: 0", _m_checkout_shallow,
+         "fetch-depth: 0"),
+        ("decision step shell: bash -n",
+         _set_step_key(_decide_step, "shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("decision step working-directory",
+         _set_step_key(_decide_step, "working-directory", "/tmp"),
+         "surplus: working-directory"),
+        ("decision step loses PR_BASE_SHA", _m_decide_env_missing,
+         "missing: PR_BASE_SHA"),
+        # #209 O15/O16: the decision step's env bound to another source, and
+        # its script rewritten, each leaving every pinned name and key alone.
+        ("O15 decision step PR_DRAFT forced true",
+         _set_env_key(_decide_step, "PR_DRAFT", "true"),
+         "must bind `PR_DRAFT`"),
+        ("O15b decision step PR_BASE_SHA rebound to this run's own SHA",
+         _set_env_key(_decide_step, "PR_BASE_SHA", "${{ github.sha }}"),
+         "must bind `PR_BASE_SHA`"),
+        ("O15c decision step EVENT_NAME hard-coded to pull_request",
+         _set_env_key(_decide_step, "EVENT_NAME", "pull_request"),
+         "must bind `EVENT_NAME`"),
+        ("O15d assert step GH_TOKEN rebound to another token",
+         _set_env_key(_db_step, "GH_TOKEN", "${{ secrets.OTHER_TOKEN }}"),
+         "must bind `GH_TOKEN`"),
+        ("O15e verifier step GATE_SHA rebound to its own run",
+         _set_env_key(_va, "GATE_SHA", "${{ github.sha }}"),
+         "must bind `GATE_SHA`"),
+        ("O16 decision script publishes the no-op decision always",
+         _m_decide_script_no_op, "decision step script is not the canonical"),
+        ("O16b decision script drops the selector's self-test",
+         _m_decide_script_unproven_selector,
+         "before it reads the selector's answer"),
+        ("O11 full-ci-gate job env GH_HOST", _m_gate_env_gh_host,
+         "must name no `GH_*`"),
+        ("O12 workflow-level env GH_HOST", _m_workflow_env_gh_host,
+         "must name no `GH_*`"),
+    ]
+
+
+def _publication_path_arms() -> list[Arm]:
+    """#209 O17-O20: the selector's outputs map held by content, the consumers
+    of its decision, and the same path in the fast workflow (O19)."""
+    return [
+        # #209 O17: the gate's published outputs map, held by content. Each
+        # arm keeps every pinned step key, env binding and script character.
+        ("O17 gate exports run_full as the literal 'false'",
+         _m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17b gate stops exporting run_full at all",
+         _m_output_dropped(RTL_FULL, RUN_FULL_OUTPUT),
+         f"missing: {RUN_FULL_OUTPUT}"),
+        ("O17c gate exports run_full from the scope answer instead",
+         _m_output_rebound(RTL_FULL, RUN_FULL_OUTPUT,
+                          step_output_ref(DECIDE_STEP_ID, RTL_OUTPUT)),
+         f"must bind `{RUN_FULL_OUTPUT}`"),
+        ("O17d gate exports rtl as the literal 'false'",
+         _m_output_rebound(RTL_FULL, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O17e gate stops exporting rtl", _m_output_dropped(RTL_FULL,
+                                                           RTL_OUTPUT),
+         f"missing: {RTL_OUTPUT}"),
+        ("O17f gate exports target_sha from the run instead of the pin step",
+         _m_output_rebound(RTL_FULL, GATE_OUTPUT, "${{ github.sha }}"),
+         f"must bind `{GATE_OUTPUT}`"),
+        ("O17g gate exports no outputs map at all", _m_outputs_map_dropped,
+         f"missing: {RUN_FULL_OUTPUT}, {RTL_OUTPUT}, {GATE_OUTPUT}"),
+        ("O17h gate exports a surplus output", _m_output_surplus,
+         "surplus: shadow"),
+        # #209 O18: the consumers of that decision.
+        ("O18 a worker gates on an output nobody publishes",
+         _set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_ful == 'true' }}"),
+         "must publish"),
+        ("O18b a worker gates on if: false",
+         _set_job_if(RTL_FULL, "yosys-shards", False), "`if` must be exactly"),
+        ("O18c a worker compares the decision with a value it never takes",
+         _set_job_if(RTL_FULL, "verilator-shards",
+                    "${{ needs.full-ci-gate.outputs.run_full == 'nope' }}"),
+         "`if` must be exactly"),
+        ("O18d a worker turns its own failure into a pass",
+         _set_job_key("verilator-shards", "continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("O18e a worker reads the decision without needing the gate",
+         _m_worker_needs_dropped, f"must list `{GATE_JOB}` in its `needs`"),
+        ("O18f a worker parses every script instead of running it",
+         _set_job_key("yosys-shards", "defaults",
+                     {"run": {"shell": "bash -n {0}"}}),
+         "must carry no `defaults`"),
+        ("O20 a new job depends on the gate and gates on nothing",
+         _m_new_consumer_job, "documented `if`"),
+        # #209 O19: the same publication path in the fast workflow, whose
+        # aggregate counts a skipped consumer as a pass.
+        ("O19 fast selector exports rtl as the literal 'false'",
+         _m_output_rebound(RTL_FAST, RTL_OUTPUT, "${{ 'false' }}"),
+         f"must bind `{RTL_OUTPUT}`"),
+        ("O19b fast selector stops exporting rtl",
+         _m_output_dropped(RTL_FAST, RTL_OUTPUT), f"missing: {RTL_OUTPUT}"),
+        ("O19c a fast consumer gates on an output nobody publishes",
+         _set_job_if(RTL_FAST, "verilator-lint",
+                    "${{ needs.changes.outputs.rt == 'true' }}"),
+         "must publish"),
+        ("O19d a fast consumer gates on if: false",
+         _set_job_if(RTL_FAST, "yosys-elaboration", False),
+         "`if` must be exactly"),
+    ]
+
+
+def _fast_selector_arms() -> list[Arm]:
+    """#209 O21/O22: the fast selector must run and publish what it computed,
+    and every spelling of a `needs` context is audited."""
+    return [
+        # #209 O21: the producer of the fast answer must run and publish the
+        # value it computed. Each arm leaves the selector output map and both
+        # consumer conditions canonical while making their jobs skip.
+        ("O21 fast selector job if: false",
+         _set_job_if(RTL_FAST, FAST_SELECTOR_JOB, False),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `if`"),
+        ("O21b fast scope step if: false",
+         _set_step_key(_fast_scope_step, "if", False),
+         "fast selector scope step must carry no `if`"),
+        ("O21c fast scope publishes literal rtl=false",
+         _m_fast_scope_publishes_false,
+         "fast selector scope script is not the canonical form"),
+        ("O21d fast scope drops the selector self-test",
+         _m_fast_scope_unproven,
+         "before it reads the selector's answer"),
+        ("O21e fast scope EVENT_NAME rebound to pull_request",
+         _set_env_key(_fast_scope_step, "EVENT_NAME", "pull_request"),
+         "fast selector scope step env must bind `EVENT_NAME`"),
+        ("O21f fast selector continue-on-error",
+         _set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB,
+                        "continue-on-error", True),
+         f"job `{FAST_SELECTOR_JOB}` must carry no `continue-on-error`"),
+        ("O21g fast selector scope runs before checkout",
+         _m_fast_steps_swapped,
+         "steps must be exactly `actions/checkout@v4`"),
+        ("O21h fast selector checkout is shallow",
+         _m_fast_checkout_shallow,
+         "fast selector checkout `with` must be exactly fetch-depth"),
+        ("O21i fast workflow parses selector scripts instead of running",
+         _m_fast_top_defaults,
+         "fast workflow must carry no top-level `defaults`"),
+        # #209 O22: GitHub permits index and mixed property syntax for the
+        # same needs context. These expressions sit on the otherwise
+        # independent BDD job so only the closed reference audit can catch
+        # them; the ordinary consumer-if comparison is not involved.
+        ("O22 bracket needs reference names an unpublished output",
+         _m_fast_bdd_needs_expression(
+             "${{ needs['changes'].outputs.bogus == 'true' }}"),
+         "must publish"),
+        ("O22b all-bracket needs reference omits its dependency",
+         _m_fast_bdd_needs_expression(
+             "${{ needs['changes']['outputs']['rtl'] == 'true' }}"),
+         "must list `changes` in its `needs`"),
+        ("O22c mixed needs reference names an unpublished output",
+         _m_fast_bdd_needs_expression(
+             "${{ needs.changes['outputs'].bogus == 'true' }}"),
+         "must publish"),
+        ("O22d dynamic needs reference cannot evade static audit",
+         _m_fast_bdd_needs_expression(
+             "${{ needs[format('{0}', 'changes')].outputs.rtl == 'true' }}"),
+         "cannot resolve statically"),
+    ]
+
+
+def _fast_verdict_arms() -> list[Arm]:
+    """[R2] O23-O28: the fast verdict step, the aggregate's `needs` universe,
+    a held contributor, `.result` reads, a second carrier of the public
+    name, and a job-level env on the selector."""
+    return [
+        # [R2] O23: the fast aggregate's verdict step, the one conversion of
+        # four job results into the required context. Each arm leaves every
+        # job key and the selector's whole publication path canonical.
+        ("O23 fast verdict step if: false",
+         _set_step_key(_fast_verdict_step, "if", False),
+         "verdict step must carry no `if`"),
+        ("O23b fast verdict lint result rebound to the literal success",
+         _set_env_key(_fast_verdict_step, "VERILATOR_LINT_RESULT", "success"),
+         "must bind `VERILATOR_LINT_RESULT`"),
+        ("O23c fast verdict case widened to accept failure",
+         _m_fast_verdict_case_widened,
+         "verdict step script is not the canonical form"),
+        ("O23d fast verdict step continue-on-error",
+         _set_step_key(_fast_verdict_step, "continue-on-error", True),
+         "verdict step must carry no `continue-on-error`"),
+        ("O23e fast verdict step shell: bash -n",
+         _set_step_key(_fast_verdict_step, "shell", "bash -n {0}"),
+         "verdict step must carry no `shell`"),
+        # [R2] O24: the aggregate's `needs` universe. Membership in that list
+        # is what puts a fast job's result inside the verdict at all.
+        ("O24 fast aggregate drops bdd-conformance from its verdict",
+         _m_fast_aggregate_forgets_bdd, "missing: bdd-conformance"),
+        ("O24b a new fast job lands outside the aggregate's needs",
+         _m_fast_new_unaggregated_job, "missing: extra-check"),
+        # [R2] O25: a gate contributor that does not need the selector,
+        # exactly bdd-conformance's shape, held to run as written.
+        ("O25 bdd-conformance job if: false",
+         _set_job_if(RTL_FAST, "bdd-conformance", False),
+         "job `bdd-conformance` must carry no `if`"),
+        ("O25b bdd-conformance continue-on-error",
+         _set_job_key_at(RTL_FAST, "bdd-conformance",
+                        "continue-on-error", True),
+         "job `bdd-conformance` must carry no `continue-on-error`"),
+        ("O25c bdd-conformance defaults.run.shell bash -n",
+         _set_job_key_at(RTL_FAST, "bdd-conformance", "defaults",
+                        {"run": {"shell": "bash -n {0}"}}),
+         "job `bdd-conformance` must carry no `defaults`"),
+        # [R2] O26: a `.result` chain read from a job outside `needs` is the
+        # same empty string O22 refuses for `.outputs.`, in the spelling the
+        # fast verdict itself uses four lines from its accept case.
+        ("O26 a .result read from a job outside needs",
+         _m_fast_bdd_needs_expression(
+             "${{ needs.changes.result == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        ("O26b the bracket spelling of the same .result read",
+         _m_fast_bdd_needs_expression(
+             "${{ needs['changes']['result'] == 'success' }}"),
+         "must list `changes` in its `needs`"),
+        # [R2] O27: the public required name carried by a second job.
+        ("O27 verilator-lint renamed to the public name rtl-fast",
+         _m_fast_lint_masquerades_as_aggregate,
+         "carried by exactly one job"),
+        # [R2] O28: a job-level env on the fast selector reaches the scope
+        # script without appearing in the pinned step.
+        ("O28 fast selector job-level env EVENT_NAME literal",
+         _set_job_key_at(RTL_FAST, FAST_SELECTOR_JOB, "env",
+                        {"EVENT_NAME": "pull_request"}),
+         "must carry no `env`"),
+    ]
+
+
+def _aggregate_script_arms() -> list[Arm]:
+    """#444 ([R197] F1, [R198] F1): each exhaustive aggregate's tally and
+    worker-result scripts, the only steps that carry a failed or timed-out
+    worker into the required context."""
+    return [
+        ("#444 the Verilator worker-result step only echoes",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
+                             'echo "verilator-suites: every worker '
+                             'succeeded at $GITHUB_SHA"\n'),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step also tolerates failure",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
+                             '[ "$SHARD_RESULT" != success ]',
+                             '[ "$SHARD_RESULT" != success ] && '
+                             '[ "$SHARD_RESULT" != failure ]'),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step exits 0 on a failed worker",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP,
+                             "exit 1", "exit 0"),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator worker-result step judges workers 0 to 3 only",
+         _m_aggregate_script("verilator-suites", VERILATOR_RESULT_STEP, "",
+                             _FOUR_WORKER_RESULT),
+         f"`{VERILATOR_RESULT_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator tally globs workers 0 to 3 only",
+         _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP,
+                             "suite-logs-*)", "suite-logs-[0-3])"),
+         f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
+        ("#444 the Verilator tally is replaced by true",
+         _m_aggregate_script("verilator-suites", VERILATOR_TALLY_STEP, "",
+                             "true\n"),
+         f"`{VERILATOR_TALLY_STEP}` step script of `verilator-suites`"),
+        ("#444 the Yosys worker-result step only echoes",
+         _m_aggregate_script("yosys-portability", YOSYS_RESULT_STEP, "",
+                             'echo "yosys-portability: every worker '
+                             'succeeded at $GITHUB_SHA"\n'),
+         f"`{YOSYS_RESULT_STEP}` step script of `yosys-portability`"),
+        ("#444 the Yosys worker-result step also tolerates failure",
+         _m_aggregate_script("yosys-portability", YOSYS_RESULT_STEP,
+                             '[ "$SHARD_RESULT" != success ]',
+                             '[ "$SHARD_RESULT" != success ] && '
+                             '[ "$SHARD_RESULT" != failure ]'),
+         f"`{YOSYS_RESULT_STEP}` step script of `yosys-portability`"),
+        ("#444 the Yosys reconcile step drops --require-structural",
+         _m_aggregate_script("yosys-portability", YOSYS_TALLY_STEP,
+                             "--require-structural", ""),
+         f"`{YOSYS_TALLY_STEP}` step script of `yosys-portability`"),
+    ] + _invisible_whitespace_arms()
+
+
+def _invisible_whitespace_arms() -> list[Arm]:
+    """#444 ([R197] F4, [R198] N1): an edit that normalizes away under
+    Python's notion of whitespace but changes what bash executes. Each is
+    planted on both worker-result steps and on the decision step, and the
+    arm names the character the contract refuses, or the line that moved
+    when the character is a legitimate continuation."""
+    arms: list[Arm] = []
+    for jid, name, kind in (("verilator-suites", VERILATOR_RESULT_STEP,
+                             "Verilator"),
+                            ("yosys-portability", YOSYS_RESULT_STEP, "Yosys")):
+        for title, old, new, refused in _RESULT_INVISIBLES:
+            arms.append((f"#444 the {kind} worker-result step carries {title}",
+                         _m_aggregate_script(jid, name, old, new),
+                         refused or f"`{name}` step script of `{jid}`"))
+    for title, old, new, refused in _DECIDE_INVISIBLES:
+        arms.append((f"#444 the decision step carries {title}",
+                     _m_step_text(_decide_step, old, new),
+                     refused
+                     or "the decision step script is not the canonical form"))
+    # [R198] N2: the changed-path list each classifier-gated workflow builds
+    # must name both sides of a rename, so a gate-read file renamed to a
+    # documentation path cannot classify as docs-only.
+    for title, get, want in (
+            ("the decision step", _decide_step,
+             "the decision step script is not the canonical form"),
+            ("the fast selector scope step", _fast_scope_step,
+             "the fast selector scope script is not the canonical form"),
+            ("the elaborate scope step", _elab_scope_step,
+             "the elaborate scope step script is not the canonical form")):
+        arms.append((f"#444 {title} detects renames in its changed-path list",
+                     _m_step_text(get, "git diff --no-renames --name-only",
+                                  "git diff --name-only"), want))
+    return arms
+
+
+def _shard_and_fast_arms() -> list[Arm]:
+    """#209 O9 / #268's shard denominator, rtl.yml's public names, rtl-fast.yml's
+    triggers and name, and #245's ooc.sh self-test step."""
+    return [
+        # #209 O9 / #268: the portable matrix carrier is mandatory, equals
+        # the shard-list size, and every consumer derives from it.
+        ("O9 matrix total carrier is missing", _m_shard_total_missing,
+         "shard denominator matrix `total`"),
+        ("O9a matrix total disagrees with the shard list", _m_shard_total_wrong,
+         "shard denominator matrix `total`"),
+        ("O9 verilator matrix grows, the denominator is a literal",
+         _m_shard_denominator_stale, "shard denominator"),
+        ("O9b yosys denominator below its matrix size",
+         _m_shard_denominator_wrong, "shard denominator"),
+        ("O9c a worker name restates a stale denominator", _m_shard_name_stale,
+         "name: the shard denominator"),
+        ("O9d sharded matrix adds an include expansion", _m_shard_matrix_include,
+         "must not define `include` or `exclude`"),
+        ("O9e sharded matrix excludes a worker", _m_shard_matrix_exclude,
+         "must not define `include` or `exclude`"),
+        # #444: milan_dp's dedicated fifth worker, its run-time proof and the
+        # gate's docs-only line are each refused when removed.
+        ("#444 the dedicated milan_dp worker leaves the matrix",
+         _m_dedicated_worker_dropped, "shard denominator matrix `total`"),
+        ("#444 the matrix and total return to four, --expect stays",
+         _m_dedicated_worker_reverted, "--expect 4"),
+        ("#444 ownership proof loses the dedicated milan_dp arm",
+         _m_ownership_dedicated_arm_dropped,
+         f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
+        ("#444 ownership proof widens the dedicated arm to membership",
+         _m_ownership_dedicated_arm_widened,
+         f"`{OWNERSHIP_STEP}` step script is not the canonical form"),
+        ("#444 the gate stops saying why the aggregates skip",
+         _m_decide_docs_only_line_dropped,
+         "the decision step script is not the canonical form"),
+        ("rtl public name verilator-suites renamed",
+         _m_rename_job(RTL_FULL, "verilator-suites"), "`verilator-suites`"),
+        ("rtl public name yosys-portability renamed",
+         _m_rename_job(RTL_FULL, "yosys-portability"), "`yosys-portability`"),
+        # rtl-fast.yml
+        ("fast push on main, not dev", _m_push_main(RTL_FAST), "push must subscribe"),
+        ("fast PR type missing", _m_pr_type_missing(RTL_FAST), "pull_request.types"),
+        ("fast cancel-in-progress false", _m_cancel_false(RTL_FAST),
+         "cancel-in-progress"),
+        ("fast public name rtl-fast renamed", _m_rename_job(RTL_FAST, "rtl-fast"),
+         "`rtl-fast`"),
+        # #245: the ooc.sh refusal self-test's pinned invocation.
+        ("#245 ooc.sh self-test step removed", _m_ooc_selftest_removed,
+         "exactly one step must run"),
+        ("#245 ooc.sh self-test neutralised", _m_ooc_selftest_neutralised,
+         "exactly one step must run"),
+        ("#245 ooc.sh self-test before the submodule fetch",
+         _m_ooc_selftest_before_fetch, "must run after a"),
+        ("#245 ooc.sh self-test fetch stops naming protocol-processor",
+         _m_ooc_selftest_fetch_drops_submodule("protocol-processor"),
+         "must run after a"),
+        ("#245 ooc.sh self-test fetch stops naming gptp-processor",
+         _m_ooc_selftest_fetch_drops_submodule("gptp-processor"),
+         "must run after a"),
+        ("#245 ooc.sh self-test disabled by if: false",
+         _m_ooc_selftest_key("if", False), "beyond name/run"),
+        ("#245 ooc.sh self-test failure swallowed by continue-on-error",
+         _m_ooc_selftest_key("continue-on-error", True), "beyond name/run"),
+        ("#245 ooc.sh self-test reinterpreted by shell: bash -n",
+         _m_ooc_selftest_key("shell", "bash -n {0}"), "beyond name/run"),
+    ]
+
+
+def _docs_builder_arms() -> list[Arm]:
+    """docs.yml: triggers, the two ci_events runs, the act self-test step, and
+    the builder's checkout, submodules, call and sv2v install."""
+    return [
+        # docs.yml
+        ("docs push on main, not dev", _m_push_main(DOCS), "push must subscribe"),
+        ("docs no pull_request", _m_drop_pr(DOCS), "must subscribe pull_request"),
+        ("docs does not run --check", _m_docs_no_check, "--check"),
+        ("docs does not run --selftest", _m_docs_no_selftest, "--selftest"),
+        ("docs drops the local act runner self-test",
+         _m_docs_no_act_selftest, ACT_CI_SELFTEST),
+        ("docs disables the local act runner self-test",
+         _m_docs_act_selftest_key("if", False), "must carry no `if`"),
+        ("docs swallows a local act runner self-test failure",
+         _m_docs_act_selftest_key("continue-on-error", True),
+         "must carry no `continue-on-error`"),
+        ("docs only parses the local act runner self-test",
+         _m_docs_act_selftest_key("shell", "bash -n {0}"),
+         "must carry no `shell`"),
+        ("docs builder omits verilog-axis",
+         _m_builder_drop_submodule(DOCS, "docs-check",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("docs builder omits protocol-processor",
+         _m_builder_drop_submodule(DOCS, "docs-check", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("docs builder omits gptp-processor",
+         _m_builder_drop_submodule(DOCS, "docs-check", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("docs builder initializes submodules after the call",
+         _m_builder_checkout_after_call(DOCS, "docs-check"),
+         "must initialize builder submodules before"),
+        ("docs builder initializes submodules before repository checkout",
+         _m_builder_checkout_before_repo(DOCS, "docs-check"),
+         "must check out the repository before"),
+        ("docs builder checkout overrides the event SHA",
+         _m_builder_checkout_key(DOCS, "docs-check", "with", {"ref": "dev"}),
+         "checkout step must be exactly"),
+        ("docs builder checkout is disabled",
+         _m_builder_checkout_key(DOCS, "docs-check", "if", False),
+         "checkout step must be exactly"),
+        ("docs builder checkout action version drifts",
+         _m_builder_checkout_version(DOCS, "docs-check"),
+         "checkout step must be exactly"),
+        ("docs builder replaced by env decoy",
+         _m_builder_decoy_env(DOCS, "docs-check"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("docs builder call continue-on-error",
+         _m_builder_continue_on_error(DOCS, "docs-check"),
+         "must carry no `continue-on-error`"),
+        ("docs builder job defaults.run.shell bash -n",
+         _m_builder_job_defaults(DOCS, "docs-check"),
+         "must carry no `defaults`"),
+        ("docs builder workflow defaults.run.shell bash -n",
+         _m_builder_top_defaults(DOCS),
+         "must carry no top-level `defaults`"),
+        ("docs sv2v install dropped",
+         _m_sv2v_dropped(DOCS, "docs-check"),
+         "must install the pinned sv2v front end exactly once"),
+        ("docs sv2v version drifts off the pin",
+         _m_sv2v_unpinned(DOCS, "docs-check"),
+         "exactly the pinned v0.0.12 release script"),
+        ("docs sv2v installed after the builder call",
+         _m_sv2v_after_call(DOCS, "docs-check"),
+         "must install sv2v before calling"),
+    ]
+
+
+def _docs_carrier_arms() -> list[Arm]:
+    """#261 in docs.yml: each of the three required contexts held to run as
+    written, carried by exactly one job, the job of its id."""
+    return [
+        ("#261 `docs-check` job if: false",
+         _m_job_key(DOCS, "docs-check", "if", False),
+         "job `docs-check` must carry no `if`"),
+        ("#261 `docs-check` job continue-on-error",
+         _m_job_key(DOCS, "docs-check", "continue-on-error", True),
+         "job `docs-check` must carry no `continue-on-error`"),
+        ("#261 `docs-check` job needs a sibling",
+         _m_job_key(DOCS, "docs-check", "needs", ["wire-accountability"]),
+         "job `docs-check` must carry no `needs`"),
+        ("#261 a second job carries `docs-check`",
+         _m_second_carrier(DOCS, "docs-check"),
+         "`docs-check` must be carried by exactly one job (carried by ['docs-check', 'decoy']"),
+        ("#261 `docs-check` renamed",
+         _m_rename_job(DOCS, "docs-check"),
+         "`docs-check` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check` renamed away while a stub takes the name",
+         _m_swap_carrier(DOCS, "docs-check"),
+         "required context `docs-check` must be carried by the job of that id"),
+        ("#261 `wire-accountability` job if: false",
+         _m_job_key(DOCS, "wire-accountability", "if", False),
+         "job `wire-accountability` must carry no `if`"),
+        ("#261 `wire-accountability` job continue-on-error",
+         _m_job_key(DOCS, "wire-accountability", "continue-on-error", True),
+         "job `wire-accountability` must carry no `continue-on-error`"),
+        ("#261 `wire-accountability` job needs a sibling",
+         _m_job_key(DOCS, "wire-accountability", "needs", ["docs-check"]),
+         "job `wire-accountability` must carry no `needs`"),
+        ("#261 `wire-accountability` job defaults.run.shell bash -n",
+         _m_job_key(DOCS, "wire-accountability", "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "job `wire-accountability` must carry no `defaults`"),
+        ("#261 a second job carries `wire-accountability`",
+         _m_second_carrier(DOCS, "wire-accountability"),
+         "`wire-accountability` must be carried by exactly one job (carried by ['wire-accountability', 'decoy']"),
+        ("#261 `wire-accountability` renamed",
+         _m_rename_job(DOCS, "wire-accountability"),
+         "`wire-accountability` must be carried by exactly one job (carried by none"),
+        ("#261 `wire-accountability` renamed away while a stub takes the name",
+         _m_swap_carrier(DOCS, "wire-accountability"),
+         "required context `wire-accountability` must be carried by the job of that id"),
+        ("#261 `docs-check-no-git` job if: false",
+         _m_job_key(DOCS, "docs-check-no-git", "if", False),
+         "job `docs-check-no-git` must carry no `if`"),
+        ("#261 `docs-check-no-git` job continue-on-error",
+         _m_job_key(DOCS, "docs-check-no-git", "continue-on-error", True),
+         "job `docs-check-no-git` must carry no `continue-on-error`"),
+        ("#261 `docs-check-no-git` job needs a sibling",
+         _m_job_key(DOCS, "docs-check-no-git", "needs", ["docs-check"]),
+         "job `docs-check-no-git` must carry no `needs`"),
+        ("#261 `docs-check-no-git` job defaults.run.shell bash -n",
+         _m_job_key(DOCS, "docs-check-no-git", "defaults", {"run": {"shell": "bash -n {0}"}}),
+         "job `docs-check-no-git` must carry no `defaults`"),
+        ("#261 a second job carries `docs-check-no-git`",
+         _m_second_carrier(DOCS, "docs-check-no-git"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by ['docs-check-no-git', 'decoy']"),
+        ("#261 `docs-check-no-git` renamed",
+         _m_rename_job(DOCS, "docs-check-no-git"),
+         "`docs-check-no-git` must be carried by exactly one job (carried by none"),
+        ("#261 `docs-check-no-git` renamed away while a stub takes the name",
+         _m_swap_carrier(DOCS, "docs-check-no-git"),
+         "required context `docs-check-no-git` must be carried by the job of that id"),
+    ]
+
+
+def _elaborate_arms() -> list[Arm]:
+    """elaborate.yml: trigger, public name, the builder's setup and its `if`
+    guards, and #261's carrier rules."""
+    return [
+        # elaborate.yml
+        ("elaborate push on main, not dev", _m_push_main(ELABORATE),
+         "push must subscribe"),
+        ("elaborate public name renamed", _m_rename_job(ELABORATE, "elaborate"),
+         "`elaborate`"),
+        ("elaborate builder omits verilog-axis",
+         _m_builder_drop_submodule(ELABORATE, "elaborate",
+                                  "third_party/verilog-axis"),
+         "must initialize `third_party/verilog-axis`"),
+        ("elaborate builder omits protocol-processor",
+         _m_builder_drop_submodule(ELABORATE, "elaborate", "protocol-processor"),
+         "must initialize `protocol-processor`"),
+        ("elaborate builder omits gptp-processor",
+         _m_builder_drop_submodule(ELABORATE, "elaborate", "gptp-processor"),
+         "must initialize `gptp-processor`"),
+        ("elaborate builder initializes submodules before repository checkout",
+         _m_builder_checkout_before_repo(ELABORATE, "elaborate"),
+         "must check out the repository before"),
+        ("elaborate builder checkout overrides the event SHA",
+         _m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "ref": "dev"}),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout is disabled",
+         _m_builder_checkout_key(ELABORATE, "elaborate", "if", False),
+         "checkout step must be exactly"),
+        ("elaborate builder checkout moves the tree",
+         _m_builder_checkout_key(ELABORATE, "elaborate", "with",
+                                {"fetch-depth": 0, "path": "elsewhere"}),
+         "checkout step must be exactly"),
+        ("elaborate builder replaced by env decoy",
+         _m_builder_decoy_env(ELABORATE, "elaborate"),
+         f"must call `{BUILDER_CALL}` exactly once"),
+        ("elaborate builder call continue-on-error",
+         _m_builder_continue_on_error(ELABORATE, "elaborate"),
+         "must carry no `continue-on-error`"),
+        ("elaborate builder job defaults.run.shell bash -n",
+         _m_builder_job_defaults(ELABORATE, "elaborate"),
+         "must carry no `defaults`"),
+        ("elaborate builder workflow defaults.run.shell bash -n",
+         _m_builder_top_defaults(ELABORATE),
+         "must carry no top-level `defaults`"),
+        ("elaborate builder checkout and call both disabled",
+         _m_builder_both_if_false, "builder checkout `if` must be exactly"),
+        ("elaborate sv2v install dropped",
+         _m_sv2v_dropped(ELABORATE, "elaborate"),
+         "must install the pinned sv2v front end exactly once"),
+        ("elaborate sv2v version drifts off the pin",
+         _m_sv2v_unpinned(ELABORATE, "elaborate"),
+         "exactly the pinned v0.0.12 release script"),
+        ("elaborate sv2v install disabled by if",
+         _m_sv2v_if_disabled, "sv2v install `if` must be exactly"),
+        ("#261 `elaborate` job if: false",
+         _m_job_key(ELABORATE, "elaborate", "if", False),
+         "job `elaborate` must carry no `if`"),
+        ("#261 `elaborate` job continue-on-error",
+         _m_job_key(ELABORATE, "elaborate", "continue-on-error", True),
+         "job `elaborate` must carry no `continue-on-error`"),
+        ("#261 `elaborate` job needs another job",
+         _m_job_key(ELABORATE, "elaborate", "needs", ["noop"]),
+         "job `elaborate` must carry no `needs`"),
+        ("#261 a second job carries `elaborate`",
+         _m_second_carrier(ELABORATE, "elaborate"),
+         "`elaborate` must be carried by exactly one job (carried by ['elaborate', 'decoy']"),
+        ("#261 `elaborate` renamed away while a stub takes the name",
+         _m_swap_carrier(ELABORATE, "elaborate"),
+         "required context `elaborate` must be carried by the job of that id"),
+    ]
+
+
+def _decoy_name_arms() -> list[Arm]:
+    """#261 across files: expression-valued names, the matrix enumeration's
+    edges, a literal name another file owns, and a fifth workflow file."""
+    return [
+        # An expression-valued display name, one arm per file ([R4] on #293).
+        ("#261 docs decoy named by an expression",
+         _m_expression_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy named by an expression",
+         _m_expression_carrier(ELABORATE, "elaborate"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy named by an expression",
+         _m_expression_carrier(RTL_FAST, "rtl-fast"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy named by an expression",
+         _m_expression_carrier(RTL_FULL, "verilator-suites"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders a required name from its own matrix",
+         _m_matrix_carrier(DOCS, "docs-check"),
+         "job `decoy` `name` renders `docs-check` for one matrix combination"),
+        ("#261 rtl-full decoy renders a required name from its own matrix",
+         _m_matrix_carrier(RTL_FULL, "yosys-portability"),
+         "job `decoy` `name` renders `yosys-portability` for one matrix combination"),
+        # The enumeration's own edges ([R3] round 4 on PR #293).
+        ("#261 docs decoy matrix value is itself an expression",
+         _m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["${{ 'docs-check' }}"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy name carries a `${{` the scan does not match",
+         _m_matrix_decoy(DOCS, "${{\n 'docs-check' }}", {"n": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-full decoy matrix carries include",
+         _m_matrix_decoy(RTL_FULL, "${{ matrix.n }}",
+                        {"n": ["x"], "include": [{"n": "verilator-suites"}]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 elaborate decoy matrix is an expression",
+         _m_matrix_decoy(ELABORATE, "${{ matrix.n }}", "${{ fromJSON(vars.M) }}"),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 rtl-fast decoy references a key its matrix lacks",
+         _m_matrix_decoy(RTL_FAST, "${{ matrix.n }}", {"m": ["x"]}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy matrix list is empty",
+         _m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": []}),
+         "job `decoy` `name` must be a literal or reference only"),
+        ("#261 docs decoy renders another file's required name",
+         _m_matrix_decoy(DOCS, "${{ matrix.n }}", {"n": ["x", "verilator-suites"]}),
+         "job `decoy` `name` renders `verilator-suites` for one matrix combination"),
+        # A literal name another file owns, one arm per file ([R4] round 2).
+        ("#261 docs decoy literally named elaborate",
+         _m_foreign_carrier(DOCS, "elaborate"),
+         "job `decoy` carries the required check name `elaborate` owned by"),
+        ("#261 elaborate decoy literally named docs-check-no-git",
+         _m_foreign_carrier(ELABORATE, "docs-check-no-git"),
+         "job `decoy` carries the required check name `docs-check-no-git` owned by"),
+        ("#261 rtl-fast decoy literally named verilator-suites",
+         _m_foreign_carrier(RTL_FAST, "verilator-suites"),
+         "job `decoy` carries the required check name `verilator-suites` owned by"),
+        ("#261 rtl-full decoy literally named docs-check",
+         _m_foreign_carrier(RTL_FULL, "docs-check"),
+         "job `decoy` carries the required check name `docs-check` owned by"),
+        # A fifth workflow file (maintainer review on PR #293).
+        ("#261 a fifth workflow file carries docs-check",
+         _m_fifth_workflow("decoy", "docs-check"),
+         "required check name `docs-check` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file's job id is elaborate",
+         _m_fifth_workflow("elaborate"),
+         "required check name `elaborate` must be carried by exactly one job "
+         "across every workflow file"),
+        ("#261 a fifth workflow file names a job by an expression",
+         _m_fifth_workflow("decoy", "${{ 'wire-accountability' }}"),
+         "in the un-inventoried workflow `.github/workflows/decoy.yml` must "
+         "not carry an expression `name`"),
+    ]
+
+
+def _contract_step_and_env_arms() -> list[Arm]:
+    """The gate's own `--check` runner, and the inherited execution environment
+    at workflow, job and step level."""
+    return [
+        # The gate's own --check runner (maintainer review on PR #293).
+        ("#261 gate contract step removed", _m_contract_step_removed,
+         f"must run `{CONTRACT_CHECK}` exactly once"),
+        ("#261 gate contract step if: false",
+         _set_step_key(_contract_step, "if", False),
+         "the contract step must carry no `if`"),
+        ("#261 gate contract step continue-on-error",
+         _set_step_key(_contract_step, "continue-on-error", True),
+         "the contract step must carry no `continue-on-error`"),
+        ("#261 gate contract step swallows its exit status",
+         _m_contract_step_swallowed,
+         "the contract step script is not the canonical form"),
+        ("#261 gate contract step moved after the decision",
+         _m_contract_step_after_decide,
+         "step 4 must be the contract step"),
+        # The inherited execution environment (maintainer [R0] on PR #293).
+        ("#261 docs-check job-level BASH_ENV",
+         _m_job_env(DOCS, "docs-check", "BASH_ENV"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 wire-accountability job-level BASH_ENV",
+         _m_job_env(DOCS, "wire-accountability", "BASH_ENV"),
+         "job `wire-accountability` must carry no job-level `env`"),
+        ("#261 elaborate job-level BASH_ENV",
+         _m_job_env(ELABORATE, "elaborate", "BASH_ENV"),
+         "job `elaborate` must carry no job-level `env`"),
+        ("#261 full-ci-gate job-level BASH_ENV",
+         _m_job_env(RTL_FULL, GATE_JOB, "BASH_ENV"),
+         f"job `{GATE_JOB}` must carry no job-level `env`"),
+        ("#261 docs-check job-level env with a benign name",
+         _m_job_env(DOCS, "docs-check", "PYTHONWARNINGS", "ignore"),
+         "job `docs-check` must carry no job-level `env`"),
+        ("#261 docs.yml workflow-level BASH_ENV",
+         _m_workflow_env(DOCS, "BASH_ENV"),
+         "the workflow-level `env` must name exactly nothing"),
+        ("#261 rtl.yml workflow-level BASH_ENV",
+         _m_workflow_env(RTL_FULL, "BASH_ENV"),
+         "the workflow-level `env` must name exactly ['TSN_GEN_REV', 'VERILATOR_VERSION', 'YOSYS_VERSION']"),
+        ("#261 rtl-fast.yml workflow-level env with a benign name",
+         _m_workflow_env(RTL_FAST, "PIP_QUIET", "1"),
+         "the workflow-level `env` must name exactly ['VERILATOR_VERSION', 'YOSYS_VERSION']"),
+        # #360: three files name this pin and share one cache key, so the
+        # drift that matters is a VALUE, not a missing name. Each file that
+        # carries it gets an arm, because a check written against one of them
+        # would leave the other two free to move.
+        ("#360 elaborate.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(ELABORATE, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
+        ("#360 rtl.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(RTL_FULL, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
+        ("#360 rtl-fast.yml Verilator pin drifts off the shared value",
+         _m_workflow_env(RTL_FAST, "VERILATOR_VERSION", "v5.048"),
+         f"the workflow-level `VERILATOR_VERSION` must be {VERILATOR_PIN}"),
+        ("#261 docs-check ci_events step-level BASH_ENV",
+         _m_step_env(DOCS, "docs-check", "scripts/ci_events.py --check", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist "
+         "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
+        ("#261 elaborate builder-call step-level BASH_ENV",
+         _m_step_env(ELABORATE, "elaborate", BUILDER_CALL, "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist ['EVENT_NAME', 'PR_BASE_SHA']"),
+        ("#261 wire-accountability gate step-level BASH_ENV",
+         _m_step_env(DOCS, "wire-accountability", "check_wire_accountability", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist (none)"),
+    ]
+
+
+def _key_allowlist_arms() -> list[Arm]:
+    """The key allowlists at every level, then the environment files and the
+    action set."""
+    return [
+        # The key allowlists ([R4] round 6 on PR #293).
+        ("#261 docs-check job container with BASH_ENV",
+         _m_job_key_any(DOCS, "docs-check", "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 full-ci-gate job container with BASH_ENV",
+         _m_job_key_any(RTL_FULL, GATE_JOB, "container",
+                       {"image": "ubuntu:24.04", "env": {"BASH_ENV": "scripts/ci-bypass.sh"}}),
+         f"job `{GATE_JOB}` may carry only the keys"),
+        ("#261 elaborate job container image",
+         _m_job_key_any(ELABORATE, "elaborate", "container", "docker.io/attacker/noop-python:latest"),
+         "job `elaborate` may carry only the keys"),
+        ("#261 docs-check-no-git job services",
+         _m_job_key_any(DOCS, "docs-check-no-git", "services", {"x": {"image": "busybox"}}),
+         "job `docs-check-no-git` may carry only the keys"),
+        ("#261 docs-check job Env spelled with a capital",
+         _m_job_key_any(DOCS, "docs-check", "Env", {"BASH_ENV": "scripts/ci-bypass.sh"}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job benign key",
+         _m_job_key_any(DOCS, "wire-accountability", "permissions", {"contents": "read"}),
+         "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl-fast.yml workflow-level defaults",
+         (lambda w: w[RTL_FAST].__setitem__("defaults", {"run": {"shell": "bash -n {0}"}})),
+         "the workflow may carry only the keys"),
+        ("#261 docs-check-no-git single step shell",
+         _m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "scripts/noop.sh {0}"),
+         "may carry only the keys"),
+        ("#261 docs-check step benign key",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "timeout-minutes", 1),
+         "may carry only the keys"),
+        # The environment files and the action set ([R3] round 8 on PR #293).
+        ("#261 docs-check inserted step writes GITHUB_ENV",
+         _m_insert_step(DOCS, "docs-check",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 wire-accountability inserted step prepends GITHUB_PATH",
+         _m_insert_step(DOCS, "wire-accountability",
+                       {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 yosys-shards inserted step writes GITHUB_ENV",
+         _m_insert_step(RTL_FULL, "yosys-shards",
+                       {"name": "prep", "run": 'echo "BASH_ENV=x" >> "$GITHUB_ENV"'}),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs-check existing step gains a GITHUB_ENV write",
+         (lambda w: [s for s in _job_steps(w, DOCS, "docs-check")
+                     if "pip install --quiet pyyaml" in step_text(s)][0].__setitem__(
+                         "run", 'echo "BASH_ENV=x" >> "$GITHUB_ENV"\npython3 -m pip install --quiet pyyaml')),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs-check inserted local action",
+         _m_insert_step(DOCS, "docs-check", {"uses": "./.github/actions/prep"}),
+         "uses `./.github/actions/prep`, which is not a recorded action"),
+        ("#261 elaborate inserted third-party action",
+         _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+         "uses `attacker/action@v1`, which is not a recorded action"),
+        ("#261 rtl.yml recorded writer renamed",
+         (lambda w: [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+                     if s.get("name") == "Put Verilator on PATH and prove the version"
+                     ][0].__setitem__("name", "Put Verilator on PATH")),
+         "mentions an environment file and is not a recorded writer"),
+        ("#261 docs.yml workflow-level env is not a mapping",
+         (lambda w: w[DOCS].__setitem__("env", "BASH_ENV=scripts/ci-bypass.sh")),
+         "the workflow-level `env` must be a mapping"),
+        ("#261 docs-check step env is not a mapping",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "env", ["BASH_ENV=x"]),
+         "`env` must be a mapping"),
+    ]
+
+
+def _recorded_writer_arms() -> list[Arm]:
+    """The recorded env-file writers bound by script and count, checkout
+    `with`, surplus job keys, standalone jobs, and `working-directory`."""
+    return [
+        # The writers are bound by script and count ([R3] round 9 on #293).
+        ("#261 elaborate Install sbt script gains a PATH prepend",
+         (lambda w: [s for s in _job_steps(w, ELABORATE, "elaborate")
+                     if s.get("name") == "Install sbt"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n'
+             + [s for s in _job_steps(w, ELABORATE, "elaborate")
+                if s.get("name") == "Install sbt"][0]["run"])),
+         "recorded writer `Install sbt` in job `elaborate` script is not the canonical form"),
+        ("#261 elaborate added step under the recorded name Install sbt",
+         _m_insert_step(ELABORATE, "elaborate",
+                        {"name": "Install sbt", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "recorded writer `Install sbt` must appear exactly once in job `elaborate`"),
+        ("#261 rtl.yml tsn-gen export rewritten to set BASH_ENV",
+         (lambda w: [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+                     if s.get("name", "").startswith("Build the pinned tsn-gen")][0].__setitem__(
+             "run", [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+                     if s.get("name", "").startswith("Build the pinned tsn-gen")][0]["run"].replace(
+                 'echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"',
+                 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'))),
+         "recorded writer `Build the pinned tsn-gen field oracle on its suite owner` "
+         "in job `verilator-shards` script is not the canonical form"),
+        ("#261 rtl-fast.yml lint step gains a hostile PATH prepend",
+         (lambda w: [s for s in _job_steps(w, RTL_FAST, "verilator-lint")
+                     if s.get("name") == "Run the ratcheted whole-tree lint gate"][0].__setitem__(
+             "run", 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"\n'
+             + [s for s in _job_steps(w, RTL_FAST, "verilator-lint")
+                if s.get("name") == "Run the ratcheted whole-tree lint gate"][0]["run"])),
+         "recorded writer `Run the ratcheted whole-tree lint gate` in job `verilator-lint` "
+         "script is not the canonical form"),
+        ("#261 rtl.yml recorded writer duplicated",
+         (lambda w: _job_steps(w, RTL_FULL, "verilator-shards").append(dict(
+             [s for s in _job_steps(w, RTL_FULL, "verilator-shards")
+              if s.get("name") == "Put Verilator on PATH and prove the version"][0]))),
+         "recorded writer `Put Verilator on PATH and prove the version` must appear exactly once"),
+        ("#261 wire-accountability checkout with ref",
+         (lambda w: [s for s in _job_steps(w, DOCS, "wire-accountability")
+                     if uses(s, "actions/checkout")][0].__setitem__("with", {"ref": "main"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check-no-git checkout with repository",
+         (lambda w: [s for s in _job_steps(w, DOCS, "docs-check-no-git")
+                     if uses(s, "actions/checkout")][0].__setitem__("with", {"repository": "attacker/x"})),
+         "checkout `with` may carry only"),
+        ("#261 docs-check job strategy",
+         _m_job_key_any(DOCS, "docs-check", "strategy", {"matrix": {"x": "${{ fromJSON('[]') }}"}}),
+         "job `docs-check` may carry only the keys"),
+        ("#261 wire-accountability job outputs",
+         _m_job_key_any(DOCS, "wire-accountability", "outputs", {"x": "1"}),
+         "job `wire-accountability` may carry only the keys"),
+        ("#261 rtl.yml standalone job with defaults",
+         (lambda w: _ce_add(w, RTL_FULL, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 docs.yml standalone job with defaults",
+         (lambda w: _ce_add(w, DOCS, "defaults", {"run": {"shell": "bash -n {0}"}})),
+         "job `standalone` may carry only the keys"),
+        ("#261 elaborate.yml standalone job with continue-on-error",
+         (lambda w: _ce_add(w, ELABORATE, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
+        ("#261 rtl-fast.yml standalone job with continue-on-error",
+         (lambda w: _ce_add(w, RTL_FAST, "continue-on-error", True)),
+         "job `standalone` may carry only the keys"),
+        ("#261 docs-check ci_events step working-directory",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "may carry only the keys"),
+        ("#261 behave step working-directory points at a decoy tree",
+         _m_step_key_any(RTL_FAST, "bdd-conformance", "behave --no-capture", "working-directory", "tb/fake"),
+         "`working-directory` must be exactly 'tests'"),
+        ("#261 bdd-conformance other step working-directory",
+         _m_step_key_any(RTL_FAST, "bdd-conformance", "pip install --quiet behave", "working-directory", "tb/fake"),
+         "may carry only the keys"),
+    ]
+
+
+def _docs_check_gate_step_arms() -> list[Arm]:
+    """#295 and #303: the two gate steps `docs-check` publishes under its own
+    name, one arm per lever per step."""
+    return [
+        # #295: the four non-RTL gate steps, one arm per lever per step.
+        # docs-check's ci_events step (the [R3] measured levers).
+        ("#295 docs ci_events gate step if: false",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "if", False),
+         "(`CI event and SHA contract gate`) must carry no `if`"),
+        ("#295 docs ci_events gate step continue-on-error",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "continue-on-error", True),
+         "(`CI event and SHA contract gate`) must carry no `continue-on-error`"),
+        ("#295 docs ci_events gate step shell",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "shell", "bash -n {0}"),
+         "(`CI event and SHA contract gate`) must carry no `shell`"),
+        ("#295 docs ci_events gate step working-directory",
+         _m_step_key_any(DOCS, "docs-check", "scripts/ci_events.py --check", "working-directory", "sub"),
+         "(`CI event and SHA contract gate`) keys must be exactly name, run; surplus: working-directory"),
+        ("#295 docs ci_events gate step --check || true",
+         _m_gate_line(DOCS, "docs-check", "scripts/ci_events.py --check",
+                     "python3 scripts/ci_events.py --check\n",
+                     "python3 scripts/ci_events.py --check || true\n"),
+         "job `docs-check`'s gate step script is not the canonical form"),
+        ("#295 docs ci_events gate step removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check", "scripts/ci_events.py --check")),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        # #303: the imported gPTP step is two gates under one published name.
+        ("#303 imported gPTP gate body replaced by true",
+         _m_named_gate_run(DOCS, "docs-check", IMPORTED_GPTP_GATE_NAME,
+                           "true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP parent check removed",
+         _m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     IMPORTED_GPTP_GATE_CALL + "\n", ""),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP donor build removed",
+         _m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     "make -C gptp-processor docs\n", ""),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP parent check swallows failure",
+         _m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     IMPORTED_GPTP_GATE_CALL + "\n",
+                     IMPORTED_GPTP_GATE_CALL + " || true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP donor build swallows failure",
+         _m_gate_line(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                     "make -C gptp-processor docs\n",
+                     "make -C gptp-processor docs || true\n"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP body moved under another name",
+         _m_move_named_gate_body(
+             DOCS, "docs-check", IMPORTED_GPTP_GATE_NAME,
+             "Code-quality measurement self-tests"),
+         f"step `{IMPORTED_GPTP_GATE_NAME}` script is not the canonical form"),
+        ("#303 imported gPTP gate step if: false",
+         _m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "if", False),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `if`"),
+        ("#303 imported gPTP gate step continue-on-error",
+         _m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "continue-on-error", True),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `continue-on-error`"),
+        ("#303 imported gPTP gate step shell",
+         _m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "shell", "bash -n {0}"),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) must carry no `shell`"),
+        ("#303 imported gPTP gate step working-directory",
+         _m_step_key_any(DOCS, "docs-check", IMPORTED_GPTP_GATE_CALL,
+                        "working-directory", "sub"),
+         f"(`{IMPORTED_GPTP_GATE_NAME}`) keys must be exactly name, run; "
+         "surplus: working-directory"),
+    ]
+
+
+def _em_dash_gate_step_arms() -> list[Arm]:
+    """#378: the em-dash gate's body, bound to its published name ([R0] on
+    PR #384): the call replaced, the base rebound to HEAD, the exit status
+    swallowed, the event selection and the refusals rewritten, and the body
+    moved under another recorded name."""
+    return [
+        ("#378 em-dash gate body replaced by true",
+         _m_named_gate_run(DOCS, "docs-check", EM_DASH_GATE_NAME, "true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate judges from HEAD",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     "python3 scripts/check_em_dash.py --base HEAD\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate swallows failure",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_GATE_CALL + "\n",
+                     EM_DASH_GATE_CALL + " || true\n"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate judges from the frozen recorded base",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     EM_DASH_BASE_DERIVATION,
+                     'base="$PR_BASE_SHA"'),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate base branch fetch removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     'git fetch --quiet origin "$PR_BASE_REF"\n', ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate push base rewritten",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     'push) base="$PUSH_BEFORE_SHA" ;;',
+                     'push) base="$GITHUB_SHA" ;;'),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate null-base refusal removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     '|| [ "$base" = 0000000000000000000000000000000000000000 ]',
+                     ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate base fetch removed",
+         _m_gate_line(DOCS, "docs-check", "check_em_dash.py",
+                     ' || git fetch --quiet --depth=1 origin "$base"', ""),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+        ("#378 em-dash gate body moved under another name",
+         _m_move_named_gate_body(DOCS, "docs-check", EM_DASH_GATE_NAME,
+                                 "Concise audience documentation gate"),
+         f"step `{EM_DASH_GATE_NAME}` script is not the canonical form"),
+    ]
+
+
+def _carrier_gate_step_arms() -> list[Arm]:
+    """#295: the gate step of the other two documentation carriers, one arm
+    per lever per step."""
+    return [
+        # wire-accountability's gate step.
+        ("#295 wire-accountability gate step if: false",
+         _m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "if", False),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `if`"),
+        ("#295 wire-accountability gate step continue-on-error",
+         _m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "continue-on-error", True),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `continue-on-error`"),
+        ("#295 wire-accountability gate step shell",
+         _m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "shell", "bash -n {0}"),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) must carry no `shell`"),
+        ("#295 wire-accountability gate step working-directory",
+         _m_step_key_any(DOCS, "wire-accountability", "check_wire_accountability", "working-directory", "sub"),
+         "(`Advertised-vs-emitted gate (green since 2026-07-28, item 00)`) keys must be exactly "
+         "name, run; surplus: working-directory"),
+        ("#295 wire-accountability gate step || true",
+         _m_gate_or_true(DOCS, "wire-accountability", "check_wire_accountability"),
+         "job `wire-accountability`'s gate step script is not the canonical form"),
+        ("#295 wire-accountability gate step removed",
+         (lambda w: _strip_steps(w, DOCS, "wire-accountability", "check_wire_accountability")),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        # docs-check-no-git's single step.
+        ("#295 docs-check-no-git single step if: false",
+         _m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "if", False),
+         "(`Strip git metadata, then run the docs gate`) must carry no `if`"),
+        ("#295 docs-check-no-git single step continue-on-error",
+         _m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "continue-on-error", True),
+         "(`Strip git metadata, then run the docs gate`) must carry no `continue-on-error`"),
+        ("#295 docs-check-no-git single step shell",
+         _m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "shell", "bash -n {0}"),
+         "(`Strip git metadata, then run the docs gate`) must carry no `shell`"),
+        ("#295 docs-check-no-git single step working-directory",
+         _m_step_key_any(DOCS, "docs-check-no-git", "docs_check.py", "working-directory", "sub"),
+         "(`Strip git metadata, then run the docs gate`) keys must be exactly name, run; surplus: working-directory"),
+        ("#295 docs-check-no-git single step || true",
+         _m_gate_or_true(DOCS, "docs-check-no-git", "docs_check.py"),
+         "job `docs-check-no-git`'s gate step script is not the canonical form"),
+        ("#295 docs-check-no-git docs_check call replaced by true",
+         _m_gate_line(DOCS, "docs-check-no-git", "docs_check.py",
+                     "python3 scripts/docs_check.py\n", "true\n"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 docs-check-no-git single step removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check-no-git", "docs_check.py")),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+    ]
+
+
+def _elab_scope_and_presence_arms() -> list[Arm]:
+    """#295: elaborate's scope step held as the decide step is, and presence -
+    the stub-id evasion and a duplicate mapping's last-wins parse - per
+    carrier."""
+    return [
+        # elaborate's scope step, held as the decide step is.
+        ("#295 elaborate scope step if: false",
+         _set_step_key(_elab_scope_step, "if", False),
+         "(`Decide whether this head needs an elaboration`) must carry no `if`"),
+        ("#295 elaborate scope step continue-on-error",
+         _set_step_key(_elab_scope_step, "continue-on-error", True),
+         "(`Decide whether this head needs an elaboration`) must carry no `continue-on-error`"),
+        ("#295 elaborate scope step shell",
+         _set_step_key(_elab_scope_step, "shell", "bash -n {0}"),
+         "(`Decide whether this head needs an elaboration`) must carry no `shell`"),
+        ("#295 elaborate scope step working-directory",
+         _set_step_key(_elab_scope_step, "working-directory", "sub"),
+         "(`Decide whether this head needs an elaboration`) keys must be exactly "
+         "name, id, env, run; surplus: working-directory"),
+        ("#295 elaborate scope step || true",
+         _m_gate_or_true(ELABORATE, "elaborate", "ci_scope.py --selftest"),
+         "the elaborate scope step script is not the canonical form"),
+        ("#295 elaborate scope script publishes a literal rtl=false",
+         _m_scope_publishes_false,
+         "the elaborate scope step script is not the canonical form"),
+        ("#295 elaborate scope script drops the selector's self-test",
+         _m_scope_unproven,
+         f"the elaborate scope step must run `{SELECTOR_SELFTEST}` exactly once"),
+        ("#295 elaborate scope self-test runs after the answer is read",
+         _m_scope_selftest_after_read,
+         "exactly once and before it reads the selector's answer"),
+        ("#295 elaborate scope step EVENT_NAME hard-coded",
+         _set_env_key(_elab_scope_step, "EVENT_NAME", "pull_request"),
+         "must bind `EVENT_NAME`"),
+        ("#295 elaborate scope step PR_BASE_SHA rebound to this run's SHA",
+         _set_env_key(_elab_scope_step, "PR_BASE_SHA", "${{ github.sha }}"),
+         "must bind `PR_BASE_SHA`"),
+        ("#295 elaborate scope step removed", _m_scope_step_removed,
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        # #295 presence: the stub-id evasion and a duplicate mapping's
+        # last-wins parse, per carrier.
+        ("#295 docs-check body behind a stub of the required id",
+         _m_stub_job(DOCS, "docs-check"),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        ("#295 wire-accountability body behind a stub of the required id",
+         _m_stub_job(DOCS, "wire-accountability"),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 docs-check-no-git body behind a stub of the required id",
+         _m_stub_job(DOCS, "docs-check-no-git"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 elaborate body behind a stub of the required id",
+         _m_stub_job(ELABORATE, "elaborate"),
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        ("#295 duplicate docs-check mapping, last one wins",
+         _m_duplicate_mapping(DOCS, "docs-check"),
+         f"job `docs-check` must run `{CONTRACT_CHECK}` in exactly one step (found 0)"),
+        ("#295 duplicate wire-accountability mapping, last one wins",
+         _m_duplicate_mapping(DOCS, "wire-accountability"),
+         f"job `wire-accountability` must run `{WIRE_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 duplicate docs-check-no-git mapping, last one wins",
+         _m_duplicate_mapping(DOCS, "docs-check-no-git"),
+         f"job `docs-check-no-git` must run `{NO_GIT_GATE_CALL}` in exactly one step (found 0)"),
+        ("#295 duplicate elaborate mapping, last one wins",
+         _m_duplicate_mapping(ELABORATE, "elaborate"),
+         f"must carry exactly one step with `id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+    ]
+
+
+def _carrier_step_list_arms() -> list[Arm]:
+    """#295: the carriers' pinned step lists - insertion of any content,
+    removal, reorder, rename, and the recorded `if` and `with` values."""
+    return [
+        # #295 the step-list class ([R4] round 6 on PR #293): the measured
+        # insertions, then an insertion of ANY content, then removal,
+        # reorder, rename, and the recorded `if` and `with` values.
+        ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
+         _m_insert_step(DOCS, "docs-check",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "job `docs-check` must carry exactly 43 steps"),
+        ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
+         _m_insert_step(DOCS, "docs-check-no-git",
+                       {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
+        ("#295 wire-accountability inserted GITHUB_PATH prepend breaks the sequence",
+         _m_insert_step(DOCS, "wire-accountability",
+                       {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+         "job `wire-accountability` must carry exactly 3 steps"),
+        ("#295 elaborate inserted third-party action breaks the sequence",
+         _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+         "job `elaborate` must carry exactly 18 steps"),
+        ("#295 docs-check inserted step of benign content",
+         _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
+         "job `docs-check` must carry exactly 43 steps"),
+        ("#295 wire-accountability inserted step of benign content",
+         _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
+         "job `wire-accountability` must carry exactly 3 steps"),
+        ("#295 docs-check-no-git inserted step of benign content",
+         _m_insert_step(DOCS, "docs-check-no-git", {"name": "tidy", "run": "true"}),
+         "job `docs-check-no-git` must carry exactly 2 steps"),
+        ("#295 elaborate inserted step of benign content",
+         _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
+         "job `elaborate` must carry exactly 18 steps"),
+        ("#303 docs-check imported gPTP gate removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check",
+                                 "check_gptp_docs.py --with-submodule")),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
+        ("#295 docs-check recognised step removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
+        ("#295 elaborate patch-series step removed",
+         (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
+         "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
+        ("#295 docs-check recognised steps swapped",
+         _m_swap_steps(DOCS, "docs-check", 37, 38),
+         "job `docs-check` step 39 must be the step named `Archive integrity gate`"),
+        ("#295 elaborate scope and fetch steps swapped",
+         _m_swap_steps(ELABORATE, "elaborate", 1, 2),
+         "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
+        ("#295 docs-check recognised step renamed",
+         _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
+         "job `docs-check` step 38 must be the step named `Doc cited-path gate`"),
+        ("#295 docs-check non-gate step if: false",
+         _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
+         "(`Bare-metal scope gate`) must carry no `if`"),
+        ("#295 elaborate patch-series step if loosened",
+         _m_step_key_any(ELABORATE, "elaborate", "apply.sh", "if", "${{ always() }}"),
+         "(`Apply the toolchain patch series`) `if` must be exactly"),
+        ("#295 elaborate metadata cache gains restore-keys",
+         _m_with_key(ELABORATE, "elaborate", "Cache the generated CPU metadata", "restore-keys", "elaborate-vexii-"),
+         "(`Cache the generated CPU metadata`) `with` must be exactly"),
+        ("#295 docs upload step publishes another path",
+         _m_with_key(DOCS, "docs-check", "Upload the HDL reference HTML", "path",
+                     "${{ runner.temp }}/decoy/index.html"),
+         "(`Upload the HDL reference HTML`) `with` must be exactly"),
+        # #378: the em-dash gate's base is the event's, bound by content.
+        ("#378 em-dash gate step EVENT_NAME hard-coded",
+         _set_env_key(_em_dash_step, "EVENT_NAME", "pull_request"),
+         f"(`{EM_DASH_GATE_NAME}`) env must bind `EVENT_NAME`"),
+        ("#378 em-dash gate step PR_BASE_REF rebound to the recorded oid",
+         _set_env_key(_em_dash_step, "PR_BASE_REF",
+                      "${{ github.event.pull_request.base.sha }}"),
+         f"(`{EM_DASH_GATE_NAME}`) env must bind `PR_BASE_REF`"),
+        ("#378 em-dash gate step PUSH_BEFORE_SHA dropped",
+         _m_em_dash_env_missing,
+         "missing: PUSH_BEFORE_SHA"),
+        ("#378 em-dash gate step env gains BASH_ENV",
+         _m_step_env(DOCS, "docs-check", "check_em_dash.py", "BASH_ENV"),
+         "`env` names ['BASH_ENV'] outside this job's allowlist "
+         "['EVENT_NAME', 'PR_BASE_REF', 'PUSH_BEFORE_SHA']"),
+        ("#378 em-dash gate step if: false",
+         _m_step_key_any(DOCS, "docs-check", "check_em_dash.py", "if", False),
+         f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
+        ("#378 em-dash gate step removed",
+         (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
+         "job `docs-check` must carry exactly 43 steps, in the recorded order (found 42)"),
+    ]
+
+
+#: The three measured insertions of [R4] round 6 on PR #293 and the benign
+#: one, each inserted at position 2 of a job the two RTL files declare.
+STEP_LIST_PROBES = (
+    ("BASH_ENV writer",
+     {"name": "prep",
+      "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+    ("GITHUB_PATH prepend",
+     {"name": "prep", "run": 'echo "$PWD/scripts/bin" >> "$GITHUB_PATH"'}),
+    ("third-party action", {"uses": "attacker/action@v1"}),
+    ("step of benign content", {"name": "tidy", "run": "true"}),
+)
+#: The action an arm swaps a recorded one for, under its recorded name.
+STEP_LIST_DECOY_ACTION = "attacker/action@v1"
+#: What EVERY job the two RTL files declare owes the step-list pin: eight of
+#: the nine levers acceptance 2 of #406 names (the three measured
+#: insertions, a benign one, a removed step, a renamed step, the guard and
+#: the recorded `with`), plus the surplus key, the step env and the step
+#: appended after the recorded list. The list is the OBLIGATION, and
+#: _sequence_pin_arms derives every one of these from the live job rather
+#: than from a table of rows, so no table edit can retire a job's arms:
+#: dropping a job's entry leaves the same arms demanding the same refusals,
+#: which they no longer get ([R97] round 4 on PR #431). The ninth lever, the
+#: reordered pair, together with the action swapped under its recorded name
+#: and the three recorded scalars, is owed by the jobs that can carry it and
+#: required of the POPULATION rather than of each job: the fast verdict runs
+#: one step, so it has no pair to reorder and no action to swap.
+INSERTION_LEVERS = tuple(f"inserted {what}" for what, _ in STEP_LIST_PROBES)
+REQUIRED_STEP_LIST_LEVERS = INSERTION_LEVERS + (
+    "step removed", "step appended", "step renamed", "surplus key",
+    "step `env`", "guard", "action `with`",
+)
+REQUIRED_STEP_LIST_POPULATION_LEVERS = (
+    "steps swapped", "action swapped under its name", "recorded `id`",
+    "recorded `continue-on-error`", "recorded `working-directory`",
+)
+
+
+def _m_step_key_at(path: str, jid: str, at: int, key: str,
+                   value: Any) -> Mutator:
+    """Set `key` to `value` on step `at` (zero-based) of job `jid`. The
+    position comes from the live job the arm was derived from, so an arm
+    never looks its target up by a recorded identity and cannot drift away
+    from one ([R97] round 4 on PR #431)."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _job_steps(w, path, jid)[at][key] = value
+    return f
+
+
+def _m_step_key_dropped_at(path: str, jid: str, at: int, key: str) -> Mutator:
+    """Delete `key` from step `at` (zero-based) of job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        del _job_steps(w, path, jid)[at][key]
+    return f
+
+
+def _m_remove_step_at(path: str, jid: str, at: int) -> Mutator:
+    """Delete step `at` (zero-based) of job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        del _job_steps(w, path, jid)[at]
+    return f
+
+
+def _m_with_key_at(path: str, jid: str, at: int, key: str,
+                   value: Any) -> Mutator:
+    """Set `with.key` to `value` on step `at` (zero-based) of job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _job_steps(w, path, jid)[at]["with"][key] = value
+    return f
+
+
+def _m_env_key_at(path: str, jid: str, at: int, name: str,
+                  value: str) -> Mutator:
+    """Rebind `name` to `value` in the env of step `at` of job `jid`."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _job_steps(w, path, jid)[at]["env"][name] = value
+    return f
+
+
+def _step_want(job: str, ss: Sequence[YamlMap], at: int) -> str:
+    """What the step-list refusal calls the step the recorded list holds at
+    position `at` + 1, built from the LIVE step: on a tree the coverage rule
+    passes, the recorded entry and the live step carry the same identity, so
+    an arm names the refusal it must provoke without reading any table, and
+    an entry narrowed or deleted fails the arm instead of moving it ([R97]
+    round 4 on PR #431)."""
+    if at >= len(ss):
+        return f"{job} step {at + 1} must be no step"
+    return f"{job} step {at + 1} must be {carrier_entry_want(ss[at])}"
+
+
+def _step_at(job: str, ss: Sequence[YamlMap], at: int) -> str:
+    """What a per-step refusal (keys, env, guard, `with`, scalars) calls
+    step `at` + 1: the job, the position and the step's identity."""
+    step = ss[at]
+    return f"{job} step {at + 1} (`{step.get('name', step.get('uses'))}`)"
+
+
+def _step_list_decoy(value: Any) -> Any:
+    """A value a recorded one cannot equal, derived from the recorded value
+    itself: a flipped flag, or the same text with a decoy suffix. Derived so
+    no arm carries a literal that a table could one day legitimately
+    record."""
+    return not value if isinstance(value, bool) else f"{value}-decoy"
+
+
+def _step_list_lever_arms(path: str, jid: str,
+                          ss: Sequence[YamlMap]) -> list[tuple[str, Arm]]:
+    """Every step-list lever one LIVE job owes, as (lever, arm) pairs built
+    from that job's own steps: which step an arm removes, reorders, renames,
+    unguards or rewrites is read out of the job, and the finding each must
+    provoke is spelled from the same step. A job with no gated step gets the
+    `if: false` alternative, a job with no action `with` gets the `with`
+    added to its action step, and a job with no action step at all gets it
+    added to a `run:` step, where the recorded key set refuses it ([R97]
+    rounds 3 and 4 on PR #431). A job running no steps at all expresses no
+    lever, so it builds none and _sequence_pin_arms refuses it by name
+    rather than dying on an empty list."""
+    if not ss:
+        return []
+    n, job = len(ss), f"job `{jid}`"
+    arms = [(f"inserted {what}",
+             (f"#406 {jid} inserted {what} breaks the sequence",
+              _m_insert_step(path, jid, probe), _step_want(job, ss, 1)))
+            for what, probe in STEP_LIST_PROBES]
+    arms += [
+        ("step removed",
+         (f"#406 {jid} recorded step removed",
+          _m_remove_step_at(path, jid, n // 2),
+          f"{job} must carry exactly {n} steps, in the recorded order "
+          f"(found {n - 1})")),
+        ("step appended",
+         (f"#406 {jid} step appended after the recorded list",
+          _m_insert_step(path, jid, {"name": "tidy", "run": "true"}, n),
+          f"{job} step {n + 1} must be no step (found `tidy`)")),
+        ("surplus key",
+         (f"#406 {jid} step gains a `shell`",
+          _m_step_key_at(path, jid, 0, "shell", "bash -n {0}"),
+          f"{_step_at(job, ss, 0)} keys must be exactly")),
+    ]
+    pair = next((i for i in range(n - 1)
+                 if step_label(ss[i]) != step_label(ss[i + 1])), None)
+    if pair is not None:
+        arms.append(("steps swapped",
+                     (f"#406 {jid} recorded steps swapped",
+                      _m_swap_steps(path, jid, pair, pair + 1),
+                      _step_want(job, ss, pair))))
+    named = next((i for i, s in enumerate(ss)
+                  if isinstance(s.get("name"), str)), None)
+    if named is not None:
+        arms.append(("step renamed",
+                     (f"#406 {jid} recorded step renamed",
+                      _m_step_key_at(path, jid, named, "name",
+                                     ss[named]["name"] + " (renamed)"),
+                      _step_want(job, ss, named))))
+    action = next((i for i, s in enumerate(ss)
+                   if isinstance(s.get("uses"), str) and "name" in s), None)
+    if action is not None:
+        arms.append(("action swapped under its name",
+                     (f"#406 {jid} action step swapped under its recorded name",
+                      _m_step_key_at(path, jid, action, "uses",
+                                     STEP_LIST_DECOY_ACTION),
+                      f"{job} step {action + 1} must be "
+                      f"`uses: {ss[action]['uses']}` named "
+                      f"`{ss[action]['name']}` (found "
+                      f"`{ss[action]['name']}` "
+                      f"(`uses: {STEP_LIST_DECOY_ACTION}`))")))
+    return arms + _step_list_binding_arms(path, jid, ss)
+
+
+def _step_list_binding_arms(path: str, jid: str,
+                            ss: Sequence[YamlMap]) -> list[tuple[str, Arm]]:
+    """The levers over what one live job's steps BIND rather than which
+    steps they are: the recorded env, the recorded guard, the recorded
+    `with` and the recorded `id`, `continue-on-error` and
+    `working-directory`. Each is derived from the live step that carries it,
+    with the documented alternative where the job carries none."""
+    job = f"job `{jid}`"
+    bound = next((i for i, s in enumerate(ss)
+                  if isinstance(s.get("env"), dict) and s["env"]), None)
+    if bound is None:
+        arms = [("step `env`",
+                 (f"#406 {jid} step given an env binding",
+                  _m_step_key_at(path, jid, 0, "env",
+                                 {"BASH_ENV": "scripts/ci-bypass.sh"}),
+                  f"{_step_at(job, ss, 0)} env must be exactly"))]
+    else:
+        name = next(iter(ss[bound]["env"]))
+        arms = [("step `env`",
+                 (f"#406 {jid} recorded env binding rebound",
+                  _m_env_key_at(path, jid, bound, name,
+                                _step_list_decoy(ss[bound]["env"][name])),
+                  f"{_step_at(job, ss, bound)} env must bind `{name}`"))]
+    gated = next((i for i, s in enumerate(ss) if "if" in s), None)
+    if gated is None:
+        arms.append(("guard",
+                     (f"#406 {jid} ungated step given if: false",
+                      _m_step_key_at(path, jid, 0, "if", False),
+                      f"{_step_at(job, ss, 0)} must carry no `if`")))
+    else:
+        arms.append(("guard",
+                     (f"#406 {jid} gated step `if` dropped",
+                      _m_step_key_dropped_at(path, jid, gated, "if"),
+                      f"{_step_at(job, ss, gated)} `if` must be exactly")))
+    acted = next((i for i, s in enumerate(ss)
+                  if "uses" in s and isinstance(s.get("with"), dict)), None)
+    bare = next((i for i, s in enumerate(ss) if "uses" in s), None)
+    if acted is not None:
+        arms.append(("action `with`",
+                     (f"#406 {jid} action step `with` rewritten",
+                      _m_with_key_at(path, jid, acted, "restore-keys",
+                                     "decoy-"),
+                      f"{_step_at(job, ss, acted)} `with` must be exactly")))
+    elif bare is not None:
+        arms.append(("action `with`",
+                     (f"#406 {jid} action step given a `with`",
+                      _m_step_key_at(path, jid, bare, "with",
+                                     {"fetch-depth": 1}),
+                      f"{_step_at(job, ss, bare)} `with` must be exactly "
+                      "None")))
+    else:
+        arms.append(("action `with`",
+                     (f"#406 {jid} run step given a `with`",
+                      _m_step_key_at(path, jid, 0, "with",
+                                     {"fetch-depth": 1}),
+                      f"{_step_at(job, ss, 0)} keys must be exactly")))
+    for key in ("id", "continue-on-error", "working-directory"):
+        at = next((i for i, s in enumerate(ss) if key in s), None)
+        if at is not None:
+            # The recorded `id` is refused by the value it must carry, the
+            # other two by the exact value they record.
+            want = (f"`id` must be `{ss[at][key]}`" if key == "id"
+                    else f"`{key}` must be exactly")
+            arms.append((f"recorded `{key}`",
+                         (f"#406 {jid} recorded `{key}` changed",
+                          _m_step_key_at(path, jid, at, key,
+                                         _step_list_decoy(ss[at][key])),
+                          f"{_step_at(job, ss, at)} {want}")))
+    return arms
+
+
+def _sequence_pin_arms(pristine: World) -> list[Arm]:
+    """#406: what every job the two RTL files DECLARE owes the step-list
+    pin, derived from the live tree rather than from a table of jobs or a
+    table of levers ([R97] round 4 on PR #431).
+
+    The population is the two files' job lists, so a job appended to either
+    brings its own arms with it; the levers are read out of each job's own
+    steps, so dropping a job's recorded entry cannot retire its arms, and
+    every one of them then fails on the coverage rule's refusal instead. A
+    job that cannot express a required lever is a job this generator would
+    hold to less than the others, so that is refused here by name rather
+    than counted as fewer arms."""
+    arms, levers = [], []
+    for path in (RTL_FULL, RTL_FAST):
+        for jid, job in jobs(pristine[path]).items():
+            built = _step_list_lever_arms(path, jid, steps(job))
+            owed = [lever for lever, _ in built]
+            missing = [lever for lever in REQUIRED_STEP_LIST_LEVERS
+                       if lever not in owed]
+            if missing:
+                raise AssertionError(
+                    f"#406 step-list levers: job `{jid}` of `{path}` owes an "
+                    f"arm for {', '.join(missing)} and the generator built "
+                    "none; a lever no arm expresses is a lever the job is "
+                    "not held to")
+            arms += [arm for _, arm in built]
+            levers += owed
+    missing = [lever for lever in REQUIRED_STEP_LIST_POPULATION_LEVERS
+               if lever not in levers]
+    if missing:
+        raise AssertionError(
+            f"#406 step-list levers: no job of the two RTL files produced an "
+            f"arm for {', '.join(missing)}; the population no longer "
+            "exercises every recorded field")
+    return arms + _sequence_pin_coverage_arms()
+
+
+def _m_append_job(path: str, jid: str) -> Mutator:
+    """Append a benign, well-formed job `jid` to a workflow."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+                              "timeout-minutes": 5,
+                              "steps": [{"name": "tidy", "run": "true"}]}
+    return f
+
+
+def _m_respell_job(path: str, jid: str, respelt: str) -> Mutator:
+    """Rename job `jid`'s ID to `respelt`, leaving its steps as they are."""
+    def f(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        jobs(w[path])[respelt] = jobs(w[path]).pop(jid)
+    return f
+
+
+def _sequence_pin_coverage_arms() -> list[Arm]:
+    """#406: the file-derived closure over WHICH RTL jobs owe a step list
+    ([R97] round 2, [R96]/[R97] rounds 3 and 4 on PR #431). A job appended
+    to either file and a pinned job respelt are refused by name, so deleting
+    check_sequence_pin_coverage, or narrowing it to the jobs a table still
+    admits to owing, turns these arms red rather than costing the closure in
+    silence. The appended jobs carry a benign step list, which is what an
+    exemption would have to hide behind."""
+    unpinned = "must have its whole step list recorded in `RTL_SEQUENCE_PINS`"
+    return [
+        ("#406 job appended to rtl.yml is recorded by no step list",
+         _m_append_job(RTL_FULL, "loose-full"),
+         f"job `loose-full` {unpinned}"),
+        ("#406 job appended to rtl-fast.yml is recorded by no step list",
+         _m_append_job(RTL_FAST, "loose-fast"),
+         f"job `loose-fast` {unpinned}"),
+        ("#406 step-pinned job respelt in its file",
+         _m_respell_job(RTL_FAST, "bdd-conformance", "bdd-conformance-x"),
+         "job `bdd-conformance` must exist in this file, because a step "
+         "list is recorded for it"),
+        ("#406 step-pinned job also publishes the verdict's required name",
+         _m_job_key(RTL_FAST, "verilator-lint", "name", FAST_AGGREGATE_JOB),
+         f"public check name `{FAST_AGGREGATE_JOB}` must be carried by "
+         "exactly one job"),
+    ]
+
+
+def _em_dash_step(w: World) -> YamlMap:
+    """docs-check's one em-dash gate step, by its script."""
+    found = [s for s in _job_steps(w, DOCS, "docs-check")
+             if "check_em_dash.py" in step_text(s)]
+    assert len(found) == 1, "fixture drift: no unique em-dash gate step"
+    return found[0]
+
+
+def _m_em_dash_env_missing(w: World) -> None:
+    """Drop PUSH_BEFORE_SHA from the em-dash gate step's env."""
+    del _em_dash_step(w)["env"]["PUSH_BEFORE_SHA"]
+
+
+def _result_cache_step(w: World) -> YamlMap:
+    """The yosys-shards result cache step, by its path."""
+    found = [s for s in _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+             if uses(s, "actions/cache") and isinstance(s.get("with"), dict)
+             and s["with"].get("path") == RESULT_CACHE_PATH]
+    assert len(found) == 1, "fixture drift: result cache step not found"
+    return found[0]
+
+
+def _result_cache_run_step(w: World) -> YamlMap:
+    """The yosys-shards step that runs syn/yosys/run.sh."""
+    found = [s for s in _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+             if "syn/yosys/run.sh" in step_text(s)]
+    assert len(found) == 1, "fixture drift: run.sh step not found"
+    return found[0]
+
+
+def _m_result_cache_with(key: str, value: Any) -> Mutator:
+    """Set one `with` binding of the result cache step."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        _result_cache_step(w)["with"][key] = value
+    return mutate
+
+
+def _m_result_cache_run(old: str, new: str) -> Mutator:
+    """Rewrite the run step's script text, refusing to edit nothing."""
+    def mutate(w: World) -> None:
+        """Apply the arm's edit to `w` in place."""
+        step = _result_cache_run_step(w)
+        assert old in step["run"], f"fixture drift: {old!r} not in the run step"
+        step["run"] = step["run"].replace(old, new)
+    return mutate
+
+
+def _m_result_cache_removed(w: World) -> None:
+    """Delete the restore step."""
+    ss = _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+    ss.remove(_result_cache_step(w))
+
+
+def _m_result_cache_after_run(w: World) -> None:
+    """Move the restore step after the run step."""
+    ss = _job_steps(w, RTL_FULL, YOSYS_SHARDS_JOB)
+    step = _result_cache_step(w)
+    ss.remove(step)
+    ss.insert(ss.index(_result_cache_run_step(w)) + 1, step)
+
+
+def _result_cache_arms() -> list[Arm]:
+    """#350: the result cache's restore, keys, flags and policy statement."""
+    return [
+        ("#350 result cache restore step removed", _m_result_cache_removed,
+         "must restore the result cache exactly once"),
+        ("#350 result cache path moved",
+         _m_result_cache_with("path", "${{ runner.temp }}/elsewhere"),
+         "must restore the result cache exactly once"),
+        ("#350 save key without the head SHA",
+         _m_result_cache_with("key", RESULT_CACHE_RESTORE + "static"),
+         "save key must be exactly"),
+        ("#350 restore prefix wider than this worker's lineage",
+         _m_result_cache_with("restore-keys", "yosys-results-"),
+         "`restore-keys` must be exactly"),
+        ("#350 restore step after the run step", _m_result_cache_after_run,
+         "must be restored before the run step"),
+        ("#350 run step without --cache",
+         _m_result_cache_run(RESULT_CACHE_FLAG, ""), "must pass exactly"),
+        ("#350 run step adds a second seed directory",
+         _m_result_cache_run(RESULT_CACHE_FLAG,
+                             RESULT_CACHE_FLAG + ' --cache-seed "$RUNNER_TEMP/x"'),
+         "must pass no `--cache-seed`"),
+        ("#350 policy page silent on the result cache",
+         lambda w: _policy_replace(w, "`syn/yosys/result_cache.py`",
+                                   "`syn/yosys/result_cache.txt`"),
+         "must state the result cache"),
+    ]
+
+
+def _physical_gptp_arms() -> list[Arm]:
+    """The nightly leg cannot disappear, widen its budget or rejoin PR shards."""
+    finding = "physical-gptp must match its pinned schedule, budget, steps and evidence"
+    arms: list[Arm] = [
+        ("physical job removed", lambda w: jobs(w[RTL_FULL]).pop(PHYSICAL_GPTP_JOB), finding),
+    ]
+    for key, value in (("if", "${{ false }}"),
+                       ("if", "${{ needs.full-ci-gate.outputs.run_full == 'true' }}"),
+                       ("needs", []), ("timeout-minutes", 180),
+                       ("runs-on", "self-hosted"), ("continue-on-error", True)):
+        arms.append((f"physical job changed {key} {value}",
+                     _m_job_key_any(RTL_FULL, PHYSICAL_GPTP_JOB, key, value), finding))
+
+    def step_mutation(index: int, key: str, value: Any) -> Mutator:
+        """Change one step without altering any of its neighbors."""
+        def mutate(w: World) -> None:
+            """Apply the selected step mutation to this fixture world."""
+            jobs(w[RTL_FULL])[PHYSICAL_GPTP_JOB]["steps"][index][key] = value
+        return mutate
+
+    for index, key, value in ((0, "with", {"ref": "dev"}),
+                              (1, "run", "echo no descriptor-builder dependency"),
+                              (2, "run", "echo unbound SHA"),
+                              (4, "run", "echo no tool build"),
+                              (5, "run", "echo no version check"),
+                              (6, "run", "echo no selection check"),
+                              (7, "if", "${{ false }}"),
+                              (7, "run", "echo no suite run"),
+                              (7, "env", {"SUITE_TIMEOUT": "7200"}),
+                              (8, "with", {"name": "suite-logs-3"})):
+        arms.append((f"physical step {index} changed {key}",
+                     step_mutation(index, key, value), finding))
+    arms.append(("physical version check loses pipefail",
+                 step_mutation(5, "run", "\n".join(ENV_FILE_WRITERS[
+                     (RTL_FULL, "verilator-shards", "Put Verilator on PATH and prove the version")])),
+                 finding))
+    def default_command(w: World) -> None:
+        """Attempt to run the physical suite in every default shard."""
+        for step in jobs(w[RTL_FULL])["verilator-shards"]["steps"]:
+            if step.get("name") == "Run this exhaustive suite shard":
+                step["run"] += " --physical-gptp"
+    arms.append(("physical selection leaked into default shards", default_command,
+                 "default Verilator shards must use the pinned default inventory command"))
+    def shared_cancellation(w: World) -> None:
+        """Let a push cancel a physical run without starting a replacement."""
+        w[RTL_FULL]["concurrency"]["group"] = (
+            "${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}")
+    arms.append(("physical runs cancelled by pushes", shared_cancellation,
+                 "physical runs must survive push/PR cancellation"))
+    return arms
+
+
+def _carrier_run_steps(world: World) -> Iterator[tuple[str, str, int, YamlMap]]:
+    """Read carrier run steps from live workflows, independently of pins."""
+    for path in (DOCS, ELABORATE):
+        for jid in PUBLIC_NAMES[path]:
+            for at, step in enumerate(_job_steps(world, path, jid)):
+                if isinstance(step.get("run"), str):
+                    yield path, jid, at, step
+
+
+def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
+    """Script mutations and their first differing line, where applicable.
+
+    Every normalized line gets a swallowed-call arm, including non-last
+    bounded checks and the AC5 Python idiom call. Keep the original last-line
+    arm's identity. Appended commands and reordered distinct lines prove
+    length and order matter; proof/check flags are removed only where present.
+    """
+    edits = [("no-op", "true", 1),
+             ("or-true", "\n".join((*lines[:-1], lines[-1] + " || true")),
+              len(lines))]
+    if len(lines) > 1:
+        edits.append(("drop-command", "\n".join(lines[:-1]), len(lines)))
+    for n, line in enumerate(lines[:-1]):
+        edited = list(lines)
+        edited[n] = line + " || true"
+        edits.append((f"or-true-line-{n + 1}", "\n".join(edited), n + 1))
+    edits.append(("append-command", "\n".join((*lines, "echo appended")),
+                  len(lines) + 1))
+    for n in range(len(lines) - 1):
+        if lines[n] != lines[n + 1]:
+            edited = list(lines)
+            edited[n], edited[n + 1] = edited[n + 1], edited[n]
+            edits.append(("reorder-lines", "\n".join(edited), n + 1))
+            break
+    for n, line in enumerate(lines):
+        changed, count = re.subn(r" --(?:self-test|selftest|check)(?= |$)",
+                                 "", line, count=1)
+        if count:
+            edited = list(lines)
+            edited[n] = changed
+            edits.append(("drop-flag", "\n".join(edited), n + 1))
+            break
+    return edits
+
+
+def _carrier_script_arms(pristine: World) -> list[Arm]:
+    """Reason-pin every carrier body, including its name and differing line.
+
+    Read the live steps so deleting a canonical record cannot retire its
+    mutation arms. Specialized findings cannot satisfy these body reasons.
+    Existing key checks own the continue-on-error refusal.
+    """
+    arms = []
+    for path, jid, at, step in _carrier_run_steps(pristine):
+        lines = normalize_script(step["run"])
+        what = f"job `{jid}` step {at + 1} (`{step['name']}`)"
+        label = f"carrier-script-407 {jid} step {at + 1}"
+        for lever, run, differing in _carrier_script_edits(lines):
+            expected = lines[differing - 1] if differing <= len(lines) else None
+            arms.append((f"{label} {lever}",
+                         _m_step_key_at(path, jid, at, "run", run),
+                         f"{what} script is not the canonical form: "
+                         f"line {differing} must be {expected!r}"))
+        arms.append((f"{label} continue-on-error",
+                     _m_step_key_at(path, jid, at, "continue-on-error", True),
+                     f"{what} must carry no `continue-on-error`"))
+    return arms
+
+
+def _mutations(pristine: World) -> list[Arm]:
+    """(name, mutate(parsed_world), expected finding fragment), every arm.
+
+    Every arm alters ONE contract item on a deep copy of the pristine parsed
+    world and names the fragment the finding must carry. Arms that touch the
+    policy page mutate its text and assert the text actually changed, so an
+    arm cannot pass because its edit found nothing to edit.
+
+    The arms are built by the `_*_arms` functions above, one per area of
+    the contract, and concatenated here in the order the self-test prints
+    them. `pristine` is the tree the RTL step-list arms are DERIVED from:
+    their population is the two RTL files' job lists and their levers are
+    each job's own steps, so no table decides which of them exist ([R97]
+    round 4 on PR #431)."""
+    return (_rtl_trigger_arms()
+            + _rtl_sha_arms()
+            + _gate_escape_arms()
+            + _gate_condition_arms()
+            + _publication_path_arms()
+            + _fast_selector_arms()
+            + _fast_verdict_arms()
+            + _shard_and_fast_arms()
+            + _aggregate_script_arms()
+            + _docs_builder_arms()
+            + _docs_carrier_arms()
+            + _elaborate_arms()
+            + _decoy_name_arms()
+            + _contract_step_and_env_arms()
+            + _key_allowlist_arms()
+            + _recorded_writer_arms()
+            + _docs_check_gate_step_arms()
+            + _em_dash_gate_step_arms()
+            + _carrier_gate_step_arms()
+            + _elab_scope_and_presence_arms()
+            + _carrier_step_list_arms()
+            + _carrier_script_arms(pristine)
+            + _sequence_pin_arms(pristine)
+            + _result_cache_arms()
+            + _physical_gptp_arms())
+
+
+def _run_mutations(checker: Callable[[World], list[str]],
+                   pristine: World) -> list[str]:
+    """Apply every arm to a deep copy and require `checker` to name the
+    expected fragment. Returns the list of arms that did NOT bite."""
+    misses = []
+    for name, mutate, want in _mutations(pristine):
+        world = copy.deepcopy(pristine)
+        mutate(world)
+        findings = checker(world)
+        if not any(want in f for f in findings):
+            misses.append(f"[{name}] expected a finding naming {want!r}, got "
+                          f"{findings or 'no findings'}")
+    return misses
+
+
+def _selftest_arms(pristine: World) -> tuple[list[str], int]:
+    """Every mutation arm bites the real checker, and a checker stubbed to
+    find nothing fails every one of them. Returns (problems, arms run)."""
+    problems = []
+    real = lambda w: check(w).findings  # noqa: E731
+    misses = _run_mutations(real, pristine)
+    arms = _mutations(pristine)
+    for m in misses:
+        problems.append("mutation not caught: " + m)
+    for name, _, _ in arms:
+        if not any(name in m for m in misses):
+            print(f"  ok   caught: {name}")
+
+    # Vacuity: a checker stubbed to find nothing must fail every arm above.
+    stubbed = _run_mutations(lambda w: [], pristine)
+    if len(stubbed) != len(arms):
+        problems.append(f"vacuity: a stub checker failed only {len(stubbed)} "
+                        f"of {len(arms)} arms; the arms do not depend on the "
+                        "checker")
+    else:
+        print(f"  ok   vacuity: a stub that finds nothing fails all {len(arms)} arms")
+    return problems, len(arms)
+
+
+def _selftest_cannot_run(root: pathlib.Path) -> tuple[list[str], int]:
+    """Inputs the check cannot judge are rc 2, never a pass. Returns
+    (problems, arms run)."""
+    problems, arms = [], 0
+    for name, world in (
+        ("missing rtl.yml", {k: v for k, v in read_tree(root).items()
+                             if k != RTL_FULL}),
+        ("unparseable rtl.yml", dict(read_tree(root), **{RTL_FULL: "on: [\n"})),
+        ("scalar rtl.yml", dict(read_tree(root), **{RTL_FULL: "just text\n"})),
+    ):
+        try:
+            parse_world(world)
+        except CannotRun:
+            print(f"  ok   cannot-run: {name}")
+            arms += 1
+        else:
+            problems.append(f"{name} was accepted instead of refused")
+    return problems, arms
+
+
+def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
+    """The directory scan itself, on disk ([R3] round 6 on PR #293): the
+    fifth-file arms inject the parsed world, so only a real file in a real
+    `.github/workflows/` can prove read_tree lists what GitHub runs; then the
+    duplicate-mapping trick as a raw file. Returns (problems, arms run)."""
+    problems, arms = [], 0
+    with tempfile.TemporaryDirectory() as td:
+        tree = pathlib.Path(td)
+        for rel, text in read_tree(root).items():
+            (tree / rel).parent.mkdir(parents=True, exist_ok=True)
+            (tree / rel).write_text(text, encoding="utf-8")
+        want = "`docs-check` must be carried by exactly one job across every workflow file"
+        # Both suffixes GitHub loads, each as a real file (maintainer [R0]
+        # on PR #293: a `.yml`-only fixture let `.yaml` discovery regress).
+        # A LITERAL pair, not WORKFLOW_SUFFIXES: looping over the constant
+        # this control exists to hold let a narrowed constant drop the
+        # `.yaml` fixture instead of failing it ([R4] round 6 on PR #293).
+        for suffix in (".yml", ".yaml"):
+            decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
+            decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
+                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
+                             "    steps:\n      - run: 'true'\n", encoding="utf-8")
+            findings = check(parse_world(read_tree(tree))).findings
+            if any(want in f and f"decoy{suffix}" in f for f in findings):
+                print(f"  ok   caught: #261 a fifth workflow file ON DISK "
+                      f"(decoy{suffix}) carries docs-check")
+            else:
+                problems.append(f"SELF-TEST FAILED [fifth-file-on-disk {suffix}]: "
+                                "read_tree did not list the extra workflow "
+                                f"file, got {findings or 'no findings'}")
+            arms += 1
+            decoy.write_text("jobs: [\n", encoding="utf-8")
+            try:
+                parse_world(read_tree(tree))
+            except CannotRun:
+                print(f"  ok   cannot-run: unparseable extra workflow file "
+                      f"(decoy{suffix})")
+                arms += 1
+            else:
+                problems.append(f"an unparseable extra workflow file (decoy{suffix}) "
+                                "was accepted instead of refused")
+            decoy.unlink()
+
+        # The duplicate-mapping trick ON DISK (#295, [R3] round 2 on PR
+        # #293): an appended duplicate `<job>:` mapping parses last-wins,
+        # so only a raw file can prove the parsed world the arms above
+        # mutate is what the parser actually hands the checker.
+        for rel, jid, want in (
+            (DOCS, "wire-accountability",
+             f"job `wire-accountability` must run `{WIRE_GATE_CALL}` "
+             "in exactly one step (found 0)"),
+            (ELABORATE, "elaborate",
+             "must carry exactly one step with "
+             f"`id: {ELAB_SCOPE_STEP_ID}` (found 0)"),
+        ):
+            victim = tree / rel
+            original = victim.read_text(encoding="utf-8")
+            victim.write_text(original + f"\n  {jid}:\n"
+                              "    runs-on: ubuntu-latest\n"
+                              "    steps:\n      - run: 'true'\n",
+                              encoding="utf-8")
+            findings = check(parse_world(read_tree(tree))).findings
+            arms += 1
+            if any(want in f for f in findings):
+                print(f"  ok   caught: #295 duplicate `{jid}:` mapping ON "
+                      f"DISK in {rel} (last one wins)")
+            else:
+                problems.append(f"SELF-TEST FAILED [duplicate-mapping {jid}]: "
+                                "the appended duplicate mapping was not "
+                                f"refused, got {findings or 'no findings'}")
+            victim.write_text(original, encoding="utf-8")
+    return problems, arms
+
+
+def _selftest_records() -> tuple[list[str], int]:
+    """--require-target-sha arms, over a temporary directory. Returns
+    (problems, arms run)."""
+    problems, arms = [], 0
+    sha = "0123456789abcdef0123456789abcdef01234567"
+    other = "fedcba9876543210fedcba9876543210fedcba98"
+    with tempfile.TemporaryDirectory() as td:
+        base = pathlib.Path(td)
+
+        def shards(n: int, content: str = sha + "\n") -> list[pathlib.Path]:
+            """`n` shard directories under `base`, each with a `content` record."""
+            roots = []
+            for i in range(n):
+                d = base / f"suite-logs-{i}"
+                d.mkdir(exist_ok=True)
+                (d / RECORD).write_text(content)
+                (d / f"suite{i}.log").write_text("checks: 1\n")
+                roots.append(d)
+            return roots
+
+        three = dict(gate=sha, run=sha, checkout=sha)
+        cases = []
+        roots = shards(4)
+        f, _ = check_records(three, roots, 4)
+        cases.append(("four matching records with --expect 4 pass", not f))
+        f, _ = check_records(three, roots[:3], 4)
+        cases.append(("three of four shard directories are refused",
+                      any("expected 4" in x and "found 3" in x for x in f)))
+        f, _ = check_records(three, roots, 3)
+        cases.append(("a surplus shard directory is refused",
+                      any("expected 3" in x and "found 4" in x for x in f)))
+        try:
+            check_records(three, roots, None)
+        except CannotRun:
+            cases.append(("a missing --expect cannot run", True))
+        else:
+            cases.append(("a missing --expect cannot run", False))
+        (roots[2] / RECORD).unlink()
+        f, _ = check_records(three, roots, 4)
+        cases.append(("a missing record is refused and named",
+                      any("suite-logs-2" in x and "missing" in x for x in f)))
+        roots = shards(4)
+        (roots[1] / RECORD).write_text(other + "\n")
+        f, _ = check_records(three, roots, 4)
+        cases.append(("a record for another tree is refused",
+                      any("suite-logs-1" in x and other in x for x in f)))
+        (roots[1] / RECORD).write_text("not-a-sha\n")
+        f, _ = check_records(three, roots, 4)
+        cases.append(("a malformed record is refused",
+                      any("not a commit id" in x for x in f)))
+        roots = shards(4)
+        f, _ = check_records(dict(gate=sha, run=other, checkout=sha), roots, 4)
+        cases.append(("gate/run disagreement is refused",
+                      any("disagree" in x for x in f)))
+        f, _ = check_records(dict(gate=sha, run=sha, checkout=""), roots, 4)
+        cases.append(("an empty source SHA is refused",
+                      any("checkout" in x and "not a 40-digit" in x for x in f)))
+        f, _ = check_records(three, [], 4)
+        cases.append(("no shard directory at all is refused, not skipped",
+                      any("produced nothing" in x for x in f)
+                      and any("found 0" in x for x in f)))
+        none = base / "none"
+        none.mkdir()
+        f, _ = check_records(three, [none], 1)
+        cases.append(("the empty placeholder directory is refused",
+                      any("none" in x and "missing" in x for x in f)))
+        roots = shards(4)
+        f, _ = check_records(dict(gate=sha, run=sha), roots, 4)
+        cases.append(("a dropped checkout source is refused",
+                      any("missing: checkout" in x for x in f)))
+        f, _ = check_records(dict(run=sha, checkout=sha), roots, 4)
+        cases.append(("a dropped gate source is refused",
+                      any("missing: gate" in x for x in f)))
+        f, _ = check_records(dict(gate=sha), roots, 4)
+        cases.append(("a lone gate source is refused",
+                      any("missing: run, checkout" in x for x in f)))
+        f, _ = check_records({}, roots, 4)
+        cases.append(("no source at all is refused",
+                      any("missing: gate, run, checkout" in x for x in f)))
+        f, _ = check_records(dict(three, extra=sha), roots, 4)
+        cases.append(("an unknown source label is refused",
+                      any("unknown: extra" in x for x in f)))
+        for name, ok in cases:
+            arms += 1
+            if ok:
+                print(f"  ok   records: {name}")
+            else:
+                problems.append(f"records arm failed: {name}")
+    return problems, arms
+
+
+def _selftest_step_list_pins(pristine: World) -> tuple[list[str], int]:
+    """The #406 coverage decision, planted rather than described ([R97]
+    rounds 2 and 4 on PR #431).
+
+    check_sequence_pin_coverage takes the recorded lists as an ARGUMENT, so
+    this stage hands it a narrowed, a partial, a stray and a widened mapping
+    over the PRISTINE tree and requires what each one produces. A job whose
+    entry is dropped is refused by name although every other rule in this
+    file still runs over that job unchanged: that is round 4's finding, that
+    a rule refusing something about a job is not a pin on which steps it
+    runs. A list truncated or an entry narrowed by one recorded key is
+    refused on the pristine tree, so a partial record cannot stand in for a
+    whole one. And a job appended to a file WITH its list recorded is
+    accepted, which is the documented remedy rather than an exemption.
+    Returns (problems, arms run)."""
+    problems, arms = [], 0
+    path, jid = victim = next(iter(RTL_STEP_LISTS))
+    spec = RTL_STEP_LISTS[victim]
+    narrowed = next(((n, key) for n, e in enumerate(spec)
+                     for key in ("if", "env", "with") if key in e), None)
+    if narrowed is None:
+        return [f"#406 pin plants: the entry for job `{jid}` records no "
+                "`if`, `env` or `with` to narrow"], 1
+    at, key = narrowed
+    thinned = spec[:at] + ({k: v for k, v in spec[at].items() if k != key},) \
+        + spec[at + 1:]
+    extra = (RTL_FULL, "tidy-extra")
+    appended = copy.deepcopy(pristine)
+    _m_append_job(*extra)(appended)
+    for name, world, pins, want in (
+        ("a job whose recorded list is dropped",
+         pristine, {k: v for k, v in RTL_SEQUENCE_PINS.items() if k != victim},
+         f"job `{jid}` must have its whole step list recorded"),
+        ("a recorded list truncated to its first two steps",
+         pristine, {**RTL_SEQUENCE_PINS, victim: spec[:2]},
+         f"job `{jid}` must carry exactly 2 steps"),
+        (f"an entry with its recorded `{key}` dropped",
+         pristine, {**RTL_SEQUENCE_PINS, victim: thinned},
+         f"job `{jid}` step {at + 1} "),
+        ("a list recorded for a job the file does not declare",
+         pristine, {**RTL_SEQUENCE_PINS, extra: ({"name": "tidy",
+                                                  "run": "true"},)},
+         f"job `{extra[1]}` must exist in this file"),
+    ):
+        c = Contract()
+        check_sequence_pin_coverage(c, world, pins)
+        arms += 1
+        if any(want in f for f in c.findings):
+            print(f"  ok   #406 pin plant: {name}")
+        else:
+            problems.append(f"#406 pin plant [{name}] was not refused naming "
+                            f"{want!r}: {c.findings or 'nothing'}")
+    c = Contract()
+    check_sequence_pin_coverage(c, appended,
+                                {**RTL_SEQUENCE_PINS,
+                                 extra: ({"name": "tidy", "run": "true"},)})
+    arms += 1
+    if any(extra[1] in f for f in c.findings):
+        problems.append("#406 pin plant [an appended job with its list "
+                        "recorded] was refused: " + "; ".join(c.findings))
+    else:
+        print("  ok   #406 pin plant: an appended job with its list recorded")
+    return problems, arms
+
+
+def _selftest_carrier_script_pins(pristine: World) -> tuple[list[str], int]:
+    """Deleting a carrier script record refuses; updating it is the remedy."""
+    problems, arms = [], 0
+    for path, jid, at, step in _carrier_run_steps(pristine):
+        spec = copy.deepcopy(CARRIER_STEP_LISTS[(path, jid)])
+        spec[at].pop("run", None)
+        c = Contract()
+        check_carrier_steps(c, path, pristine[path], jid, spec)
+        want = (f"job `{jid}` step {at + 1} (`{step['name']}`) must record "
+                "a canonical normalized `run` script")
+        label = f"carrier-script-407 {jid} step {at + 1} missing record"
+        arms += 1
+        if any(want in f for f in c.findings):
+            print(f"  ok   {label}")
+        else:
+            problems.append(f"{label}: expected {want!r}, got {c.findings}")
+
+    # A reviewed edit may change a script together with its canonical entry.
+    # Exercise the comparison with that new pair, not an exemption flag.
+    world = copy.deepcopy(pristine)
+    path, jid = DOCS, "docs-check"
+    ss = _job_steps(world, path, jid)
+    at = next(n for n, s in enumerate(ss) if s.get("name") == "Python idiom gate")
+    ss[at]["run"] += "\necho checked\n"
+    spec = copy.deepcopy(CARRIER_STEP_LISTS[(path, jid)])
+    spec[at]["run"] = (*spec[at]["run"], "echo checked")
+    c = Contract()
+    check_carrier_steps(c, path, world[path], jid, spec)
+    arms += 1
+    if c.findings:
+        problems.append("carrier-script-407 updated record: " + "; ".join(c.findings))
+    else:
+        print("  ok   carrier-script-407 script and record updated together")
+    return problems, arms
+
+
+def _selftest_whitespace(pristine: World) -> tuple[list[str], int]:
+    """The canonical pin is whitespace-invariant: re-indenting and continuing
+    the same lines differently is the same script and must pass. Returns
+    (problems, arms run)."""
+    problems = []
+    world = copy.deepcopy(pristine)
+    for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
+        if DEFAULT_BRANCH_FLAG in step_text(s):
+            s["run"] = ("  set   -euo pipefail\n\n"
+                        f"  {CANONICAL_OBSERVED}\n"
+                        "  python3 scripts/ci_events.py \\\n"
+                        "    --require-default-branch \\\n"
+                        '    --event "$GITHUB_EVENT_NAME" \\\n'
+                        '    --observed "$observed"\n')
+    for s in steps(jobs(world[RTL_FULL])[GATE_JOB]):
+        if s.get("id") == DECIDE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FULL])["verilator-shards"]):
+        if s.get("name") == OWNERSHIP_STEP:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for jid, name in AGGREGATE_SCRIPTS:
+        for s in steps(jobs(world[RTL_FULL])[jid]):
+            if s.get("name") == name:
+                s["run"] = "\n".join("   " + l if l.strip() else ""
+                                      for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])[FAST_SELECTOR_JOB]):
+        if s.get("id") == FAST_SCOPE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FAST])["rtl-fast"]):
+        if isinstance(s.get("run"), str):
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[RTL_FULL])["yosys-portability"]):
+        if VERIFY_FLAG in step_text(s):
+            s["run"] = ("shopt   -s nullglob\n"
+                        'roots=("$RUNNER_TEMP"/all-yosys-results/yosys-results-*)\n'
+                        "python3 scripts/ci_events.py \\\n"
+                        "  --require-target-sha --expect 4 \\\n"
+                        '  --sha gate="$GATE_SHA" \\\n'
+                        '  --sha run="$GITHUB_SHA" \\\n'
+                        '  --sha checkout="$(git rev-parse HEAD)" \\\n'
+                        '  -- "${roots[@]}"\n')
+    for jid, needle in (("docs-check", CONTRACT_CHECK),
+                        ("docs-check", IMPORTED_GPTP_GATE_CALL),
+                        ("wire-accountability", WIRE_GATE_CALL),
+                        ("docs-check-no-git", NO_GIT_GATE_CALL)):
+        for s in steps(jobs(world[DOCS])[jid]):
+            if needle in step_text(s):
+                s["run"] = "\n".join("   " + l if l.strip() else ""
+                                      for l in s["run"].splitlines()) + "\n"
+    for s in steps(jobs(world[ELABORATE])["elaborate"]):
+        if s.get("id") == ELAB_SCOPE_STEP_ID:
+            s["run"] = "\n".join("   " + l if l.strip() else ""
+                                  for l in s["run"].splitlines()) + "\n"
+    for _, _, _, step in _carrier_run_steps(world):
+        step["run"] = "\n\n".join(" \t" + line for line in
+                                   normalize_script(step["run"])) + "\n"
+    if check(world).findings:
+        problems.append("whitespace-only reformatting of the canonical scripts "
+                        f"was refused: {check(world).findings}")
+    else:
+        print("  ok   canonical pins are whitespace-invariant (assert step, "
+              "decision step, ownership step, the aggregates' tally and "
+              "worker-result steps, fast scope step, fast verdict step, "
+              "verifier "
+              "step, the four documentation gate steps and the elaborate "
+              "scope step; carrier-script-407 every carrier body)")
+    return problems, 1
+
+
+def _selftest_default_branch() -> tuple[list[str], int]:
+    """--require-default-branch arms: the decision for every event class. An
+    inverted or weakened comparison fails one of these, which is what makes
+    the YAML shape checks worth having. Returns (problems, arms run)."""
+    def refuses(event: str, observed: str) -> bool:
+        """Whether `event` with `observed` is refused, naming the value."""
+        f, _ = check_default_branch(event, observed)
+        return bool(f) and any(observed in x or "<empty>" in x for x in f)
+
+    def passes(event: str, observed: str) -> bool:
+        """Whether `event` with `observed` passes with no finding."""
+        f, _ = check_default_branch(event, observed)
+        return not f
+
+    def warns(event: str, observed: str) -> bool:
+        """Whether `event` with `observed` continues under a WARNING line."""
+        f, lines = check_default_branch(event, observed)
+        return not f and any("WARNING" in x for x in lines)
+
+    db_cases = [
+        ("schedule on dev passes", passes("schedule", PUSH_BRANCH)),
+        ("dispatch on dev passes", passes("workflow_dispatch", PUSH_BRANCH)),
+        ("schedule on main refuses, naming main", refuses("schedule", "main")),
+        ("dispatch on main refuses", refuses("workflow_dispatch", "main")),
+        ("schedule with an unreadable value refuses",
+         refuses("schedule", "unreadable")),
+        ("schedule with an empty value refuses", refuses("schedule", "")),
+        ("schedule with surrounding whitespace still passes",
+         passes("schedule", f" {PUSH_BRANCH}\n")),
+        ("pull_request on main warns and continues",
+         warns("pull_request", "main")),
+        ("push on main warns and continues", warns("push", "main")),
+    ]
+    try:
+        check_default_branch("", PUSH_BRANCH)
+    except CannotRun:
+        db_cases.append(("a missing event cannot run", True))
+    else:
+        db_cases.append(("a missing event cannot run", False))
+    problems, arms = [], 0
+    for name, ok in db_cases:
+        arms += 1
+        if ok:
+            print(f"  ok   default-branch: {name}")
+        else:
+            problems.append(f"default-branch arm failed: {name}")
+    return problems, arms
+
+
+def selftest(root: pathlib.Path) -> int:
+    """`--selftest`: the gate's own proof, stage by stage in the order it
+    prints. Returns the exit code: 0 when every arm bit, 1 when any did not,
+    2 when the pristine tree could not be loaded."""
+    problems = []
+
+    # The pristine tree is clean, and the contract is non-trivial.
+    try:
+        pristine = parse_world(read_tree(root))
+    except CannotRun as exc:
+        print(f"selftest: cannot load the pristine tree: {exc}")
+        return RC_CANNOT_RUN
+    clean = check(pristine)
+    if clean.findings:
+        problems.append("pristine tree is not clean: " +
+                        "; ".join(clean.findings))
+    if clean.checked < 30:
+        problems.append(f"only {clean.checked} contract item(s) checked; the "
+                        "contract has shrunk")
+
+    # Each stage returns the problems it found and the arms it ran; the
+    # tuple calls them left to right, so what is printed and what is counted
+    # stay in the order the arms were written.
+    checked_arms = 0
+    for found, arms in (_selftest_arms(pristine),
+                        _selftest_cannot_run(root),
+                        _selftest_on_disk(root),
+                        _selftest_records(),
+                        _selftest_step_list_pins(pristine),
+                        _selftest_carrier_script_pins(pristine),
+                        _selftest_whitespace(pristine),
+                        _selftest_default_branch()):
+        problems.extend(found)
+        checked_arms += arms
+
+    if problems:
+        for p in problems:
+            print("  FAIL " + p)
+        print(f"selftest: {len(problems)} FAILURE(S)")
+        return RC_FINDING
+    print(f"selftest: PASS ({clean.checked} contract items, {checked_arms} "
+          "arms)")
+    return RC_OK
+
+
+# --------------------------------------------------------------------------
+# CLI
+# --------------------------------------------------------------------------
+
+def run_check(root: pathlib.Path) -> int:
+    """`--check`: the live tree against the contract, every note and finding
+    printed. Returns the exit code; a file this gate could not read or
+    parse is 2, never 0."""
+    try:
+        parsed = parse_world(read_tree(root))
+        c = check(parsed)
+    except CannotRun as exc:
+        print(f"ci_events: cannot run: {exc}")
+        return RC_CANNOT_RUN
+    for note in c.notes:
+        print("  note " + note)
+    for f in c.findings:
+        print("  FAIL " + f)
+    if c.findings:
+        print(f"ci_events: {len(c.findings)} finding(s) over {c.checked} "
+              "contract item(s)")
+        return RC_FINDING
+    print(f"ci_events: OK ({c.checked} contract item(s) across "
+          f"{len(WORKFLOWS) + len(extra_workflows(parsed))} workflow files and {POLICY})")
+    return RC_OK
+
+
+def run_require(sha_args: Sequence[str], roots: Sequence[str],
+                expect: int | None) -> int:
+    """`--require-target-sha`: the aggregate-side verdict over the downloaded
+    shards. `sha_args` are the raw `label=sha` arguments; a malformed or
+    repeated label is 2, since unattributable evidence proves nothing."""
+    shas = {}
+    for arg in sha_args:
+        if "=" not in arg:
+            print(f"ci_events: --sha expects label=sha, got {arg!r}")
+            return RC_CANNOT_RUN
+        label, value = arg.split("=", 1)
+        if label in shas:
+            print(f"ci_events: --sha {label} given twice")
+            return RC_CANNOT_RUN
+        shas[label] = value.strip()
+    try:
+        findings, lines = check_records(shas, [pathlib.Path(r) for r in roots],
+                                        expect)
+    except CannotRun as exc:
+        print(f"ci_events: cannot run: {exc}")
+        return RC_CANNOT_RUN
+    for line in lines:
+        print(line)
+    for f in findings:
+        print("  FAIL " + f)
+    return RC_FINDING if findings else RC_OK
+
+
+def run_require_default_branch(event: str, observed: str) -> int:
+    """`--require-default-branch`: the live repository-setting assertion,
+    printed and returned as an exit code."""
+    try:
+        findings, lines = check_default_branch(event, observed)
+    except CannotRun as exc:
+        print(f"ci_events: cannot run: {exc}")
+        return RC_CANNOT_RUN
+    for line in lines:
+        print(line)
+    for f in findings:
+        print("  FAIL " + f)
+    return RC_FINDING if findings else RC_OK
+
+
+def main(argv: Sequence[str]) -> int:
+    """Parse one mode out of `argv`, run it, and return the exit code: 0
+    clean, 1 a finding, 2 an input this gate cannot judge."""
+    parser = argparse.ArgumentParser(
+        description="Hold the CI workflow files to their documented event "
+                    "and SHA contract.")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--check", action="store_true",
+                      help="the live tree against the contract")
+    mode.add_argument("--selftest", action="store_true",
+                      help="mutation arms over in-memory copies")
+    mode.add_argument("--require-target-sha", action="store_true",
+                      help="verify every shard's TARGET_SHA record")
+    mode.add_argument("--require-default-branch", action="store_true",
+                      help="assert the live repository default branch for "
+                           "the events it governs")
+    parser.add_argument("--root", type=pathlib.Path, default=ROOT,
+                        help="repository root (default: this script's)")
+    parser.add_argument("--sha", action="append", default=[],
+                        metavar="LABEL=SHA",
+                        help="a source of the run's SHA (gate, run, checkout)")
+    parser.add_argument("--expect", type=int, default=None, metavar="N",
+                        help="shard directories the worker matrix produces "
+                             "(--require-target-sha)")
+    parser.add_argument("--event", default="",
+                        help="GITHUB_EVENT_NAME (--require-default-branch)")
+    parser.add_argument("--observed", default="",
+                        help="the default branch gh api reported "
+                             "(--require-default-branch)")
+    parser.add_argument("roots", nargs="*",
+                        help="shard evidence directories (--require-target-sha)")
+    args = parser.parse_args(argv[1:])
+    if args.check:
+        return run_check(args.root)
+    if args.selftest:
+        return selftest(args.root)
+    if args.require_default_branch:
+        return run_require_default_branch(args.event, args.observed)
+    return run_require(args.sha, args.roots, args.expect)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

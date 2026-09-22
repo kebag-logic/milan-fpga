@@ -1,0 +1,190 @@
+[
+  {
+    "mutant": "real",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/real.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/real.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "selftest: PASS (1505 contract items, 1144 arms)",
+      "failures": 0
+    },
+    "ac5_analogue_findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "mutant": "M5b",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/M5b.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/M5b.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 1,
+      "last_line": "selftest: 117 FAILURE(S)",
+      "failures": 117
+    },
+    "ac5_analogue_findings": []
+  },
+  {
+    "mutant": "prefix-only",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/prefix-only.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/prefix-only.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 1,
+      "last_line": "selftest: 56 FAILURE(S)",
+      "failures": 56
+    },
+    "ac5_analogue_findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "mutant": "order-insensitive",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/order-insensitive.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/order-insensitive.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 1,
+      "last_line": "selftest: 40 FAILURE(S)",
+      "failures": 40
+    },
+    "ac5_analogue_findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "mutant": "removed-comparator",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/removed-comparator.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/removed-comparator.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 1,
+      "last_line": "selftest: 400 FAILURE(S)",
+      "failures": 400
+    },
+    "ac5_analogue_findings": []
+  },
+  {
+    "mutant": "removed-record-enforcement",
+    "check": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/removed-record-enforcement.py",
+        "--check",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 0,
+      "last_line": "ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)",
+      "failures": 0
+    },
+    "selftest": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/removed-record-enforcement.py",
+        "--selftest",
+        "--root",
+        "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/505-revision-a159/after/inputs"
+      ],
+      "exit": 1,
+      "last_line": "selftest: 56 FAILURE(S)",
+      "failures": 56
+    },
+    "ac5_analogue_findings": [
+      ".github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found"
+    ]
+  }
+]

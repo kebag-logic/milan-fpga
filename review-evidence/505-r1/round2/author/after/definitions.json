@@ -1,0 +1,11 @@
+{
+  "comparison_original": "c.item(tuple(lines) == canonical, path,",
+  "comparators": {
+    "M5b": "len(lines) == len(canonical) and all((re.sub(r' \\|\\| true$', '', a) == re.sub(r' \\|\\| true$', '', b)) if i < len(lines) - 1 else a == b for i, (a, b) in enumerate(zip(lines, canonical)))",
+    "prefix-only": "tuple(lines[:len(canonical)]) == canonical",
+    "order-insensitive": "sorted(lines) == sorted(canonical)",
+    "removed-comparator": "True"
+  },
+  "record_original": "c.item(recorded, path,",
+  "record_replacement": "c.item(True, path,"
+}

@@ -1,0 +1,11 @@
+--- real.py
++++ removed-comparator.py
+@@ -3586,7 +3586,7 @@
+     if not recorded:
+         return
+     lines = normalize_script(step["run"])
+-    c.item(tuple(lines) == canonical, path,
++    c.item(True, path,
+            f"{what} script is not the canonical form: "
+            + script_difference(lines, canonical))
+ 

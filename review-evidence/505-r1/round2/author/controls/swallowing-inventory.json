@@ -1,0 +1,1386 @@
+[
+  {
+    "arm": "carrier-script-407 docs-check step 2 or-true-line-1",
+    "job": "docs-check",
+    "step": 2,
+    "name": "Build the validated HDL reference",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 2 or-true-line-2",
+    "job": "docs-check",
+    "step": 2,
+    "name": "Build the validated HDL reference",
+    "line": 2,
+    "command": "python3 -m pip install --quiet --require-hashes -r tools/hdl_reference/requirements.txt"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 2 or-true-line-3",
+    "job": "docs-check",
+    "step": 2,
+    "name": "Build the validated HDL reference",
+    "line": 3,
+    "command": "python3 scripts/gen_hdl_reference.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 2 or-true",
+    "job": "docs-check",
+    "step": 2,
+    "name": "Build the validated HDL reference",
+    "line": 4,
+    "command": "python3 scripts/gen_hdl_reference.py --output \"$RUNNER_TEMP/milan-hdl-reference\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 4 or-true",
+    "job": "docs-check",
+    "step": 4,
+    "name": "Install the python gate dependencies",
+    "line": 1,
+    "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 5 or-true-line-1",
+    "job": "docs-check",
+    "step": 5,
+    "name": "Install diagram gate dependencies",
+    "line": 1,
+    "command": "sudo apt-get update -qq"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 5 or-true-line-2",
+    "job": "docs-check",
+    "step": 5,
+    "name": "Install diagram gate dependencies",
+    "line": 2,
+    "command": "sudo apt-get install -y --no-install-recommends librsvg2-bin"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 5 or-true",
+    "job": "docs-check",
+    "step": 5,
+    "name": "Install diagram gate dependencies",
+    "line": 3,
+    "command": "python3 -m pip install --quiet wavedrom==2.0.3.post3"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 6 or-true",
+    "job": "docs-check",
+    "step": 6,
+    "name": "Link health, wording, dead-reference and local-info gate",
+    "line": 1,
+    "command": "python3 scripts/docs_check.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-1",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-2",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 2,
+    "command": "case \"$EVENT_NAME\" in"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-3",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 3,
+    "command": "pull_request)"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-4",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 4,
+    "command": "if [ -z \"$PR_BASE_REF\" ]; then"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-5",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 5,
+    "command": "echo \"the pull_request event names no base branch\"; exit 2"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-6",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 6,
+    "command": "fi"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-7",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 7,
+    "command": "git fetch --quiet origin \"$PR_BASE_REF\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-8",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 8,
+    "command": "base=\"$(git merge-base HEAD FETCH_HEAD || true)\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-9",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 9,
+    "command": ";;"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-10",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 10,
+    "command": "push) base=\"$PUSH_BEFORE_SHA\" ;;"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-11",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 11,
+    "command": "*) echo \"a $EVENT_NAME event carries no base to judge from\"; exit 2 ;;"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-12",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 12,
+    "command": "esac"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-13",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 13,
+    "command": "if [ -z \"$base\" ] || [ \"$base\" = 0000000000000000000000000000000000000000 ]; then"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-14",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 14,
+    "command": "echo \"the $EVENT_NAME event names no base commit\"; exit 2"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-15",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 15,
+    "command": "fi"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true-line-16",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 16,
+    "command": "git cat-file -e \"$base^{commit}\" 2>/dev/null || git fetch --quiet --depth=1 origin \"$base\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 7 or-true",
+    "job": "docs-check",
+    "step": 7,
+    "name": "Added-line em-dash gate",
+    "line": 17,
+    "command": "python3 scripts/check_em_dash.py --base \"$base\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 8 or-true-line-1",
+    "job": "docs-check",
+    "step": 8,
+    "name": "Concise audience documentation gate",
+    "line": 1,
+    "command": "python3 scripts/check_doc_style.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 8 or-true-line-2",
+    "job": "docs-check",
+    "step": 8,
+    "name": "Concise audience documentation gate",
+    "line": 2,
+    "command": "python3 scripts/check_doc_style.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 8 or-true-line-3",
+    "job": "docs-check",
+    "step": 8,
+    "name": "Concise audience documentation gate",
+    "line": 3,
+    "command": "python3 scripts/check_gptp_docs.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 8 or-true",
+    "job": "docs-check",
+    "step": 8,
+    "name": "Concise audience documentation gate",
+    "line": 4,
+    "command": "python3 scripts/check_gptp_docs.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 9 or-true-line-1",
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 1,
+    "command": "python3 docs/DOC_MAP.gen.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 9 or-true-line-2",
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 2,
+    "command": "python3 docs/DOC_MAP.gen.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 9 or-true-line-3",
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 3,
+    "command": "python3 docs/diagrams/timesync_chain.gen.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 9 or-true",
+    "job": "docs-check",
+    "step": 9,
+    "name": "Audience diagram no-drift gate",
+    "line": 4,
+    "command": "python3 docs/diagrams/timesync_chain.gen.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 10 or-true-line-1",
+    "job": "docs-check",
+    "step": 10,
+    "name": "Product solution source-fact gate",
+    "line": 1,
+    "command": "python3 scripts/check_solution_docs.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 10 or-true",
+    "job": "docs-check",
+    "step": 10,
+    "name": "Product solution source-fact gate",
+    "line": 2,
+    "command": "python3 scripts/check_solution_docs.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 11 or-true-line-1",
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 1,
+    "command": "python3 docs/diagrams/submodule_boundaries.gen.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 11 or-true-line-2",
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 2,
+    "command": "python3 docs/diagrams/submodule_boundaries.gen.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 11 or-true-line-3",
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 3,
+    "command": "python3 scripts/check_submodule_docs.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 11 or-true",
+    "job": "docs-check",
+    "step": 11,
+    "name": "Verified submodule documentation gate",
+    "line": 4,
+    "command": "python3 scripts/check_submodule_docs.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 12 or-true-line-1",
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 1,
+    "command": "python3 scripts/gen_wavedrom.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 12 or-true-line-2",
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 2,
+    "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 12 or-true-line-3",
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 3,
+    "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 12 or-true",
+    "job": "docs-check",
+    "step": 12,
+    "name": "HDL timing diagram no-drift gate",
+    "line": 4,
+    "command": "python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 13 or-true-line-1",
+    "job": "docs-check",
+    "step": 13,
+    "name": "Published diagram PNG gate",
+    "line": 1,
+    "command": "python3 scripts/check_diagram_pngs.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 13 or-true",
+    "job": "docs-check",
+    "step": 13,
+    "name": "Published diagram PNG gate",
+    "line": 2,
+    "command": "python3 scripts/check_diagram_pngs.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 14 or-true",
+    "job": "docs-check",
+    "step": 14,
+    "name": "Milan feature-status consistency gate",
+    "line": 1,
+    "command": "python3 scripts/check_feature_status.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 15 or-true",
+    "job": "docs-check",
+    "step": 15,
+    "name": "Traceability matrix no-drift gate",
+    "line": 1,
+    "command": "python3 docs/traceability/gen_module_matrix.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 16 or-true",
+    "job": "docs-check",
+    "step": 16,
+    "name": "Fetch the builder source dependencies",
+    "line": 1,
+    "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 17 or-true-line-1",
+    "job": "docs-check",
+    "step": 17,
+    "name": "Imported gPTP documentation gate",
+    "line": 1,
+    "command": "python3 scripts/check_gptp_docs.py --with-submodule"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 17 or-true",
+    "job": "docs-check",
+    "step": 17,
+    "name": "Imported gPTP documentation gate",
+    "line": 2,
+    "command": "make -C gptp-processor docs"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 18 or-true-line-1",
+    "job": "docs-check",
+    "step": 18,
+    "name": "Code-quality measurement self-tests",
+    "line": 1,
+    "command": "python3 scripts/measure_control_flow.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 18 or-true",
+    "job": "docs-check",
+    "step": 18,
+    "name": "Code-quality measurement self-tests",
+    "line": 2,
+    "command": "python3 scripts/measure_cohesion.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-1",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-2",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 2,
+    "command": "ver=v0.0.12"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-3",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 3,
+    "command": "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-4",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 4,
+    "command": "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\""
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-5",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 5,
+    "command": "curl -fsSL \"$url\" -o /tmp/sv2v.zip"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-6",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 6,
+    "command": "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-7",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 7,
+    "command": "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true-line-8",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 8,
+    "command": "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 19 or-true",
+    "job": "docs-check",
+    "step": 19,
+    "name": "Install the pinned sv2v release",
+    "line": 9,
+    "command": "sv2v --version"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 20 or-true-line-1",
+    "job": "docs-check",
+    "step": 20,
+    "name": "Bare-metal scope gate",
+    "line": 1,
+    "command": "python3 scripts/check_baremetal_only.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 20 or-true",
+    "job": "docs-check",
+    "step": 20,
+    "name": "Bare-metal scope gate",
+    "line": 2,
+    "command": "python3 scripts/check_baremetal_only.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 21 or-true-line-1",
+    "job": "docs-check",
+    "step": 21,
+    "name": "End-station builder gates",
+    "line": 1,
+    "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 21 or-true",
+    "job": "docs-check",
+    "step": 21,
+    "name": "End-station builder gates",
+    "line": 2,
+    "command": "python3 sw/builder/test_builder.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 22 or-true-line-1",
+    "job": "docs-check",
+    "step": 22,
+    "name": "NVM record-space gate",
+    "line": 1,
+    "command": "python3 scripts/check_nvm_record_space.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 22 or-true",
+    "job": "docs-check",
+    "step": 22,
+    "name": "NVM record-space gate",
+    "line": 2,
+    "command": "python3 scripts/check_nvm_record_space.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 23 or-true",
+    "job": "docs-check",
+    "step": 23,
+    "name": "Saved-state writer gate",
+    "line": 1,
+    "command": "python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-1",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 1,
+    "command": "python3 scripts/check_soc_sources.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-2",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 2,
+    "command": "python3 scripts/check_soc_sources.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-3",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 3,
+    "command": "command -v tclsh >/dev/null || {"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-4",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 4,
+    "command": "sudo apt-get update -qq"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-5",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 5,
+    "command": "sudo apt-get install -y --no-install-recommends tcl"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true-line-6",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 6,
+    "command": "}"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 24 or-true",
+    "job": "docs-check",
+    "step": 24,
+    "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+    "line": 7,
+    "command": "python3 sw/litex/iob_pack_selftest.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 25 or-true-line-1",
+    "job": "docs-check",
+    "step": 25,
+    "name": "RTL source-list drift gate",
+    "line": 1,
+    "command": "python3 scripts/check_rtl_source_lists.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 25 or-true",
+    "job": "docs-check",
+    "step": 25,
+    "name": "RTL source-list drift gate",
+    "line": 2,
+    "command": "python3 scripts/check_rtl_source_lists.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 26 or-true-line-1",
+    "job": "docs-check",
+    "step": 26,
+    "name": "Boundary-unit naming ratchet",
+    "line": 1,
+    "command": "python3 scripts/measure_naming.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 26 or-true",
+    "job": "docs-check",
+    "step": 26,
+    "name": "Boundary-unit naming ratchet",
+    "line": 2,
+    "command": "python3 scripts/measure_naming.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 27 or-true-line-1",
+    "job": "docs-check",
+    "step": 27,
+    "name": "Port contract gate",
+    "line": 1,
+    "command": "python3 scripts/check_port_contracts.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 27 or-true",
+    "job": "docs-check",
+    "step": 27,
+    "name": "Port contract gate",
+    "line": 2,
+    "command": "python3 scripts/check_port_contracts.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 28 or-true-line-1",
+    "job": "docs-check",
+    "step": 28,
+    "name": "Fail-fast ratchet",
+    "line": 1,
+    "command": "python3 scripts/measure_fail_fast.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 28 or-true",
+    "job": "docs-check",
+    "step": 28,
+    "name": "Fail-fast ratchet",
+    "line": 2,
+    "command": "python3 scripts/measure_fail_fast.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 29 or-true-line-1",
+    "job": "docs-check",
+    "step": 29,
+    "name": "TODO ownership gate",
+    "line": 1,
+    "command": "python3 scripts/check_todo_ownership.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 29 or-true",
+    "job": "docs-check",
+    "step": 29,
+    "name": "TODO ownership gate",
+    "line": 2,
+    "command": "python3 scripts/check_todo_ownership.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 30 or-true-line-1",
+    "job": "docs-check",
+    "step": 30,
+    "name": "Test-evidence ratchet",
+    "line": 1,
+    "command": "python3 scripts/measure_test_evidence.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 30 or-true",
+    "job": "docs-check",
+    "step": 30,
+    "name": "Test-evidence ratchet",
+    "line": 2,
+    "command": "python3 scripts/measure_test_evidence.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 31 or-true-line-1",
+    "job": "docs-check",
+    "step": 31,
+    "name": "Mechanical hygiene ratchet",
+    "line": 1,
+    "command": "python3 scripts/check_hygiene.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 31 or-true",
+    "job": "docs-check",
+    "step": 31,
+    "name": "Mechanical hygiene ratchet",
+    "line": 2,
+    "command": "python3 scripts/check_hygiene.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 32 or-true-line-1",
+    "job": "docs-check",
+    "step": 32,
+    "name": "SystemVerilog idiom gate",
+    "line": 1,
+    "command": "python3 scripts/check_sv_idiom.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 32 or-true",
+    "job": "docs-check",
+    "step": 32,
+    "name": "SystemVerilog idiom gate",
+    "line": 2,
+    "command": "python3 scripts/check_sv_idiom.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 33 or-true-line-1",
+    "job": "docs-check",
+    "step": 33,
+    "name": "C and C++ idiom gate",
+    "line": 1,
+    "command": "python3 scripts/check_cpp_idiom.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 33 or-true",
+    "job": "docs-check",
+    "step": 33,
+    "name": "C and C++ idiom gate",
+    "line": 2,
+    "command": "python3 scripts/check_cpp_idiom.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 34 or-true-line-1",
+    "job": "docs-check",
+    "step": 34,
+    "name": "Python idiom gate",
+    "line": 1,
+    "command": "python3 scripts/check_py_idiom.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 34 or-true",
+    "job": "docs-check",
+    "step": 34,
+    "name": "Python idiom gate",
+    "line": 2,
+    "command": "python3 scripts/check_py_idiom.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 35 or-true-line-1",
+    "job": "docs-check",
+    "step": 35,
+    "name": "Shell idiom gate",
+    "line": 1,
+    "command": "python3 scripts/check_sh_idiom.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 35 or-true",
+    "job": "docs-check",
+    "step": 35,
+    "name": "Shell idiom gate",
+    "line": 2,
+    "command": "python3 scripts/check_sh_idiom.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 36 or-true-line-1",
+    "job": "docs-check",
+    "step": 36,
+    "name": "CI event and SHA contract gate",
+    "line": 1,
+    "command": "python3 scripts/ci_events.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 36 or-true",
+    "job": "docs-check",
+    "step": 36,
+    "name": "CI event and SHA contract gate",
+    "line": 2,
+    "command": "python3 scripts/ci_events.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 37 or-true",
+    "job": "docs-check",
+    "step": 37,
+    "name": "Local act runner contract gate",
+    "line": 1,
+    "command": "python3 scripts/act_ci.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 38 or-true",
+    "job": "docs-check",
+    "step": 38,
+    "name": "Doc cited-path gate",
+    "line": 1,
+    "command": "python3 scripts/check_doc_paths.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 39 or-true-line-1",
+    "job": "docs-check",
+    "step": 39,
+    "name": "Archive integrity gate",
+    "line": 1,
+    "command": "python3 scripts/check_archive.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 39 or-true",
+    "job": "docs-check",
+    "step": 39,
+    "name": "Archive integrity gate",
+    "line": 2,
+    "command": "python3 scripts/check_archive.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 40 or-true-line-1",
+    "job": "docs-check",
+    "step": 40,
+    "name": "Per-page contents gate",
+    "line": 1,
+    "command": "python3 scripts/gen_toc.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 40 or-true-line-2",
+    "job": "docs-check",
+    "step": 40,
+    "name": "Per-page contents gate",
+    "line": 2,
+    "command": "python3 scripts/gen_toc.py --verify-anchors"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 40 or-true",
+    "job": "docs-check",
+    "step": 40,
+    "name": "Per-page contents gate",
+    "line": 3,
+    "command": "python3 scripts/gen_toc.py --check"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 41 or-true",
+    "job": "docs-check",
+    "step": 41,
+    "name": "Sweep/build shape gate",
+    "line": 1,
+    "command": "python3 scripts/check_sweep_shape.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 42 or-true",
+    "job": "docs-check",
+    "step": 42,
+    "name": "Deploy shape gate",
+    "line": 1,
+    "command": "python3 scripts/check_deploy_shape.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check step 43 or-true",
+    "job": "docs-check",
+    "step": 43,
+    "name": "Entity shape gate",
+    "line": 1,
+    "command": "python3 scripts/check_entity_shape.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 wire-accountability step 2 or-true",
+    "job": "wire-accountability",
+    "step": 2,
+    "name": "Fetch the engine authority the builder derives from",
+    "line": 1,
+    "command": "git submodule update --init gptp-processor"
+  },
+  {
+    "arm": "carrier-script-407 wire-accountability step 3 or-true-line-1",
+    "job": "wire-accountability",
+    "step": 3,
+    "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "line": 1,
+    "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+    "arm": "carrier-script-407 wire-accountability step 3 or-true",
+    "job": "wire-accountability",
+    "step": 3,
+    "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+    "line": 2,
+    "command": "python3 scripts/check_wire_accountability.py --self-test"
+  },
+  {
+    "arm": "carrier-script-407 docs-check-no-git step 2 or-true-line-1",
+    "job": "docs-check-no-git",
+    "step": 2,
+    "name": "Strip git metadata, then run the docs gate",
+    "line": 1,
+    "command": "rm -rf .git"
+  },
+  {
+    "arm": "carrier-script-407 docs-check-no-git step 2 or-true-line-2",
+    "job": "docs-check-no-git",
+    "step": 2,
+    "name": "Strip git metadata, then run the docs gate",
+    "line": 2,
+    "command": "python3 scripts/docs_check.py"
+  },
+  {
+    "arm": "carrier-script-407 docs-check-no-git step 2 or-true",
+    "job": "docs-check-no-git",
+    "step": 2,
+    "name": "Strip git metadata, then run the docs gate",
+    "line": 3,
+    "command": "python3 scripts/check_feature_status.py"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-1",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-2",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 2,
+    "command": "# ci_scope.py arrives with PR #176. Until that lands this file may"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-3",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 3,
+    "command": "# not exist, and the safe answer to \"is this change RTL relevant\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-4",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 4,
+    "command": "# when the classifier is absent is yes."
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-5",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 5,
+    "command": "if [ ! -f scripts/ci_scope.py ]; then"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-6",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 6,
+    "command": "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-7",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 7,
+    "command": "echo \"no scripts/ci_scope.py yet: elaborating unconditionally\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-8",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 8,
+    "command": "exit 0"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-9",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 9,
+    "command": "fi"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-10",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 10,
+    "command": "python3 scripts/ci_scope.py --selftest"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-11",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 11,
+    "command": "if [ \"$EVENT_NAME\" != pull_request ]; then"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-12",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 12,
+    "command": "echo \"rtl=true\" >> \"$GITHUB_OUTPUT\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-13",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 13,
+    "command": "exit 0"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-14",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 14,
+    "command": "fi"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-15",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 15,
+    "command": "if [ -n \"$PR_BASE_SHA\" ] && git cat-file -e \"$PR_BASE_SHA^{commit}\" 2>/dev/null; then"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-16",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 16,
+    "command": "git diff --no-renames --name-only \"$PR_BASE_SHA\" \"$GITHUB_SHA\" > \"$RUNNER_TEMP/changed\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-17",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 17,
+    "command": "else"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-18",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 18,
+    "command": "git ls-files > \"$RUNNER_TEMP/changed\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true-line-19",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 19,
+    "command": "fi"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 2 or-true",
+    "job": "elaborate",
+    "step": 2,
+    "name": "Decide whether this head needs an elaboration",
+    "line": 20,
+    "command": "echo \"rtl=$(python3 scripts/ci_scope.py < \"$RUNNER_TEMP/changed\")\" >> \"$GITHUB_OUTPUT\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 3 or-true",
+    "job": "elaborate",
+    "step": 3,
+    "name": "Fetch the source dependencies the elaboration reads",
+    "line": 1,
+    "command": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-1",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-2",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 2,
+    "command": "ver=v0.0.12"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-3",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 3,
+    "command": "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-4",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 4,
+    "command": "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-5",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 5,
+    "command": "curl -fsSL \"$url\" -o /tmp/sv2v.zip"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-6",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 6,
+    "command": "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-7",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 7,
+    "command": "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true-line-8",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 8,
+    "command": "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 4 or-true",
+    "job": "elaborate",
+    "step": 4,
+    "name": "Install the pinned sv2v release",
+    "line": 9,
+    "command": "sv2v --version"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 7 or-true-line-1",
+    "job": "elaborate",
+    "step": 7,
+    "name": "Install LiteX at the pinned revisions",
+    "line": 1,
+    "command": "python3 -m pip install --quiet pyyaml"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 7 or-true",
+    "job": "elaborate",
+    "step": 7,
+    "name": "Install LiteX at the pinned revisions",
+    "line": 2,
+    "command": "python3 -m pip install --quiet -r sw/litex/litex_pins.txt"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 10 or-true-line-1",
+    "job": "elaborate",
+    "step": 10,
+    "name": "Install sbt",
+    "line": 1,
+    "command": "sbt --version >/dev/null 2>&1 && exit 0"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 10 or-true-line-2",
+    "job": "elaborate",
+    "step": 10,
+    "name": "Install sbt",
+    "line": 2,
+    "command": "curl -fsSL --retry 3 -o /tmp/sbt.tgz https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 10 or-true-line-3",
+    "job": "elaborate",
+    "step": 10,
+    "name": "Install sbt",
+    "line": 3,
+    "command": "sudo tar xzf /tmp/sbt.tgz -C /opt"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 10 or-true",
+    "job": "elaborate",
+    "step": 10,
+    "name": "Install sbt",
+    "line": 4,
+    "command": "echo /opt/sbt/bin >> \"$GITHUB_PATH\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 11 or-true-line-1",
+    "job": "elaborate",
+    "step": 11,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "line": 1,
+    "command": "python3 scripts/ci_litex_env.py"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 11 or-true-line-2",
+    "job": "elaborate",
+    "step": 11,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "line": 2,
+    "command": "mkdir -p ~/vexii-netlist-args"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 11 or-true",
+    "job": "elaborate",
+    "step": 11,
+    "name": "Place the VexiiRiscv source at the revision LiteX pins",
+    "line": 3,
+    "command": "cp -n ~/vexii-netlist-args/*.py \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/\" 2>/dev/null || true"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 12 or-true",
+    "job": "elaborate",
+    "step": 12,
+    "name": "Apply the toolchain patch series",
+    "line": 1,
+    "command": "sw/litex/patches/apply.sh"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 13 or-true",
+    "job": "elaborate",
+    "step": 13,
+    "name": "Elaboration gates",
+    "line": 1,
+    "command": "python3 sw/builder/test_builder.py --require-elaboration"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-1",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-2",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 2,
+    "command": "sudo apt-get update -qq"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-3",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 3,
+    "command": "sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-4",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 4,
+    "command": "git clone --depth 1 --branch \"$VERILATOR_VERSION\" https://github.com/verilator/verilator.git /tmp/verilator-src"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-5",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 5,
+    "command": "cd /tmp/verilator-src"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-6",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 6,
+    "command": "autoconf"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-7",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 7,
+    "command": "./configure --prefix=/opt/verilator"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true-line-8",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 8,
+    "command": "make -j\"$(nproc)\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 15 or-true",
+    "job": "elaborate",
+    "step": 15,
+    "name": "Build Verilator from source on cache miss",
+    "line": 9,
+    "command": "sudo make install"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 16 or-true-line-1",
+    "job": "elaborate",
+    "step": 16,
+    "name": "Put Verilator on PATH and prove the version",
+    "line": 1,
+    "command": "set -euo pipefail"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 16 or-true-line-2",
+    "job": "elaborate",
+    "step": 16,
+    "name": "Put Verilator on PATH and prove the version",
+    "line": 2,
+    "command": "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 16 or-true-line-3",
+    "job": "elaborate",
+    "step": 16,
+    "name": "Put Verilator on PATH and prove the version",
+    "line": 3,
+    "command": "/opt/verilator/bin/verilator --version"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 16 or-true",
+    "job": "elaborate",
+    "step": 16,
+    "name": "Put Verilator on PATH and prove the version",
+    "line": 4,
+    "command": "/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 17 or-true-line-1",
+    "job": "elaborate",
+    "step": 17,
+    "name": "Standalone LiteX simulation aggregate",
+    "line": 1,
+    "command": "scripts/run_litex_sims.sh --selftest"
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 17 or-true",
+    "job": "elaborate",
+    "step": 17,
+    "name": "Standalone LiteX simulation aggregate",
+    "line": 2,
+    "command": "scripts/run_litex_sims.sh \"$RUNNER_TEMP/litex-sim-logs\""
+  },
+  {
+    "arm": "carrier-script-407 elaborate step 18 or-true",
+    "job": "elaborate",
+    "step": 18,
+    "name": "Keep the generated CPU netlist arguments for the next run",
+    "line": 1,
+    "command": "cp -n \"$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')\"/*.py ~/vexii-netlist-args/ 2>/dev/null || true"
+  }
+]

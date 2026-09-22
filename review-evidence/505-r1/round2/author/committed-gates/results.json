@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "b17580b91deb11f3441dfc5d7f9fafe539d929b8"
+    ],
+    "exit": 0
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "6af65a151663e1301f1983a6c9d22650a0b35da9",
+      "HEAD"
+    ],
+    "exit": 0
+  }
+]
