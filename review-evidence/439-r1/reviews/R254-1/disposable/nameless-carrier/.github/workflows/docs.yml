@@ -1,0 +1,279 @@
+name: docs
+true:
+  push:
+    branches:
+    - dev
+    - main
+  pull_request: null
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Build the validated HDL reference
+      run: "set -euo pipefail\npython3 -m pip install --quiet --require-hashes \\\n\
+        \  -r tools/hdl_reference/requirements.txt\npython3 scripts/gen_hdl_reference.py\
+        \ --selftest\npython3 scripts/gen_hdl_reference.py \\\n  --output \"$RUNNER_TEMP/milan-hdl-reference\"\
+        \n"
+    - name: Upload the HDL reference HTML
+      uses: actions/upload-artifact@v4
+      with:
+        name: hdl-reference-html-${{ github.sha }}
+        path: ${{ runner.temp }}/milan-hdl-reference/index.html
+        if-no-files-found: error
+        retention-days: 14
+    - name: Install the python gate dependencies
+      run: python3 -m pip install --quiet pyyaml
+    - name: Install diagram gate dependencies
+      run: 'sudo apt-get update -qq
+
+        sudo apt-get install -y --no-install-recommends librsvg2-bin
+
+        python3 -m pip install --quiet wavedrom==2.0.3.post3
+
+        '
+    - name: Link health, wording, dead-reference and local-info gate
+      run: python3 scripts/docs_check.py
+    - name: Added-line em-dash gate
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        PUSH_BEFORE_SHA: ${{ github.event.before }}
+      run: "set -euo pipefail\ncase \"$EVENT_NAME\" in\n  pull_request)\n    if [\
+        \ -z \"$PR_BASE_REF\" ]; then\n      echo \"the pull_request event names no\
+        \ base branch\"; exit 2\n    fi\n    git fetch --quiet origin \"$PR_BASE_REF\"\
+        \n    base=\"$(git merge-base HEAD FETCH_HEAD || true)\"\n    ;;\n  push)\
+        \ base=\"$PUSH_BEFORE_SHA\" ;;\n  *) echo \"a $EVENT_NAME event carries no\
+        \ base to judge from\"; exit 2 ;;\nesac\nif [ -z \"$base\" ] || [ \"$base\"\
+        \ = 0000000000000000000000000000000000000000 ]; then\n  echo \"the $EVENT_NAME\
+        \ event names no base commit\"; exit 2\nfi\ngit cat-file -e \"$base^{commit}\"\
+        \ 2>/dev/null || git fetch --quiet --depth=1 origin \"$base\"\npython3 scripts/check_em_dash.py\
+        \ --base \"$base\"\n"
+    - name: Concise audience documentation gate
+      run: 'python3 scripts/check_doc_style.py
+
+        python3 scripts/check_doc_style.py --selftest
+
+        python3 scripts/check_gptp_docs.py
+
+        python3 scripts/check_gptp_docs.py --selftest
+
+        '
+    - name: Audience diagram no-drift gate
+      run: 'python3 docs/DOC_MAP.gen.py --check
+
+        python3 docs/DOC_MAP.gen.py --selftest
+
+        python3 docs/diagrams/timesync_chain.gen.py --check
+
+        python3 docs/diagrams/timesync_chain.gen.py --selftest
+
+        '
+    - name: Product solution source-fact gate
+      run: 'python3 scripts/check_solution_docs.py
+
+        python3 scripts/check_solution_docs.py --selftest
+
+        '
+    - name: Verified submodule documentation gate
+      run: 'python3 docs/diagrams/submodule_boundaries.gen.py --check
+
+        python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+
+        python3 scripts/check_submodule_docs.py
+
+        python3 scripts/check_submodule_docs.py --selftest
+
+        '
+    - name: HDL timing diagram no-drift gate
+      run: 'python3 scripts/gen_wavedrom.py --selftest
+
+        python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white
+        --check
+
+        python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white
+        --check
+
+        python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white
+        --check
+
+        '
+    - name: Published diagram PNG gate
+      run: 'python3 scripts/check_diagram_pngs.py
+
+        python3 scripts/check_diagram_pngs.py --selftest
+
+        '
+    - name: Milan feature-status consistency gate
+      run: python3 scripts/check_feature_status.py --self-test
+    - name: Traceability matrix no-drift gate
+      run: python3 docs/traceability/gen_module_matrix.py --check
+    - name: Fetch the builder source dependencies
+      run: git submodule update --init third_party/verilog-axis protocol-processor
+        gptp-processor
+    - name: Imported gPTP documentation gate
+      run: 'python3 scripts/check_gptp_docs.py --with-submodule
+
+        make -C gptp-processor docs
+
+        '
+    - name: Code-quality measurement self-tests
+      run: 'python3 scripts/measure_control_flow.py --selftest
+
+        python3 scripts/measure_cohesion.py --selftest
+
+        '
+    - name: Install the pinned sv2v release
+      run: "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\n\
+        url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\
+        \ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\"\
+        \ | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755\
+        \ \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\n\
+        sv2v --version\n"
+    - name: Bare-metal scope gate
+      run: 'python3 scripts/check_baremetal_only.py --check
+
+        python3 scripts/check_baremetal_only.py --selftest
+
+        '
+    - name: End-station builder gates
+      run: 'python3 -m pip install --quiet pyyaml
+
+        python3 sw/builder/test_builder.py
+
+        '
+    - name: NVM record-space gate
+      run: 'python3 scripts/check_nvm_record_space.py
+
+        python3 scripts/check_nvm_record_space.py --self-test
+
+        '
+    - name: Saved-state writer gate
+      run: python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+    - name: SoC source-list gate (Vivado would fail 40 min in without this)
+      run: "python3 scripts/check_soc_sources.py\npython3 scripts/check_soc_sources.py\
+        \ --selftest\ncommand -v tclsh >/dev/null || {\n  sudo apt-get update -qq\n\
+        \  sudo apt-get install -y --no-install-recommends tcl\n}\npython3 sw/litex/iob_pack_selftest.py\n"
+    - name: RTL source-list drift gate
+      run: 'python3 scripts/check_rtl_source_lists.py
+
+        python3 scripts/check_rtl_source_lists.py --selftest
+
+        '
+    - name: Boundary-unit naming ratchet
+      run: 'python3 scripts/measure_naming.py --check
+
+        python3 scripts/measure_naming.py --selftest
+
+        '
+    - name: Port contract gate
+      run: 'python3 scripts/check_port_contracts.py
+
+        python3 scripts/check_port_contracts.py --selftest
+
+        '
+    - name: Fail-fast ratchet
+      run: 'python3 scripts/measure_fail_fast.py --check
+
+        python3 scripts/measure_fail_fast.py --selftest
+
+        '
+    - name: TODO ownership gate
+      run: 'python3 scripts/check_todo_ownership.py
+
+        python3 scripts/check_todo_ownership.py --selftest
+
+        '
+    - name: Test-evidence ratchet
+      run: 'python3 scripts/measure_test_evidence.py --check
+
+        python3 scripts/measure_test_evidence.py --selftest
+
+        '
+    - name: Mechanical hygiene ratchet
+      run: 'python3 scripts/check_hygiene.py --check
+
+        python3 scripts/check_hygiene.py --selftest
+
+        '
+    - name: SystemVerilog idiom gate
+      run: 'python3 scripts/check_sv_idiom.py
+
+        python3 scripts/check_sv_idiom.py --selftest
+
+        '
+    - name: C and C++ idiom gate
+      run: 'python3 scripts/check_cpp_idiom.py
+
+        python3 scripts/check_cpp_idiom.py --selftest
+
+        '
+    - run: 'python3 scripts/check_py_idiom.py
+
+        python3 scripts/check_py_idiom.py --selftest
+
+        '
+    - name: Shell idiom gate
+      run: 'python3 scripts/check_sh_idiom.py
+
+        python3 scripts/check_sh_idiom.py --selftest
+
+        '
+    - name: CI event and SHA contract gate
+      run: 'python3 scripts/ci_events.py --check
+
+        python3 scripts/ci_events.py --selftest
+
+        '
+    - name: Local act runner contract gate
+      run: python3 scripts/act_ci.py --selftest
+    - name: Doc cited-path gate
+      run: python3 scripts/check_doc_paths.py
+    - name: Archive integrity gate
+      run: 'python3 scripts/check_archive.py
+
+        python3 scripts/check_archive.py --selftest
+
+        '
+    - name: Per-page contents gate
+      run: 'python3 scripts/gen_toc.py --selftest
+
+        python3 scripts/gen_toc.py --verify-anchors
+
+        python3 scripts/gen_toc.py --check
+
+        '
+    - name: AEM store generator self-test
+      run: python3 avdecc/gen_aem_store.py --self-test
+    - name: Sweep/build shape gate
+      run: python3 scripts/check_sweep_shape.py --self-test
+    - name: Deploy shape gate
+      run: python3 scripts/check_deploy_shape.py --self-test
+    - name: Entity shape gate
+      run: python3 scripts/check_entity_shape.py --self-test
+  wire-accountability:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Fetch the engine authority the builder derives from
+      run: git submodule update --init gptp-processor
+    - name: Advertised-vs-emitted gate (green since 2026-07-28, item 00)
+      run: 'python3 -m pip install --quiet pyyaml
+
+        python3 scripts/check_wire_accountability.py --self-test
+
+        '
+  docs-check-no-git:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Strip git metadata, then run the docs gate
+      run: 'rm -rf .git
+
+        python3 scripts/docs_check.py
+
+        python3 scripts/check_feature_status.py
+
+        '

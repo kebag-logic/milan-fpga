@@ -1,0 +1,590 @@
+[
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "raw_script": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor",
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "raw_script": "set -euo pipefail\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then\n  echo \"checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA\" >&2\n  exit 1\nfi\nmkdir -p \"$RUNNER_TEMP/suite-logs\"\nprintf '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/suite-logs/TARGET_SHA\"\necho \"target_sha=$GITHUB_SHA\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "head=\"$(git rev-parse HEAD)\"",
+      "if [ \"$head\" != \"$GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then",
+      "echo \"checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA\" >&2",
+      "exit 1",
+      "fi",
+      "mkdir -p \"$RUNNER_TEMP/suite-logs\"",
+      "printf '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/suite-logs/TARGET_SHA\"",
+      "echo \"target_sha=$GITHUB_SHA\""
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 5,
+    "name": "Build Verilator from source on cache miss",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3",
+      "git clone --depth 1 --branch \"$VERILATOR_VERSION\" https://github.com/verilator/verilator.git /tmp/verilator-src",
+      "cd /tmp/verilator-src",
+      "autoconf",
+      "./configure --prefix=/opt/verilator",
+      "make -j\"$(nproc)\"",
+      "sudo make install"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 6,
+    "name": "Put Verilator on PATH and prove the version",
+    "raw_script": "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"\n/opt/verilator/bin/verilator --version\n/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\"\n",
+    "canonical": [
+      "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"",
+      "/opt/verilator/bin/verilator --version",
+      "/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\""
+    ],
+    "lines": 3
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 7,
+    "name": "Prove specialized suite ownership",
+    "raw_script": "set -euo pipefail\npython3 scripts/suite_shards.py --selftest\nscripts/run_all_suites.sh --shard \"$SHARD/$SHARDS\" --list \\\n  > \"$RUNNER_TEMP/owned-suites\"\necho \"Shard $SHARD owns:\"\nsed 's/^/  /' \"$RUNNER_TEMP/owned-suites\"\ncase \"$SHARD\" in\n  1) grep -Fx tsn_fuzz \"$RUNNER_TEMP/owned-suites\" ;;\n  3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;\n  4) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;\nesac\n",
+    "canonical": [
+      "set -euo pipefail",
+      "python3 scripts/suite_shards.py --selftest",
+      "scripts/run_all_suites.sh --shard \"$SHARD/$SHARDS\" --list > \"$RUNNER_TEMP/owned-suites\"",
+      "echo \"Shard $SHARD owns:\"",
+      "sed 's/^/ /' \"$RUNNER_TEMP/owned-suites\"",
+      "case \"$SHARD\" in",
+      "1) grep -Fx tsn_fuzz \"$RUNNER_TEMP/owned-suites\" ;;",
+      "3) grep -Fx chmap_capture \"$RUNNER_TEMP/owned-suites\" ;;",
+      "4) test \"$(cat \"$RUNNER_TEMP/owned-suites\")\" = milan_dp ;;",
+      "esac"
+    ],
+    "lines": 10
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 9,
+    "name": "Build Yosys from source on cache miss",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3",
+      "git clone --depth 1 --branch \"$YOSYS_VERSION\" https://github.com/YosysHQ/yosys.git /tmp/yosys-src",
+      "git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts",
+      "make -C /tmp/yosys-src config-gcc",
+      "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
+      "make -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys",
+      "sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys",
+      "git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV",
+      "# runner-owned so the cache action's save and restore are symmetric",
+      "sudo chown -R \"$(id -u):$(id -g)\" /opt/yosys"
+    ],
+    "lines": 12
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 10,
+    "name": "Install the pinned Yosys and prove the version",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends libjemalloc2",
+      "sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/",
+      "test -x /opt/yosys/bin/yosys-abc",
+      "echo \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"",
+      "yosys -V",
+      "yosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\""
+    ],
+    "lines": 8
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 11,
+    "name": "Install sv2v for the netlist-level suite owner",
+    "raw_script": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+    "canonical": [
+      "set -euo pipefail",
+      "ver=v0.0.12",
+      "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+      "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+      "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+      "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+      "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+      "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+      "sv2v --version"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 12,
+    "name": "Build the pinned tsn-gen field oracle on its suite owner",
+    "raw_script": "set -euo pipefail\ngit clone --filter=blob:none \\\n  https://github.com/kebag-logic/tsn-gen.git \"$RUNNER_TEMP/tsn-gen\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" checkout \"$TSN_GEN_REV\"\ngit -C \"$RUNNER_TEMP/tsn-gen\" submodule update \\\n  --init --depth 1 --recursive external/rapidyaml\ncmake -S \"$RUNNER_TEMP/tsn-gen\" -B \"$RUNNER_TEMP/tsn-gen/build\" \\\n  -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF\ncmake --build \"$RUNNER_TEMP/tsn-gen/build\" \\\n  --target packet_gen --parallel\ntest -x \"$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen\"\necho \"TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen\" >> \"$GITHUB_ENV\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "git clone --filter=blob:none https://github.com/kebag-logic/tsn-gen.git \"$RUNNER_TEMP/tsn-gen\"",
+      "git -C \"$RUNNER_TEMP/tsn-gen\" checkout \"$TSN_GEN_REV\"",
+      "git -C \"$RUNNER_TEMP/tsn-gen\" submodule update --init --depth 1 --recursive external/rapidyaml",
+      "cmake -S \"$RUNNER_TEMP/tsn-gen\" -B \"$RUNNER_TEMP/tsn-gen/build\" -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF",
+      "cmake --build \"$RUNNER_TEMP/tsn-gen/build\" --target packet_gen --parallel",
+      "test -x \"$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen\"",
+      "echo \"TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen\" >> \"$GITHUB_ENV\""
+    ],
+    "lines": 8
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-shards",
+    "step": 13,
+    "name": "Run this exhaustive suite shard",
+    "raw_script": "scripts/run_all_suites.sh \"$RUNNER_TEMP/suite-logs\" \\\n  --shard \"${{ matrix.shard }}/${{ matrix.total }}\"\n",
+    "canonical": [
+      "scripts/run_all_suites.sh \"$RUNNER_TEMP/suite-logs\" --shard \"${{ matrix.shard }}/${{ matrix.total }}\""
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-suites",
+    "step": 3,
+    "name": "Require every shard to have validated this run's SHA",
+    "raw_script": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\npython3 scripts/ci_events.py --require-target-sha --expect 5 \\\n  --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"\n",
+    "canonical": [
+      "shopt -s nullglob",
+      "roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)",
+      "python3 scripts/ci_events.py --require-target-sha --expect 5 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\""
+    ],
+    "lines": 3
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-suites",
+    "step": 4,
+    "name": "Prove exhaustive ownership and tally every log",
+    "raw_script": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)\nif [ \"${#roots[@]}\" -eq 0 ]; then\n  mkdir -p \"$RUNNER_TEMP/all-suite-logs/none\"\n  roots=(\"$RUNNER_TEMP/all-suite-logs/none\")\nfi\npython3 scripts/suite_tally.py \"${roots[@]}\" --quiet \\\n  --expect-suite-root tb/verilator\n",
+    "canonical": [
+      "shopt -s nullglob",
+      "roots=(\"$RUNNER_TEMP\"/all-suite-logs/suite-logs-*)",
+      "if [ \"${#roots[@]}\" -eq 0 ]; then",
+      "mkdir -p \"$RUNNER_TEMP/all-suite-logs/none\"",
+      "roots=(\"$RUNNER_TEMP/all-suite-logs/none\")",
+      "fi",
+      "python3 scripts/suite_tally.py \"${roots[@]}\" --quiet --expect-suite-root tb/verilator"
+    ],
+    "lines": 7
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "verilator-suites",
+    "step": 5,
+    "name": "Require every Verilator worker to pass",
+    "raw_script": "if [ \"$SHARD_RESULT\" != success ]; then\n  echo \"one or more Verilator workers ended: $SHARD_RESULT\" >&2\n  exit 1\nfi\necho \"verilator-suites: every worker succeeded at $GITHUB_SHA\"\n",
+    "canonical": [
+      "if [ \"$SHARD_RESULT\" != success ]; then",
+      "echo \"one or more Verilator workers ended: $SHARD_RESULT\" >&2",
+      "exit 1",
+      "fi",
+      "echo \"verilator-suites: every worker succeeded at $GITHUB_SHA\""
+    ],
+    "lines": 5
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "raw_script": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor",
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 3,
+    "name": "Record the tree this worker validates",
+    "raw_script": "set -euo pipefail\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then\n  echo \"checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA\" >&2\n  exit 1\nfi\nmkdir -p \"$RUNNER_TEMP/yosys-results\"\nprintf '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/yosys-results/TARGET_SHA\"\necho \"target_sha=$GITHUB_SHA\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "head=\"$(git rev-parse HEAD)\"",
+      "if [ \"$head\" != \"$GITHUB_SHA\" ] || [ \"$GITHUB_SHA\" != \"$TARGET_SHA\" ]; then",
+      "echo \"checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA\" >&2",
+      "exit 1",
+      "fi",
+      "mkdir -p \"$RUNNER_TEMP/yosys-results\"",
+      "printf '%s\\n' \"$GITHUB_SHA\" > \"$RUNNER_TEMP/yosys-results/TARGET_SHA\"",
+      "echo \"target_sha=$GITHUB_SHA\""
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 5,
+    "name": "Build Yosys from source on cache miss",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3",
+      "git clone --depth 1 --branch \"$YOSYS_VERSION\" https://github.com/YosysHQ/yosys.git /tmp/yosys-src",
+      "git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts",
+      "make -C /tmp/yosys-src config-gcc",
+      "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
+      "make -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys",
+      "sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys",
+      "git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV",
+      "# runner-owned so the cache action's save and restore are symmetric",
+      "sudo chown -R \"$(id -u):$(id -g)\" /opt/yosys"
+    ],
+    "lines": 12
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 6,
+    "name": "Install the pinned Yosys and prove the version",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends libjemalloc2\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends libjemalloc2",
+      "sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/",
+      "test -x /opt/yosys/bin/yosys-abc",
+      "echo \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"",
+      "yosys -V",
+      "yosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\""
+    ],
+    "lines": 8
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 7,
+    "name": "Install the pinned sv2v release",
+    "raw_script": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+    "canonical": [
+      "set -euo pipefail",
+      "ver=v0.0.12",
+      "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+      "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+      "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+      "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+      "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+      "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+      "sv2v --version"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-shards",
+    "step": 9,
+    "name": "Run this weighted portability shard",
+    "raw_script": "syn/yosys/run.sh --shard \"${{ matrix.shard }}/${{ matrix.total }}\" \\\n  --results \"$RUNNER_TEMP/yosys-results\" \\\n  --cache \"$RUNNER_TEMP/yosys-result-cache\"\n",
+    "canonical": [
+      "syn/yosys/run.sh --shard \"${{ matrix.shard }}/${{ matrix.total }}\" --results \"$RUNNER_TEMP/yosys-results\" --cache \"$RUNNER_TEMP/yosys-result-cache\""
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-portability",
+    "step": 3,
+    "name": "Require every shard to have validated this run's SHA",
+    "raw_script": "shopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)\npython3 scripts/ci_events.py --require-target-sha --expect 4 \\\n  --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" \\\n  --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\"\n",
+    "canonical": [
+      "shopt -s nullglob",
+      "roots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)",
+      "python3 scripts/ci_events.py --require-target-sha --expect 4 --sha gate=\"$GATE_SHA\" --sha run=\"$GITHUB_SHA\" --sha checkout=\"$(git rev-parse HEAD)\" -- \"${roots[@]}\""
+    ],
+    "lines": 3
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-portability",
+    "step": 4,
+    "name": "Reconcile the live inventory and structural gates",
+    "raw_script": "set -euo pipefail\nsyn/yosys/run.sh --list > \"$RUNNER_TEMP/expected-yosys-tops\"\nshopt -s nullglob\nroots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)\nif [ \"${#roots[@]}\" -eq 0 ]; then\n  mkdir -p \"$RUNNER_TEMP/all-yosys-results/none\"\n  roots=(\"$RUNNER_TEMP/all-yosys-results/none\")\nfi\npython3 scripts/yosys_tally.py \"${roots[@]}\" \\\n  --expected \"$RUNNER_TEMP/expected-yosys-tops\" \\\n  --require-structural\n",
+    "canonical": [
+      "set -euo pipefail",
+      "syn/yosys/run.sh --list > \"$RUNNER_TEMP/expected-yosys-tops\"",
+      "shopt -s nullglob",
+      "roots=(\"$RUNNER_TEMP\"/all-yosys-results/yosys-results-*)",
+      "if [ \"${#roots[@]}\" -eq 0 ]; then",
+      "mkdir -p \"$RUNNER_TEMP/all-yosys-results/none\"",
+      "roots=(\"$RUNNER_TEMP/all-yosys-results/none\")",
+      "fi",
+      "python3 scripts/yosys_tally.py \"${roots[@]}\" --expected \"$RUNNER_TEMP/expected-yosys-tops\" --require-structural"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "yosys-portability",
+    "step": 5,
+    "name": "Require every Yosys worker to pass",
+    "raw_script": "if [ \"$SHARD_RESULT\" != success ]; then\n  echo \"one or more Yosys workers ended: $SHARD_RESULT\" >&2\n  exit 1\nfi\necho \"yosys-portability: every worker succeeded at $GITHUB_SHA\"\n",
+    "canonical": [
+      "if [ \"$SHARD_RESULT\" != success ]; then",
+      "echo \"one or more Yosys workers ended: $SHARD_RESULT\" >&2",
+      "exit 1",
+      "fi",
+      "echo \"yosys-portability: every worker succeeded at $GITHUB_SHA\""
+    ],
+    "lines": 5
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "verilator-lint",
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "raw_script": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor",
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "verilator-lint",
+    "step": 4,
+    "name": "Build Verilator from source on cache miss",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3\ngit clone --depth 1 --branch \"$VERILATOR_VERSION\" \\\n  https://github.com/verilator/verilator.git /tmp/verilator-src\ncd /tmp/verilator-src\nautoconf\n./configure --prefix=/opt/verilator\nmake -j\"$(nproc)\"\nsudo make install\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3",
+      "git clone --depth 1 --branch \"$VERILATOR_VERSION\" https://github.com/verilator/verilator.git /tmp/verilator-src",
+      "cd /tmp/verilator-src",
+      "autoconf",
+      "./configure --prefix=/opt/verilator",
+      "make -j\"$(nproc)\"",
+      "sudo make install"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "verilator-lint",
+    "step": 5,
+    "name": "Run the ratcheted whole-tree lint gate",
+    "raw_script": "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"\n/opt/verilator/bin/verilator --version\n/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\"\nPATH=\"/opt/verilator/bin:$PATH\" \\\n  python3 scripts/lint_rtl.py --check --self-test\n",
+    "canonical": [
+      "echo \"/opt/verilator/bin\" >> \"$GITHUB_PATH\"",
+      "/opt/verilator/bin/verilator --version",
+      "/opt/verilator/bin/verilator --version | grep -F \"${VERILATOR_VERSION#v}\"",
+      "PATH=\"/opt/verilator/bin:$PATH\" python3 scripts/lint_rtl.py --check --self-test"
+    ],
+    "lines": 4
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "verilator-lint",
+    "step": 6,
+    "name": "Prove protocol-processor source lists are derived",
+    "raw_script": "python3 scripts/pp_srcs.py --check --selftest",
+    "canonical": [
+      "python3 scripts/pp_srcs.py --check --selftest"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "bdd-conformance",
+    "step": 2,
+    "name": "Fetch the processor model inputs",
+    "raw_script": "git submodule update --init protocol-processor gptp-processor",
+    "canonical": [
+      "git submodule update --init protocol-processor gptp-processor"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "bdd-conformance",
+    "step": 3,
+    "name": "Install behave",
+    "raw_script": "python3 -m pip install --quiet behave",
+    "canonical": [
+      "python3 -m pip install --quiet behave"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "bdd-conformance",
+    "step": 4,
+    "name": "Run the specification-facing suite",
+    "raw_script": "behave --no-capture -f plain",
+    "canonical": [
+      "behave --no-capture -f plain"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 2,
+    "name": "Fetch RTL dependencies",
+    "raw_script": "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor",
+    "canonical": [
+      "git submodule update --init third_party/verilog-axis protocol-processor gptp-processor"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 4,
+    "name": "Build Yosys from source on cache miss",
+    "raw_script": "set -euo pipefail\nsudo apt-get update -qq\nsudo apt-get install -y --no-install-recommends \\\n  git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3\ngit clone --depth 1 --branch \"$YOSYS_VERSION\" \\\n  https://github.com/YosysHQ/yosys.git /tmp/yosys-src\ngit -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts\nmake -C /tmp/yosys-src config-gcc\nprintf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' \\\n  >> /tmp/yosys-src/Makefile.conf\nmake -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys\nsudo make -C /tmp/yosys-src install PREFIX=/opt/yosys\ngit -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV\n# runner-owned so the cache action's save and restore are symmetric\nsudo chown -R \"$(id -u):$(id -g)\" /opt/yosys\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3",
+      "git clone --depth 1 --branch \"$YOSYS_VERSION\" https://github.com/YosysHQ/yosys.git /tmp/yosys-src",
+      "git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts",
+      "make -C /tmp/yosys-src config-gcc",
+      "printf 'ENABLE_TCL := 0\\nENABLE_READLINE := 0\\nENABLE_PLUGINS := 0\\n' >> /tmp/yosys-src/Makefile.conf",
+      "make -C /tmp/yosys-src -j\"$(nproc)\" PREFIX=/opt/yosys",
+      "sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys",
+      "git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV",
+      "# runner-owned so the cache action's save and restore are symmetric",
+      "sudo chown -R \"$(id -u):$(id -g)\" /opt/yosys"
+    ],
+    "lines": 12
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 5,
+    "name": "Install the pinned Yosys and prove the version",
+    "raw_script": "set -euo pipefail\nsudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/\ntest -x /opt/yosys/bin/yosys-abc\necho \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"\nyosys -V\nyosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/",
+      "test -x /opt/yosys/bin/yosys-abc",
+      "echo \"bundled ABC: $(cat /opt/yosys/ABC_REV)\"",
+      "yosys -V",
+      "yosys -V | grep -F \"Yosys ${YOSYS_VERSION#v}\""
+    ],
+    "lines": 6
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 6,
+    "name": "Install the pinned sv2v release",
+    "raw_script": "set -euo pipefail\nver=v0.0.12\nsha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00\nurl=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"\ncurl -fsSL \"$url\" -o /tmp/sv2v.zip\necho \"${sha256}  /tmp/sv2v.zip\" | sha256sum -c -\nunzip -q -o /tmp/sv2v.zip -d /tmp/sv2v\nsudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" \\\n  /usr/local/bin/sv2v\nsv2v --version\n",
+    "canonical": [
+      "set -euo pipefail",
+      "ver=v0.0.12",
+      "sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00",
+      "url=\"https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip\"",
+      "curl -fsSL \"$url\" -o /tmp/sv2v.zip",
+      "echo \"${sha256} /tmp/sv2v.zip\" | sha256sum -c -",
+      "unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v",
+      "sudo install -m755 \"$(find /tmp/sv2v -name sv2v -type f | head -1)\" /usr/local/bin/sv2v",
+      "sv2v --version"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 7,
+    "name": "Elaborate the integration-heavy tops",
+    "raw_script": "syn/yosys/run.sh --mode elaborate --no-structural \\\n  --top milan_datapath \\\n  --top KL_pp_shadow \\\n  --top KL_gptp_shadow\n",
+    "canonical": [
+      "syn/yosys/run.sh --mode elaborate --no-structural --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 8,
+    "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+    "raw_script": "set -euo pipefail\ncommand -v tclsh >/dev/null || {\n  sudo apt-get update -qq\n  sudo apt-get install -y --no-install-recommends tcl\n}\npython3 syn/ooc/dp_srcs.py --selftest\npython3 syn/ooc/ooc_tcl_selftest.py\npython3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null\npython3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null\n",
+    "canonical": [
+      "set -euo pipefail",
+      "command -v tclsh >/dev/null || {",
+      "sudo apt-get update -qq",
+      "sudo apt-get install -y --no-install-recommends tcl",
+      "}",
+      "python3 syn/ooc/dp_srcs.py --selftest",
+      "python3 syn/ooc/ooc_tcl_selftest.py",
+      "python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null",
+      "python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null"
+    ],
+    "lines": 9
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 9,
+    "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+    "raw_script": "python3 syn/yosys/ooc_selftest.py",
+    "canonical": [
+      "python3 syn/yosys/ooc_selftest.py"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl-fast.yml",
+    "job": "yosys-elaboration",
+    "step": 10,
+    "name": "Prove the result cache refuses a planted entry",
+    "raw_script": "python3 syn/yosys/cache_selftest.py",
+    "canonical": [
+      "python3 syn/yosys/cache_selftest.py"
+    ],
+    "lines": 1
+  },
+  {
+    "path": ".github/workflows/rtl.yml",
+    "job": "full-ci-gate",
+    "step": 2,
+    "name": "Print the event and pin the one SHA this run validates",
+    "raw_script": "set -euo pipefail\necho \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"\nhead=\"$(git rev-parse HEAD)\"\nif [ \"$head\" != \"$GITHUB_SHA\" ]; then\n  echo \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2\n  exit 1\nfi\necho \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\"\n",
+    "canonical": [
+      "set -euo pipefail",
+      "echo \"event=$GITHUB_EVENT_NAME ref=$GITHUB_REF sha=$GITHUB_SHA\"",
+      "head=\"$(git rev-parse HEAD)\"",
+      "if [ \"$head\" != \"$GITHUB_SHA\" ]; then",
+      "echo \"checkout HEAD $head is not GITHUB_SHA $GITHUB_SHA\" >&2",
+      "exit 1",
+      "fi",
+      "echo \"target_sha=$GITHUB_SHA\" >> \"$GITHUB_OUTPUT\""
+    ],
+    "lines": 8
+  }
+]

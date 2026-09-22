@@ -1,0 +1,257 @@
+name: rtl-fast
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+
+# A newer commit makes an older verdict irrelevant. This also releases a
+# hosted runner immediately when an executor resumes work on the same PR.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Distro Verilator versions have measured incompatibilities with these
+  # harnesses. Keep the same deliberate pin as the exhaustive workflow.
+  VERILATOR_VERSION: v5.050
+  # Same pin as the exhaustive workflow (#287): the distro Yosys floated to
+  # 0.33 while a bench box runs 0.66, and the gate's cell counts moved up to
+  # 39% on the version alone. Declared once per workflow file.
+  YOSYS_VERSION: v0.66
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rtl: ${{ steps.scope.outputs.rtl }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Classify the change conservatively
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_scope.py --selftest
+
+          base=""
+          if [ "$EVENT_NAME" = pull_request ]; then
+            base="$PR_BASE_SHA"
+          else
+            base="$PUSH_BEFORE_SHA"
+          fi
+
+          if [ -n "$base" ] \
+             && [ "$base" != 0000000000000000000000000000000000000000 ] \
+             && git cat-file -e "$base^{commit}" 2>/dev/null; then
+            git diff --no-renames --name-only "$base" "$GITHUB_SHA" \
+              > "$RUNNER_TEMP/changed-files"
+          else
+            # An unknown base must never turn a real change into docs-only.
+            git ls-files > "$RUNNER_TEMP/changed-files"
+          fi
+
+          echo "Changed files:"
+          sed 's/^/  /' "$RUNNER_TEMP/changed-files"
+          rtl="$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed-files")"
+          echo "rtl=$rtl" >> "$GITHUB_OUTPUT"
+          echo "RTL/tooling relevant: $rtl"
+
+  verilator-lint:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+      - name: Cache the pinned Verilator build
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: /opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Build Verilator from source on cache miss
+        if: ${{ steps.cache-verilator.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make autoconf g++ flex bison libfl2 libfl-dev help2man perl python3
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator.git /tmp/verilator-src
+          cd /tmp/verilator-src
+          autoconf
+          ./configure --prefix=/opt/verilator
+          make -j"$(nproc)"
+          sudo make install
+
+      - name: Run the ratcheted whole-tree lint gate
+        run: |
+          echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+          /opt/verilator/bin/verilator --version
+          /opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"
+          PATH="/opt/verilator/bin:$PATH" \
+            python3 scripts/lint_rtl.py --check --self-test
+
+      - name: Prove protocol-processor source lists are derived
+        run: python3 scripts/pp_srcs.py --check --selftest
+
+  bdd-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch the processor model inputs
+        run: git submodule update --init protocol-processor gptp-processor
+      - name: Install behave
+        run: python3 -m pip install --quiet behave
+      - name: Run the specification-facing suite
+        working-directory: tests
+        run: behave --no-capture -f plain
+
+  yosys-elaboration:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+      # Same pinned toolchain as rtl.yml's yosys-shards (#287): one declared
+      # version, built from the upstream tag with its bundled ABC on a cache
+      # miss, version-verified on every run. This smoke's verdict must come
+      # from the tool the exhaustive gate's verdict is taken with, not from
+      # whatever apt resolves on the day.
+      - name: Cache the pinned Yosys build
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-${{ runner.os }}
+
+      - name: Build Yosys from source on cache miss
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$(nproc)" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+
+      - name: Install the pinned Yosys and prove the version
+        run: |
+          set -euo pipefail
+          sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+          test -x /opt/yosys/bin/yosys-abc
+          echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+          yosys -V
+          yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+      - name: Install the pinned sv2v release
+        run: |
+          set -euo pipefail
+          ver=v0.0.12
+          sha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          echo "${sha256}  /tmp/sv2v.zip" | sha256sum -c -
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+            /usr/local/bin/sv2v
+          sv2v --version
+      - name: Elaborate the integration-heavy tops
+        run: |
+          syn/yosys/run.sh --mode elaborate --no-structural \
+            --top milan_datapath \
+            --top KL_pp_shadow \
+            --top KL_gptp_shadow
+
+      # The OOC instruments' refusals, in the gate rather than beside it. Both
+      # were added with manual evidence only, and a refusal nothing runs is a
+      # refusal that rots: deleting either left every hosted check green
+      # ([R0] on PR #240). It runs in THIS job, not beside the lint, because
+      # syn/ooc/dp_srcs.py answers "does the read set declare the top" with the
+      # front end and with nothing else -- three models of the directive layer
+      # were each broken by a construct they did not model ([R0] rounds one to
+      # three) -- so its self-test needs the sv2v this job installs, and an
+      # absent sv2v is a refusal there is no flag to soften.
+      - name: Prove the OOC read sets come from run.sh and refuse a bad one
+        run: |
+          set -euo pipefail
+          command -v tclsh >/dev/null || {
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends tcl
+          }
+          python3 syn/ooc/dp_srcs.py --selftest
+          python3 syn/ooc/ooc_tcl_selftest.py
+          python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+          python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+
+      # Same class, Yosys recipe (#245): ooc.sh printed "yosys FAIL" and
+      # exited 0, and never generated ucode.hex. Its refusals are driven on
+      # planted failures against the real script; it needs only the
+      # protocol-processor and gptp-processor submodules this job already fetches.
+      - name: Prove ooc.sh generates the ROMs and fails on a failed top
+        run: python3 syn/yosys/ooc_selftest.py
+
+      # The result cache's hit rule (#350), driven against the real run.sh
+      # with this job's Yosys and sv2v: a cold run stores, a warm run hits
+      # with the same record, a planted forged entry is refused and the top
+      # runs live, and a read-only seed is read but never written.
+      - name: Prove the result cache refuses a planted entry
+        run: python3 syn/yosys/cache_selftest.py
+
+  # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
+  # deliberate docs-only result; failures and cancellations remain failures.
+  rtl-fast:
+    name: rtl-fast
+    if: ${{ always() && !cancelled() }}
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every applicable fast gate to pass
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
+          BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
+          YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+        run: |
+          set -euo pipefail
+          bad=0
+          for pair in \
+            "changes:$CHANGES_RESULT" \
+            "verilator-lint:$VERILATOR_LINT_RESULT" \
+            "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+            "yosys-elaboration:$YOSYS_ELABORATION_RESULT"; do
+            name="${pair%%:*}"
+            result="${pair#*:}"
+            printf '%-24s %s\n' "$name" "$result"
+            case "$result" in
+              success|skipped) ;;
+              *) bad=1 ;;
+            esac
+          done
+          [ "$bad" -eq 0 ]

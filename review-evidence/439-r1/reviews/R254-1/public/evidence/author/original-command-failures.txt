@@ -1,0 +1,14 @@
+Before evidence runner creation:
+argv: rtk proxy git rev-parse HEAD HEAD^{tree} refs/remotes/origin/dev
+exit: 128
+stdout: 483a133ed08867ea0d300d2b4a027b5b48a4282f\n93be2b5788c4b79e88bfe22fbaf985686bbdc8f2\nrefs/remotes/origin/dev
+stderr: fatal: ambiguous argument refs/remotes/origin/dev: unknown revision or path not in the working tree.
+argv: rtk proxy gh pr diff 521 --repo kebag-logic/milan-fpga -- scripts/ci_events.py docs/testing/CI_WORKFLOWS.md
+exit: 1
+output: accepts at most 1 arg(s), received 3
+These were inspection-command failures, not gate failures.
+During implementation: apply_patch docs authority edit rejected before write: Failed to find expected lines: file declares. Whether a job is pinned is a COMPARISON, never a claim and. No source change occurred. Replaced with an exact remaining-gap hunk.
+argv: rtk read .github/pull_request_template.md
+exit: 1
+output: cat: .github/pull_request_template.md: No such file or directory (os error 2)
+Inspection case mismatch; located the actual template with rg --files.

@@ -1,0 +1,206 @@
+[
+  {
+    "label": "base-drop-block--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/base-drop-block/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/base-drop-block"
+    ],
+    "exit": 0,
+    "seconds": 0.192,
+    "stdout": "base-drop-block--check.stdout",
+    "stderr": "base-drop-block--check.stderr"
+  },
+  {
+    "label": "source-drop-block--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/source-drop-block/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/source-drop-block"
+    ],
+    "exit": 1,
+    "seconds": 0.2,
+    "stdout": "source-drop-block--check.stdout",
+    "stderr": "source-drop-block--check.stderr"
+  },
+  {
+    "label": "base-exit-true--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/base-exit-true/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/base-exit-true"
+    ],
+    "exit": 0,
+    "seconds": 0.197,
+    "stdout": "base-exit-true--check.stdout",
+    "stderr": "base-exit-true--check.stderr"
+  },
+  {
+    "label": "source-exit-true--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/source-exit-true/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/source-exit-true"
+    ],
+    "exit": 1,
+    "seconds": 0.192,
+    "stdout": "source-exit-true--check.stdout",
+    "stderr": "source-exit-true--check.stderr"
+  },
+  {
+    "label": "verilator-shards-workflow-only--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-workflow-only/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-workflow-only"
+    ],
+    "exit": 1,
+    "seconds": 0.185,
+    "stdout": "verilator-shards-workflow-only--check.stdout",
+    "stderr": "verilator-shards-workflow-only--check.stderr"
+  },
+  {
+    "label": "verilator-shards-record-only--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-record-only/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-record-only"
+    ],
+    "exit": 1,
+    "seconds": 0.19,
+    "stdout": "verilator-shards-record-only--check.stdout",
+    "stderr": "verilator-shards-record-only--check.stderr"
+  },
+  {
+    "label": "verilator-shards-matched--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-matched/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-matched"
+    ],
+    "exit": 0,
+    "seconds": 0.239,
+    "stdout": "verilator-shards-matched--check.stdout",
+    "stderr": "verilator-shards-matched--check.stderr"
+  },
+  {
+    "label": "verilator-shards-matched--selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-matched/ci_events.py",
+      "--selftest",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/verilator-shards-matched"
+    ],
+    "exit": 0,
+    "seconds": 13.807,
+    "stdout": "verilator-shards-matched--selftest.stdout",
+    "stderr": "verilator-shards-matched--selftest.stderr"
+  },
+  {
+    "label": "full-ci-gate-workflow-only--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-workflow-only/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-workflow-only"
+    ],
+    "exit": 1,
+    "seconds": 0.197,
+    "stdout": "full-ci-gate-workflow-only--check.stdout",
+    "stderr": "full-ci-gate-workflow-only--check.stderr"
+  },
+  {
+    "label": "full-ci-gate-record-only--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-record-only/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-record-only"
+    ],
+    "exit": 1,
+    "seconds": 0.199,
+    "stdout": "full-ci-gate-record-only--check.stdout",
+    "stderr": "full-ci-gate-record-only--check.stderr"
+  },
+  {
+    "label": "full-ci-gate-matched--check",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-matched/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-matched"
+    ],
+    "exit": 0,
+    "seconds": 0.197,
+    "stdout": "full-ci-gate-matched--check.stdout",
+    "stderr": "full-ci-gate-matched--check.stderr"
+  },
+  {
+    "label": "full-ci-gate-matched--selftest",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-matched/ci_events.py",
+      "--selftest",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/disk/full-ci-gate-matched"
+    ],
+    "exit": 0,
+    "seconds": 13.851,
+    "stdout": "full-ci-gate-matched--selftest.stdout",
+    "stderr": "full-ci-gate-matched--selftest.stderr"
+  }
+]

@@ -1,0 +1,1126 @@
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index 6495a1257..7b629a8c2 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -169,10 +169,25 @@ jobs:
+         run: |
+           python3 scripts/check_baremetal_only.py --check
+           python3 scripts/check_baremetal_only.py --selftest
++      - name: Cache the pinned RV32 SDK
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++      - name: Compiler-absent firmware controls
++        run: |
++          set -euo pipefail
++          python3 sw/builder/test_firmware_compiler.py --selftest
++          python3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"
+       - name: End-station builder gates
+         run: |
+           python3 -m pip install --quiet pyyaml
+-          python3 sw/builder/test_builder.py
++          python3 sw/builder/test_builder.py --require-rv32
+       # NVM record-space gate (#70): the persisted set has TWO capacities, the
+       # erase block and the port's record_id[7:0]. Only the first was ever
+       # checked, and the second overflowed at the 2026-08 8x8 shape (292
+diff --git a/.github/workflows/elaborate.yml b/.github/workflows/elaborate.yml
+index 54c71a048..af8f37002 100644
+--- a/.github/workflows/elaborate.yml
++++ b/.github/workflows/elaborate.yml
+@@ -239,12 +239,25 @@ jobs:
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+         run: sw/litex/patches/apply.sh
+ 
++      - name: Cache the pinned RV32 SDK
++        if: ${{ steps.scope.outputs.rtl == 'true' }}
++        uses: actions/cache@v4
++        with:
++          path: ~/br-milan-rv32/host
++          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
++      - name: Install and verify the pinned RV32 SDK
++        if: ${{ steps.scope.outputs.rtl == 'true' }}
++        run: |
++          set -euo pipefail
++          python3 scripts/ci_rv32_sdk_selftest.py
++          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
++
+       # The gates that could not run in CI, running in CI. 23f/23g observe
+       # what elaboration hands Instance("milan_datapath"); their mutation arms
+       # sever the chain hop by hop and require the gate to go red.
+       - name: Elaboration gates
+         if: ${{ steps.scope.outputs.rtl == 'true' }}
+-        run: python3 sw/builder/test_builder.py --require-elaboration
++        run: python3 sw/builder/test_builder.py --require-elaboration --require-rv32
+ 
+       # Verilator for the converted-versus-source MAC comparison in the
+       # aggregate below (see the VERILATOR_VERSION comment at the top of this
+diff --git a/docs/integration/BAREMETAL_FIRMWARE.md b/docs/integration/BAREMETAL_FIRMWARE.md
+index ddab82ab8..262f02dca 100644
+--- a/docs/integration/BAREMETAL_FIRMWARE.md
++++ b/docs/integration/BAREMETAL_FIRMWARE.md
+@@ -291,7 +291,7 @@ directory is outside this measurement, and the CONTENTS behind each resolved
+ third-party name stay trusted rather than read.
+ 
+ Both instruments take the census's RV32 compiler, so both stand down where
+-there is none -- which is every hosted runner today. That is why neither
++there is none. #504 provisions both hosted builder consumers. Neither
+ REPLACES a refusal: the text rules they measure beside are in force on every
+ machine, unchanged, and gate 1b's verdict says in its first clause whether
+ the instruments graded with them. The section "Instruments added beside the
+@@ -1156,11 +1156,12 @@ strictly more than it did before; with none it refuses exactly what it did
+ before, and says which instruments did not grade. The refusals are unchanged
+ on every machine, including the hosted runners.
+ 
+-The reason is where the instruments can run at all. Every one of them takes
+-the census's RV32 compiler, and no hosted runner this repository uses has
+-one, so a retirement that lifted a refusal where the instrument runs would
+-lift it nowhere a merge is graded -- and would leave it lifted on the one
+-machine the author sees. The first head of PR #498 retired them
++Every instrument requires the census's RV32 compiler.
++At #498, hosted runners lacked that compiler.
++#504 provisions both builder jobs with the selected Bootlin SDK.
++See the [installation and cache contract](../testing/CI_WORKFLOWS.md#elaboration).
++Compiler availability alone does not authorize text-rule retirement.
++The first head of PR #498 retired them
+ unconditionally and a phase-2 token splice,
+ `milan_\`+newline+`write(ADP_CTRL, 1u)`, advertised the entity before the AEM
+ verdict and PASSED the complete gate on the hosted runners.
+@@ -1171,10 +1172,10 @@ verdict and PASSED the complete gate on the hosted runners.
+ | the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may reach one beside the firmware | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
+ | the resolver's store census: every store the compiler emits, classified by the address it RESOLVES to, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, and a store behind a brace-less `if` that the text store set cannot see at all (#495) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
+ 
+-**The two preconditions of retirement**, neither of which this change meets:
++**The two preconditions of retirement** remain separate acceptance obligations:
+ 
+ 1. an RV32-capable compiler on the hosted runners, so the instrument answers
+-   where a merge is graded. No workflow file is touched here;
++   where a merge is graded. #504 owns installation and hosted evidence;
+ 2. an instrument-level acceptance for each refusal being retired: the
+    instrument, asked on its own about the edit that refusal costs, must
+    accept it. Gate 1b measures that on every run where a compiler answers,
+@@ -1231,8 +1232,9 @@ already expanded. Retiring the remaining store-recognition families still
+ requires #162's Makefile half. No further refusal family is deleted until a
+ replacement rejects the recorded escapes by measurement.
+ 
+-**What a runner with no RV32 compiler gets**, stated here because it is what
+-the hosted runners get. The `-E` comparison, the `-H` resolution measurement
++**What a runner with no RV32 compiler gets** remains explicitly weaker.
++The compiler-absent CI control keeps this path executable.
++The `-E` comparison, the `-H` resolution measurement
+ and the resolved store census all take the census's compiler, so its
+ stand-down stands them down too, and the instrument-level measurements above
+ go with them.
+@@ -1257,12 +1259,13 @@ gap is the same one this gate has always had on such a runner: a cast with no
+ behind a brace-less `if` (#495), and the verifier's CFG and CRC provenance
+ need the same compile and are simply not measured there.
+ 
+-**Installing an RV32-capable compiler in the workflows is follow-up work and
+-is not claimed here.** It is the first precondition above: it would put every
+-hosted run on the instruments, close the two gaps in the paragraph before
+-this one where a merge is graded, and make a retirement mean something. It
+-belongs in one lane with the retirement itself, which is the remaining scope
+-of #408 and #409.
++**#504 installs the selected compiler without retiring any text refusal.**
++Both hosted builder calls require the RV32 instruments to execute.
++The pinned Bootlin glibc SDK retains the existing `__errno_location` residual.
++No additional C-library residual is accepted.
++Local mapped-prefix trials establish compatibility only.
++Fresh hosted installation and trusted act need their own evidence.
++Text-rule retirement remains the separate scope of #408 and #409.
+ 
+ ## Saved state: the flash writer
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 2823156c8..ba9a21889 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1039,6 +1039,67 @@ without sv2v turns the builder gate red rather than green, and the mutation
+ suite drops the install, drifts its version, moves it after the call, and
+ disables its condition.
+ 
++Both builder jobs provision the selected RV32 SDK (#504).
++The selection is Bootlin `riscv32-ilp32d--glibc--stable-2025.08-1`, GCC 14.3.0.
++The [installer](../../scripts/ci_rv32_sdk.py) pins its official URL and SHA256:
++`d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f`.
++Verification precedes extraction and execution of `relocate-sdk.sh`.
++The destination is `$HOME/br-milan-rv32/host`, the existing selector location.
++Prepending `PATH` alone cannot override that absolute selector.
++This SDK supplies verification tools, not product build settings.
++Its ILP32D default does not change the shipping CPU contract.
++The bare-metal scope gate masks exact SDK identity literals.
++Masks apply only within the installer and its fixture.
++Wrong-file, appended-term, and product-document controls remain refusals.
++
++Both caches bind the complete digest, runner OS, and architecture.
++They also bind installer revision `1` and installer source bytes.
++Neither cache accepts prefix fallbacks.
++Every hit verifies provenance and files before running cached tools.
++The receipt binds provenance, destination, files, modes, and symlinks.
++Missing, malformed, stale, and corrupt receipts fail closed.
++Existing directories without receipts are refused, never overwritten.
++Logs identify the compiler realpath, version, target, and relocated sysroot.
++GitHub cache scoping supplies trust; receipts detect cache drift.
++Receipts are not independent signatures over hostile cache contents.
++
++Both builder calls pass `--require-rv32`.
++A missing compiler therefore fails, rather than weakening hosted coverage.
++An alternate compiler cannot satisfy the required selector adoption.
++Elaboration provisioning retains its existing RTL scope guard.
++`docs-check` additionally runs the explicitly weaker compiler-absent control.
++It executes gate 1b with every cross candidate hidden.
++Host compilers answer version and target probes only.
++Firmware compilation through a host compiler is refused.
++Every text refusal remains active; declined instruments report `NOT RUN`.
++The existing AEM generator self-test remains scheduled unchanged.
++`ci_events.py` pins new steps, cache inputs, order, and guards.
++Its mutation controls remove adoption and provenance requirements independently.
++
++Reproduce focused controls without changing the workstation compiler:
++
++```sh
++python3 scripts/ci_rv32_sdk_selftest.py
++python3 sw/builder/test_firmware_compiler.py --selftest
++sdk_trial=$(mktemp -d)
++python3 scripts/ci_rv32_sdk.py --destination "$sdk_trial/host"
++python3 scripts/ci_rv32_sdk.py --destination "$sdk_trial/host"
++python3 sw/builder/test_firmware_compiler.py \
++  --sdk-destination "$sdk_trial/host" --audit "$sdk_trial/compiler.jsonl"
++python3 sw/builder/test_firmware_compiler.py \
++  --absent --audit "$sdk_trial/absent.jsonl"
++```
++
++The local SDK run logs its exact `argv[0]` substitution.
++It preserves every remaining compiler argument and subprocess option.
++That measurement proves local compatibility, not hosted selector adoption.
++The hosted builder uses its ordinary selector without substitution.
++The full builder, native banks, and trusted act remain required.
++Exact-head hosted acceptance remains separate from local installer evidence.
++For offline reproduction, add `--archive <verified-download.tar.xz>` when installing.
++The installer still checks the pinned digest.
++An absent run with `--require-rv32` must fail explicitly.
++
+ The `docs-check` job ends with three shape gates, in this order:
+ `Sweep/build shape gate` (`scripts/check_sweep_shape.py --self-test`),
+ `Deploy shape gate` (`scripts/check_deploy_shape.py --self-test`, wired by
+diff --git a/scripts/check_baremetal_only.py b/scripts/check_baremetal_only.py
+index d66144d89..99cc432dd 100644
+--- a/scripts/check_baremetal_only.py
++++ b/scripts/check_baremetal_only.py
+@@ -38,9 +38,10 @@
+ P. protected product documentation: even an embedded ``linux`` substring is
+    forbidden. Host-tooling masks never apply there. Deleting the protected
+    document is also a failure, preventing removal from bypassing this class.
+-   A file-pinned mask (``TERM_MASKS``) covers the one generic
+-   container-image name in dev's CI-contract fixture; like the class-R
+-   masks it is bound to its single file and cannot launder the same term on
++   File-pinned masks (``TERM_MASKS``) cover the one generic
++   container-image name in dev's CI-contract fixture and #504's selected
++   host SDK identity/relocation literals; like the class-R
++   masks each is bound to its file and cannot launder the same term on
+    another line or in another file.
+ R. retired target RUNTIME/service surface: the former helper services and
+    target-OS interfaces are forbidden even when a line avoids the broader
+@@ -256,8 +257,19 @@ class bites even with clean or binary contents, while near-miss and
+ # not a retired userland: mask the exact fixture spelling in its one file so
+ # the term stays banned everywhere else, including a bare `busybox` elsewhere
+ # in that same file. Renaming the fixture image on dev retires this entry.
++# #504 selects this SDK as a verification tool under #259's host-tooling
++# non-goal. These literals identify that tool and its relocation receipt.
++# Only the two installer files may carry them; no global triplet expansion,
++# whole-line exemption or product-document allowance follows from this mask.
++SDK_IDENTITY_MASK = (
++    r"(?<![A-Za-z0-9_./-])(?:riscv32-buildroot-linux-gnu|"
++    r"share/buildroot/sdk-location)(?![A-Za-z0-9_./-])"
++)
+ TERM_MASKS = {
+     "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
++    "scripts/ci_rv32_sdk.py": re.compile(
++        SDK_IDENTITY_MASK + r'|\("Linux", "x86_64"\)'),
++    "scripts/ci_rv32_sdk_selftest.py": re.compile(SDK_IDENTITY_MASK),
+ }
+ 
+ HOST_RUNTIME_MASKS = {
+@@ -958,6 +970,33 @@ def plant_runner_path(r: pathlib.Path, path: str, payload: str) -> None:
+             lambda r, p=path, t=payload: plant_runner_path(
+                 r, p, t.rstrip() + " /proc/mtd\n"), True, "[R]")
+ 
++    sdk_literals = (
++        ("host", "scripts/ci_rv32_sdk.py", '("Linux", "x86_64")'),
++        ("target", "scripts/ci_rv32_sdk.py", '"riscv32-buildroot-linux-gnu"'),
++        ("location", "scripts/ci_rv32_sdk.py", '"share/buildroot/sdk-location"'),
++        ("fixture-target", "scripts/ci_rv32_sdk_selftest.py",
++         "echo riscv32-buildroot-linux-gnu ;;"),
++        ("fixture-location", "scripts/ci_rv32_sdk_selftest.py",
++         "pwd > share/buildroot/sdk-location\\n"),
++    )
++    for label, path, payload in sdk_literals:
++        arm(f"sdk-identity-allowed-{label}",
++            lambda r, p=path, t=payload: plant_runner_path(r, p, t), False)
++        for destination in ("other.txt", PRODUCT_DOCS[0]):
++            expected = "[P]" if destination in PRODUCT_DOCS and "linux" in payload.lower() else "[T]"
++            arm(f"sdk-identity-wrong-file-{label}-{destination}",
++                lambda r, p=destination, t=payload: plant_runner_path(r, p, t),
++                True, expected)
++        arm(f"sdk-identity-second-term-{label}",
++            lambda r, p=path, t=payload: plant_runner_path(r, p, t + " rootfs"),
++            True, "[T]")
++    for payload in ('"share/buildroot/sdk-location/other"',
++                    '"riscv32-buildroot-linux-gnu-other"',
++                    '("Linux", "aarch64")'):
++        arm(f"sdk-identity-boundary-{payload}",
++            lambda r, t=payload: plant_runner_path(r, "scripts/ci_rv32_sdk.py", t),
++            True, "[T]")
++
+     # generated outputs are scanned: a term planted in an .svg text node
+     arm("term-in-generated-svg",
+         lambda r: (r / "diagram.svg").write_text(
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index b6cc76896..41b6616cd 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -699,12 +699,29 @@ def rendered_names(job: YamlMap) -> list[str] | None:
+ BUILDER_RUNS = {
+     DOCS: (
+         "python3 -m pip install --quiet pyyaml",
+-        "python3 sw/builder/test_builder.py",
++        "python3 sw/builder/test_builder.py --require-rv32",
+     ),
+     ELABORATE: (
+-        "python3 sw/builder/test_builder.py --require-elaboration",
++        "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
+     ),
+ }
++#: #504: reviewed cache inputs and unconditional verification on hits and misses.
++RV32_CACHE_WITH = {
++    "path": "~/br-milan-rv32/host",
++    "key": "rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-"
++           "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-"
++           "${{ hashFiles('scripts/ci_rv32_sdk.py') }}",
++}
++RV32_INSTALL = (
++    "set -euo pipefail",
++    "python3 scripts/ci_rv32_sdk_selftest.py",
++    'python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"',
++)
++RV32_ABSENT = (
++    "set -euo pipefail",
++    "python3 sw/builder/test_firmware_compiler.py --selftest",
++    'python3 sw/builder/test_firmware_compiler.py --absent --audit "$RUNNER_TEMP/rv32-absent.jsonl"',
++)
+ BUILDER_CHECKOUTS = {
+     # Full history since #378: the em-dash gate derives its base by
+     # merge-base against the base branch, which a depth-1 checkout cannot
+@@ -966,6 +983,12 @@ def rendered_names(job: YamlMap) -> list[str] | None:
+              'python3 scripts/check_baremetal_only.py --check',
+              'python3 scripts/check_baremetal_only.py --selftest',
+          )},
++        {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
++         "with": RV32_CACHE_WITH},
++        {"name": "Install and verify the pinned RV32 SDK",
++         "run": RV32_INSTALL},
++        {"name": "Compiler-absent firmware controls",
++         "run": RV32_ABSENT},
+         {"name": "End-station builder gates",
+          "run": BUILDER_RUNS[DOCS]},
+         {"name": "NVM record-space gate",
+@@ -1146,6 +1169,10 @@ def rendered_names(job: YamlMap) -> list[str] | None:
+          "run": (
+              'sw/litex/patches/apply.sh',
+          )},
++        {"name": "Cache the pinned RV32 SDK", "if": BUILDER_IF,
++         "uses": "actions/cache@v4", "with": RV32_CACHE_WITH},
++        {"name": "Install and verify the pinned RV32 SDK", "if": BUILDER_IF,
++         "run": RV32_INSTALL},
+         {"name": "Elaboration gates", "if": BUILDER_IF,
+          "run": BUILDER_RUNS[ELABORATE]},
+         # Verilator, for the aggregate's converted-versus-source MAC
+@@ -6872,7 +6899,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
+          _m_insert_step(DOCS, "docs-check",
+                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+-         "job `docs-check` must carry exactly 44 steps"),
++         "job `docs-check` must carry exactly 47 steps"),
+         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
+          _m_insert_step(DOCS, "docs-check-no-git",
+                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
+@@ -6883,10 +6910,10 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `wire-accountability` must carry exactly 3 steps"),
+         ("#295 elaborate inserted third-party action breaks the sequence",
+          _m_insert_step(ELABORATE, "elaborate", {"uses": "attacker/action@v1"}),
+-         "job `elaborate` must carry exactly 18 steps"),
++         "job `elaborate` must carry exactly 20 steps"),
+         ("#295 docs-check inserted step of benign content",
+          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
+-         "job `docs-check` must carry exactly 44 steps"),
++         "job `docs-check` must carry exactly 47 steps"),
+         ("#295 wire-accountability inserted step of benign content",
+          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
+          "job `wire-accountability` must carry exactly 3 steps"),
+@@ -6895,26 +6922,26 @@ def _carrier_step_list_arms() -> list[Arm]:
+          "job `docs-check-no-git` must carry exactly 2 steps"),
+         ("#295 elaborate inserted step of benign content",
+          _m_insert_step(ELABORATE, "elaborate", {"name": "tidy", "run": "true"}),
+-         "job `elaborate` must carry exactly 18 steps"),
++         "job `elaborate` must carry exactly 20 steps"),
+         ("#303 docs-check imported gPTP gate removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check",
+                                  "check_gptp_docs.py --with-submodule")),
+-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
++         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+         ("#295 docs-check recognised step removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
+-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
++         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+         ("#295 elaborate patch-series step removed",
+          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
+-         "job `elaborate` must carry exactly 18 steps, in the recorded order (found 17)"),
++         "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
+         ("#295 docs-check recognised steps swapped",
+-         _m_swap_steps(DOCS, "docs-check", 37, 38),
+-         "job `docs-check` step 39 must be the step named `Archive integrity gate`"),
++         _m_swap_steps(DOCS, "docs-check", 40, 41),
++         "job `docs-check` step 42 must be the step named `Archive integrity gate`"),
+         ("#295 elaborate scope and fetch steps swapped",
+          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
+          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
+         ("#295 docs-check recognised step renamed",
+          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
+-         "job `docs-check` step 38 must be the step named `Doc cited-path gate`"),
++         "job `docs-check` step 41 must be the step named `Doc cited-path gate`"),
+         ("#295 docs-check non-gate step if: false",
+          _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
+          "(`Bare-metal scope gate`) must carry no `if`"),
+@@ -6948,7 +6975,7 @@ def _carrier_step_list_arms() -> list[Arm]:
+          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
+         ("#378 em-dash gate step removed",
+          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
+-         "job `docs-check` must carry exactly 44 steps, in the recorded order (found 43)"),
++         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+     ]
+ 
+ 
+@@ -7467,6 +7494,37 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
+     return edits
+ 
+ 
++def _rv32_sdk_arms() -> list[Arm]:
++    """#504: missing provenance inputs, adoption guards and provisioning refuse."""
++    arms = []
++    for path, jid, count in ((DOCS, "docs-check", 47),
++                             (ELABORATE, "elaborate", 20)):
++        for label, key, value in (
++                ("digest", "key", RV32_CACHE_WITH["key"].replace(
++                    "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "wrong")),
++                ("OS", "key", RV32_CACHE_WITH["key"].replace("${{ runner.os }}", "")),
++                ("architecture", "key", RV32_CACHE_WITH["key"].replace("${{ runner.arch }}", "")),
++                ("revision", "key", RV32_CACHE_WITH["key"].replace("sdk-v1", "sdk-v0")),
++                ("installer bytes", "key", "rv32-sdk-v1"),
++                ("fallback", "restore-keys", "rv32-sdk-"),
++                ("selector path", "path", "~/unselected-sdk")):
++            arms.append((f"RV32 {jid} wrong cache {label}",
++                         _m_with_key(path, jid, "Cache the pinned RV32 SDK", key, value),
++                         "(`Cache the pinned RV32 SDK`) `with` must be exactly"))
++        arms.append((f"RV32 {jid} installation removed",
++                     lambda w, p=path, j=jid: _strip_steps(w, p, j, "ci_rv32_sdk.py"),
++                     f"job `{jid}` must carry exactly {count} steps"))
++        arms.append((f"RV32 {jid} verification skipped on cache hit",
++                     _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
++                     "(`Install and verify the pinned RV32 SDK`)"))
++        builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
++        arms.append((f"RV32 {jid} allows a stood-down compiler",
++                     _m_step_key_any(path, jid, BUILDER_CALL, "run",
++                                     "\n".join(BUILDER_RUNS[path]).replace(" --require-rv32", "")),
++                     f"(`{builder_name}`) script is not the canonical form"))
++    return arms
++
++
+ def _carrier_script_arms(pristine: World) -> list[Arm]:
+     """Reason-pin every carrier body, including its name and differing line.
+ 
+@@ -7515,6 +7573,7 @@ def _mutations(pristine: World) -> list[Arm]:
+             + _shard_and_fast_arms()
+             + _aggregate_script_arms()
+             + _docs_builder_arms()
++            + _rv32_sdk_arms()
+             + _docs_carrier_arms()
+             + _elaborate_arms()
+             + _decoy_name_arms()
+diff --git a/scripts/ci_rv32_sdk.py b/scripts/ci_rv32_sdk.py
+new file mode 100644
+index 000000000..b6ac41389
+--- /dev/null
++++ b/scripts/ci_rv32_sdk.py
+@@ -0,0 +1,189 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Install the #504 Bootlin SDK; prove provenance before using a cache.
++
++Only disposable CI runners use the default destination. Local experiments
++must supply a new --destination. Existing unreceipted trees are never replaced.
++The receipt detects accidental cache drift; GitHub cache scoping is the trust
++boundary, not a signature made by this installer over its own output.
++"""
++
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import stat
++import subprocess
++import tarfile
++import tempfile
++import urllib.request
++
++
++RELEASE = "riscv32-ilp32d--glibc--stable-2025.08-1"
++ARCHIVE_SHA256 = "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f"
++ARCHIVE_URL = ("https://toolchains.bootlin.com/downloads/releases/toolchains/"
++               f"riscv32-ilp32d/tarballs/{RELEASE}.tar.xz")
++INSTALLER_REVISION = 1
++RECEIPT = ".milan-rv32-sdk.json"
++COMPILER = "bin/riscv32-linux-gcc"
++
++
++def digest(path: Path) -> str:
++    """Hash bytes without loading the SDK into memory."""
++    result = hashlib.sha256()
++    with path.open("rb") as stream:
++        for block in iter(lambda: stream.read(1024 * 1024), b""):
++            result.update(block)
++    return result.hexdigest()
++
++
++def host_identity() -> dict[str, str]:
++    """The selected archive contains x86-64 host executables."""
++    system, machine = platform.system(), platform.machine()
++    if (system, machine) != ("Linux", "x86_64"):
++        raise ValueError(f"unsupported SDK host: {system}/{machine}")
++    return {"os": system, "architecture": machine}
++
++
++def provenance(destination: Path) -> dict[str, object]:
++    """Inputs a restored receipt must match exactly."""
++    return {"archive_url": ARCHIVE_URL, "archive_sha256": ARCHIVE_SHA256,
++            "release": RELEASE, "installer_revision": INSTALLER_REVISION,
++            "installer_sha256": digest(Path(__file__).resolve()),
++            "host": host_identity(), "destination": str(destination)}
++
++
++def inventory(destination: Path) -> dict[str, object]:
++    """Bind every installed file, mode and link, including compiler support files."""
++    records = {}
++    for path in sorted(destination.rglob("*")):
++        relative = path.relative_to(destination).as_posix()
++        if relative == RECEIPT:
++            continue
++        mode = path.lstat().st_mode
++        if stat.S_ISLNK(mode):
++            records[relative] = {"link": os.readlink(path)}
++        elif stat.S_ISREG(mode):
++            records[relative] = {"sha256": digest(path),
++                                 "mode": stat.S_IMODE(mode)}
++        elif not stat.S_ISDIR(mode):
++            raise ValueError(f"unexpected SDK entry: {relative}")
++    return records
++
++
++def identify(destination: Path) -> dict[str, str]:
++    """Prove relocation and compiler identity using the exact selector spelling."""
++    compiler = destination / COMPILER
++    realpath = compiler.resolve(strict=True)
++    if not realpath.is_relative_to(destination):
++        raise ValueError("compiler realpath escapes SDK destination")
++    values = {}
++    for name, option in (("version", "--version"),
++                         ("gcc_version", "-dumpfullversion"),
++                         ("target", "-dumpmachine"),
++                         ("sysroot", "-print-sysroot")):
++        argv = [str(compiler), option]
++        print("SDK argv: " + json.dumps(argv), flush=True)
++        values[name] = subprocess.run(argv, check=True, text=True,
++                                      capture_output=True).stdout.strip()
++    if values["gcc_version"] != "14.3.0":
++        raise ValueError("SDK GCC version mismatch")
++    if values["target"] != "riscv32-buildroot-linux-gnu":
++        raise ValueError("SDK target mismatch")
++    sysroot = Path(values["sysroot"]).resolve(strict=True)
++    if not sysroot.is_relative_to(destination):
++        raise ValueError("SDK sysroot is not relocated into destination")
++    if (destination / "share/buildroot/sdk-location").read_text().strip() != str(destination):
++        raise ValueError("SDK relocation receipt mismatch")
++    return {**values, "compiler": str(compiler), "realpath": str(realpath)}
++
++
++def verify(destination: Path) -> dict[str, object]:
++    """Check provenance and installed bytes before executing a cached tool."""
++    receipt_path = destination / RECEIPT
++    if receipt_path.is_symlink() or not receipt_path.is_file():
++        raise ValueError("missing regular SDK provenance receipt; incomplete install")
++    receipt = json.loads(receipt_path.read_text())
++    if not isinstance(receipt, dict) or set(receipt) != {"provenance", "inventory", "tools"}:
++        raise ValueError("malformed SDK provenance receipt")
++    if receipt["provenance"] != provenance(destination):
++        raise ValueError("SDK provenance mismatch")
++    actual = inventory(destination)
++    if not actual or receipt["inventory"] != actual:
++        raise ValueError("SDK inventory mismatch; incomplete or corrupt install")
++    if receipt["tools"] != identify(destination):
++        raise ValueError("SDK tool identification mismatch")
++    print("SDK verified: " + json.dumps(receipt["provenance"], sort_keys=True))
++    print("SDK tools: " + json.dumps(receipt["tools"], sort_keys=True))
++    return receipt
++
++
++def extract(archive: Path, destination: Path) -> None:
++    """Verify before extraction; execute only the pinned relocation script."""
++    actual = digest(archive)
++    if actual != ARCHIVE_SHA256:
++        raise ValueError(f"SDK archive digest mismatch: {actual}")
++    print(f"SDK archive verified: {archive} sha256={actual}", flush=True)
++    # The digest authenticates this exact upstream tar layout. Reject an
++    # unexpected root before asking tar to strip it into the final prefix.
++    with tarfile.open(archive, "r:xz") as stream:
++        if any(Path(member.name).parts[0] != RELEASE for member in stream):
++            raise ValueError("SDK archive root mismatch")
++    destination.mkdir(parents=True)
++    subprocess.run(["tar", "-xJf", str(archive), "--strip-components=1",
++                    "-C", str(destination)], check=True)
++    argv = [str(destination / "relocate-sdk.sh")]
++    print("SDK argv: " + json.dumps(argv), flush=True)
++    subprocess.run(argv, cwd=destination, check=True)
++    tools = identify(destination)
++    receipt = {"provenance": provenance(destination),
++               "inventory": inventory(destination), "tools": tools}
++    (destination / RECEIPT).write_text(json.dumps(receipt, sort_keys=True) + "\n")
++
++
++def install(destination: Path, archive: Path | None = None) -> None:
++    """Install into an absent prefix, or validate an existing receipt without repair."""
++    host_identity()
++    if destination.is_symlink() or destination.absolute() != destination.resolve():
++        raise ValueError("SDK destination must be an absolute path without symlink parents")
++    destination = destination.absolute()
++    if archive is not None and digest(archive) != ARCHIVE_SHA256:
++        raise ValueError("SDK archive digest mismatch")
++    if destination.exists():
++        verify(destination)
++        print("SDK cache hit: verified")
++        return
++    if archive is None:
++        with tempfile.TemporaryDirectory(prefix="milan-rv32-download-") as tmp:
++            downloaded = Path(tmp) / f"{RELEASE}.tar.xz"
++            print(f"SDK download: {ARCHIVE_URL}", flush=True)
++            with urllib.request.urlopen(ARCHIVE_URL, timeout=120) as response:
++                with downloaded.open("wb") as output:
++                    while block := response.read(1024 * 1024):
++                        output.write(block)
++            extract(downloaded, destination)
++    else:
++        extract(archive, destination)
++    verify(destination)
++    print("SDK fresh installation: verified")
++
++
++def main() -> None:
++    """Explicit local destination; settled home-relative default only for CI."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--destination", type=Path,
++                        default=Path.home() / "br-milan-rv32/host")
++    parser.add_argument("--archive", type=Path,
++                        help="offline input, still checked against the pinned digest")
++    parser.add_argument("--verify-only", action="store_true")
++    args = parser.parse_args()
++    if args.verify_only:
++        verify(args.destination)
++    else:
++        install(args.destination, args.archive)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/ci_rv32_sdk_selftest.py b/scripts/ci_rv32_sdk_selftest.py
+new file mode 100644
+index 000000000..eb46be736
+--- /dev/null
++++ b/scripts/ci_rv32_sdk_selftest.py
+@@ -0,0 +1,233 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Offline installer controls use a tiny fixture archive and its own digest.
++
++These controls are not Bootlin compatibility evidence. The real archive and
++gate must also run, with no replacement of the production digest.
++"""
++
++import contextlib
++import io
++import json
++from pathlib import Path
++import shutil
++import tarfile
++import tempfile
++import unittest
++from unittest.mock import patch
++
++import ci_rv32_sdk as sdk
++
++
++class InstallerTests(unittest.TestCase):
++    """Exercise installation, cache validation, and refusal before execution."""
++
++    def setUp(self) -> None:
++        """Construct a self-contained SDK with a real relocation step."""
++        self.tmp = tempfile.TemporaryDirectory(prefix="rv32-installer-test-")
++        self.addCleanup(self.tmp.cleanup)
++        root = Path(self.tmp.name)
++        self.destination = root / "installed"
++        source = root / sdk.RELEASE
++        (source / "bin").mkdir(parents=True)
++        (source / "sysroot").mkdir()
++        (source / "share/buildroot/sdk-location").parent.mkdir(parents=True)
++        (source / "share/buildroot/sdk-location").write_text("/old/prefix\n")
++        tool = source / "bin/fixture-gcc"
++        tool.write_text("#!/bin/sh\nset -eu\n"
++                        'root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"\n'
++                        'case "$1" in\n'
++                        '  --version) echo "fixture GCC 14.3.0" ;;\n'
++                        '  -dumpfullversion) echo 14.3.0 ;;\n'
++                        '  -dumpmachine) echo riscv32-buildroot-linux-gnu ;;\n'
++                        '  -print-sysroot) echo "$root/sysroot" ;;\n'
++                        '  *) exit 9 ;;\nesac\n')
++        tool.chmod(0o755)
++        (source / sdk.COMPILER).symlink_to("fixture-gcc")
++        relocation = source / "relocate-sdk.sh"
++        relocation.write_text('#!/bin/sh\nset -eu\npwd > share/buildroot/sdk-location\n')
++        relocation.chmod(0o755)
++        self.archive = root / "fixture.tar.xz"
++        with tarfile.open(self.archive, "w:xz") as stream:
++            stream.add(source, arcname=sdk.RELEASE)
++        self.addCleanup(patch.stopall)
++        patch.object(sdk, "ARCHIVE_SHA256", sdk.digest(self.archive)).start()
++
++    def install(self) -> None:
++        """Install the checksum-verified synthetic fixture."""
++        with contextlib.redirect_stdout(io.StringIO()):
++            sdk.install(self.destination, self.archive)
++
++    def read_receipt(self) -> dict[str, object]:
++        """Read a receipt for a deliberate corruption control."""
++        return json.loads((self.destination / sdk.RECEIPT).read_text())
++
++    def write_receipt(self, receipt: object) -> None:
++        """Plant one precise receipt defect."""
++        (self.destination / sdk.RECEIPT).write_text(json.dumps(receipt))
++
++    def refuses_without_execution(self, reason: str) -> None:
++        """Cache corruption must be refused before any restored program runs."""
++        with patch.object(sdk.subprocess, "run") as run:
++            with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
++                sdk.install(self.destination, self.archive)
++            run.assert_not_called()
++
++    def test_fresh_and_cache_hit(self) -> None:
++        """Extraction relocates; a valid hit neither downloads nor extracts."""
++        self.install()
++        receipt = self.read_receipt()
++        self.assertEqual(receipt["provenance"]["destination"], str(self.destination))
++        self.assertEqual(receipt["tools"]["realpath"],
++                         str(self.destination / "bin/fixture-gcc"))
++        with patch.object(sdk, "extract") as extract:
++            with patch.object(sdk.urllib.request, "urlopen") as download:
++                with contextlib.redirect_stdout(io.StringIO()):
++                    sdk.install(self.destination)
++                extract.assert_not_called()
++                download.assert_not_called()
++        self.assertEqual(receipt, self.read_receipt())
++
++    def test_bad_archive(self) -> None:
++        """A wrong download never reaches tar or creates an installation."""
++        self.archive.write_bytes(b"not the pinned archive")
++        self.refuses_without_execution("archive digest mismatch")
++        self.assertFalse(self.destination.exists())
++
++    def test_bad_archive_with_cache(self) -> None:
++        """Explicit offline inputs are checked even beside a valid cache."""
++        self.install()
++        self.archive.write_bytes(b"corrupt")
++        self.refuses_without_execution("archive digest mismatch")
++
++    def test_missing_receipt(self) -> None:
++        """An existing directory is not an installed SDK."""
++        self.destination.mkdir()
++        self.refuses_without_execution("incomplete install")
++
++    def test_malformed_receipt(self) -> None:
++        """JSON of the wrong type cannot pass as provenance."""
++        self.install()
++        self.write_receipt([])
++        self.refuses_without_execution("malformed SDK provenance")
++
++    def test_truncated_receipt(self) -> None:
++        """An interrupted receipt write never becomes a usable cache."""
++        self.install()
++        (self.destination / sdk.RECEIPT).write_text('{"provenance":')
++        self.refuses_without_execution("Expecting value")
++
++    def test_symlink_receipt(self) -> None:
++        """Provenance must be stored in the installation, not another tree."""
++        self.install()
++        receipt = self.destination / sdk.RECEIPT
++        external = self.destination.parent / "receipt.json"
++        receipt.rename(external)
++        receipt.symlink_to(external)
++        self.refuses_without_execution("missing regular SDK provenance receipt")
++
++    def test_wrong_provenance(self) -> None:
++        """Every cache input is bound, including the whole digest and prefix."""
++        self.install()
++        original = self.read_receipt()
++        for key in original["provenance"]:
++            with self.subTest(key=key):
++                receipt = json.loads(json.dumps(original))
++                receipt["provenance"][key] = "wrong"
++                self.write_receipt(receipt)
++                self.refuses_without_execution("provenance mismatch")
++
++    def test_incomplete_and_corrupt_tree(self) -> None:
++        """Deletion, replacement, mode change and extra files all refuse."""
++        self.install()
++        tool = self.destination / "bin/fixture-gcc"
++        content = tool.read_bytes()
++        for label in ("missing", "bytes", "mode", "extra", "link"):
++            with self.subTest(defect=label):
++                tool.write_bytes(content)
++                tool.chmod(0o755)
++                if label == "missing":
++                    tool.unlink()
++                elif label == "bytes":
++                    tool.write_text("corrupt")
++                elif label == "mode":
++                    tool.chmod(0o644)
++                elif label == "extra":
++                    (self.destination / "extra").write_text("extra")
++                else:
++                    tool.unlink()
++                    tool.symlink_to("/bin/false")
++                self.refuses_without_execution("inventory mismatch")
++                if tool.is_symlink():
++                    tool.unlink()
++                (self.destination / "extra").unlink(missing_ok=True)
++
++    def test_failed_relocation(self) -> None:
++        """A failed relocation leaves no success receipt and cannot become a hit."""
++        real_run = sdk.subprocess.run
++
++        def fail_relocation(argv: list[str], **kwargs: object) -> object:
++            """Extract normally, then fail the actual relocation invocation."""
++            if argv[0].endswith("relocate-sdk.sh"):
++                raise OSError("relocation failed")
++            return real_run(argv, **kwargs)
++
++        with patch.object(sdk.subprocess, "run", side_effect=fail_relocation):
++            with self.assertRaisesRegex(OSError, "relocation failed"):
++                self.install()
++        self.assertFalse((self.destination / sdk.RECEIPT).exists())
++        self.refuses_without_execution("incomplete install")
++
++    def test_unrelocated_sdk(self) -> None:
++        """Even a successful process must prove its relocation result."""
++        self.install()
++        (self.destination / "share/buildroot/sdk-location").write_text("/old/prefix\n")
++        with self.assertRaisesRegex(ValueError, "relocation receipt mismatch"):
++            sdk.identify(self.destination)
++
++    def test_wrong_tool(self) -> None:
++        """A compiler with the wrong version or target cannot create a receipt."""
++        self.install()
++        tool = self.destination / "bin/fixture-gcc"
++        original = tool.read_text()
++        for before, after, reason in (("14.3.0", "13.1.0", "version mismatch"),
++                                      ("riscv32-", "riscv64-", "target mismatch"),
++                                      ('echo "$root/sysroot"', 'echo /tmp', "sysroot")):
++            with self.subTest(reason=reason):
++                tool.write_text(original.replace(before, after))
++                with self.assertRaisesRegex(ValueError, reason):
++                    sdk.identify(self.destination)
++
++    def test_wrong_tool_receipt(self) -> None:
++        """Cached identification must agree with the program actually invoked."""
++        self.install()
++        receipt = self.read_receipt()
++        receipt["tools"]["version"] = "wrong version"
++        self.write_receipt(receipt)
++        with self.assertRaisesRegex(ValueError, "tool identification mismatch"):
++            sdk.verify(self.destination)
++
++    def test_symlink_destination(self) -> None:
++        """Do not overwrite or adopt a tree reached through a selector symlink."""
++        target = self.destination.parent / "other"
++        target.mkdir()
++        self.destination.symlink_to(target, target_is_directory=True)
++        self.refuses_without_execution("symlink parents")
++        self.assertEqual(list(target.iterdir()), [])
++
++    def test_unsupported_host(self) -> None:
++        """The fixed x86-64 archive cannot silently adopt another host."""
++        with patch.object(sdk.platform, "machine", return_value="aarch64"):
++            self.refuses_without_execution("unsupported SDK host")
++
++    def test_moved_cache(self) -> None:
++        """A relocated tree is bound to the prefix where it was measured."""
++        self.install()
++        previous = self.destination
++        self.destination = self.destination.parent / "moved"
++        shutil.move(previous, self.destination)
++        self.refuses_without_execution("provenance mismatch")
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 7eb6bdd51..e07373fda 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -3850,8 +3850,8 @@ def census_compiler() -> str | None:
+     #: the boot-path comparison, `-H` for the include-resolution
+     #: measurement, and the emitted assembly for the resolved store census.
+     #: So a machine with no RV32-capable compiler stands all three down at
+-    #: once -- and that is every hosted runner this repository uses today,
+-    #: not a hypothetical box.
++    #: once. #504 provisions the two hosted builder jobs; the deliberately
++    #: compiler-absent control continues to exercise this weaker path.
+     #:
+     #: Which is why NOTHING IS RETIRED HERE. At PR #498's first head six
+     #: text refusals were retired onto these instruments; on a runner with
+@@ -3868,8 +3868,8 @@ def census_compiler() -> str | None:
+     #: run with a compiler refuses strictly MORE than `dev`, a run without
+     #: one refuses exactly what `dev` refuses and says which instruments did
+     #: not grade. Retirement is the remaining scope of #408 and #409 and
+-    #: belongs in one later lane together with installing an RV32-capable
+-    #: compiler on the hosted runners. What it would buy is measured on
++    #: remains separate from #504's hosted compiler installation. What it
++    #: would buy is measured on
+     #: every live run, in the instrument-level acceptance table beside the
+     #: mutations, rather than claimed.
+     def instruments_stood_down() -> bool:
+@@ -3972,6 +3972,17 @@ def instruments_stood_down() -> bool:
+     #: Decided ONCE, here: a run that probed the compiler twice could report
+     #: one arm and grade with the other.
+     instruments_down = instruments_stood_down()
++    if "--require-rv32" in sys.argv:
++        assert not instruments_down, \
++            "--require-rv32: the hosted firmware instruments must run"
++        assert census_used["compiler"] == census_compilers[0], \
++            "--require-rv32: the provisioned absolute SDK selector must be adopted"
++    if not instruments_down:
++        compiler = census_used["compiler"]
++        version = subprocess.run([compiler, "--version"], check=True,
++                                 capture_output=True, text=True).stdout.splitlines()[0]
++        print(f"  [gate 1b] compiler argv[0]={compiler} "
++              f"version={version} driver={census_used['flags']}")
+     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
+     #: #241).
+     #:
+diff --git a/sw/builder/test_firmware_compiler.py b/sw/builder/test_firmware_compiler.py
+new file mode 100644
+index 000000000..2bde32ce1
+--- /dev/null
++++ b/sw/builder/test_firmware_compiler.py
+@@ -0,0 +1,189 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: MIT
++"""Run actual gate 1b with an audited disposable SDK or absent cross tools.
++
++--sdk-destination maps only the existing absolute selector's argv[0]. It
++changes neither HOME, PATH, the shared compiler nor any remaining argument.
++This is local compatibility evidence, not proof of hosted selector adoption.
++--absent hides cross candidates while retaining real host version/RV32 probes;
++any attempted firmware compilation through a host compiler is an error.
++"""
++
++import argparse
++import contextlib
++import json
++from pathlib import Path
++import re
++import subprocess
++import sys
++import tempfile
++from typing import Any, TextIO
++from unittest.mock import patch
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
++import ci_rv32_sdk as sdk  # noqa: E402
++import test_builder as builder  # noqa: E402
++
++
++class CompilerAudit:
++    """Intercept only compiler candidate calls; preserve argv and subprocess options."""
++
++    def __init__(self, stream: TextIO, destination: Path | None) -> None:
++        self.stream = stream
++        self.destination = destination
++        self.selector = str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc")
++        self.cross = {self.selector, "riscv64-elf-gcc", "riscv32-unknown-elf-gcc"}
++        self.native = {"cc", "gcc"}
++        self.run = subprocess.run
++        self.compiles = 0
++        self.hidden = set()
++
++    def invoke(self, argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
++        """Log requested and executed argv with the actual return code."""
++        requested = [str(arg) for arg in argv]
++        if requested[0] not in self.cross | self.native:
++            return self.run(argv, **kwargs)
++        record = {"requested_argv": requested}
++        if self.destination is None and requested[0] in self.cross:
++            self.hidden.add(requested[0])
++            record.update(actual_argv=None, result="deliberately absent")
++            self.stream.write(json.dumps(record) + "\n")
++            raise FileNotFoundError("deliberately absent RV32 candidate")
++        actual = requested.copy()
++        if self.destination is not None and requested[0] == self.selector:
++            actual[0] = str(self.destination / sdk.COMPILER)
++        elif requested[1:] != ["--version"]:
++            if not any(Path(arg).name == "probe.c" for arg in requested[1:]):
++                raise AssertionError("host/alternate compiler attempted firmware compilation")
++        result = self.run(actual, **kwargs)
++        record.update(actual_argv=actual, returncode=result.returncode)
++        if "-std=gnu99" in actual:
++            self.compiles += 1
++        if "-S" in actual and "-std=gnu99" in actual:
++            assembly = Path(actual[actual.index("-o") + 1])
++            if result.returncode == 0 and assembly.is_file():
++                arch = re.search(r'\.attribute\s+arch,\s*"([^"]+)"',
++                                 assembly.read_text())
++                record["assembly_arch"] = arch.group(1) if arch else None
++        self.stream.write(json.dumps(record) + "\n")
++        self.stream.flush()
++        return result
++
++
++def run_gate(destination: Path | None, audit_path: Path, require: bool) -> None:
++    """Execute all retained gate 1b controls and report every registered skip."""
++    if destination is not None:
++        sdk.verify(destination)
++    with audit_path.open("w") as stream:
++        audit = CompilerAudit(stream, destination)
++        print(f"Compiler mode: {'mapped disposable SDK' if destination else 'absent cross tools'}")
++        print(f"Compiler audit: {audit_path}")
++        if destination is not None:
++            print(f"argv[0] mapping: {audit.selector} -> {destination / sdk.COMPILER}")
++        with tempfile.TemporaryDirectory(prefix="milan-firmware-gate-") as tmp:
++            argv = [__file__] + (["--require-rv32"] if require or destination else [])
++            with patch.object(subprocess, "run", side_effect=audit.invoke), \
++                    patch.object(sys, "argv", argv), \
++                    patch.object(builder, "OUT", Path(tmp)), \
++                    patch.object(builder, "SKIPPED", []):
++                builder.test_baremetal_profile_contract()
++                if destination is not None:
++                    assert audit.compiles > 0, "no SDK firmware compilation executed"
++                    assert not any("THREE INSTRUMENTS" in why
++                                   for _, why, _ in builder.SKIPPED), builder.SKIPPED
++                else:
++                    assert audit.hidden == audit.cross, audit.hidden
++                    assert audit.compiles == 0, "absent mode compiled firmware"
++                    assert any("THREE INSTRUMENTS" in why for _, why, _ in builder.SKIPPED), \
++                        "absent instruments were not registered NOT RUN"
++                for gate, why, _ in builder.SKIPPED:
++                    print(f"NOT RUN [{gate}]: {why}")
++                print(f"GATE 1b PASS; {len(builder.SKIPPED)} NOT RUN; "
++                      f"{audit.compiles} actual firmware compiler invocations")
++
++
++def selftest() -> None:
++    """Prove argv preservation, cross-tool absence, and host fallback refusal."""
++    import io
++
++    stream = io.StringIO()
++    audit = CompilerAudit(stream, Path("/disposable/sdk"))
++    original = [audit.selector, "-S", "-o", "file.s", "unit.c"]
++    with patch.object(audit, "run", return_value=subprocess.CompletedProcess([], 7)) as run:
++        assert audit.invoke(original, cwd="/tmp", text=True).returncode == 7
++        run.assert_called_once_with(
++            ["/disposable/sdk/bin/riscv32-linux-gcc", *original[1:]],
++            cwd="/tmp", text=True)
++    assert original[0] == audit.selector
++    record = json.loads(stream.getvalue())
++    assert record["requested_argv"] == original and record["returncode"] == 7
++    absent = CompilerAudit(io.StringIO(), None)
++    with patch.object(absent, "run") as run:
++        for candidate in absent.cross:
++            try:
++                absent.invoke([candidate, "--version"])
++            except FileNotFoundError:
++                pass
++            else:
++                raise AssertionError("absent candidate was executed")
++        for candidate in absent.native:
++            try:
++                absent.invoke([candidate, "-S", "firmware.c"])
++            except AssertionError as exc:
++                assert "attempted firmware compilation" in str(exc)
++            else:
++                raise AssertionError("host fallback was accepted")
++        run.assert_not_called()
++    with tempfile.TemporaryDirectory(prefix="rv32-require-test-") as tmp:
++        with contextlib.redirect_stdout(io.StringIO()):
++            try:
++                run_gate(None, Path(tmp) / "absent.jsonl", require=True)
++            except AssertionError as exc:
++                assert "--require-rv32: the hosted firmware instruments must run" in str(exc), exc
++            else:
++                raise AssertionError("--require-rv32 accepted an absent compiler")
++        real_run = subprocess.run
++
++        def alternate_candidate(argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess:
++            """An alternate RV32 tool answers while the settled selector is absent."""
++            if str(argv[0]) == "riscv32-unknown-elf-gcc":
++                return subprocess.CompletedProcess(argv, 0, "fixture RV32\n", "")
++            if str(argv[0]) in absent.cross:
++                raise FileNotFoundError("settled compiler absent")
++            return real_run(argv, **kwargs)
++
++        with patch.object(subprocess, "run", side_effect=alternate_candidate), \
++                patch.object(sys, "argv", [__file__, "--require-rv32"]), \
++                patch.object(builder, "OUT", Path(tmp)), \
++                contextlib.redirect_stdout(io.StringIO()):
++            try:
++                builder.test_baremetal_profile_contract()
++            except AssertionError as exc:
++                assert "the provisioned absolute SDK selector must be adopted" in str(exc), exc
++            else:
++                raise AssertionError("--require-rv32 accepted an alternate compiler")
++    print("compiler audit selftest: argv mapping, result propagation, absence, "
++          "host refusal and actual absent/alternate --require-rv32 refusals PASS")
++
++
++def main() -> None:
++    """Keep the weaker mode explicit and the audit durable."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    modes = parser.add_mutually_exclusive_group(required=True)
++    modes.add_argument("--sdk-destination", type=Path)
++    modes.add_argument("--absent", action="store_true")
++    modes.add_argument("--selftest", action="store_true")
++    parser.add_argument("--audit", type=Path)
++    parser.add_argument("--require-rv32", action="store_true",
++                        help="negative control: --absent must fail with this requirement")
++    args = parser.parse_args()
++    if args.selftest:
++        selftest()
++    else:
++        if args.audit is None:
++            parser.error("--audit is required for a measured run")
++        run_gate(args.sdk_destination, args.audit, args.require_rv32)
++
++
++if __name__ == "__main__":
++    main()

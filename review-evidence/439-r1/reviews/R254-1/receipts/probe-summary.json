@@ -1,0 +1,39 @@
+{
+  "head": "f01f237d4b48c7b1ed59c80aca51430901791624",
+  "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "bodies": 38,
+  "normalized_lines": 208,
+  "jobs": {
+    "verilator-shards": 10,
+    "verilator-suites": 3,
+    "yosys-shards": 6,
+    "yosys-portability": 3,
+    "verilator-lint": 4,
+    "bdd-conformance": 3,
+    "yosys-elaboration": 8,
+    "full-ci-gate": 1
+  },
+  "independent_probes": 1280,
+  "prior_arms": 1051,
+  "candidate_arms": 1807,
+  "new_arms": 756,
+  "unchanged_functions": 325,
+  "changed_functions": [
+    "_mutations",
+    "check_carrier_steps",
+    "selftest"
+  ],
+  "added_functions": [
+    "_rtl_run_steps",
+    "_rtl_script_arms",
+    "_rtl_script_edits",
+    "_selftest_rtl_script_pins",
+    "_selftest_rtl_script_whitespace"
+  ],
+  "changed_assignments": [
+    "RTL_SIBLING_STEP_LISTS",
+    "RTL_STEP_LISTS"
+  ],
+  "prior_module_assignments": 172,
+  "result": "PASS"
+}

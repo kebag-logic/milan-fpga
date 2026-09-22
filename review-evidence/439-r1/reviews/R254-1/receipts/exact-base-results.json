@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/exact-base/scripts/ci_events.py",
+      "--check",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/exact-base"
+    ],
+    "exit": 0,
+    "label": "exact-base--check",
+    "identical_to_base_checker_receipt": true
+  },
+  {
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/exact-base/scripts/ci_events.py",
+      "--selftest",
+      "--root",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/439-r1-r254/disposable/exact-base"
+    ],
+    "exit": 0,
+    "label": "exact-base--selftest",
+    "identical_to_base_checker_receipt": true
+  }
+]
