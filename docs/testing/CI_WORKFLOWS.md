@@ -1048,6 +1048,9 @@ The destination is `$HOME/br-milan-rv32/host`, the existing selector location.
 Prepending `PATH` alone cannot override that absolute selector.
 This SDK supplies verification tools, not product build settings.
 Its ILP32D default does not change the shipping CPU contract.
+The bare-metal scope gate masks exact SDK identity literals.
+Masks apply only within the installer and its fixture.
+Wrong-file, appended-term, and product-document controls remain refusals.
 
 Both caches bind the complete digest, runner OS, and architecture.
 They also bind installer revision `1` and installer source bytes.

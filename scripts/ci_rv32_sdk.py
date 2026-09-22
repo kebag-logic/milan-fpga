@@ -40,7 +40,7 @@ def digest(path: Path) -> str:
 
 
 def host_identity() -> dict[str, str]:
-    """The selected archive contains Linux x86-64 host executables."""
+    """The selected archive contains x86-64 host executables."""
     system, machine = platform.system(), platform.machine()
     if (system, machine) != ("Linux", "x86_64"):
         raise ValueError(f"unsupported SDK host: {system}/{machine}")

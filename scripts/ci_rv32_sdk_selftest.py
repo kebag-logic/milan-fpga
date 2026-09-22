@@ -31,7 +31,7 @@ class InstallerTests(unittest.TestCase):
         source = root / sdk.RELEASE
         (source / "bin").mkdir(parents=True)
         (source / "sysroot").mkdir()
-        (source / "share/buildroot").mkdir(parents=True)
+        (source / "share/buildroot/sdk-location").parent.mkdir(parents=True)
         (source / "share/buildroot/sdk-location").write_text("/old/prefix\n")
         tool = source / "bin/fixture-gcc"
         tool.write_text("#!/bin/sh\nset -eu\n"
@@ -191,7 +191,7 @@ class InstallerTests(unittest.TestCase):
         tool = self.destination / "bin/fixture-gcc"
         original = tool.read_text()
         for before, after, reason in (("14.3.0", "13.1.0", "version mismatch"),
-                                      ("riscv32-buildroot", "riscv64-buildroot", "target mismatch"),
+                                      ("riscv32-", "riscv64-", "target mismatch"),
                                       ('echo "$root/sysroot"', 'echo /tmp', "sysroot")):
             with self.subTest(reason=reason):
                 tool.write_text(original.replace(before, after))
@@ -216,7 +216,7 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(list(target.iterdir()), [])
 
     def test_unsupported_host(self) -> None:
-        """The fixed x86-64 Linux archive cannot silently adopt another host."""
+        """The fixed x86-64 archive cannot silently adopt another host."""
         with patch.object(sdk.platform, "machine", return_value="aarch64"):
             self.refuses_without_execution("unsupported SDK host")
 
