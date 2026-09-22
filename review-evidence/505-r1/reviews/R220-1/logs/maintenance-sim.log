@@ -1,0 +1,28 @@
+S1 EDIT (scratch copy of head, docs.yml only): 'Doc cited-path gate' run 'python3 scripts/check_doc_paths.py' -> block of two lines: 'python3 scripts/check_doc_paths.py' and 'python3 scripts/check_doc_paths.py --selftest'.
+S2 EDIT (same scratch copy): additionally the CARRIER_STEP_LISTS record of that step gains the line 'python3 scripts/check_doc_paths.py --selftest' (diff at the end of this log); no mutation arm or other entry edited.
+----
+== S1 workflow-only legitimate edit (record not updated): --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 2 must be None (found 'python3 scripts/check_doc_paths.py --selftest'); 1 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1505 contract item(s)
+rc=1
+== S1 --selftest
+  FAIL carrier-script-407 updated record: .github/workflows/docs.yml: job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 2 must be None (found 'python3 scripts/check_doc_paths.py --selftest'); 1 line(s) expected, 2 found
+  FAIL whitespace-only reformatting of the canonical scripts was refused: [".github/workflows/docs.yml: job `docs-check` step 38 (`Doc cited-path gate`) script is not the canonical form: line 2 must be None (found 'python3 scripts/check_doc_paths.py --selftest'); 1 line(s) expected, 2 found"]
+selftest: 6 FAILURE(S)
+rc=1
+== S2 script + canonical record updated together, no mutation entry edited: --check
+ci_events: OK (1505 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+== S2 --selftest
+rc=0
+selftest: PASS (1505 contract items, 933 arms)
+  ok   caught: carrier-script-407 docs-check step 38 no-op
+  ok   caught: carrier-script-407 docs-check step 38 or-true
+  ok   caught: carrier-script-407 docs-check step 38 drop-command
+  ok   caught: carrier-script-407 docs-check step 38 drop-flag
+  ok   caught: carrier-script-407 docs-check step 38 continue-on-error
+  ok   carrier-script-407 docs-check step 38 missing record
+== diff of ci_events.py vs head (only the record changed)
+1051a1052
+>              'python3 scripts/check_doc_paths.py --selftest',

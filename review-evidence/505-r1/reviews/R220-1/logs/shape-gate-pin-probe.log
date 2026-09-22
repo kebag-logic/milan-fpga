@@ -1,0 +1,9 @@
+EDIT (scratch copies of head and base, docs.yml only): '        run: python3 scripts/check_deploy_shape.py --self-test\n' -> '        run: python3 scripts/check_deploy_shape.py\n'.
+----
+== Deploy shape gate --self-test flag dropped; head checker
+  FAIL .github/workflows/docs.yml: job `docs-check` step 42 (`Deploy shape gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_deploy_shape.py --self-test' (found 'python3 scripts/check_deploy_shape.py'); 1 line(s) expected, 1 found
+ci_events: 1 finding(s) over 1505 contract item(s)
+rc=1
+== same tamper; base checker
+ci_events: OK (1393 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0

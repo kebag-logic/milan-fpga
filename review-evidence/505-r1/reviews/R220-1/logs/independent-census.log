@@ -1,0 +1,59 @@
+docs-check            2 Build the validated HDL reference                                      lines=4 flaglines=1 match=True
+docs-check            4 Install the python gate dependencies                                   lines=1 flaglines=0 match=True
+docs-check            5 Install diagram gate dependencies                                      lines=3 flaglines=0 match=True
+docs-check            6 Link health, wording, dead-reference and local-info gate               lines=1 flaglines=0 match=True
+docs-check            7 Added-line em-dash gate                                                lines=17 flaglines=0 match=True
+docs-check            8 Concise audience documentation gate                                    lines=4 flaglines=2 match=True
+docs-check            9 Audience diagram no-drift gate                                         lines=4 flaglines=4 match=True
+docs-check           10 Product solution source-fact gate                                      lines=2 flaglines=1 match=True
+docs-check           11 Verified submodule documentation gate                                  lines=4 flaglines=3 match=True
+docs-check           12 HDL timing diagram no-drift gate                                       lines=4 flaglines=4 match=True
+docs-check           13 Published diagram PNG gate                                             lines=2 flaglines=1 match=True
+docs-check           14 Milan feature-status consistency gate                                  lines=1 flaglines=1 match=True
+docs-check           15 Traceability matrix no-drift gate                                      lines=1 flaglines=1 match=True
+docs-check           16 Fetch the builder source dependencies                                  lines=1 flaglines=0 match=True
+docs-check           17 Imported gPTP documentation gate                                       lines=2 flaglines=0 match=True
+docs-check           18 Code-quality measurement self-tests                                    lines=2 flaglines=2 match=True
+docs-check           19 Install the pinned sv2v release                                        lines=9 flaglines=0 match=True
+docs-check           20 Bare-metal scope gate                                                  lines=2 flaglines=2 match=True
+docs-check           21 End-station builder gates                                              lines=2 flaglines=0 match=True
+docs-check           22 NVM record-space gate                                                  lines=2 flaglines=1 match=True
+docs-check           23 Saved-state writer gate                                                lines=1 flaglines=1 match=True
+docs-check           24 SoC source-list gate (Vivado would fail 40 min in without this)        lines=7 flaglines=1 match=True
+docs-check           25 RTL source-list drift gate                                             lines=2 flaglines=1 match=True
+docs-check           26 Boundary-unit naming ratchet                                           lines=2 flaglines=2 match=True
+docs-check           27 Port contract gate                                                     lines=2 flaglines=1 match=True
+docs-check           28 Fail-fast ratchet                                                      lines=2 flaglines=2 match=True
+docs-check           29 TODO ownership gate                                                    lines=2 flaglines=1 match=True
+docs-check           30 Test-evidence ratchet                                                  lines=2 flaglines=2 match=True
+docs-check           31 Mechanical hygiene ratchet                                             lines=2 flaglines=2 match=True
+docs-check           32 SystemVerilog idiom gate                                               lines=2 flaglines=1 match=True
+docs-check           33 C and C++ idiom gate                                                   lines=2 flaglines=1 match=True
+docs-check           34 Python idiom gate                                                      lines=2 flaglines=1 match=True
+docs-check           35 Shell idiom gate                                                       lines=2 flaglines=1 match=True
+docs-check           36 CI event and SHA contract gate                                         lines=2 flaglines=2 match=True
+docs-check           37 Local act runner contract gate                                         lines=1 flaglines=1 match=True
+docs-check           38 Doc cited-path gate                                                    lines=1 flaglines=0 match=True
+docs-check           39 Archive integrity gate                                                 lines=2 flaglines=1 match=True
+docs-check           40 Per-page contents gate                                                 lines=3 flaglines=2 match=True
+docs-check           41 Sweep/build shape gate                                                 lines=1 flaglines=1 match=True
+docs-check           42 Deploy shape gate                                                      lines=1 flaglines=1 match=True
+docs-check           43 Entity shape gate                                                      lines=1 flaglines=1 match=True
+wire-accountability   2 Fetch the engine authority the builder derives from                    lines=1 flaglines=0 match=True
+wire-accountability   3 Advertised-vs-emitted gate (green since 2026-07-28, item 00)           lines=2 flaglines=1 match=True
+docs-check-no-git     2 Strip git metadata, then run the docs gate                             lines=3 flaglines=0 match=True
+elaborate             2 Decide whether this head needs an elaboration                          lines=20 flaglines=1 match=True
+elaborate             3 Fetch the source dependencies the elaboration reads                    lines=1 flaglines=0 match=True
+elaborate             4 Install the pinned sv2v release                                        lines=9 flaglines=0 match=True
+elaborate             7 Install LiteX at the pinned revisions                                  lines=2 flaglines=0 match=True
+elaborate            10 Install sbt                                                            lines=4 flaglines=0 match=True
+elaborate            11 Place the VexiiRiscv source at the revision LiteX pins                 lines=3 flaglines=0 match=True
+elaborate            12 Apply the toolchain patch series                                       lines=1 flaglines=0 match=True
+elaborate            13 Elaboration gates                                                      lines=1 flaglines=0 match=True
+elaborate            15 Build Verilator from source on cache miss                              lines=9 flaglines=0 match=True
+elaborate            16 Put Verilator on PATH and prove the version                            lines=4 flaglines=0 match=True
+elaborate            17 Standalone LiteX simulation aggregate                                  lines=2 flaglines=1 match=True
+elaborate            18 Keep the generated CPU netlist arguments for the next run              lines=1 flaglines=0 match=True
+per carrier run bodies: {'docs-check': 41, 'wire-accountability': 2, 'docs-check-no-git': 1, 'elaborate': 12} total 56
+multi-command bodies: 40 bodies with a proof/check flag: 35
+problems: none

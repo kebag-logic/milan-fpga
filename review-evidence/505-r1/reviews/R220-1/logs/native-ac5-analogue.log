@@ -1,0 +1,11 @@
+EDIT (scratch copies of head and base, docs.yml only): '          python3 scripts/check_py_idiom.py\n          python3 scripts/check_py_idiom.py --selftest\n' -> first line gains ' || true' (identical to scratch PR #506's one-line diff). Workflows are byte-identical between base and head; each checker ran with --root on its own copy.
+----
+== head checker on tampered tree
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/docs.yml: job `docs-check` step 34 (`Python idiom gate`) script is not the canonical form: line 1 must be 'python3 scripts/check_py_idiom.py' (found 'python3 scripts/check_py_idiom.py || true'); 2 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1505 contract item(s)
+rc=1
+== base checker on tampered tree
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1393 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
