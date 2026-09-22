@@ -1,0 +1,16 @@
+=== da71309c^ (b7d0bbcd) -> $AEM_SCRATCH-uUFX
+
+=== Milan 6.4 Base format family (builtin model) ===
+  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)
+  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing
+
+gen_aem_store self-test: PASS
+EXIT=0
+=== da71309c (da71309c) -> $AEM_SCRATCH-kT8p
+    mutate(spec)
+    ~~~~~~^^^^^^
+  File "$AEM_SCRATCH-kT8p/avdecc/gen_aem_store.py", line 1931, in global_index
+    s["audio_maps"][1] = [[0, c, 8 + c, 0] for c in range(8)]
+    ~~~~~~~~~~~~~~~^^^
+IndexError: list assignment index out of range
+EXIT=1

@@ -1,0 +1,65 @@
+[
+  {
+    "snapshot": "base",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "avdecc/gen_aem_store.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "snapshot": "base",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "avdecc/gen_aem_store.py",
+      "--out-dir",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/output-base"
+    ],
+    "exit_code": 0
+  },
+  {
+    "snapshot": "head",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "avdecc/gen_aem_store.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "snapshot": "head",
+    "argv": [
+      "rtk",
+      "proxy",
+      "python3",
+      "-B",
+      "avdecc/gen_aem_store.py",
+      "--out-dir",
+      "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/output-head"
+    ],
+    "exit_code": 0
+  },
+  {
+    "output": "aem_rom.json",
+    "sha256": "1c25578eda1352acf7442ca90d0eb964709388ad23954e07f9bbc726004faa5a",
+    "equal": true
+  },
+  {
+    "output": "aecp_aem_rom.svh",
+    "sha256": "d8365928caecf01dc79b3d9a75a6c56573669ad121d8cc04b42f44820601c999",
+    "equal": true
+  },
+  {
+    "output": "default aem_rom.json",
+    "sha256": "1c25578eda1352acf7442ca90d0eb964709388ad23954e07f9bbc726004faa5a",
+    "equal": true
+  }
+]

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/gen_aem_store.py", line 449, in <module>
+    raise SystemExit(self_test())
+                     ^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/gen_aem_store.py", line 423, in self_test
+    ok = _selftest_map_bounds()
+         ^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/gen_aem_store.py", line 202, in _selftest_map_bounds
+    def mutated(mutate: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
+                        ^^^^^^^^
+NameError: name 'Callable' is not defined. Did you mean: 'callable'?

@@ -1,0 +1,116 @@
+[
+  {
+    "name": "explicit geometry",
+    "result": "PASS",
+    "detail": null
+  },
+  {
+    "name": "fixture table geometry",
+    "result": "PASS",
+    "detail": {
+      "IN_N": 1,
+      "OUT_N": 1,
+      "IN_ADDR": [
+        3491
+      ],
+      "IN_ROWS": [
+        8
+      ],
+      "IN_MOFF": [
+        8
+      ],
+      "OUT_ADDR": [
+        3563
+      ],
+      "OUT_ROWS": [
+        8
+      ],
+      "OUT_MOFF": [
+        8
+      ],
+      "DEVIATIONS": [
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,3,3,0): stream_channel 3 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,4,4,0): stream_channel 4 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,5,5,0): stream_channel 5 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,6,6,0): stream_channel 6 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+        "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,7,7,0): stream_channel 7 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1"
+      ]
+    }
+  },
+  {
+    "name": "nested fixture isolation",
+    "result": "PASS",
+    "detail": null
+  },
+  {
+    "name": "six exact deployed deviations",
+    "result": "PASS",
+    "detail": [
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,2,2,0): stream_channel 2 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,3,3,0): stream_channel 3 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,4,4,0): stream_channel 4 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,5,5,0): stream_channel 5 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,6,6,0): stream_channel 6 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1",
+      "STREAM_PORT_OUTPUT[0] AUDIO_MAP[0] mapping (0,7,7,0): stream_channel 7 >= 2, the widest channels_per_frame stream 0 advertises (['0x205022000806000']) - 7.2.6 / IEEE 1722-2016 7.3.1"
+    ]
+  },
+  {
+    "name": "row-count boundary 0",
+    "result": "PASS",
+    "detail": {
+      "deviations": 0
+    }
+  },
+  {
+    "name": "row-count boundary 1",
+    "result": "PASS",
+    "detail": {
+      "deviations": 0
+    }
+  },
+  {
+    "name": "row-count boundary 62",
+    "result": "PASS",
+    "detail": {
+      "deviations": 60
+    }
+  },
+  {
+    "name": "row-count boundary 63",
+    "result": "PASS",
+    "detail": "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] has 63 mappings; 1722.1-2021 Table 7-32: \"The maximum value of this field is 62 for this version of AEM\""
+  },
+  {
+    "name": "63-vector no second refusal",
+    "result": "PASS",
+    "detail": {
+      "recorded_deviations": 61
+    }
+  },
+  {
+    "name": "input fan-out permitted",
+    "result": "PASS",
+    "detail": null
+  },
+  {
+    "name": "output shared cluster permitted",
+    "result": "PASS",
+    "detail": null
+  },
+  {
+    "name": "duplicate output across ports refused",
+    "result": "PASS",
+    "detail": "STREAM_PORT_OUTPUT[1] AUDIO_MAP[2] mapping (0,0,0,0): 1722.1-2021 7.2.19 for a STREAM_PORT_OUTPUT - \"There is at most one entry for each mapping_stream_index and mapping_stream_channel across the entire Configuration\" - and (0,0) is already mapped by STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,0,0)"
+  },
+  {
+    "name": "fixture positive is load-bearing",
+    "result": "PASS",
+    "detail": "=== gen_aem_store AUDIO_MAP bounds gate self-test ===\n  [ok  ] the deployed model still builds\n  [FAIL] the two-map fixture the vectors mutate builds: refused - R236 planted fixture-only refusal\n  [FAIL] global cluster index where 7.2.19 wants a port-relative offset: refused, but not for \"cluster_offset 8 >= this port's number_of_clusters\" - R236 planted fixture-only refusal\n  [FAIL] base_map naming an AUDIO_MAP the model does not define: refused, but not for 'base_map=7 names an AUDIO_MAP this model does not define' - R236 planted fixture-only refusal\n  [FAIL] number_of_maps != 1 on a static port (pages it cannot answer): refused, but not for 'declares number_of_maps=2' - R236 planted fixture-only refusal\n  [FAIL] cluster_channel past the cluster's channel_count (7.2.16): refused, but not for 'cluster_channel 1 >= channel_count' - R236 planted fixture-only refusal\n  [FAIL] stream_index past the descriptors this direction has (7.2.13): refused, but not for 'stream_index 9 >= the 2 stream descriptors' - R236 planted fixture-only refusal\n  [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - R236 planted fixture-only refusal\n  [FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - R236 planted fixture-only refusal\n  [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPUT' - R236 planted fixture-only refusal\n  [FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - R236 planted fixture-only refusal\n  [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - R236 planted fixture-only refusal\n  [ok  ] the 6 open stream_channel deviation(s) are exactly the recorded ones\n  [ok  ] with an empty allowlist the deviation FAILS (the list is load-bearing)\n\n=== two-level directory gate self-test ===\n  [ok  ] a shuffled directory entry (contiguity)\n         -> descriptor type 0x0005 rows are not contiguous in the directory (row 4 re-opens a run closed at row 1) - the two-level accessor needs one run per type\n  [ok  ] same-type entries out of index order\n         -> type 0x0005 descriptor_index not zero-based ascending: row 3 carries index 1, expected 0\n  [ok  ] an off-by-one level-1 row base is refused\n         -> two-level directory diverges from the linear scan at type 0x0005 index 0: linear (1, 574, 154), two-level (1, 728, 146)\n  [ok  ] a mask bit on an unnamed type is refused\n         -> structural name lookup diverges from the NAMED table at type 0x000D index 0 name_index 0: table (0, 0), structural (1, 1563)\n\n=== Milan 6.4 Base format family (builtin model) ===\n  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)\n  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing\n\ngen_aem_store self-test: FAIL\n"
+  },
+  {
+    "name": "fresh fixture is load-bearing",
+    "result": "PASS",
+    "detail": "=== gen_aem_store AUDIO_MAP bounds gate self-test ===\n  [ok  ] the deployed model still builds\n  [ok  ] the two-map fixture the vectors mutate builds\n  [ok  ] global cluster index where 7.2.19 wants a port-relative offset\n         -> STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,8,0): cluster_offset 8 >= this port's number_of_clusters 8. 1722.1-2021 Table 7-33: mapping_cluster_of\n  [ok  ] base_map naming an AUDIO_MAP the model does not define\n         -> STREAM_PORT_OUTPUT[0] base_map=7 names an AUDIO_MAP this model does not define (it defines 2: 0..1) - 7.2.13 base_map addresses a descriptor that must\n  [ok  ] number_of_maps != 1 on a static port (pages it cannot answer)\n         -> STREAM_PORT_OUTPUT[0] declares number_of_maps=2; the static GET_AUDIO_MAP path serves map_index 0 only, so any other count advertises pages the entity\n  [ok  ] cluster_channel past the cluster's channel_count (7.2.16)\n         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,0,1): cluster_channel 1 >= channel_count 1 of the AUDIO_CLUSTER at base_cluster+0 (7.2.16 Table 7-27 ch\n  [ok  ] stream_index past the descriptors this direction has (7.2.13)\n         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): stream_index 9 >= the 2 stream descriptors this direction has (7.2.13)\n  [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): stream_index 9 >= the 2 stream descriptors this direction has (7.2.13)\n  [ok  ] a mapping onto the CRF sink, which carries no audio channels\n         -> STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream 1 ('CRF in') advertises no audio format with channels (CRF carries a clock, not channels),\n  [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 \"across the entire Configuration\"): refused, but not for 'for a STREAM_PORT_OUTPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream 1 ('CRF in') advertises no audio format with channels (CRF carries a clock, not channels), so no channel of it can be mapped to a cluster - 7.2.6 current_format / IEEE 1722-2016 7.3.1 channels_per_frame\n  [FAIL] OUTPUT: the same cluster_offset twice IS allowed (7.2.19 \"there may be multiple entries for each mapping_cluster_offset\"): refused - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream 1 ('CRF in') advertises no audio format with channels (CRF carries a clock, not channels), so no channel of it can be mapped to a cluster - 7.2.6 current_format / IEEE 1722-2016 7.3.1 channels_per_frame\n  [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (1,0,0,0): stream 1 ('CRF in') advertises no audio format with channels (CRF carries a clock, not channels), so no channel of it can be mapped to a cluster - 7.2.6 current_format / IEEE 1722-2016 7.3.1 channels_per_frame\n  [ok  ] the 6 open stream_channel deviation(s) are exactly the recorded ones\n  [ok  ] with an empty allowlist the deviation FAILS (the list is load-bearing)\n\n=== two-level directory gate self-test ===\n  [ok  ] a shuffled directory entry (contiguity)\n         -> descriptor type 0x0005 rows are not contiguous in the directory (row 4 re-opens a run closed at row 1) - the two-level accessor needs one run per type\n  [ok  ] same-type entries out of index order\n         -> type 0x0005 descriptor_index not zero-based ascending: row 3 carries index 1, expected 0\n  [ok  ] an off-by-one level-1 row base is refused\n         -> two-level directory diverges from the linear scan at type 0x0005 index 0: linear (1, 574, 154), two-level (1, 728, 146)\n  [ok  ] a mask bit on an unnamed type is refused\n         -> structural name lookup diverges from the NAMED table at type 0x000D index 0 name_index 0: table (0, 0), structural (1, 1563)\n\n=== Milan 6.4 Base format family (builtin model) ===\n  [ok  ] FORMATS (STREAM_INPUT): all 5 48 kHz Base channel counts [1, 2, 4, 6, 8] covered by 2 entries (6.5's ut string does the family)\n  [ok  ] without the ut entry the family check REPORTS [1, 4, 6, 8] missing\n\ngen_aem_store self-test: FAIL\n"
+  }
+]

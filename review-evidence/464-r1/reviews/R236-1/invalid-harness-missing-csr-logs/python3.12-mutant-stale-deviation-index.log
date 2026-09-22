@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/gen_aem_store.py", line 104, in <module>
+    from aem_assemble import (CHMAP_PHYS_DEPTH, NAMED, OVERLAYS, ROM_SIZE,
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/aem_assemble.py", line 636, in <module>
+    _M = build_model(builtin_spec())
+                     ^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/aem_specs.py", line 46, in builtin_spec
+    firmware_version=firmware_version_string(),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/aem_descriptors.py", line 93, in firmware_version_string
+    major, minor = rtl_version(path)
+                   ^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/avdecc/aem_descriptors.py", line 63, in rtl_version
+    m = _VERSION_RE.search(src.read_text())
+                           ^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE_HOME/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$WORKSPACE_HOME/milan-fpga-management/2026-09-22/464-r1-r236/scratch/mutant/hdl/common/csr/milan_csr.sv'

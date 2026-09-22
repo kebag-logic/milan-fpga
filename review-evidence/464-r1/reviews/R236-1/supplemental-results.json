@@ -1,0 +1,50 @@
+[
+  {
+    "label": "pristine",
+    "exit_code": 0,
+    "expected_fragment": "self-test: PASS",
+    "result": "PASS"
+  },
+  {
+    "label": "crf-without-oracle",
+    "exit_code": 0,
+    "expected_fragment": "self-test: PASS",
+    "result": "PASS"
+  },
+  {
+    "label": "wide-without-reverse",
+    "exit_code": 0,
+    "expected_fragment": "self-test: PASS",
+    "result": "PASS"
+  },
+  {
+    "label": "old-row-vector-without-oracle",
+    "exit_code": 0,
+    "expected_fragment": "self-test: PASS",
+    "result": "PASS"
+  },
+  {
+    "label": "new-row-vector-without-oracle",
+    "exit_code": 1,
+    "expected_fragment": "Table 7-32 allows (62): built without complaint",
+    "result": "PASS"
+  },
+  {
+    "label": "old-row-vector-with-oracle",
+    "exit_code": 1,
+    "expected_fragment": "refused, but not for",
+    "result": "PASS"
+  },
+  {
+    "label": "directory-all-three-disabled",
+    "exit_code": 1,
+    "expected_fragment": "[FAIL] a shuffled directory",
+    "result": "PASS"
+  },
+  {
+    "label": "formats-ut-lost",
+    "exit_code": 1,
+    "expected_fragment": "[FAIL] FORMATS",
+    "result": "PASS"
+  }
+]

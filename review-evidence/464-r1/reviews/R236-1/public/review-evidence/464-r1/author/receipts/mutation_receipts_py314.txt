@@ -1,0 +1,60 @@
+mutation receipts at 1576f0893ae9781074fffb105f5384fe774ff11e with Python 3.14.7
+
+M00   MET  exit=0 want=green pristine tree (control)
+      evidence: gen_aem_store self-test: PASS
+M01   MET  exit=1 want=red   Table 7-33 cluster_offset bound removed
+      evidence: [FAIL] global cluster index where 7.2.19 wants a port-relative offset: built without complaint
+M02   MET  exit=1 want=red   7.2.13 base_map existence bound removed
+      evidence: IndexError: list index out of range
+M03   MET  exit=1 want=red   number_of_maps == 1 bound removed
+      evidence: [FAIL] number_of_maps != 1 on a static port (pages it cannot answer): built without complaint
+M04   MET  exit=1 want=red   7.2.16 cluster_channel bound removed
+      evidence: [FAIL] cluster_channel past the cluster's channel_count (7.2.16): built without complaint
+M05   MET  exit=1 want=red   7.2.13 stream_index bound removed
+      evidence: IndexError: list index out of range
+M06   MET  exit=1 want=red   7.2.19 INPUT duplicate rule removed
+      evidence: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): built without complaint
+M07   MET  exit=1 want=red   CRF no-channel refusal removed (max() of nothing raises instead)
+      evidence: [FAIL] a mapping onto the CRF sink, which carries no audio channels: refused, but not for 'advertises no audio format with channels' - max() iterable argument is empty
+M07c  MET  exit=0 want=green control: M07 with the cause oracle removed
+      evidence: gen_aem_store self-test: PASS
+M08   MET  exit=1 want=red   7.2.19 OUTPUT duplicate rule removed
+      evidence: [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "across the entire Configuration"): built without complaint
+M09   MET  exit=1 want=red   INPUT rule applied to both directions (the gate's first version)
+      evidence: [FAIL] OUTPUT: the same (stream_index, stream_channel) twice (7.2.19 "across the entire Configuration"): built without complaint
+M09o  MET  exit=1 want=red   OUTPUT rule applied to both directions
+      evidence: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,0,0): 1
+M10   MET  exit=1 want=red   Table 7-32 mapping-count bound removed
+      evidence: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint
+M10c  MET  exit=0 want=green control: M10 with the base-head 62-mapping vector, oracle removed
+      evidence: gen_aem_store self-test: PASS
+M10g  MET  exit=1 want=red   M10 with the oracle removed: the new geometry alone catches it
+      evidence: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): built without complaint
+M10o  MET  exit=1 want=red   M10 on the base-head vector: the oracle alone catches it
+      evidence: [FAIL] more mappings in one AUDIO_MAP than Table 7-32 allows (62): refused, but not for 'has 63 mappings' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (0,0,8,0): cluster_o
+M11   MET  exit=1 want=red   allowlist back at the stale AUDIO_MAP[1] index (the base head)
+      evidence: [FAIL] a NEW deviation appeared: AUDIO_MAP deviations not on the recorded list:
+M12   MET  exit=1 want=red   allowlist widened: the stale entries kept beside the new ones
+      evidence: [FAIL] recorded deviation(s) the deployed model does not carry:
+M12c  MET  exit=0 want=green control: M12 with the reverse exactness check removed
+      evidence: gen_aem_store self-test: PASS
+M13   MET  exit=1 want=red   assert_no_map_deviations neutered
+      evidence: [FAIL] the deviation allowlist is not asserting anything
+M14d  MET  exit=1 want=red   static serving path refuses the deployed one-map output port
+      evidence: ValueError: STREAM_PORT_OUTPUT[0] declares number_of_maps=1; the static GET_AUDIO_MAP path serves map_index 0 only, so any other count advertises pages the entity cannot 
+M14   MET  exit=1 want=red   static INPUT maps refused outright (the fixture, not the model)
+      evidence: [FAIL] the two-map fixture the vectors mutate builds: refused - STREAM_PORT_INPUT[0] declares number_of_maps=1; the static GET_AUDIO_MAP path serves map_index 0 only, so 
+M15   MET  exit=1 want=red   fixture shared across vectors (no fresh copy per vector)
+      evidence: [FAIL] INPUT: two mappings onto the SAME cluster channel (7.2.19): refused, but not for 'for a STREAM_PORT_INPUT' - STREAM_PORT_INPUT[0] AUDIO_MAP[0] mapping (9,0,0,0): s
+M16   MET  exit=1 want=red   fixture replaced by the deployed geometry (the #464 failure)
+      evidence: IndexError: list assignment index out of range
+T01   MET  exit=1 want=red   two-level directory gate disabled (runs, indices, equivalence)
+      evidence: [FAIL] a shuffled directory entry (contiguity): accepted without complaint
+T02   MET  exit=1 want=red   structural name gate neutered
+      evidence: [FAIL] a mask bit on the unnamed STRINGS type was accepted
+T03   MET  exit=1 want=red   Base-family cover can no longer say no
+      evidence: [FAIL] the family check passes without the ut entry - it has stopped being able to say no
+T04   MET  exit=1 want=red   builtin FORMATS loses its ut entry
+      evidence: [FAIL] FORMATS (STREAM_INPUT): 48 kHz Base channel count(s) [1, 4, 6, 8] unadvertised - Milan 6.4 wants the whole family
+
+28/28 mutants met their expectation
