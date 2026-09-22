@@ -1,0 +1,27 @@
+tree df933eb87527e1a91218e668a3558b5a6013940b
+parent f27b45500cb02a5277b5cb32cef408658c1f914e
+author hackerman-kl <alexandremalki89@gmail.com> 1788418175 +0200
+committer hackerman-kl <alexandremalki89@gmail.com> 1788418175 +0200
+
+The mutation arms bound their waits in DUT cycles, not host time, because both harnesses already do
+
+The arms landed with a host deadline around each mutant run, which was
+belt-and-braces for a hang that neither harness can actually produce. Both
+bound their own waits in DUT CYCLES: the gasket harness does it so that a
+wedged gasket FAILS the suite instead of hanging it - the very property
+the first gasket mutant exercises - and tsngen puts an explicit tick
+ceiling on every wait it performs.
+
+So the deadline answered a question the DUT already answers, and answered
+it in a machine-dependent way: the same mutant could be a catch on one
+host and a TIMEOUT on a slower one. A mutation arm whose verdict depends
+on how fast the machine is cannot be evidence about the assertions.
+
+The runs are now plain subprocess calls, the TIMEOUT branch and the
+process-group kill machinery are gone with the deadline that needed them,
+and the reason is recorded where the verdict is read. Both arms still
+pass unchanged: the gasket arm at 5/5 and tsngen at 4/4, every mutant
+caught and both positive controls passing.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01PeGPJEKDwL5BrX2E5PUTJT

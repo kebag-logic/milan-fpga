@@ -1,0 +1,63 @@
+{
+  "issue423.json": [
+    "gh",
+    "issue",
+    "view",
+    "423",
+    "--repo",
+    "kebag-logic/milan-fpga",
+    "--json",
+    "number,title,body,comments,url,state"
+  ],
+  "pr519.json": [
+    "gh",
+    "pr",
+    "view",
+    "519",
+    "--repo",
+    "kebag-logic/milan-fpga",
+    "--json",
+    "number,title,body,comments,url,state,isDraft,headRefOid,baseRefOid,baseRefName,commits,files"
+  ],
+  "assignment.json": [
+    "gh",
+    "api",
+    "repos/kebag-logic/milan-fpga/issues/comments/5781826629"
+  ],
+  "old-findings.json": [
+    "gh",
+    "api",
+    "repos/kebag-logic/milan-fpga/issues/comments/5780883992"
+  ],
+  "initial-status.txt": [
+    "git",
+    "status",
+    "--porcelain=v2",
+    "--branch"
+  ],
+  "initial-identity.txt": [
+    "git",
+    "log",
+    "-8",
+    "--format=%H %T %s"
+  ],
+  "diff-stat.txt": [
+    "git",
+    "diff",
+    "--stat",
+    "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "HEAD"
+  ],
+  "contributing.txt": [
+    "cat",
+    "CONTRIBUTING.md"
+  ],
+  "docs-readme.txt": [
+    "cat",
+    "docs/README.md"
+  ],
+  "agents.txt": [
+    "cat",
+    "AGENTS.md"
+  ]
+}

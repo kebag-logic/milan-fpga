@@ -1,0 +1,54 @@
+tree cf1818d9e3d1da24ffd75b6177f155ef8b0c04f7
+parent 7fa64e99490b4648797374d3fdb1fedf08145e91
+author hackerman-kl <alexandremalki89@gmail.com> 1788417945 +0200
+committer hackerman-kl <alexandremalki89@gmail.com> 1788417945 +0200
+
+The returning verification layer proves its own assertions can fail: the gasket and tsngen suites gain mutation arms, and each records what it still cannot reach
+
+The two suites that came back with the verification layer assert a great
+deal and proved none of it could fail. A harness whose assertions have
+never been observed to fail is indistinguishable from one that asserts
+nothing, and these two are the layer's judges: the gasket suite is the
+one that pins the defect the MII gasket was repaired for, and tsngen is
+the independent judge, driving the engine with frames a generator this
+repository does not own builds.
+
+Each suite now mutates the REAL RTL, one defect at a time, and requires
+the SAME harness to fail. A positive control requires the unmutated build
+to pass, without which the arm would be satisfied by a harness that fails
+on everything. Mutants are built in a temporary directory and tsngen is
+staged into one whole, so nothing is written into the tree and the
+tracked microcode image is held constant while only the RTL varies.
+
+The gasket arm injects four defects, all caught: a TX FIFO level
+truncated below its full width, which is exactly the bug the gasket was
+repaired for - a FIFO holding 64 words reads level 0 and wedges S_IDLE
+forever; the egress and ingress SFD toggles frozen, which is where the
+timestamp point is marked; and an end-of-frame never raised.
+
+The tsngen arm injects three, all caught: the received sequenceId zeroed,
+so a Follow_Up can no longer pair with its Sync; the Announce
+grandmasterIdentity discarded, so BMCA compares a constant; and a
+transmit end-of-frame one byte early. It skips exactly when the suite
+skips, since run_tsngen.py exits 0 with a SKIP line where no tsn-gen
+checkout exists and there is then nothing to prove.
+
+"Caught" is read from the harness's own tally, in one place both arms
+share. A non-zero exit alone is not a catch: a mutant that aborts, hangs
+or dies by a signal has said nothing about the assertions, and each of
+those outcomes is named as what it is rather than counted as success.
+
+What the arms could NOT reach is recorded in each file rather than
+hidden, because that map is half the value. Four real defects survived:
+in the gasket suite, removing the start threshold entirely and a
+read-side level off by one; in tsngen, a parser that accepts a foreign
+domainNumber - the generator only ever builds domain-0 frames - and a
+discarded received stepsRemoved. Those need new checks and new scenarios,
+not new mutants.
+
+`make` passes end to end: 768 ucpu, 268 parser, 664 engine, 81 gasket and
+285 tsngen checks, the Arty bench tag test, both new arms at 5/5 and 4/4,
+and the diagram and documentation gates.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01PeGPJEKDwL5BrX2E5PUTJT
