@@ -1,0 +1,42 @@
+# gate 36a mutation probes at head scratch d81a302760b84f32d2aa019643f57682bb6e052c 2026-09-22T14:12:15+02:00
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: distinct ninth entry accepted) :: test_audio_unit_rates_loader_contract :: MAX_AUDIO_UNIT_RATES 8 -> 9
+OK  expect=FAIL got=FAIL (ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 7 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)) :: test_audio_unit_rates_loader_contract :: MAX_AUDIO_UNIT_RATES 8 -> 7
+OK  expect=FAIL got=FAIL (ConfigError: clocking.audio_unit_rates_hz has 8 entries; processor walk bound is 8 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)) :: test_audio_unit_rates_loader_contract :: count test > -> >=
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: duplicate accepted) :: test_audio_unit_rates_loader_contract :: duplicate refusal removed
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: duplicate after integer conversion accepted) :: test_audio_unit_rates_loader_contract :: duplicate test on raw (pre-int) values
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: duplicate accepted) :: test_audio_unit_rates_loader_contract :: duplicates silently dropped instead of refused
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: distinct ninth entry accepted) :: test_audio_unit_rates_loader_contract :: list silently truncated to the bound instead of refused
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: eight distinct entries must load in declared order) :: test_audio_unit_rates_loader_contract :: list sorted (order not preserved)
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: distinct ninth entry refused for another cause: clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (protocol-processor/do) :: test_audio_unit_rates_loader_contract :: count message drops the L10 rule name
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: distinct ninth entry refused for another cause: clocking.audio_unit_rates_hz has 9 entries; processor limit exceeded (L10, protocol-processo) :: test_audio_unit_rates_loader_contract :: count message drops the walk bound
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: omitted rate list must default to the current rate) :: test_audio_unit_rates_loader_contract :: omitted list defaults to every base rate
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: empty list accepted) :: test_audio_unit_rates_loader_contract :: current-rate membership check removed
+  [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+OK  expect=PASS got=PASS :: test_audio_unit_rates_loader_contract :: NON-DEFECT: duplicate check moved before count check
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: distinct ninth entry accepted) :: test_audio_unit_rates_loader_contract :: only the distinct-ninth arm unenforced (count check removed)
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: arty_current image rates [192000, 96000, 48000] != [48000, 96000, 192000]) :: test_audio_unit_shipping_rates :: overlay/image rate order reversed (config unchanged)
+  [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: arty_4x4 shipping rate declaration changed) :: test_audio_unit_shipping_rates :: arty_4x4 shipping list widened to [48000, 96000]
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: real sim_main.cpp unchanged (copied control)
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: AU_RATES_C values [48000, 88200, 192000] != [48000, 96000, 192000]) :: test_pp_shadow_audio_unit_rates_match_config :: real AU_RATES_C value 96000u -> 88200u
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: AU_RATES_C values [96000, 48000, 192000] != [48000, 96000, 192000]) :: test_pp_shadow_audio_unit_rates_match_config :: real AU_RATES_C order 48000u,96000u swapped
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: AU_RATES_C declared length 4 != 3) :: test_pp_shadow_audio_unit_rates_match_config :: real AU_RATES_C declared length [3] -> [4] (implicit zero fill)
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: AU_RATES_C values [48000, 96000] != [48000, 96000, 192000]) :: test_pp_shadow_audio_unit_rates_match_config :: real AU_RATES_C initializer shortened to two words
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: expected one literal AU_RATES_C declaration) :: test_pp_shadow_audio_unit_rates_match_config :: second AU_RATES_C declaration added
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: expected one literal AU_RATES_C declaration) :: test_pp_shadow_audio_unit_rates_match_config :: real declaration commented out
+OK  expect=FAIL got=FAIL (AssertionError: gate 36a: AU_RATES_C declared length 3 != 2) :: test_pp_shadow_audio_unit_rates_match_config :: YAML arty_current list -> [48000, 96000], bench unchanged
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: RESIDUAL: image count literal put16be_v(d, 142, 3) -> 4
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: RESIDUAL: rate loop bound k < 3 -> k < 2
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: RESIDUAL: AU_LEN_C 144 + 4 * 3 -> 144 + 4 * 2
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: RESIDUAL: AU_CUR_RATE_C 48000u -> 96000u
+  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+OK  expect=PASS got=PASS :: test_pp_shadow_audio_unit_rates_match_config :: RESIDUAL: YAML and AU_RATES_C both shortened to 2, count literal/loop/AU_LEN_C left at 3
+
+29/29 rows matched their expectation
+exit=0
+scratch head worktree status lines after probe: 0

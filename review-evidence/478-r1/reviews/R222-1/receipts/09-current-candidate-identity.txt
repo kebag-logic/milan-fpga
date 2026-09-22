@@ -1,0 +1,34 @@
+# current-dev candidate identity check 2026-09-22T14:01:12+02:00
+dev tip 88e9276b2a220c716f64a843f7e1eb8f9265e896 parents: ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 9d6109ccf924c03308cb8aa202ce68a435cd4f8d
+merge-base(head, dev): ec34fcdee0ca9ffa63564a9af8ad70a3a618de29
+head is ancestor of dev: no
+## paths changed ec34fcde..dev (the #507 side)
+M	docs/DOC_GENERATION.md
+M	scripts/check_em_dash.py
+M	scripts/gen_toc.py
+M	scripts/gen_toc_cases.py
+A	scripts/gen_toc_closer_cases.py
+M	scripts/gen_toc_guards.py
+## paths changed ec34fcde..head (issue delta)
+M	docs/ENDSTATION_BUILDER.md
+M	sw/builder/endstation_builder.py
+M	sw/builder/test_builder.py
+## merge-tree --write-tree head dev
+5aa23f2ce461b9671619221412ab50699942292c
+manager-claimed candidate tree: 5aa23f2ce461b9671619221412ab50699942292c
+## issue patch at candidate tree vs dev (full-index sha256)
+f072ec203633281a03ef10331e934a50bf0713091cd2b54bc28cd48391906ad6  -
+## issue patch head vs its dev parent (full-index sha256)
+f072ec203633281a03ef10331e934a50bf0713091cd2b54bc28cd48391906ad6  -
+## PP gitlink at dev and candidate tree
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# GitHub PR merge commit used by hosted pull_request runs
+9fea8a3c: 9fea8a3cf41d3d996155aaca7a3aa1c167c057cf parents 88e9276b2a220c716f64a843f7e1eb8f9265e896 d81a302760b84f32d2aa019643f57682bb6e052c tree 5aa23f2ce461b9671619221412ab50699942292c
+manager candidate tree 5aa23f2ce461b9671619221412ab50699942292c; R222 merge-tree of d81a3027+88e9276b: 5aa23f2ce461b9671619221412ab50699942292c

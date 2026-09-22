@@ -1,0 +1,142 @@
+{
+  "utc": "2026-09-22T12:09:04.788683+00:00",
+  "commands": [
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "diff",
+        "--name-only"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "docs/ENDSTATION_BUILDER.md\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "diff",
+        "--stat"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": " docs/ENDSTATION_BUILDER.md | 2 +-\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "diff",
+        "--word-diff=plain",
+        "--",
+        "docs/ENDSTATION_BUILDER.md"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md\nindex 7f167a12..b66600c8 100644\n--- a/docs/ENDSTATION_BUILDER.md\n+++ b/docs/ENDSTATION_BUILDER.md\n@@ -960,7 +960,7 @@ Line numbers are those of the cited file at the time of writing.\n| 6 | `platform.pp_mem_phys` | protocol-processor DRAM reservation; fixed extent is builder-owned (`emit_platform_shape`, line 2999) | - | PMEM |\n| 6a | `platform.mac_address` | the station MAC: the overlay `adp.mac_address` (`overlay_adp_block`, line 2314) that AVB_INTERFACE repeats; the `MILAN_STATION_MAC_*` constants; the gPTP microcode station identity (`--mac`, line 4915); row 3's default `entity_id` | 1722.1 7.2.8; 802-2014 8.2 | AEM (`gen_aemi_image.py` line 157); fw (into `MAC_ADDR_LO/HI`); SoC (`gptp_ucode.hex`, `p_GPTP_UCODE_HEX_P` line 838) |\n| 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded); the default Base format of every stream (rows 18, 22); the SRP frame geometry (row 43); the AES3 serial clock (row 13). **And, on a TDM bus master, the FABRIC's frame rate** (#399): `emit_design_opts` (line 4375) emits `--audio-fs-hz` whenever the declaration is off the SoC's own default, `milan_soc.py` passes it as `p_AUDIO_IF_FS_HZ_P` (line 1008) and derives `AUDIO_IF_CLK_HZ_P` = `2 x SLOTS x slot bits x fs` from it, which is also the rate `_CRG` gives the master's MMCM output. At the 48000 default the flag and the parameter are withheld, so a config declaring the shipping rate keeps a byte-identical argv and top `.v`. On any other front-end the audio clock is fixed and `milan_soc.py` REFUSES the flag rather than accepting a rate it cannot elaborate; such a config carries an item-6 plan mark instead | 1722.1 7.2.3; Milan 5.3.3.3, 6.2 | SoC (`milan_soc.py` lines 98, 1008; `milan_datapath.sv` line 139); AEM (`aem_specs.py` line 233); check (must be a Milan 6.2 base rate); plan |\n| 8 | `clocking.audio_unit_rates_hz` | AUDIO_UNIT `sample_rates` list; defaults to `[sampling_rate_hz]`. Order is preserved, and the current rate must appear. Duplicate entries and lists exceeding eight entries raise `ConfigError`. The maximum mirrors [processor section 3.1, [-L10](../protocol-processor/docs/architecture/07_memory_maps.md#31-descriptor-tree).-]{+L10](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/424c688fa2205b934a7689a58f2aa766420f2326/docs/architecture/07_memory_maps.md#31-descriptor-tree).+} It bounds the processor walk at descriptor offset 144. `test_builder.py` gate 36a covers refusals and the eight-entry boundary. It also checks the hand-built `pp_shadow` rate array against YAML. Both array values and declared length must match. Each entry is a rate family for row 18's completion; part of the model hash. The render path runs 48 kHz only, so since #399 **every entry it cannot run carries its OWN plan mark** (`_marks_media_clock`, line 4171) naming it as an advertised SET_SAMPLING_RATE target the fabric would not follow. Marking only the current rate published two promises and checked one | 1722.1 7.2.3 | AEM (`aem_specs.py` line 198); plan (one mark per unrunnable rate) |\n| 9 | `clocking.media_clock_sources` | CLOCK_SOURCE set: INTERNAL (+ the CRF sink's INPUT_STREAM source, row 11) and nothing per AAF listener - the fabric follows no stream-derived clock, so `input_stream` is REFUSED by name rather than advertised (#389). Offering `crf` here without row 11's sink is refused for the same reason, that source being located on the sink's STREAM_INPUT (`_load_clocking`, line 3372); the set is model shape (1722.1 6.2.2.8); the shape header's `AEM_CRF_CLKSRC_C` (line 2515) that `milan_datapath.sv` compares the live clock-source index against (lines 1348 and 5231); the servo prune gate (`validate_features`, line 2927) | 1722.1 7.2.9, 7.2.9.2; Milan 7.2.2 | AEM (`aem_specs.py` line 249); shape; check |\n| 9a | `names.clock_sources.{internal,crf}` (optional, schema 1.2) | the CLOCK_SOURCE `object_name` of the INTERNAL source and of the CRF sink's INPUT_STREAM source, default `Internal` / `CRF Clock` (`CLOCK_SOURCE_NAMES`, line 131, written by `_overlay_clock_sources`, line 4739). A name for a source row 9 does not emit is refused, and so is `names.clock_sources.stream`: #389 retired the per-listener `Stream Clock` source it would name (`_load_names`, line 3575). 6.2.2.8-excluded, so it moves no hash-derived id | 1722.1 7.2.9, 6.2.2.8 | AEM (the overlay's `clock_sources` names, `aem_specs.py` line 263) |\n| 10 | `clocking.default_source` | nothing beyond validation (it must name a member of row 9) and the plan (line 4643). The CLOCK_DOMAIN `clock_source_index` reset is index 0 of row 9's set whatever this says (`aem_assemble.py` line 227) | 1722.1 7.2.32; Milan 5.3.11.1 | check, plan |\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "add",
+        "--",
+        "docs/ENDSTATION_BUILDER.md"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "commit",
+        "-m",
+        "docs: pin AUDIO_UNIT memory-map reference to processor commit"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "[478-audio-unit-rate-bound 2b200948] docs: pin AUDIO_UNIT memory-map reference to processor commit\n 1 file changed, 1 insertion(+), 1 deletion(-)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "568c5db2804f789015708358ad2a2d9c842c7cff\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "rtk",
+        "proxy",
+        "git",
+        "show",
+        "-s",
+        "--format=%B",
+        "HEAD"
+      ],
+      "cwd": "$CANDIDATE",
+      "exit_code": 0,
+      "stdout": "docs: pin AUDIO_UNIT memory-map reference to processor commit\n\n",
+      "stderr": ""
+    }
+  ]
+}

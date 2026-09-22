@@ -1,0 +1,26 @@
+{
+  "head": "2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7",
+  "tree": "568c5db2804f789015708358ad2a2d9c842c7cff",
+  "parent": "d81a302760b84f32d2aa019643f57682bb6e052c",
+  "parent_tree": "4903a00f30752bc86a99e9bf112ff5ad01827c5d",
+  "branch": "478-audio-unit-rate-bound",
+  "source_lane": "$CANDIDATE",
+  "label": "33-stop-head-tree",
+  "command": [
+    "rtk",
+    "proxy",
+    "git",
+    "rev-parse",
+    "HEAD",
+    "HEAD^{tree}"
+  ],
+  "command_shell": "rtk proxy git rev-parse HEAD 'HEAD^{tree}'",
+  "cwd": "$CANDIDATE",
+  "state": "corrected committed tree",
+  "expected_exit": 0,
+  "exit_code": 0,
+  "started_utc": "2026-09-22T12:15:09.703126+00:00",
+  "finished_utc": "2026-09-22T12:15:09.726003+00:00",
+  "stdout": "2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7\n568c5db2804f789015708358ad2a2d9c842c7cff\n",
+  "stderr": ""
+}

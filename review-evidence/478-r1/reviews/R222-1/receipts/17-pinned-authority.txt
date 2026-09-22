@@ -1,0 +1,7 @@
+# pinned processor authority blobs at 424c688
+docs/architecture/07_memory_maps.md 5be7a4c49c34c6f5638d2a461eedc65dc4dc28a6
+docs/architecture/06_aecp_engine.md f8ccc9a78f5b7c2e7820525cf6206eff6d0babcd
+hdl/aecp/ucode/gen_ucode.py 0057cb179cef552e7db7889320b242a9dc3a48ac
+docs/architecture/07_memory_maps.md:92:| L10 | AUDIO_UNIT `sampling_rates_offset` = 144 and `sampling_rates_count` ≤ 8, each entry the full sampling-rate word (pull field included): the processor's SE
+hdl/aecp/ucode/gen_ucode.py:1330:SSR_LIST_OFF = 144      # IEEE §7.2.3 sampling_rates_offset, this AEM version
+hdl/aecp/ucode/gen_ucode.py:1331:SSR_WALK_MAX = 8        # entries the walk consults; 07 §3.1 L10's bound

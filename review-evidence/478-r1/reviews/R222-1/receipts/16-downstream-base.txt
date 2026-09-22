@@ -1,0 +1,38 @@
+# downstream/malformed probe at base ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 2026-09-22T14:12:05+02:00
+shipping arty_current list:
+  _load_clocking: ok [48000, 96000, 192000]
+  load_config:    ok [48000, 96000, 192000]
+  packed image:   ok [48000, 96000, 192000]
+three base rates reordered:
+  _load_clocking: ok [192000, 48000, 96000]
+  load_config:    ok [192000, 48000, 96000]
+  packed image:   ok [192000, 48000, 96000]
+eight distinct (gate 36a loader boundary):
+  _load_clocking: ok [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+  load_config:    ok [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+  packed image:   ValueError unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+nine distinct:
+  _load_clocking: ok [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 22050]
+  load_config:    ok [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 22050]
+  packed image:   ValueError unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000, 22050]
+nine duplicates of the current rate:
+  _load_clocking: ok [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+  load_config:    ok [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+  packed image:   ok [48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000, 48000]
+two entries equal after int conversion:
+  _load_clocking: ok [48000, 48000]
+  load_config:    ok [48000, 48000]
+  packed image:   ok [48000, 48000]
+scalar instead of list:
+  _load_clocking: TypeError 'int' object is not iterable
+  load_config:    TypeError 'int' object is not iterable
+  packed image:   not reached 
+null:
+  _load_clocking: TypeError 'NoneType' object is not iterable
+  load_config:    TypeError 'NoneType' object is not iterable
+  packed image:   not reached 
+string:
+  _load_clocking: ConfigError sampling_rate_hz must appear in audio_unit_rates_hz
+  load_config:    ConfigError sampling_rate_hz must appear in audio_unit_rates_hz
+  packed image:   not reached 
+exit=0
