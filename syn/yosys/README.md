@@ -99,7 +99,30 @@ pays for the tops a change touched.
 `sv2v` output, the exact Yosys program with the run's scratch directory
 replaced by a placeholder, the Yosys version string, the sha256 of the Yosys
 binary that string names (a rebuilt binary of the same version is a different
-tool) and the sv2v version string. Any of those moving is a miss.
+tool), the sv2v version string and the generated ROM digest.
+Any changed input causes a miss.
+
+**Generated ROM inputs (#520).** Generation must succeed before lookup.
+The existing nonempty checks still run first.
+The bundle contains exactly these generated images:
+
+- PP (protocol processor): `ltn_rom.hex` and `ucode.hex`.
+- gPTP processor: `gptp_ucode.hex`.
+
+The digest binds names and bytes in lexical filename order.
+Each ASCII name ends with NUL.
+An eight-byte big-endian content length precedes its bytes.
+SHA256 digests the concatenated entries.
+Directory paths, timestamps and generator source are excluded.
+Every selected top conservatively binds the whole bundle.
+Lookup and store receive the same digest.
+Both full and elaborate modes use it.
+Both per-head state and read-only seeds require it.
+
+Schema 2 replaces schema 1 without upgrading stored evidence.
+Old entries miss; relocated old records refuse and run live.
+Missing, malformed or mismatching bundle fields also refuse.
+No digest is guessed for an old PASS record.
 
 **The hit rule** is stricter than a key match. The entry must hold a PASS
 record whose recorded inputs equal the current ones field by field, and the
@@ -137,8 +160,16 @@ syn/yosys/run.sh --results /tmp/r1 --cache /tmp/rc    # cold: same records, stor
 syn/yosys/run.sh --results /tmp/r2 --cache /tmp/rc    # warm: 48 hits, same records
 diff -r /tmp/r0 /tmp/r2                               # nothing
 python3 syn/yosys/result_cache.py --selftest          # the key and the hit rule on planted entries
-python3 syn/yosys/cache_selftest.py                   # cold, warm, forged and seed arms on the real gate
+python3 syn/yosys/cache_selftest.py                   # real-gate cache and ROM controls
 ```
+
+`cache_selftest.py --logs DIR` retains raw logs and fixtures.
+The original cold/warm/forged/seed controls remain active.
+ROM controls use two real, inexpensive tops in both modes.
+They vary each generated image without modifying generator sources.
+Only the ROM digest may change between compared cache identities.
+They also exercise generation failures and old-schema evidence.
+These controls test binding; PP-shadow measurements test cell-count effects.
 
 ## Runtime levers
 

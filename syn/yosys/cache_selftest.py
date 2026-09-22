@@ -17,10 +17,14 @@ machine's Yosys and sv2v, the way the hosted fast workflow runs it:
   5. no cache: the gate's output and record without either flag are what
      they were before the cache existed - the flags are the only difference.
 
-Every arm runs the shipping script; nothing here models it.
+rom_cache_selftest.py adds per-image binding, both modes, multiple selected
+tops, seed-only lookup, generator failures and legacy/malformed entries.
+Every integration arm runs the shipping script; nothing here models it.
+Use --logs DIR to retain raw outputs and fixtures.
 """
 from __future__ import annotations
 
+import argparse
 import os
 import re
 import shutil
@@ -29,6 +33,8 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+import rom_cache_selftest
 
 ROOT = Path(__file__).resolve().parents[2]
 RUN = ROOT / "syn" / "yosys" / "run.sh"
@@ -41,7 +47,10 @@ def gate(*flags: str, results: Path) -> tuple[int, str]:
     """One run of the real gate on TOP; (exit status, combined output)."""
     cmd = [str(RUN), "--top", TOP, "--no-structural", "--results", str(results), *flags]
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=ROOT)
-    return proc.returncode, proc.stdout + proc.stderr
+    output = proc.stdout + proc.stderr
+    results.parent.mkdir(parents=True, exist_ok=True)
+    results.with_suffix(".log").write_text(output, encoding="utf-8")
+    return proc.returncode, output
 
 
 def pass_line(text: str) -> tuple[str, bool] | None:
@@ -120,8 +129,20 @@ def arms(work: Path, problems: list[str]) -> None:
         make_writable(cache)
 
 
+def run_arms(work: Path, problems: list[str]) -> None:
+    """Run both banks without dropping original controls."""
+    arms(work, problems)
+    try:
+        rom_cache_selftest.arms(work / "rom")
+    except AssertionError as error:
+        problems.append(f"ROM integration control: {error}")
+
+
 def main() -> int:
-    """Run result_cache.py's own self-test, then the five live arms."""
+    """Run unit, original live and generated-ROM controls; optionally retain logs."""
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--logs", type=Path, help="retain raw logs and cache fixtures here")
+    args = parser.parse_args()
     unit = subprocess.run([sys.executable, str(ROOT / "syn/yosys/result_cache.py"), "--selftest"],
                           capture_output=True, text=True)
     if unit.returncode != 0:
@@ -133,11 +154,18 @@ def main() -> int:
             print(f"cache selftest: cannot run, {tool} is not installed", file=sys.stderr)
             return 2
     problems: list[str] = []
-    with tempfile.TemporaryDirectory(prefix="cache-selftest.") as tmp:
-        arms(Path(tmp), problems)
+    if args.logs:
+        args.logs.mkdir(parents=True, exist_ok=True)
+        work = Path(tempfile.mkdtemp(prefix="cache-selftest.", dir=args.logs.resolve()))
+        run_arms(work, problems)
+        print(f"cache selftest logs: {work}")
+    else:
+        with tempfile.TemporaryDirectory(prefix="cache-selftest.") as tmp:
+            run_arms(Path(tmp), problems)
     for problem in problems:
         print(f"SELFTEST FAIL: {problem}", file=sys.stderr)
-    print(f"cache selftest: {'OK' if not problems else 'FAIL'} (unit self-test + 5 live arms on {TOP})")
+    print(f"cache selftest: {'OK' if not problems else 'FAIL'} "
+          f"(unit self-test + 5 original live arms on {TOP} + ROM controls)")
     return 1 if problems else 0
 
 
