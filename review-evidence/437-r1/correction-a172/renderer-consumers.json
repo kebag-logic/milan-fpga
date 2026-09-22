@@ -1,0 +1,1775 @@
+[
+  {
+    "id": "two spaces",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.498107+00:00",
+    "exit": 0
+  },
+  {
+    "id": "three spaces",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.498974+00:00",
+    "exit": 0
+  },
+  {
+    "id": "star item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n* item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.498852+00:00",
+    "exit": 0
+  },
+  {
+    "id": "ordered item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.499354+00:00",
+    "exit": 0
+  },
+  {
+    "id": "two paragraphs",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  first\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.934067+00:00",
+    "exit": 0
+  },
+  {
+    "id": "task item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- [ ] item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul class=\"contains-task-list\">\n<li class=\"task-list-item\">\n<p dir=\"auto\"><input type=\"checkbox\" id=\"\" disabled=\"\" class=\"task-list-item-checkbox\" aria-label=\"Incomplete task\"> item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.956133+00:00",
+    "exit": 0
+  },
+  {
+    "id": "interrupting item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\ntext\\n- item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">text</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.986744+00:00",
+    "exit": 0
+  },
+  {
+    "id": "bold tag",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<b>\\n## Old \\u2014 heading\\n</b>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<b>\n## Old \u2014 heading\n</b>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.995198+00:00",
+    "exit": 0
+  },
+  {
+    "id": "two blank lines",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.400266+00:00",
+    "exit": 0
+  },
+  {
+    "id": "plus item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n+ item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.430065+00:00",
+    "exit": 0
+  },
+  {
+    "id": "custom tag",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<custom-tag>\\n## Old \\u2014 heading\\n</custom-tag>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old \u2014 heading\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.443661+00:00",
+    "exit": 0
+  },
+  {
+    "id": "one space outside item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.450560+00:00",
+    "exit": 0
+  },
+  {
+    "id": "four spaces",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n    text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.830953+00:00",
+    "exit": 0
+  },
+  {
+    "id": "quote boundary",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n> item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<blockquote>\n<p dir=\"auto\">item</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.867395+00:00",
+    "exit": 0
+  },
+  {
+    "id": "footnote two spaces",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n[^1]: note\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.913768+00:00",
+    "exit": 0
+  },
+  {
+    "id": "footnote four spaces",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n[^1]: note\\n\\n    text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:14.941988+00:00",
+    "exit": 0
+  },
+  {
+    "id": "tab continuation",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n\\ttext\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.287001+00:00",
+    "exit": 0
+  },
+  {
+    "id": "no item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\nplain\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">plain</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.336705+00:00",
+    "exit": 0
+  },
+  {
+    "id": "padding outside",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-  item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.378874+00:00",
+    "exit": 0
+  },
+  {
+    "id": "padding inside",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-  item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.465353+00:00",
+    "exit": 0
+  },
+  {
+    "id": "ordered outside",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.813721+00:00",
+    "exit": 0
+  },
+  {
+    "id": "marker indent outside",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n - item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.878127+00:00",
+    "exit": 0
+  },
+  {
+    "id": "marker indent inside",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n - item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.897803+00:00",
+    "exit": 0
+  },
+  {
+    "id": "code padding uses one",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-     code\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:15.987197+00:00",
+    "exit": 0
+  },
+  {
+    "id": "four padding columns",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-    item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.411027+00:00",
+    "exit": 0
+  },
+  {
+    "id": "tab padding columns",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- \\titem\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.436077+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty item ends at blank",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.466467+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty padded item ends at blank",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-   \\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.511842+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty item gains content",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-\\n  first\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.845657+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty item ignores padding",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-   \\n  first\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.899272+00:00",
+    "exit": 0
+  },
+  {
+    "id": "nested item retains outer column",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  - nested\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.934456+00:00",
+    "exit": 0
+  },
+  {
+    "id": "sibling replaces column",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n1. item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:16.941469+00:00",
+    "exit": 0
+  },
+  {
+    "id": "fresh dedented paragraph ends item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\noutside\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">outside</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.239543+00:00",
+    "exit": 0
+  },
+  {
+    "id": "lazy line retains item",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\nlazy\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.360925+00:00",
+    "exit": 0
+  },
+  {
+    "id": "heading ends item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n## Outside\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<h2 dir=\"auto\">Outside</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.395777+00:00",
+    "exit": 0
+  },
+  {
+    "id": "fenced marker is inert",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n```\\n- item\\n```\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.407112+00:00",
+    "exit": 0
+  },
+  {
+    "id": "commented marker is inert",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n<!--\\n- item\\n-->\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.756374+00:00",
+    "exit": 0
+  },
+  {
+    "id": "HTML marker is inert",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n<div>\\n- item\\n</div>\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<div dir=\"auto\">\n- item\n</div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.796502+00:00",
+    "exit": 0
+  },
+  {
+    "id": "code marker is inert",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n    - item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.852358+00:00",
+    "exit": 0
+  },
+  {
+    "id": "thematic break is no item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- - -\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<hr>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:17.859974+00:00",
+    "exit": 0
+  },
+  {
+    "id": "noninterrupting ordinal is no item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\ntext\\n2. item\\n\\n   text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<p dir=\"auto\">text<br>\n2. item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.256020+00:00",
+    "exit": 0
+  },
+  {
+    "id": "setext dash is no item",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\ntext\\n-\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<h2 dir=\"auto\">text</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.341692+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C01",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n## Old \\u2014 heading\\n  </span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n  \n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.366862+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C02",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span>\\n## Old \\u2014 heading\\n   </span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n   \n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.409587+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C03",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n\\n   text\\n   <span>\\n## Old \\u2014 heading\\n   </span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n   \n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.741075+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C04",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.760185+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C05",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.809102+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C06",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.818382+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C07",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\nlazy\\n  <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.233714+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 C08",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n\\n   text\\n   <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.247433+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 P01",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.274078+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 P04",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n## Old \\u2014 heading\\n  </span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n  \n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.329577+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D01",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.680356+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D02",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n[^1]: note\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.709384+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D03",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.774673+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D04",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n[^1]: note\\n\\n  text\\n<span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.860612+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D05",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n> quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.163800+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D06",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  > quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.186407+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R238 D07",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-   item\\n  > quote\\n\\n    text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\">text\n</code></pre>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.321393+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R237 fenced-marker-indented-closer",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n```\\n- fake item\\n  ```\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<pre class=\"notranslate\"><code class=\"notranslate\">- fake item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.424006+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R237 comment-marker-indented-closer",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n<!--\\n- fake item\\n  -->\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.572924+00:00",
+    "exit": 0
+  },
+  {
+    "id": "R237 HTML-marker-indented-closer",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n<div>\\n- fake item\\n  </div>\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<div dir=\"auto\">\n- fake item\n  </div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.707185+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 open",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.714578+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 open swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.840059+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 open swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:21.125249+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 open swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:21.161627+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 close",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n</span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n## Old \u2014 heading\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:21.375021+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 close swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n</span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:21.586583+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 close swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n</span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:21.599490+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 close swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n</span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre>",
+    "utc": "2026-09-22T14:45:21.761600+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 attribute",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:21.863879+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 attribute swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.001710+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 attribute swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span title=\\\"x\\\">\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.207244+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 0 attribute swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n<span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:22.230362+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 open",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.389732+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 open swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.552912+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 open swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.728825+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 open swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:22.818713+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 close",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n## Old \u2014 heading\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.911163+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 close swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n </span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:22.996266+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 close swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n </span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.156189+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 close swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre>",
+    "utc": "2026-09-22T14:45:23.321045+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 attribute",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.407164+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 attribute swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.490868+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 attribute swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span title=\\\"x\\\">\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.576515+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 1 attribute swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:23.820663+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.869573+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.274078+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:23.896119+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.076613+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.263859+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.313014+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.398132+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.492587+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.743382+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.771246+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.844303+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 2 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:24.921559+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.172432+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.232885+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.324514+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.422769+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.584202+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.686249+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.745011+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.839792+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:25.961738+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.154921+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.225530+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 3 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n   <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.292568+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.345742+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.682662+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.724158+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.745446+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:26.807080+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.089246+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.148137+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.242268+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.323566+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.516336+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.563246+00:00",
+    "exit": 0
+  },
+  {
+    "id": "first tag column 4 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n    <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.742962+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 open",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:13.498107+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 open swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.880348+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 open swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:27.919983+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 open swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:27.939213+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 close",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n</span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old \u2014 heading\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.243977+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 close swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n</span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.305958+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 close swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n</span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.314087+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 close swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n</span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre>",
+    "utc": "2026-09-22T14:45:28.344027+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 attribute",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.658853+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.696804+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span title=\\\"x\\\">\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:28.734939+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n<span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:28.919872+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 open",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.135000+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 open swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.162137+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 open swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.257371+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 open swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:29.340111+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 close",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n## Old \u2014 heading\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.611772+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 close swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n </span>\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.691953+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 close swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n </span>\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:29.785558+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 close swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre>",
+    "utc": "2026-09-22T14:45:29.834524+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 attribute",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.099828+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows fence",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n```\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.124889+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows closed comment",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span title=\\\"x\\\">\\n<!--\\n-->\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.226383+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows pre",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p></pre></span>",
+    "utc": "2026-09-22T14:45:30.252928+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.510162+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.760185+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.809102+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:18.818382+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.540958+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.678984+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.740847+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.922416+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:30.932119+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.165919+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.201019+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 2 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n  <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.340949+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.409806+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.561443+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.630767+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.726319+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:31.831878+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.008033+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.060014+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.163869+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.216343+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.397479+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.479428+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 3 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n   <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.589051+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 open",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.624930+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 open then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.820145+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 open then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.889446+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 open then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:32.983796+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 close",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    </span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.035319+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 close then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    </span>\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.250552+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 close then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    </span>\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.285513+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 close then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    </span>\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.474703+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 attribute",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span title=\\\"x\\\">\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.504669+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 attribute then fence",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span title=\\\"x\\\">\\n```\\n\\n## Old \\u2014 heading\\n```\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old \u2014 heading\n</code></pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.694414+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 attribute then comment",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span title=\\\"x\\\">\\n<!--\\n\\n## Old \\u2014 heading\\n-->\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.697642+00:00",
+    "exit": 0
+  },
+  {
+    "id": "resumed tag column 4 attribute then pre",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\n    <span title=\\\"x\\\">\\n<pre>\\n\\n## Old \\u2014 heading\\n</pre>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old \u2014 heading\n</pre>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.874369+00:00",
+    "exit": 0
+  },
+  {
+    "id": "ordered first",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n   <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ol>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:33.954409+00:00",
+    "exit": 0
+  },
+  {
+    "id": "ordered below column",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n1. item\\n\\n   text\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.069369+00:00",
+    "exit": 0
+  },
+  {
+    "id": "star first",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n* item\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.146669+00:00",
+    "exit": 0
+  },
+  {
+    "id": "plus resumed",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n+ item\\n\\n  text\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.367890+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty gains paragraph",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-\\n  text\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>text<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.451732+00:00",
+    "exit": 0
+  },
+  {
+    "id": "empty resumed paragraph",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n-\\n  text\\n\\n  more\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">more<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.462816+00:00",
+    "exit": 0
+  },
+  {
+    "id": "lazy resumed paragraph",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n\\n  text\\nlazy\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.608906+00:00",
+    "exit": 0
+  },
+  {
+    "id": "sibling first paragraph",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n1. next\\n   <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>next<br>\n<span></span></li>\n</ol>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.792178+00:00",
+    "exit": 0
+  },
+  {
+    "id": "sibling replaces boundary",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n1. next\\n  <span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>next</li>\n</ol>\n  <span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.924448+00:00",
+    "exit": 0
+  },
+  {
+    "id": "quote column 0 releases iff dedented",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n> quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.680356+00:00",
+    "exit": 0
+  },
+  {
+    "id": "quote column 1 releases iff dedented",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n > quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:34.933298+00:00",
+    "exit": 0
+  },
+  {
+    "id": "quote column 2 releases iff dedented",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  > quote\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:20.186407+00:00",
+    "exit": 0
+  },
+  {
+    "id": "footnote column 0 releases iff dedented",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n[^1]: note\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:19.709384+00:00",
+    "exit": 0
+  },
+  {
+    "id": "footnote column 1 releases iff dedented",
+    "expected": true,
+    "github_visible": true,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n [^1]: note\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old \u2014 heading</h2>\n\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:35.169971+00:00",
+    "exit": 0
+  },
+  {
+    "id": "footnote column 2 releases iff dedented",
+    "expected": false,
+    "github_visible": false,
+    "request_bytes": "{\"text\": \"# Page\\n\\n- item\\n  [^1]: note\\n\\n  text\\n<span>\\n## Old \\u2014 heading\\n</span>\\n\\n## Alpha\\n\\nBody.\\n\\n## Beta\\n\\nBody.\\n\\n## Gamma\\n\\nBody.\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+    "html": "<h1 dir=\"auto\">Page</h1>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old \u2014 heading\n</span>\n<h2 dir=\"auto\">Alpha</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Beta</h2>\n<p dir=\"auto\">Body.</p>\n<h2 dir=\"auto\">Gamma</h2>\n<p dir=\"auto\">Body.</p>",
+    "utc": "2026-09-22T14:45:35.298427+00:00",
+    "exit": 0
+  }
+]

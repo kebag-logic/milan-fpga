@@ -1,0 +1,1975 @@
+{
+  "source_sha256": "0f3af7f8db3cfb54fbe0923620abcb6b7e76f4a32cf39fabb80504667dde2fe5",
+  "source_bytes_preserved": true,
+  "mutants": [
+    {
+      "name": "tag-paragraph-reversion",
+      "before": "            if para == HELD and item_context and not item_context[1] \\\n                    and _indent_columns(line) >= item_context[0]:\n                opening_para = PARAGRAPH\n",
+      "after": "",
+      "required_arms": [
+        "R238 C01",
+        "R238 C04",
+        "R238 P01",
+        "R238 P04"
+      ],
+      "mutated_sha256": "64872e82e7432d9df8da4efa22dbfbf530bf04404ac18fda1e760838a6e2f9b2",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-paragraph-reversion/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "R238 C01": true,
+            "R238 C04": true,
+            "R238 P01": true,
+            "R238 P04": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 R238 C01]",
+            "  FAIL [I437 R238 C02]",
+            "  FAIL [I437 R238 C03]",
+            "  FAIL [I437 R238 C04]",
+            "  FAIL [I437 R238 C05]",
+            "  FAIL [I437 R238 C06]",
+            "  FAIL [I437 R238 C07]",
+            "  FAIL [I437 R238 C08]",
+            "  FAIL [I437 R238 P01]",
+            "  FAIL [I437 R238 P04]",
+            "  FAIL [I437 first tag column 2 open]",
+            "  FAIL [I437 first tag column 2 open then fence]",
+            "  FAIL [I437 first tag column 2 open then comment]",
+            "  FAIL [I437 first tag column 2 open then pre]",
+            "  FAIL [I437 first tag column 2 close]",
+            "  FAIL [I437 first tag column 2 close then fence]",
+            "  FAIL [I437 first tag column 2 close then comment]",
+            "  FAIL [I437 first tag column 2 close then pre]",
+            "  FAIL [I437 first tag column 2 attribute]",
+            "  FAIL [I437 first tag column 2 attribute then fence]",
+            "  FAIL [I437 first tag column 2 attribute then comment]",
+            "  FAIL [I437 first tag column 2 attribute then pre]",
+            "  FAIL [I437 first tag column 3 open]",
+            "  FAIL [I437 first tag column 3 open then fence]",
+            "  FAIL [I437 first tag column 3 open then comment]",
+            "  FAIL [I437 first tag column 3 open then pre]",
+            "  FAIL [I437 first tag column 3 close]",
+            "  FAIL [I437 first tag column 3 close then fence]",
+            "  FAIL [I437 first tag column 3 close then comment]",
+            "  FAIL [I437 first tag column 3 close then pre]",
+            "  FAIL [I437 first tag column 3 attribute]",
+            "  FAIL [I437 first tag column 3 attribute then fence]",
+            "  FAIL [I437 first tag column 3 attribute then comment]",
+            "  FAIL [I437 first tag column 3 attribute then pre]",
+            "  FAIL [I437 resumed tag column 2 open]",
+            "  FAIL [I437 resumed tag column 2 open then fence]",
+            "  FAIL [I437 resumed tag column 2 open then comment]",
+            "  FAIL [I437 resumed tag column 2 open then pre]",
+            "  FAIL [I437 resumed tag column 2 close]",
+            "  FAIL [I437 resumed tag column 2 close then fence]",
+            "  FAIL [I437 resumed tag column 2 close then comment]",
+            "  FAIL [I437 resumed tag column 2 close then pre]",
+            "  FAIL [I437 resumed tag column 2 attribute]",
+            "  FAIL [I437 resumed tag column 2 attribute then fence]",
+            "  FAIL [I437 resumed tag column 2 attribute then comment]",
+            "  FAIL [I437 resumed tag column 2 attribute then pre]",
+            "  FAIL [I437 resumed tag column 3 open]",
+            "  FAIL [I437 resumed tag column 3 open then fence]",
+            "  FAIL [I437 resumed tag column 3 open then comment]",
+            "  FAIL [I437 resumed tag column 3 open then pre]",
+            "  FAIL [I437 resumed tag column 3 close]",
+            "  FAIL [I437 resumed tag column 3 close then fence]",
+            "  FAIL [I437 resumed tag column 3 close then comment]",
+            "  FAIL [I437 resumed tag column 3 close then pre]",
+            "  FAIL [I437 resumed tag column 3 attribute]",
+            "  FAIL [I437 resumed tag column 3 attribute then fence]",
+            "  FAIL [I437 resumed tag column 3 attribute then comment]",
+            "  FAIL [I437 resumed tag column 3 attribute then pre]",
+            "  FAIL [I437 ordered first]",
+            "  FAIL [I437 star first]",
+            "  FAIL [I437 plus resumed]",
+            "  FAIL [I437 empty gains paragraph]",
+            "  FAIL [I437 empty resumed paragraph]",
+            "  FAIL [I437 lazy resumed paragraph]",
+            "  FAIL [I437 sibling first paragraph]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-paragraph-reversion/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "R238 C01": true,
+            "R238 C04": true,
+            "R238 P01": true,
+            "R238 P04": true
+          },
+          "all_failing_lines": [
+            "  - [I437 R238 C01] expected findings/exempt (0, 1), got 1/0: ['page42.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 C02] expected findings/exempt (0, 1), got 1/0: ['page43.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 C03] expected findings/exempt (0, 1), got 1/0: ['page44.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 C04] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C04] absent base heading was not the refusal reason",
+            "  - [I437 R238 C05] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C05] absent base heading was not the refusal reason",
+            "  - [I437 R238 C06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C06] absent base heading was not the refusal reason",
+            "  - [I437 R238 C07] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C07] absent base heading was not the refusal reason",
+            "  - [I437 R238 C08] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C08] absent base heading was not the refusal reason",
+            "  - [I437 R238 P01] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 P01] absent base heading was not the refusal reason",
+            "  - [I437 R238 P04] expected findings/exempt (0, 1), got 1/0: ['page51.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 open] expected findings/exempt (0, 1), got 1/0: ['page86.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close] expected findings/exempt (0, 1), got 1/0: ['page90.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute] expected findings/exempt (0, 1), got 1/0: ['page94.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open] expected findings/exempt (0, 1), got 1/0: ['page98.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close] expected findings/exempt (0, 1), got 1/0: ['page102.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute] expected findings/exempt (0, 1), got 1/0: ['page106.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open] expected findings/exempt (0, 1), got 1/0: ['page146.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close] expected findings/exempt (0, 1), got 1/0: ['page150.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute] expected findings/exempt (0, 1), got 1/0: ['page154.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 open] expected findings/exempt (0, 1), got 1/0: ['page158.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 3 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 close] expected findings/exempt (0, 1), got 1/0: ['page162.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 3 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 attribute] expected findings/exempt (0, 1), got 1/0: ['page166.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 3 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 3 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 3 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 ordered first] expected findings/exempt (0, 1), got 1/0: ['page182.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 star first] expected findings/exempt (0, 1), got 1/0: ['page184.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 plus resumed] expected findings/exempt (0, 1), got 1/0: ['page185.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty gains paragraph] expected findings/exempt (0, 1), got 1/0: ['page186.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty resumed paragraph] expected findings/exempt (0, 1), got 1/0: ['page187.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 lazy resumed paragraph] expected findings/exempt (0, 1), got 1/0: ['page188.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling first paragraph] expected findings/exempt (0, 1), got 1/0: ['page189.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tag-column-too-narrow",
+      "before": "_indent_columns(line) >= item_context[0]",
+      "after": "_indent_columns(line) > item_context[0]",
+      "required_arms": [
+        "resumed tag column 2 open",
+        "first tag column 2 open then fence"
+      ],
+      "mutated_sha256": "03b919cae2183a69e8d137404ca0fcfe411797e826183ea3c44d6b343ff82029",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-column-too-narrow/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "resumed tag column 2 open": true,
+            "first tag column 2 open then fence": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 R238 C01]",
+            "  FAIL [I437 R238 C03]",
+            "  FAIL [I437 R238 C04]",
+            "  FAIL [I437 R238 C05]",
+            "  FAIL [I437 R238 C06]",
+            "  FAIL [I437 R238 C07]",
+            "  FAIL [I437 R238 C08]",
+            "  FAIL [I437 R238 P01]",
+            "  FAIL [I437 R238 P04]",
+            "  FAIL [I437 first tag column 2 open]",
+            "  FAIL [I437 first tag column 2 open then fence]",
+            "  FAIL [I437 first tag column 2 open then comment]",
+            "  FAIL [I437 first tag column 2 open then pre]",
+            "  FAIL [I437 first tag column 2 close]",
+            "  FAIL [I437 first tag column 2 close then fence]",
+            "  FAIL [I437 first tag column 2 close then comment]",
+            "  FAIL [I437 first tag column 2 close then pre]",
+            "  FAIL [I437 first tag column 2 attribute]",
+            "  FAIL [I437 first tag column 2 attribute then fence]",
+            "  FAIL [I437 first tag column 2 attribute then comment]",
+            "  FAIL [I437 first tag column 2 attribute then pre]",
+            "  FAIL [I437 resumed tag column 2 open]",
+            "  FAIL [I437 resumed tag column 2 open then fence]",
+            "  FAIL [I437 resumed tag column 2 open then comment]",
+            "  FAIL [I437 resumed tag column 2 open then pre]",
+            "  FAIL [I437 resumed tag column 2 close]",
+            "  FAIL [I437 resumed tag column 2 close then fence]",
+            "  FAIL [I437 resumed tag column 2 close then comment]",
+            "  FAIL [I437 resumed tag column 2 close then pre]",
+            "  FAIL [I437 resumed tag column 2 attribute]",
+            "  FAIL [I437 resumed tag column 2 attribute then fence]",
+            "  FAIL [I437 resumed tag column 2 attribute then comment]",
+            "  FAIL [I437 resumed tag column 2 attribute then pre]",
+            "  FAIL [I437 ordered first]",
+            "  FAIL [I437 star first]",
+            "  FAIL [I437 plus resumed]",
+            "  FAIL [I437 empty gains paragraph]",
+            "  FAIL [I437 empty resumed paragraph]",
+            "  FAIL [I437 lazy resumed paragraph]",
+            "  FAIL [I437 sibling first paragraph]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-column-too-narrow/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "resumed tag column 2 open": true,
+            "first tag column 2 open then fence": true
+          },
+          "all_failing_lines": [
+            "  - [I437 R238 C01] expected findings/exempt (0, 1), got 1/0: ['page42.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 C03] expected findings/exempt (0, 1), got 1/0: ['page44.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 C04] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C04] absent base heading was not the refusal reason",
+            "  - [I437 R238 C05] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C05] absent base heading was not the refusal reason",
+            "  - [I437 R238 C06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C06] absent base heading was not the refusal reason",
+            "  - [I437 R238 C07] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C07] absent base heading was not the refusal reason",
+            "  - [I437 R238 C08] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C08] absent base heading was not the refusal reason",
+            "  - [I437 R238 P01] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 P01] absent base heading was not the refusal reason",
+            "  - [I437 R238 P04] expected findings/exempt (0, 1), got 1/0: ['page51.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 open] expected findings/exempt (0, 1), got 1/0: ['page86.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close] expected findings/exempt (0, 1), got 1/0: ['page90.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute] expected findings/exempt (0, 1), got 1/0: ['page94.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open] expected findings/exempt (0, 1), got 1/0: ['page146.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close] expected findings/exempt (0, 1), got 1/0: ['page150.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute] expected findings/exempt (0, 1), got 1/0: ['page154.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 2 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 2 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 2 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 ordered first] expected findings/exempt (0, 1), got 1/0: ['page182.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 star first] expected findings/exempt (0, 1), got 1/0: ['page184.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 plus resumed] expected findings/exempt (0, 1), got 1/0: ['page185.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty gains paragraph] expected findings/exempt (0, 1), got 1/0: ['page186.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty resumed paragraph] expected findings/exempt (0, 1), got 1/0: ['page187.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 lazy resumed paragraph] expected findings/exempt (0, 1), got 1/0: ['page188.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling first paragraph] expected findings/exempt (0, 1), got 1/0: ['page189.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "tag-column-ignored",
+      "before": "_indent_columns(line) >= item_context[0]",
+      "after": "True",
+      "required_arms": [
+        "resumed tag column 1 open",
+        "first tag column 1 open"
+      ],
+      "mutated_sha256": "ae8b5b1a6d9d4abda271a3fd0cf2fcc487ad3c1b4cd44dfd9833c895da59bd41",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-column-ignored/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "resumed tag column 1 open": true,
+            "first tag column 1 open": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 three spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]",
+            "  FAIL [I437 R238 D06]",
+            "  FAIL [I437 first tag column 0 open]",
+            "  FAIL [I437 first tag column 0 open swallows fence]",
+            "  FAIL [I437 first tag column 0 open swallows pre]",
+            "  FAIL [I437 first tag column 0 close]",
+            "  FAIL [I437 first tag column 0 close swallows fence]",
+            "  FAIL [I437 first tag column 0 close swallows pre]",
+            "  FAIL [I437 first tag column 0 attribute]",
+            "  FAIL [I437 first tag column 0 attribute swallows fence]",
+            "  FAIL [I437 first tag column 0 attribute swallows pre]",
+            "  FAIL [I437 first tag column 1 open]",
+            "  FAIL [I437 first tag column 1 open swallows fence]",
+            "  FAIL [I437 first tag column 1 open swallows pre]",
+            "  FAIL [I437 first tag column 1 close]",
+            "  FAIL [I437 first tag column 1 close swallows fence]",
+            "  FAIL [I437 first tag column 1 close swallows pre]",
+            "  FAIL [I437 first tag column 1 attribute]",
+            "  FAIL [I437 first tag column 1 attribute swallows fence]",
+            "  FAIL [I437 first tag column 1 attribute swallows pre]",
+            "  FAIL [I437 resumed tag column 0 open]",
+            "  FAIL [I437 resumed tag column 0 open swallows fence]",
+            "  FAIL [I437 resumed tag column 0 open swallows pre]",
+            "  FAIL [I437 resumed tag column 0 close]",
+            "  FAIL [I437 resumed tag column 0 close swallows fence]",
+            "  FAIL [I437 resumed tag column 0 close swallows pre]",
+            "  FAIL [I437 resumed tag column 0 attribute]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows pre]",
+            "  FAIL [I437 resumed tag column 1 open]",
+            "  FAIL [I437 resumed tag column 1 open swallows fence]",
+            "  FAIL [I437 resumed tag column 1 open swallows pre]",
+            "  FAIL [I437 resumed tag column 1 close]",
+            "  FAIL [I437 resumed tag column 1 close swallows fence]",
+            "  FAIL [I437 resumed tag column 1 close swallows pre]",
+            "  FAIL [I437 resumed tag column 1 attribute]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows pre]",
+            "  FAIL [I437 ordered below column]",
+            "  FAIL [I437 sibling replaces boundary]",
+            "  FAIL [I437 quote column 2 releases iff dedented]",
+            "  FAIL [I437 footnote column 2 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/tag-column-ignored/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "resumed tag column 1 open": true,
+            "first tag column 1 open": true
+          },
+          "all_failing_lines": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 three spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+            "  - [I437 R238 D06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D06] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 0 open] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 0 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page63.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 0 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page65.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 0 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 0 close] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 0 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page67.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 0 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page69.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 0 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 0 attribute] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 0 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page71.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 0 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page73.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 1 open] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 1 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page75.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page77.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 1 close] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 1 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page79.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page81.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 1 attribute] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 1 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page83.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 1 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page85.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page123.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page125.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page127.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page129.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page131.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page133.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page135.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page137.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page139.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page141.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page143.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page145.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered below column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered below column] absent base heading was not the refusal reason",
+            "  - [I437 sibling replaces boundary] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 sibling replaces boundary] absent base heading was not the refusal reason",
+            "  - [I437 quote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 quote column 2 releases iff dedented] absent base heading was not the refusal reason",
+            "  - [I437 footnote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 footnote column 2 releases iff dedented] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "quote-release-removed",
+      "before": "    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+      "after": "    if FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+      "required_arms": [
+        "R238 D01",
+        "R238 D03"
+      ],
+      "mutated_sha256": "ead656fc85e54c4cc6f3eca3b57cefcad9e95adf240045757960a28990565dd2",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/quote-release-removed/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "R238 D01": true,
+            "R238 D03": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 R238 D01]",
+            "  FAIL [I437 R238 D03]",
+            "  FAIL [I437 quote column 0 releases iff dedented]",
+            "  FAIL [I437 quote column 1 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/quote-release-removed/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "R238 D01": true,
+            "R238 D03": true
+          },
+          "all_failing_lines": [
+            "  - [I437 R238 D01] expected findings/exempt (0, 1), got 1/0: ['page52.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 D03] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D03] absent base heading was not the refusal reason",
+            "  - [I437 quote column 0 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page191.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 quote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page192.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "footnote-release-removed",
+      "before": "    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+      "after": "    if BLOCK_QUOTE_RE.match(line):\n        return after, None\n",
+      "required_arms": [
+        "R238 D02",
+        "R238 D04"
+      ],
+      "mutated_sha256": "c27652fca42740e6afec3a41e6ee6e0781dafedc7601e3fb5768c6218479d194",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/footnote-release-removed/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "R238 D02": true,
+            "R238 D04": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 R238 D02]",
+            "  FAIL [I437 R238 D04]",
+            "  FAIL [I437 footnote column 0 releases iff dedented]",
+            "  FAIL [I437 footnote column 1 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/footnote-release-removed/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "R238 D02": true,
+            "R238 D04": true
+          },
+          "all_failing_lines": [
+            "  - [I437 R238 D02] expected findings/exempt (0, 1), got 1/0: ['page53.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 D04] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D04] absent base heading was not the refusal reason",
+            "  - [I437 footnote column 0 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page194.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 footnote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page195.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "block-marker-only",
+      "before": "label == TEXT and after == HELD",
+      "after": "label != TEXT or after == HELD",
+      "required_arms": [
+        "R237 fenced-marker-indented-closer",
+        "R237 comment-marker-indented-closer",
+        "R237 HTML-marker-indented-closer"
+      ],
+      "mutated_sha256": "262a74135d48de5f52fbbccef688886cc2884d54d8aab9f503b642a48d79bf8c",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/block-marker-only/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "R237 fenced-marker-indented-closer": true,
+            "R237 comment-marker-indented-closer": true,
+            "R237 HTML-marker-indented-closer": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 R237 fenced-marker-indented-closer]",
+            "  FAIL [I437 R237 comment-marker-indented-closer]",
+            "  FAIL [I437 R237 HTML-marker-indented-closer]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/block-marker-only/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "R237 fenced-marker-indented-closer": true,
+            "R237 comment-marker-indented-closer": true,
+            "R237 HTML-marker-indented-closer": true
+          },
+          "all_failing_lines": [
+            "  - [I437 R237 fenced-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page59.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R237 comment-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page60.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R237 HTML-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page61.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-drop-context",
+      "before": "after = _paragraph_after(line, label, para, prev)",
+      "after": "after = _paragraph_after(line, label, para, prev)\n    return after, None",
+      "required_arms": [
+        "two spaces"
+      ],
+      "mutated_sha256": "50d83261528161d675d790aa4f5a1ff32869f407857ea3b8c7dd81e515d34ba5",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-drop-context/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 three spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]",
+            "  FAIL [I437 R238 P01]",
+            "  FAIL [I437 R238 P04]",
+            "  FAIL [I437 R238 D06]",
+            "  FAIL [I437 first tag column 2 open]",
+            "  FAIL [I437 first tag column 2 open then fence]",
+            "  FAIL [I437 first tag column 2 open then comment]",
+            "  FAIL [I437 first tag column 2 open then pre]",
+            "  FAIL [I437 first tag column 2 close]",
+            "  FAIL [I437 first tag column 2 close then fence]",
+            "  FAIL [I437 first tag column 2 close then comment]",
+            "  FAIL [I437 first tag column 2 close then pre]",
+            "  FAIL [I437 first tag column 2 attribute]",
+            "  FAIL [I437 first tag column 2 attribute then fence]",
+            "  FAIL [I437 first tag column 2 attribute then comment]",
+            "  FAIL [I437 first tag column 2 attribute then pre]",
+            "  FAIL [I437 first tag column 3 open]",
+            "  FAIL [I437 first tag column 3 open then fence]",
+            "  FAIL [I437 first tag column 3 open then comment]",
+            "  FAIL [I437 first tag column 3 open then pre]",
+            "  FAIL [I437 first tag column 3 close]",
+            "  FAIL [I437 first tag column 3 close then fence]",
+            "  FAIL [I437 first tag column 3 close then comment]",
+            "  FAIL [I437 first tag column 3 close then pre]",
+            "  FAIL [I437 first tag column 3 attribute]",
+            "  FAIL [I437 first tag column 3 attribute then fence]",
+            "  FAIL [I437 first tag column 3 attribute then comment]",
+            "  FAIL [I437 first tag column 3 attribute then pre]",
+            "  FAIL [I437 resumed tag column 0 open]",
+            "  FAIL [I437 resumed tag column 0 open swallows fence]",
+            "  FAIL [I437 resumed tag column 0 open swallows pre]",
+            "  FAIL [I437 resumed tag column 0 close]",
+            "  FAIL [I437 resumed tag column 0 close swallows fence]",
+            "  FAIL [I437 resumed tag column 0 close swallows pre]",
+            "  FAIL [I437 resumed tag column 0 attribute]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows pre]",
+            "  FAIL [I437 resumed tag column 1 open]",
+            "  FAIL [I437 resumed tag column 1 open swallows fence]",
+            "  FAIL [I437 resumed tag column 1 open swallows pre]",
+            "  FAIL [I437 resumed tag column 1 close]",
+            "  FAIL [I437 resumed tag column 1 close swallows fence]",
+            "  FAIL [I437 resumed tag column 1 close swallows pre]",
+            "  FAIL [I437 resumed tag column 1 attribute]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows pre]",
+            "  FAIL [I437 ordered first]",
+            "  FAIL [I437 ordered below column]",
+            "  FAIL [I437 star first]",
+            "  FAIL [I437 empty gains paragraph]",
+            "  FAIL [I437 sibling first paragraph]",
+            "  FAIL [I437 quote column 2 releases iff dedented]",
+            "  FAIL [I437 footnote column 2 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-drop-context/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 three spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+            "  - [I437 R238 P01] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 P01] absent base heading was not the refusal reason",
+            "  - [I437 R238 P04] expected findings/exempt (0, 1), got 1/0: ['page51.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R238 D06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D06] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open] expected findings/exempt (0, 1), got 1/0: ['page86.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close] expected findings/exempt (0, 1), got 1/0: ['page90.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute] expected findings/exempt (0, 1), got 1/0: ['page94.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 2 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 2 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 2 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open] expected findings/exempt (0, 1), got 1/0: ['page98.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 open then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 open then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 open then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close] expected findings/exempt (0, 1), got 1/0: ['page102.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 close then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 close then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 close then pre] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute] expected findings/exempt (0, 1), got 1/0: ['page106.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 first tag column 3 attribute then fence] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then fence] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute then comment] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then comment] absent base heading was not the refusal reason",
+            "  - [I437 first tag column 3 attribute then pre] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 first tag column 3 attribute then pre] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page123.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page125.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page127.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page129.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page131.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page133.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page135.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page137.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page139.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page141.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page143.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page145.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered first] expected findings/exempt (0, 1), got 1/0: ['page182.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered below column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered below column] absent base heading was not the refusal reason",
+            "  - [I437 star first] expected findings/exempt (0, 1), got 1/0: ['page184.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty gains paragraph] expected findings/exempt (0, 1), got 1/0: ['page186.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling first paragraph] expected findings/exempt (0, 1), got 1/0: ['page189.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 quote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 quote column 2 releases iff dedented] absent base heading was not the refusal reason",
+            "  - [I437 footnote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 footnote column 2 releases iff dedented] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-forget-on-blank",
+      "before": "return after, None if context and context[1] else context",
+      "after": "return after, None",
+      "required_arms": [
+        "two spaces"
+      ],
+      "mutated_sha256": "cd7905e45ad0cbb4c20e551d165c3f0f0dce0dfd18805d637cb4cdc21bbf36a6",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-forget-on-blank/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 three spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]",
+            "  FAIL [I437 R238 D06]",
+            "  FAIL [I437 resumed tag column 0 open]",
+            "  FAIL [I437 resumed tag column 0 open swallows fence]",
+            "  FAIL [I437 resumed tag column 0 open swallows pre]",
+            "  FAIL [I437 resumed tag column 0 close]",
+            "  FAIL [I437 resumed tag column 0 close swallows fence]",
+            "  FAIL [I437 resumed tag column 0 close swallows pre]",
+            "  FAIL [I437 resumed tag column 0 attribute]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows pre]",
+            "  FAIL [I437 resumed tag column 1 open]",
+            "  FAIL [I437 resumed tag column 1 open swallows fence]",
+            "  FAIL [I437 resumed tag column 1 open swallows pre]",
+            "  FAIL [I437 resumed tag column 1 close]",
+            "  FAIL [I437 resumed tag column 1 close swallows fence]",
+            "  FAIL [I437 resumed tag column 1 close swallows pre]",
+            "  FAIL [I437 resumed tag column 1 attribute]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows pre]",
+            "  FAIL [I437 ordered below column]",
+            "  FAIL [I437 quote column 2 releases iff dedented]",
+            "  FAIL [I437 footnote column 2 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-forget-on-blank/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 three spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+            "  - [I437 R238 D06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D06] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page123.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page125.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page127.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page129.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page131.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page133.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page135.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page137.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page139.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page141.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page143.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page145.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered below column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered below column] absent base heading was not the refusal reason",
+            "  - [I437 quote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 quote column 2 releases iff dedented] absent base heading was not the refusal reason",
+            "  - [I437 footnote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 footnote column 2 releases iff dedented] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-blanket-indent",
+      "before": "_indent_columns(line) >= context[0]",
+      "after": "_indent_columns(line) >= 1",
+      "required_arms": [
+        "one space outside item"
+      ],
+      "mutated_sha256": "5ffe9748f845ec66a8616b4b2fd14e356fa2ac7ccdf00b9e5aec7d723c0755ff",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-blanket-indent/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "one space outside item": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 one space outside item]",
+            "  FAIL [I437 padding outside]",
+            "  FAIL [I437 ordered outside]",
+            "  FAIL [I437 marker indent outside]",
+            "  FAIL [I437 four padding columns]",
+            "  FAIL [I437 tab padding columns]",
+            "  FAIL [I437 sibling replaces column]",
+            "  FAIL [I437 quote column 1 releases iff dedented]",
+            "  FAIL [I437 footnote column 1 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-blanket-indent/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "one space outside item": true
+          },
+          "all_failing_lines": [
+            "  - [I437 one space outside item] expected findings/exempt (0, 1), got 1/0: ['page11.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 padding outside] expected findings/exempt (0, 1), got 1/0: ['page18.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered outside] expected findings/exempt (0, 1), got 1/0: ['page20.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 marker indent outside] expected findings/exempt (0, 1), got 1/0: ['page21.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 quote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page192.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 footnote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page195.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-strict-column",
+      "before": "_indent_columns(line) >= context[0]",
+      "after": "_indent_columns(line) > context[0]",
+      "required_arms": [
+        "two spaces"
+      ],
+      "mutated_sha256": "1b1cb4bb9acf9ecab5355a68fe034dc1775959f2e92e76689a85d973ebc1aca3",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-strict-column/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 two spaces]",
+            "  FAIL [I437 star item]",
+            "  FAIL [I437 ordered item]",
+            "  FAIL [I437 two paragraphs]",
+            "  FAIL [I437 task item]",
+            "  FAIL [I437 interrupting item]",
+            "  FAIL [I437 bold tag]",
+            "  FAIL [I437 two blank lines]",
+            "  FAIL [I437 plus item]",
+            "  FAIL [I437 custom tag]",
+            "  FAIL [I437 padding inside]",
+            "  FAIL [I437 marker indent inside]",
+            "  FAIL [I437 code padding uses one]",
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 nested item retains outer column]",
+            "  FAIL [I437 lazy line retains item]",
+            "  FAIL [I437 R238 D06]",
+            "  FAIL [I437 resumed tag column 0 open]",
+            "  FAIL [I437 resumed tag column 0 open swallows fence]",
+            "  FAIL [I437 resumed tag column 0 open swallows pre]",
+            "  FAIL [I437 resumed tag column 0 close]",
+            "  FAIL [I437 resumed tag column 0 close swallows fence]",
+            "  FAIL [I437 resumed tag column 0 close swallows pre]",
+            "  FAIL [I437 resumed tag column 0 attribute]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 0 attribute swallows pre]",
+            "  FAIL [I437 resumed tag column 1 open]",
+            "  FAIL [I437 resumed tag column 1 open swallows fence]",
+            "  FAIL [I437 resumed tag column 1 open swallows pre]",
+            "  FAIL [I437 resumed tag column 1 close]",
+            "  FAIL [I437 resumed tag column 1 close swallows fence]",
+            "  FAIL [I437 resumed tag column 1 close swallows pre]",
+            "  FAIL [I437 resumed tag column 1 attribute]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows fence]",
+            "  FAIL [I437 resumed tag column 1 attribute swallows pre]",
+            "  FAIL [I437 ordered below column]",
+            "  FAIL [I437 empty gains paragraph]",
+            "  FAIL [I437 quote column 2 releases iff dedented]",
+            "  FAIL [I437 footnote column 2 releases iff dedented]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-strict-column/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "two spaces": true
+          },
+          "all_failing_lines": [
+            "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two spaces] absent base heading was not the refusal reason",
+            "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 star item] absent base heading was not the refusal reason",
+            "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered item] absent base heading was not the refusal reason",
+            "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two paragraphs] absent base heading was not the refusal reason",
+            "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 task item] absent base heading was not the refusal reason",
+            "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 interrupting item] absent base heading was not the refusal reason",
+            "  - [I437 bold tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 bold tag] absent base heading was not the refusal reason",
+            "  - [I437 two blank lines] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 two blank lines] absent base heading was not the refusal reason",
+            "  - [I437 plus item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 plus item] absent base heading was not the refusal reason",
+            "  - [I437 custom tag] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 custom tag] absent base heading was not the refusal reason",
+            "  - [I437 padding inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 padding inside] absent base heading was not the refusal reason",
+            "  - [I437 marker indent inside] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 marker indent inside] absent base heading was not the refusal reason",
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason",
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+            "  - [I437 R238 D06] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 D06] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page123.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page125.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page127.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page129.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 0 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 0 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page131.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 0 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page133.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 open] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 open swallows fence] expected findings/exempt (0, 1), got 1/0: ['page135.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 open swallows pre] expected findings/exempt (0, 1), got 1/0: ['page137.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 close] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 close swallows fence] expected findings/exempt (0, 1), got 1/0: ['page139.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 close swallows pre] expected findings/exempt (0, 1), got 1/0: ['page141.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 resumed tag column 1 attribute] absent base heading was not the refusal reason",
+            "  - [I437 resumed tag column 1 attribute swallows fence] expected findings/exempt (0, 1), got 1/0: ['page143.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 resumed tag column 1 attribute swallows pre] expected findings/exempt (0, 1), got 1/0: ['page145.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered below column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered below column] absent base heading was not the refusal reason",
+            "  - [I437 empty gains paragraph] expected findings/exempt (0, 1), got 1/0: ['page186.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 quote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 quote column 2 releases iff dedented] absent base heading was not the refusal reason",
+            "  - [I437 footnote column 2 releases iff dedented] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 footnote column 2 releases iff dedented] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-fixed-column",
+      "before": "column = len(prefix.expandtabs(4))",
+      "after": "column = 2",
+      "required_arms": [
+        "ordered outside"
+      ],
+      "mutated_sha256": "69101fe2af568e631b29c4e74dfcd3ee5293cacc7b99aa477ca92db11b343e00",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-fixed-column/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "ordered outside": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 padding outside]",
+            "  FAIL [I437 ordered outside]",
+            "  FAIL [I437 marker indent outside]",
+            "  FAIL [I437 four padding columns]",
+            "  FAIL [I437 tab padding columns]",
+            "  FAIL [I437 sibling replaces column]",
+            "  FAIL [I437 ordered below column]",
+            "  FAIL [I437 sibling replaces boundary]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-fixed-column/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "ordered outside": true
+          },
+          "all_failing_lines": [
+            "  - [I437 padding outside] expected findings/exempt (0, 1), got 1/0: ['page18.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered outside] expected findings/exempt (0, 1), got 1/0: ['page20.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 marker indent outside] expected findings/exempt (0, 1), got 1/0: ['page21.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 ordered below column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 ordered below column] absent base heading was not the refusal reason",
+            "  - [I437 sibling replaces boundary] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 sibling replaces boundary] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-characters-not-columns",
+      "before": "column = len(prefix.expandtabs(4))",
+      "after": "column = len(prefix)",
+      "required_arms": [
+        "tab padding columns"
+      ],
+      "mutated_sha256": "fbbe24f5732fb0bfaa293f8840daf4bbdbf20ff2f5c0c63ac64474d27861a811",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-characters-not-columns/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "tab padding columns": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 tab padding columns]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-characters-not-columns/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "tab padding columns": true
+          },
+          "all_failing_lines": [
+            "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-no-code-padding",
+      "before": "or column - marker_end > 4",
+      "after": "or False",
+      "required_arms": [
+        "code padding uses one"
+      ],
+      "mutated_sha256": "e445315c69495e4648f386519ac6986c418a7a701bad89d73d26dfaf70cc2e5b",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-code-padding/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "code padding uses one": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 code padding uses one]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-code-padding/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "code padding uses one": true
+          },
+          "all_failing_lines": [
+            "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 code padding uses one] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-four-is-code-padding",
+      "before": "column - marker_end > 4",
+      "after": "column - marker_end >= 4",
+      "required_arms": [
+        "four padding columns"
+      ],
+      "mutated_sha256": "9bb3714dc6843915b1e4d8a24fc15dd57c37567a47d219c21946521b0cd77733",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-four-is-code-padding/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "four padding columns": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 four padding columns]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-four-is-code-padding/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "four padding columns": true
+          },
+          "all_failing_lines": [
+            "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-empty-never-ends",
+      "before": "return after, None if context and context[1] else context",
+      "after": "return after, context",
+      "required_arms": [
+        "empty item ends at blank"
+      ],
+      "mutated_sha256": "e5c5c177e447152a630429a74b0d64347fe9c3e803043b9c230b8f991e6f45cd",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-never-ends/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "empty item ends at blank": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 empty item ends at blank]",
+            "  FAIL [I437 empty padded item ends at blank]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-never-ends/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "empty item ends at blank": true
+          },
+          "all_failing_lines": [
+            "  - [I437 empty item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page26.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 empty padded item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page27.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-empty-stays-empty",
+      "before": "(context[0], False)",
+      "after": "context",
+      "required_arms": [
+        "empty item gains content"
+      ],
+      "mutated_sha256": "3064ae4095c71e6dca40b1c480d7247af868cb6021a7bf2ef8f63831a13bdf7a",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-stays-empty/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "empty item gains content": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 empty item gains content]",
+            "  FAIL [I437 empty item ignores padding]",
+            "  FAIL [I437 empty gains paragraph]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-stays-empty/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "empty item gains content": true
+          },
+          "all_failing_lines": [
+            "  - [I437 empty item gains content] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item gains content] absent base heading was not the refusal reason",
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+            "  - [I437 empty gains paragraph] expected findings/exempt (0, 1), got 1/0: ['page186.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-empty-uses-padding",
+      "before": "if not item.group(2) or column - marker_end > 4:",
+      "after": "if column - marker_end > 4:",
+      "required_arms": [
+        "empty item ignores padding"
+      ],
+      "mutated_sha256": "ee55fdad8132c21732e6af5f30b9fcb8ee128526541c830d4340a2e35acaf370",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-uses-padding/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "empty item ignores padding": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 empty item ignores padding]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-empty-uses-padding/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "empty item ignores padding": true
+          },
+          "all_failing_lines": [
+            "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 empty item ignores padding] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-lose-outer-column",
+      "before": "if context and _indent_columns(line) >= context[0]:",
+      "after": "if context and _indent_columns(line) >= context[0] and not LIST_ITEM_RE.match(line):",
+      "required_arms": [
+        "nested item retains outer column"
+      ],
+      "mutated_sha256": "3a70af4c9540837806b9ca579a7c277322cebd64828f3fcb98dab98a9812a8a0",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-lose-outer-column/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "nested item retains outer column": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 nested item retains outer column]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-lose-outer-column/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "nested item retains outer column": true
+          },
+          "all_failing_lines": [
+            "  - [I437 nested item retains outer column] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 nested item retains outer column] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-stale-sibling-column",
+      "before": "return after, (column, not bool(item.group(2)))",
+      "after": "return after, context or (column, not bool(item.group(2)))",
+      "required_arms": [
+        "sibling replaces column"
+      ],
+      "mutated_sha256": "0555f302fc02380853556cf4e1851ee487a6ad9832b9bdf9380817ce85275822",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-stale-sibling-column/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "sibling replaces column": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 sibling replaces column]",
+            "  FAIL [I437 sibling replaces boundary]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-stale-sibling-column/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "sibling replaces column": true
+          },
+          "all_failing_lines": [
+            "  - [I437 sibling replaces column] expected findings/exempt (0, 1), got 1/0: ['page31.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 sibling replaces boundary] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 sibling replaces boundary] absent base heading was not the refusal reason"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-stale-context",
+      "before": "    return after, None\n\n\ndef _comment_after",
+      "after": "    return after, context\n\n\ndef _comment_after",
+      "required_arms": [
+        "fresh dedented paragraph ends item"
+      ],
+      "mutated_sha256": "3773c2d8ea5ed99952428d561b20ba5101d1f5f7efb0141c3e5a3639968bbb6b",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-stale-context/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "fresh dedented paragraph ends item": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 fresh dedented paragraph ends item]",
+            "  FAIL [I437 heading ends item]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-stale-context/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "fresh dedented paragraph ends item": true
+          },
+          "all_failing_lines": [
+            "  - [I437 fresh dedented paragraph ends item] expected findings/exempt (0, 1), got 1/0: ['page32.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 heading ends item] expected findings/exempt (0, 1), got 1/0: ['page34.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-no-lazy-hold",
+      "before": "if para == HELD and after == HELD:",
+      "after": "if False:",
+      "required_arms": [
+        "lazy line retains item"
+      ],
+      "mutated_sha256": "5e72b661188ce004df6c6875e74e066189ae73d88e0bdc7e99714296e94197e7",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-lazy-hold/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "lazy line retains item": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 lazy line retains item]",
+            "  FAIL [I437 R238 C07]",
+            "  FAIL [I437 lazy resumed paragraph]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-lazy-hold/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "lazy line retains item": true
+          },
+          "all_failing_lines": [
+            "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+            "  - [I437 R238 C07] expected findings/exempt (1, 0), got 0/1: []",
+            "  - [I437 R238 C07] absent base heading was not the refusal reason",
+            "  - [I437 lazy resumed paragraph] expected findings/exempt (0, 1), got 1/0: ['page188.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-markers-in-blocks",
+      "before": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+      "after": "LIST_ITEM_RE.match(line)",
+      "required_arms": [
+        "R237 fenced-marker-indented-closer",
+        "R237 comment-marker-indented-closer",
+        "R237 HTML-marker-indented-closer"
+      ],
+      "mutated_sha256": "3bc473bfbe84869d374c16fddfc0a59e87ef8f8b4025787addabe287242fe1f1",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-markers-in-blocks/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "R237 fenced-marker-indented-closer": true,
+            "R237 comment-marker-indented-closer": true,
+            "R237 HTML-marker-indented-closer": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 thematic break is no item]",
+            "  FAIL [I437 noninterrupting ordinal is no item]",
+            "  FAIL [I437 R237 fenced-marker-indented-closer]",
+            "  FAIL [I437 R237 comment-marker-indented-closer]",
+            "  FAIL [I437 R237 HTML-marker-indented-closer]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-markers-in-blocks/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "R237 fenced-marker-indented-closer": true,
+            "R237 comment-marker-indented-closer": true,
+            "R237 HTML-marker-indented-closer": true
+          },
+          "all_failing_lines": [
+            "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R237 fenced-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page59.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R237 comment-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page60.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 R237 HTML-marker-indented-closer] expected findings/exempt (0, 1), got 1/0: ['page61.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prior-no-ordinal-interruption-check",
+      "before": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+      "after": "LIST_ITEM_RE.match(line) if label == TEXT else None",
+      "required_arms": [
+        "noninterrupting ordinal is no item"
+      ],
+      "mutated_sha256": "813b421c60b20e48ba95163e08d43b637c6bdd1118c89ec7210aef19e3a278ed",
+      "consumers": [
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-ordinal-interruption-check/gen_toc.py",
+            "--selftest"
+          ],
+          "exit": 1,
+          "required_arm_failures": {
+            "noninterrupting ordinal is no item": true
+          },
+          "all_failing_lines": [
+            "  FAIL [I437 thematic break is no item]",
+            "  FAIL [I437 noninterrupting ordinal is no item]"
+          ]
+        },
+        {
+          "argv": [
+            "rtk",
+            "proxy",
+            "python3",
+            "-B",
+            "$WORKSPACE_HOME/milan-fpga-management/2026-09-22/437-correction/mutants/prior-no-ordinal-interruption-check/check_em_dash.py",
+            "--selftest"
+          ],
+          "exit": 2,
+          "required_arm_failures": {
+            "noninterrupting ordinal is no item": true
+          },
+          "all_failing_lines": [
+            "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+            "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+          ]
+        }
+      ]
+    }
+  ]
+}

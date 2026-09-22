@@ -1,0 +1,987 @@
+[
+  {
+    "id": "two spaces",
+    "page": "- item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "three spaces",
+    "page": "- item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "star item",
+    "page": "* item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "ordered item",
+    "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "two paragraphs",
+    "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "task item",
+    "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "interrupting item",
+    "page": "text\n- item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "bold tag",
+    "page": "- item\n\n  text\n<b>\n## Old\n</b>\n",
+    "visible": false
+  },
+  {
+    "id": "two blank lines",
+    "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "plus item",
+    "page": "+ item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "custom tag",
+    "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n",
+    "visible": false
+  },
+  {
+    "id": "one space outside item",
+    "page": "- item\n\n text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "four spaces",
+    "page": "- item\n\n    text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "quote boundary",
+    "page": "> item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "footnote two spaces",
+    "page": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "footnote four spaces",
+    "page": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "tab continuation",
+    "page": "- item\n\n\ttext\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "no item",
+    "page": "plain\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "padding outside",
+    "page": "-  item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "padding inside",
+    "page": "-  item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "ordered outside",
+    "page": "1. item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "marker indent outside",
+    "page": " - item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "marker indent inside",
+    "page": " - item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "code padding uses one",
+    "page": "-     code\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "four padding columns",
+    "page": "-    item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "tab padding columns",
+    "page": "- \titem\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "empty item ends at blank",
+    "page": "-\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "empty padded item ends at blank",
+    "page": "-   \n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "empty item gains content",
+    "page": "-\n  first\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "empty item ignores padding",
+    "page": "-   \n  first\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "nested item retains outer column",
+    "page": "- item\n  - nested\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "sibling replaces column",
+    "page": "- item\n\n1. item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "fresh dedented paragraph ends item",
+    "page": "- item\n\noutside\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "lazy line retains item",
+    "page": "- item\nlazy\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": false
+  },
+  {
+    "id": "heading ends item",
+    "page": "- item\n\n## Outside\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "fenced marker is inert",
+    "page": "```\n- item\n```\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "commented marker is inert",
+    "page": "<!--\n- item\n-->\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "HTML marker is inert",
+    "page": "<div>\n- item\n</div>\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "code marker is inert",
+    "page": "    - item\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "thematic break is no item",
+    "page": "- - -\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "noninterrupting ordinal is no item",
+    "page": "text\n2. item\n\n   text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "setext dash is no item",
+    "page": "text\n-\n\n  text\n<span>\n## Old\n</span>\n",
+    "visible": true
+  },
+  {
+    "id": "R238 C01",
+    "page": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 C02",
+    "page": "- item\n\n  text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 C03",
+    "page": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 C04",
+    "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 C05",
+    "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 C06",
+    "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 C07",
+    "page": "- item\n\n  text\nlazy\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 C08",
+    "page": "1. item\n\n   text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 P01",
+    "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 P04",
+    "page": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 D01",
+    "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 D02",
+    "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 D03",
+    "page": "- item\n> quote\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 D04",
+    "page": "- item\n[^1]: note\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 D05",
+    "page": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R238 D06",
+    "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R238 D07",
+    "page": "-   item\n  > quote\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "R237 fenced-marker-indented-closer",
+    "page": "```\n- fake item\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R237 comment-marker-indented-closer",
+    "page": "<!--\n- fake item\n  -->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "R237 HTML-marker-indented-closer",
+    "page": "<div>\n- fake item\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 open",
+    "page": "- item\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 0 open swallows fence",
+    "page": "- item\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 open swallows closed comment",
+    "page": "- item\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 open swallows pre",
+    "page": "- item\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 close",
+    "page": "- item\n</span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 0 close swallows fence",
+    "page": "- item\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 close swallows closed comment",
+    "page": "- item\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 close swallows pre",
+    "page": "- item\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 attribute",
+    "page": "- item\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 0 attribute swallows fence",
+    "page": "- item\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 attribute swallows closed comment",
+    "page": "- item\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 0 attribute swallows pre",
+    "page": "- item\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 open",
+    "page": "- item\n <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 1 open swallows fence",
+    "page": "- item\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 open swallows closed comment",
+    "page": "- item\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 open swallows pre",
+    "page": "- item\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 close",
+    "page": "- item\n </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 1 close swallows fence",
+    "page": "- item\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 close swallows closed comment",
+    "page": "- item\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 close swallows pre",
+    "page": "- item\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 attribute",
+    "page": "- item\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 1 attribute swallows fence",
+    "page": "- item\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 attribute swallows closed comment",
+    "page": "- item\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 1 attribute swallows pre",
+    "page": "- item\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 2 open",
+    "page": "- item\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 2 open then fence",
+    "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 open then comment",
+    "page": "- item\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 open then pre",
+    "page": "- item\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 close",
+    "page": "- item\n  </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 2 close then fence",
+    "page": "- item\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 close then comment",
+    "page": "- item\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 close then pre",
+    "page": "- item\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 attribute",
+    "page": "- item\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 2 attribute then fence",
+    "page": "- item\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 attribute then comment",
+    "page": "- item\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 2 attribute then pre",
+    "page": "- item\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 open",
+    "page": "- item\n   <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 3 open then fence",
+    "page": "- item\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 open then comment",
+    "page": "- item\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 open then pre",
+    "page": "- item\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 close",
+    "page": "- item\n   </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 3 close then fence",
+    "page": "- item\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 close then comment",
+    "page": "- item\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 close then pre",
+    "page": "- item\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 attribute",
+    "page": "- item\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 3 attribute then fence",
+    "page": "- item\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 attribute then comment",
+    "page": "- item\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 3 attribute then pre",
+    "page": "- item\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 open",
+    "page": "- item\n    <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 4 open then fence",
+    "page": "- item\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 open then comment",
+    "page": "- item\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 open then pre",
+    "page": "- item\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 close",
+    "page": "- item\n    </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 4 close then fence",
+    "page": "- item\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 close then comment",
+    "page": "- item\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 close then pre",
+    "page": "- item\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 attribute",
+    "page": "- item\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "first tag column 4 attribute then fence",
+    "page": "- item\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 attribute then comment",
+    "page": "- item\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "first tag column 4 attribute then pre",
+    "page": "- item\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 0 open",
+    "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 0 open swallows fence",
+    "page": "- item\n\n  text\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 open swallows closed comment",
+    "page": "- item\n\n  text\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 open swallows pre",
+    "page": "- item\n\n  text\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 close",
+    "page": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 0 close swallows fence",
+    "page": "- item\n\n  text\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 close swallows closed comment",
+    "page": "- item\n\n  text\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 close swallows pre",
+    "page": "- item\n\n  text\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 attribute",
+    "page": "- item\n\n  text\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows fence",
+    "page": "- item\n\n  text\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows closed comment",
+    "page": "- item\n\n  text\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 0 attribute swallows pre",
+    "page": "- item\n\n  text\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 open",
+    "page": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 1 open swallows fence",
+    "page": "- item\n\n  text\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 open swallows closed comment",
+    "page": "- item\n\n  text\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 open swallows pre",
+    "page": "- item\n\n  text\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 close",
+    "page": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 1 close swallows fence",
+    "page": "- item\n\n  text\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 close swallows closed comment",
+    "page": "- item\n\n  text\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 close swallows pre",
+    "page": "- item\n\n  text\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 attribute",
+    "page": "- item\n\n  text\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows fence",
+    "page": "- item\n\n  text\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows closed comment",
+    "page": "- item\n\n  text\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 1 attribute swallows pre",
+    "page": "- item\n\n  text\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 2 open",
+    "page": "- item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 2 open then fence",
+    "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 open then comment",
+    "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 open then pre",
+    "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 close",
+    "page": "- item\n\n  text\n  </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 2 close then fence",
+    "page": "- item\n\n  text\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 close then comment",
+    "page": "- item\n\n  text\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 close then pre",
+    "page": "- item\n\n  text\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 attribute",
+    "page": "- item\n\n  text\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 2 attribute then fence",
+    "page": "- item\n\n  text\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 attribute then comment",
+    "page": "- item\n\n  text\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 2 attribute then pre",
+    "page": "- item\n\n  text\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 open",
+    "page": "- item\n\n  text\n   <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 3 open then fence",
+    "page": "- item\n\n  text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 open then comment",
+    "page": "- item\n\n  text\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 open then pre",
+    "page": "- item\n\n  text\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 close",
+    "page": "- item\n\n  text\n   </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 3 close then fence",
+    "page": "- item\n\n  text\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 close then comment",
+    "page": "- item\n\n  text\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 close then pre",
+    "page": "- item\n\n  text\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 attribute",
+    "page": "- item\n\n  text\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 3 attribute then fence",
+    "page": "- item\n\n  text\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 attribute then comment",
+    "page": "- item\n\n  text\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 3 attribute then pre",
+    "page": "- item\n\n  text\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 open",
+    "page": "- item\n\n  text\n    <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 4 open then fence",
+    "page": "- item\n\n  text\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 open then comment",
+    "page": "- item\n\n  text\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 open then pre",
+    "page": "- item\n\n  text\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 close",
+    "page": "- item\n\n  text\n    </span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 4 close then fence",
+    "page": "- item\n\n  text\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 close then comment",
+    "page": "- item\n\n  text\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 close then pre",
+    "page": "- item\n\n  text\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 attribute",
+    "page": "- item\n\n  text\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "resumed tag column 4 attribute then fence",
+    "page": "- item\n\n  text\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 attribute then comment",
+    "page": "- item\n\n  text\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "resumed tag column 4 attribute then pre",
+    "page": "- item\n\n  text\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "ordered first",
+    "page": "1. item\n   <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "ordered below column",
+    "page": "1. item\n\n   text\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "star first",
+    "page": "* item\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "plus resumed",
+    "page": "+ item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "empty gains paragraph",
+    "page": "-\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "empty resumed paragraph",
+    "page": "-\n  text\n\n  more\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "lazy resumed paragraph",
+    "page": "- item\n\n  text\nlazy\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "sibling first paragraph",
+    "page": "- item\n1. next\n   <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "sibling replaces boundary",
+    "page": "- item\n1. next\n  <span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "quote column 0 releases iff dedented",
+    "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "quote column 1 releases iff dedented",
+    "page": "- item\n > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "quote column 2 releases iff dedented",
+    "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  },
+  {
+    "id": "footnote column 0 releases iff dedented",
+    "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "footnote column 1 releases iff dedented",
+    "page": "- item\n [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": true
+  },
+  {
+    "id": "footnote column 2 releases iff dedented",
+    "page": "- item\n  [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+    "visible": false
+  }
+]
