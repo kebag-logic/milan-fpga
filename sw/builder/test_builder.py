@@ -246,6 +246,12 @@ Gates (gaps item 4, generator round):
       the tap's 875 ns unevenly and inside 10 ns of it, and recalibrating
       moves neither `entity_model_id` nor the AEM overlay: a correction is
       a timestamp fact, not descriptor content.
+  36a. AUDIO_UNIT RATES FIT THE PROCESSOR WALK (issue #478): a distinct
+      ninth entry and duplicate entries are refused by cause, while eight
+      distinct entries pass the clocking loader unchanged. Defaults and
+      order survive, and all five shipping images retain their rate lists.
+      The hand-built pp_shadow AU_RATES_C values and declared length match
+      the shipping config; independent value/length drift controls fail.
   37. THE TWO FIELDS THAT DESCRIBE THE DEVICE ARE TRUE OF IT (gate 37,
       issues #462 and #463): read back out of the packed image, every
       tracked config's AVB_INTERFACE `port_number` is the `OUR_PORTNUM_C`
@@ -23515,6 +23521,120 @@ def test_gptp_latency_corrections_are_declared_and_carried() -> None:
         moved.unlink()
 
 
+# ================================================================ gate 36a ===
+def test_audio_unit_rates_loader_contract() -> None:
+    """Gate 36a: L10's eight-entry walk and duplicate refusals are independent."""
+    base = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    # L10 of protocol-processor/docs/architecture/07_memory_maps.md section
+    # 3.1 says EIGHT. Do not import the implementation's maximum here: a
+    # changed bound must fail. These are clocking-loader inputs, not a claim
+    # that the stream-format builder or runtime fabric supports these rates.
+    eight = [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]
+    base["clocking"]["audio_unit_rates_hz"] = eight
+    assert eb._load_clocking(base, "gate 36a")["audio_unit_rates_hz"] == eight, \
+        "gate 36a: eight distinct entries must load in declared order"
+    for current in (48000, 96000, 192000):
+        base["clocking"].pop("audio_unit_rates_hz", None)
+        base["clocking"]["sampling_rate_hz"] = current
+        loaded = eb._load_clocking(base, "gate 36a")
+        assert loaded["audio_unit_rates_hz"] == [current], \
+            "gate 36a: omitted rate list must default to the current rate"
+
+    cases = [
+        ("distinct ninth entry", eight + [22050], ("8", "walk", "L10")),
+        ("duplicate", [48000, 96000, 48000], ("duplicate",)),
+        ("duplicate after integer conversion", [48000, "48000"],
+         ("duplicate",)),
+        ("empty list", [], ("sampling_rate_hz", "must appear")),
+        ("missing current rate", [96000, 192000],
+         ("sampling_rate_hz", "must appear")),
+    ]
+    for label, rates, reason in cases:
+        path = _variant(CONFIGS["arty_current"],
+                        lambda c, r=rates: c["clocking"].update(
+                            audio_unit_rates_hz=r))
+        try:
+            try:
+                eb.load_config(path)
+            except eb.ConfigError as exc:
+                message = str(exc)
+                assert "audio_unit_rates_hz" in message and all(
+                    token in message for token in reason), \
+                    f"gate 36a: {label} refused for another cause: {message}"
+            else:
+                raise AssertionError(f"gate 36a: {label} accepted")
+        finally:
+            path.unlink()
+    print("  [gate 36a] eight distinct entries and defaults pass; distinct "
+          "ninth, duplicates, empty and missing-current lists refused by cause")
+
+
+def test_audio_unit_shipping_rates() -> None:
+    """Gate 36a: every shipped AUDIO_UNIT retains its advertised rate words."""
+    for name, path in CONFIGS.items():
+        want = [48000, 96000, 192000] if name == "arty_current" else [48000]
+        cfg = eb.load_config(path)
+        assert cfg["clocking"]["audio_unit_rates_hz"] == want, \
+            f"gate 36a: {name} shipping rate declaration changed"
+        overlay = eb.emit_aem_overlay(cfg)
+        desc = image_descriptor(
+            eb._entity_model_image(cfg, overlay)["aem_desc.bin"], 0x0002)
+        offset, count = struct.unpack_from(">HH", desc, 140)
+        assert offset == 144 and count == len(want), \
+            f"gate 36a: {name} AUDIO_UNIT rate offset/count changed"
+        got = list(struct.unpack_from(f">{count}I", desc, offset))
+        assert got == want, f"gate 36a: {name} image rates {got} != {want}"
+        print(f"  [gate 36a] {name}: image advertises {got}, offset {offset}")
+
+
+def _assert_pp_shadow_audio_unit_rates(source: str, rates: list[int]) -> None:
+    """Compare the deliberate literal C++ array with its YAML authority."""
+    code = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
+    declarations = re.findall(
+        r"\bstatic\s+constexpr\s+uint32_t\s+AU_RATES_C\s*"
+        r"\[\s*(\d+)\s*\]\s*=\s*\{([^{}]*)\}\s*;", code)
+    assert len(declarations) == 1, \
+        "gate 36a: expected one literal AU_RATES_C declaration"
+    length, body = declarations[0]
+    assert int(length) == len(rates), \
+        f"gate 36a: AU_RATES_C declared length {length} != {len(rates)}"
+    words = body.strip().rstrip(",").split(",")
+    assert all(re.fullmatch(r"\s*\d+[uU]?\s*", word) for word in words), \
+        "gate 36a: AU_RATES_C must contain literal rate words"
+    got = [int(word.strip().rstrip("uU")) for word in words]
+    assert got == rates, f"gate 36a: AU_RATES_C values {got} != {rates}"
+
+
+def test_pp_shadow_audio_unit_rates_match_config() -> None:
+    """Gate 36a: pristine hand-built rates pass; independent drift fails."""
+    source = (ROOT / "tb/verilator/pp_shadow/sim_main.cpp").read_text()
+    cfg = yaml.safe_load(CONFIGS["arty_current"].read_text())
+    _assert_pp_shadow_audio_unit_rates(
+        source, cfg["clocking"]["audio_unit_rates_hz"])
+    # Independent fixtures exercise each comparison, including C++'s legal
+    # implicit zero fill. They do not derive their expectations from parsing.
+    pristine = "static constexpr uint32_t AU_RATES_C[3] = {48000u, 96000u, 192000u};"
+    want = [48000, 96000, 192000]
+    _assert_pp_shadow_audio_unit_rates(pristine, want)
+    mutants = [
+        (pristine.replace("96000u", "88200u"), "values"),
+        (pristine.replace("48000u, 96000u", "96000u, 48000u"), "values"),
+        (pristine.replace("[3]", "[4]"), "declared length"),
+        (pristine.replace(", 192000u", ""), "values"),
+        ("// " + pristine, "declaration"),
+    ]
+    for mutant, reason in mutants:
+        try:
+            _assert_pp_shadow_audio_unit_rates(mutant, want)
+        except AssertionError as exc:
+            assert reason in str(exc), \
+                f"gate 36a: pp_shadow drift refused for another cause: {exc}"
+        else:
+            raise AssertionError(f"gate 36a: pp_shadow {reason} drift accepted")
+    print("  [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent "
+          "value/order/length/initializer/declaration controls refused")
+
+
 #: Gate 37's two fields, each as (descriptor type, first octet, width): the
 #: AVB_INTERFACE port_number of 1722.1-2021 Table 7-13 and the CONTROL
 #: reset_time of Table 7-28.  Named once, because the gate reads them out of
@@ -23834,6 +23954,9 @@ if __name__ == "__main__":
                test_builder_doc_key_map,
                test_boot_policy_follows_the_declaration,
                test_gptp_latency_corrections_are_declared_and_carried,
+               test_audio_unit_rates_loader_contract,
+               test_audio_unit_shipping_rates,
+               test_pp_shadow_audio_unit_rates_match_config,
                test_descriptor_fields_name_this_device):
         print(f"{fn.__name__}:")
         fn()
