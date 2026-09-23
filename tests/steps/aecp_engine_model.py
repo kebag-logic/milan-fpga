@@ -73,7 +73,21 @@ DT_STREAM_INPUT = 0x0005
 
 #! Milan v1.2 vendor-unique protocol_id, on the wire at AECPDU @22..@27
 MILAN_PROTOCOL_ID = bytes((0x00, 0x1B, 0xC5, 0x0A, 0xC1, 0x00))
+#! Milan v1.2 Table 5.18, in the @28..@29 word whose top bit is the r field
+#! Section 5.4.3.2.2 requires to be zero
 MVU_GET_MILAN_INFO = 0x0000
+#! Milan v1.2 Figure 5.3: protocol_id tail, r + command_type, reserved
+MVU_CMD_PLD = 8
+#! the three Figure 5.4 quadlets this device reports (Milan v1.2 5.4.4.1).
+#! protocol_version: "A PAAD shall set the value of the protocol_version field
+#! in the GET_MILAN_INFO response to 1". features_flags: neither Table 5.20
+#! bit, since REDUNDANCY claims Section 8 on a single-interface PAAD
+#! (FR-MVU-03) and TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING claims map changes
+#! on a running Stream Output, which is refused. certification_version: 0
+#! for a PAAD-AE that has passed no Milan certification.
+MILAN_PROTOCOL_VERSION = 1
+MILAN_FEATURES_FLAGS = 0x00000000
+MILAN_CERTIFICATION_VERSION = 0x00000000
 
 # ---- geometry (KL_aecp_engine.sv localparams) ------------------------------
 ETH_HDR = 14                       # ETH_HDR_C
@@ -269,21 +283,27 @@ class AecpEngineModel:
 
     READ_DESCRIPTOR carrying its operands runs the descriptor microprogram,
     IDENTIFY_NOTIFICATION and a truncated READ_DESCRIPTOR run the
-    BAD_ARGUMENTS echo, declared commands enter the served inventory, and the
-    remainder runs the NOT_IMPLEMENTED echo. A response arriving as input and
-    a command for another entity are freed without a reply.
+    BAD_ARGUMENTS echo, declared commands enter the served inventory, a
+    whole Milan MVU command whose command_type is declared served runs its
+    MVU program, and the remainder runs the NOT_IMPLEMENTED echo. A response
+    arriving as input and a command for another entity are freed without a
+    reply.
 
     `served` is the opcode inventory this engine answers for real, keyed by
     opcode - `aecp_engine_steps.SERVED`. It is a CONSTRUCTOR ARGUMENT and not
     a module constant here on purpose: that table is the suite's declaration,
     gated against the engine RTL by the steps and against the feature ledger
     by scripts/check_feature_status.py, so it lives where those readers look
-    and the mechanism is handed it.
+    and the mechanism is handed it. `mvu_served` is the same kind of
+    declaration for the Milan MVU command types, `aecp_engine_steps.SERVED_MVU`,
+    gated against the engine's MVU constants by the steps. It has no default,
+    so a caller cannot build an engine that drops GET_MILAN_INFO by omission.
     """
 
     def __init__(self, served, image=None, entity_id=ENTITY_ID,
-                 own_mac=OWN_MAC):
+                 own_mac=OWN_MAC, *, mvu_served):
         self.served = served
+        self.mvu_served = mvu_served
         self.image = image if image is not None else DescriptorImage()
         self.entity_id = entity_id
         self.own_mac = own_mac
@@ -362,6 +382,12 @@ class AecpEngineModel:
             #! PARTITION: a served opcode must not fall to the
             #! NOT_IMPLEMENTED echo, and it is graded as SERVED, not guessed.
             program, echo = "SERVED", False
+        elif _mvu_command_type(msg_type, raw_ct, cmd_payload) in self.mvu_served:
+            #! Milan v1.2 5.4.4: an MVU command the engine answers for real.
+            #! Anything else with message_type 6 - a foreign protocol_id, a
+            #! command_type not served, a truncated command - falls through
+            #! to the NOT_IMPLEMENTED echo below, as it does on the engine.
+            program, echo = "MVU", False
         else:
             program, echo = "NOTIMPL", True
 
@@ -411,7 +437,33 @@ class AecpEngineModel:
                            else ST_NOT_SUPPORTED)
                 return verdict, 16
             return row["verdict"], (12 if row["cdl"] is None else row["cdl"])
+        if program == "MVU":
+            #! `desc_ty` is the @28..@29 word, which on an MVU command is
+            #! r + command_type: the register the engine compares too
+            return self._mvu_program(buf, desc_ty)
         return self._read_descriptor(buf, cfg_ix, desc_ty, desc_ix)
+
+    @staticmethod
+    def _mvu_program(buf, command_type):
+        """E_MVUINFO - the Milan v1.2 Figure 5.4 GET_MILAN_INFO response.
+
+        The payload from @24 is the protocol_id tail, r + command_type,
+        reserved and the three quadlets: 20 octets, so cdl 32.  Every field is
+        RESTATED rather than left from the echo pre-load, so a command's
+        reserved field never reaches the response (5.4.4.1 has the sender
+        zero it).  GET_MILAN_INFO is the only MVU program the engine has; a
+        served declaration naming another command_type fails here loudly
+        instead of answering with a body nobody modelled.
+        """
+        assert command_type == MVU_GET_MILAN_INFO, (
+            "SERVED_MVU declares MVU command_type %#06x and this model has no "
+            "program for it: model its response before declaring it served"
+            % command_type)
+        body = MILAN_PROTOCOL_ID[2:6] + struct.pack(
+            ">HHIII", MVU_GET_MILAN_INFO, 0, MILAN_PROTOCOL_VERSION,
+            MILAN_FEATURES_FLAGS, MILAN_CERTIFICATION_VERSION)
+        buf[12:12 + len(body)] = body
+        return ST_SUCCESS, 12 + len(body)
 
     def _read_descriptor(self, buf, cfg_ix, desc_ty, desc_ix):
         """E_RDESC.  The configuration range check runs BEFORE the locate, so
@@ -484,6 +536,22 @@ def _be16(buf, off):
     hi = buf[off] if off < len(buf) else 0
     lo = buf[off + 1] if off + 1 < len(buf) else 0
     return (hi << 8) | lo
+
+
+def _mvu_command_type(msg_type, raw_ct, cmd_payload):
+    """The @28..@29 word of a whole Milan MVU command, None for anything else.
+
+    The engine's A_PLD-exit sub-decode (`mvu_get_milan_info_w`): message_type
+    VENDOR_UNIQUE_COMMAND, all 48 bits of the Milan protocol_id (5.4.3.2.1),
+    and the whole Figure 5.3 payload.  The word keeps its r bit, so a command
+    with r = 1 names no Table 5.18 command_type (5.4.3.2.2 requires r = 0).
+    The reserved field at @30..@31 is not read: the receiver ignores it.
+    """
+    if msg_type != MT_VU_COMMAND or len(cmd_payload) < MVU_CMD_PLD:
+        return None
+    if raw_ct + cmd_payload[0:4] != MILAN_PROTOCOL_ID:
+        return None
+    return _be16(cmd_payload, 4)
 
 
 # ---------------------------------------------------------------------------
@@ -589,11 +657,18 @@ def build_address_access(tlv_count: int = 1,
 
 
 def build_mvu_command(mvu_command_type: int = MVU_GET_MILAN_INFO,
+                      protocol_id: bytes = MILAN_PROTOCOL_ID,
+                      reserved: int = 0,
                       **kw: int | bytes | None) -> bytes:
     """F06.11: protocol_id spans @22..@27, so its first two octets ride the
-    header field the engine echoes and its last four ride the payload."""
-    ct_word = (MILAN_PROTOCOL_ID[0] << 8) | MILAN_PROTOCOL_ID[1]
-    payload = MILAN_PROTOCOL_ID[2:6] + struct.pack(">HH", mvu_command_type, 0)
+    header field the engine echoes and its last four ride the payload.
+
+    Milan v1.2 Figure 5.3 lays out the rest: the @28..@29 word (r, then the
+    Table 5.18 command_type) and a reserved halfword, eight payload octets
+    in all.  `mvu_command_type` is the whole word, so r = 1 is 0x8000.
+    """
+    ct_word = (protocol_id[0] << 8) | protocol_id[1]
+    payload = protocol_id[2:6] + struct.pack(">HH", mvu_command_type, reserved)
     return build_command(MT_VU_COMMAND, ct_word, payload, **kw)
 
 

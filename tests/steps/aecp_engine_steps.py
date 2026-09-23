@@ -36,9 +36,11 @@
 #
 # Sources mirrored (READ-ONLY, never edited from here):
 #   protocol-processor/hdl/aecp/KL_aecp_engine.sv     dispatch, echo pre-load,
-#                                                     header synthesis, drops
+#                                                     header synthesis, drops,
+#                                                     the MVU sub-decode
 #   protocol-processor/hdl/aecp/ucode/gen_ucode.py    E_RDESC / E_RDSTUB /
-#                                                     E_NOTIMPL / E_BADARG
+#                                                     E_NOTIMPL / E_BADARG /
+#                                                     E_MVUINFO
 #   protocol-processor/hdl/aecp/KL_aecp_ucpu.sv       status semantics
 #   protocol-processor/hdl/aecp/KL_aecp_desc_store.sv locate, region 0xD
 #   protocol-processor/hdl/aecp/desc/example_milan_8.json  the image shape
@@ -71,6 +73,19 @@
 #                               that sent the command.
 #   Milan v1.2 Delta 7        - ACQUIRE_ENTITY never succeeds (NOT_SUPPORTED,
 #                               owner_id 0).
+#   Milan v1.2 5.4.3.2        - the MVU AECPDU: protocol_id
+#                               00-1B-C5-0A-C1-00 at @22..@27, then r (zero,
+#                               5.4.3.2.2) and the Table 5.18 command_type at
+#                               @28..@29.
+#   Milan v1.2 5.4.4.1        - GET_MILAN_INFO, a SHALL: the Figure 5.3
+#                               command and the Figure 5.4 response
+#                               (protocol_version 1, features_flags,
+#                               certification_version).
+#   Milan v1.2 5.4.4.2-5.4.4.5- SET/GET_SYSTEM_UNIQUE_ID and
+#                               SET/GET_MEDIA_CLOCK_REFERENCE_INFO, each a
+#                               recommendation (RECOMMENDED here by the #510
+#                               decision); not implemented, so each draws the
+#                               NOT_IMPLEMENTED echo (Table 5.19 status 1).
 
 from __future__ import annotations
 
@@ -232,6 +247,24 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=None),   # 12 + packed records
 }
 
+# ---- THE SERVED MVU COMMAND TYPES ------------------------------------------
+# The Milan Vendor Unique half of the same declaration, keyed by the @28..@29
+# word: r (zero) + the Milan v1.2 Table 5.18 command_type. It cannot share
+# SERVED: an MVU command has no AEM opcode (its @22..@23 is the head of the
+# protocol_id), and scripts/check_feature_status.py reads SERVED's names as
+# AEM operations.
+#
+# It is gated against the engine RTL for the reason SERVED is (see
+# `step_mvu_inventory_matches_rtl`): issue #536 is this suite asserting
+# NOT_IMPLEMENTED for GET_MILAN_INFO while the pinned engine served it, with
+# nothing comparing the two. SET/GET_SYSTEM_UNIQUE_ID and
+# SET/GET_MEDIA_CLOCK_REFERENCE_INFO (0x0001-0x0004, Milan 5.4.4.2-5.4.4.5)
+# are absent because the engine does not serve them: the #510 decision holds
+# them at RECOMMENDED for October, with implementation moved to P4.
+SERVED_MVU = {
+    0x0000: dict(name="GET_MILAN_INFO", clause="Milan 5.4.4.1"),
+}
+
 #! the engine's own path to the RTL, resolved from this file so the gate works
 #! from any working directory behave is launched in
 _ENGINE_SV = (ROOT / "protocol-processor" / "hdl" / "aecp"
@@ -264,7 +297,8 @@ def _rsp(context):
 @given('the protocol-processor AECP engine with the 8-descriptor Milan image')
 def step_engine_milan8(context: Context) -> None:
     """A validated store holding the worked example: one configuration, eight descriptors."""
-    context.aecp = AecpEngineModel(SERVED, DescriptorImage())
+    context.aecp = AecpEngineModel(SERVED, DescriptorImage(),
+                                   mvu_served=SERVED_MVU)
     context.aecp_rsp = None
     context.aecp_cmd = None
 
@@ -273,7 +307,8 @@ def step_engine_milan8(context: Context) -> None:
 def step_engine_unloaded(context: Context) -> None:
     """The store validates magic + layout version + checksum before it serves
     anything; until then region 0xD reads zero and every locate misses."""
-    context.aecp = AecpEngineModel(SERVED, DescriptorImage(valid=False))
+    context.aecp = AecpEngineModel(SERVED, DescriptorImage(valid=False),
+                                   mvu_served=SERVED_MVU)
     context.aecp_rsp = None
     context.aecp_cmd = None
 
@@ -340,10 +375,26 @@ def step_send_aa(context: Context) -> None:
     _send(context, build_address_access())
 
 
-@when('the controller sends the Milan MVU command to the AECP engine')
-def step_send_mvu(context: Context) -> None:
-    """The Milan vendor-unique command, whose protocol_id straddles @22 and the payload."""
-    _send(context, build_mvu_command())
+@when('the controller sends Milan MVU command_type {word} to the AECP engine')
+def step_send_mvu(context: Context, word: str) -> None:
+    """One Figure 5.3 Milan MVU command, whose protocol_id straddles @22 and the payload."""
+    _send(context, build_mvu_command(int(word, 0)))
+
+
+@when('the controller sends an MVU command with protocol_id {pid}, word @28 '
+      '{word}, reserved {reserved} and control_data_length {cdl:d}')
+def step_send_mvu_shaped(context: Context, pid: str, word: str, reserved: str,
+                         cdl: int) -> None:
+    """A Figure 5.3 frame with each field the MVU sub-decode reads made a variable.
+
+    `pid` is written dash-separated, 00-1B-C5-0A-C1-00, and `word` is the
+    whole @28..@29 halfword, r bit included.  The payload is kept for the
+    protocol_id echo check, which compares against what was sent.
+    """
+    frame = build_mvu_command(int(word, 0), bytes.fromhex(pid.replace("-", "")),
+                              int(reserved, 0), cdl=cdl)
+    context.vu_oui_payload = decode_command(frame)["payload"]
+    _send(context, frame)
 
 
 @when('the controller sends a VENDOR_UNIQUE command whose protocol_id '
@@ -748,18 +799,76 @@ def step_sweep_echo(context: Context) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Steps - the MVU protocol_id
+# Steps - Milan Vendor Unique: the protocol_id, GET_MILAN_INFO, the gate
 # ---------------------------------------------------------------------------
 
-@then('the Milan protocol_id survives the AECP echo whole')
+@then('the Milan protocol_id comes back whole in the AECP response')
 def step_protocol_id(context: Context) -> None:
     """protocol_id spans @22..@27: two octets in the field the engine echoes
-    from the wire and four in the payload it copies back."""
+    from the wire and four at the head of the payload, which an echo copies
+    back and the GET_MILAN_INFO program restates."""
     r = _rsp(context)
     on_wire = bytes(context.aecp_rsp[36:38]) + r["payload"][0:4]
     assert on_wire == MILAN_PROTOCOL_ID, \
         "protocol_id came back %s, sent %s" % (on_wire.hex(),
                                                MILAN_PROTOCOL_ID.hex())
+
+
+@then('the AECP response carries the Figure 5.4 body')
+def step_milan_info_body(context: Context) -> None:
+    """Milan v1.2 Figure 5.4 from @24: the protocol_id tail, r + command_type,
+    reserved, then three quadlets - 20 octets, the layout pp_top M1 grades.
+
+    The prefix is checked against literals and not against the command: the
+    engine restates every field, so a junk reserved field on the command must
+    still come back zero (5.4.4.1 has the sender zero it).
+    """
+    p = _rsp(context)["payload"]
+    assert len(p) == 20, "Figure 5.4 body is 20 octets, got %d" % len(p)
+    assert p[0:4] == MILAN_PROTOCOL_ID[2:6], \
+        "protocol_id tail %s, expected %s" % (p[0:4].hex(),
+                                              MILAN_PROTOCOL_ID[2:6].hex())
+    assert p[4:6] == b"\x00\x00", \
+        "r + command_type %s, GET_MILAN_INFO is 0x0000 with r clear" % p[4:6].hex()
+    assert p[6:8] == b"\x00\x00", "reserved %s, expected zero" % p[6:8].hex()
+
+
+@then('the GET_MILAN_INFO {field} is {value}')
+def step_milan_info_field(context: Context, field: str, value: str) -> None:
+    """One Figure 5.4 quadlet, decoded off the wire by its offset from @24."""
+    offset = {"protocol_version": 8, "features_flags": 12,
+              "certification_version": 16}[field]
+    p = _rsp(context)["payload"]
+    assert len(p) >= offset + 4, \
+        "payload %d octets, too short for %s at @%d" % (len(p), field,
+                                                        24 + offset)
+    got = int.from_bytes(p[offset:offset + 4], "big")
+    assert got == int(value, 0), "%s is %#010x, expected %s" % (field, got,
+                                                                value)
+
+
+@then('the served MVU inventory matches the MVU command types the engine '
+      'RTL decodes')
+def step_mvu_inventory_matches_rtl(context: Context) -> None:
+    """The anti-staleness gate for SERVED_MVU: the engine's MVU_GET_*_C and
+    MVU_SET_*_C command-type constants, by value and by name, against the
+    declaration.  The MVU_PID_*_C protocol_id constants do not match the
+    pattern, and neither does the [10:0] payload length."""
+    import re
+    assert _ENGINE_SV.exists(), \
+        "the engine RTL is not readable at %s - the submodule is probably " \
+        "not checked out, and an unreadable gate is a SKIP, never a PASS" \
+        % _ENGINE_SV
+    text = _ENGINE_SV.read_text(encoding="utf-8", errors="replace")
+    rtl = {int(code, 16): name for name, code in
+           re.findall(r"localparam\s+logic\s*\[15:0\]\s+MVU_((?:GET|SET)_"
+                      r"[A-Z0-9_]+)_C\s*=\s*16'h([0-9A-Fa-f]{4})\s*;", text)}
+    assert rtl, "no MVU_GET_*/MVU_SET_* constants parsed out of %s" % _ENGINE_SV
+    declared = {ct: row["name"] for ct, row in SERVED_MVU.items()}
+    assert rtl == declared, \
+        "the engine decodes MVU %s but SERVED_MVU declares %s - move the " \
+        "declaration, the model's MVU program and the feature rows together" \
+        % (sorted(rtl.items()), sorted(declared.items()))
 
 
 # ---------------------------------------------------------------------------
