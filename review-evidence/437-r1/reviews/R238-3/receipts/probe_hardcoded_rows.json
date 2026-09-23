@@ -1,0 +1,8786 @@
+[
+ {
+  "name": "probe two spaces",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bfa81ab767c2bafd275a0da79daf774bab82f916138b1d0fe09261461978250d",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe three spaces",
+  "page": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9734b70a71dedc77135950c5aa8aac8449a000b09dc41d1393c5f7da03a2ba19",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe star item",
+  "page": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "59aef581acc3ab6cc6597f25e170dac18822e71a4986056f31e3f5a97940bae9",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe ordered item",
+  "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "1d18bb26e092f535bfbba0f05d1f710542e1e9bac322101d1a7971923ac318f9",
+  "response_sha256": "1eae805bc5bd4919913607197c5075c9ec2840019ec4823cfc717b5fce641a1d",
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe two paragraphs",
+  "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "944d1fa40785cf6e4613786a4a005b96eee5c8e53c4e939db1dec5ac528d597a",
+  "response_sha256": "fa1f395bed7bc0fbc8a5fcd814dce0096590c701b3ae1f8dcb2d9eb65dc0111e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe task item",
+  "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6d144880539dfe5b211830a5173841faed9468f0486dd65427a07dd5f636460c",
+  "response_sha256": "3201fd7eebcd37ce22c068161b8c335abc908c61f910f45414de1842db75c883",
+  "response_bytes": "<ul class=\"contains-task-list\">\n<li class=\"task-list-item\">\n<p dir=\"auto\"><input type=\"checkbox\" id=\"\" disabled=\"\" class=\"task-list-item-checkbox\" aria-label=\"Incomplete task\"> item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe interrupting item",
+  "page": "text\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "02869e222c01b7e964c58fc5c3782bd7e1358f5d0654adccd96ba0eafe2504e4",
+  "response_sha256": "b874e2adec863ff87c3278caa5917e05b52e023e34c505e5f458cf6f2470edc2",
+  "response_bytes": "<p dir=\"auto\">text</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe bold tag",
+  "page": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "81d55f7e2aa05aee743e1292f728e4cb50e7be6dc1c9a36d5071088bc5d32b2a",
+  "response_sha256": "87bf2762e66ad6b605bd1b194be0d8f680b6853c48207d10a24c50fd1a852504",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<b>\n## Old\n</b>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe two blank lines",
+  "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "22db8cd654d959dccf2016f0e597913b3f1ad123ecc6b61c29ef98dbf1d71822",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe plus item",
+  "page": "+ item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "aa33fcf44d3594142fb01add63ce14eeb335857338c137dacfe98199b0a334f4",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe custom tag",
+  "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f2c4d8abc6d005ed44251ac623ba70f37f7ee61e8214bb6462b19ef8e5ae6f70",
+  "response_sha256": "ec812cc35d6875a831ceafaa6febcc988c4b28ca7f2adb24e1197893c5e18204",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe one space outside item",
+  "page": "- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4b5a7005841dfa1ed3f8a00ce73bdf519eb26851f95b1bacef9744b4abcb3686",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe four spaces",
+  "page": "- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "indented code line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2fbe716ced8ed47fff03850d9b464e05c0f1f8e344bee90773d5af1fc86c0480",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe quote boundary",
+  "page": "> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "1be5d259f9172229b7a1441ebb0b90b6fdd65571072ee9e6e87839a13bc34059",
+  "response_sha256": "ce8fc42c5e2eb704095448ce65acb3f740437a893d02a96fa6164d93eec494ca",
+  "response_bytes": "<blockquote>\n<p dir=\"auto\">item</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe footnote two spaces",
+  "page": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9348da08613ba90453b9aba44ce48aea2ac961e6133f8f7420c0cca1a3acd422",
+  "response_sha256": "be6916ccb6dbd55d4cfe40b97fdc87ef661f1060f5e776873204f1d9d37f9a31",
+  "response_bytes": "<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe footnote four spaces",
+  "page": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "indented code line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9daa72a6ef9876d1d978feec1cd40c8ef11d82caaace7fc28f4137b4e2d0a750",
+  "response_sha256": "c1451d3bf7ddbb9e3b58de7b023d4569ea7f769e3e5be47a487829167296e542",
+  "response_bytes": "<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe tab continuation",
+  "page": "- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "indented code line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "709f3f17579331e75a1bdd02840c9e53e4fb501c16eae8de35e3ce82fb4797e2",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe no item",
+  "page": "plain\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "cad0239ded8f7388f6fde61251e239e9395523d17508d1dad0fa0b0ef726e779",
+  "response_sha256": "60afe99882fb9086432b0131c9ba15ded9cbabb79757dd3b9b1f0269c5437f2e",
+  "response_bytes": "<p dir=\"auto\">plain</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe padding outside",
+  "page": "-  item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "dec28c4e06e18820b5bbe8d01745514477b207ff7451299f63e31ef9370d8911",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe padding inside",
+  "page": "-  item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b7eaf070b550a6f764172d94943d7eaeddc30351392d91b520545c78b2873d48",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe ordered outside",
+  "page": "1. item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b1dfb3e2449ebed9c4fc62b5a037dadfbb0e87d015989ffddf5516b589838bd3",
+  "response_sha256": "77a19dfc1896fa979613130926d0be8da8f104d81f743047f08b23236e39e887",
+  "response_bytes": "<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe marker indent outside",
+  "page": " - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b8fc8581180091c3647c7c2dcb87e9066c92a08b56fe75b149dd8f5f86539d3f",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe marker indent inside",
+  "page": " - item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c260556ba6c512a54611252f73fb2d6dc7f70f161780a672ab9b834dad8a75ea",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe code padding uses one",
+  "page": "-     code\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3e559433d41cc64dba4d65d2dced5ca9a5cf37ee758dfd21dace2dbf0b82f0e4",
+  "response_sha256": "bee6f4808ac81e07cca29c4cc8335cdd8561ef9e8b7ff964e8b184144d10de90",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe four padding columns",
+  "page": "-    item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "482b437ec671e7cdd88e0421d1a69198d2e87d76bb37670403b15e7bfc9d46fb",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe tab padding columns",
+  "page": "- \titem\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "53c2ec96681a95284a0c320f7faa5a1001e6fdab4755321c09a8066c8c876b99",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe empty item ends at blank",
+  "page": "-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2cb5df42154f95354b1a3ff17c837ee89bce7f5fd12cf7492a594b905295b32a",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe empty padded item ends at blank",
+  "page": "-   \n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "82e32f8510f9090dbe1ee3a81b11f482136a703dd662b7fb3732bc9c77c0657a",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe empty item gains content",
+  "page": "-\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5abd93f76cac4869a218a5052f0c85fadfb63cf17839e40a7b4806c07368117a",
+  "response_sha256": "55b6c16e03eeee7ea801d127221591fc005727cad7d3812117ecd5e2f2e79bdf",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe empty item ignores padding",
+  "page": "-   \n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0045de98a3e388304d6b2449d9f884fc4a4571b7f373935ec07e06ea85fd5862",
+  "response_sha256": "55b6c16e03eeee7ea801d127221591fc005727cad7d3812117ecd5e2f2e79bdf",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe nested item retains outer column",
+  "page": "- item\n  - nested\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6585b63ffe038c76db3075470a8cd18cb5efbd9745481b51784d275f2482ddbe",
+  "response_sha256": "6cbe3210a749de0b60a467db64c625608ce099b958bf0403c4f61d9645d7792c",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe sibling replaces column",
+  "page": "- item\n\n1. item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "70dbee81eff918e55fe3b9069836804b9b007b85297233be3c4d030e08400a7f",
+  "response_sha256": "3107fccde0b7a35eb5b3738a9db0b577cac8f8ea0483989f1826266af387d8f5",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>item</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe fresh dedented paragraph ends item",
+  "page": "- item\n\noutside\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "569c611b18411a09c81384daf9462e15b2062592455dac6cf7af4116c922ed89",
+  "response_sha256": "085277a2c2125e4e838792c9fd260dc82c0440f001885da33cace15a918a3854",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">outside</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe lazy line retains item",
+  "page": "- item\nlazy\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6e8338af7a133066e9bcd0367c71e96cf396016fbefaa84cabe4a9c0301dcdbd",
+  "response_sha256": "eaf67b0f165f7dad44eec8670bc08a31f64eb0640c87339fc56bfbc39ea2a09a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe heading ends item",
+  "page": "- item\n\n## Outside\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Outside"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Outside"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Outside"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0ca602f78f716aff70f83fc7c0ace7af7af3e24ed8babd9bd3b22c6406d42ab8",
+  "response_sha256": "b10ef31445c6b1dd56ba2bdf86e513dcdb0923b6d9a6df37fe2b9699d8300c09",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<h2 dir=\"auto\">Outside</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe fenced marker is inert",
+  "page": "```\n- item\n```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "efd731c81ef11cc196d2bfaeacc19815de154ac0f3d97ca27bc5316592edffc2",
+  "response_sha256": "469e18e6c31ed109765c1c3d058906dc0264ac41d0339aec95e522e618390c95",
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe commented marker is inert",
+  "page": "<!--\n- item\n-->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "36cdb45b487ec333f98d28f27c6957eb1f0fc3c22db45e06f7476dc64b4ea939",
+  "response_sha256": "8b18506bc21c5fdfdbdc6c165d7f1be0aa1e2de4b4cf6ef6976c80dd548c63ff",
+  "response_bytes": "\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe HTML marker is inert",
+  "page": "<div>\n- item\n</div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b1f23c1b55abcdf5d7704456ea77650c464f66a22f25faf424940483a6000d97",
+  "response_sha256": "c5968307fb53aa2a4ea38962d9e867aabc56ed287d967cc6acd9526d39d26620",
+  "response_bytes": "<div dir=\"auto\">\n- item\n</div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe code marker is inert",
+  "page": "    - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "indented code line",
+   "indented code line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "77b6fc5067d4b4a1fea2e137d405fc7f2090d4fb3013bbccf033d3c24874b6bf",
+  "response_sha256": "469e18e6c31ed109765c1c3d058906dc0264ac41d0339aec95e522e618390c95",
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe thematic break is no item",
+  "page": "- - -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "edd77a46343beea3c443a4ae1db9e00fdc5da00fdff05bb3d90ca04034aeb1de",
+  "response_sha256": "0ae304864f4d4cc85179a86dfef7583a78c58e34b906f84971997c6893fe4d1c",
+  "response_bytes": "<hr>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe noninterrupting ordinal is no item",
+  "page": "text\n2. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ed775c7a784c8b6b237ab35a2b4f2662fd3d96c9a9cb92d9390578ea2b03e613",
+  "response_sha256": "9e8cbabcf2b95d8ae78e519ccc92cf2beba3a9f8ed8d457e37b6795243fa4b32",
+  "response_bytes": "<p dir=\"auto\">text<br>\n2. item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "probe setext dash is no item",
+  "page": "text\n-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "text"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "90011684646d4a59abb60e8754fcb8ec5bfd273e0831f11f7c4f2215a8db0473",
+  "response_sha256": "74e7384a393f9f067144fa3192a7280d84be07a61ddf4c8a0b12a75d5c911d54",
+  "response_bytes": "<h2 dir=\"auto\">text</h2>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C01",
+  "page": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b07ce4f2c431d056c58928b1311d33857923771fcf463531cc556a756965c0b9",
+  "response_sha256": "f1a7b27954bb73b481c4ceb284ed4441adcc5f61417e0d6e8d7cbda752851d0f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C02",
+  "page": "- item\n\n  text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "438a651f11d59152236876062b266077a39b0492004122be27e7bf3eec07468e",
+  "response_sha256": "3129edbef142199a429fb6c01914c4cb8a373906df7fd16308f5a3e94ff6707a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C03",
+  "page": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "fb424472a8b8763d274f1dab784969d517a70cda29ee0203d3cbc52320feb917",
+  "response_sha256": "60d310743f06b3b4293e18be10ec2e8ff042b6ddfedc40b47d664e37fb34ed03",
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C04",
+  "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2354c5608ec99091005aab76154e958de2f4c81e3210c404e3179f901b502297",
+  "response_sha256": "3e7c044f3f702c599c346bafa247b48a062f205ada84683afc86516f7ca5ab40",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C05",
+  "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "257661f0591cab9cd8a231e9c79938ea426c3c2993b7d836c4e939572b8eb72b",
+  "response_sha256": "02527ef5476608e644b7c40caa562debd64549f85201e00ecc00ec10a326e696",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C06",
+  "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "139ea4e707e9a3a15df29e2706f6dceaf43b986fc3562e63c092a8e3a467a149",
+  "response_sha256": "9048686a00b2b24ddf5c131ebb46f3a1f3932d847099dfd322b9373a9faecbf3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C07",
+  "page": "- item\n\n  text\nlazy\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "104d2d12963fb8c6c9f50edb178ad2269fdf3963b993d5b2e044057c6648adf3",
+  "response_sha256": "f28be5f7b73c19181b49ec8909444c84bde8e7f7b9360eb4e8bb4a682ecad881",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 C08",
+  "page": "1. item\n\n   text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "14e7575970fd0e6239d8c4c8268cf05e014491c41c5c62504970574c4c7d7d27",
+  "response_sha256": "d3951bb102b8085b2d6f0d44475196028af18fb919565c01dfa6afdb94998ff3",
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 P01",
+  "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bd4ce0302eac4a78efe604a2272dbb90f38a6e1351418880a61b91f2c07c53b5",
+  "response_sha256": "fec838f94703996fd017f7bf823b95c1c675e8a4f283658dc60784f4ff7411fa",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 P04",
+  "page": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f436cf5a19776df5e70785d3b1352cc05199ffff9fb90e3cea00d946bdbd3bd1",
+  "response_sha256": "1006c70f23ac0f7cc4f96c4e171d817a9001d05daedf060c1ab9415cd16530d5",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D01",
+  "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c8d3c2c98278f7ced44260c58bdb563654502f26d3dac686a4905c31655e9fa0",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D02",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "425add15a7a3e81b8c0e4994bf6bb68222ad39e5cb7de661209d69dd4f0e09ac",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D03",
+  "page": "- item\n> quote\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ba023e0e98fac57d5c473872f27bcd710e95c52a2b374a37c132888922d56988",
+  "response_sha256": "4db2f9c8f0192355395ed798c92da87947a8f3b46805b0698a7810154e1ce7ec",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D04",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e302fd7dfbeb7b157bf8b61927d6c08ba5c0b88c8bdb016b8d1090d585d90899",
+  "response_sha256": "a6ab40b1f5ecd5a98063232e340d4c0a8b83148c57779f30e186d2b70c224ac3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D05",
+  "page": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b9f0778c4932b6e65d9f4046abba87b5d92c33a8872c76a4f9a947f1e427dc06",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D06",
+  "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4f26c8ac21249809c031e45b0bba2ee0eaf75b591c096c3875ce5c24a7a6a718",
+  "response_sha256": "eefd71de4374c8cb18bc8c2170a383d72adfb0b338c2b9979eb260ab7f8be926",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R238 D07",
+  "page": "-   item\n  > quote\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "indented code line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2398eef163921a47e5ab6cb46250ebcd443c91511f82bddf0ef68b5a5093fb6d",
+  "response_sha256": "96960b0f48cc0006458292c68d971f6da4f4a75df442dd7a2cacc7bd0fed3190",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\">text\n</code></pre>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R237 fenced-marker-indented-closer",
+  "page": "```\n- fake item\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b132982304a3f3a98958b71cccff75444412dcddeb6a8d7cae147664b67b674d",
+  "response_sha256": "a27588b55f778cd39e5961bccb2de0a794b4e6a284158aa1123d166e02ca11b4",
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- fake item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R237 comment-marker-indented-closer",
+  "page": "<!--\n- fake item\n  -->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "63472a4a4a8467d1a165b1523382d99b8e3a5da4a2a8c39cad3bb39bd78baa9f",
+  "response_sha256": "8b18506bc21c5fdfdbdc6c165d7f1be0aa1e2de4b4cf6ef6976c80dd548c63ff",
+  "response_bytes": "\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction R237 HTML-marker-indented-closer",
+  "page": "<div>\n- fake item\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "78241a17cfafd2075ce7f755776cb8e1fa623b5a19b93d0dd77d045950513d3c",
+  "response_sha256": "8e1d04bd9462945f0a78b2ae00b0bb0523bcaa83dc522811721ef440c603933d",
+  "response_bytes": "<div dir=\"auto\">\n- fake item\n  </div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 open",
+  "page": "- item\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "828d1fa8a086beafd2aee049637c31e7cf6414e5996b632e1515eb8fde0b6b25",
+  "response_sha256": "60474f3d69580c373163db429652196a5927e059b9d15163ac57fd457dd1ea48",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 open swallows fence",
+  "page": "- item\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "098791625e8b2529abf2bef3fac7d2d2e58b81a3b77c31861d8ba9b77dd320e5",
+  "response_sha256": "17b140cb77f975dbee66c90dbd626301a72ff8d1ba9aa9df903043ad8a582968",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 open swallows closed comment",
+  "page": "- item\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "74d74378451de3c8bb535800a825eb82478122fb501f557fc44cf7ac11479a78",
+  "response_sha256": "2d06592eb45928161a466a9397f7aa4187d09740a1dce1be81c0cb5f4d1a41e5",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 open swallows pre",
+  "page": "- item\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "53884c0d5090cd4443a1ba1d043732f76d50042c1689317905adf1758508ccd9",
+  "response_sha256": "39b48d2bbc46201e265f2f467375d82ff0edb22d7d1d2e945e93ee82a9e241c0",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction first tag column 0 close",
+  "page": "- item\n</span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "602d8996fda4ee2d30466e5fa448160ea72cf9b8c01d27374ddf10138881105a",
+  "response_sha256": "638ca9b8974ccfd8b4cc6c8820e07ad5511e61539a8ea28d9b01e0f1438bc005",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 close swallows fence",
+  "page": "- item\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "69bf3f3afc548dc0e69aa22688329a3136bf35d24b858adab399c03e226d7176",
+  "response_sha256": "33c84ab127b2c317f39907eadbfdb444f0511e75d4a581864a5d8426ef09a95b",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n```\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 close swallows closed comment",
+  "page": "- item\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f1eed0b34078597681c15188df861ec7ec465d229395fcc3c6bdd3886f278430",
+  "response_sha256": "0a8fa1d7a71dbf828c4953645b82738ebc19f1f058cdfd460cc73fcd4c980ed3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 close swallows pre",
+  "page": "- item\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "339d318de1b930fec9546014e6303ce86fd6f04e84cc4fb210c39d1061d2596a",
+  "response_sha256": "8ddb8b6a7b837b4b0139b869d86084a5276f33feba9ab2373a9f90bc4b967158",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre>"
+ },
+ {
+  "name": "correction first tag column 0 attribute",
+  "page": "- item\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "62d30102f2bd931bd7fff28c6125127b0897477bd1cf4dfc6362a12804430a41",
+  "response_sha256": "7bbfd101a6bc7e88818000e63634e322f91a2492adf2b395b649337e860a73f9",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows fence",
+  "page": "- item\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a49825389194a4b1bd44211dd8ff3d6d085f2c8fba837465c97f668fb6135758",
+  "response_sha256": "5c16d1ad1d78d7874bffc47fec70669eebde397288a4278106f2c1b66b2d6060",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows closed comment",
+  "page": "- item\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bfe7a975aa65d964f6407aa9e4f1ac5204ec4a43e2df68475f0c41195622b327",
+  "response_sha256": "3efabd786c7ac3a47bd9219af40ea8f80b2a9467e58ca934a04fc553d6d33c84",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows pre",
+  "page": "- item\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b66e9774b424890b0f1656955a4eb603fe7e749afc8ad8feb5be7b5770561e1b",
+  "response_sha256": "ef6420f28b932b8bfde6573354d2f04ba89bec14e1521306c379edebc7665abd",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction first tag column 1 open",
+  "page": "- item\n <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2120958b85259a1480167e51e46ab272c0c65d77543addd390bf6e67903e836f",
+  "response_sha256": "855a2eed1a03dfcb5634234df06b1a037107da1ed05638c50210b2571da9b673",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 open swallows fence",
+  "page": "- item\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a790e298687a4725e87e9fbf0176aed927c551cf9383085d909b38a0e1b30817",
+  "response_sha256": "37c31cadd54c504df265235c267364f67d6ca0d97dc79cd0db88d57f269d07ae",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 open swallows closed comment",
+  "page": "- item\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2728ae230a374f87ace732104b86dd227d10b588669199b48a7727a7be4a6fbf",
+  "response_sha256": "0b9b560a237e89bdb3a226bd4cade214c194b6d0409c23b7c9f3eec9832731e7",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 open swallows pre",
+  "page": "- item\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d64bf1a8c3d792a729bf66b8dadf09ace5ec4c904f864548740a6c09dddaa69d",
+  "response_sha256": "9cd84db4301a0c10664c0b7ae842e716916886ff9f61a64f5ac84d87d3ffd099",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction first tag column 1 close",
+  "page": "- item\n </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "8649128d2266830d993eb0f465c5a9b23dee243773a09065e92be1a23c2896a8",
+  "response_sha256": "b335f878e5a6b6d02a4efece3eb84289c81c4627e6dfe4d0f885d1ef3eb270b8",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n## Old\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 close swallows fence",
+  "page": "- item\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c58fdd6009bfe6234ada210f57b7eb7212bcaaafa1418bf948a7f7a769837e69",
+  "response_sha256": "c2946e031f0cd38ca68c5b930d213f1f57db82253d4018f4c6fbf087a8c15126",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n```\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 close swallows closed comment",
+  "page": "- item\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0dac65451b90e04fcd2a6aba095d5257198e352b2572124add4183198666eaf0",
+  "response_sha256": "58db3a4ff6dfd311a6f88832d6d30967ebd4072aadaee4aae29c77ba6ac249c7",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 close swallows pre",
+  "page": "- item\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "fa15cf688a436b9e5aab283a94c775727f37b1c57c4d8516a1e2cd4e2d580a36",
+  "response_sha256": "e65ddb536aadf8224f5d95685c4da2e148b5356e937b12e20a3db10cf669ffd7",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre>"
+ },
+ {
+  "name": "correction first tag column 1 attribute",
+  "page": "- item\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "04183da656de3350c4e1475123746279ce10db94d9ff0b10af1b28feb65070c2",
+  "response_sha256": "a70798fffee5e82518dcbc030aa723adef1486a6bfd7b21d8022ba0e91a6563d",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows fence",
+  "page": "- item\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "227d9b21ca4a13ed26973ef06f12c1267e0ee4d13f5c3d4774d5028f6895da5a",
+  "response_sha256": "07b42badcdafdfe40547a5e04379683e0cd82bf0a65c5f6aca15df0dfd567fa8",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows closed comment",
+  "page": "- item\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bb2596b0d9f8507ef3a8f7cf086878360d1641facb9634147cd6b090859317d6",
+  "response_sha256": "1d41128a8b4d9019e26c89d0e0beac9c9af133cf07342e58e5bdec6638dd2248",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows pre",
+  "page": "- item\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9892ec54be055de1417afe90b48312de317d5eb521f21834d1a78c12edf88b9c",
+  "response_sha256": "63bd186a0997d4f07e3d7a4c9643834c47f095bebb7c11aaad7f789e67ba3cc4",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction first tag column 2 open",
+  "page": "- item\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2521082fc80c865c88c92a85ef8909e1b5f73597ed193848d0d1d43b6c2ada8d",
+  "response_sha256": "d46ad9f5f5ebfb544f3bae7037a35ea30805de61c88d78ecb786fb5967a5eb9e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 open then fence",
+  "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bd4ce0302eac4a78efe604a2272dbb90f38a6e1351418880a61b91f2c07c53b5",
+  "response_sha256": "fec838f94703996fd017f7bf823b95c1c675e8a4f283658dc60784f4ff7411fa",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 open then comment",
+  "page": "- item\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0ca723c269296298f03a12c0df41a5f3fecd744dd31712351368a9bc64e22c0b",
+  "response_sha256": "2e6935fe25d5c3733cd3349c27853733be88d8449ed9f00ce2b66ee848366be1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 open then pre",
+  "page": "- item\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9be689f483018b6760ae418d1d8e315b3290dcf9b51df982f7fc4f479ad9afb4",
+  "response_sha256": "33dda4e9cda555aca8d5e64c63a1a7bc110deb73987875a0908905acb42ac5ac",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 close",
+  "page": "- item\n  </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bc1620bea2da0ae8316292f21f4dc800889d3d943c2cdc2902b2b4cb9ee0d8c1",
+  "response_sha256": "d7b30ca3053fcacae7e26f3b574200762b0c2ffd4f82a55c105b96bbf35e3826",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 close then fence",
+  "page": "- item\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "073a7c1b6020e9d902bbf6a06689c0e1aea75cd50f84bfea56d9f4d85955ce69",
+  "response_sha256": "511d792b1ba88ee7ec765f2a722a10ccb822bc4448d78676196e6b9d2692efb2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 close then comment",
+  "page": "- item\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e1da355a30ddd2b0abd3d3ba4556bacfeb4755d19b9b9c27f38f720b5dde5879",
+  "response_sha256": "475b3b20e44860d91cc0599b4753cbe5beecf31205ee42512d19a54187326542",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 close then pre",
+  "page": "- item\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "16096554c2fe0122ef2c8a75bbac1c01325d485d04bdff8be1fc90a76ca76910",
+  "response_sha256": "fa9d4c1bfd7678eec4169ffc8a6e77d650d51f896df78d22c0c178cf601669b1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 attribute",
+  "page": "- item\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "cc4b45d02ec6d8afca067308daecb51e77f8a5d92a41020f1154230ee3ee3190",
+  "response_sha256": "70eb31b32ef00a9f0adf561b9c33b1609b3c3428eab0fa04bf66801bd0aef03c",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 attribute then fence",
+  "page": "- item\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "8e46941e64114e3d1b116379240b540b01ed2d2ae18c21240321ea90b1ae92a6",
+  "response_sha256": "63a40ac34fc2d4f90dd7b7c167eb1817d0020eed75951e2ecf2a687c4d0cb540",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 attribute then comment",
+  "page": "- item\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "70819cd09fb83bdb26c3748d117eb7fb859da100129acc766df80b40b935bd5b",
+  "response_sha256": "eb3e272423fe42328f14c508561a76df91bea3bad3a3084660e612f4f7a4beb1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 2 attribute then pre",
+  "page": "- item\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4cdd15c9e8f592d78a3dccb41696a490d637bcbb52723e0c468c634401100c50",
+  "response_sha256": "b44893ad3598b843a6afa8737052e455f414ee52432db79fab449f44301738ef",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 open",
+  "page": "- item\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "efdb2564532db8e6791fee2d5d66456b8d2ec77798cd3b31ffd2ece40332bf8c",
+  "response_sha256": "d46ad9f5f5ebfb544f3bae7037a35ea30805de61c88d78ecb786fb5967a5eb9e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 open then fence",
+  "page": "- item\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "604f2d5299090b4f6b0d433d95c9f23a8706e8da6dbaf0511cdeaff4eb3c5cf9",
+  "response_sha256": "fec838f94703996fd017f7bf823b95c1c675e8a4f283658dc60784f4ff7411fa",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 open then comment",
+  "page": "- item\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "76d306b0259a0f4a7ec93eb6a22e0aaa491c4eedc9a989c8e4894d43c9e83c45",
+  "response_sha256": "2e6935fe25d5c3733cd3349c27853733be88d8449ed9f00ce2b66ee848366be1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 open then pre",
+  "page": "- item\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e154191c8d1f3e7c533422ae46787868ad862a6ec8fa34a54975bdc0bca505a2",
+  "response_sha256": "33dda4e9cda555aca8d5e64c63a1a7bc110deb73987875a0908905acb42ac5ac",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 close",
+  "page": "- item\n   </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a2d0fb749a5ad815a7839adc7c633e86b3f84c9756ced1cdbc7c921f5d1424f5",
+  "response_sha256": "d7b30ca3053fcacae7e26f3b574200762b0c2ffd4f82a55c105b96bbf35e3826",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 close then fence",
+  "page": "- item\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bcde56d106e6f8293375150f84165795948d3eaaf0a59a16de9ae9f31cafc26a",
+  "response_sha256": "511d792b1ba88ee7ec765f2a722a10ccb822bc4448d78676196e6b9d2692efb2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 close then comment",
+  "page": "- item\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c1e4b87ab9c672adb7fa6249262b2482cf660de15969c9629158c362a2d8748c",
+  "response_sha256": "475b3b20e44860d91cc0599b4753cbe5beecf31205ee42512d19a54187326542",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 close then pre",
+  "page": "- item\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d40a27cad458c85d56c4f580bea9ccc83ce5baa494b01a953a4c760c62bf6063",
+  "response_sha256": "fa9d4c1bfd7678eec4169ffc8a6e77d650d51f896df78d22c0c178cf601669b1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 attribute",
+  "page": "- item\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "69a1361c3cf14c388d6ffede12c5723126c4f236c275de13de8bd10294070960",
+  "response_sha256": "70eb31b32ef00a9f0adf561b9c33b1609b3c3428eab0fa04bf66801bd0aef03c",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 attribute then fence",
+  "page": "- item\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3d27b47867a4859deeaf18655b8263a3dd31b2958f48d88a6e01fafd68ff0a52",
+  "response_sha256": "63a40ac34fc2d4f90dd7b7c167eb1817d0020eed75951e2ecf2a687c4d0cb540",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 attribute then comment",
+  "page": "- item\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "149d8560d2e84d156f1082508c375ec2243eba650c3c29e5c7fa1001c88b7f76",
+  "response_sha256": "eb3e272423fe42328f14c508561a76df91bea3bad3a3084660e612f4f7a4beb1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 3 attribute then pre",
+  "page": "- item\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e08ad739118d5bfb96033979d2a20d73e72dd1e23ea90f86ea8c01ebec63cb74",
+  "response_sha256": "b44893ad3598b843a6afa8737052e455f414ee52432db79fab449f44301738ef",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 open",
+  "page": "- item\n    <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "1eae698dc113f9a3ddb88394009565c27d37dc30b1f0980ffa1921ad3d8fddd2",
+  "response_sha256": "d46ad9f5f5ebfb544f3bae7037a35ea30805de61c88d78ecb786fb5967a5eb9e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 open then fence",
+  "page": "- item\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d5795e9368f5f19863d5a2402977c96f71c7fee00d4f181cb26593a74e7a20c9",
+  "response_sha256": "fec838f94703996fd017f7bf823b95c1c675e8a4f283658dc60784f4ff7411fa",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 open then comment",
+  "page": "- item\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "99b5a1a654ab169ce687cc8d91908181d78845a99dd71891cf4e9c3262244167",
+  "response_sha256": "2e6935fe25d5c3733cd3349c27853733be88d8449ed9f00ce2b66ee848366be1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 open then pre",
+  "page": "- item\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f46766752dcca3cd0f5ebe439703772f3e744084daff2987f1ebc3c838c0ea00",
+  "response_sha256": "33dda4e9cda555aca8d5e64c63a1a7bc110deb73987875a0908905acb42ac5ac",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 close",
+  "page": "- item\n    </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "48278f870c32583c4b120e9c2944d9a6057d94a7da3fb65d57ab5d5e8dd70287",
+  "response_sha256": "d7b30ca3053fcacae7e26f3b574200762b0c2ffd4f82a55c105b96bbf35e3826",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 close then fence",
+  "page": "- item\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f205ef7c52e826a1d09642896ee9ea5b3335996bb07b5621f3daefa14964ad24",
+  "response_sha256": "511d792b1ba88ee7ec765f2a722a10ccb822bc4448d78676196e6b9d2692efb2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 close then comment",
+  "page": "- item\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f15f2586787df8235abb47d36676971196262a7971db5bf2917c00fb843998f9",
+  "response_sha256": "475b3b20e44860d91cc0599b4753cbe5beecf31205ee42512d19a54187326542",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 close then pre",
+  "page": "- item\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "eb0c3e783942ed1611341e589a62c41d43d63705ed794c1d959ebb01d0eaf31f",
+  "response_sha256": "fa9d4c1bfd7678eec4169ffc8a6e77d650d51f896df78d22c0c178cf601669b1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 attribute",
+  "page": "- item\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0e7a8df8137bdc3548997ff60a2d98181ca27905de88711a9e2941058d15e4c4",
+  "response_sha256": "70eb31b32ef00a9f0adf561b9c33b1609b3c3428eab0fa04bf66801bd0aef03c",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 attribute then fence",
+  "page": "- item\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "401dabb3c14a2fbf24a4ce8d49297a528405b51a2609b016dd35bcdf4f2266b1",
+  "response_sha256": "63a40ac34fc2d4f90dd7b7c167eb1817d0020eed75951e2ecf2a687c4d0cb540",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 attribute then comment",
+  "page": "- item\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ce3733c7549afa4ece81be8940898f630068559795de2def64b86243400d85d4",
+  "response_sha256": "eb3e272423fe42328f14c508561a76df91bea3bad3a3084660e612f4f7a4beb1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction first tag column 4 attribute then pre",
+  "page": "- item\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "946e98f9df3e16d2391a6521bbccb538fa8dad08eb3fdcc6134096d1043c7278",
+  "response_sha256": "b44893ad3598b843a6afa8737052e455f414ee52432db79fab449f44301738ef",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span title=\"x\"></span></li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 open",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bfa81ab767c2bafd275a0da79daf774bab82f916138b1d0fe09261461978250d",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows fence",
+  "page": "- item\n\n  text\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2f508c858425527b813f4490da1d8f907229537970e3582aaf352b0015d66277",
+  "response_sha256": "f13c803cc086ec3e4d093bc727d2a68ce6b0fb39ed6167c2cb31aeb06631bae3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows closed comment",
+  "page": "- item\n\n  text\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3049127ca2cd3ac145e64a40d43fdcc2c6f8e265649732ccd0bb65a236a4826e",
+  "response_sha256": "1e524fe660be2e793790c35e04c3933a4719bdc35de507083ac98b30d7483dfb",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows pre",
+  "page": "- item\n\n  text\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c95a28dd3956df88213a7bbb97386a271995a91f1535f98e3ce979fd46f25a3a",
+  "response_sha256": "8b9f7ad17b82f3a3cc37274822fdf91dd998210bad388f9683f8b9d3dc76d41c",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction resumed tag column 0 close",
+  "page": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5a6337aadebe7931a0af7197b2fc46602e7f0ac19b4c8087f9e7d9c19f269e08",
+  "response_sha256": "ec812cc35d6875a831ceafaa6febcc988c4b28ca7f2adb24e1197893c5e18204",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows fence",
+  "page": "- item\n\n  text\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d27be18c3847042e5352813c4b1ceb7d572d3dcc6457f477e707b7fb65d34a48",
+  "response_sha256": "813d2a85543ed30c7e85c93b9927c321828ea3e29a2190c5e460d60ab8a22078",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n```\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows closed comment",
+  "page": "- item\n\n  text\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c1df59c9f4b5fd8a723a3335b479ab68e7e4aa832ac89c0cd2992f989ad507f3",
+  "response_sha256": "17d0101ec438a9b1589e6ee5b92266c53439fbaa4607b16121e2a14c47de7d38",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows pre",
+  "page": "- item\n\n  text\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5e8cf11ce426eb0f619e2c8d6999d31a247af4aa50eb4117244cbc536a0b8ecc",
+  "response_sha256": "3e8044595ab926206fdcbfac0df3c536b8f8b913f95929b1a32816b8bf5bd8ea",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre>"
+ },
+ {
+  "name": "correction resumed tag column 0 attribute",
+  "page": "- item\n\n  text\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0ac60883c1d430fd87de24d87e0e3db933759a382d76c31368ff18ca74199f5c",
+  "response_sha256": "7e0c448e2be2a9998d13cb80cfa34bba345f2b346639d79324977b544e66ddaf",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows fence",
+  "page": "- item\n\n  text\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a1c9b255e3a6e60fb47cea6b6a133154b28b9da6a8897a6c156fee7a4b9bf3ab",
+  "response_sha256": "2ac6b9e411d0c4bf3606bf7ae1873970b5299f8a40bc7bf73a6a0d74687cdf7a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows closed comment",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "81a9af77d98268a17c478cb64a403cc0ea1d731a076ca03e5d3fe69d5f07448e",
+  "response_sha256": "647a7a3130d5c07b2a24a2a96804cc49717ab4fc524972c3cbd95b023df8abbf",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows pre",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c6f0d10a9f9869aba61337b304c7937cd94ba6d26c2551f22a971dae4e78a549",
+  "response_sha256": "e76cb88f67c9a9faa304e6b0811f1a0396be2fd04a94af0c28178030cc794ebe",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction resumed tag column 1 open",
+  "page": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6630e53a14382118c2e1b9af926c39445df82d56e8f7e564b3f6032eb58dbd61",
+  "response_sha256": "10d11f656d54f64757aa1daa68bddd2cf3c5ff9bc98b562a75f7c6173c9cbe5a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows fence",
+  "page": "- item\n\n  text\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4644ae6e13b19e3367ab114c7ea3fa03143ffa36fd1558202bf6bbb3e74c5724",
+  "response_sha256": "531a35d4bb64d43775ff3f45d3aae198d1f5c1a0f0cbd12426175c536616a1d1",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows closed comment",
+  "page": "- item\n\n  text\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "47ade7ad2df72d39fa874edde0ead9b2f97932cb560079187fc360508e35ea20",
+  "response_sha256": "20c19600b5cf1b70499c26a65d43760ed7aa14a93a094c5012fa4449498141cb",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows pre",
+  "page": "- item\n\n  text\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "cebdbed0b6b906c28f9c24df4494ff42e8a5280c69a662b3c93a0339fbb8c4ba",
+  "response_sha256": "fa8125c961b4b4f189da4dbe1f65e45d2104c23f3bb1f17e557b8c8c67ab23fc",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction resumed tag column 1 close",
+  "page": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "df9f6e711aab482403ce9f596000d7c7b0a886f98f09cb98d675238c9b2c05db",
+  "response_sha256": "3d78a95d9a0af66566f8addbb7f0091265ebb821c1e9c63017c25fe37ece1c9e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n## Old\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows fence",
+  "page": "- item\n\n  text\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0bfa7f87da3112001e970050626cd4c3b74614ee83c7acb2b5d9ab3f2fdfee7c",
+  "response_sha256": "91a6651b20065fdd31b4fcf8ecb0cb31e7b661dad44e27899f37ef121eb7f7fd",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n```\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows closed comment",
+  "page": "- item\n\n  text\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3cadc0570baa50e05c50bd8ac8398e79a4def1bbacb116cac431cb3258db2d51",
+  "response_sha256": "22bea3d829db7e37ed8cc792972b6074e2ae8046da88ca9d0554d857c2b16f4f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows pre",
+  "page": "- item\n\n  text\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d5d297f780420b0672f2dee631bf68f3f1bd0ba800bae8fab825f1462bb9cb3c",
+  "response_sha256": "3a1afd2c939cb68a4bd3249e97aab605b8f8e6ed07c44aad6f537c1c6c6ab190",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre>"
+ },
+ {
+  "name": "correction resumed tag column 1 attribute",
+  "page": "- item\n\n  text\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "7430c645c1e7c687ed4ee496de3b3111e6d2ace81c3f013f62d9c7d379ebf278",
+  "response_sha256": "5bd798ad747cf83c907e170a93262d596c883792a6f0920ee0c804897da2b2e6",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows fence",
+  "page": "- item\n\n  text\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3c3e4b660bfecb3894ea0968bcb17170ea5c1eca9815819e61d5a8f7c1763c6c",
+  "response_sha256": "1adc204ea77058300b7645ed109a2338318dd1c5eddbc20bfce9f95bef095776",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n```\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows closed comment",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "177ea7b1955cefbe9bc82d769983e17c23b8e773b864dfa0756be7d1f981889b",
+  "response_sha256": "93ac56d5281a809a0bb33e6560ac2ef875a4fe45ca6d42b35a5b35a4e4d4b965",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n\n<h2 dir=\"auto\">Old</h2>\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows pre",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4b91f067a82124fabee098ece7425bb560b3dd4d0a00bba4cb3227909bf419b4",
+  "response_sha256": "071ce8c688aa09b1800f8f19f08a2fc29c801d08f86bf90c9bd8fd865719cbbc",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n<pre class=\"notranslate\"><h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2></pre></span>"
+ },
+ {
+  "name": "correction resumed tag column 2 open",
+  "page": "- item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "67e54588b86da47eabf1e3266ace1db396c6e6f5105cf8f6ee45db1b523283ee",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 open then fence",
+  "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2354c5608ec99091005aab76154e958de2f4c81e3210c404e3179f901b502297",
+  "response_sha256": "3e7c044f3f702c599c346bafa247b48a062f205ada84683afc86516f7ca5ab40",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 open then comment",
+  "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "257661f0591cab9cd8a231e9c79938ea426c3c2993b7d836c4e939572b8eb72b",
+  "response_sha256": "02527ef5476608e644b7c40caa562debd64549f85201e00ecc00ec10a326e696",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 open then pre",
+  "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "139ea4e707e9a3a15df29e2706f6dceaf43b986fc3562e63c092a8e3a467a149",
+  "response_sha256": "9048686a00b2b24ddf5c131ebb46f3a1f3932d847099dfd322b9373a9faecbf3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 close",
+  "page": "- item\n\n  text\n  </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a8de2561eb774fe451b88237975c8ec7d84da5e25d8cd538b3bc4f190ed0798d",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 close then fence",
+  "page": "- item\n\n  text\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "28064e002917f13aec54df3b048a1e989c31a4a24fe44e4c3043273dcb2a7918",
+  "response_sha256": "843f16b7c30dba1c66a72ef078b19b2d2b6d1d1afa39c931b0134b2f4e0ad708",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 close then comment",
+  "page": "- item\n\n  text\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "edaa731fe121f295e2385cb037771ed8771ea462e314404a096fe292fa2ee426",
+  "response_sha256": "dd2d203766a993a0e80ce484d972b12e774f2c0fa3427aca7894be9a2e98a201",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 close then pre",
+  "page": "- item\n\n  text\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "df36d222b7409f9b6194e05f44826817f86679cf5ef2990f69ab1081bf6734ec",
+  "response_sha256": "396bb9435c6bda0067d8d88227e2ca8b5c9c04ea6dc5f86ef8bc93ce2f92dad2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 attribute",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "7d2738ee572769c13866a26535e8271bfa3dd3875e23f4da40b363f7e06c88c6",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then fence",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "fe8e1c738de4f163978151bfa0f870f0e7806ad8f2a33e7e1a15d744a5ddce9b",
+  "response_sha256": "21a8cc225c98ec22b342be84ea26e36aaf02efe23678ea2d5da435a1763a42ce",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then comment",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "679935ce6fced3d325ae86137faed7090b89d861ad7cf429b5328cb4159ab0fe",
+  "response_sha256": "6355ce93f342092e1a4884e7a0f0dfc50d535d8872bf0b6cc09df35205a07194",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then pre",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "dbed43ce18a740d649a7d0d411a0b47c5367761f03fda7a2eb39bde49de91b1b",
+  "response_sha256": "e1925a92eb52b946f3c6a5dd85bb62d42ed4b71c0f96fb910a5bbc3d3e521562",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 open",
+  "page": "- item\n\n  text\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ff2d92dfb5793714914491b7cf69a62b2027ec89831c4c9ebb91a92f723b7175",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 open then fence",
+  "page": "- item\n\n  text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "fa2afa929716a91275d61f636b8a3a40eb609fe55f6888e58c530188a44638ef",
+  "response_sha256": "3e7c044f3f702c599c346bafa247b48a062f205ada84683afc86516f7ca5ab40",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 open then comment",
+  "page": "- item\n\n  text\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d7a4a69cc96857419eec43bfceb51f78db6c5afe4fe63949c58625ebf94b46f6",
+  "response_sha256": "02527ef5476608e644b7c40caa562debd64549f85201e00ecc00ec10a326e696",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 open then pre",
+  "page": "- item\n\n  text\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0e8db6863e66a4ab7685c7ca9fb75b66ae6c4edd7b02cfafb5d0e8e938d9dbf7",
+  "response_sha256": "9048686a00b2b24ddf5c131ebb46f3a1f3932d847099dfd322b9373a9faecbf3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 close",
+  "page": "- item\n\n  text\n   </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "03025c02128ee9cc86fb9f81e566f160d77accd4dbc9bd3f978449de2ec755f0",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 close then fence",
+  "page": "- item\n\n  text\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f133584ad650fa1d244863296716c4458cbdfa4d89f71aa334aecd73d0940c8e",
+  "response_sha256": "843f16b7c30dba1c66a72ef078b19b2d2b6d1d1afa39c931b0134b2f4e0ad708",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 close then comment",
+  "page": "- item\n\n  text\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "1bd6b8efc51e6fb8b176dd5d0d067cc9ada5138bae4a76a1f53b131e35186f33",
+  "response_sha256": "dd2d203766a993a0e80ce484d972b12e774f2c0fa3427aca7894be9a2e98a201",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 close then pre",
+  "page": "- item\n\n  text\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e355ea11fe44be4ce995407a779ff535e04427596811a01956615154444d1249",
+  "response_sha256": "396bb9435c6bda0067d8d88227e2ca8b5c9c04ea6dc5f86ef8bc93ce2f92dad2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 attribute",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c82901a03e884005b63918bc9757b9cd3ebc7cd8f63f1ec7f63196db6086efe0",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then fence",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d680b12908472bf0b0c73565ffaae002aea6ed32458d40b556a6c75e0adb1b28",
+  "response_sha256": "21a8cc225c98ec22b342be84ea26e36aaf02efe23678ea2d5da435a1763a42ce",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then comment",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3fc7afb369d41ae0b520a6a5b6cdfa3fb1209bd76a988388cdb2681e68c30e58",
+  "response_sha256": "6355ce93f342092e1a4884e7a0f0dfc50d535d8872bf0b6cc09df35205a07194",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then pre",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0ae1895a61fceb1dcba1610d3dec546ca88c194b124426b6d4b991de695f9824",
+  "response_sha256": "e1925a92eb52b946f3c6a5dd85bb62d42ed4b71c0f96fb910a5bbc3d3e521562",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 open",
+  "page": "- item\n\n  text\n    <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2cab73d2ead0249b823deaf0207ca373e527d75e5b8d45ec8362cefb89ed56f0",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 open then fence",
+  "page": "- item\n\n  text\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "7bdb9078b5b0832e029f52c2d07e34bad0d68572fe709b8480b4f7cb4d82f364",
+  "response_sha256": "3e7c044f3f702c599c346bafa247b48a062f205ada84683afc86516f7ca5ab40",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 open then comment",
+  "page": "- item\n\n  text\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9f96ac5f78a97802cf18d1ab026e00f1f8807831f4eae0d3c97bc50f2748ac8d",
+  "response_sha256": "02527ef5476608e644b7c40caa562debd64549f85201e00ecc00ec10a326e696",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 open then pre",
+  "page": "- item\n\n  text\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "00369d0e8818b5d1d9a7cd869176e3f36617b32b32b13ed42faad3c6298d8359",
+  "response_sha256": "9048686a00b2b24ddf5c131ebb46f3a1f3932d847099dfd322b9373a9faecbf3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 close",
+  "page": "- item\n\n  text\n    </span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "616ec2aed8ea04c393362f2a9228ff36bf161328345e697a4f07c32ae55f438d",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 close then fence",
+  "page": "- item\n\n  text\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "80b31d097f2b0bc976006aa08ef78b3465e7b421bc59cb179396507ae33e7b9b",
+  "response_sha256": "843f16b7c30dba1c66a72ef078b19b2d2b6d1d1afa39c931b0134b2f4e0ad708",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 close then comment",
+  "page": "- item\n\n  text\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6af42644a0a19398e5a91b468d06601cc22ca42fa4e5cacffcafec5318d03855",
+  "response_sha256": "dd2d203766a993a0e80ce484d972b12e774f2c0fa3427aca7894be9a2e98a201",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 close then pre",
+  "page": "- item\n\n  text\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3bdd23e44c43f84ad5b78ca62343d22ae50c8178f307595ed962f539fc87b5ba",
+  "response_sha256": "396bb9435c6bda0067d8d88227e2ca8b5c9c04ea6dc5f86ef8bc93ce2f92dad2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 attribute",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f22276e0d0cbb207dc8a3166003e2324ec0446ef93c2f043854fc79ffecef61b",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then fence",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e800e9c4c76363c53ae2d7a3609e890158d8f0fd042ee6fe4c62ee797b64b421",
+  "response_sha256": "21a8cc225c98ec22b342be84ea26e36aaf02efe23678ea2d5da435a1763a42ce",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then comment",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0d0b3eaa61531c7cf24064b595182cb67edc45b347a1827b651a88a1fda98ed3",
+  "response_sha256": "6355ce93f342092e1a4884e7a0f0dfc50d535d8872bf0b6cc09df35205a07194",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then pre",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3616ff68c0b8e1181eda7ccd2fa104e2cb67c104d266775da893500f8e447da4",
+  "response_sha256": "e1925a92eb52b946f3c6a5dd85bb62d42ed4b71c0f96fb910a5bbc3d3e521562",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction ordered first",
+  "page": "1. item\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e2746547112c029f228db4ba5f0c8cd9ef7f647a940567e7971756750154beef",
+  "response_sha256": "d024325b1f2a89c870f18bb9cec79011d3b0c12a201cbffb2db29843be3c6410",
+  "response_bytes": "<ol dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction ordered below column",
+  "page": "1. item\n\n   text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "affe442695788e68bb37ecb25e99deb8c792f90bf689cbe8d306fbae49981622",
+  "response_sha256": "2ff87a7f8b68dc364ee50eb80500cd2cc2552332e368d4e893c0226ba63b65eb",
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction star first",
+  "page": "* item\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d752edd8da9f32904d6e24c8b5cc4320e6aeb319e227c3d3426cfa208a28b7fe",
+  "response_sha256": "d46ad9f5f5ebfb544f3bae7037a35ea30805de61c88d78ecb786fb5967a5eb9e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction plus resumed",
+  "page": "+ item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b1dc5e1ad108544f18e6dcc112226f6a5929857aa23972c56c8ed6168c49f15e",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction empty gains paragraph",
+  "page": "-\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "167ebeb33e55534bc1c82a1f7ea12af5d069a5dc86220e6054fded40340b6a33",
+  "response_sha256": "3c1802d9d7f02c11dfcc5667c63ab64216a43939abd9f7e1011b3519f37cc511",
+  "response_bytes": "<ul dir=\"auto\">\n<li>text<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction empty resumed paragraph",
+  "page": "-\n  text\n\n  more\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "adae456f0a3aeec737f2a190cfe3be30b8bd7a0824d962e971fa7eb680e451b2",
+  "response_sha256": "212cd7bb2ba0156665ea486127e03b853fc9042a5fb61cb757e4ebb46c8023f2",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">more<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction lazy resumed paragraph",
+  "page": "- item\n\n  text\nlazy\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3e23f66976e326f25a8bd2b9afe78419f34ae5be9cca59fd38100987ae8e2776",
+  "response_sha256": "99be19faf6dd3142a9730e4d58e1d4b952cfa3d0f899c133abaa8bb1db824e1a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction sibling first paragraph",
+  "page": "- item\n1. next\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b2d0e15c06ff162f8ad2982d7c00d1d1a021f70b2d29d32628272b60e047693d",
+  "response_sha256": "3abbe6fd808ec123f9e0c435d781521d303fd49abf7996e06c82571f4c5444aa",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>next<br>\n<span></span></li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction sibling replaces boundary",
+  "page": "- item\n1. next\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "35b7d8c86581ee372075ca02cebc5fb05979a6520483495637ea035f48c3020c",
+  "response_sha256": "1f7b5b5b5b2d12aa49d499dbbe94dcb89aaf42ca4e42856fc68fa3ef07a95179",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>next</li>\n</ol>\n  <span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction quote column 0 releases iff dedented",
+  "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c8d3c2c98278f7ced44260c58bdb563654502f26d3dac686a4905c31655e9fa0",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction quote column 1 releases iff dedented",
+  "page": "- item\n > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e75752336f9468472e29923e005117c738b4e8467730f749ffc3fb3bccdcb7fe",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction quote column 2 releases iff dedented",
+  "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4f26c8ac21249809c031e45b0bba2ee0eaf75b591c096c3875ce5c24a7a6a718",
+  "response_sha256": "eefd71de4374c8cb18bc8c2170a383d72adfb0b338c2b9979eb260ab7f8be926",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction footnote column 0 releases iff dedented",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "425add15a7a3e81b8c0e4994bf6bb68222ad39e5cb7de661209d69dd4f0e09ac",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction footnote column 1 releases iff dedented",
+  "page": "- item\n [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "a70c7d36cb91b2f32b7e3e156cab473e2e9d1dcdd9a7df367534d2df100a624c",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "correction footnote column 2 releases iff dedented",
+  "page": "- item\n  [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2bf7603dae3388995427ebefd038f577ac23ae092b9453b6278201719a9078af",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>"
+ }
+]

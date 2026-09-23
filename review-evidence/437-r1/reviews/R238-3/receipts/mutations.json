@@ -1,0 +1,652 @@
+[
+ {
+  "id": "M01 fence/HTML no longer end with their container",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1254/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence]",
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence would escape]",
+    "  FAIL [I437 rendered live ordered paragraph, in-item pre]",
+    "  FAIL [I437 rendered task item, in-item fence would escape]",
+    "  FAIL [I437 rendered resumed paragraph, in-item fence would escape]",
+    "  FAIL [I437 rendered R238 P02 tag after a blank in the item, then fence]",
+    "  FAIL [I437 rendered R238 P03 div after a blank in the item, then fence]",
+    "  FAIL [I437 rendered R238 F09 tag after a blank in the item, heading after]",
+    "  FAIL [I437 rendered lazy indented line continues a nested quote]",
+    "  FAIL [I437 limitation #516 item block ends before a code span]",
+    "  FAIL [I437 limitation #516 item block ends before an escape]",
+    "  FAIL [I437 limitation #516 item block ends before an inline attribute]"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 23 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M02 only a fence ends with its container",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1258/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered live ordered paragraph, in-item pre]",
+    "  FAIL [I437 rendered R238 P02 tag after a blank in the item, then fence]",
+    "  FAIL [I437 rendered R238 P03 div after a blank in the item, then fence]",
+    "  FAIL [I437 rendered R238 F09 tag after a blank in the item, heading after]",
+    "  FAIL [I437 rendered lazy indented line continues a nested quote]",
+    "  FAIL [I437 limitation #516 item block ends before a code span]",
+    "  FAIL [I437 limitation #516 item block ends before an escape]",
+    "  FAIL [I437 limitation #516 item block ends before an inline attribute]",
+    "  FAIL [I437 limitation #516 item end uncovers an open quoted value]",
+    "  FAIL [I437 limitation #516 item end uncovers a type-3 block]",
+    "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+    "TOC selftest: FAIL (1258/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 16 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M03 only raw HTML ends with its container",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1265/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence]",
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence would escape]",
+    "  FAIL [I437 rendered task item, in-item fence would escape]",
+    "  FAIL [I437 rendered resumed paragraph, in-item fence would escape]",
+    "TOC selftest: FAIL (1265/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 7 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M04 comments also end with their container (emulation re-added)",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1263/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered a quote's optional space leaves a raw opener]",
+    "  FAIL [I437 rendered a continued quote's optional space leaves a raw opener]",
+    "  FAIL [I437 rendered raw HTML in an item]",
+    "  FAIL [I437 rendered raw HTML in a quote]",
+    "  FAIL [I437 rendered comment block outlives its item]",
+    "  FAIL [I437 rendered comment block outlives its quote]",
+    "TOC selftest: FAIL (1263/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 12 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M05 type-7 ignores the container gate",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1199/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 two spaces]",
+    "  FAIL [I437 three spaces]",
+    "  FAIL [I437 star item]",
+    "  FAIL [I437 ordered item]",
+    "  FAIL [I437 two paragraphs]",
+    "  FAIL [I437 task item]",
+    "  FAIL [I437 interrupting item]",
+    "  FAIL [I437 bold tag]",
+    "  FAIL [I437 two blank lines]",
+    "  FAIL [I437 plus item]",
+    "  FAIL [I437 custom tag]",
+    "  FAIL [I437 padding inside]"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 118 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M06 empty comment <!--> closes (closure re-added)",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R238-2 F1c empty comment after a type-3 opener]",
+    "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M07 blank continues an item only when filled (open paragraph ignored)",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R237-3 F2 definition-only item survives one blank]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M08 blank continues any item",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1263/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 empty item ends at blank]",
+    "  FAIL [I437 empty padded item ends at blank]",
+    "  FAIL [I437 rendered empty item ended by a shorter blank]",
+    "  FAIL [I437 rendered R237-3 F2 definition-only item ends at a second blank]",
+    "  FAIL [I437 rendered R237-3 F2 two definitions leave the item empty]",
+    "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]",
+    "TOC selftest: FAIL (1263/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 6 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M09 link definition fills its item",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R237-3 F2 definition-only item ends at a second blank]",
+    "  FAIL [I437 rendered R237-3 F2 two definitions leave the item empty]",
+    "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]",
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M10 a nested container does not fill its parent",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered nested empty item holds the item]",
+    "  FAIL [I437 rendered nested quote holds an empty item]",
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 4 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M11 no lazy continuation",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1260/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps]",
+    "  FAIL [a lone tag directly under two plain lines lazily continuing a list item hides the heading it wraps]",
+    "  FAIL [I437 lazy line retains item]",
+    "  FAIL [I437 labels lazy line after nested quote, tag opens HTML]",
+    "  FAIL [I437 rendered lazy line after nested quote, tag opens HTML]",
+    "  FAIL [I437 rendered R237-3 F2 lazy text keeps a definition's item]",
+    "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+    "TOC selftest: FAIL (1260/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 7 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M12 lazy line may start a list item",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 sibling replaces boundary]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M13 footnote continues on a whitespace-only line",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "M14 quote takes no optional space",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "M15 wide padding keeps its width (no indented-code rule)",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 code padding uses one]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M16 any list item interrupts a paragraph",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [a lone tag under an empty item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [I437 noninterrupting ordinal is no item]",
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M17 thematic break read as a list item",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 thematic break is no item]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M18 types 3-5 gate is the layer's NO_PARAGRAPH (R238-2 F1(d) reverted)",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered type-4 block leaves the gate to the walk]",
+    "  FAIL [I437 rendered type-3 block leaves the gate to the walk]",
+    "  FAIL [I437 rendered type-5 block leaves the gate to the walk]",
+    "TOC selftest: FAIL (1266/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M19 types 3-5 never end",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M20 types 3-5 not opened by the layer",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+    "  FAIL [I437 rendered type-3 opener is no lazy line]",
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 4 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M21 layer treats an inline comment as a block",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "M22 quote continues on a blank line (R237-3 F4)",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M23 item content column ignores the marker's own indentation",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [I437 marker indent outside]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M24 tabs counted as one column in the layer",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1261/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag directly under a tab-indented line under a heading hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a line indented by one space and a tab under a heading hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a line indented by two spaces and a tab under a heading hides the heading it wraps]",
+    "  FAIL [a lone tag under a pipeless delimiter row indented by a tab continues it, so the heading renders]",
+    "  FAIL [I437 tab continuation]",
+    "  FAIL [I437 tab padding columns]",
+    "  FAIL [I437 rendered boundary tab, inline tag]",
+    "  FAIL [I437 rendered boundary tab, unknown tag]",
+    "TOC selftest: FAIL (1261/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 7 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M25 definition title may be single-quoted",
+  "file": "gen_toc.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "M26 an open paragraph holds every box, not only the innermost",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "SURVIVED"
+ }
+]

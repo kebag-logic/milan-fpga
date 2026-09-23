@@ -1,0 +1,23 @@
+rendered 1359; regressions 121; by direction {'escape': 90, 'withhold': 31, 'mixed': 0}
+  empty comment <!--> [withhold]: 15
+  open quoted value [escape]: 37
+  open quoted value [withhold]: 1
+  opener GitHub prints as text [escape]: 7
+  opener GitHub prints as text [withhold]: 15
+  other comment delimiter [escape]: 18
+  other comment delimiter [withhold]: 5
+  select element [escape]: 21
+  type 3-5 raw HTML (#413) [escape]: 36
+  type 3-5 raw HTML (#413) [withhold]: 4
+regressions with no comment delimiter at all: 66
+regressions carrying exactly one class:
+  empty comment <!--> [withhold]: 12
+  open quoted value [escape]: 24
+  opener GitHub prints as text [escape]: 2
+  opener GitHub prints as text [withhold]: 9
+  other comment delimiter [escape]: 3
+  other comment delimiter [withhold]: 1
+  select element [escape]: 10
+  type 3-5 raw HTML (#413) [escape]: 23
+UNEXPLAINED (no documented hazard token): 1
+   s4371-56012 [] [[2, 'H1']] "text\n|-|\n    <span>\n'>\n-\n   ~~~\n\n## H1\n"

@@ -1,0 +1,106 @@
+[
+ {
+  "name": "fixture item end uncovers an open quoted value",
+  "page": "- a\n  <div title='\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2407579ae46754d83a1c2415fb1a1d4bb4bd0e23215994a11448a9e09271d507",
+  "response_sha256": "7c77c2f1e05252b1506a7fde7e94b3fabc414e8ddd825f09675c15b39ec3d76d",
+  "response_bytes": "<ul dir=\"auto\">\n<li>a\n</li></ul>"
+ },
+ {
+  "name": "fixture item end uncovers a type-3 block",
+  "page": "- a\n  <div>\n<? x\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c4bb3d39d1c76d6c2b55625096e932be12022d051b0510c0cfd03399dc5f30c7",
+  "response_sha256": "7e6a9ff4273df81c4ae4d57e833ca0eb2675b63fded76c5c78f0770c23214676",
+  "response_bytes": "<ul dir=\"auto\">\n<li>a\n<div dir=\"auto\">\n</div></li>\n</ul>\n"
+ },
+ {
+  "name": "fixture item end uncovers a comment over a fence",
+  "page": "- a\n  <div>\n<!-->\n```\n-->\n## Old\n```\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "prose line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "deea404e07d9a3b854828d0c42d4df28d075bcd33d6e52c2736d0aed7613e39d",
+  "response_sha256": "d6af267bf127090afc546c955f296bee90f50f54e1298dc8b08308c80c0d3583",
+  "response_bytes": "<ul dir=\"auto\">\n<li>a\n<div dir=\"auto\">\n</div></li>\n</ul>\n\n<pre class=\"notranslate\"><code class=\"notranslate\">--&gt;\n## Old\n</code></pre>"
+ },
+ {
+  "name": "select uncovered by an item end",
+  "page": "- a\n  <div>\n<select>\n\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "4d116ac9f06dfd6cd563745ffe5fc11c90189611f18072395bb541b8a696a0fc",
+  "response_sha256": "5839b65c6d5da36cda11b7ecd8d286bddd47cbbaeb159a43859c8294743c6e7a",
+  "response_bytes": "<ul dir=\"auto\">\n<li>a\n<div dir=\"auto\">\n</div></li>\n</ul>\n\nOld"
+ }
+]

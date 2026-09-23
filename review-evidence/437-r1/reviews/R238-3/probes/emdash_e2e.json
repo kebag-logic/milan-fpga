@@ -1,0 +1,26 @@
+[
+ {
+  "name": "T3 natural table, backtick fence",
+  "page": "| a | b |\n|---|---|\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "T4 ordered two",
+  "page": "text\n|-|\n    x\ny\n2. z\n   ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-escape angle destination",
+  "page": "- [a]: <u>\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-escape single-quoted title",
+  "page": "- [a]: /u 'x'\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "L-escape lazy bare definition",
+  "page": "- [a]: /u\n[b]: /v\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "control: D-escape double-quoted title (read)",
+  "page": "- [a]: /u \"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ }
+]

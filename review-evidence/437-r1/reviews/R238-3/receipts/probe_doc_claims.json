@@ -1,0 +1,588 @@
+[
+ {
+  "name": "F2 equals setext",
+  "page": "Alpha\n===\n",
+  "github": [
+   [
+    1,
+    "Alpha"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "13eb3702950453b66a6c0a42d4dcec89025ca74cc4eb39ba30ad14577a55a7f9",
+  "response_sha256": "76bad60cdcc9e1197d34585519f95936cbcbdf2d9731b7015891d2b9121dacc0",
+  "response_bytes": "<h1 dir=\"auto\">Alpha</h1>"
+ },
+ {
+  "name": "F2 hyphen setext",
+  "page": "text\n---\n",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "8971dc90619a1967d10fc069aa12ceea3faacaa752fb5dc0022853b059db5718",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "response_bytes": "<h2 dir=\"auto\">text</h2>"
+ },
+ {
+  "name": "F2 single hyphen setext",
+  "page": "text\n-\n",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "2ee344008d66c3cfd2a660a86ef933f5b3e960bcc58795511c9d27377f72b397",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "response_bytes": "<h2 dir=\"auto\">text</h2>"
+ },
+ {
+  "name": "F2 quoted heading",
+  "page": "> ## Q\n",
+  "github": [
+   [
+    2,
+    "Q"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "093e4b74de5af472c7f9791b5ea668f850130f791e8a406b512acf2226e36917",
+  "response_sha256": "45c09cb780095e0edcbde590d68f06f53b31759407f2f17377840f94735ba908",
+  "response_bytes": "<blockquote>\n<h2 dir=\"auto\">Q</h2>\n</blockquote>"
+ },
+ {
+  "name": "F2 list heading",
+  "page": "- item\n\n  ## Inner\n",
+  "github": [
+   [
+    2,
+    "Inner"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c3804ec3fdb7e7108a1d3b6bec78e7841f790a03fbecb1a3c0a5e23addaf4b52",
+  "response_sha256": "d6a41b8b76ba28ed75c4d7ff32adacbca845d94416a020b555ea498a9acfa116",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Inner</h2>\n</li>\n</ul>"
+ },
+ {
+  "name": "DOC unclosed tag hides the next heading",
+  "page": "<div\n\n## A\n\n## B\n",
+  "github": [
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "cd7740e0552d99a606b71c0de63ceed4bc9688e019ac57ba264a2ad6a1e3dea4",
+  "response_sha256": "f36fe8878e1170eddee79cbe3e1e22124f64adf31336de92e41d84eb70bc724f",
+  "response_bytes": "<div dir=\"auto\">A\n<h2 dir=\"auto\">B</h2></div>"
+ },
+ {
+  "name": "DOC bogus comment hides the next heading",
+  "page": "<div>\n<!x\n\n## A\n\n## B\n",
+  "github": [
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c234afb16833c67bb60f90a51142819b84429d1155d74a204a7ce1537b7763b2",
+  "response_sha256": "ff20db67d29b8bddd8c3160f872db50ae98b29c1c79871285e75c3deaf28df0e",
+  "response_bytes": "<div dir=\"auto\">\nA\n<h2 dir=\"auto\">B</h2></div>"
+ },
+ {
+  "name": "DOC open quoted value hides every later",
+  "page": "<div title='x\n\n## A\n\n## B\n\n## C\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ],
+   [
+    2,
+    "C"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ],
+   [
+    2,
+    "C"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "eecfb5bba8ad083c904fbf724218fac9efa9000cd2fd0e8d3b703992dec550d9",
+  "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "response_bytes": ""
+ },
+ {
+  "name": "DOC select hides the headings inside it",
+  "page": "<select>\n\n## A\n\n</select>\n\n## B\n",
+  "github": [
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "0aba0440ff57dbeb99da62c4619af8716970e20eaf8091e41926d3352218a433",
+  "response_sha256": "92354f2831cd6e89d2e7ef9394bcffb36eb6c4019ef647b02d9eae769cb99a59",
+  "response_bytes": "\nA\n\n<h2 dir=\"auto\">B</h2>"
+ },
+ {
+  "name": "DOC type-3 heading listed",
+  "page": "<? x\n## A\n?>\n\n## B\n",
+  "github": [
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "c9b4e69a5d1c47d99fb911afdeabd2cc6b6b08cdb2494d4af843d9ad66d93784",
+  "response_sha256": "88b568613e02472c2891b1219f919aec24cdcd2be6173aaaa5e787cf8525835c",
+  "response_bytes": "\n<h2 dir=\"auto\">B</h2>"
+ },
+ {
+  "name": "DOC comment closed inside its own raw HTML block agrees",
+  "page": "<div>\n<!-- c -->\n\n## A\n\n## B\n",
+  "github": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9a3a8d7ee6a3f0e777dbb014a0ca7226d204de7062ade0a76f2a9df7cb489a63",
+  "response_sha256": "8b468b35eca7f8879ad820226e596bf2c2a13771ca1dd25a7c73639f4d8eae16",
+  "response_bytes": "<div dir=\"auto\">\n\n<h2 dir=\"auto\">A</h2>\n<h2 dir=\"auto\">B</h2></div>"
+ },
+ {
+  "name": "DOC opener in a raw HTML block hides the rest",
+  "page": "<div>\n<!--\n\n## A\n\n## B\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "39b54fd08a32d3ca9b0c843cdf5f2a49cc91a03406262a171d018df80dcfc113",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "response_bytes": "<div dir=\"auto\">\n</div>"
+ },
+ {
+  "name": "DOC opener four columns into an item",
+  "page": "- item\n\n    <!--\n\n## A\n\n## B\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "indented code line",
+   "indented code line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "200fffad3be89b4bca3a6332932ac789b2e9166ddd198921c2c7cc932887d096",
+  "response_sha256": "723ec4f71c22e4763334ef3f54127d74a92b2e645f26897a3bcfad87d87cec52",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n  </li></ul>"
+ },
+ {
+  "name": "DOC closer printed as text ends only the walk's comment",
+  "page": "<!--\n`-->`\n## A\n-->\n\n## B\n",
+  "github": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "commented line",
+   "commented line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "9ba7f88bca6cb7cfbae4be499c91791b253e8ed8bdfe7609d77736951e4400c4",
+  "response_sha256": "2470ed73c02199da382577c1ef405ed882cbabb33cb59fcdc4cbbd896eeb6e43",
+  "response_bytes": "`\n<h2 dir=\"auto\">A</h2>\n<p dir=\"auto\">--&gt;</p>\n<h2 dir=\"auto\">B</h2>"
+ },
+ {
+  "name": "DOC comment wherever it sits: in a fence opens none",
+  "page": "```\n<!--\n```\n\n## A\n\n## B\n",
+  "github": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e298720894dcb93abf8cb2cf676d72ccf9e0fd23b2cb408814362f33082d3702",
+  "response_sha256": "cd6fa2241b4ebce149b82ebedfe5d1ccca208467ab335ffbfb18ae810c40dc98",
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">&lt;!--\n</code></pre>\n<h2 dir=\"auto\">A</h2>\n<h2 dir=\"auto\">B</h2>"
+ },
+ {
+  "name": "DOC empty comment withholds",
+  "page": "<!-->\n\n## A\n\n## B\n",
+  "github": [
+   [
+    2,
+    "A"
+   ],
+   [
+    2,
+    "B"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "7ade0b4b9049ff6ffba7767cbfc3bf217bafa0445b1928931faf14f75da2063e",
+  "response_sha256": "724059e0629071bb52753e81c75597294ded8b3d6ee18d8ba08d8c83014e1c16",
+  "response_bytes": "\n<h2 dir=\"auto\">A</h2>\n<h2 dir=\"auto\">B</h2>"
+ }
+]

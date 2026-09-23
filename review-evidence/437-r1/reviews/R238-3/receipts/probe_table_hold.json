@@ -1,0 +1,315 @@
+[
+ {
+  "name": "T1 fuzz original",
+  "page": "text\n|-|\n    <span>\n'>\n-\n   ~~~\n\n## H1\n",
+  "github": [
+   [
+    2,
+    "'>"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "487d7ff41174d5a56df02a2474d1aca4b8a29d0f3b7942967c551898f9d3d82e",
+  "response_sha256": "205f6c173905b530bc1e0ff2721fa67408f21fa8f6372c66bb6e737078955ea4",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">&lt;span&gt;\n</code></pre>\n<h2 dir=\"auto\">'&gt;</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## H1\n</code></pre>"
+ },
+ {
+  "name": "T2 minimal empty item",
+  "page": "text\n|-|\n    x\ny\n-\n   ~~~\n\n## H1\n",
+  "github": [
+   [
+    2,
+    "y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ff499dbf9a689a80156ecb1e89cb7c497ef41df690d2e40dab2e470ed05c7b70",
+  "response_sha256": "f9b2482bd170bf4f3171d4cf1d81d478fb75eba90fbe82e3b93191af505f3ae4",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">x\n</code></pre>\n<h2 dir=\"auto\">y</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## H1\n</code></pre>"
+ },
+ {
+  "name": "T3 natural table, backtick fence",
+  "page": "| a | b |\n|---|---|\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Title"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "93e3e36f21647550730cb505d1101a384311fa0a87cca0dc8c6e907d2a43894e",
+  "response_sha256": "fd48f74ac3c200f2ffb8aa0d814f84f7ffd3aa35550846598ddf8183f4d6d864",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<h2 dir=\"auto\">Title</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "T4 ordered two",
+  "page": "text\n|-|\n    x\ny\n2. z\n   ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "92de853c23fb48a2a20f0b43e4143676ee27c88a4d81ba316970768a60bc0146",
+  "response_sha256": "015e5491571b32292cf5fdba7794d3758caf60a33223ba85fedca202293374b2",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">x\n</code></pre>\n<p dir=\"auto\">y<br>\n2. z</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "T5 no indented line (control)",
+  "page": "text\n|-|\ny\n-\n   ~~~\n\n## H1\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "55481438127990c5192b93290c367e88389149a70834c06c23c14d24922be6e0",
+  "response_sha256": "692a72e5ff9b376eecb0e950819ea592e96677de20b946eddb93ef8aae55f3df",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>y</td>\n</tr>\n</tbody>\n</table></markdown-accessiblity-table>\n<ul dir=\"auto\">\n<li>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n</code></pre>\n</li>\n</ul>\n<h2 dir=\"auto\">H1</h2>"
+ },
+ {
+  "name": "T6 no paragraph line (control)",
+  "page": "text\n|-|\n    x\n-\n   ~~~\n\n## H1\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "473b9e149435e01ffe52cd2b421e14b838a9c9ef4ee3a2dc536e994d5c240ede",
+  "response_sha256": "f4e8ce67fd5ade5d40ce88b9731e08ef02cbd8778f08bdea301449238269eeb1",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">x\n</code></pre>\n<ul dir=\"auto\">\n<li>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n</code></pre>\n</li>\n</ul>\n<h2 dir=\"auto\">H1</h2>"
+ },
+ {
+  "name": "T7 two-digit ordered",
+  "page": "text\n|-|\n    x\ny\n10. z\n    ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "4a11bdd3b72f5a370514b834c2cf17f3edfedd05d1e9f6e6af0be969e8a2384e",
+  "response_sha256": "f2577c068f56c006aa993e7e5f12ed4c775fc1b6091bca6060af65d899d6ec13",
+  "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>text</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">x\n</code></pre>\n<p dir=\"auto\">y<br>\n10. z<br>\n```</p>\n<h2 dir=\"auto\">Old</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Real\n</code></pre>"
+ },
+ {
+  "name": "T8 blank-free table in doc",
+  "page": "## Top\n\n| k | v |\n|---|---|\n| a | 1 |\n    note\nNext\n-\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Top"
+   ],
+   [
+    2,
+    "Next"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Top"
+   ],
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Top"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "702fe932294689d44e053a923ff00592f15508a7744125a739801d79c9b6284c",
+  "response_sha256": "4baae3edb4bb1d7f7b068206ebef5200edf960ed60e730c2f0e90b869a8834b8",
+  "response_bytes": "<h2 dir=\"auto\">Top</h2>\n<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>k</th>\n<th>v</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>a</td>\n<td>1</td>\n</tr>\n</tbody>\n</table></markdown-accessiblity-table>\n<pre class=\"notranslate\"><code class=\"notranslate\">note\n</code></pre>\n<h2 dir=\"auto\">Next</h2>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ }
+]
