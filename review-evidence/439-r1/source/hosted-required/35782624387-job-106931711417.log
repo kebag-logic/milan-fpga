@@ -1,0 +1,345 @@
+﻿2026-09-22T20:48:27.4653996Z Current runner version: '2.337.0'
+2026-09-22T20:48:27.4677237Z ##[group]Runner Image Provisioner
+2026-09-22T20:48:27.4678316Z Hosted Compute Agent
+2026-09-22T20:48:27.4678891Z Version: 20260828.587
+2026-09-22T20:48:27.4679478Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T20:48:27.4680130Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T20:48:27.4680787Z Worker ID: {3c7c8bad-8717-410b-881b-b718b5a81b70}
+2026-09-22T20:48:27.4681459Z Azure Region: westus3
+2026-09-22T20:48:27.4681993Z ##[endgroup]
+2026-09-22T20:48:27.4683354Z ##[group]Operating System
+2026-09-22T20:48:27.4683902Z Ubuntu
+2026-09-22T20:48:27.4684433Z 24.04.5
+2026-09-22T20:48:27.4684889Z LTS
+2026-09-22T20:48:27.4685329Z ##[endgroup]
+2026-09-22T20:48:27.4685847Z ##[group]Runner Image
+2026-09-22T20:48:27.4686366Z Image: ubuntu-24.04
+2026-09-22T20:48:27.4686889Z Version: 20260907.300.1
+2026-09-22T20:48:27.4688303Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T20:48:27.4689715Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T20:48:27.4690561Z ##[endgroup]
+2026-09-22T20:48:27.4691687Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T20:48:27.4693497Z Contents: read
+2026-09-22T20:48:27.4694104Z Metadata: read
+2026-09-22T20:48:27.4694591Z Packages: read
+2026-09-22T20:48:27.4695097Z ##[endgroup]
+2026-09-22T20:48:27.4697159Z Secret source: Actions
+2026-09-22T20:48:27.4698146Z Cache mode: write
+2026-09-22T20:48:27.4698866Z Prepare workflow directory
+2026-09-22T20:48:27.5073017Z Prepare all required actions
+2026-09-22T20:48:27.5121230Z Getting action download info
+2026-09-22T20:48:27.8473854Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T20:48:27.9254287Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-09-22T20:48:28.0896752Z Complete job name: verilator-lint
+2026-09-22T20:48:28.1688843Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:28.1696897Z ##[group]Run actions/checkout@v4
+2026-09-22T20:48:28.1697979Z with:
+2026-09-22T20:48:28.1698404Z   repository: kebag-logic/milan-fpga
+2026-09-22T20:48:28.1702061Z   token: ***
+2026-09-22T20:48:28.1702430Z   ssh-strict: true
+2026-09-22T20:48:28.1702811Z   ssh-user: git
+2026-09-22T20:48:28.1703200Z   persist-credentials: true
+2026-09-22T20:48:28.1703624Z   clean: true
+2026-09-22T20:48:28.1704018Z   sparse-checkout-cone-mode: true
+2026-09-22T20:48:28.1704473Z   fetch-depth: 1
+2026-09-22T20:48:28.1704849Z   fetch-tags: false
+2026-09-22T20:48:28.1705237Z   show-progress: true
+2026-09-22T20:48:28.1705626Z   lfs: false
+2026-09-22T20:48:28.1706019Z   submodules: false
+2026-09-22T20:48:28.1706436Z   set-safe-directory: true
+2026-09-22T20:48:28.1706877Z   allow-unsafe-pr-checkout: false
+2026-09-22T20:48:28.1707746Z env:
+2026-09-22T20:48:28.1708129Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:28.1708578Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:28.1708996Z ##[endgroup]
+2026-09-22T20:48:28.2722268Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T20:48:28.2725027Z ##[group]Getting Git version info
+2026-09-22T20:48:28.2726225Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:28.2728105Z [command]/usr/bin/git version
+2026-09-22T20:48:28.2760034Z git version 2.55.0
+2026-09-22T20:48:28.2779570Z ##[endgroup]
+2026-09-22T20:48:28.2793907Z Temporarily overriding HOME='/home/runner/work/_temp/58c2aaf4-0e93-42bf-a7f9-b91158518540' before making global git config changes
+2026-09-22T20:48:28.2796288Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:48:28.2798614Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:28.2842629Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:28.2848873Z ##[group]Initializing the repository
+2026-09-22T20:48:28.2852758Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:28.2956999Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T20:48:28.2962770Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T20:48:28.2964366Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T20:48:28.2965699Z hint: call:
+2026-09-22T20:48:28.2966406Z hint:
+2026-09-22T20:48:28.2967505Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T20:48:28.2968551Z hint:
+2026-09-22T20:48:28.2969579Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T20:48:28.2971282Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T20:48:28.2972612Z hint:
+2026-09-22T20:48:28.2973259Z hint: 	git branch -m <name>
+2026-09-22T20:48:28.2974107Z hint:
+2026-09-22T20:48:28.2974789Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T20:48:28.2976539Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T20:48:28.2979673Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:28.3011655Z ##[endgroup]
+2026-09-22T20:48:28.3012990Z ##[group]Disabling automatic garbage collection
+2026-09-22T20:48:28.3014672Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T20:48:28.3041149Z ##[endgroup]
+2026-09-22T20:48:28.3042410Z ##[group]Setting up auth
+2026-09-22T20:48:28.3047580Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:48:28.3076280Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:48:28.3386368Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:48:28.3417641Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:48:28.3610233Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:28.3642420Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:48:28.3818494Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T20:48:28.3849916Z ##[endgroup]
+2026-09-22T20:48:28.3850816Z ##[group]Fetching the repository
+2026-09-22T20:48:28.3859844Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +aa91e1adc299ccb979022981bafd07e8d8d1756a:refs/remotes/pull/525/merge
+2026-09-22T20:48:30.4713754Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:30.4714800Z  * [new ref]         aa91e1adc299ccb979022981bafd07e8d8d1756a -> pull/525/merge
+2026-09-22T20:48:30.4717895Z ##[endgroup]
+2026-09-22T20:48:30.4718973Z ##[group]Determining the checkout info
+2026-09-22T20:48:30.4721108Z ##[endgroup]
+2026-09-22T20:48:30.4729777Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T20:48:30.4772454Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T20:48:30.4803791Z ##[group]Checking out the ref
+2026-09-22T20:48:30.4807056Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/525/merge
+2026-09-22T20:48:30.6039454Z Note: switching to 'refs/remotes/pull/525/merge'.
+2026-09-22T20:48:30.6040003Z 
+2026-09-22T20:48:30.6040347Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T20:48:30.6041089Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T20:48:30.6041594Z state without impacting any branches by switching back to a branch.
+2026-09-22T20:48:30.6041968Z 
+2026-09-22T20:48:30.6042195Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T20:48:30.6042686Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T20:48:30.6042970Z 
+2026-09-22T20:48:30.6043106Z   git switch -c <new-branch-name>
+2026-09-22T20:48:30.6043317Z 
+2026-09-22T20:48:30.6043462Z Or undo this operation with:
+2026-09-22T20:48:30.6043648Z 
+2026-09-22T20:48:30.6043766Z   git switch -
+2026-09-22T20:48:30.6043921Z 
+2026-09-22T20:48:30.6044198Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T20:48:30.6044524Z 
+2026-09-22T20:48:30.6044883Z HEAD is now at aa91e1a Merge f01f237d4b48c7b1ed59c80aca51430901791624 into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T20:48:30.6050554Z ##[endgroup]
+2026-09-22T20:48:30.6094167Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T20:48:30.6116658Z aa91e1adc299ccb979022981bafd07e8d8d1756a
+2026-09-22T20:48:30.6309681Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+2026-09-22T20:48:30.6310665Z [36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor[0m
+2026-09-22T20:48:30.6338354Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:30.6338700Z env:
+2026-09-22T20:48:30.6338944Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:30.6339259Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:30.6339555Z ##[endgroup]
+2026-09-22T20:48:30.6575070Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-09-22T20:48:30.6577051Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-09-22T20:48:30.6580527Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-09-22T20:48:30.6601989Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-09-22T20:48:32.3684886Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-09-22T20:48:34.0646934Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-09-22T20:48:35.5039737Z Submodule path 'gptp-processor': checked out 'c1b617435824929a790739ea8585c3fe1a328cc0'
+2026-09-22T20:48:35.5534052Z Submodule path 'protocol-processor': checked out '424c688fa2205b934a7689a58f2aa766420f2326'
+2026-09-22T20:48:35.5670817Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-09-22T20:48:35.5776497Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:35.5778493Z ##[group]Run actions/cache@v4
+2026-09-22T20:48:35.5778780Z with:
+2026-09-22T20:48:35.5779043Z   path: /opt/verilator
+2026-09-22T20:48:35.5779309Z   key: verilator-v5.050-Linux
+2026-09-22T20:48:35.5779606Z   enableCrossOsArchive: false
+2026-09-22T20:48:35.5779887Z   fail-on-cache-miss: false
+2026-09-22T20:48:35.5780155Z   lookup-only: false
+2026-09-22T20:48:35.5780407Z   save-always: false
+2026-09-22T20:48:35.5780651Z env:
+2026-09-22T20:48:35.5780897Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:35.5781157Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:35.5781399Z ##[endgroup]
+2026-09-22T20:48:35.6785115Z (node:2317) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:35.6785874Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:35.9025464Z Cache hit for: verilator-v5.050-Linux
+2026-09-22T20:48:35.9162407Z (node:2317) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:48:37.1518844Z Received 16777216 of 92153557 (18.2%), 16.0 MBs/sec
+2026-09-22T20:48:37.8337641Z Received 92153557 of 92153557 (100.0%), 52.2 MBs/sec
+2026-09-22T20:48:37.8338426Z Cache Size: ~88 MB (92153557 B)
+2026-09-22T20:48:37.8461691Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f5e0e608-221f-4ce2-9ff1-ea16861ef012/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:48:37.9833580Z Cache restored successfully
+2026-09-22T20:48:37.9943296Z Cache restored from key: verilator-v5.050-Linux
+2026-09-22T20:48:38.0083084Z ##[group]Run echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+2026-09-22T20:48:38.0083511Z [36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"[0m
+2026-09-22T20:48:38.0083877Z [36;1m/opt/verilator/bin/verilator --version[0m
+2026-09-22T20:48:38.0084305Z [36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"[0m
+2026-09-22T20:48:38.0084722Z [36;1mPATH="/opt/verilator/bin:$PATH" \[0m
+2026-09-22T20:48:38.0085047Z [36;1m  python3 scripts/lint_rtl.py --check --self-test[0m
+2026-09-22T20:48:38.0108029Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:38.0108298Z env:
+2026-09-22T20:48:38.0108501Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:38.0108743Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:38.0108969Z ##[endgroup]
+2026-09-22T20:48:38.5713496Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:48:38.6200084Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:48:57.2577529Z   [self-test] bad_trailing.sv  REJECT   OK (the 5.020 trailing-prose scar)
+2026-09-22T20:48:57.2578687Z   [self-test] bad_block.sv     REJECT   OK (a block comment with code after the pragma)
+2026-09-22T20:48:57.2579736Z   [self-test] bad_unclosed.sv  REJECT   OK (a lint_off that leaks to end of file)
+2026-09-22T20:48:57.2580717Z   [self-test] bad_unknown.sv   REJECT   OK (a waiver code Verilator does not know)
+2026-09-22T20:48:57.2581664Z   [self-test] bad_orphan_on.sv REJECT   OK (a lint_on with no matching lint_off)
+2026-09-22T20:48:57.2582644Z   [self-test] good.sv          ACCEPT   OK (the well-formed shape the tree already uses)
+2026-09-22T20:48:57.2583826Z   [self-test] resolution-refusal REFUSE   OK (every absent resolution tree refuses; none flagged when present)
+2026-09-22T20:48:57.2585061Z   [self-test] empty-tree-is-absent      OK (a present but source-empty tree reads as absent)
+2026-09-22T20:48:57.2586256Z == lint pragma gate (well-formed · balanced · justified) ==
+2026-09-22T20:48:57.2587021Z PRAGMA GATE: PASS (0 justified lint_off, 0 excluded file(s))
+2026-09-22T20:48:57.2588049Z == hdl/ Verilator lint census (70 module elaborations) ==
+2026-09-22T20:48:57.2588713Z   hdl/common                      1  <= ratchet 1
+2026-09-22T20:48:57.2589315Z   hdl/ieee1722/aaf               17  <= ratchet 17
+2026-09-22T20:48:57.2589898Z   hdl/ieee1722/avtp              49  <= ratchet 49
+2026-09-22T20:48:57.2590486Z   hdl/ieee1722/crf                4  <= ratchet 4
+2026-09-22T20:48:57.2591045Z   hdl/ieee1722/maap               1  <= ratchet 1
+2026-09-22T20:48:57.2591722Z   hdl/ieee8021as/ptp_timestamp    8  <= ratchet 8
+2026-09-22T20:48:57.2592320Z   hdl/ieee8021q/ts                8  <= ratchet 8
+2026-09-22T20:48:57.2592889Z   hdl/milan                       2  <= ratchet 2
+2026-09-22T20:48:57.2593475Z   hdl/ieee17221/adp               0  (was 0)
+2026-09-22T20:48:57.2594026Z   TOTAL                          90
+2026-09-22T20:48:57.2595042Z   by rule: WIDTHEXPAND 61, WIDTHTRUNC 20, SYNCASYNCNET 6, ALWCOMBORDER 1, CASEINCOMPLETE 1, DECLFILENAME 1
+2026-09-22T20:48:57.2596305Z   waived (RULE_WAIVERS, reasons in scripts/lint_rtl.py): PINMISSING 15, TIMESCALEMOD 2
+2026-09-22T20:48:57.2597864Z   third_party (upstream verilog-axis - resolved, never linted, not ours to fix): WIDTHTRUNC 10, WIDTHEXPAND 4, SELRANGE 3
+2026-09-22T20:48:57.2599389Z -- outstanding backlog: 90 violation(s) --
+2026-09-22T20:48:57.2600366Z   hdl/common/axis_mux_rr_2in_1out.sv:109:5: CASEINCOMPLETE  Case values incompletely covered (example pattern 0x0)
+2026-09-22T20:48:57.2601824Z   hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+2026-09-22T20:48:57.2603399Z   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:65:8: DECLFILENAME  Filename 'KL_aaf_latency_taps' does not match MODULE name: 'KL_aaf_latency_chain'
+2026-09-22T20:48:57.2604974Z   hdl/ieee1722/aaf/KL_chan_map_render.sv:207:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+2026-09-22T20:48:57.2606827Z   hdl/ieee1722/aaf/KL_chan_map_render.sv:208:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+2026-09-22T20:48:57.2608745Z   hdl/ieee1722/aaf/KL_chan_map_render.sv:256:23: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+2026-09-22T20:48:57.2610397Z   hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+2026-09-22T20:48:57.2612311Z   hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+2026-09-22T20:48:57.2614195Z   hdl/ieee1722/aaf/KL_lat_history_ring.sv:210:54: WIDTHEXPAND  Operator SHIFTL expects 32 bits on the LHS, but LHS's REPLICATE generates 30 bits.
+2026-09-22T20:48:57.2616068Z   hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+2026-09-22T20:48:57.2618177Z   hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+2026-09-22T20:48:57.2619885Z   hdl/ieee1722/aaf/KL_pcm_route.sv:73:14: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+2026-09-22T20:48:57.2621343Z   hdl/ieee1722/aaf/KL_tdm_capture.sv:82:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+2026-09-22T20:48:57.2622796Z   hdl/ieee1722/aaf/aaf_talker_i2s.sv:41:25: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+2026-09-22T20:48:57.2624437Z   hdl/ieee1722/aaf/aaf_talker_i2s.sv:239:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2626148Z   hdl/ieee1722/aaf/aaf_talker_i2s.sv:240:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2628022Z   hdl/ieee1722/aaf/aaf_talker_i2s.sv:257:21: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'nsamp_r' generates 3 bits.
+2026-09-22T20:48:57.2629055Z   hdl/ieee1722/aaf/aaf_talker_i2s.sv:272:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2630049Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:93:39: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+2026-09-22T20:48:57.2631108Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:95:41: WIDTHEXPAND  Operator NEQ expects 32 or 2 bits on the LHS, but LHS's VARXREF 'tdest' generates 1 bits.
+2026-09-22T20:48:57.2632210Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:96:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'rcvd_subtype_r' generates 8 bits.
+2026-09-22T20:48:57.2633569Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:152:7: ALWCOMBORDER  always_comb reads 'tready_pipe' before assigning it later in the same block; behavior may imply latch/state-like behavior and is not purely combinational
+2026-09-22T20:48:57.2634692Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:165:26: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h2' generates 32 or 2 bits.
+2026-09-22T20:48:57.2635629Z   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:166:30: WIDTHTRUNC  Operator ASSIGN expects 1 bits on the Assign RHS, but Assign RHS's CONST '?32?h3' generates 32 or 2 bits.
+2026-09-22T20:48:57.2636601Z   hdl/ieee1722/avtp/KL_stream_table.sv:109:16: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+2026-09-22T20:48:57.2637452Z   hdl/ieee1722/avtp/KL_stream_table.sv:110:15: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+2026-09-22T20:48:57.2638183Z   hdl/ieee1722/avtp/KL_stream_table.sv:119:18: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 4 bits.
+2026-09-22T20:48:57.2638948Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:150:35: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+2026-09-22T20:48:57.2640000Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:162:27: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'et_off' generates 5 bits.
+2026-09-22T20:48:57.2640966Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:163:39: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'et_off' generates 5 bits.
+2026-09-22T20:48:57.2641907Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:165:26: WIDTHEXPAND  Operator FUNCREF 'hbyte' expects 32 bits on the Function Argument, but Function Argument's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2642835Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:166:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2643647Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:171:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2644454Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:171:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2645251Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:171:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2646070Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:171:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2646867Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:172:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2647815Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:172:46: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2648623Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:172:58: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2649436Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:172:71: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2650286Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:173:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2651168Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:173:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2651976Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:173:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2652785Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:173:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2653637Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:174:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2654464Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:175:33: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2655356Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:175:45: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's AND generates 8 bits.
+2026-09-22T20:48:57.2656337Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:176:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2657135Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:176:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2658123Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:176:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2658933Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:176:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2659805Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:177:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2660639Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:177:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2661445Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:177:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2662238Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:177:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2663703Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:180:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2664982Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:180:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2665793Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:180:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2666588Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:180:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2667583Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:181:34: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2668644Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:181:47: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2670058Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:181:60: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2670865Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:181:73: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2671703Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:206:30: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+2026-09-22T20:48:57.2672552Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:239:32: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'bytes_in' generates 7 bits.
+2026-09-22T20:48:57.2673413Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:239:20: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+2026-09-22T20:48:57.2674267Z   hdl/ieee1722/avtp/avtp_stream_parser.sv:255:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'o' generates 6 bits.
+2026-09-22T20:48:57.2674982Z   hdl/ieee1722/crf/KL_crf_tx.sv:125:23: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+2026-09-22T20:48:57.2675668Z   hdl/ieee1722/crf/KL_crf_tx.sv:481:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2676428Z   hdl/ieee1722/crf/KL_crf_tx.sv:482:34: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2677170Z   hdl/ieee1722/crf/KL_crf_tx.sv:515:22: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'beat_r' generates 4 bits.
+2026-09-22T20:48:57.2678239Z   hdl/ieee1722/maap/KL_maap.sv:278:21: WIDTHTRUNC  Operator ASSIGNDLY expects 4 bits on the Assign RHS, but Assign RHS's AND generates 8 bits.
+2026-09-22T20:48:57.2679188Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:204:42: WIDTHTRUNC  Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'IS_TX' generates 32 bits.
+2026-09-22T20:48:57.2680167Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:224:24: WIDTHEXPAND  Operator LTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2681054Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:38: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2682016Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:225:22: WIDTHTRUNC  Operator ASSIGNDLY expects 7 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+2026-09-22T20:48:57.2682900Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:261:39: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2683775Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:271:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2684649Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:276:55: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2685510Z   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+2026-09-22T20:48:57.2686382Z   hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+2026-09-22T20:48:57.2687253Z   hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+2026-09-22T20:48:57.2688296Z   hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+2026-09-22T20:48:57.2689152Z   hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+2026-09-22T20:48:57.2690011Z   hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+2026-09-22T20:48:57.2690892Z   hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+2026-09-22T20:48:57.2691796Z   hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+2026-09-22T20:48:57.2692736Z   hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+2026-09-22T20:48:57.2693530Z   hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+2026-09-22T20:48:57.2694156Z   hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+2026-09-22T20:48:57.2694763Z LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+2026-09-22T20:48:57.2722456Z ##[group]Run python3 scripts/pp_srcs.py --check --selftest
+2026-09-22T20:48:57.2722865Z [36;1mpython3 scripts/pp_srcs.py --check --selftest[0m
+2026-09-22T20:48:57.2746473Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:57.2746723Z env:
+2026-09-22T20:48:57.2746939Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:57.2747198Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:57.2747536Z ##[endgroup]
+2026-09-22T20:48:57.4230386Z pp source list: 42 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+2026-09-22T20:48:57.4231678Z   prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+2026-09-22T20:48:57.4232548Z   prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+2026-09-22T20:48:57.4233373Z   prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+2026-09-22T20:48:57.4234067Z   prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+2026-09-22T20:48:57.4235016Z   prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+2026-09-22T20:48:57.4235921Z   prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+2026-09-22T20:48:57.4375959Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:57.4377127Z Post job cleanup.
+2026-09-22T20:48:57.5417547Z Cache hit occurred on the primary key verilator-v5.050-Linux, not saving cache.
+2026-09-22T20:48:57.5419731Z (node:2662) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:57.5420404Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:57.5627906Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:57.5629031Z Post job cleanup.
+2026-09-22T20:48:57.6456539Z [command]/usr/bin/git version
+2026-09-22T20:48:57.6490768Z git version 2.55.0
+2026-09-22T20:48:57.6524727Z Temporarily overriding HOME='/home/runner/work/_temp/e8e3f11d-c5da-43d8-9a94-daeecb8bb397' before making global git config changes
+2026-09-22T20:48:57.6526198Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:48:57.6529434Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:57.6564671Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:48:57.6593992Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:48:57.6779834Z Entering 'gptp-processor'
+2026-09-22T20:48:57.6828146Z Entering 'protocol-processor'
+2026-09-22T20:48:57.6856754Z Entering 'third_party/verilog-axis'
+2026-09-22T20:48:57.6912555Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:48:57.6929962Z http.https://github.com/.extraheader
+2026-09-22T20:48:57.6941527Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T20:48:57.6971141Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:48:57.7179376Z Entering 'gptp-processor'
+2026-09-22T20:48:57.7234239Z Entering 'protocol-processor'
+2026-09-22T20:48:57.7292566Z Entering 'third_party/verilog-axis'
+2026-09-22T20:48:57.7369749Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:57.7420417Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:48:57.7628984Z Entering 'gptp-processor'
+2026-09-22T20:48:57.7651724Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-09-22T20:48:57.7666803Z Entering 'protocol-processor'
+2026-09-22T20:48:57.7682690Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-09-22T20:48:57.7696946Z Entering 'third_party/verilog-axis'
+2026-09-22T20:48:57.7713422Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-09-22T20:48:57.7740653Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:57.7770765Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:57.7796874Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:57.7941389Z Cleaning up orphan processes
+2026-09-22T20:48:57.8175115Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
