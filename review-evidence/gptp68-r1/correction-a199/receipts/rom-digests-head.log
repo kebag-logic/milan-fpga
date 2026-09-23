@@ -1,0 +1,31 @@
+# date: 2026-09-23T16:11:48+02:00
+# head: cbccf226068c107fb30764891c98b8d70c54d775
+# command: python3 scripts/rom_digests.py
+| Tracked image | Generator arguments | base c1b6174 | reviewed 77c34e9 | head |
+|---|---|---|---|---|
+| `tb/verilator/engine/gptp_ucode.hex` | `--clk-hz 2000000 --cease-ms 3000` | `dee031848c5410d4f0d819eb3d5b124a8d2d0c95b83ffd465dfbff6b15f5c5d9` | `1e52fb26135da78254b96ab5349e2cf590c334d928a17cdee4cceb159a7ba823` | `e06b74c4cba2768fb3ccf7f737f106114c19fb96736563b48e29713c583d73e2` |
+| `tb/tsngen/gptp_ucode.hex` | `--clk-hz 2000000` | `a5d3f91884943afab62c99fe9bbf0111cde8cffe4b318f0cfe9ba1fab9aeba7d` | `7e64371861e6f54ac824c4adb429ff8308919f371b8ad92336cdbad77a902d5d` | `7316979d77ae9f05c1edff424b111291aaff20b6f1c841c53969e0b0370c19f0` |
+| `tb/verilator/ucpu/gptp_ucode.hex` | `defaults` | `83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939` | `f3d73858d62b484145653ce55df239620fede86be7d1f22a093d234b054f2762` | `02fbcec209d38eb039371c879982b71eff371052a67ea4bfd8b97a0cb86acf11` |
+| `syn/ooc/work/gptp_ucode.hex` | `defaults` | `83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939` | `f3d73858d62b484145653ce55df239620fede86be7d1f22a093d234b054f2762` | `02fbcec209d38eb039371c879982b71eff371052a67ea4bfd8b97a0cb86acf11` |
+
+| Untracked image (generated at test time) | base | reviewed | head |
+|---|---|---|---|
+| engine seeded --seq-seed 0x200000 | `79f41bae537a646b5103457703ff291001ffe0b3322ed799bd0ab2ef552a6ae0` | `923505b5f1ae30a5141bec36bc6a5b05bbcec5619cb688f07ddedba6c02cb9dc` | `413f6184f97079b26a827250864339dc1408728db023e051d7f804adedf43721` |
+| engine seeded --sync-seq-seed 0x10000 | `354faf487f71197bfcc923e9e6402d010315fb3f3a4234ef5edecfc461493089` | `619f23ba369243ace4bc4b4351952a8a2d3437c3f3eccb6f85c19e8b744c9fd1` | `85d6e3845c1de77cddfe26c815867a44c29dcc6eab4c75e897300ea11911270a` |
+| --clk-hz 25000000 | `4d74e73e78ef010a00ca87a4abf9d80686eb87def0c8d4f27a53cd3047ff7597` | `147cc61c1c2853c8d5a57c90ffe0f47ec479f9736c1e7cb10c06db84a888214c` | `e9ff3d6879352c871f905f844bc94893e9462244f840ec774933c364b36b6182` |
+| --clk-hz 50000000 | `ff57e50f8be823c32cb888d9b16834d67ffc1fe8dfe75a7e67b9c4ef49c85434` | `9b8178756fe34981b384fd8b9947e03ebb5d93c6f0bdf7d0326f98ae475f9350` | `adebd740608d8f196c8494366bef03b5744eb7e0c7fd152a0a8248e19ed44c87` |
+| --clk-hz 125000000 | `d521e21f0bf15b4926c8f47218b82062b82df195c1b6397c47fc11f96a599ff6` | `621fa4c0ea71c3885293b1a705cc356d7defede1f77f030896b0283d808221cf` | `ece1e1cf40080849b8ca540f2f5d10637bcd179f0588b9fbfc1828412c777596` |
+
+tb/verilator/engine/gptp_ucode.hex: head vs base: 270 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..701, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+tb/verilator/engine/gptp_ucode.hex: head vs reviewed: 251 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..656, 659..662, 681..702, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+tb/tsngen/gptp_ucode.hex: head vs base: 270 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..701, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+tb/tsngen/gptp_ucode.hex: head vs reviewed: 251 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..656, 659..662, 681..702, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+tb/verilator/ucpu/gptp_ucode.hex: head vs base: 270 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..701, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+tb/verilator/ucpu/gptp_ucode.hex: head vs reviewed: 251 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..656, 659..662, 681..702, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+syn/ooc/work/gptp_ucode.hex: head vs base: 270 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..701, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+syn/ooc/work/gptp_ucode.hex: head vs reviewed: 251 words differ at 59..63, 103..123, 125..126, 159..190, 249..254, 314, 450, 470, 515, 521, 523, 625, 650..656, 659..662, 681..702, 837, 870..879, 885, 887..929, 931..945, 947..987, 989..1004, 1006..1023
+base: /tmp/tmpn5lazi0r/o.hex: 1024 words, 989 real (96.6%), mac 02A1B2C3D4E5
+reviewed: /tmp/tmpn5lazi0r/o.hex: 1024 words, 993 real (97.0%), mac 02A1B2C3D4E5
+head: /tmp/tmpn5lazi0r/o.hex: 1024 words, 996 real (97.3%), mac 02A1B2C3D4E5
+RESULT: PASS
+# exit: 0

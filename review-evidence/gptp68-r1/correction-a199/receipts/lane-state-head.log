@@ -1,0 +1,39 @@
+# date: 2026-09-23T16:12:04+02:00
+# lane: $LANES/gptp68-step-policy  branch: 68-step-policy
+# head: cbccf226068c107fb30764891c98b8d70c54d775  tree: e8b9fa23fe5e1d5e3bd3ab1dd3c09196760a5063
+# head parent: 77c34e904eba2446755d13e1bf4763d1652c3ca7  (the reviewed head)
+# commits on main c1b6174:
+cbccf226068c107fb30764891c98b8d70c54d775 Step over 20 us at link-up and over 100 us once locked, and clamp the whole trim to 200 ppm (#68)
+77c34e904eba2446755d13e1bf4763d1652c3ca7 Step the PHC only on a first synchronization over one second (#68)
+# head commit message (raw):
+Step over 20 us at link-up and over 100 us once locked, and clamp the whole trim to 200 ppm (#68)$
+$
+# trailers in the head commit: 0
+# author: hackerman-kl <hackerman-kl@kebag-logic.com>
+# pushed? origin/68-step-policy: 77c34e904eba2446755d13e1bf4763d1652c3ca7
+# status --porcelain (empty = clean):
+# ignored build products present: 10
+# diff stat vs reviewed 77c34e9:
+ docs/INTEGRATION.md                |  90 ++++--
+ docs/SOURCE_EVIDENCE.md            |   1 +
+ docs/TEST_DEVELOPER.md             |   3 +-
+ hdl/ucode/gen_gptp_ucode.py        | 147 ++++++----
+ syn/ooc/work/gptp_ucode.hex        | 214 +++++++-------
+ tb/tsngen/gptp_ucode.hex           | 214 +++++++-------
+ tb/verilator/engine/gptp_ucode.hex | 214 +++++++-------
+ tb/verilator/engine/mutants.py     |  94 +++---
+ tb/verilator/engine/sim_main.cpp   | 584 ++++++++++++++++++++++++-------------
+ tb/verilator/ucpu/gptp_ucode.hex   | 214 +++++++-------
+ 10 files changed, 1015 insertions(+), 760 deletions(-)
+# diff stat vs base c1b6174:
+ docs/INTEGRATION.md                | 121 +++++++-
+ docs/SOURCE_EVIDENCE.md            |   2 +
+ docs/TEST_DEVELOPER.md             |   2 +
+ hdl/ucode/gen_gptp_ucode.py        | 159 ++++++----
+ syn/ooc/work/gptp_ucode.hex        | 226 +++++++--------
+ tb/tsngen/gptp_ucode.hex           | 226 +++++++--------
+ tb/verilator/engine/gptp_ucode.hex | 226 +++++++--------
+ tb/verilator/engine/mutants.py     |  65 +++++
+ tb/verilator/engine/sim_main.cpp   | 575 ++++++++++++++++++++++++++++++-------
+ tb/verilator/ucpu/gptp_ucode.hex   | 226 +++++++--------
+ 10 files changed, 1230 insertions(+), 598 deletions(-)

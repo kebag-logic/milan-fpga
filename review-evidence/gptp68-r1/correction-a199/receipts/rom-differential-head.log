@@ -1,0 +1,25 @@
+# date: 2026-09-23T16:11:41+02:00
+# head: cbccf226068c107fb30764891c98b8d70c54d775
+# command: python3 scripts/rom_differential.py --n 20000
+clk 2000000: ILIM = parent PHC_ADJ_MAX_C = 1677722; SERVO 651 -> 651, PDPAIR 839 -> 839
+  SERVO: A in band 5884 identical + 1431 clamped only; B new == #68 rule 20100; C base == pre-#68 rule 20100
+  PDPAIR: D 5000 cases, 943 of them an asCapable rise, 2437 a good verdict
+  programs whose content changed: BECOME, PDPAIR, SRTO, SERVO
+clk 25000000: ILIM = parent PHC_ADJ_MAX_C = 134218; SERVO 651 -> 651, PDPAIR 839 -> 839
+  SERVO: A in band 5934 identical + 1428 clamped only; B new == #68 rule 20100; C base == pre-#68 rule 20100
+  PDPAIR: D 5000 cases, 883 of them an asCapable rise, 2481 a good verdict
+  programs whose content changed: BECOME, PDPAIR, SRTO, SERVO
+clk 50000000: ILIM = parent PHC_ADJ_MAX_C = 67109; SERVO 651 -> 651, PDPAIR 839 -> 839
+  SERVO: A in band 5762 identical + 1413 clamped only; B new == #68 rule 20100; C base == pre-#68 rule 20100
+  PDPAIR: D 5000 cases, 903 of them an asCapable rise, 2478 a good verdict
+  programs whose content changed: BECOME, PDPAIR, SRTO, SERVO
+clk 100000000: ILIM = parent PHC_ADJ_MAX_C = 33554; SERVO 651 -> 651, PDPAIR 839 -> 839
+  SERVO: A in band 5836 identical + 1562 clamped only; B new == #68 rule 20100; C base == pre-#68 rule 20100
+  PDPAIR: D 5000 cases, 867 of them an asCapable rise, 2456 a good verdict
+  programs whose content changed: BECOME, PDPAIR, SRTO, SERVO
+clk 125000000: ILIM = parent PHC_ADJ_MAX_C = 26844; SERVO 651 -> 651, PDPAIR 839 -> 839
+  SERVO: A in band 5816 identical + 1405 clamped only; B new == #68 rule 20100; C base == pre-#68 rule 20100
+  PDPAIR: D 5000 cases, 849 of them an asCapable rise, 2463 a good verdict
+  programs whose content changed: BECOME, PDPAIR, SRTO, SERVO
+RESULT: PASS
+# exit: 0

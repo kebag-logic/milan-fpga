@@ -1,0 +1,37 @@
+--- a/tb/verilator/gptp_shadow/sim_main.cpp	2026-09-23 09:32:19.781092989 +0200
++++ b/tb/verilator/gptp_shadow/sim_main.cpp	2026-09-23 09:32:19.773687375 +0200
+@@ -1,3 +1,4 @@
++#include <cstdlib>
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+@@ -986,6 +987,29 @@
+         run(4000);
+         sq++;
+       }
++      {
++        //! PROBE: a synchronized master jump of +90000 ns (locked: slews), 24 pairs, then the rest of the suite
++        const uint64_t mst2 = mst_base + 90000ull;
++        for (int k = 0; k < 24; k++) {
++          if ((k % 6) == 0) announce(static_cast<uint16_t>(0x300 + k), 100, GMID);
++          run_svc(250000);
++          uint64_t origin = mst2 + cyc * 8ull + cyc / 1250ull;
++          Frame f = ptp(0x0, sq, 0, 0x0208, 10);
++          f.ts(0);
++          send_wide(f.b);
++          run(30);
++          Frame g = follow_up(sq, origin + static_cast<uint64_t>(D_NOM));
++          send_wide(g.b);
++          run(4000);
++          sq++;
++          fprintf(stderr, "WEDGE k=%d cyc=%llu offset=%d adj=%d flags=%u phcl=%u lost=%u\n", k,
++                  (unsigned long long)cyc, static_cast<int32_t>(dut->pub_offset_o),
++                  static_cast<int32_t>(dut->dbg_phc_adj_o), (unsigned)dut->pub_flags_o,
++                  (unsigned)dut->dbg_txts_phcl_o, (unsigned)dut->dbg_txts_lost_o);
++        }
++        fprintf(stderr, "WEDGE-END (the suite continues)\n");
++        fflush(stderr);
++      }
+       expect("closed loop locked",
+              near(static_cast<int32_t>(dut->pub_offset_o), 0, 300), 1);
+     }

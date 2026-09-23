@@ -1,0 +1,515 @@
+# date: 2026-09-23T16:09:44+02:00
+# head: cbccf226068c107fb30764891c98b8d70c54d775 tree: e8b9fa23fe5e1d5e3bd3ab1dd3c09196760a5063
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# command: (cd tb/verilator/engine && python3 scripts/policy_mutation_evidence.py)
+== clean sources: pass (1207 checks: 1207 PASS, 0 FAIL)
+== mutant: every pair uses the locked threshold: caught (1186 checks: 1161 PASS, 25 FAIL)
+   FAIL link-up +25 us: step pulses
+   FAIL link-up +25 us: addend matches the mirror
+   FAIL link-up +25 us: the step writes the bare estimate
+   FAIL link-up -15 us: addend matches the mirror
+   FAIL link-up -25 us: step pulses
+   FAIL link-up -25 us: addend matches the mirror
+   FAIL link-up -25 us: the step writes the bare estimate
+   FAIL link-up +20 us: addend matches the mirror
+   FAIL link-up -20 us: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: step pulses
+   FAIL link-up +20 us + 1 ns: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+   FAIL link-up -20 us - 1 ns: step pulses
+   FAIL link-up -20 us - 1 ns: addend matches the mirror
+   FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+   FAIL link-up: one step pulse per probe over 20 us
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: addend matches the mirror
+   FAIL link-up after become, +25 us: step pulses
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: step pulses
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: step pulses
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== mutant: every pair uses the link-up threshold: caught (1207 checks: 1146 PASS, 61 FAIL)
+   FAIL locked +90 us: step pulses
+   FAIL locked +90 us: addend matches the mirror
+   FAIL locked -90 us: step pulses
+   FAIL locked -90 us: addend matches the mirror
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: addend matches the mirror
+   FAIL locked +100 us: step pulses
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked -100 us: step pulses
+   FAIL locked -100 us: addend matches the mirror
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL locked: one step pulse per probe over 100 us
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: the trim rides its clamp
+   FAIL long slew, master +90 us: several pairs on the clamp
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: several pairs on the clamp
+   FAIL long slew: no step pulse
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL GM change: the pair before it: addend matches the mirror
+   FAIL GM change, +50 us: step pulses
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, +50 us: no step pulse
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL GM change, -5 ms: one step pulse
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: step pulses
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+   FAIL consumer envelope: some addends sit exactly on it
+== mutant: exactly the threshold steps: caught (1207 checks: 1166 PASS, 41 FAIL)
+   FAIL link-up +20 us: step pulses
+   FAIL link-up +20 us: addend matches the mirror
+   FAIL link-up -20 us: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+   FAIL link-up -20 us - 1 ns: addend matches the mirror
+   FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+   FAIL link-up: one step pulse per probe over 20 us
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: addend matches the mirror
+   FAIL locked +100 us: step pulses
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL locked: one step pulse per probe over 100 us
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+== mutant: the step arm is unreachable: caught (1171 checks: 1087 PASS, 84 FAIL)
+   FAIL big offset re-bases the phc
+   FAIL late FU never steers
+   FAIL complete Follow_Up re-bases the phc
+   FAIL padded Sync (60) pairs: re-bases the phc
+   FAIL padded Sync (74) pairs: re-bases the phc
+   FAIL sync flags 0200/0000: pairs and steers
+   FAIL sync flags 0208/0008: pairs and steers
+   FAIL sync flags 0000/0200: pairs and steers
+   FAIL link-up +15 us: addend matches the mirror
+   FAIL link-up +25 us: step pulses
+   FAIL link-up +25 us: addend matches the mirror
+   FAIL link-up +25 us: the step writes the bare estimate
+   FAIL link-up -15 us: addend matches the mirror
+   FAIL link-up -25 us: step pulses
+   FAIL link-up -25 us: addend matches the mirror
+   FAIL link-up -25 us: the step writes the bare estimate
+   FAIL link-up +20 us: addend matches the mirror
+   FAIL link-up -20 us: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: step pulses
+   FAIL link-up +20 us + 1 ns: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+   FAIL link-up -20 us - 1 ns: step pulses
+   FAIL link-up -20 us - 1 ns: addend matches the mirror
+   FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+   FAIL link-up: one step pulse per probe over 20 us
+   FAIL locked +110 us: step pulses
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: step pulses
+   FAIL locked -110 us: addend matches the mirror
+   FAIL locked +100 us + 1 ns: step pulses
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked -100 us - 1 ns: step pulses
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL locked: one step pulse per probe over 100 us
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL one re-base then lock
+   FAIL measured offset converged
+   FAIL addend carries the master's rate
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: never more than 100 us, so never a step
+   FAIL long slew, master +90 us: the loop settles back to lock
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: never more than 100 us, so never a step
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: the loop settles back to lock
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL GM change: the pair before it: addend matches the mirror
+   FAIL GM change, -5 ms: step pulses
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL GM change, -5 ms: one step pulse
+   FAIL link-up after become, +25 us: step pulses
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: step pulses
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: step pulses
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== mutant: a grandmaster change unlocks the servo: caught (1207 checks: 1197 PASS, 10 FAIL)
+   FAIL GM change, +50 us: step pulses
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, +50 us: no step pulse
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL GM change, -5 ms: one step pulse
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== mutant: a receipt timeout keeps the lock: caught (1195 checks: 1177 PASS, 18 FAIL)
+   FAIL link-up +25 us: step pulses
+   FAIL link-up +25 us: addend matches the mirror
+   FAIL link-up +25 us: the step writes the bare estimate
+   FAIL link-up -15 us: addend matches the mirror
+   FAIL link-up -25 us: step pulses
+   FAIL link-up -25 us: addend matches the mirror
+   FAIL link-up -25 us: the step writes the bare estimate
+   FAIL link-up +20 us: addend matches the mirror
+   FAIL link-up -20 us: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: step pulses
+   FAIL link-up +20 us + 1 ns: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+   FAIL link-up -20 us - 1 ns: step pulses
+   FAIL link-up -20 us - 1 ns: addend matches the mirror
+   FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+   FAIL link-up: one step pulse per probe over 20 us
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: addend matches the mirror
+== mutant: becoming grandmaster keeps the lock: caught (1204 checks: 1199 PASS, 5 FAIL)
+   FAIL link-up after become, +25 us: step pulses
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== mutant: asCapable's rise keeps the lock: caught (1204 checks: 1202 PASS, 2 FAIL)
+   FAIL warm-reset link-up: +25 us: step pulses
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== mutant: becoming grandmaster keeps sync-ok: caught (1207 checks: 1206 PASS, 1 FAIL)
+   FAIL becoming grandmaster clears sync-ok
+== mutant: the whole trim is not clamped: caught (1207 checks: 1185 PASS, 22 FAIL)
+   FAIL locked +90 us: addend matches the mirror
+   FAIL locked +90 us: addend inside the envelope
+   FAIL locked -90 us: addend matches the mirror
+   FAIL locked -90 us: addend inside the envelope
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked +100 us: addend inside the envelope
+   FAIL locked -100 us: addend matches the mirror
+   FAIL locked -100 us: addend inside the envelope
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: the trim never exceeds +200 ppm
+   FAIL long slew, master +90 us: the trim rides its clamp
+   FAIL long slew, master +90 us: several pairs on the clamp
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: the trim never exceeds -200 ppm
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: several pairs on the clamp
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, +50 us: addend inside the envelope
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: addend inside the envelope
+   FAIL consumer envelope: no addend pulse outside +-200 ppm
+   FAIL consumer envelope: some addends sit exactly on it
+== mutant: the trim clamp is one unit wider than the envelope: caught (1207 checks: 1184 PASS, 23 FAIL)
+   FAIL locked +90 us: addend matches the mirror
+   FAIL locked +90 us: addend inside the envelope
+   FAIL locked -90 us: addend matches the mirror
+   FAIL locked -90 us: addend inside the envelope
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked +100 us: addend inside the envelope
+   FAIL locked -100 us: addend matches the mirror
+   FAIL locked -100 us: addend inside the envelope
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: the trim never exceeds +200 ppm
+   FAIL long slew, master +90 us: the trim rides its clamp
+   FAIL long slew, master +90 us: several pairs on the clamp
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: the trim never exceeds +200 ppm
+   FAIL long slew, master -90 us: the trim never exceeds -200 ppm
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: several pairs on the clamp
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, +50 us: addend inside the envelope
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: addend inside the envelope
+   FAIL consumer envelope: no addend pulse outside +-200 ppm
+   FAIL consumer envelope: some addends sit exactly on it
+== mutant: the integrator is not clamped: caught (1207 checks: 1169 PASS, 38 FAIL)
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL GM change: the pair before it: addend matches the mirror
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+== base c1b6174 (20 us on every pair): caught (1207 checks: 1146 PASS, 61 FAIL)
+   FAIL locked +90 us: step pulses
+   FAIL locked +90 us: addend matches the mirror
+   FAIL locked -90 us: step pulses
+   FAIL locked -90 us: addend matches the mirror
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked -110 us: addend matches the mirror
+   FAIL locked +100 us: step pulses
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked -100 us: step pulses
+   FAIL locked -100 us: addend matches the mirror
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL locked: one step pulse per probe over 100 us
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: the trim rides its clamp
+   FAIL long slew, master +90 us: several pairs on the clamp
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: several pairs on the clamp
+   FAIL long slew: no step pulse
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL GM change: the pair before it: addend matches the mirror
+   FAIL GM change, +50 us: step pulses
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, +50 us: no step pulse
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL GM change, -5 ms: one step pulse
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: step pulses
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+   FAIL consumer envelope: some addends sit exactly on it
+== reviewed 77c34e9 (first sync over 1 s): caught (1171 checks: 1087 PASS, 84 FAIL)
+   FAIL big offset re-bases the phc
+   FAIL late FU never steers
+   FAIL complete Follow_Up re-bases the phc
+   FAIL padded Sync (60) pairs: re-bases the phc
+   FAIL padded Sync (74) pairs: re-bases the phc
+   FAIL sync flags 0200/0000: pairs and steers
+   FAIL sync flags 0208/0008: pairs and steers
+   FAIL sync flags 0000/0200: pairs and steers
+   FAIL link-up +15 us: addend matches the mirror
+   FAIL link-up +15 us: addend inside the envelope
+   FAIL link-up +25 us: step pulses
+   FAIL link-up +25 us: addend matches the mirror
+   FAIL link-up +25 us: addend inside the envelope
+   FAIL link-up +25 us: the step writes the bare estimate
+   FAIL link-up -15 us: addend matches the mirror
+   FAIL link-up -25 us: step pulses
+   FAIL link-up -25 us: addend matches the mirror
+   FAIL link-up -25 us: the step writes the bare estimate
+   FAIL link-up +20 us: addend matches the mirror
+   FAIL link-up +20 us: addend inside the envelope
+   FAIL link-up -20 us: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: step pulses
+   FAIL link-up +20 us + 1 ns: addend matches the mirror
+   FAIL link-up +20 us + 1 ns: addend inside the envelope
+   FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+   FAIL link-up -20 us - 1 ns: step pulses
+   FAIL link-up -20 us - 1 ns: addend matches the mirror
+   FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+   FAIL link-up: one step pulse per probe over 20 us
+   FAIL locked +90 us: addend matches the mirror
+   FAIL locked +90 us: addend inside the envelope
+   FAIL locked -90 us: addend matches the mirror
+   FAIL locked +110 us: step pulses
+   FAIL locked +110 us: addend matches the mirror
+   FAIL locked +110 us: addend inside the envelope
+   FAIL locked -110 us: step pulses
+   FAIL locked -110 us: addend matches the mirror
+   FAIL locked +100 us: addend matches the mirror
+   FAIL locked +100 us: addend inside the envelope
+   FAIL locked -100 us: addend matches the mirror
+   FAIL locked +100 us + 1 ns: step pulses
+   FAIL locked +100 us + 1 ns: addend matches the mirror
+   FAIL locked +100 us + 1 ns: addend inside the envelope
+   FAIL locked -100 us - 1 ns: step pulses
+   FAIL locked -100 us - 1 ns: addend matches the mirror
+   FAIL locked: one step pulse per probe over 100 us
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL long slew, master +90 us: every addend matches the mirror
+   FAIL long slew, master +90 us: the trim never exceeds +200 ppm
+   FAIL long slew, master +90 us: the trim rides its clamp
+   FAIL long slew, master +90 us: several pairs on the clamp
+   FAIL long slew, master -90 us: every addend matches the mirror
+   FAIL long slew, master -90 us: the trim rides its clamp
+   FAIL long slew, master -90 us: several pairs on the clamp
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL GM change: the pair before it: addend matches the mirror
+   FAIL GM change, +50 us: addend matches the mirror
+   FAIL GM change, -5 ms: step pulses
+   FAIL GM change, -5 ms: addend matches the mirror
+   FAIL GM change, -5 ms: addend inside the envelope
+   FAIL GM change, -5 ms: one step pulse
+   FAIL link-up after become, +25 us: step pulses
+   FAIL link-up after become, +25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: step pulses
+   FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+   FAIL link-up after asCapable returns, -25 us: addend inside the envelope
+   FAIL warm-reset link-up: first pair: addend matches the mirror
+   FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+   FAIL warm-reset link-up: +25 us: step pulses
+   FAIL warm-reset link-up: +25 us: addend matches the mirror
+   FAIL consumer envelope: no addend pulse outside +-200 ppm
+   FAIL consumer envelope: some addends sit exactly on it
+
+| run | T1 link-up: 15 us slews, 25 us steps | T1 link-up: exactly 20 us slews, 20 us + 1 ns steps | T1 link-up after asCapable returns: -25 us steps | T1 link-up after become: +25 us steps | T1 link-up after a warm reset: +25 us steps | T2 locked: 90 us slews, 110 us steps | T2 locked: exactly 100 us slews, 100 us + 1 ns steps | T3 GM change: 50 us slews, 5 ms steps | T4 long locked slew never exceeds +-200 ppm | T5 consumer envelope over the whole run | becoming grandmaster clears sync-ok |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| clean sources | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| mutant: every pair uses the locked threshold | 8 | 8 | 2 | 2 | 3 | 2 | 0 | 0 | 0 | 0 | 0 |
+| mutant: every pair uses the link-up threshold | 0 | 0 | 1 | 1 | 4 | 7 | 6 | 6 | 7 | 1 | 0 |
+| mutant: exactly the threshold steps | 1 | 7 | 0 | 0 | 0 | 3 | 4 | 0 | 0 | 0 | 0 |
+| mutant: the step arm is unreachable | 9 | 8 | 2 | 2 | 4 | 5 | 4 | 4 | 7 | 0 | 0 |
+| mutant: a grandmaster change unlocks the servo | 0 | 0 | 1 | 1 | 3 | 0 | 0 | 5 | 0 | 0 | 0 |
+| mutant: a receipt timeout keeps the lock | 8 | 8 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+| mutant: becoming grandmaster keeps the lock | 0 | 0 | 1 | 2 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+| mutant: asCapable's rise keeps the lock | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 | 0 |
+| mutant: becoming grandmaster keeps sync-ok | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| mutant: the whole trim is not clamped | 0 | 0 | 0 | 0 | 2 | 4 | 4 | 2 | 8 | 2 | 0 |
+| mutant: the trim clamp is one unit wider than the envelope | 0 | 0 | 0 | 0 | 2 | 4 | 4 | 2 | 9 | 2 | 0 |
+| mutant: the integrator is not clamped | 0 | 0 | 1 | 1 | 2 | 0 | 2 | 2 | 2 | 0 | 0 |
+| base c1b6174 (20 us on every pair) | 0 | 0 | 1 | 1 | 4 | 7 | 6 | 6 | 7 | 1 | 0 |
+| reviewed 77c34e9 (first sync over 1 s) | 11 | 10 | 3 | 2 | 4 | 9 | 8 | 6 | 7 | 2 | 0 |
+
+RESULT: PASS
+# exit: 0
