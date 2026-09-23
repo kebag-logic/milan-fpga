@@ -1,0 +1,29 @@
+$ python3 scripts/test_suite_cancellation.py  (copy new-no-partial-logs-message)
+--- stdout ---
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1717584, "cwd": "/tmp/suite-cancellation-83y77nnl/normal-orphan input [523]", "identities": {"1717583": ["19760512", "S"], "1717584": ["19760514", "S"]}, "pid": 1717583}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1717920, "cwd": "/tmp/suite-cancellation-83y77nnl/cancel-selection-SIGINT input [523]", "identities": {"1717919": ["19760813", "S"], "1717920": ["19760816", "S"]}, "pid": 1717919}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1718168, "cwd": "/tmp/suite-cancellation-83y77nnl/cancel-selection-SIGTERM input [523]", "identities": {"1718167": ["19761044", "S"], "1718168": ["19761046", "S"]}, "pid": 1718167}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+--- stderr ---
+Traceback (most recent call last):
+  File "/tmp/523-a195-mutants/new-no-partial-logs-message/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/523-a195-mutants/new-no-partial-logs-message/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-no-partial-logs-message/scripts/test_suite_cancellation.py", line 190, in cancellation
+    cancel_report(output, root, signum, prepared=phase != "selection")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-no-partial-logs-message/scripts/test_suite_cancellation.py", line 123, in cancel_report
+    assert partial == [f"partial logs: {root / 'logs'}"] and not unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+CANCELLED: signal 2; no completed sweep result
+
+exit 1

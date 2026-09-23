@@ -1,0 +1,29 @@
+$ python3 scripts/test_suite_cancellation.py  (copy base1-logs-ready-early)
+--- stdout ---
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1745790, "cwd": "/tmp/suite-cancellation-vfw942cr/normal-orphan input [523]", "identities": {"1745787": ["19775439", "S"], "1745790": ["19775442", "S"]}, "pid": 1745787}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1745903, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-selection-SIGINT input [523]", "identities": {"1745902": ["19775731", "S"], "1745903": ["19775734", "S"]}, "pid": 1745902}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1745947, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-selection-SIGTERM input [523]", "identities": {"1745946": ["19775967", "S"], "1745947": ["19775970", "S"]}, "pid": 1745946}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1746008, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-preflight-SIGINT input [523]", "identities": {"1746007": ["19776206", "S"], "1746008": ["19776209", "S"]}, "pid": 1746007}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1746063, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-preflight-SIGTERM input [523]", "identities": {"1746059": ["19776451", "S"], "1746063": ["19776453", "S"]}, "pid": 1746059}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1746133, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-command-SIGINT input [523]", "identities": {"1746132": ["19776705", "S"], "1746133": ["19776708", "S"]}, "pid": 1746132}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1746223, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-command-SIGTERM input [523]", "identities": {"1746222": ["19776965", "S"], "1746223": ["19776968", "S"]}, "pid": 1746222}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1746303, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-transition-SIGINT input [523]", "identities": {"1746301": ["19777228", "S"], "1746303": ["19777231", "S"]}, "pid": 1746301}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1746385, "cwd": "/tmp/suite-cancellation-vfw942cr/cancel-transition-SIGTERM input [523]", "identities": {"1746384": ["19777490", "S"], "1746385": ["19777493", "S"]}, "pid": 1746384}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 1746486, "cwd": "/tmp/suite-cancellation-vfw942cr/unsafe-command-SIGTERM input [523]", "identities": {"1746485": ["19777746", "S"], "1746486": ["19777748", "S"]}, "pid": 1746485}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP", "sweep_shell_exited": true, "unsafe_control_detected": false}
+hard-HUP-group: {"exit": -1, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "HUP-group", "sweep_shell_exited": true, "unsafe_control_detected": false}
+unsafe-KILL: {"exit": -9, "lock_owner_left": false, "next_suite": true, "output_after_death": "PASS     alpha\nPASS     omega\n----------------------------------------------------------------\nsuites: 2   passed: 2   failed: 0   timed out: 0\nchecks: 2   in-suite failures: 0\nlogs: /tmp/suite-cancellation-vfw942cr/unsafe-KILL input [523]/logs\n", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": true}
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "refused": true, "sweep_started": false}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "refused": true, "sweep_started": false}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "refused": true, "sweep_started": false}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "refused": true, "sweep_started": false}
+suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)
+--- stderr ---
+exit 0

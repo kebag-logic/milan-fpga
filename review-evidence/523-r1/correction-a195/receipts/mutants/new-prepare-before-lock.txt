@@ -1,0 +1,36 @@
+$ python3 scripts/test_suite_cancellation.py  (copy new-prepare-before-lock)
+--- stdout ---
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1733130, "cwd": "/tmp/suite-cancellation-aupn_nct/normal-orphan input [523]", "identities": {"1733109": ["19767662", "S"], "1733130": ["19767665", "S"]}, "pid": 1733109}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1734258, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-selection-SIGINT input [523]", "identities": {"1734246": ["19767963", "S"], "1734258": ["19767967", "S"]}, "pid": 1734246}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1734911, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-selection-SIGTERM input [523]", "identities": {"1734909": ["19768199", "S"], "1734911": ["19768201", "S"]}, "pid": 1734909}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1735685, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-preflight-SIGINT input [523]", "identities": {"1735681": ["19768443", "S"], "1735685": ["19768446", "S"]}, "pid": 1735681}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1736369, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-preflight-SIGTERM input [523]", "identities": {"1736367": ["19768682", "S"], "1736369": ["19768685", "S"]}, "pid": 1736367}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1737050, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-command-SIGINT input [523]", "identities": {"1737029": ["19768941", "S"], "1737050": ["19768944", "S"]}, "pid": 1737029}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1737722, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-command-SIGTERM input [523]", "identities": {"1737718": ["19769195", "S"], "1737722": ["19769198", "S"]}, "pid": 1737718}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1738415, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-transition-SIGINT input [523]", "identities": {"1738408": ["19769452", "S"], "1738415": ["19769454", "S"]}, "pid": 1738408}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1739129, "cwd": "/tmp/suite-cancellation-aupn_nct/cancel-transition-SIGTERM input [523]", "identities": {"1739102": ["19769708", "S"], "1739129": ["19769710", "S"]}, "pid": 1739102}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+--- stderr ---
+Traceback (most recent call last):
+  File "/tmp/523-a195-mutants/new-prepare-before-lock/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/523-a195-mutants/new-prepare-before-lock/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-prepare-before-lock/scripts/test_suite_cancellation.py", line 240, in lock_wait
+    cancel_report(output, root, signum, prepared=False)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-prepare-before-lock/scripts/test_suite_cancellation.py", line 125, in cancel_report
+    assert partial == [] and unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+partial logs: /tmp/suite-cancellation-aupn_nct/cancel-lock-wait-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+
+exit 1

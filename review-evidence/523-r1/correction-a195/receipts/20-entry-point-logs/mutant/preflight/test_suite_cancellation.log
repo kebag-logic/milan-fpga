@@ -1,0 +1,24 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1796458, "cwd": "/tmp/suite-cancellation-48489pnf/normal-orphan input [523]", "identities": {"1796457": ["19816828", "S"], "1796458": ["19816830", "S"]}, "pid": 1796457}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+Traceback (most recent call last):
+  File "/tmp/523-a195-entry/mutant/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/523-a195-entry/mutant/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-entry/mutant/scripts/test_suite_cancellation.py", line 190, in cancellation
+    cancel_report(output, root, signum, prepared=phase != "selection")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-entry/mutant/scripts/test_suite_cancellation.py", line 125, in cancel_report
+    assert partial == [] and unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+partial logs: /tmp/suite-cancellation-48489pnf/cancel-selection-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+

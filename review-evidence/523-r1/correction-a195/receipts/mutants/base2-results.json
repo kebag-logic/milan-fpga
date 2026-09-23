@@ -1,0 +1,92 @@
+[
+  {
+    "mutant": "no-unprepared-message",
+    "defect": [
+      "    echo \"logs were not prepared for this invocation\" >&2\n",
+      "    :\n"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 39.2,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "295bf0d95a401b29d5fc92c0c84526cd11ac9e42b35c7bd7d4fc5e27c532bae8",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "report-inverted",
+    "defect": [
+      "if [ \"$LOGS_READY\" = 1 ]; then",
+      "if [ \"$LOGS_READY\" != 1 ]; then"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 39.2,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "7371f1a03b9942e36f114e9f349ce6bac9077e0a00d248846a7526ab84368b2b",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "partial-logs-wrong-dir",
+    "defect": [
+      "echo \"partial logs: $OUT\" >&2",
+      "echo \"partial logs: $ROOT/.suite-logs\" >&2"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.7,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "e848cd88eca8dcb1d5fc7a66416513b71ab9af6749dbc77f4f4fd11883379efe",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "int-reported-as-term",
+    "defect": [
+      "trap 'cancelled INT 130' INT",
+      "trap 'cancelled TERM 130' INT"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.8,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "de87f1f09c8b17e69c0836d4ae2fab84b82b204534ca44f1e9a9c4f62ec79cca",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "prepare-before-lock",
+    "defect": [
+      "  select_suites\n  acquire_lock\n  prepare_logs\n",
+      "  select_suites\n  prepare_logs\n  acquire_lock\n"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.9,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "f1d0a43c3075d6524806a14d65cc3dd5a0993baf2bc0abea787d3a1aa9eae735",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  }
+]
