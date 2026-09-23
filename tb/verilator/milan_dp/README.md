@@ -36,6 +36,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 decision; not in the default sweep until the datapath edit lands
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -335,6 +336,40 @@ The nightly/manual job runs that selection without sharding.
 The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
+
+## GM step re-base leg (#387)
+
+`make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
+elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
+and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
+that steps the PHC by 1.5 s while the AAF listener is bound and locked under
+CRF selection.
+
+| Phase | What it grades |
+|---|---|
+| Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
+| Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens |
+| Baseline | the render fill at accept is one constant inside the #386 band; the talker streams with `tu` clear |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate; the listener stays locked; one counted render re-base, no rail, the fill constant; one outgoing `mr` toggle; the talker's MEDIA_RESET counts one |
+
+**It is not in the default sweep yet.** At this revision the leg passes 37 of
+its 40 checks. The three it fails are decided behaviour the datapath does not
+implement yet: the render stage counts two re-bases, one on the grandmaster
+identity and one on the step, and the step neither toggles `mr` nor counts
+MEDIA_RESET. The datapath edit that closes them waits behind the lane holding
+`milan_datapath.sv`, and issue #387 records it. The leg joins `run` in the
+change that makes it pass, together with its negative-control runner.
+
+The model's limits, stated rather than hidden:
+
+- The TDM clocks are held, so the grid aligner stays disengaged. It has no PHC input to re-base.
+- The talker is opened by `AAF_CTRL[1]`, not by an lwSRP licence; no SRP peer exists here.
+- At 2 MHz a PDU's ingress spans most of a media tick, so the fill constant is the band's upper edge, 9 events. The 100 MHz legs sit on the setpoint, 8.
+- The talker's cadence in this compressed model is not the product's, so its stream is graded against its own baseline rate.
+- The step policy's thresholds are proven by the donor's engine suite; this leg only relies on them.
+
+`CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
+Measured on 2026-09-23 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
