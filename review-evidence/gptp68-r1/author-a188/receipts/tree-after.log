@@ -1,0 +1,19 @@
+# command: sh -c git rev-parse HEAD "HEAD^{tree}"; echo "porcelain (empty = clean):"; git status --porcelain; echo "ignored build outputs:"; git status --porcelain --ignored | head -50
+# start: 2026-09-23T08:55:08+02:00
+77c34e904eba2446755d13e1bf4763d1652c3ca7
+10154fc3f95ccc542a6f5dcd8a58105d302fd1af
+porcelain (empty = clean):
+ignored build outputs:
+!! bench/arty/obj_dir/
+!! hdl/ucode/__pycache__/
+!! tb/__pycache__/
+!! tb/tsngen/obj_dir/
+!! tb/verilator/engine/__pycache__/
+!! tb/verilator/engine/obj_dir/
+!! tb/verilator/engine/seedrun/
+!! tb/verilator/engine/syncseedrun/
+!! tb/verilator/gaskets/obj_dir/
+!! tb/verilator/parser/obj_dir/
+!! tb/verilator/ucpu/obj_dir/
+# end: 2026-09-23T08:55:08+02:00
+# exit: 0

@@ -1,0 +1,9 @@
+# command: $REVIEWS/gptp68-a188-packet/scripts/rom_parity.sh
+# start: 2026-09-23T08:43:03+02:00
+# ref: working tree at HEAD 77c34e904eba2446755d13e1bf4763d1652c3ca7
+MATCH  1e52fb26135da78254b96ab5349e2cf590c334d928a17cdee4cceb159a7ba823  tb/verilator/engine/gptp_ucode.hex  (args: --clk-hz 2000000 --cease-ms 3000)
+MATCH  7e64371861e6f54ac824c4adb429ff8308919f371b8ad92336cdbad77a902d5d  tb/tsngen/gptp_ucode.hex  (args: --clk-hz 2000000)
+MATCH  f3d73858d62b484145653ce55df239620fede86be7d1f22a093d234b054f2762  tb/verilator/ucpu/gptp_ucode.hex  (args: )
+MATCH  f3d73858d62b484145653ce55df239620fede86be7d1f22a093d234b054f2762  syn/ooc/work/gptp_ucode.hex  (args: )
+# end: 2026-09-23T08:43:03+02:00
+# exit: 0

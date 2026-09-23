@@ -1,0 +1,15 @@
+# command: git --no-pager diff --stat c1b617435824929a790739ea8585c3fe1a328cc0 HEAD
+# start: 2026-09-23T08:43:04+02:00
+ docs/INTEGRATION.md                |  89 +++++++++-
+ docs/SOURCE_EVIDENCE.md            |   1 +
+ docs/TEST_DEVELOPER.md             |   1 +
+ hdl/ucode/gen_gptp_ucode.py        | 106 ++++++-----
+ syn/ooc/work/gptp_ucode.hex        |  60 +++----
+ tb/tsngen/gptp_ucode.hex           |  60 +++----
+ tb/verilator/engine/gptp_ucode.hex |  60 +++----
+ tb/verilator/engine/mutants.py     |  49 ++++++
+ tb/verilator/engine/sim_main.cpp   | 351 ++++++++++++++++++++++++++++++-------
+ tb/verilator/ucpu/gptp_ucode.hex   |  60 +++----
+ 10 files changed, 607 insertions(+), 230 deletions(-)
+# end: 2026-09-23T08:43:04+02:00
+# exit: 0

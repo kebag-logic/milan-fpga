@@ -1,0 +1,510 @@
+# command: python3 $REVIEWS/gptp68-a188-packet/scripts/policy_mutation_evidence.py
+# start: 2026-09-23T08:44:47+02:00
+== clean sources: pass (1137 checks: 1137 PASS, 0 FAIL)
+== mutant: a synchronized servo may step: caught (1137 checks: 1095 PASS, 42 FAIL)
+   FAIL +1.1 s synchronized: step pulses
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL +1.1 s: exactly one step pulse
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: the first-synchronization test inverted: caught (1119 checks: 1069 PASS, 50 FAIL)
+   FAIL +1.1 s first: step pulses
+   FAIL +1.1 s first: addend matches the mirror
+   FAIL +1.1 s: the step writes the bare estimate
+   FAIL +1.1 s synchronized: step pulses
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL -1.1 s first: step pulses
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: step pulses
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: step pulses
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL second GM change, -1.5 s: step pulses
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: step pulses
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: every first synchronization steps: caught (1137 checks: 1085 PASS, 52 FAIL)
+   FAIL first sync under 1 s: no step pulse
+   FAIL first sync under 1 s: one slew addend
+   FAIL late FU never steers
+   FAIL complete Follow_Up steers the phc
+   FAIL padded Sync (60) pairs: steers the phc
+   FAIL padded Sync (74) pairs: steers the phc
+   FAIL +900 ms first: step pulses
+   FAIL +900 ms first: addend matches the mirror
+   FAIL 900 ms: never one step pulse
+   FAIL +1 s first: step pulses
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: step pulses
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: step pulses
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL GM change alone: no step pulse
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: the pre-#68 20 us threshold: caught (1137 checks: 1085 PASS, 52 FAIL)
+   FAIL first sync under 1 s: no step pulse
+   FAIL first sync under 1 s: one slew addend
+   FAIL late FU never steers
+   FAIL complete Follow_Up steers the phc
+   FAIL padded Sync (60) pairs: steers the phc
+   FAIL padded Sync (74) pairs: steers the phc
+   FAIL +900 ms first: step pulses
+   FAIL +900 ms first: addend matches the mirror
+   FAIL 900 ms: never one step pulse
+   FAIL +1 s first: step pulses
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: step pulses
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: step pulses
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL GM change alone: no step pulse
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: exactly one second steps: caught (1137 checks: 1098 PASS, 39 FAIL)
+   FAIL +1 s first: step pulses
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: the step arm is unreachable: caught (1119 checks: 1092 PASS, 27 FAIL)
+   FAIL +1.1 s first: step pulses
+   FAIL +1.1 s first: addend matches the mirror
+   FAIL +1.1 s: the step writes the bare estimate
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL +1.1 s: exactly one step pulse
+   FAIL -1.1 s first: step pulses
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: step pulses
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: step pulses
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL one re-base then lock
+   FAIL measured offset converged
+   FAIL addend carries the master's rate
+   FAIL second GM change, -1.5 s: step pulses
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: step pulses
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: a grandmaster change keeps synchronization: caught (1134 checks: 1127 PASS, 7 FAIL)
+   FAIL GM change, +300 us: sync-ok low before the pair
+   FAIL second GM change, -1.5 s: sync-ok low before the pair
+   FAIL second GM change, -1.5 s: step pulses
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: the slew input is not saturated: caught (1137 checks: 1075 PASS, 62 FAIL)
+   FAIL first sync under 1 s: one slew addend
+   FAIL complete Follow_Up steers the phc
+   FAIL padded Sync (60) pairs: steers the phc
+   FAIL padded Sync (74) pairs: steers the phc
+   FAIL sync flags 0200/0000: pairs and steers
+   FAIL sync flags 0208/0008: pairs and steers
+   FAIL sync flags 0000/0200: pairs and steers
+   FAIL +900 ms first: addend matches the mirror
+   FAIL +900 ms: the trim slows our clock
+   FAIL -900 ms synchronized 0: addend matches the mirror
+   FAIL -900 ms synchronized 1: addend matches the mirror
+   FAIL -900 ms synchronized 2: addend matches the mirror
+   FAIL -900 ms synchronized 3: addend matches the mirror
+   FAIL -900 ms synchronized 4: addend matches the mirror
+   FAIL -900 ms synchronized 5: addend matches the mirror
+   FAIL -900 ms synchronized 6: addend matches the mirror
+   FAIL -900 ms synchronized 7: addend matches the mirror
+   FAIL -900 ms synchronized 8: addend matches the mirror
+   FAIL -900 ms synchronized 9: addend matches the mirror
+   FAIL -900 ms synchronized 10: addend matches the mirror
+   FAIL -900 ms synchronized 11: addend matches the mirror
+   FAIL -900 ms: the trim speeds our clock
+   FAIL 900 ms: widest slew is the pre-#68 envelope
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== mutant: the integrator is not clamped: caught (1137 checks: 1078 PASS, 59 FAIL)
+   FAIL padded Sync (74) pairs: steers the phc
+   FAIL sync flags 0200/0000: pairs and steers
+   FAIL sync flags 0208/0008: pairs and steers
+   FAIL sync flags 0000/0200: pairs and steers
+   FAIL +900 ms first: addend matches the mirror
+   FAIL -900 ms synchronized 0: addend matches the mirror
+   FAIL -900 ms synchronized 1: addend matches the mirror
+   FAIL -900 ms synchronized 2: addend matches the mirror
+   FAIL -900 ms synchronized 3: addend matches the mirror
+   FAIL -900 ms synchronized 4: addend matches the mirror
+   FAIL -900 ms synchronized 5: addend matches the mirror
+   FAIL -900 ms synchronized 6: addend matches the mirror
+   FAIL -900 ms synchronized 7: addend matches the mirror
+   FAIL -900 ms synchronized 8: addend matches the mirror
+   FAIL -900 ms synchronized 9: addend matches the mirror
+   FAIL -900 ms synchronized 10: addend matches the mirror
+   FAIL -900 ms synchronized 11: addend matches the mirror
+   FAIL 900 ms: widest slew is the pre-#68 envelope
+   FAIL +1.1 s first: addend matches the mirror
+   FAIL +1.1 s: the step writes the bare estimate
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+== base generator c1b617435824 (policy removed): caught (1137 checks: 1049 PASS, 88 FAIL)
+   FAIL first sync under 1 s: no step pulse
+   FAIL first sync under 1 s: one slew addend
+   FAIL late FU never steers
+   FAIL complete Follow_Up steers the phc
+   FAIL padded Sync (60) pairs: steers the phc
+   FAIL padded Sync (74) pairs: steers the phc
+   FAIL sync flags 0200/0000: pairs and steers
+   FAIL sync flags 0208/0008: pairs and steers
+   FAIL sync flags 0000/0200: pairs and steers
+   FAIL +900 ms first: step pulses
+   FAIL +900 ms first: addend matches the mirror
+   FAIL +900 ms: the trim slows our clock
+   FAIL -900 ms synchronized 0: step pulses
+   FAIL -900 ms synchronized 0: addend matches the mirror
+   FAIL -900 ms synchronized 1: step pulses
+   FAIL -900 ms synchronized 1: addend matches the mirror
+   FAIL -900 ms synchronized 2: step pulses
+   FAIL -900 ms synchronized 2: addend matches the mirror
+   FAIL -900 ms synchronized 3: step pulses
+   FAIL -900 ms synchronized 3: addend matches the mirror
+   FAIL -900 ms synchronized 4: step pulses
+   FAIL -900 ms synchronized 4: addend matches the mirror
+   FAIL -900 ms synchronized 5: step pulses
+   FAIL -900 ms synchronized 5: addend matches the mirror
+   FAIL -900 ms synchronized 6: step pulses
+   FAIL -900 ms synchronized 6: addend matches the mirror
+   FAIL -900 ms synchronized 7: step pulses
+   FAIL -900 ms synchronized 7: addend matches the mirror
+   FAIL -900 ms synchronized 8: step pulses
+   FAIL -900 ms synchronized 8: addend matches the mirror
+   FAIL -900 ms synchronized 9: step pulses
+   FAIL -900 ms synchronized 9: addend matches the mirror
+   FAIL -900 ms synchronized 10: step pulses
+   FAIL -900 ms synchronized 10: addend matches the mirror
+   FAIL -900 ms synchronized 11: step pulses
+   FAIL -900 ms synchronized 11: addend matches the mirror
+   FAIL -900 ms: the trim speeds our clock
+   FAIL 900 ms: never one step pulse
+   FAIL 900 ms: widest slew is the pre-#68 envelope
+   FAIL +1.1 s first: addend matches the mirror
+   FAIL +1.1 s: the step writes the bare estimate
+   FAIL +1.1 s synchronized: step pulses
+   FAIL +1.1 s synchronized: addend matches the mirror
+   FAIL +1.1 s: exactly one step pulse
+   FAIL -1.1 s first: addend matches the mirror
+   FAIL +1 s first: step pulses
+   FAIL +1 s first: addend matches the mirror
+   FAIL -1 s first: step pulses
+   FAIL -1 s first: addend matches the mirror
+   FAIL +1 s + 1 ns first: addend matches the mirror
+   FAIL -1 s - 1 ns first: addend matches the mirror
+   FAIL over one second: one step per first pair
+   FAIL slew addend matches the PI mirror
+   FAIL closed loop pair 0: addend matches the mirror
+   FAIL integrator survives the step
+   FAIL closed loop pair 1: addend matches the mirror
+   FAIL closed loop pair 2: addend matches the mirror
+   FAIL closed loop pair 3: addend matches the mirror
+   FAIL closed loop pair 4: addend matches the mirror
+   FAIL closed loop pair 5: addend matches the mirror
+   FAIL closed loop pair 6: addend matches the mirror
+   FAIL closed loop pair 7: addend matches the mirror
+   FAIL closed loop pair 8: addend matches the mirror
+   FAIL closed loop pair 9: addend matches the mirror
+   FAIL closed loop pair 10: addend matches the mirror
+   FAIL closed loop pair 11: addend matches the mirror
+   FAIL closed loop pair 12: addend matches the mirror
+   FAIL closed loop pair 13: addend matches the mirror
+   FAIL closed loop pair 14: addend matches the mirror
+   FAIL closed loop pair 15: addend matches the mirror
+   FAIL closed loop pair 16: addend matches the mirror
+   FAIL closed loop pair 17: addend matches the mirror
+   FAIL closed loop pair 18: addend matches the mirror
+   FAIL closed loop pair 19: addend matches the mirror
+   FAIL closed loop pair 20: addend matches the mirror
+   FAIL closed loop pair 21: addend matches the mirror
+   FAIL closed loop pair 22: addend matches the mirror
+   FAIL closed loop pair 23: addend matches the mirror
+   FAIL matching FU steers as the mirror
+   FAIL paired FU steers as the mirror
+   FAIL before the GM change: addend matches the mirror
+   FAIL GM change, +300 us: step pulses
+   FAIL GM change, +300 us: addend matches the mirror
+   FAIL GM change alone: no step pulse
+   FAIL second GM change, -1.5 s: addend matches the mirror
+   FAIL GM change over one second: one step pulse
+   FAIL baseline pair steers as the mirror
+   FAIL first pair after asCapable returns, -1.2 s: addend matches the mirror
+
+Matrix: failed checks per required test (0 = the test does not see it)
+| run | 900 ms slews, no step pulse | 1.1 s steps exactly once | GM change, small offset: no step | GM change contrast, 1.5 s: one step | first sync after asCapable | exact 1 s boundary |
+|---|---|---|---|---|---|---|
+| clean sources | 0 | 0 | 0 | 0 | 0 | 0 |
+| mutant: a synchronized servo may step | 0 | 5 | 2 | 1 | 1 | 4 |
+| mutant: the first-synchronization test inverted | 0 | 8 | 2 | 3 | 2 | 6 |
+| mutant: every first synchronization steps | 3 | 1 | 4 | 2 | 3 | 6 |
+| mutant: the pre-#68 20 us threshold | 3 | 1 | 4 | 2 | 3 | 6 |
+| mutant: exactly one second steps | 0 | 1 | 2 | 1 | 1 | 5 |
+| mutant: the step arm is unreachable | 0 | 8 | 0 | 3 | 2 | 6 |
+| mutant: a grandmaster change keeps synchronization | 0 | 0 | 1 | 4 | 1 | 0 |
+| mutant: the slew input is not saturated | 16 | 2 | 2 | 1 | 2 | 4 |
+| mutant: the integrator is not clamped | 14 | 4 | 2 | 1 | 1 | 4 |
+| base generator c1b617435824 (policy removed) | 30 | 7 | 4 | 2 | 3 | 6 |
+
+RESULT: PASS (clean passes, every defect caught)
+# end: 2026-09-23T08:49:22+02:00
+# exit: 0

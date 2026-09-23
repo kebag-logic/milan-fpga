@@ -1,0 +1,13 @@
+# command: sh -c command -v verilator; verilator --version; sha256sum $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator; git rev-parse HEAD "HEAD^{tree}" c1b617435824929a790739ea8585c3fe1a328cc0; git merge-base HEAD c1b617435824929a790739ea8585c3fe1a328cc0; git log --oneline c1b617435824929a790739ea8585c3fe1a328cc0..HEAD; git status --porcelain; nproc
+# start: 2026-09-23T08:43:02+02:00
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+77c34e904eba2446755d13e1bf4763d1652c3ca7
+10154fc3f95ccc542a6f5dcd8a58105d302fd1af
+c1b617435824929a790739ea8585c3fe1a328cc0
+c1b617435824929a790739ea8585c3fe1a328cc0
+77c34e9 Step the PHC only on a first synchronization over one second (#68)
+8
+# end: 2026-09-23T08:43:03+02:00
+# exit: 0

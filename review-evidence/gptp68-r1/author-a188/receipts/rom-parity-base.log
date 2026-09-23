@@ -1,0 +1,9 @@
+# command: REF=c1b617435824929a790739ea8585c3fe1a328cc0 scripts/rom_parity.sh
+# start: 2026-09-23T08:29:38+02:00
+# ref: c1b617435824929a790739ea8585c3fe1a328cc0 (c1b617435824929a790739ea8585c3fe1a328cc0)
+MATCH  dee031848c5410d4f0d819eb3d5b124a8d2d0c95b83ffd465dfbff6b15f5c5d9  tb/verilator/engine/gptp_ucode.hex  (args: --clk-hz 2000000 --cease-ms 3000)
+MATCH  a5d3f91884943afab62c99fe9bbf0111cde8cffe4b318f0cfe9ba1fab9aeba7d  tb/tsngen/gptp_ucode.hex  (args: --clk-hz 2000000)
+MATCH  83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939  tb/verilator/ucpu/gptp_ucode.hex  (args: )
+MATCH  83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939  syn/ooc/work/gptp_ucode.hex  (args: )
+# end: 2026-09-23T08:29:38+02:00
+# exit: 0

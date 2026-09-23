@@ -1,0 +1,21 @@
+# command: $REVIEWS/gptp68-a188-packet/scripts/base_harness_vs_new_rom.sh
+# start: 2026-09-23T08:43:24+02:00
+FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+FAIL late FU never steers         got 0000000000000001 exp 0000000000000002
+FAIL complete Follow_Up re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (60) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (74) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL sync flags 0200/0000: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL sync flags 0208/0008: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL sync flags 0000/0200: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL step is the negation         got 0000000000000000 exp 0000000000000001
+FAIL step writes the bare estimate got 0000000000000000 exp 0000000000000001
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL one re-base then lock        got 0000000000000000 exp 0000000000000001
+FAIL measured offset converged    got 0000000000000000 exp 0000000000000001
+FAIL addend carries the master's rate got 0000000000000000 exp 0000000000000001
+905 checks: 890 PASS, 15 FAIL
+base harness on new ROM: exit 1 (nonzero expected)
+# end: 2026-09-23T08:43:54+02:00
+# exit: 1
