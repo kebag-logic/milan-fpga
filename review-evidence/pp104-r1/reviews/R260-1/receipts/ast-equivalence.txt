@@ -1,0 +1,31 @@
+repo $REVIEW_CLONE
+base e1d0176d3a486bce4a80765cfbcefcb61964f8e9
+head 0ca178678490024707b3a2393a86dc9e7b2a0ca4
+changed files: ['tb/pp_top/fixture_guards.py', 'tb/pp_top/test_fixture_guards.py']
+
+== tb/pp_top/fixture_guards.py
+  raw AST equal: False
+  module docstring equal: True
+  stripped main: return annotation -> int
+  stripped main: docstring (10 lines) first line: 'Check each SRP VID fixture case against the real bench; 0 = all four PASS.'
+  AST equal after stripping only the added elements: True
+  AST equal after stripping all def docstrings/annotations: True
+
+== tb/pp_top/test_fixture_guards.py
+  raw AST equal: False
+  module docstring equal: True
+  stripped CompilerLocaleTest.test_compiler_environment_and_arguments: return annotation -> None
+  stripped CompilerLocaleTest.test_compiler_environment_and_arguments: docstring (7 lines) first line: 'main() passes every argument through and sets LC_ALL=C for the compiler only.'
+  AST equal after stripping only the added elements: True
+  AST equal after stripping all def docstrings/annotations: True
+
+Rule 12 census at e1d0176d3a48: 11 tracked .py; unannotated public 2; undocumented public 2
+  unannotated tb/pp_top/fixture_guards.py::main:13
+  unannotated tb/pp_top/test_fixture_guards.py::CompilerLocaleTest.test_compiler_environment_and_arguments:15
+  undocumented tb/pp_top/fixture_guards.py::main:13
+  undocumented tb/pp_top/test_fixture_guards.py::CompilerLocaleTest.test_compiler_environment_and_arguments:15
+
+Rule 12 census at 0ca178678490: 11 tracked .py; unannotated public 0; undocumented public 0
+
+RESULT: EQUIVALENT
+exit=0

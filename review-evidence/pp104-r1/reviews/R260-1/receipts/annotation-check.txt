@@ -1,0 +1,31 @@
+tb/pp_top/fixture_guards.py::main annotated -> int; returns: 0, 1
+  AST audit: OK
+tb/pp_top/test_fixture_guards.py::test_compiler_environment_and_arguments annotated -> None; returns: none
+  AST audit: OK
+runtime all-pass: main() returned 0 of type int: OK
+runtime mismatch: main() returned 1 of type int: OK
+== mypy default at base (e1d0176d3a48)
+Success: no issues found in 2 source files
+mypy exit=0
+== mypy strict at base (e1d0176d3a48)
+fixture_guards.py:13: error: Function is missing a return type annotation  [no-untyped-def]
+fixture_guards.py:65: error: Call to untyped function "main" in typed context  [no-untyped-call]
+test_fixture_guards.py:15: error: Function is missing a return type annotation  [no-untyped-def]
+test_fixture_guards.py:15: note: Use "-> None" if function does not return a value
+test_fixture_guards.py:28: error: Need type annotation for "results"  [var-annotated]
+test_fixture_guards.py:36: error: Module "fixture_guards" does not explicitly export attribute "subprocess"  [attr-defined]
+test_fixture_guards.py:38: error: Module "fixture_guards" does not explicitly export attribute "subprocess"  [attr-defined]
+test_fixture_guards.py:40: error: Call to untyped function "main" in typed context  [no-untyped-call]
+Found 7 errors in 2 files (checked 2 source files)
+mypy exit=1
+== mypy default at head (0ca178678490)
+test_fixture_guards.py:35: error: Need type annotation for "results"  [var-annotated]
+Found 1 error in 1 file (checked 2 source files)
+mypy exit=1
+== mypy strict at head (0ca178678490)
+test_fixture_guards.py:35: error: Need type annotation for "results"  [var-annotated]
+test_fixture_guards.py:43: error: Module "fixture_guards" does not explicitly export attribute "subprocess"  [attr-defined]
+test_fixture_guards.py:45: error: Module "fixture_guards" does not explicitly export attribute "subprocess"  [attr-defined]
+Found 3 errors in 1 file (checked 2 source files)
+mypy exit=1
+script exit=0

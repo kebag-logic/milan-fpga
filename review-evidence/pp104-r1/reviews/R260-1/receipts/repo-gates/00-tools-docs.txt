@@ -1,0 +1,8 @@
+verilator on PATH: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+Verilator 5.050 2026-07-01 rev v5.050
+python3: Python 3.14.7
+c++: c++ (GCC) 16.2.1 20260810
+head: 0ca178678490024707b3a2393a86dc9e7b2a0ca4 tree 897a49d0e7eb25e910ff63984c5000403375dca2
+base: e1d0176d3a486bce4a80765cfbcefcb61964f8e9 tree 0547903adc17449dfb4f0c2610a23e6adb4ff6a2
+VFLAGS override (head): --cc --exe --build -j 8 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$PACKET/scratch/pp-head/tb/pp_top -Wall -Wextra"
+VFLAGS override (base): --cc --exe --build -j 8 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$PACKET/scratch/pp-base/tb/pp_top -Wall -Wextra"

@@ -1,0 +1,14 @@
+S01-all-pass-caller-french         expect=exit0              exit=0 met=True base==head=True | 
+S02-all-pass-caller-unset          expect=exit0              exit=0 met=True base==head=True | 
+S03-compiler-always-succeeds       expect=exit1              exit=1 met=True base==head=True | 
+S04-unrelated-error-on-5A3C        expect=exit1              exit=1 met=True base==head=True | 
+S05-0002-wire-diagnostic-only      expect=exit1              exit=1 met=True base==head=True | 
+S06-0002-extra-unrelated-error     expect=exit1              exit=1 met=True base==head=True | 
+S07-root-query-fails               expect=CalledProcessError exit=1 met=True base==head=True | subprocess.CalledProcessError: Command '['<TOOLS>/verilator', '--getenv', 'VERILATOR_ROOT']' returned non-zero
+S08-model-generation-fails         expect=CalledProcessError exit=1 met=True base==head=True | subprocess.CalledProcessError: Command '['<TOOLS>/verilator', '--cc', '-j', '0', 'wrap.sv', '--Mdir', '/tmp/pp
+S09-verilator-absent               expect=FileNotFoundError  exit=1 met=True base==head=True | FileNotFoundError: [Errno 2] No such file or directory: '<TOOLS>/no-such-verilator'
+S10-compiler-absent                expect=FileNotFoundError  exit=1 met=True base==head=True | FileNotFoundError: [Errno 2] No such file or directory: '<TOOLS>/no-such-cxx'
+S11-no-double-dash                 expect=record             exit=0 met=True base==head=True | 
+S12-help                           expect=record             exit=0 met=True base==head=True | 
+RESULT: PASS
+exit=0

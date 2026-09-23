@@ -1,0 +1,73 @@
+# raw diff e1d0176..0ca1786
+diff --git a/tb/pp_top/fixture_guards.py b/tb/pp_top/fixture_guards.py
+index c20c539210e6e091f196f4ace65ddedff7435e85..e0ba767057ef3115f689fc26931dfe8ac0c31f7a 100644
+--- a/tb/pp_top/fixture_guards.py
++++ b/tb/pp_top/fixture_guards.py
+@@ -10,7 +10,17 @@ import subprocess
+ import tempfile
+ 
+ 
+-def main():
++def main() -> int:
++    """Check each SRP VID fixture case against the real bench; 0 = all four PASS.
++
++    Reads --verilator, --cxx and the Verilator flags after `--` from the
++    command line, generates the model once into a temporary directory, then
++    syntax-checks sim_main.cpp with no override, 5A3C, 0002 and 1002 under
++    LC_ALL=C. Returns 1, after printing the compiler output, when a case's exit
++    status, static-assertion diagnostics or error count differs from the
++    expected. A failed VERILATOR_ROOT query or model generation raises
++    CalledProcessError.
++    """
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--verilator", default="verilator")
+     parser.add_argument("--cxx", default="c++")
+diff --git a/tb/pp_top/test_fixture_guards.py b/tb/pp_top/test_fixture_guards.py
+index 9201898d7e4fcbb242cf5e981ab13568955bdf91..4af2ceb4f28dc0a2fea573fb0234c44376293fc3 100644
+--- a/tb/pp_top/test_fixture_guards.py
++++ b/tb/pp_top/test_fixture_guards.py
+@@ -12,7 +12,14 @@ import fixture_guards
+ 
+ 
+ class CompilerLocaleTest(unittest.TestCase):
+-    def test_compiler_environment_and_arguments(self):
++    def test_compiler_environment_and_arguments(self) -> None:
++        """main() passes every argument through and sets LC_ALL=C for the compiler only.
++
++        Runs with mocked subprocesses, once with LC_ALL unset and once with it
++        inherited. Requires exit 0, the caller's environment unchanged, and the
++        exact model-generation call and four compiler calls, each compiler call
++        getting the caller's environment plus LC_ALL=C.
++        """
+         wire = "SRP VID fixture must differ from product default 2 in the 16-bit wire value"
+         class_d = "SRP VID fixture must differ from product default 2 in the 12-bit class-D value"
+         cases = [(None, ()), ("5A3C", ()), ("0002", (wire, class_d)), ("1002", (class_d,))]
+# ls-tree base
+100644 blob 70651784ac0a8ac2dd3dd2be46229117fcd64c60	tb/pp_top/Makefile
+100644 blob 2547bf11c2d6894a6a5c863a1de1b282b2967985	tb/pp_top/README.md
+100644 blob c20c539210e6e091f196f4ace65ddedff7435e85	tb/pp_top/fixture_guards.py
+100644 blob c755a16c14b02609714548675684c4dfeae44006	tb/pp_top/pp_top_wrap.sv
+100644 blob 6b400dbcbf4d7afa848c0ac825d1c3a1ee000d1a	tb/pp_top/sim_main.cpp
+100644 blob 9201898d7e4fcbb242cf5e981ab13568955bdf91	tb/pp_top/test_fixture_guards.py
+# ls-tree head
+100644 blob 70651784ac0a8ac2dd3dd2be46229117fcd64c60	tb/pp_top/Makefile
+100644 blob 2547bf11c2d6894a6a5c863a1de1b282b2967985	tb/pp_top/README.md
+100644 blob e0ba767057ef3115f689fc26931dfe8ac0c31f7a	tb/pp_top/fixture_guards.py
+100644 blob c755a16c14b02609714548675684c4dfeae44006	tb/pp_top/pp_top_wrap.sv
+100644 blob 6b400dbcbf4d7afa848c0ac825d1c3a1ee000d1a	tb/pp_top/sim_main.cpp
+100644 blob 4af2ceb4f28dc0a2fea573fb0234c44376293fc3	tb/pp_top/test_fixture_guards.py
+# diff --summary / raw
+:100644 100644 c20c539 e0ba767 M	tb/pp_top/fixture_guards.py
+:100644 100644 9201898 4af2ceb M	tb/pp_top/test_fixture_guards.py
+# new-line hygiene (added lines: max length, trailing ws, non-ASCII, tabs)
+added lines 17, max length 88, trailing-ws 0, tabs 0
+0
+# git diff --check
+diff --check clean
+# commit
+tree 897a49d0e7eb25e910ff63984c5000403375dca2
+parent e1d0176d3a486bce4a80765cfbcefcb61964f8e9
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1790152948 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1790152948 +0200
+
+Annotate and document the two public pp_top fixture-guard functions

@@ -1,0 +1,134 @@
+{
+  "S01-all-pass-caller-french": {
+    "expectation": "exit0",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 0,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nfixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guards: 4 cases PASS\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL='fr_FR.UTF-8' argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL='fr_FR.UTF-8' argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\ncxx LC_ALL='C' value='1002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x1002', 'sim_main.cpp']\n"
+    }
+  },
+  "S02-all-pass-caller-unset": {
+    "expectation": "exit0",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 0,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nfixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guards: 4 cases PASS\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\ncxx LC_ALL='C' value='1002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x1002', 'sim_main.cpp']\n"
+    }
+  },
+  "S03-compiler-always-succeeds": {
+    "expectation": "exit1",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nFAIL: fixture 0002: unexpected compiler result 0\n\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\n"
+    }
+  },
+  "S04-unrelated-error-on-5A3C": {
+    "expectation": "exit1",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "fixture guard default (no override): compiles\nFAIL: fixture 5A3C: unexpected compiler result 1\nsim_main.cpp:2:1: error: unrelated failure\n\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\n"
+    }
+  },
+  "S05-0002-wire-diagnostic-only": {
+    "expectation": "exit1",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nFAIL: fixture 0002: unexpected compiler result 1\nsim_main.cpp:1:1: error: static assertion failed: SRP VID fixture must differ from product default 2 in the 16-bit wire value\n\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\n"
+    }
+  },
+  "S06-0002-extra-unrelated-error": {
+    "expectation": "exit1",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nFAIL: fixture 0002: unexpected compiler result 1\nsim_main.cpp:1:1: error: static assertion failed: SRP VID fixture must differ from product default 2 in the 16-bit wire value\nsim_main.cpp:1:1: error: static assertion failed: SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nsim_main.cpp:2:1: error: unrelated failure\n\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\n"
+    }
+  },
+  "S07-root-query-fails": {
+    "expectation": "CalledProcessError",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "",
+      "stderr_last": "subprocess.CalledProcessError: Command '['<TOOLS>/verilator', '--getenv', 'VERILATOR_ROOT']' returned non-zero exit status 3.",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\n"
+    }
+  },
+  "S08-model-generation-fails": {
+    "expectation": "CalledProcessError",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "",
+      "stderr_last": "subprocess.CalledProcessError: Command '['<TOOLS>/verilator', '--cc', '-j', '0', 'wrap.sv', '--Mdir', '/tmp/pp-top-vid-guards-<TMP>']' returned non-zero exit status 4.",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\n"
+    }
+  },
+  "S09-verilator-absent": {
+    "expectation": "FileNotFoundError",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "",
+      "stderr_last": "FileNotFoundError: [Errno 2] No such file or directory: '<TOOLS>/no-such-verilator'",
+      "stub_log": ""
+    }
+  },
+  "S10-compiler-absent": {
+    "expectation": "FileNotFoundError",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 1,
+      "stdout": "",
+      "stderr_last": "FileNotFoundError: [Errno 2] No such file or directory: '<TOOLS>/no-such-cxx'",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['--cc', '-j', '0', 'wrap.sv', '--Mdir', '<TMP>']\n"
+    }
+  },
+  "S11-no-double-dash": {
+    "expectation": "record",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 0,
+      "stdout": "fixture guard default (no override): compiles\nfixture guard 5A3C: compiles\nfixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value\nfixture guards: 4 cases PASS\n",
+      "stderr_last": "",
+      "stub_log": "verilator LC_ALL=None argv=['--getenv', 'VERILATOR_ROOT']\nverilator LC_ALL=None argv=['wrap.sv', '--cc', '--Mdir', '<TMP>']\ncxx LC_ALL='C' value=None argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', 'sim_main.cpp']\ncxx LC_ALL='C' value='5A3C' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C', 'sim_main.cpp']\ncxx LC_ALL='C' value='0002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x0002', 'sim_main.cpp']\ncxx LC_ALL='C' value='1002' argv_tail=['--stub-driver-flag', '-std=c++17', '-Wall', '-Wextra', '-fsyntax-only', '-DPP_TOP_SRP_DOM_DEF_VID=0x1002', 'sim_main.cpp']\n"
+    }
+  },
+  "S12-help": {
+    "expectation": "record",
+    "base_equals_head": true,
+    "expectation_met": true,
+    "head": {
+      "exit": 0,
+      "stdout": "usage: fixture_guards.py [-h] [--verilator VERILATOR] [--cxx CXX] ...\n\nCompile the real pp_top bench and require the issue #97 fixture diagnostics.\n\npositional arguments:\n  vflags\n\noptions:\n  -h, --help            show this help message and exit\n  --verilator VERILATOR\n  --cxx CXX\n",
+      "stderr_last": "",
+      "stub_log": ""
+    }
+  }
+}

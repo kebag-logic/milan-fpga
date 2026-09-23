@@ -1,0 +1,19 @@
+mutant                             expect    base                                   head                                   clause
+M00-unmutated                      survives  survives [OK]                          survives [OK]                          baseline: test passes  OK
+M01-drop-LC_ALL-override           killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           each compiler call gets caller env plus LC_ALL=C  OK
+M02-LC_ALL-on-model-generation     killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           LC_ALL=C for the compiler only / exact model-generation call  OK
+M03-mutate-caller-environment      killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           caller's environment unchanged  OK
+M04-drop-case-1002                 killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           four compiler calls  OK
+M05-no-shlex-split-of-cxx          killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           passes every argument through  OK
+M06-final-return-nonzero           killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           requires exit 0  OK
+M07-drop-Wextra                    killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           exact compiler calls  OK
+M08-root-query-arguments           killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           passes every argument through  OK
+M09-keep-leading-double-dash       killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           exact model-generation call  OK
+M10-model-flags-after-Mdir         killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           exact model-generation call  OK
+M11-stderr-not-merged              killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           exact compiler calls  OK
+M12-LC_ALL-C.UTF-8                 killed    killed [FAILED (failures=2)]           killed [FAILED (failures=2)]           LC_ALL=C  OK
+M13-never-report-mismatch          survives  survives [OK]                          survives [OK]                          out-of-scope: the test docstring claims only the exit-0 path  OK
+M14-docstring-text-only            survives  NOT-APPLICABLE(0 matches)              survives [OK]                          control (HEAD only)  OK
+M15-drop-return-annotation         survives  NOT-APPLICABLE(0 matches)              survives [OK]                          control (HEAD only)  OK
+RESULT: PASS
+exit=0

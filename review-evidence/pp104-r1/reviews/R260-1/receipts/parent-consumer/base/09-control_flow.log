@@ -1,0 +1,45 @@
+$ python3 scripts/measure_control_flow.py
+path:line                                                 function                             loc  depth  decisions
+protocol-processor/scripts/render-wavedrom.py:60          collect_blocks                        33      7         13
+tb/tools/hive_compliance.py:565                           _audio_map_checks                     98      6         20
+scripts/check_py_idiom.py:323                             scan                                  84      5         44
+scripts/yosys_tally.py:115                                validate                              75      5         27
+scripts/check_rtl_source_lists.py:404                     bash_array_words                      61      5         20
+gptp-processor/bench/pcap_verdict.py:108                  read_pcap                             56      5         17
+gptp-processor/bench/pcap_verdict.py:227                  judge_frames                          49      5         14
+sw/builder/test_builder.py:5654                           make_line_roles                       51      5         14
+tb/tools/avtp_wire_truth_checks.py:760                    _srp_declaration_matches_wire         42      5          8
+scripts/act_ci.py:5917                                    selftest_probe_clone_descendants      62      5          7
+scripts/check_py_idiom.py:310                             _managed_opens                        11      5          6
+tb/tools/avtp_wire_truth_checks.py:261                    check_sequence_continuity             27      5          6
+tb/tools/hive_compliance.py:506                           _port_own_map                         36      5          6
+sw/builder/test_builder.py:603                            check_port_layout                     99      4         48
+scripts/act_ci.py:3679                                    terminate_act_process_group           95      4         25
+
+4465 first-party function(s); 13 nest five levels or deeper
+  superproject: 4264 function(s), 10 at depth 5 or more
+  protocol-processor: 59 function(s), 1 at depth 5 or more
+  gptp-processor: 142 function(s), 2 at depth 5 or more
+
+path:line                                                 block                         depth   order-dependent signals
+hdl/common/csr/milan_csr.sv:1519                          register_write                    6                        29
+protocol-processor/hdl/aecp/KL_aecp_notify.sv:668         notify_core                       7                        27
+protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:291validator_seq                     6                        27
+hdl/milan/milan_datapath.sv:3973                          amap_edit_validate                2                        27
+protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:810    engine                            6                        25
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:418                 servo_engine                      6                        25
+hdl/ieee1722/crf/KL_crf_rx.sv:393                         engine                            4                        24
+protocol-processor/hdl/srp/KL_srp_decoder.sv:243          decode_walk                       7                        18
+hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:222               monitor_logic                     5                        17
+protocol-processor/hdl/acmp/KL_acmp_talker.sv:678         ev_eval                           5                        16
+protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv:353       core                              8                        14
+protocol-processor/hdl/acmp/KL_acmp_talker.sv:1175        respond                           5                        14
+protocol-processor/hdl/srp/KL_srp_top.sv:947              timer_cadence_plane               4                        14
+hdl/ieee1722/aaf/KL_aes3_rx.sv:251                        t_recover                         6                        12
+protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:639    bld_fields                        2                        12
+
+667 procedural block(s); 300 resolve at least one signal by source order
+  superproject: 360 block(s), 137 resolve a signal by source order
+  protocol-processor: 271 block(s), 152 resolve a signal by source order
+  gptp-processor: 36 block(s), 11 resolve a signal by source order
+exit=0
