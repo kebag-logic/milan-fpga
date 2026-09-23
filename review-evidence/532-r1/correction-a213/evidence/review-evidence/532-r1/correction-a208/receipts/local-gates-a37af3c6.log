@@ -1,0 +1,28 @@
+head a37af3c6ad54aa16403861c969f68cf2a83679c6 tree 9c3c735352d6cf986a4dd311538c605ab346c7b9 status: 0 dirty paths
+== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+rc=0
+== python3 scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (441 arm(s))
+rc=0
+== python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+== python3 scripts/check_sh_idiom.py
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+rc=0
+== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 210 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+rc=0
+== python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== git diff --check 759da623..HEAD
+rc=0

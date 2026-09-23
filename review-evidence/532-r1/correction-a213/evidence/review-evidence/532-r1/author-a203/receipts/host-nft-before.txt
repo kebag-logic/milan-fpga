@@ -1,0 +1,119 @@
+table ip nat {
+	chain DOCKER {
+	}
+
+	chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		xt match "addrtype" counter jump DOCKER
+	}
+
+	chain OUTPUT {
+		type nat hook output priority dstnat; policy accept;
+		ip daddr != 127.0.0.0/8 xt match "addrtype" counter jump DOCKER
+	}
+
+	chain POSTROUTING {
+		type nat hook postrouting priority srcnat; policy accept;
+		ip saddr 172.21.0.0/16 oifname != "br-8b7f57c913c8" counter xt target "MASQUERADE"
+		ip saddr 172.17.0.0/16 oifname != "docker0" counter xt target "MASQUERADE"
+		ip saddr 172.19.0.0/16 oifname != "br-f00319c9e54a" counter xt target "MASQUERADE"
+		ip saddr 172.20.0.0/16 oifname != "br-7bda8c7b23b1" counter xt target "MASQUERADE"
+		ip saddr 172.18.0.0/16 oifname != "br-0d380d6522cf" counter xt target "MASQUERADE"
+	}
+}
+table ip filter {
+	chain DOCKER {
+		iifname != "br-0d380d6522cf" oifname "br-0d380d6522cf" counter drop
+		iifname != "br-7bda8c7b23b1" oifname "br-7bda8c7b23b1" counter drop
+		iifname != "br-f00319c9e54a" oifname "br-f00319c9e54a" counter drop
+		iifname != "docker0" oifname "docker0" counter drop
+		iifname != "br-8b7f57c913c8" oifname "br-8b7f57c913c8" counter drop
+	}
+
+	chain DOCKER-FORWARD {
+		counter jump DOCKER-CT
+		counter jump DOCKER-INTERNAL
+		counter jump DOCKER-BRIDGE
+		iifname "br-0d380d6522cf" counter accept
+		iifname "br-7bda8c7b23b1" counter accept
+		iifname "br-f00319c9e54a" counter accept
+		iifname "docker0" counter accept
+		iifname "br-8b7f57c913c8" counter accept
+	}
+
+	chain DOCKER-BRIDGE {
+		oifname "br-0d380d6522cf" counter jump DOCKER
+		oifname "br-7bda8c7b23b1" counter jump DOCKER
+		oifname "br-f00319c9e54a" counter jump DOCKER
+		oifname "docker0" counter jump DOCKER
+		oifname "br-8b7f57c913c8" counter jump DOCKER
+	}
+
+	chain DOCKER-CT {
+		oifname "br-0d380d6522cf" xt match "conntrack" counter accept
+		oifname "br-7bda8c7b23b1" xt match "conntrack" counter accept
+		oifname "br-f00319c9e54a" xt match "conntrack" counter accept
+		oifname "docker0" xt match "conntrack" counter accept
+		oifname "br-8b7f57c913c8" xt match "conntrack" counter accept
+	}
+
+	chain DOCKER-INTERNAL {
+	}
+
+	chain FORWARD {
+		type filter hook forward priority filter; policy drop;
+		counter jump DOCKER-USER
+		counter jump DOCKER-FORWARD
+	}
+
+	chain DOCKER-USER {
+	}
+}
+table ip6 nat {
+	chain DOCKER {
+	}
+
+	chain PREROUTING {
+		type nat hook prerouting priority dstnat; policy accept;
+		xt match "addrtype" counter jump DOCKER
+	}
+
+	chain OUTPUT {
+		type nat hook output priority dstnat; policy accept;
+		ip6 daddr != ::1 xt match "addrtype" counter jump DOCKER
+	}
+}
+table ip6 filter {
+	chain DOCKER {
+	}
+
+	chain DOCKER-FORWARD {
+		counter jump DOCKER-CT
+		counter jump DOCKER-INTERNAL
+		counter jump DOCKER-BRIDGE
+	}
+
+	chain DOCKER-BRIDGE {
+	}
+
+	chain DOCKER-CT {
+	}
+
+	chain DOCKER-INTERNAL {
+	}
+
+	chain FORWARD {
+		type filter hook forward priority filter; policy accept;
+		counter jump DOCKER-USER
+		counter jump DOCKER-FORWARD
+	}
+
+	chain DOCKER-USER {
+	}
+}
+table ip raw {
+	chain PREROUTING {
+		type filter hook prerouting priority raw; policy accept;
+		ip daddr 172.21.0.5 iifname != "br-8b7f57c913c8" counter drop
+	}
+}

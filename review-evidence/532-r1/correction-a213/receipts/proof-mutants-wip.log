@@ -1,0 +1,37 @@
+stage act_slot_proof.sh sha256=5f0d1af755a25b4d55b76d43a4c3c82d8a721d63fd86c58ec43debd6b6b8c8e5
+control comment: KILLED rc=1
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+F3 a run that never completed counts: KILLED rc=1
+    FAIL every run refuses after taking its slot: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+    FAIL a run stops before its last workflow: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+F3 interrupt gate graded on its exit status and PASS line only: KILLED rc=1
+    FAIL the interrupt gate ignores its slot: exit 0, wanted 1 with 'FAIL interrupt self-test in slot 1'
+F3 no-isolation collision (slot 0) dropped: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+    FAIL the shared daemon does not collide: exit 1, wanted 1 with 'FAIL collision slot 0'
+F3 serial reference check dropped: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+    FAIL every run refuses after taking its slot: exit 1, wanted 1 with 'FAIL serial-a did not complete'
+    FAIL a run stops before its last workflow: exit 1, wanted 1 with 'FAIL serial-a did not complete'
+F3 parallel verdict equality dropped: KILLED rc=1
+    FAIL a slot changes a verdict: exit 1, wanted 1 with 'FAIL parallel-a != serial-a'
+F3 overlap not required: KILLED rc=1
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+F3 rival may be refused after the holder left: KILLED rc=1
+    FAIL the rival is refused only after the holder left: exit 0, wanted 1 with 'FAIL collision slot 1'
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+F3 rival refusal reason unchecked: KILLED rc=1
+    FAIL the rival is refused for another reason: exit 0, wanted 1 with 'FAIL collision slot 1'
+F3 collision holder verdict unchecked: KILLED rc=1
+    FAIL the collision holder changes its verdict: exit 0, wanted 1 with 'FAIL collision slot 1'
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+F1 slot-side refusal not required: KILLED rc=1
+    FAIL a slot reaches the default daemon's container: exit 0, wanted 1 with 'FAIL isolation slot 1'
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+F1 host-side differential dropped: KILLED rc=1
+    FAIL the isolation target is dead: exit 0, wanted 1 with 'FAIL isolation slot 1'
+F1 published port not probed: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+F1 target absence not proved: KILLED rc=1
+    FAIL the isolation target survives removal: exit 0, wanted 1 with 'FAIL isolation target'
+restored sha256=5f0d1af755a25b4d55b76d43a4c3c82d8a721d63fd86c58ec43debd6b6b8c8e5 EXACT

@@ -1,0 +1,5 @@
+# [A208] Disposable image for the candidate runner's offline --selftest only.
+FROM docker.io/library/ubuntu:24.04
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends python3 python3-yaml git ca-certificates sudo procps docker.io gh \
+ && rm -rf /var/lib/apt/lists/*

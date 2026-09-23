@@ -1,0 +1,13 @@
+Hosted docs-check job 107269786935 (run 35887059350), checked out GitHub's merge ref:
+2026-09-23T16:12:06.6930313Z HEAD is now at 3586667b6 Merge a37af3c6ad54aa16403861c969f68cf2a83679c6 into 759da623072358afdb0e9d570a7b4b6a788492c9
+2026-09-23T16:12:50.1625111Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+2026-09-23T16:12:50.1625583Z python3 scripts/check_baremetal_only.py --check
+2026-09-23T16:12:50.1625947Z python3 scripts/check_baremetal_only.py --selftest
+2026-09-23T16:12:50.1683218Z shell: /usr/bin/bash -e {0}
+2026-09-23T16:12:50.1683383Z ##[endgroup]
+2026-09-23T16:12:59.2527497Z baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+2026-09-23T16:13:02.5871023Z baremetal-only selftest: PASS (441 arm(s))
+2026-09-23T16:19:02.4970695Z ##[group]Run python3 scripts/act_ci.py --selftest
+2026-09-23T16:19:02.4970922Z python3 scripts/act_ci.py --selftest
+2026-09-23T16:19:05.4765776Z selftest: PASS
+act_ci.py --selftest ok lines in that step: 363; FAIL lines: 0

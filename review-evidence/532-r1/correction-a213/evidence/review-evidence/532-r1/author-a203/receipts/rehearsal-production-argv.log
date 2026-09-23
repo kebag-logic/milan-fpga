@@ -1,0 +1,41 @@
+== acquisition
+Running as unit: a203-rh-net.service; invocation ID: 6ff346c110f94844b9a23b7ba128b2d4
+slice cgroup: /a203_rh.slice
+Running as unit: a203-rh-dockerd.service; invocation ID: 1562619f5cea4e859c09079852959f44
+== identity (what verify_slot_daemon_identity reads)
+["org.kebag-logic.milan-act-ci.slot=rh","org.kebag-logic.milan-act-ci.owner=9869c9c021b32461a652f740d3dd9d71"] $REVIEWS/532-a203-packet/scratch/rh-root/slot-rh systemd [["driver-type","io.containerd.snapshotter.v1"]]
+Unit a203-rh-dockerd.service (/a203_rh.slice/a203-rh-dockerd.service):
+├─3909645 /usr/bin/dockerd --config-file /dev/null --data-root $VALIDATION_STORAGE/revi…
+└─3909691 /usr/bin/containerd --config /run/a203-rh/exec/containerd/containerd.…
+== one job-shaped container through the slot namespace
+network 4e9f20e8f53773a9df1d84b941ac702f4974e81c5ac625e5c50a8e1ea08624fc
+docker.io/library/ubuntu:24.04
+4-7
+4
+dns-ok
+internet-ok
+host-local-rejected
+loopback-isolated
+container scopes now: docker-25a619af0504a7c8c96b9937338f7edac76daf0a749971153892bad1a11b62c0.scope
+		socket cgroupv2 level 1 "a203_rh.slice" fib daddr type local counter packets 1 bytes 60 reject
+== teardown in release_replay_slot order, with its absence proofs
+daemon LoadState=not-found
+runtime dir absent
+uplink LoadState=not-found
+pidfile absent
+Removed '/run/systemd/system.control/a203_rh.slice.d/50-MemorySwapMax.conf'.
+Removed '/run/systemd/system.control/a203_rh.slice.d/50-MemoryMax.conf'.
+Removed '/run/systemd/system.control/a203_rh.slice.d'.
+slice ActiveState=inactive DropInPaths=[]
+slice cgroup absent
+TABLE SURVIVED
+netns absent
+
+== [A203] correction appended after the run
+The TABLE SURVIVED line above is a rehearsal-script defect: under set -o pipefail the
+pipeline 'nft list table ... | grep -q' fails on nft's exit 1 even when grep matches.
+Checked immediately afterwards:
+  sudo nft list tables | grep -c a203_rh -> 0
+  sudo nft list table inet a203_rh -> rc 1, stderr: Error: No such file or directory
+The runner's nft_table_present() reads the captured stderr of one command (no pipe) and
+classifies exactly this reply as absent.

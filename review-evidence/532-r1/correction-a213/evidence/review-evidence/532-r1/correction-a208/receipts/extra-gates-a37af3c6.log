@@ -1,0 +1,13 @@
+== python3 scripts/check_doc_paths.py
+doc path gate: OK (835 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 147 existing cross-page fragment links reproduced
+rc=0
+== python3 scripts/check_hygiene.py --check
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 727 file(s))
+rc=0

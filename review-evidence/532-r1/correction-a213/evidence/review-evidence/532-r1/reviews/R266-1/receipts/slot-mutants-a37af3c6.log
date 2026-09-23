@@ -1,0 +1,22 @@
+control-trailing-comment: SURVIVED (selftest PASS)
+slot-root-validation-unwired: SURVIVED (selftest PASS)
+cpu-range-boundary: SURVIVED (selftest PASS)
+nft-query-error-reads-absent: SURVIVED (selftest PASS)
+runtime-dir-absence-dropped: SURVIVED (selftest PASS)
+uplink-pidfile-absence-dropped: SURVIVED (selftest PASS)
+slice-cgroup-absence-dropped: SURVIVED (selftest PASS)
+slot-teardown-signals-unblocked: SURVIVED (selftest PASS)
+slice-residue-only-active: SURVIVED (selftest PASS)
+unit-state-query-failure-reads-absent: SURVIVED (selftest PASS)
+dropin-query-failure-ignored: SURVIVED (selftest PASS)
+path-present-ignores-dangling-symlink: SURVIVED (selftest PASS)
+interrupt-selftest-outside-slot: SURVIVED (selftest PASS)
+identity-labels-unchecked: KILLED rc=1: FAIL a slot daemon reporting another invocation's token refuses and the slot is torn down
+live-selftest-inherited-refusal-dropped: KILLED rc=1: FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs; FAIL an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs; FAIL an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+pr-run-inherited-refusal-dropped: KILLED rc=1: FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs; FAIL an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs; FAIL an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+lock-blocking: KILLED (selftest timed out)
+lock-follows-symlink: KILLED rc=1: FAIL a slot lock path that is a symlink is not followed
+firewall-reject-loopback-only: KILLED rc=1: FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+uplink-maps-gateway: KILLED rc=1: FAIL the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+slot-endpoint-range-unchecked: KILLED rc=1: FAIL the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+teardown-daemon-after-slice: KILLED rc=1: FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks; FAIL the namespace, memory cap, firewall and every teardown command are pinned word for word; FAIL a failed daemon-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock

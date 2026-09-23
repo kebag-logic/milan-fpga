@@ -1,0 +1,55 @@
+emitted by act_ci.py sha256 5aed7c034cfee4273b7396fb8c6cc95243118c56c2d2550200c406977ccf2c39:
+create table inet milan_act_slot_1
+add chain inet milan_act_slot_1 output { type filter hook output priority filter; policy accept; }
+add rule inet milan_act_slot_1 output socket cgroupv2 level 1 "milan_act_slot_1.slice" fib daddr type local counter reject
+add rule inet milan_act_slot_1 output socket cgroupv2 level 1 "milan_act_slot_1.slice" oifname != { "up0" } counter reject
+== H (fake host): addresses and routes; the only default route is via up0
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+up0@if2          UP             192.0.2.10/24 fe80::1489:83ff:fe71:67e9/64 
+br0h@if2         UP             172.31.0.1/24 fe80::64cc:bbff:fe82:5805/64 
+default via 192.0.2.1 dev up0 
+172.31.0.0/24 dev br0h proto kernel scope link src 172.31.0.1 
+192.0.2.0/24 dev up0 proto kernel scope link src 192.0.2.10 
+[{"dst":"default","gateway":"192.0.2.1","dev":"up0","flags":[]}]
+== S (slot namespace) as pasta configured it
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+up0              UNKNOWN        192.0.2.10/24 fe80::6029:8dff:fe6a:fe28/64 
+default via 192.0.2.1 dev up0 
+192.0.2.0/24 dev up0 proto kernel scope link 
+192.0.2.0/24 dev up0 proto kernel scope link src 192.0.2.10 
+== (a) no slot table: every target is live and reachable through pasta
+  S -> container 172.31.0.2:8080 (routed via br0h, unpublished)   REACHED hello
+  S -> published 172.31.0.1:9090 (host-local, DNAT to the container) REACHED hello
+  S -> host-local 172.31.0.1:8082 (bridge gateway listener)       REACHED hello
+  S -> internet 198.51.100.7:443 (via the default route)          REACHED hello
+  S -> dns 198.51.100.53:53 (via the default route)               RESOLVED registry.example=198.51.100.7
+== (b) the reviewed head's rule body only: fib daddr type local counter reject
+  S -> container 172.31.0.2:8080 (routed via br0h, unpublished)   REACHED hello
+  S -> published 172.31.0.1:9090 (host-local, DNAT to the container) REACHED hello
+  S -> host-local 172.31.0.1:8082 (bridge gateway listener)       REFUSED TimeoutError
+  S -> internet 198.51.100.7:443 (via the default route)          REACHED hello
+  S -> dns 198.51.100.53:53 (via the default route)               RESOLVED registry.example=198.51.100.7
+== (c) the corrected rules as the candidate emits them (cgroup selector removed):
+create table inet milan_act_slot_1
+add chain inet milan_act_slot_1 output { type filter hook output priority filter; policy accept; }
+add rule inet milan_act_slot_1 output fib daddr type local counter reject
+add rule inet milan_act_slot_1 output oifname != { "up0" } counter reject
+  S -> container 172.31.0.2:8080 (routed via br0h, unpublished)   REFUSED TimeoutError
+  S -> published 172.31.0.1:9090 (host-local, DNAT to the container) REFUSED TimeoutError
+  S -> host-local 172.31.0.1:8082 (bridge gateway listener)       REFUSED TimeoutError
+  S -> internet 198.51.100.7:443 (via the default route)          REACHED hello
+  S -> dns 198.51.100.53:53 (via the default route)               RESOLVED registry.example=198.51.100.7
+== ruleset after (c)
+table ip docker_publish_model {
+	chain output {
+		type nat hook output priority dstnat; policy accept;
+		ip daddr 172.31.0.1 tcp dport 9090 counter packets 9 bytes 540 dnat to 172.31.0.2:8080
+	}
+}
+table inet milan_act_slot_1 {
+	chain output {
+		type filter hook output priority filter; policy accept;
+		fib daddr type local counter packets 31 bytes 2504 reject
+		oifname != "up0" counter packets 17 bytes 1012 reject
+	}
+}

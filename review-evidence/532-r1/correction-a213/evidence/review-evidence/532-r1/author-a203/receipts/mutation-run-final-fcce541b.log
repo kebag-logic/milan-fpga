@@ -1,0 +1,141 @@
+baseline rc=0 fails=0
+M01 KILLED rc=1 uplink maps the gateway to host loopback
+      FAIL the uplink is userspace NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+M02 KILLED rc=1 uplink forwards inbound TCP ports
+      FAIL the uplink is userspace NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+M03 KILLED rc=1 daemon attaches to the system containerd
+      FAIL the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+M04 KILLED rc=1 daemon leaves the slot namespace
+      FAIL the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+M05 KILLED rc=1 daemon reads the host daemon.json
+      FAIL the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+M06 KILLED rc=1 daemon shares the default containerd namespace
+      FAIL the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+M07 KILLED rc=1 slice memory cap removed
+      FAIL the namespace, memory cap, firewall and every teardown command are pinned word for word
+M08 KILLED rc=1 firewall rule not restricted to the slot cgroup
+      FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+M09 KILLED rc=1 inherited endpoint no longer refused on the PR path
+      FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+      FAIL an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs
+      FAIL an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+M10 KILLED rc=1 inherited endpoint no longer refused on the live path
+      FAIL an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+      FAIL an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs
+      FAIL an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+M11 KILLED rc=1 lease recorded only after the create succeeds
+      FAIL a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+M12 KILLED rc=1 residue probe ignores the firewall table
+      FAIL acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+      FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+M13 KILLED rc=1 residue refusal removed
+      FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+M14 KILLED rc=1 slot CPUs ignored in act options
+      FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+      FAIL an isolated slot's act command differs from slot 0's only in its own CPUs
+M15 KILLED rc=1 boundary created through another slot's daemon
+      FAIL that refusal precedes every Docker call
+M16 KILLED rc=1 slot lock not taken
+      FAIL acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+      FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+      FAIL a slot another invocation holds is refused before any host command
+      FAIL a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      ... 16 more
+M17 KILLED rc=1 slot lock never released
+      FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+      FAIL a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      ... 14 more
+M18 KILLED rc=1 teardown swallows unproved absence
+      FAIL a surviving daemon unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+      FAIL a surviving namespace makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+      FAIL a surviving firewall table makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+      FAIL a surviving memory cap makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+      FAIL a daemon stop that cannot even run still leaves the slice stop to end the daemon and proves the rest absent
+      FAIL a table delete that cannot even run is still proved absent or reported
+M19 KILLED rc=1 slot 0 environment carries an endpoint
+      FAIL the normal validation path prints the resolved base and enters its Docker boundary
+      FAIL the normal validation path leases the selected workflow's act job volumes
+      FAIL dry-run prints the job bound and the bounded container options as one quoted argv word
+M20 KILLED rc=1 isolated prefix does not enter the namespace
+      FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+      FAIL an isolated slot's sudo Docker and act prefixes enter its namespace identically, differing only in the executable
+M21 KILLED rc=1 slice not stopped at teardown
+      FAIL acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+      FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+      FAIL the namespace, memory cap, firewall and every teardown command are pinned word for word
+      FAIL a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      ... 13 more
+M22 KILLED rc=1 uplink not stopped at teardown
+      FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+      FAIL the namespace, memory cap, firewall and every teardown command are pinned word for word
+      FAIL a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed firewall-create refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed daemon-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      ... 6 more
+M23 KILLED rc=1 namespace not deleted at teardown
+      FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+      FAIL the namespace, memory cap, firewall and every teardown command are pinned word for word
+      FAIL a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      ... 14 more
+M24 KILLED rc=1 daemon identity not verified
+      FAIL acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+      FAIL a failed docker-info refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+      FAIL a slot daemon reporting another invocation's token refuses and the slot is torn down
+      FAIL a slot daemon reporting another data-root refuses and the slot is torn down
+      FAIL a slot daemon reporting malformed identity refuses and the slot is torn down
+M25 KILLED rc=1 isolated slot accepted without sudo
+      FAIL an isolated slot without --sudo is refused: it starts its own daemon
+      FAIL a PR run in an isolated slot without --sudo is refused before any collaborator
+M26 KILLED rc=1 slot root may be group-writable
+      FAIL a group-writable slot root is refused
+M27 KILLED rc=1 slot lock follows a symlink
+      FAIL a slot lock path that is a symlink is not followed
+M28 KILLED rc=1 slot lock is not exclusive
+      FAIL a second acquisition of a held slot lock is refused
+M29 KILLED rc=1 boundary self-test allowed in an isolated slot
+      FAIL --boundary-selftest in an isolated slot is refused before act is resolved
+M30 KILLED rc=1 slot endpoint above the limit accepted
+      FAIL the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+M31 KILLED rc=1 slot number above the limit accepted
+      FAIL a boundary cannot be planned in slot 64
+M32 KILLED rc=1 slot 0 enters the slot lifecycle
+      FAIL the normal validation path prints the resolved base and enters its Docker boundary
+      FAIL the normal validation path leases the selected workflow's act job volumes
+      FAIL dry-run prints the job bound and the bounded container options as one quoted argv word
+      FAIL a two-workflow run leases both, and gates, spawns, cleans containers, then reconciles volumes, once per workflow in that order
+      FAIL volumes observed on a workflow's containers reach that workflow's reconciliation
+      FAIL a job volume act left after a workflow refuses the run after removal
+      ... 6 more
+M33 KILLED rc=1 slot CPUs overlap slot 0
+      FAIL an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+      FAIL slot 1 owns CPUs 4-7 on an 8-CPU host
+      FAIL slot 2 on an 8-CPU host is refused: CPUs 8-11 do not exist
+      FAIL no two slots share a namespace, unit, socket, slice, table, lock, data-root, address pool or CPU, and one slot's names are identical every time
+      FAIL an isolated slot's act command differs from slot 0's only in its own CPUs
+M34 KILLED rc=1 CPU availability not checked
+      FAIL slot 2 on an 8-CPU host is refused: CPUs 8-11 do not exist
+M35 KILLED rc=1 slice kept top-level check removed
+      FAIL a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+M36 KILLED rc=1 table absence skipped when its delete fails
+      FAIL a table delete that cannot even run is still proved absent or reported
+M37 KILLED rc=1 rules write failure escapes as a raw error
+      (no FAIL line) FileNotFoundError: [Errno 2] No such file or directory: '/tmp/milan-act-ci-ea17b6a0635af33347c0de3f719dbf75/tmp/absent/directory/milan_act_slot_2.nft'
+M38 KILLED rc=1 slot-root allowed for slot 0
+      FAIL --slot-root with slot 0 is refused: the default daemon has no slot root
+      FAIL --slot-root without an isolated slot is refused before any collaborator
+restored rc=0 fails=0
+mutations=38 survived=0

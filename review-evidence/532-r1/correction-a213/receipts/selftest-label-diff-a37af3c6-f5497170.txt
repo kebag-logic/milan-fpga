@@ -1,0 +1,70 @@
+base a37af3c6: 363 labels; head f5497170: 422 labels
+== base labels absent at head (reworded arms):
+the firewall loaded is exactly the slot's rules
+the namespace, memory cap, firewall and every teardown command are pinned word for word
+the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI and the real clock
+== head labels absent at base (new or reworded arms):
+a body that raises keeps its own exception: the cap is not read over it, and the slot is torn down
+acquiring a slot whose root has a symlink as the root refuses before the lock or any host command
+acquiring a slot whose root has a user-owned parent refuses before the lock or any host command
+a daemon unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+a dangling symlink occupies a slot path, as a file does; only nothing is absent
+a default route naming no interface is refused before any slot resource
+a default-route query that fails is refused, never read as no route
+a default route through loopback is refused before any slot resource
+a host whose only default is unreachable is refused before any slot resource
+a host with no default route is refused before any slot resource
+a malformed multipath route is refused before any slot resource
+an unquotable interface name is refused before any slot resource
+an unreadable peak is reported as unrecorded and refuses nothing
+a residue query that cannot answer (firewall-query) refuses the slot before any mutation instead of reading as absent
+a residue query that cannot answer (show-ActiveState-slice) refuses the slot before any mutation instead of reading as absent
+a residue query that cannot answer (show-LoadState-daemon) refuses the slot before any mutation instead of reading as absent
+a residue query that cannot answer (show-LoadState-uplink) refuses the slot before any mutation instead of reading as absent
+a route list of non-objects is refused before any slot resource
+a slice unit left in any state but the absent one (failed, activating, deactivating, reloading, maintenance) is residue, not a clean slot
+a slot host command runs as `sudo -n --`, never prompting, from / with only a fixed PATH and locale, under the default bound
+a slot host command that cannot run probe is a Refusal
+a slot host command that timed out is a Refusal
+a slot root under a group-writable parent is refused, naming that component
+a slot root under a parent owned by a user is refused, naming that component
+a slot root under a parent that is not a directory is refused, naming that component
+a slot root under a sticky other-writable parent such as /tmp is refused, naming that component
+a slot root under a symlinked parent is refused, naming that component
+a slot root under a symlinked top-level directory is refused, naming that component
+a slot root whose every ancestor is a root-owned 0755 directory is accepted, and each component from / down is inspected without following it
+a slot root whose parent is missing is refused with the one-time creation command
+a slot whose cap never ran out passes, printing its peak, and reads only the slice's own events, never those of a container's limit below it
+a slot with a cap that ran out twice is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+a slot with events without an oom count is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+a slot with malformed events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+a slot with unreadable events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+a surviving active slice makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+a surviving runtime directory makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+a surviving slice cgroup makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+a surviving uplink PID file makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+a surviving uplink unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+a teardown proof whose query cannot answer (firewall-query@2) refuses the run, naming the query, while every removal and the unlock still run
+a teardown proof whose query cannot answer (show-ActiveState-slice@2) refuses the run, naming the query, while every removal and the unlock still run
+a teardown proof whose query cannot answer (show-DropInPaths-slice) refuses the run, naming the query, while every removal and the unlock still run
+a teardown proof whose query cannot answer (show-LoadState-daemon@2) refuses the run, naming the query, while every removal and the unlock still run
+a teardown proof whose query cannot answer (show-LoadState-uplink@2) refuses the run, naming the query, while every removal and the unlock still run
+a uplink unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a repeated signal cannot cut it short, while acquisition ran with them unblocked
+--interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, never silently in slot 0
+malformed route output is refused before any slot resource
+slot 2 needs CPU 11: an 11-CPU host (CPUs 0-10) refuses it, a 12-CPU host gives it exactly 8-11
+the firewall allows exactly the interfaces this host's default routes use, and the slot announces them
+the firewall loaded is exactly the slot's rules, allowing the host's default-route interface as its only uplink
+the live gate enters its slot, with that slot's own endpoint, before it resolves act
+the production slot lock accepts only a root-owned file: its owner default is the literal 0, never the invoking user
+the queries, namespace, memory cap, firewall and every teardown command are pinned word for word
+the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+the slot firewall refuses a duplicated uplink
+the slot firewall refuses an uplink name over 15 characters
+the slot firewall refuses an uplink name that would leave its quotes
+the slot firewall refuses loopback as the uplink
+the slot firewall refuses no uplink
+the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI, the real clock and real file reads
+the uplinks are every unicast default route's interface, IPv4 then IPv6, each once, with multipath next hops and no unreachable default

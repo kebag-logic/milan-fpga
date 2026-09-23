@@ -1,0 +1,31 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 9233fe93..871418ab 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -1738,8 +1738,8 @@ them:
+   at `MemoryMax=24G` with no swap (`SLOT_MEMORY_MAX`).
+ - The uplink unit `milan-act-slot-N-net.service`. `pasta` configures the
+   namespace from the host's addresses and gives it outbound connectivity
+-  through userspace NAT. It forwards no port in either direction and does not
+-  map the gateway to the host's loopback, so connectivity needs no host
++  through socket-level NAT. It forwards no port in either direction and does
++  not map the gateway to the host's loopback, so connectivity needs no host
+   firewall change.
+ - The runner's own nft table `inet milan_act_slot_N`, created whole or not at
+   all. Its one output rule rejects traffic from the slot's cgroup to every
+@@ -1757,13 +1757,13 @@ them:
+   - its own containerd namespaces and the address pool `10.231.N.0/24`, with
+     no default bridge;
+   - `/dev/null` as its configuration, so no host `daemon.json` applies;
+-  - the systemd cgroup driver, with the slot slice as every container's
+-    parent;
++  - the host service manager as its cgroup driver, with the slot slice as
++    every container's parent;
+   - labels carrying the slot number and the invocation's unpredictable token.
+ 
+   Its own iptables management stays enabled and exists only in the slot
+   namespace.
+ 
+ Before anything else touches the daemon, `docker info` through the slot socket
+ must report the slot label, the invocation token and the slot data-root. The
+ Docker CLI and `act` then both run under
