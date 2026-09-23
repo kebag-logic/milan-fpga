@@ -1,0 +1,37 @@
+== controller host before cleanup
+total 28
+drwxr-xr-x  3 alex alex   120 Sep 23 14:12 .
+drwxrwxrwt 11 root root   260 Sep 23 13:50 ..
+drwxr-xr-x  2 root root    60 Sep 23 13:50 __pycache__
+-rwxr-xr-x  1 alex alex  8256 Sep 23 13:50 a202_watch.py
+-rwxr-xr-x  1 alex alex 10263 Sep 23 13:50 avdecc_ro.py
+-rwxr-xr-x  1 alex alex  1634 Sep 23 13:50 census.sh
+48c248b26c5be8b9eb25536fd38442495f65d224ea66a9aa5f18a23af433ff69  a202_watch.py
+sha256sum: __pycache__: Is a directory
+172836966609645d6e12adf19a8341a145a4dadc51edb81c6d29a23aae1fd75a  avdecc_ro.py
+d79128811d85f023b107f61e2e8928fa441f912f1ce1dbbe5b2c57da61828026  census.sh
+13840 bash -c ls -la /tmp/a202; cd /tmp/a202 && sha256sum *; pgrep -af "a202|tcpdump" || echo NO_PROCESS
+== capture server before cleanup
+ls: cannot access '/tmp/a202*': No such file or directory
+26354 bash -c ls -la /tmp/a202* 2>&1; pgrep -af "a202|tcpdump" || echo NO_PROCESS
+== power-strip host before cleanup
+-rw-rw-r-- 1 alex alex 666 Sep 23 15:50 /tmp/a202-ps.sh
+b2f1593e6d6569a71f120a311e84d6165e4109d64aedf8a4a61e398fdba1c62a  /tmp/a202-ps.sh
+56643 bash -c ls -la /tmp/a202* 2>&1; sha256sum /tmp/a202-ps.sh; pgrep -af a202 || echo NO_PROCESS
+rm: cannot remove '/tmp/a202/__pycache__/avdecc_ro.cpython-314.pyc': Permission denied
+== after cleanup
+/tmp/a202
+13856 bash -c ls -d /tmp/a202 2>&1; pgrep -af "a202|tcpdump" || echo NO_PROCESS
+ls: cannot access '/tmp/a202*': No such file or directory
+26533 bash -c ls /tmp/a202* 2>&1; pgrep -af "a202|tcpdump" || echo NO_PROCESS
+ls: cannot access '/tmp/a202*': No such file or directory
+56668 bash -c ls /tmp/a202* 2>&1; pgrep -af a202 || echo NO_PROCESS
+== build box lock
+LOCK_FREE
+== controller host: sudo removal of the root-owned __pycache__
+ls: cannot access '/tmp/a202': No such file or directory
+NO_PROCESS
+== capture server
+NO_PROCESS
+== power-strip host
+NO_PROCESS

@@ -1,0 +1,82 @@
+== cycle 2: outlet off at 2026-09-23T13:59:33.862278+00:00 (build-box clock); offsets {'<bench-host-prefix>ubuntu-server': 1.08215, '<bench-host-prefix>pw1': 1.082236, '<bench-host-prefix>pi': 1.083421}
+   power: off done 0.225 s, on cmd 20.401 s, on done 20.612 s
+   controller-host port carrier: down 1.147 s, up 34.054 s
+   ADP heard at the controller host from 020000fffe000001: 14 adverts, available_index 729 -> 748 monotonic=True; gm transitions [(-18.31, '3cc0c6fffefe0210', 729)]
+   ADP heard at the controller host from 3cc0c60102030000: 17 adverts, available_index 5927 -> 5949 monotonic=True; gm transitions [(-20.628, '3cc0c6fffefe0210', 5927), (39.843, '3cc0c6fffe010203', 5937), (46.621, '3cc0c6fffefe0210', 5939)]
+   GET_AVB_INFO 020000fffe000001 (status, gm, as_capable) transitions: [(-23.36, 'SUCCESS', '3cc0c6fffefe0210', 1), (35.153, 'TIMEOUT', None, None), (38.656, 'SUCCESS', '020000fffe000001', 0), (39.656, 'SUCCESS', '3cc0c6fffefe0210', 1)]
+   AVB_INTERFACE counters 020000fffe000001: first {'0': 1, '1': 0, '5': 4} last {'0': 1, '1': 0, '5': 6} delta {'0': 0, '1': 0, '5': 2} (0 LINK_UP, 1 LINK_DOWN, 5 GPTP_GM_CHANGED)
+   GET_AS_PATH 020000fffe000001 transitions: [(-23.36, 'SUCCESS', '["3cc0c6fffefe0210"]'), (35.654, 'TIMEOUT', 'null'), (38.156, 'SUCCESS', '["020000fffe000001"]'), (39.656, 'SUCCESS', '["3cc0c6fffefe0210"]')]
+   GET_AVB_INFO 3cc0c60102030000 (status, gm, as_capable) transitions: [(-23.36, 'SUCCESS', '3cc0c6fffefe0210', 1), (36.654, 'TIMEOUT', None, None), (38.157, 'SUCCESS', '3cc0c6fffe010203', 1), (46.658, 'SUCCESS', '3cc0c6fffefe0210', 1)]
+   AVB_INTERFACE counters 3cc0c60102030000: first {'0': 1, '1': 0, '5': 5} last {'0': 1, '1': 0, '5': 7} delta {'0': 0, '1': 0, '5': 2} (0 LINK_UP, 1 LINK_DOWN, 5 GPTP_GM_CHANGED)
+   GET_AS_PATH 3cc0c60102030000 transitions: [(-23.359, 'SUCCESS', '["3cc0c6fffefe0210", "3cc0c6fffe010203"]'), (37.155, 'TIMEOUT', 'null'), (38.157, 'SUCCESS', '["3cc0c6fffe010203"]'), (46.658, 'SUCCESS', '["3cc0c6fffefe0210", "3cc0c6fffe010203"]')]
+   watcher interrupted at 109.672 s: {'reason': 'signal 15'}
+   watcher done at 109.672 s: {'rc': 0}
+   console: 1200 samples from -20.522 to 99.378 s, max gap 0.1 s, RST_EPOCH values [1]
+   console transitions (t, gm, parent, path count, path gen, CLKV_STAT, sync, asCapable, tu, holdover, LINKG_STAT, CLKV_TUCNT, CRFT_CTRL):
+      -20.522 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010002 1 1 0 0 131 77 None
+      1.078 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010009 0 1 1 1 131 77 None
+      1.378 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010001 0 1 1 0 131 77 None
+      1.578 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010001 0 1 1 0 131 78 None
+      2.578 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010001 0 1 1 0 131 79 None
+      3.378 3cc0c6fffefe0210 3cc0c6fffefe0210 1 5 00010001 0 1 1 0 3 79 None
+      3.478 020000fffe000001 020000fffe000001 1 6 00010009 0 1 1 1 3 79 None
+      3.578 020000fffe000001 020000fffe000001 1 6 00010009 0 1 1 1 3 80 None
+      3.878 020000fffe000001 020000fffe000001 1 6 00010001 0 1 1 0 3 80 None
+      4.578 020000fffe000001 020000fffe000001 1 6 00010001 0 1 1 0 3 81 None
+      4.778 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 81 None
+      5.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 82 None
+      6.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 83 None
+      7.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 84 None
+      8.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 85 None
+      9.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 86 None
+      10.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 87 None
+      11.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 88 None
+      12.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 89 None
+      13.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 90 None
+      14.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 91 None
+      15.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 92 None
+      16.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 93 None
+      17.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 94 None
+      18.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 95 None
+      19.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 96 None
+      20.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 97 None
+      21.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 98 None
+      22.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 99 None
+      23.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 100 None
+      24.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 101 None
+      25.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 102 None
+      26.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 103 None
+      27.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 104 None
+      28.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 105 None
+      29.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 106 None
+      30.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 107 None
+      31.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 108 None
+      32.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 109 None
+      33.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 110 None
+      34.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 111 None
+      35.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 112 None
+      36.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 113 None
+      37.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 3 114 None
+      37.778 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 131 114 None
+      38.578 020000fffe000001 020000fffe000001 1 6 00000001 0 0 1 0 131 115 None
+      38.778 020000fffe000001 020000fffe000001 1 6 00010001 0 1 1 0 131 115 None
+      39.078 3cc0c6fffefe0210 3cc0c6fffefe0210 1 7 0001000b 1 1 1 1 131 115 None
+      39.578 3cc0c6fffefe0210 3cc0c6fffefe0210 1 7 00010002 1 1 0 0 131 116 None
+   DUT loss declaration (first sample after T_off, previous sample): {'asCapable_0': {'first_seen': 4.778, 'previous_sample': 4.678, 'value': None}, 'sync_0': {'first_seen': 1.078, 'previous_sample': 0.978, 'value': '0'}, 'tu_1': {'first_seen': 1.078, 'previous_sample': 0.978, 'value': '1'}, 'gm_changed': {'first_seen': 3.478, 'previous_sample': 3.378, 'value': '020000fffe000001'}}
+   tap: 3173 records, host-generated excluded 0, clock fit {'windows': 21, 'windows_used': 7, 'windows_dense': 20, 'slope_ppm': -26.249, 'resid_ms_max': 1.142}
+   tap far end (switch side): last frame 0.649 s (AECP), first frame after 37.749 s (gPTP Pdelay_Resp)
+      gPTP Announce      last before 0.455  first after 39.058 gm 3cc0c6fffefe0210 prio1 246 tlvs [('PathTrace', ['3cc0c6fffefe0210'])]
+      gPTP Sync          last before 0.625  first after 39.076
+      gPTP Follow_Up     last before 0.626  first after 39.077
+      gPTP Pdelay_Req    last before 0.394  first after 38.048
+      gPTP Pdelay_Resp   last before -0.25  first after 37.749
+   DUT-sent frames, before off: {'kinds': {'AECP': 72, 'gPTP Pdelay_Req': 24, 'gPTP Pdelay_Resp': 23, 'gPTP Pdelay_Resp_Follow_Up': 23, 'MSRP': 29, 'MAAP': 6, 'ADP': 3}, 'adp_gm': {'3cc0c6fffefe0210': 3}}
+   DUT-sent frames, off to first far-end frame: {'kinds': {'gPTP Pdelay_Resp': 1, 'gPTP Pdelay_Resp_Follow_Up': 1, 'MSRP': 3, 'AECP': 3, 'gPTP Pdelay_Req': 3}}
+   DUT-sent frames, far-end link to switch Announce/Sync: {'kinds': {'gPTP Pdelay_Resp': 2, 'gPTP Pdelay_Resp_Follow_Up': 2, 'AECP': 5, 'MSRP': 1, 'MAAP': 1, 'gPTP Pdelay_Req': 1, 'gPTP Sync': 2, 'gPTP Follow_Up': 2}, 'sync_first_last': (38.83, 38.955)}
+   DUT-sent frames, after switch Announce/Sync: {'kinds': {'MSRP': 85, 'AECP': 210, 'gPTP Pdelay_Req': 70, 'gPTP Pdelay_Resp': 70, 'gPTP Pdelay_Resp_Follow_Up': 70, 'ADP': 11, 'MAAP': 17}, 'adp_gm': {'3cc0c6fffefe0210': 11}}
+   far-end Announce GM identities over the capture: {'3cc0c6fffefe0210': 95}
+   DUT ADPDU gptp_grandmaster_id on the wire, transitions: [(-18.306, '3cc0c6fffefe0210', 729)]
+   peer ADPDU (interface 0) gptp_grandmaster_id on the DUT link, transitions: [(-20.624, '3cc0c6fffefe0210', 5927), (39.845, '3cc0c6fffe010203', 5937), (46.623, '3cc0c6fffefe0210', 5939)]
+   console values from T_off to the switch's first Announce/Sync: {'gm': {'3cc0c6fffefe0210': 34, '020000fffe000001': 356}, 'parent': {'3cc0c6fffefe0210': 34, '020000fffe000001': 356}, 'sync': {'1': 10, '0': 380}, 'asc': {'1': 50, '0': 340}, 'tu': {'0': 10, '1': 380}, 'hold': {'0': 383, '1': 7}, 'pc': {'1': 390}, 'linkg': {'131': 46, '3': 344}}
+   recovery (s relative to T_off unless named): {'all_good_first': 39.578, 'all_good_prev_sample': 39.478, 'from_first_announce_s': 0.52, 'from_first_sync_s': 0.502, 'from_return_s': 0.52, 'from_first_far_end_frame_s': 1.829, 'from_on_cmd_s': 19.177, 'asCapable_1': 38.778, 'sync_1': 39.078, 'tu_0': 39.578, 'gm_switch': 39.078, 'holdover_seen': 39.078, 'tucnt_start_end': (77, 116), 'pg_start_end': ('5', '7')}
+   PHC steps seen by the console (> 50 ms against the build-box clock): [(38.978, -355.943)]

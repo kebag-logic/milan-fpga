@@ -1,0 +1,52 @@
+--- milan_status (0.03s)
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b0064c4 AEM=loaded
+GPTP_GM=3cc0c6fffefe0210 GPTP_PARENT=3cc0c6fffefe0210 PDELAY_NS=381 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db
+TAI_NS=0x00018dffbfd7276f
+[92;1mlitex[0m> 
+--- mem_list (0.04s)
+mem_list
+Available memory regions:
+Region    Origin     End        Size 
+PLIC      0xf0c00000 0xf0ffffff 0x400000 
+CLINT     0xf0010000 0xf001ffff 0x10000 
+ROM       0x00000000 0x0001ffff 0x20000 
+SRAM      0x10000000 0x10001fff 0x2000 
+MAIN_RAM  0x40000000 0x7fffffff 0x40000000 
+SPIFLASH  0x01000000 0x01ffffff 0x1000000 
+MILAN_CSR 0x90000000 0x9000ffff 0x10000 
+CSR       0xf0000000 0xf000ffff 0x10000 
+[92;1mlitex[0m> 
+--- crc 0x00000000 52200 (0.06s)
+crc 0x00000000 52200
+CRC32: f6afa4ec
+[92;1mlitex[0m> 
+--- crc 0x01000000 3825788 (23.42s)
+crc 0x01000000 3825788
+CRC32: 02036e95
+[92;1mlitex[0m> 
+--- crc 0x01400000 7352 (0.05s)
+crc 0x01400000 7352
+CRC32: 93742dd2
+[92;1mlitex[0m> 
+--- milan_status (0.03s)
+milan_status
+ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b0064c4 AEM=loaded
+GPTP_GM=3cc0c6fffefe0210 GPTP_PARENT=3cc0c6fffefe0210 PDELAY_NS=385 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 TU=0 GPTP_LAT=029000db
+TAI_NS=0x00018e053f201451
+[92;1mlitex[0m> 
+--- mem_read 0x90000720 4 (0.01s)
+mem_read 0x90000720 4
+Memory dump:
+0x90000720  01 00 00 00                                      ....            
+[92;1mlitex[0m> 
+--- mem_read 0x90000774 4 (0.01s)
+mem_read 0x90000774 4
+Memory dump:
+0x90000774  83 00 00 00                                      ....            
+[92;1mlitex[0m> 
+--- mem_read 0x90000780 4 (0.01s)
+mem_read 0x90000780 4
+Memory dump:
+0x90000780  0b 00 00 00                                      ....            
+[92;1mlitex[0m> 

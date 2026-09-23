@@ -1,0 +1,31 @@
+LOCK 2026-09-23T13:51:23.425Z
+PS_SEQ_START 2026-09-23T13:51:43.428Z
+Traceback (most recent call last):
+  File "$REVIEWS/117-a202-packet/tools/console_alive.py", line 37, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/117-a202-packet/tools/console_alive.py", line 21, in main
+    text = Path(sys.argv[1]).read_text(errors="replace")
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$REVIEWS/117-a202-packet/bench/cycle1/console.txt'
+PROOF_ABORT 2026-09-23T13:51:49.471Z: DUT console silent after outlet 4 off; turning it back on now
+1790171510.882613755
+OUT4 -> ON
+  OUT4  ON
+ON_RC=0
+1790171511.112592409
+  OUT0  ON
+  OUT1  ON
+  OUT2  ON
+  OUT3  OFF
+  OUT4  ON
+  OUT5  ON
+  OUT6  ON
+PS_RC=0 PS_SEQ_END 2026-09-23T13:52:04.478Z
+POLL_RC=2
+UNLOCK 2026-09-23T13:52:04.479Z
