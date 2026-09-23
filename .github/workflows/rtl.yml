@@ -535,10 +535,11 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-      # THE RESULT CACHE (#350): a top whose staged sv2v output, Yosys
-      # program, Yosys binary and sv2v version match a verified PASS entry
-      # is skipped and reports the stored count; everything else runs as it
-      # always has. The trust boundary is GitHub's own cache scoping: a
+      # THE RESULT CACHE (#350): a top is skipped and reports the stored
+      # count only when every input its key binds, the generated ROM bundle
+      # (#520) included, matches a verified PASS entry; the key is defined
+      # in syn/yosys/README.md under "The result cache". Everything else
+      # runs as it always has. The trust boundary is GitHub's own cache scoping: a
       # pull-request run can restore caches created on its branch or on `dev`
       # (the seed, published by the pushes and the nightly that run there),
       # and the cache it saves under its own head SHA is readable by that
