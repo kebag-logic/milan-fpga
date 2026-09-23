@@ -1,0 +1,98 @@
+[
+ {
+  "codec": "big5",
+  "case": "no-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\xa2A\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "big5",
+  "case": "argv-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\xa2A\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "big5",
+  "case": "argv-full-ref",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\xa2A\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "big5hkscs",
+  "case": "no-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\xa2A\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "big5hkscs",
+  "case": "argv-operand",
+  "rc": 1,
+  "stdout": "",
+  "stderr": "base/scripts/check_merge_containment.py\", line 901, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'big5hkscs' codec can't encode character '\\udca1' in position 24: illegal multibyte sequence\n",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "big5hkscs",
+  "case": "argv-full-ref",
+  "rc": 1,
+  "stdout": "",
+  "stderr": "base/scripts/check_merge_containment.py\", line 901, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'big5hkscs' codec can't encode character '\\udca1' in position 24: illegal multibyte sequence\n",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "johab",
+  "case": "no-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\xd91\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "johab",
+  "case": "argv-operand",
+  "rc": 1,
+  "stdout": "",
+  "stderr": "src/base/scripts/check_merge_containment.py\", line 901, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'johab' codec can't encode character '\\udc84' in position 24: illegal multibyte sequence\n",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "johab",
+  "case": "argv-full-ref",
+  "rc": 1,
+  "stdout": "",
+  "stderr": "src/base/scripts/check_merge_containment.py\", line 901, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'johab' codec can't encode character '\\udc84' in position 24: illegal multibyte sequence\n",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "cp932",
+  "case": "no-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\x81\\xe0\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "cp932",
+  "case": "argv-operand",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\x81\\xe0\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ },
+ {
+  "codec": "cp932",
+  "case": "argv-full-ref",
+  "rc": 0,
+  "stdout": "  contained  refs/heads/\\x81\\xe0\n",
+  "stderr": "",
+  "truth": "lossy-named branch is STRANDED (1 commit)"
+ }
+]

@@ -1,0 +1,319 @@
+[
+ {
+  "mutant": "control-unmodified",
+  "file": null,
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "CONTROL-PASS"
+ },
+ {
+  "mutant": "single-merge-base",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 677,
+  "fail_count": 1,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-merge-base-two-real-bases real Git history: exit AND verdict"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "t-ignore-submodules",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-hostile-gitlink-reset real Git history: exit AND verdict",
+   "FAIL retention-hostile-gitlink-reset-path the unproved literal path is named without decoding loss"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "t-no-renames",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-hostile-rename-undone real Git history: exit AND verdict",
+   "FAIL retention-hostile-rename-undone-path the unproved literal path is named without decoding loss"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ancestor-type-rule",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-symlink-ancestor-clean-merge real Git history: exit AND verdict",
+   "FAIL retention-symlink-ancestor-clean-merge-path the unproved literal path is named without decoding loss"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "replay-distinctness",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "ok": 675,
+  "fail_count": 3,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-distinct-linear  real Git history: exit AND verdict",
+   "FAIL retention-distinct-linear-path the unproved literal path is named without decoding loss",
+   "FAIL retention-distinct-merge   real Git history: exit AND verdict"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tree-entry-name-check",
+  "file": "merge_containment_replay.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "tree-entry-full-tree",
+  "file": "merge_containment_replay.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "merge-file-style-override",
+  "file": "merge_containment_replay.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "t-no-ext-diff-textconv",
+  "file": "merge_containment_replay.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "merge-file-argument-order",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 530,
+  "fail_count": 148,
+  "not_run": [],
+  "first_fails": [
+   "FAIL replay-01-positive-replay-far-extension settled public matrix: exit AND verdict",
+   "FAIL replay-01-proof            the new arm proves retention after real historical replay",
+   "FAIL replay-02-positive-replay-two-later-commits settled public matrix: exit AND verdict",
+   "FAIL replay-02-proof            the new arm proves retention after real historical replay",
+   "FAIL mutation-merge-count-03    weakened production guard changes the verdict, including its words",
+   "FAIL replay-14-partial-revert-one-hunk settled public matrix: exit AND verdict"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "absence-asymmetry",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 164,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [
+   "            ~~~^^^",
+   "TypeError: 'NoneType' object is not subscriptable"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "historical-error-to-decline",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 677,
+  "fail_count": 1,
+  "not_run": [],
+  "first_fails": [
+   "FAIL retention-missing-blob     real Git history: exit AND verdict"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "merge-error-range",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 677,
+  "fail_count": 1,
+  "not_run": [],
+  "first_fails": [
+   "FAIL mutation-merge-error-11    weakened production guard changes the verdict, including its words"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "g1-parent-read-check",
+  "file": "merge_containment_replay.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "lossy-guard-removed",
+  "file": "merge_containment_git.py",
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-in-process-git-lossy-output Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lossy-status-zero",
+  "file": "merge_containment_git.py",
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "labels-decoded",
+  "file": "merge_containment_git.py",
+  "rc": 1,
+  "ok": 393,
+  "fail_count": 5,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-utf-8-process       fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 177, in _child\\n    _stdout_control(case, Path(mc.__file__), proof, stream)\\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 156, in _stdout_control\\n    case(\"stdout-names\", [proof.path_label(name).encode(\"ascii\") in result.stdout\\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode character \\'\\\\xe9\\' in position 0: ordinal not in range(128)\\n'",
+   "FAIL locale-ascii-process       fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 177, in _child\\n    _stdout_control(case, Path(mc.__file__), proof, stream)\\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 156, in _stdout_control\\n    case(\"stdout-names\", [proof.path_label(name).encode(\"ascii\") in result.stdout\\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode characters in position 0-1: ordinal not in range(128)\\n'",
+   "FAIL locale-utf-8-strict-process fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 177, in _child\\n    _stdout_control(case, Path(mc.__file__), proof, stream)\\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 156, in _stdout_control\\n    case(\"stdout-names\", [proof.path_label(name).encode(\"ascii\") in result.stdout\\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode character \\'\\\\xe9\\' in position 0: ordinal not in range(128)\\n'",
+   "FAIL locale-iso8859-1-process   fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 177, in _child\\n    _stdout_control(case, Path(mc.__file__), proof, stream)\\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 156, in _stdout_control\\n    case(\"stdout-names\", [proof.path_label(name).encode(\"ascii\") in result.stdout\\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode characters in position 0-1: ordinal not in range(128)\\n'",
+   "FAIL locale-big5-process        fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 177, in _child\\n    _stdout_control(case, Path(mc.__file__), proof, stream)\\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/labels-decoded/scripts/merge_containment_selftest_locale.py\", line 156, in _stdout_control\\n    case(\"stdout-names\", [proof.path_label(name).encode(\"ascii\") in result.stdout\\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^\\nUnicodeEncodeError: \\'ascii\\' codec can\\'t encode character \\'\\\\u77c7\\' in position 0: ordinal not in range(128)\\n'"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "argv-bytes-lossy",
+  "file": "merge_containment_git.py",
+  "rc": 1,
+  "ok": 602,
+  "fail_count": 5,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-process        fresh Python: b'Traceback (most recent call last):\\n  File \"<packet>/scratch/mut/argv-bytes-lossy/scripts/merge_containment_selftest_locale.py\", line 325, in <module>\\n    print(json.dumps(_child(sys.argv[2], sys.argv[3:]), ensure_ascii=True))\\n                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/argv-bytes-lossy/scripts/merge_containment_selftest_locale.py\", line 176, in _child\\n    _controls(mc, proof, case)\\n    ~~~~~~~~~^^^^^^^^^^^^^^^^^\\n  File \"<packet>/scratch/mut/argv-bytes-lossy/scripts/merge_containment_selftest_locale.py\", line 120, in _controls\\n    entry = proof._tree_entry(linear, name)\\n  File \"<packet>/scratch/mut/argv-bytes-lossy/scripts/merge_containment_replay.py\", line 70, in _tree_entry\\n    raise _MeasurementError(\"invalid ls-tree path or object ID\")\\nmerge_containment_replay._MeasurementError: invalid ls-tree path or object ID\\n'",
+   "FAIL locale-big5-in-process-a1fe2e747874-linear-missing Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-a1fe2e747874-merge-retained Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-a1fe2e747874-retention-proof Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-a1fe2e747874-postimage Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "t-lookup-lossy",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "ok": 674,
+  "fail_count": 4,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-a1fe2e747874-merge-reverted actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-a1fe2e747874-unproved-path actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-in-process-a1fe2e747874-merge-reverted Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-a1fe2e747874-unproved-path Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "patch-transport-lossy",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "ok": 668,
+  "fail_count": 10,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-a1fe2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-3a286578636c756465297461620963726c660d0a656e640a-patch-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-in-process-c3a92e747874-patch-bytes Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "path-arm-lossy",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-a1fe2e747874-linear-missing actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-in-process-a1fe2e747874-linear-missing Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "postimage-paths-lossy",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "ok": 674,
+  "fail_count": 4,
+  "not_run": [],
+  "first_fails": [
+   "FAIL locale-big5-a1fe2e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-a1fe2e747874-postimage actual filesystem encoding and literal Git filename bytes",
+   "FAIL locale-big5-in-process-a1fe2e747874-enumerated-bytes Big5 filesystem codec in this process",
+   "FAIL locale-big5-in-process-a1fe2e747874-postimage Big5 filesystem codec in this process"
+  ],
+  "tail": [],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,27 @@
+[
+ {
+  "mutant": "control-unmodified",
+  "file": null,
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [],
+  "verdict": "CONTROL-PASS"
+ },
+ {
+  "mutant": "text-source-copies",
+  "file": "merge_containment_selftest_mutations.py",
+  "rc": 1,
+  "ok": 147,
+  "fail_count": 0,
+  "not_run": [],
+  "first_fails": [],
+  "tail": [
+   "           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^",
+   "UnicodeDecodeError: 'ascii' codec can't decode byte 0xc2 in position 4306: ordinal not in range(128)"
+  ],
+  "verdict": "KILLED"
+ }
+]
