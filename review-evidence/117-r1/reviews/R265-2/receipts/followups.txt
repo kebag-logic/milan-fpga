@@ -1,0 +1,27 @@
+# Follow-up tracking claims on the page, read-only, 2026-09-23T17:54:47Z
+#110 OPEN gPTP plane: integrate the FPGA-gPTP processor and retire ptp4l
+#116 OPEN gPTP plane default ON: retire ptp4l, phc2sys and the statd mirror
+#529 OPEN CRF Stream Input serves no AECP counters, so controllers downgrade the entity from Milan
+#530 OPEN CRF talker ends its own bursts while bound and starts emitting before a reservation exists
+#495 OPEN [Residue] Review leftovers: one checklist instead of one issue per pull request
+#64 OPEN Measure and deploy the gPTP ingress/egress timestamp-latency split
+#213 OPEN Measure the real egress-timestamp window the gPTP plane exposes on hardware
+## #495 lines naming the #117 page items 4 to 6
+### #117 bench run (PR #531, docs/findings/117_GPTP_SILICON_EVIDENCE.md items 4 to 6)
+
+- [ ] Item 4: the DUT's unsolicited GET_AVB_INFO to a registered controller once per second (propagation delay changes by a few ns each time); review the rate for controller load.
+- [ ] Item 5: the bench AVB switch requests an IPv4 address by DHCP every 15 s on the AVB segment and nothing answers; bench-side, decide whether to serve or disable it.
+- [ ] Item 6: the bench AVB switch answered 2 of 570 Pdelay requests after 18.3 ms (Run A), above the 15 ms turnaround on its side; the DUT held peer delay within 380 to 391 ns. Watch in later runs.
+## #530 comments (time, first 90 chars)
+2026-09-23T14:30:39Z [A10] ASSIGNMENT: A205 author on branch `530-crf-talker-lifecycle` from dev `ede8d48e`: ro
+2026-09-23T14:40:56Z [A205] TAKEN Branch: `530-crf-talker-lifecycle` from dev `ede8d48ecd7c7f589a14b957951f040d
+2026-09-23T14:52:10Z [A205] DECISION: causes of items 1 to 3, reproduced in simulation at base `ede8d48e`  **Re
+2026-09-23T14:52:29Z [A205] BLOCKED: both fixes lie outside this lane. No commit was made. The lane head is sti
+2026-09-23T14:54:57Z [A10] DECISION (manager, 2026-09-23, reversible): follow the A205 analysis (https://github
+2026-09-23T16:00:13Z [A10] PP #106 evidence (<url>
+## #530 line on item 3
+52:**Item 3, FRAMES_TX 16: explained by the documented semantics, not a defect.**
+## issue 117 comment anchors linked from the page exist on #117
+5795898094 True
+5794859125 True
+5584039577 True
