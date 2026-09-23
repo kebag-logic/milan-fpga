@@ -1,0 +1,24 @@
+Line 129 check (reference peer ENTITY firmware_version field), R265-3.
+
+Source of the original bytes: the ENTITY READ_DESCRIPTOR payload in
+bench-a200/bench/peer-aem-1.jsonl at the superseded public archive commit
+32aec66197ba78ee431c27383bb958e5728c270a (still served by SHA at review time).
+Decoded in a private scratch area only; no value is reproduced here and the
+decode step is deliberately not published while the purge is pending.
+
+Descriptor offsets used (IEEE 1722.1 ENTITY descriptor, after the 4-octet
+configuration_index/reserved prefix): entity_name 48, firmware_version 116,
+group_name 180, serial_number 244; each 64 octets.
+
+firmware_version: original non-NUL prefix 7 octets, printable ASCII.
+SHA-256 of the 64-octet original field:
+  33f0e7f9e86fe4829a2de6f6d04d1edf1463b7d6653c2865ad985f183b0ddfbc
+  = the value on page line 129: YES
+Pin 74ac94e8, same file: the 7 octets are replaced by 7 mask octets ('#'),
+length-preserving; the hash cannot be recomputed from published bytes, as the
+page says.
+2026-09-14 public record (issue comments 5670665596, 5671174308): 16-hex prefix
+33f0e7f9e86fe482, equal to the first 16 hex digits of the page value.
+The other three fields (entity_name 13 octets, group_name 16, serial_number 13)
+are masked length-preserving at the pin; bytes outside the four fields are
+unchanged between the superseded object and the pin.
