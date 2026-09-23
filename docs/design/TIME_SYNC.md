@@ -63,6 +63,7 @@ flowchart LR
 - The engine runs peer delay and synchronization.
 - Rate updates steer PHC frequency.
 - Phase updates step PHC time.
+- The [step policy](#step-policy) chooses between them.
 - Publication commits expose synchronized state atomically.
 
 A correction's SUM is measured per board. Its split is assigned.
@@ -70,6 +71,38 @@ A correction's SUM is measured per board. Its split is assigned.
 The split moves the synchronized offset, never the peer delay.
 
 Read the [fabric-plane contract](GPTP_PLANE.md).
+
+### Step policy
+
+The fabric plane either steps or slews the PHC.
+
+This page is the parent's one record of that rule.
+
+The offset is local time minus grandmaster time.
+
+| Servo state | Which Sync pair | Slews up to | Steps above |
+|---|---|---|---|
+| Link-up | The first pair after asCapable rises | 20 us | 20 us |
+| Locked | Every later pair | 100 us | 100 us |
+
+- Every reset clears asCapable, so it re-arms link-up.
+- Nothing else re-arms link-up.
+- A grandmaster change keeps the servo locked.
+- So does a 375 ms Sync receipt timeout.
+- So does a return from grandmaster duty.
+- The written rate trim never exceeds 200 ppm.
+- That trim is proportional plus integral; both share the bound.
+- The bound is `PHC_ADJ_MAX_C`, which `KL_gptp_txret` enforces.
+- A 100 us slew takes 0.5 s or more.
+- One step is one `phc_step_we_o` pulse.
+- That pulse carries the measured offset, negated.
+- Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+
+| Source | Record |
+|---|---|
+| Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
+| Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
+| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md#step-versus-slew-policy) |
 
 ## Media boundary
 

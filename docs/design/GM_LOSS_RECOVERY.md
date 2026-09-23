@@ -106,6 +106,30 @@ Publication changes feed notification scheduling.
 
 Consumers receive one coherent state generation.
 
+### Media re-base on a PHC step
+
+Each step of the [step policy](TIME_SYNC.md#step-policy) is one counted event.
+
+Issue #387 decided its media reaction.
+
+| Element | Decided reaction to one step | This tree |
+|---|---|---|
+| `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
+| Render setpoint stage | Re-centres once, at the next PDU end, counted in its recentre tally | Yes, on the step; a grandmaster identity change also re-centres it |
+| Grid aligner and packet NCO | Nothing to re-centre: neither reads the PHC | No PHC input |
+| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm |
+| Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Not yet: `mcr_restart_p_w` ignores the step |
+| Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
+| Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
+
+A grandmaster change that also steps fires both render triggers.
+
+The decided count for that change is still one.
+
+The remaining datapath edit stays open on #387.
+
+The #117 bench measures the physical re-base.
+
 ## Option-off behavior
 
 Option-off hardware exists only for verification.
