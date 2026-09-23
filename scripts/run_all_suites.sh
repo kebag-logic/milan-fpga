@@ -28,6 +28,10 @@
 #   92       some suite was KILLED BY THE WALL CLOCK. Its result is UNKNOWN -
 #            it is not a failure and it is not a pass. Re-run it uncontended.
 #   130/143  cancelled by INT/TERM; partial logs, no completed summary.
+#   other    the launched process was stopped without cleanup (KILL, or HUP or
+#            QUIT to it or its group; the caller sees that signal). The sweep
+#            shell dies with it: no later suite, no summary, no cleanup. A
+#            suite already running may finish and holds the lock until then.
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
@@ -104,9 +108,12 @@ set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # A separate owner adopts and reaps the entire command subtree, even children
-# that detach or ignore TERM. Install the shell's terminal traps before any
-# selection, lock wait or preflight can start. The private argument is consumed
-# only on re-entry from that owner; it is not a supported sweep option.
+# that detach or ignore TERM. The launched PID becomes that owner, and it runs
+# this shell in its own session; a parent-death signal kills this shell if the
+# owner dies without cleanup, so a hard stop never leaves the loop detached.
+# Install the shell's terminal traps before any selection, lock wait or
+# preflight can start. The private argument is consumed only on re-entry from
+# that owner; it is not a supported sweep option.
 if [ "${1:-}" != "--owned-sweep" ]; then
   exec python3 "$ROOT/scripts/owned_process.py" -- bash "$0" --owned-sweep "$@"
 fi

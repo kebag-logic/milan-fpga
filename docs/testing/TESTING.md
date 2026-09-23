@@ -215,11 +215,22 @@ Detached or stubborn descendants receive bounded escalation.
 Stable process handles prevent signalling reused numeric identities.
 Workstation process ownership requires pidfds and child adoption.
 Unsupported process facilities are refused before commands start.
+That refusal prints `REFUSED:` and exits 2, never a traceback.
 Cleanup allows two seconds before escalating stubborn descendants.
 Another two seconds bound reaping and terminal trap cleanup.
 These cleanup intervals do not change suite deadlines.
 Ordinary red suites still continue through the selected population.
 Masked verdicts still fail; deadline results remain unknown.
+
+A hard stop is not a cancellation.
+The launched process owns the sweep shell.
+That shell runs in its own session.
+A parent-death signal kills it when its owner dies.
+This covers KILL, and HUP or QUIT, to the owner or its group.
+The caller then sees that signal as the exit status.
+No later suite starts and no summary is printed.
+No cleanup runs, so the lock record may remain.
+A suite already running may finish, holding the lock until then.
 
 Partial suite logs remain under the requested output directory.
 Prerequisite logs remain within its `preflight/` directory.
@@ -237,6 +248,9 @@ Command handshakes establish signal boundaries without timing guesses.
 Assertions distinguish reaped identities from surviving zombies.
 A foreign sibling must remain untouched throughout cancellation.
 Restoring the original continuation behavior must execute the forbidden sentinel.
+Hard KILL and HUP stops must leave no output after the caller sees them.
+Letting owned commands outlive their owner must run the forbidden sentinel.
+Removed process facilities must produce the refusal, not a traceback.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
 also exercise cancellation with both production drivers nested.
 

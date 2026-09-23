@@ -3,16 +3,22 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Production sweep cancellation, using disposable known-boundary commands."""
 
-import json
+import fcntl
 import os
+import re
 import signal
 import subprocess
 import sys
 import tempfile
+import time
+from collections.abc import Callable
 from pathlib import Path
 
 from owned_process import OwnedProcesses
-from process_test_support import Probe, assert_reaped, identity, install, write
+from process_test_support import (
+    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, identity, install, parent as parent_of,
+    running, write,
+)
 
 DRIVER = "scripts/run_all_suites.sh"
 
@@ -209,6 +215,100 @@ def normal_orphan(parent: Path) -> None:
     probe.save(dict(exit=status, normal_cleanup=True, handshake=data))
 
 
+def summarised(text: str) -> bool:
+    """Does this transcript carry the completed sweep's summary line?"""
+    return re.search(r"^suites: ", text, re.M) is not None
+
+
+def eventually(condition: Callable[[], bool], seconds: float, what: str) -> None:
+    """Wait for an observable condition; the deadline only bounds a failure."""
+    deadline = time.monotonic() + seconds
+    while not condition():
+        assert time.monotonic() < deadline, what
+        time.sleep(0.02)
+
+
+def sweep_shell(pid: int, entry: int) -> int:
+    """The ancestor of an owned command whose parent is the launched entry."""
+    while (up := parent_of(pid)) != entry:
+        assert up not in (None, 0, 1), (pid, up)
+        pid = up
+    return pid
+
+
+def lock_free(root: Path) -> bool:
+    """Can a new sweep take this tree's lock right now?"""
+    with (root / ".run_all_suites.lock").open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+        fcntl.flock(lock, fcntl.LOCK_UN)
+        return True
+
+
+def hard_stop(parent: Path, how: str, unsafe: bool = False) -> None:
+    """A stop the owner cannot handle kills the sweep shell; nothing later starts."""
+    label = ("unsafe-" if unsafe else "hard-") + how
+    root, probe = fixture(parent, label)
+    probe.env["PROBE_MODE"] = "orphan"
+    if unsafe:
+        # Restore the reviewed defect: owned commands outlive their owner.
+        path = root / "scripts/owned_process.py"
+        text = path.read_text()
+        assert "preexec_fn=self._die_with_owner," in text
+        path.write_text(text.replace("preexec_fn=self._die_with_owner,", ""))
+    # Containment only: adopts whatever the stop orphans, then reaps it.
+    with OwnedProcesses():
+        start(probe)
+        data = probe.ready()
+        entry = probe.process.pid
+        shell = sweep_shell(data["pid"], entry)
+        shell_start = identity(shell)[0]
+        if how == "HUP-group":
+            os.killpg(entry, signal.SIGHUP)
+        else:
+            probe.signal(signal.SIGKILL if how == "KILL" else signal.SIGHUP)
+        status, at_death = probe.finish()
+        assert status == -(signal.SIGKILL if how == "KILL" else signal.SIGHUP), at_death
+        if unsafe:
+            assert running(shell, shell_start), "unsafe control: the shell did not outlive its owner"
+            write(probe.control / "release", "command may complete\n")
+            eventually(lambda: not running(shell, shell_start), 20, "detached sweep never finished")
+        else:
+            eventually(lambda: not running(shell, shell_start), 5, "sweep shell outlived its owner")
+            write(probe.control / "release", "command may complete\n")
+            eventually(lambda: not running(data["pid"], data["identities"][str(data["pid"])][0]), 10,
+                       "in-flight command did not finish")
+            eventually(lambda: lock_free(root), 10, "sweep lock still held")
+        after = probe.log()[len(at_death):]
+        next_suite = (probe.control / "next-suite").exists()
+        if unsafe:
+            assert next_suite and "PASS     omega" in after and summarised(after), after
+        else:
+            assert not next_suite and after == "", after
+            assert "PASS     omega" not in at_death and not summarised(at_death), at_death
+        lock_owner_left = (root / ".run_all_suites.lock.owner").exists()
+    assert not running(shell, shell_start)
+    assert_reaped(dict(data, identities={**data["identities"], str(shell): (shell_start, "R")}))
+    probe.save(dict(exit=status, stop=how, sweep_shell_exited=True, next_suite=next_suite,
+                    output_after_death=after, lock_owner_left=lock_owner_left,
+                    unsafe_control_detected=unsafe))
+
+
+def unsupported(parent: Path, mode: str) -> None:
+    """A host lacking a process facility gets the documented refusal, not a traceback."""
+    root, probe = fixture(parent, "facility-" + mode)
+    write(probe.control / "site/sitecustomize.py", FACILITY_SITE)
+    probe.env.update(PYTHONPATH=str(probe.control / "site"), PROBE_FACILITY=mode)
+    start(probe)
+    status, output = probe.finish()
+    assert status == 2 and "REFUSED: process ownership" in output and "Traceback" not in output, output
+    assert not (root / "logs").exists() and not (probe.control / "owner-ran").exists(), output
+    assert not (root / ".run_all_suites.lock.owner").exists(), output
+    probe.save(dict(exit=status, facility=mode, refused=True, sweep_started=False))
+
+
 def relative_output(parent: Path) -> None:
     """Prerequisite directory changes must preserve a relative caller outdir."""
     root, probe = fixture(parent, "relative-output")
@@ -234,8 +334,14 @@ def main() -> int:
                     cancellation(parent, phase, signum)
             with OwnedProcesses():
                 cancellation(parent, "command", signal.SIGTERM, unsafe=True)
+            for how in ("KILL", "HUP", "HUP-group"):
+                hard_stop(parent, how)
+            hard_stop(parent, "KILL", unsafe=True)
+            for mode in FACILITY_MODES:
+                unsupported(parent, mode)
     print("suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, "
-          "partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)")
+          "partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, "
+          "facility refusals, unsafe negative controls)")
     return 0
 
 

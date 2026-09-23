@@ -5,10 +5,17 @@
 
 Only the sweep and gPTP shadow campaign use this boundary. A fresh process
 must enter it before starting children: adopted children then belong to that
-command, never to another caller. Unsupported process facilities fail closed.
+command, never to another caller. A missing process facility is refused
+before any command starts.
+
+A command never outlives its owner. When the owner dies without cleanup
+(KILL, or a fatal signal it does not handle such as HUP or QUIT), a
+parent-death signal kills the command it launched, so nothing that command
+would start next can start. Descendants it already started may finish.
 """
 
 import ctypes
+import errno
 import os
 import signal
 import subprocess
@@ -17,10 +24,16 @@ import tempfile
 import time
 from pathlib import Path
 from types import FrameType
+from typing import BinaryIO
 
 PROC = Path("/proc")
 GRACE_SECONDS = 2.0
 REAP_SECONDS = 2.0
+# prctl(2) options. None of them needs privilege.
+PR_SET_PDEATHSIG = 1
+PR_GET_PDEATHSIG = 2
+PR_SET_CHILD_SUBREAPER = 36
+PR_GET_CHILD_SUBREAPER = 37
 
 
 class Cancelled(Exception):
@@ -29,6 +42,25 @@ class Cancelled(Exception):
     def __init__(self, signum: int):
         super().__init__(f"signal {signum}")
         self.signum = signum
+
+
+class Unsupported(OSError):
+    """A required process facility is absent on this host."""
+
+
+def _prctl():
+    """Resolve every facility before any state changes, or refuse by name."""
+    try:
+        prctl = getattr(ctypes.CDLL(None, use_errno=True), "prctl", None)
+    except OSError:
+        prctl = None
+    missing = [name for name, present in (
+        ("prctl", prctl is not None),
+        ("os.pidfd_open", hasattr(os, "pidfd_open")),
+        ("signal.pidfd_send_signal", hasattr(signal, "pidfd_send_signal"))) if not present]
+    if missing:
+        raise Unsupported("unsupported process facilities: " + ", ".join(missing))
+    return prctl
 
 
 def _identity(pid: int) -> tuple[int, str] | None:
@@ -55,18 +87,23 @@ class OwnedProcesses:
         self.root_fd = None
         self.root_notified = False
         self.handlers = {}
-        self.libc = ctypes.CDLL(None, use_errno=True)
+        self.prctl = None
+        self.owner_pid = os.getpid()
         self.previous_subreaper = ctypes.c_int()
 
     def __enter__(self) -> "OwnedProcesses":
-        # PR_GET_CHILD_SUBREAPER / PR_SET_CHILD_SUBREAPER. No privilege needed.
-        if self.libc.prctl(37, ctypes.byref(self.previous_subreaper), 0, 0, 0):
-            raise OSError(ctypes.get_errno(), "cannot inspect descendant adoption")
-        if self.libc.prctl(36, 1, 0, 0, 0):
-            raise OSError(ctypes.get_errno(), "cannot enable descendant adoption")
-        # Probe identity handles before any command can start.
+        self.prctl = _prctl()
+        self.owner_pid = os.getpid()
+        # Probe the lifetime binding and identity handles before changing
+        # adoption, so a refusal leaves this process as it found it.
+        if self.prctl(PR_GET_PDEATHSIG, ctypes.byref(ctypes.c_int()), 0, 0, 0):
+            raise OSError(ctypes.get_errno(), "cannot inspect command lifetime binding")
         fd = os.pidfd_open(os.getpid())
         os.close(fd)
+        if self.prctl(PR_GET_CHILD_SUBREAPER, ctypes.byref(self.previous_subreaper), 0, 0, 0):
+            raise OSError(ctypes.get_errno(), "cannot inspect descendant adoption")
+        if self.prctl(PR_SET_CHILD_SUBREAPER, 1, 0, 0, 0):
+            raise OSError(ctypes.get_errno(), "cannot enable descendant adoption")
         for signum in (signal.SIGINT, signal.SIGTERM):
             self.handlers[signum] = signal.signal(signum, self._cancel)
         return self
@@ -84,8 +121,16 @@ class OwnedProcesses:
         finally:
             for signum, handler in self.handlers.items():
                 signal.signal(signum, handler)
-            if self.libc.prctl(36, self.previous_subreaper.value, 0, 0, 0):
+            if self.prctl(PR_SET_CHILD_SUBREAPER, self.previous_subreaper.value, 0, 0, 0):
                 raise OSError(ctypes.get_errno(), "cannot restore descendant adoption")
+
+    def _die_with_owner(self) -> None:
+        # Runs in the forked child before exec. A parent-death signal kills
+        # the command when its owner dies; an orphan never starts at all.
+        if self.prctl(PR_SET_PDEATHSIG, int(signal.SIGKILL), 0, 0, 0):
+            raise OSError(ctypes.get_errno(), "cannot bind the command to its owner")
+        if os.getppid() != self.owner_pid:
+            raise OSError(errno.ESRCH, "the owner exited before the command started")
 
     def _cancel(self, signum: int, _frame: FrameType | None) -> None:
         if not self.cancel_signal:
@@ -196,17 +241,25 @@ class OwnedProcesses:
                     os.close(fd)
             time.sleep(0.02)
 
-    def run(self, argv: list[str], cwd: Path | None = None,
-            capture: bool = True) -> tuple[int, str]:
-        """Run one command; return its status/output only after owned cleanup."""
+    def run(self, argv: list[str], cwd: Path | None = None, capture: bool = True,
+            env: dict[str, str] | None = None, stderr: BinaryIO | None = None) -> tuple[int, str]:
+        """Run one command; return its status/output only after owned cleanup.
+
+        Captured standard error joins the output unless `stderr` receives it.
+        """
         self.checkpoint()
         self.root_notified = False
+        if stderr is None:
+            stderr = subprocess.STDOUT if capture else None
         with tempfile.TemporaryFile() as output:
             try:
-                self.process = subprocess.Popen(
-                    argv, cwd=cwd, start_new_session=True,
-                    stdout=output if capture else None,
-                    stderr=subprocess.STDOUT if capture else None)
+                try:
+                    self.process = subprocess.Popen(
+                        argv, cwd=cwd, env=env, start_new_session=True,
+                        preexec_fn=self._die_with_owner,
+                        stdout=output if capture else None, stderr=stderr)
+                except subprocess.SubprocessError as exc:
+                    raise Unsupported(f"cannot bind the command to its owner: {exc}") from exc
                 self.root_fd = os.pidfd_open(self.process.pid)
                 if self.cancel_signal:
                     self._signal(self.root_fd, signal.SIGSTOP)
@@ -237,8 +290,8 @@ def main() -> int:
             status, _output = owner.run(sys.argv[2:], capture=False)
         return status if status >= 0 else 128 - status
     except Cancelled as exc:
-        print(f"CANCELLED: signal {exc.signum}; partial logs retained; "
-              "no completed sweep result", file=sys.stderr)
+        # The sweep shell has already said whether logs were prepared.
+        print(f"CANCELLED: signal {exc.signum}; no completed sweep result", file=sys.stderr)
         return 128 + exc.signum
     except (OSError, RuntimeError) as exc:
         print(f"REFUSED: process ownership: {exc}", file=sys.stderr)

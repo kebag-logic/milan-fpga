@@ -54,6 +54,30 @@ while not (control / "release").exists():
 '''
 
 
+#: Loaded through PYTHONPATH by a production entry point under test. It removes
+#: one process facility, as on a host that lacks it, before that entry runs.
+FACILITY_SITE = r'''
+import ctypes, os, signal
+mode = os.environ.get("PROBE_FACILITY")
+if mode == "no-prctl":
+    class _NoPrctl:
+        """A C library without prctl, as on a host that lacks it."""
+    ctypes.CDLL = lambda *args, **kwargs: _NoPrctl()
+elif mode == "prctl-fails":
+    class _FailingPrctl:
+        """A prctl that refuses every option."""
+        @staticmethod
+        def prctl(*args):
+            return -1
+    ctypes.CDLL = lambda *args, **kwargs: _FailingPrctl()
+elif mode == "no-pidfd-open":
+    del os.pidfd_open
+elif mode == "no-pidfd-signal":
+    del signal.pidfd_send_signal
+'''
+FACILITY_MODES = ("no-prctl", "prctl-fails", "no-pidfd-open", "no-pidfd-signal")
+
+
 def git(root: Path, *args: str) -> bytes:
     """Run fixture-only Git without caller Git redirection or index refresh."""
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
@@ -89,6 +113,20 @@ def identity(pid: int) -> tuple[str, str] | None:
         return fields[19], fields[0]
     except (FileNotFoundError, ProcessLookupError):
         return None
+
+
+def parent(pid: int) -> int | None:
+    """Observe the current parent of a process, or None once it is gone."""
+    try:
+        return int((PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()[1])
+    except (FileNotFoundError, ProcessLookupError):
+        return None
+
+
+def running(pid: int, start: str) -> bool:
+    """Is this exact identity still executing (neither gone nor a zombie)?"""
+    current = identity(pid)
+    return current is not None and current[0] == start and current[1] != "Z"
 
 
 def snapshot(root: Path) -> dict:
