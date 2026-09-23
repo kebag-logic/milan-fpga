@@ -1730,9 +1730,12 @@ assignment the runner makes from the slot number.
 An isolated slot N consists of the following, in the order the runner creates
 them:
 
-- An exclusive host-wide lock, `/run/lock/milan-act-slot-N.lock`, held for the
-  whole invocation. The file is created once through sudo and never replaced.
-  A slot that another invocation holds refuses at once.
+- An exclusive host-wide lock, `/run/lock/milan-act-slot-N.lock`. A PR run
+  takes it once the PR head is fetched and materialized, just before the
+  slot's resources are created, and holds it until the slot's teardown ends.
+  The file is created once through sudo and never replaced. A slot that
+  another invocation holds refuses at that point, after the fetch rather than
+  at startup, and nothing of the slot is touched.
 - The network namespace `milan-act-slot-N`.
 - The top-level slice `milan_act_slot_N.slice`, capped as a runtime property
   at `MemoryMax=24G` with no swap (`SLOT_MEMORY_MAX`).
@@ -1742,11 +1745,27 @@ them:
   not map the gateway to the host's loopback, so connectivity needs no host
   firewall change.
 - The runner's own nft table `inet milan_act_slot_N`, created whole or not at
-  all. Its one output rule rejects traffic from the slot's cgroup to every
-  host-local address: the host loopback, the default daemon's bridge
-  gateways, and any other replay's artifact and cache servers. DNS and the
-  internet stay reachable. The slot resolves names through the host's
-  configured nameservers, so those must not be addresses of the host itself.
+  all. The uplink is the slot's only socket owner on the host, so every
+  connection a slot job makes is one the host originates, on the host's
+  output path. Two output rules match traffic from the slot's cgroup:
+  - the first rejects every host-local address: the host loopback, the
+    default daemon's bridge gateways, and any other replay's artifact and
+    cache servers;
+  - the second rejects whatever the host would send out of any interface but
+    its uplinks, the interfaces carrying its unicast default routes, which
+    the runner reads (`ip -json -4|-6 route show default`) before it creates
+    anything. That covers a container behind any Docker bridge, a port Docker
+    publishes on a host address (Docker rewrites the destination before this
+    filter runs), and any other local bridge, tunnel or VM network.
+
+  Docker isolates its bridge networks from each other only on the forward
+  path, which host-originated traffic never takes. Without the second rule a
+  slot reached the default daemon's containers, including a concurrent slot-0
+  replay's job containers, which slot 0's own jobs cannot reach.
+  DNS and the internet stay reachable through the uplinks. The slot resolves
+  names through the host's configured nameservers, so those must be reached
+  through an uplink and must not be addresses of the host itself. A host
+  with no usable default route refuses the slot before anything is created.
 - The daemon unit `milan-act-slot-N-dockerd.service`, inside that namespace
   and slice. It has:
   - its own data-root `<slot-root>/slot-N`, exec-root, pidfile and socket
@@ -1791,18 +1810,33 @@ Resource bounds:
   `CONTAINER_CPU_LIMIT` CPUs of their own. Slot 0 keeps `0-3`. A host without
   those CPUs refuses the slot.
 - `--memory`, `--memory-swap`, `--concurrent-jobs` and the matrix width are
-  unchanged. Each slot therefore replays exactly the hosted-shaped jobs
-  described above; only its CPUs differ.
-- The slice cap bounds everything in the slot together. A slot that overruns
-  it is killed inside its own slice and fails, without taking memory from the
-  host or from another slot.
+  unchanged, so each job container is shaped as described above and only its
+  CPUs differ.
+- The slot as a whole is not hosted-shaped. The slice cap bounds everything
+  in the slot together at 24G, while hosted runners give each job its own
+  16 GB machine and slot 0 allows up to four 16 GB matrix legs at once
+  (64 GB). rtl-full's sharded jobs can therefore meet the slot cap where
+  neither slot 0 nor hosted would. A slot that overruns it is killed inside
+  its own slice, without taking memory from the host or from another slot.
+- A run in which the slot cap itself ran out is refused, never reported as a
+  verdict. After the workflows, the runner reads the slice's own
+  `memory.events.local`, which counts only the slice's limit and never a job
+  container's 16 GB limit below it. Any `oom` there is exit 2 naming the cap,
+  so a cap-induced failure cannot pass for the candidate's `FAILED`. The
+  runner also prints the slice's memory peak. The cap's effect on the shipping
+  workflows has not been measured yet; the live proof below prints each
+  slot's peak.
 - Slot 0 keeps only its per-container bounds. Whoever allocates slots keeps
   the concurrent caps, plus what slot 0 uses, within host RAM.
 
 `--slot-root` (default `/var/lib/milan-act-ci`) holds every isolated slot's
-persistent data-root. It must be a root-owned directory that is not writable by
-group or other. The runner never creates it; create it once with
-`sudo install -d -m 0755 -o root -g root <slot-root>`.
+persistent data-root. It and every directory above it, from `/` down, must be
+a root-owned real directory (not a symlink) that is not writable by group or
+other. Otherwise whoever controls an ancestor could redirect the root daemon's
+data-root between the check and the daemon's start. The runner never creates
+it; create it once with `sudo install -d -m 0755 -o root -g root <slot-root>`.
+A filesystem mounted on a directory owned by a user can still hold a slot
+root through a root-owned bind mount.
 
 The data-root is the slot's image cache and the only slot resource kept between
 invocations. It is not shared with the default daemon, because a shared
@@ -1852,8 +1886,8 @@ sudo ip netns delete milan-act-slot-N
 Volumes and containers that such a run left inside the slot's data-root are
 refused on the next run by the ordinary tool-cache and lease checks. To reset
 a slot, delete its data-root (`sudo rm -rf <slot-root>/slot-N`); that costs
-one fresh image pull. Nothing about a slot touches another slot or the default
-daemon.
+one fresh image pull. No slot resource is shared with another slot or with
+the default daemon, and the firewall above keeps a slot's traffic off both.
 
 The runner-change bootstrap rule applies to slots as to everything else. A PR
 that changes the slot code is validated by the trusted base copy. The new
@@ -1864,44 +1898,99 @@ code's live behaviour is proved with an independently audited install:
 - `--boundary-selftest` runs on slot 0 only. Its unboundaried arm must see
   the host loopback, and a slot namespace removes that by design.
 - [`scripts/act_slot_proof.sh`](../../scripts/act_slot_proof.sh) is the live
-  proof of parallel slots, run with the audited install. It runs, in order:
-  1. the interruption gate in slot A;
-  2. serial references for two PRs;
-  3. both PRs at once in slots A and B, whose verdicts must equal their
-     serial references;
-  4. the collision control: both PRs start in one slot, and the second must
-     be refused while the first keeps its serial verdict. `--collide-default`
-     repeats this on slot 0, where no slot isolation exists and the second
-     run refuses on the tool-cache or lease name.
+  proof of parallel slots, run with the audited install. It records ten
+  checks, in order:
+  1. the interruption gate in slot A, which must pass and print the runner's
+     own line that slot A was then torn down and proved absent;
+  2. serial references for two PRs, each of which must complete;
+  3. both PRs started together in slots A and B. Both must be seen holding
+     their slots at one instant, before either has printed a verdict, and each
+     must complete with its serial reference's verdict;
+  4. while both hold their slots, the isolation control in each slot. The
+     proof starts a listener container on a new bridge network of the default
+     daemon, publishing a port on that network's gateway only. From inside the
+     slot's namespace, the container's address and the published port must
+     both be refused while `--probe-name` (default `github.com`) resolves and
+     answers on 443. The same probe from the host's namespace must reach both,
+     which shows the targets were live. The container and network are then
+     removed and proved absent;
+  5. the collision control with isolation: PR B starts in slot A while PR A
+     holds it, and must be refused on the slot lock before PR A has printed a
+     verdict. PR A must then complete with its serial verdict;
+  6. the collision control without isolation: the same on slot 0, the one
+     shared default daemon, where PR B must be refused on act's tool-cache or
+     job-volume names. That is the collision slots exist to remove, so it is
+     always part of the proof.
 
-  It exits 0 only when every proof holds:
+  A run completes only with exit 0 and a `PASS` line for every selected
+  workflow, in order, or with exit 1, `PASS` lines up to the first workflow
+  that failed and its `FAILED` line (the runner stops there). A refusal or a
+  signal never completes, so runs that executed no workflow cannot prove
+  anything. The proof prints `PROVED` and exits 0 only when all ten checks
+  recorded `PASS`. It calls `sudo -n` itself for the default daemon's Docker
+  CLI and for the probes, which run as root with a fixed PATH, in the slot's
+  namespace or the host's. The probe's name lookup uses the host's resolver
+  configuration; the replays themselves, whose image pulls and fetches run in
+  the slot, are the end-to-end DNS evidence. The listener image
+  (`--probe-image`, default the runner image) must already be on the default
+  daemon, which the slot-0 serial references ensure; it is never pulled.
+
+  `scripts/act_slot_proof.sh --selftest` grades those checks offline against
+  a stand-in runner and a stand-in `sudo` in a scratch directory, with no
+  Docker, privilege or network. It passes only when the honest case (in which
+  one PR fails a workflow) proves, and each of thirteen broken cases fails on
+  the check meant to catch it: runs that refuse after taking their slots, a
+  run that stops early, an interruption gate that ignores its slot, a slot
+  that changes a verdict, a missing slot lock, a rival refused late or for
+  another reason, a collision holder that changes its verdict, a shared
+  daemon that does not collide, a slot that reaches the container, a dead
+  target, a target that survives removal, and runs that never overlap. Run
+  it before the live proof:
 
 ```sh
+scripts/act_slot_proof.sh --selftest
 scripts/act_slot_proof.sh --runner <audited-install>/act_ci.py \
   --sha256 <recorded-64-hex-digest> --act-bin <absolute-act-0.2.89> \
   --logs <new-log-directory> \
   --pr-a <number> --worktree-a <clean-checkout-at-its-head> \
   --pr-b <number> --worktree-b <clean-checkout-at-its-head> \
   --slot-a 1 --slot-root-a <slot-root> --slot-b 2 --slot-root-b <slot-root> \
-  [--workflow <name>]... [--collide-default]
+  [--workflow <name>]... [--probe-image <local-image-with-python3>]
 ```
 
-The offline self-test pins:
+The offline self-test of the runner pins:
 
-- slot selection and its range;
+- slot selection and its range, and the CPU boundary at the host's last CPU;
 - the inherited-endpoint refusal, for each variable, in the PR run, the dry run
   and both live self-tests, before any collaborator runs;
 - slot 0's environment, prefixes and act command, unchanged;
 - slot N's derived names, which are disjoint across slots and identical for
   one slot, together with its endpoint parser, its namespace prefix and its
   CPUs;
-- the uplink, daemon, firewall and every other host command, word for word;
+- the uplink, daemon, firewall and every other host command and query, word
+  for word, and the uplink discovery: which default routes count, and its
+  refusals of no route, loopback, an unquotable name, malformed output and a
+  failed query;
 - acquisition order, and rollback of exactly the attempted resources at every
   step;
-- the identity refusals, a busy lock, each kind of residue, each kind of
-  survivor and an interrupted start;
-- the slot root, and the real lock's exclusivity, owner check and symlink
-  refusal.
+- the identity refusals, a busy lock, and each kind of residue, including a
+  unit left in a failed, masked or transitional state;
+- each kind of survivor the teardown proves absent: the daemon and uplink
+  units, the runtime directory, the uplink's PID file, an active slice, its
+  cgroup, its runtime cap, the table and the namespace;
+- each proof whose query cannot answer, at residue time and at teardown,
+  refusing rather than reading as absent;
+- teardown running with every cleanup signal blocked, and an interrupted
+  start;
+- the memory cap: an exhausted cap, unreadable or malformed events refused
+  after the whole slot is torn down, the peak printed, and a failing body
+  keeping its own error;
+- the slot root and every directory above it, as checked on acquisition;
+- the real lock's exclusivity, root-owner check (including its production
+  default) and symlink refusal, the dangling-symlink probe, and the host
+  command wrapper's `sudo -n`;
+- the live interruption gate running in the slot the command line names,
+  entered before act is resolved.
 
 ## Protected merge bar
 
