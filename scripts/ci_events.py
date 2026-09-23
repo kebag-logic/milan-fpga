@@ -906,6 +906,19 @@ CARRIER_STEP_LISTS = {
          "run": (
              'python3 -m pip install --quiet pyyaml',
          )},
+        # #437/#516: the Contents walk and the em-dash gate read Markdown
+        # through the hash-locked renderer, whose download cache is keyed
+        # by the lock file.
+        {"name": "Cache the pinned Markdown renderer downloads",
+         "uses": "actions/cache@v4",
+         "with": {"path": "~/.cache/milan-markdown-pip",
+                  "key": "markdown-renderer-pip-${{ runner.os }}-"
+                         "${{ hashFiles('tools/markdown/requirements.txt') }}"}},
+        {"name": "Install the pinned Markdown renderer",
+         "run": (
+             'python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip '
+             '--require-hashes -r tools/markdown/requirements.txt',
+         )},
         {"name": "Install diagram gate dependencies",
          "run": (
              'sudo apt-get update -qq',
@@ -7063,7 +7076,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 47 steps"),
+         "job `docs-check` must carry exactly 49 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -7077,7 +7090,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `elaborate` must carry exactly 20 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 47 steps"),
+         "job `docs-check` must carry exactly 49 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -7090,22 +7103,22 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
          "job `elaborate` must carry exactly 20 steps, in the recorded order (found 19)"),
         ("#295 docs-check recognised steps swapped",
-         _m_swap_steps(DOCS, "docs-check", 40, 41),
-         "job `docs-check` step 42 must be the step named `Archive integrity gate`"),
+         _m_swap_steps(DOCS, "docs-check", 42, 43),
+         "job `docs-check` step 44 must be the step named `Archive integrity gate`"),
         ("#295 elaborate scope and fetch steps swapped",
          _m_swap_steps(ELABORATE, "elaborate", 1, 2),
          "job `elaborate` step 2 must be the step named `Decide whether this head needs an elaboration`"),
         ("#295 docs-check recognised step renamed",
          _m_rename_step(DOCS, "docs-check", "Doc cited-path gate", "Cited-path gate"),
-         "job `docs-check` step 41 must be the step named `Doc cited-path gate`"),
+         "job `docs-check` step 43 must be the step named `Doc cited-path gate`"),
         ("#295 docs-check non-gate step if: false",
          _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
          "(`Bare-metal scope gate`) must carry no `if`"),
@@ -7139,7 +7152,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 47 steps, in the recorded order (found 46)"),
+         "job `docs-check` must carry exactly 49 steps, in the recorded order (found 48)"),
     ]
 
 
@@ -7661,7 +7674,7 @@ def _carrier_script_edits(lines: Sequence[str]) -> list[tuple[str, str, int]]:
 def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
-    for path, jid, count in ((DOCS, "docs-check", 47),
+    for path, jid, count in ((DOCS, "docs-check", 49),
                              (ELABORATE, "elaborate", 20)):
         for label, key, value in (
                 ("digest", "key", RV32_CACHE_WITH["key"].replace(

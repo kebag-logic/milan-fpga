@@ -43,6 +43,21 @@ jobs:
       # rather than in the middle of the job.
       - name: Install the python gate dependencies
         run: python3 -m pip install --quiet pyyaml
+      # The Contents walk and the em-dash gate read Markdown through the
+      # renderer GitHub uses (#437, #516): cmark-gfm through the cmarkgfm
+      # binding, and html5lib for the HTML it emits. Every installed byte is
+      # hash-locked and source builds are refused (--require-hashes); both
+      # gates refuse another release by name. The download cache is keyed by
+      # the lock itself, so a changed lock never restores a stale wheel.
+      - name: Cache the pinned Markdown renderer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/milan-markdown-pip
+          key: markdown-renderer-pip-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt') }}
+      - name: Install the pinned Markdown renderer
+        run: |
+          python3 -m pip install --quiet --cache-dir ~/.cache/milan-markdown-pip \
+            --require-hashes -r tools/markdown/requirements.txt
       - name: Install diagram gate dependencies
         run: |
           sudo apt-get update -qq
