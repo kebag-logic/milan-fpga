@@ -1,0 +1,26 @@
+# mutation probes at 27763677d83d4df7237389ffc0945ef9e224aa31
+
+## K15: VLAN participant also takes every MSRP lane (prior R271-1 S1 R5)
+planted 78f402fe9d8b58d940fefa1bbcc0e3d01a22538036c93328cc2f18bcb36e6443  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K15 SURVIVED
+
+## K16: own LeaveAll dropped from the talker registrar's aging (prior R271-1 S1 R10)
+planted c65629384d591d9a3a1cbb1293a028733da4cf8139227e018ecfa963b5e5c836  hdl/srp/KL_srp_talker_fsm.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K16 SURVIVED
+
+## K17: own LeaveAll dropped from the listener registrar's aging (prior R271-1 S1 R11)
+planted df834271555b9592a2082081261eca174e3a49925d0fa4d82d8b69240e650b9b  hdl/srp/KL_srp_listener_fsm.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K17 SURVIVED
+
