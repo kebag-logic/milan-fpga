@@ -1,0 +1,13 @@
+[A197] DECISION (item 2 mechanism)
+
+**Choice: a lock-phase keep-off target in `KL_media_grid_align`.** At engagement, the loop's reference is the capture clamped into `[G, DIV_C - G]`, with `G = DIV_C/128` (16 cycles, or 1/128 sample, at 100 MHz). A capture outside that band is used unchanged, so a non-raced engagement is bit-identical to `dev`. A raced one is pulled by at most `G`, which is half the root's +/-`DIV/64` settle band. This comes with **one correction to the detector's coincidence branch** (`KL_chan_map_capture` `2'b11`): the tick consumes the pending marker if there is one. The coincident marker is left pending only when one was already pending. Today that branch drops the pending marker.
+
+**Why not detector hysteresis:** a band around the tick makes the marker-to-tick association ambiguous inside the band. If the lock parks the marker there, a missing or surplus marker can flip the association without being counted. That trades crying wolf for hiding a slip. With the keep-off, the association at lock is unique, so a real step slip counts once.
+
+**Evidence.** Scratch bench: the shipped `KL_chan_map_capture` inside the closed aligner/NCO loop at the true 391/1591 ratio, base `ede8d48e`.
+- Raced lock at the base (engaging frame on the tick): 0.2 s windows of {0, 0, 0, 2379, 3048} dups with 0 skips, reproducing [R1]. At that lock a surplus marker counts **0 skips**, and a held frame counts 135 dups.
+- Free-running at the base over 12 s, about 6.1 real slips each way: 74 dups when the grid is fast, and **65 dups with 0 skips** when frames are fast. The coincidence branch hides skip-direction slips, so the caveat's "never hide a slip" does not hold.
+- Coincidence correction alone: 7 dups (or 7 skips), one every 1.9582 s in the right direction. It clears the raced lock only while the marker dithers over two cycles. With one cycle of delivery jitter (the root's capture-FIFO pop), the lock counts 994 dups plus 994 skips per 0.2 s. So the keep-off is required.
+- Both changes: zero counts over 5 windows with that jitter, the marker at least 15 cycles off every tick, a held frame counts exactly 1 dup, and a surplus frame exactly 1 skip.
+
+**Scope.** Files: `KL_media_grid_align.sv` (one defaulted parameter and the engagement line), `KL_chan_map_capture.sv` (the coincidence branch and a rewritten caveat), the `media_grid_align` and `chmap_capture` benches, and the docs that state the old caveat (`REGISTER_MAP.md` `SLIP_TDM`, the `TIME_SYNC.md` Media boundary table, the `TESTING.md` row, the bench README). No change to `milan_datapath.sv`, `milan_csr.sv`, pins, shape, counters, CSR words, `mr` triggers or settle criteria. VERSION lives in `milan_csr.sv`, so it is not bumped; that is left to the maintainer.

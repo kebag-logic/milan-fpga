@@ -1,0 +1,81 @@
+%Warning-PINMISSING: chmap_wrap.sv:155:5: Instance has missing pin: 'map_flat_o'
+  155 |   ) u_chmap_a (
+      |     ^~~~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_chan_map_capture.sv:314:37: ... Location of port declaration
+  314 |   output logic [2*N_SLOTS_P*13-1:0] map_flat_o,
+      |                                     ^~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: chmap_wrap.sv:176:40: Instance has missing pin: 'frame_p_o'
+  176 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:185:23: ... Location of port declaration
+  185 |   output logic        frame_p_o,          
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:176:40: Instance has missing pin: 'frame_idx_o'
+  176 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:176:40: Instance has missing pin: 'frame_tu_o'
+  176 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:190:23: ... Location of port declaration
+  190 |   output logic        frame_tu_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:176:40: Instance has missing pin: 'frame_mr_o'
+  176 |   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:210:5: Instance has missing pin: 'map_flat_o'
+  210 |   ) u_chmap_b (
+      |     ^~~~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_chan_map_capture.sv:314:37: ... Location of port declaration
+  314 |   output logic [2*N_SLOTS_P*13-1:0] map_flat_o,
+      |                                     ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:232:40: Instance has missing pin: 'frame_p_o'
+  232 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:185:23: ... Location of port declaration
+  185 |   output logic        frame_p_o,          
+      |                       ^~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:232:40: Instance has missing pin: 'frame_idx_o'
+  232 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:186:23: ... Location of port declaration
+  186 |   output logic [3:0]  frame_idx_o,        
+      |                       ^~~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:232:40: Instance has missing pin: 'frame_tu_o'
+  232 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:190:23: ... Location of port declaration
+  190 |   output logic        frame_tu_o,
+      |                       ^~~~~~~~~~
+%Warning-PINMISSING: chmap_wrap.sv:232:40: Instance has missing pin: 'frame_mr_o'
+  232 |   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (
+      |                                        ^~~~~~~
+                     $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:195:23: ... Location of port declaration
+  195 |   output logic        frame_mr_o
+      |                       ^~~~~~~~~~
+%Warning-GENUNNAMED: $REVIEWS/74-a197-packet/base_rtl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+make: Entering directory '$REVIEWS/74-a197-packet/obj_base_cmc'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../../../lanes/74-junction-chatter/tb/verilator/chmap_capture/sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vchmap_wrap.cpp Vchmap_wrap___024root__0.cpp Vchmap_wrap_KL_chan_map_capture__0.cpp Vchmap_wrap__Dpi.cpp Vchmap_wrap___024root__Slow.cpp Vchmap_wrap___024root__0__Slow.cpp Vchmap_wrap_KL_chan_map_capture__Slow.cpp Vchmap_wrap_KL_chan_map_capture__0__Slow.cpp Vchmap_wrap__Syms__Slow.cpp > Vchmap_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vchmap_wrap__ALL.o Vchmap_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vchmap_wrap__ALL.a    -pthread -lpthread -latomic   -o Vcmc_base
+rm Vchmap_wrap__ALL.verilator_deplist.tmp
+make: Leaving directory '$REVIEWS/74-a197-packet/obj_base_cmc'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.396 MB sources in 5 modules, into 1.069 MB in 9 C++ files needing 0.002 MB
+- Verilator: Walltime 5.097 s (elab=0.009, cvt=0.110, bld=4.946); cpu 0.168 s on 8 threads; allocated 623.035 MB
