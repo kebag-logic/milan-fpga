@@ -5263,8 +5263,10 @@ def test_baremetal_profile_contract() -> None:
     #: passed the whole gate (R227-2-F1); a store through a pointer to the
     #: slot, `q = (T *)&v; q->w = x;` (R227-2-F1, R228-F5); an AMO other
     #: than a swap and an SC, whose written word is not their rs2
-    #: (R227-2-F2); and an `fsd` over a static's first word reloaded at the
-    #: SECOND word it also covers (R228-F4).
+    #: (R227-2-F2); an `fsd` over a static's first word reloaded at the
+    #: SECOND word it also covers (R228-F4); and a byte store at a word's
+    #: LAST byte, the top byte of a parked little-endian address, which only
+    #: the overlap test's low boundary reaches (R227-3 and R228-F6).
     outside = 0x8000_1000
     frame = ("\taddi sp,sp,-32\n\tsw s0,28(sp)\n\taddi s0,sp,32\n"
              f"\tli a5,{_rv32_s32(outside)}\n")
@@ -5276,6 +5278,8 @@ def test_baremetal_profile_contract() -> None:
          frame + "\tsw a5,-20(s0)\n\tsb zero,-20(s0)\n\tlw a4,-20(s0)\n"),
         ("a half-word store at a frame slot's own offset",
          frame + "\tsw a5,-20(s0)\n\tsh zero,-20(s0)\n\tlw a4,-20(s0)\n"),
+        ("a byte store at a frame slot's last byte",
+         frame + "\tsw a5,-20(s0)\n\tsb zero,-17(s0)\n\tlw a4,-20(s0)\n"),
         ("an integer store through a pointer to a frame slot",
          frame + "\tsw a5,-20(s0)\n\taddi a3,s0,-20\n\tsw zero,0(a3)\n"
          "\tlw a4,-20(s0)\n"),
@@ -5290,6 +5294,8 @@ def test_baremetal_profile_contract() -> None:
          static + "\tsw a5,0(a3)\n\tsb zero,1(a3)\n\tlw a4,0(a3)\n"),
         ("a byte store at a static's own offset",
          static + "\tsw a5,0(a3)\n\tsb zero,0(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store at a static word's last byte",
+         static + "\tsw a5,0(a3)\n\tsb zero,3(a3)\n\tlw a4,0(a3)\n"),
         ("an fsd over a static's first word, reloaded at its second",
          static + "\tsw a5,4(a3)\n\tfsd fa5,0(a3)\n\tlw a4,4(a3)\n"),
         ("an amoadd.w into a static, handed a placed address",
@@ -5309,7 +5315,9 @@ def test_baremetal_profile_contract() -> None:
     #: ... and the POSITIVE arm of the same shapes, so "unplaced" above is
     #: the rewrite's doing and not the probe's: a whole-word integer store
     #: and an AMO swap leave exactly the word they write, and the next
-    #: store is placed there.
+    #: store is placed there. A byte store one past a word's last byte
+    #: leaves that word too, so the last-byte probes above are pinned to
+    #: the overlap boundary from both sides.
     kept_probes = (
         ("a word store into a frame slot",
          frame + "\tsw a5,-20(s0)\n\tlw a4,-20(s0)\n"),
@@ -5317,6 +5325,10 @@ def test_baremetal_profile_contract() -> None:
          static + "\tsw a5,4(a3)\n\tlw a4,4(a3)\n"),
         ("an amoswap.w into a static",
          static + "\tamoswap.w t0,a5,0(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store one past a frame slot's last byte",
+         frame + "\tsw a5,-20(s0)\n\tsb zero,-16(s0)\n\tlw a4,-20(s0)\n"),
+        ("a byte store one past a static word's last byte",
+         static + "\tsw a5,0(a3)\n\tsb zero,4(a3)\n\tlw a4,0(a3)\n"),
     )
     for label, body in kept_probes:
         reported = rv32_probe(body + "\tli a2,1\n\tsw a2,0(a4)\n")
@@ -5335,10 +5347,11 @@ def test_baremetal_profile_contract() -> None:
         f"they write, {len(unclassified)} memory-writing mnemonics no table "
         "names were refused as UNCLASSIFIED, four loads were reported as "
         f"none, {len(stale_probes)} rewrites of a parked word (FP, byte and "
-        "half-word at the slot's own offset, a store through a pointer to "
-        "the slot, AMO, SC, and an fsd reloaded at the second word it "
-        "covers) left no stale word for a later store to be placed by, "
-        f"while {len(kept_probes)} whole-word stores left exactly theirs")
+        "half-word at the slot's own offset, a byte at the word's last byte, "
+        "a store through a pointer to the slot, AMO, SC, and an fsd "
+        "reloaded at the second word it covers) left no stale word for a "
+        f"later store to be placed by, while {len(kept_probes)} stores that "
+        "write the word whole or miss it by one byte left exactly theirs")
 
     #: ---- and the DEGENERATE cases for the branch-refined range class,
     #: in both directions: the refinement must actually produce the bound
