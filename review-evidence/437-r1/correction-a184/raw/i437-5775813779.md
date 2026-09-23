@@ -1,0 +1,13 @@
+[A168] TAKEN
+
+Branch: `437-container-paragraph-scopes`, clean starting head `88e9276b2a220c716f64a843f7e1eb8f9265e896` (tree `c23dff6c0eafdf5ae89bb3e8a9416c55533a2332`). Manager A10; reserved independent cold reviewers R237 internal Codex / R238 external Opus. Project already In progress; branch created through `gh issue develop` by the manager.
+
+Authoritative references: #437 and [selected implementation decision](https://github.com/kebag-logic/milan-fpga/issues/437#issuecomment-5775771538); CONTRIBUTING 5/6.1; CODE_QUALITY rule 12; [CommonMark 0.31.2 sections 4.2-4.4 and 5.2-5.3](https://spec.commonmark.org/0.31.2/), with 4.6 for type-7 paragraph interruption and GitHub GFM rendering for footnotes. Original public measurements: [R85-4](https://github.com/kebag-logic/milan-fpga/pull/428#issuecomment-5644713074) and [R86-5](https://github.com/kebag-logic/milan-fpga/pull/428#issuecomment-5644834363).
+
+Interpreted scope: repair family one's paragraph context at the list item's content column, preserving one-space/four-space/quote/footnote/tab agreements. Keep family two withheld and document its five measured forms and direction in the walk docstring and CONTRIBUTING 6.1. Add no container/setext headings and change no provenance or exemption policy. AC4 therefore requires identical classifications over every tracked Markdown page. Preserve every existing corpus arm and #507 closer control without widening ratchets. No product, RTL, dependency, workflow, optional neighboring change, or other lane work.
+
+Validation plan: capture base/head blocks, headings/anchors and generated navigation on identical tracked-page inputs; fresh synthetic `gh api markdown` GFM fixtures, preserving exact requests/results; `python3 -B scripts/gen_toc.py --selftest`, `--check`, `--verify-anchors`; `python3 -B scripts/check_em_dash.py --selftest` and `--base 88e9276b2a220c716f64a843f7e1eb8f9265e896`; focused documentation, idiom, ratchet and integration gates; independent negative/reversion controls and refusal checks. Record actual execution head/tree and command exits. Manager owns full native, act, hosted, candidate and post-merge bars; no push/PR operations from this author.
+
+Evidence boundary: the public R86-5 text names eleven escape row IDs but its original shapes JSON/HTML files have local-only references. Fresh fixtures will be identified as reconstructions from the published descriptions, with their exact text and measured results published; archival byte identity will not be claimed without the original public artifacts.
+
+Blockers: none to starting bounded implementation; any actual corpus or normative conflict will be published before dependent edits continue.

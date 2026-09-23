@@ -1,0 +1,66 @@
+[
+ {
+  "id": "V01 abrupt type-2 line",
+  "page": "<!-->\n\n## Real\n"
+ },
+ {
+  "id": "V02 abrupt dash type-2 line",
+  "page": "<!--->\n\n## Real\n"
+ },
+ {
+  "id": "V03 abrupt dash in block",
+  "page": "<div>\n<!--->\n</div>\n\n## Real\n"
+ },
+ {
+  "id": "V04 abrupt inline",
+  "page": "text <!--> more\n\n## Real\n"
+ },
+ {
+  "id": "V05 style type 1",
+  "page": "<style>\n<!--\n</style>\n\n## Real\n"
+ },
+ {
+  "id": "V06 textarea type 1",
+  "page": "<textarea>\n<!--\n</textarea>\n\n## Real\n"
+ },
+ {
+  "id": "V07 code span comment does not close",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n`<!-- a -->`\n\n## Real\n"
+ },
+ {
+  "id": "V08 abrupt closes an open comment",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n<div>\n<!-->\n</div>\n\n## Real\n"
+ },
+ {
+  "id": "V09 heading inline comment closes",
+  "page": "<div>\n<!--\n</div>\n\n## Old <!-- x -->\n\n## Real\n"
+ },
+ {
+  "id": "V10 inline opener then escaped arrow",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\nx <!--\n\n-->\n\n## Real\n"
+ },
+ {
+  "id": "V11 multi-line type-2 closes",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n<!--\nnote\n-->\n\n## Real\n"
+ },
+ {
+  "id": "V12 bang arrow closes",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n<div>\n--!>\n</div>\n\n## Real\n"
+ },
+ {
+  "id": "V13 base-agreeing inline close",
+  "page": "<div>\n<!--\n</div>\n\ntext <!-- x --> more\n\n## Real\n"
+ },
+ {
+  "id": "V14 type-7 attribute arrow",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n<span title=\"-->\">\n\n## Real\n"
+ },
+ {
+  "id": "V15 closing on type-6 closer line",
+  "page": "<div>\n<!--\n--></div>\n\n## Real\n"
+ },
+ {
+  "id": "V16 contents after open comment",
+  "page": "<div>\n<!--\n</div>\n\n## Contents\n\n## Old\n"
+ }
+]

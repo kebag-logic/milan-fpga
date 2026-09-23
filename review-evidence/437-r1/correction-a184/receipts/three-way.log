@@ -1,0 +1,32 @@
+{
+ "walk_sha256": {
+  "base": "ffdd8207a438d9fbb79905dc61d25665bf8d216387d1ee0e66b8ca86ce9d6eb3",
+  "a172": "0f3af7f8db3cfb54fbe0923620abcb6b7e76f4a32cf39fabb80504667dde2fe5",
+  "head": "03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb"
+ },
+ "revisions": {
+  "base": "88e9276b2a220c716f64a843f7e1eb8f9265e896",
+  "a172": "b5e6c23e1b9802b5cacbc62db212064d7e429862",
+  "head": null
+ },
+ "unique_pages": 695,
+ "receipt_rows": 957,
+ "class_counts": {
+  "fixed": 255,
+  "agree-both": 415,
+  "pre-existing-changed": 4,
+  "pre-existing-identical": 21
+ },
+ "a172_class_counts": {
+  "": 689,
+  "REGRESSION": 6
+ }
+}
+pre-existing-changed ['R237 renderer:setext-inside', 'A172 renderer:ce254396189b'] '- item\n\n  title\n  ====\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+   github [[1, 'title'], [2, 'Real']] base [[2, 'Old'], [2, 'Real']] a172 [[2, 'Real']] head [[2, 'Real']]
+pre-existing-changed ['contract-probes-2:V07 code span comment does not close'] '<div>\n<!--\n</div>\n\n## Old\n\n`<!-- a -->`\n\n## Real\n'
+   github [] base [[2, 'Old'], [2, 'Real']] a172 [[2, 'Old'], [2, 'Real']] head [[2, 'Real']]
+pre-existing-changed ['contract-probes-2:V10 inline opener then escaped arrow'] '<div>\n<!--\n</div>\n\n## Old\n\nx <!--\n\n-->\n\n## Real\n'
+   github [] base [[2, 'Old'], [2, 'Real']] a172 [[2, 'Old'], [2, 'Real']] head [[2, 'Real']]
+pre-existing-changed ['contract-probes-2:V12 bang arrow closes'] '<div>\n<!--\n</div>\n\n## Old\n\n<div>\n--!>\n</div>\n\n## Real\n'
+   github [[2, 'Real']] base [[2, 'Old'], [2, 'Real']] a172 [[2, 'Old'], [2, 'Real']] head []

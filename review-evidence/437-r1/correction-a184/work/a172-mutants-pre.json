@@ -1,0 +1,1800 @@
+[
+ {
+  "name": "tag-paragraph-reversion",
+  "before": "            if para == HELD and item_context and not item_context[1] \\\n                    and _indent_columns(line) >= item_context[0]:\n                opening_para = PARAGRAPH\n",
+  "after": "",
+  "required_arms": [
+   "R238 C01",
+   "R238 C04",
+   "R238 P01",
+   "R238 P04"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "R238 C01",
+    "R238 C02",
+    "R238 C03",
+    "R238 C04",
+    "R238 C05",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "R238 P04",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then comment",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then comment",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then comment",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then comment",
+    "first tag column 3 open then pre",
+    "first tag column 3 close",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then comment",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then comment",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 2 open",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then comment",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then comment",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then comment",
+    "resumed tag column 2 attribute then pre",
+    "resumed tag column 3 open",
+    "resumed tag column 3 open then fence",
+    "resumed tag column 3 open then comment",
+    "resumed tag column 3 open then pre",
+    "resumed tag column 3 close",
+    "resumed tag column 3 close then fence",
+    "resumed tag column 3 close then comment",
+    "resumed tag column 3 close then pre",
+    "resumed tag column 3 attribute",
+    "resumed tag column 3 attribute then fence",
+    "resumed tag column 3 attribute then comment",
+    "resumed tag column 3 attribute then pre",
+    "ordered first",
+    "star first",
+    "plus resumed",
+    "empty gains paragraph",
+    "empty resumed paragraph",
+    "lazy resumed paragraph",
+    "sibling first paragraph",
+    "rendered bullet at column, inline tag inside",
+    "rendered bullet at column, unknown tag inside",
+    "rendered bullet past column, inline tag inside",
+    "rendered bullet past column, unknown tag inside",
+    "rendered star at column, inline tag inside",
+    "rendered star at column, unknown tag inside",
+    "rendered star past column, inline tag inside",
+    "rendered star past column, unknown tag inside",
+    "rendered ordered at column, inline tag inside",
+    "rendered ordered at column, unknown tag inside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1016/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "R238 C01",
+    "R238 C02",
+    "R238 C03",
+    "R238 C04",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "R238 P04",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then pre",
+    "first tag column 3 close",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 2 open",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then pre",
+    "resumed tag column 3 open",
+    "resumed tag column 3 open then fence",
+    "resumed tag column 3 open then pre",
+    "resumed tag column 3 close",
+    "resumed tag column 3 close then fence",
+    "resumed tag column 3 close then pre",
+    "resumed tag column 3 attribute",
+    "resumed tag column 3 attribute then fence",
+    "resumed tag column 3 attribute then pre",
+    "ordered first",
+    "star first",
+    "plus resumed",
+    "empty gains paragraph",
+    "empty resumed paragraph",
+    "lazy resumed paragraph",
+    "sibling first paragraph",
+    "recorded bullet at column, inline tag inside",
+    "recorded bullet at column, unknown tag inside",
+    "recorded bullet past column, inline tag inside",
+    "recorded bullet past column, unknown tag inside",
+    "recorded star at column, inline tag inside",
+    "recorded star at column, unknown tag inside",
+    "recorded star past column, inline tag inside",
+    "recorded star past column, unknown tag inside",
+    "recorded ordered at column, inline tag inside",
+    "recorded ordered at column, unknown tag inside",
+    "R238 C04",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then pre",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then pre",
+    "resumed tag column 3 open then fence",
+    "resumed tag column 3 open then pre",
+    "resumed tag column 3 close then fence",
+    "resumed tag column 3 close then pre",
+    "resumed tag column 3 attribute then fence",
+    "resumed tag column 3 attribute then pre"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 91 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "tag-column-too-narrow",
+  "before": "_indent_columns(line) >= item_context[0]",
+  "after": "_indent_columns(line) > item_context[0]",
+  "required_arms": [
+   "resumed tag column 2 open",
+   "first tag column 2 open then fence"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "R238 C01",
+    "R238 C03",
+    "R238 C04",
+    "R238 C05",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "R238 P04",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then comment",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then comment",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then comment",
+    "first tag column 2 attribute then pre",
+    "resumed tag column 2 open",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then comment",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then comment",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then comment",
+    "resumed tag column 2 attribute then pre",
+    "ordered first",
+    "star first",
+    "plus resumed",
+    "empty gains paragraph",
+    "empty resumed paragraph",
+    "lazy resumed paragraph",
+    "sibling first paragraph",
+    "rendered bullet at column, inline tag inside",
+    "rendered bullet at column, unknown tag inside",
+    "rendered star at column, inline tag inside",
+    "rendered star at column, unknown tag inside",
+    "rendered ordered at column, inline tag inside",
+    "rendered ordered at column, unknown tag inside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1045/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "R238 C01",
+    "R238 C03",
+    "R238 C04",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "R238 P04",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "resumed tag column 2 open",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then pre",
+    "ordered first",
+    "star first",
+    "plus resumed",
+    "empty gains paragraph",
+    "empty resumed paragraph",
+    "lazy resumed paragraph",
+    "sibling first paragraph",
+    "recorded bullet at column, inline tag inside",
+    "recorded bullet at column, unknown tag inside",
+    "recorded star at column, inline tag inside",
+    "recorded star at column, unknown tag inside",
+    "recorded ordered at column, inline tag inside",
+    "recorded ordered at column, unknown tag inside",
+    "R238 C04",
+    "R238 C06",
+    "R238 C07",
+    "R238 C08",
+    "R238 P01",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "resumed tag column 2 open then fence",
+    "resumed tag column 2 open then pre",
+    "resumed tag column 2 close then fence",
+    "resumed tag column 2 close then pre",
+    "resumed tag column 2 attribute then fence",
+    "resumed tag column 2 attribute then pre"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 56 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "tag-column-ignored",
+  "before": "_indent_columns(line) >= item_context[0]",
+  "after": "True",
+  "required_arms": [
+   "resumed tag column 1 open",
+   "first tag column 1 open"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "a lone tag directly under a list item hides the heading it wraps",
+    "a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps",
+    "a lone tag directly under a list item interrupting a paragraph hides the heading it wraps",
+    "a lone tag directly under an ordered item interrupting a paragraph hides the heading it wraps",
+    "a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps",
+    "a lone tag directly under a list item indented two spaces hides the heading it wraps",
+    "a lone tag directly under a bullet item introduced by a plus hides the heading it wraps",
+    "a lone tag directly under a bullet item introduced by an asterisk hides the heading it wraps",
+    "a lone tag directly under an ordered item closed by a parenthesis hides the heading it wraps",
+    "a lone tag directly under an item whose content is separated by tabs hides the heading it wraps",
+    "a lone tag directly under two plain lines lazily continuing a list item hides the heading it wraps",
+    "a lone tag directly under an item whose content is a no-break space hides the heading it wraps",
+    "a lone tag directly under an item interrupting a paragraph whose content is a form feed hides the heading it wraps",
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "first tag column 0 open",
+    "first tag column 0 open swallows fence",
+    "first tag column 0 open swallows pre",
+    "first tag column 0 close",
+    "first tag column 0 close swallows fence",
+    "first tag column 0 close swallows pre",
+    "first tag column 0 attribute",
+    "first tag column 0 attribute swallows fence",
+    "first tag column 0 attribute swallows pre",
+    "first tag column 1 open",
+    "first tag column 1 open swallows fence",
+    "first tag column 1 open swallows pre",
+    "first tag column 1 close",
+    "first tag column 1 close swallows fence",
+    "first tag column 1 close swallows pre",
+    "first tag column 1 attribute",
+    "first tag column 1 attribute swallows fence",
+    "first tag column 1 attribute swallows pre",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "sibling replaces boundary",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "rendered bullet at column, inline tag outside",
+    "rendered bullet at column, unknown tag outside",
+    "rendered bullet past column, inline tag outside",
+    "rendered bullet past column, unknown tag outside",
+    "rendered star at column, inline tag outside",
+    "rendered star at column, unknown tag outside",
+    "rendered star past column, inline tag outside",
+    "rendered star past column, unknown tag outside",
+    "rendered ordered at column, inline tag outside",
+    "rendered ordered at column, unknown tag outside",
+    "rendered bullet two paragraphs, inline tag outside",
+    "rendered task at column, inline tag outside",
+    "rendered interrupting bullet at column, inline tag outside",
+    "rendered bullet at column, b tag outside",
+    "rendered bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1004/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "first tag column 0 open",
+    "first tag column 0 open swallows fence",
+    "first tag column 0 open swallows pre",
+    "first tag column 0 close",
+    "first tag column 0 close swallows fence",
+    "first tag column 0 close swallows pre",
+    "first tag column 0 attribute",
+    "first tag column 0 attribute swallows fence",
+    "first tag column 0 attribute swallows pre",
+    "first tag column 1 open",
+    "first tag column 1 open swallows fence",
+    "first tag column 1 open swallows pre",
+    "first tag column 1 close",
+    "first tag column 1 close swallows fence",
+    "first tag column 1 close swallows pre",
+    "first tag column 1 attribute",
+    "first tag column 1 attribute swallows fence",
+    "first tag column 1 attribute swallows pre",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "sibling replaces boundary",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside",
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "first tag column 0 open",
+    "first tag column 0 close",
+    "first tag column 0 attribute",
+    "first tag column 1 open",
+    "first tag column 1 close",
+    "first tag column 1 attribute",
+    "resumed tag column 0 open",
+    "resumed tag column 0 close",
+    "resumed tag column 0 attribute",
+    "resumed tag column 1 open",
+    "resumed tag column 1 close",
+    "resumed tag column 1 attribute",
+    "ordered below column",
+    "sibling replaces boundary",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 124 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "quote-release-removed",
+  "before": "    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+  "after": "    if FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+  "required_arms": [
+   "R238 D01",
+   "R238 D03"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "R238 D01",
+    "R238 D03",
+    "quote column 0 releases iff dedented",
+    "quote column 1 releases iff dedented"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1087/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "R238 D01",
+    "R238 D03",
+    "quote column 0 releases iff dedented",
+    "quote column 1 releases iff dedented",
+    "R238 D03"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 5 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "footnote-release-removed",
+  "before": "    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):\n        return after, None\n",
+  "after": "    if BLOCK_QUOTE_RE.match(line):\n        return after, None\n",
+  "required_arms": [
+   "R238 D02",
+   "R238 D04"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "R238 D02",
+    "R238 D04",
+    "footnote column 0 releases iff dedented",
+    "footnote column 1 releases iff dedented"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1087/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "R238 D02",
+    "R238 D04",
+    "footnote column 0 releases iff dedented",
+    "footnote column 1 releases iff dedented",
+    "R238 D04"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 5 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "block-marker-only",
+  "before": "label == TEXT and after == HELD",
+  "after": "label != TEXT or after == HELD",
+  "required_arms": [
+   "R237 fenced-marker-indented-closer",
+   "R237 comment-marker-indented-closer",
+   "R237 HTML-marker-indented-closer"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "R237 fenced-marker-indented-closer",
+    "R237 comment-marker-indented-closer",
+    "R237 HTML-marker-indented-closer"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1088/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "R237 fenced-marker-indented-closer",
+    "R237 comment-marker-indented-closer",
+    "R237 HTML-marker-indented-closer"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 3 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-drop-context",
+  "before": "after = _paragraph_after(line, label, para, prev)",
+  "after": "after = _paragraph_after(line, label, para, prev)\n    return after, None",
+  "required_arms": [
+   "two spaces"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 P01",
+    "R238 P04",
+    "R238 D06",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then comment",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then comment",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then comment",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then comment",
+    "first tag column 3 open then pre",
+    "first tag column 3 close",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then comment",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then comment",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered first",
+    "ordered below column",
+    "star first",
+    "empty gains paragraph",
+    "sibling first paragraph",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "rendered bullet at column, inline tag outside",
+    "rendered bullet at column, unknown tag outside",
+    "rendered bullet past column, inline tag outside",
+    "rendered bullet past column, unknown tag outside",
+    "rendered star at column, inline tag outside",
+    "rendered star at column, unknown tag outside",
+    "rendered star past column, inline tag outside",
+    "rendered star past column, unknown tag outside",
+    "rendered ordered at column, inline tag outside",
+    "rendered ordered at column, unknown tag outside",
+    "rendered bullet two paragraphs, inline tag outside",
+    "rendered task at column, inline tag outside",
+    "rendered interrupting bullet at column, inline tag outside",
+    "rendered bullet at column, b tag outside",
+    "rendered bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1006/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 P01",
+    "R238 P04",
+    "R238 D06",
+    "first tag column 2 open",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then pre",
+    "first tag column 3 close",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered first",
+    "ordered below column",
+    "star first",
+    "empty gains paragraph",
+    "sibling first paragraph",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside",
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 P01",
+    "R238 D06",
+    "first tag column 2 open then fence",
+    "first tag column 2 open then pre",
+    "first tag column 2 close then fence",
+    "first tag column 2 close then pre",
+    "first tag column 2 attribute then fence",
+    "first tag column 2 attribute then pre",
+    "first tag column 3 open then fence",
+    "first tag column 3 open then pre",
+    "first tag column 3 close then fence",
+    "first tag column 3 close then pre",
+    "first tag column 3 attribute then fence",
+    "first tag column 3 attribute then pre",
+    "resumed tag column 0 open",
+    "resumed tag column 0 close",
+    "resumed tag column 0 attribute",
+    "resumed tag column 1 open",
+    "resumed tag column 1 close",
+    "resumed tag column 1 attribute",
+    "ordered below column",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 135 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-forget-on-blank",
+  "before": "return after, None if context and context[1] else context",
+  "after": "return after, None",
+  "required_arms": [
+   "two spaces"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "rendered bullet at column, inline tag outside",
+    "rendered bullet at column, unknown tag outside",
+    "rendered bullet past column, inline tag outside",
+    "rendered bullet past column, unknown tag outside",
+    "rendered star at column, inline tag outside",
+    "rendered star at column, unknown tag outside",
+    "rendered star past column, inline tag outside",
+    "rendered star past column, unknown tag outside",
+    "rendered ordered at column, inline tag outside",
+    "rendered ordered at column, unknown tag outside",
+    "rendered bullet two paragraphs, inline tag outside",
+    "rendered task at column, inline tag outside",
+    "rendered interrupting bullet at column, inline tag outside",
+    "rendered bullet at column, b tag outside",
+    "rendered bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1036/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside",
+    "two spaces",
+    "three spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 close",
+    "resumed tag column 0 attribute",
+    "resumed tag column 1 open",
+    "resumed tag column 1 close",
+    "resumed tag column 1 attribute",
+    "ordered below column",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded bullet past column, inline tag outside",
+    "recorded bullet past column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded star past column, inline tag outside",
+    "recorded star past column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 98 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-blanket-indent",
+  "before": "_indent_columns(line) >= context[0]",
+  "after": "_indent_columns(line) >= 1",
+  "required_arms": [
+   "one space outside item"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "one space outside item",
+    "padding outside",
+    "ordered outside",
+    "marker indent outside",
+    "four padding columns",
+    "tab padding columns",
+    "sibling replaces column",
+    "quote column 1 releases iff dedented",
+    "footnote column 1 releases iff dedented",
+    "rendered two-digit ordered below column, inline tag outside",
+    "rendered two-digit ordered below column, unknown tag outside",
+    "rendered boundary one space, inline tag",
+    "rendered boundary one space, unknown tag"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1078/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "one space outside item",
+    "padding outside",
+    "ordered outside",
+    "marker indent outside",
+    "four padding columns",
+    "tab padding columns",
+    "sibling replaces column",
+    "quote column 1 releases iff dedented",
+    "footnote column 1 releases iff dedented",
+    "recorded two-digit ordered below column, inline tag outside",
+    "recorded two-digit ordered below column, unknown tag outside",
+    "recorded boundary one space, inline tag",
+    "recorded boundary one space, unknown tag"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 13 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-strict-column",
+  "before": "_indent_columns(line) >= context[0]",
+  "after": "_indent_columns(line) > context[0]",
+  "required_arms": [
+   "two spaces"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "two spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "empty gains paragraph",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "rendered bullet at column, inline tag outside",
+    "rendered bullet at column, unknown tag outside",
+    "rendered star at column, inline tag outside",
+    "rendered star at column, unknown tag outside",
+    "rendered ordered at column, inline tag outside",
+    "rendered ordered at column, unknown tag outside",
+    "rendered bullet two paragraphs, inline tag outside",
+    "rendered task at column, inline tag outside",
+    "rendered interrupting bullet at column, inline tag outside",
+    "rendered bullet at column, b tag outside",
+    "rendered bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1040/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "two spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 open swallows fence",
+    "resumed tag column 0 open swallows pre",
+    "resumed tag column 0 close",
+    "resumed tag column 0 close swallows fence",
+    "resumed tag column 0 close swallows pre",
+    "resumed tag column 0 attribute",
+    "resumed tag column 0 attribute swallows fence",
+    "resumed tag column 0 attribute swallows pre",
+    "resumed tag column 1 open",
+    "resumed tag column 1 open swallows fence",
+    "resumed tag column 1 open swallows pre",
+    "resumed tag column 1 close",
+    "resumed tag column 1 close swallows fence",
+    "resumed tag column 1 close swallows pre",
+    "resumed tag column 1 attribute",
+    "resumed tag column 1 attribute swallows fence",
+    "resumed tag column 1 attribute swallows pre",
+    "ordered below column",
+    "empty gains paragraph",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside",
+    "two spaces",
+    "star item",
+    "ordered item",
+    "two paragraphs",
+    "task item",
+    "interrupting item",
+    "bold tag",
+    "two blank lines",
+    "plus item",
+    "custom tag",
+    "padding inside",
+    "marker indent inside",
+    "code padding uses one",
+    "empty item gains content",
+    "empty item ignores padding",
+    "nested item retains outer column",
+    "lazy line retains item",
+    "R238 D06",
+    "resumed tag column 0 open",
+    "resumed tag column 0 close",
+    "resumed tag column 0 attribute",
+    "resumed tag column 1 open",
+    "resumed tag column 1 close",
+    "resumed tag column 1 attribute",
+    "ordered below column",
+    "quote column 2 releases iff dedented",
+    "footnote column 2 releases iff dedented",
+    "recorded bullet at column, inline tag outside",
+    "recorded bullet at column, unknown tag outside",
+    "recorded star at column, inline tag outside",
+    "recorded star at column, unknown tag outside",
+    "recorded ordered at column, inline tag outside",
+    "recorded ordered at column, unknown tag outside",
+    "recorded bullet two paragraphs, inline tag outside",
+    "recorded task at column, inline tag outside",
+    "recorded interrupting bullet at column, inline tag outside",
+    "recorded bullet at column, b tag outside",
+    "recorded bullet after two blanks, inline tag outside"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 89 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-fixed-column",
+  "before": "column = len(prefix.expandtabs(4))",
+  "after": "column = 2",
+  "required_arms": [
+   "ordered outside"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "padding outside",
+    "ordered outside",
+    "marker indent outside",
+    "four padding columns",
+    "tab padding columns",
+    "sibling replaces column",
+    "ordered below column",
+    "sibling replaces boundary",
+    "rendered two-digit ordered below column, inline tag outside",
+    "rendered two-digit ordered below column, unknown tag outside"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1081/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "padding outside",
+    "ordered outside",
+    "marker indent outside",
+    "four padding columns",
+    "tab padding columns",
+    "sibling replaces column",
+    "ordered below column",
+    "sibling replaces boundary",
+    "recorded two-digit ordered below column, inline tag outside",
+    "recorded two-digit ordered below column, unknown tag outside",
+    "ordered below column",
+    "sibling replaces boundary"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 12 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-characters-not-columns",
+  "before": "column = len(prefix.expandtabs(4))",
+  "after": "column = len(prefix)",
+  "required_arms": [
+   "tab padding columns"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "tab padding columns"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1090/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "tab padding columns"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 1 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-no-code-padding",
+  "before": "or column - marker_end > 4",
+  "after": "or False",
+  "required_arms": [
+   "code padding uses one"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "code padding uses one"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1090/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "code padding uses one",
+    "code padding uses one"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-four-is-code-padding",
+  "before": "column - marker_end > 4",
+  "after": "column - marker_end >= 4",
+  "required_arms": [
+   "four padding columns"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "four padding columns"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1090/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "four padding columns"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 1 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-empty-never-ends",
+  "before": "return after, None if context and context[1] else context",
+  "after": "return after, context",
+  "required_arms": [
+   "empty item ends at blank"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "empty item ends at blank",
+    "empty padded item ends at blank"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1089/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "empty item ends at blank",
+    "empty padded item ends at blank"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-empty-stays-empty",
+  "before": "(context[0], False)",
+  "after": "context",
+  "required_arms": [
+   "empty item gains content"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "empty item gains content",
+    "empty item ignores padding",
+    "empty gains paragraph"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1088/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "empty item gains content",
+    "empty item ignores padding",
+    "empty gains paragraph",
+    "empty item gains content",
+    "empty item ignores padding"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 5 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-empty-uses-padding",
+  "before": "if not item.group(2) or column - marker_end > 4:",
+  "after": "if column - marker_end > 4:",
+  "required_arms": [
+   "empty item ignores padding"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "empty item ignores padding"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1090/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "empty item ignores padding",
+    "empty item ignores padding"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-lose-outer-column",
+  "before": "if context and _indent_columns(line) >= context[0]:",
+  "after": "if context and _indent_columns(line) >= context[0] and not LIST_ITEM_RE.match(line):",
+  "required_arms": [
+   "nested item retains outer column"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "nested item retains outer column"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1090/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "nested item retains outer column",
+    "nested item retains outer column"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-stale-sibling-column",
+  "before": "return after, (column, not bool(item.group(2)))",
+  "after": "return after, context or (column, not bool(item.group(2)))",
+  "required_arms": [
+   "sibling replaces column"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "sibling replaces column",
+    "sibling replaces boundary"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1089/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "sibling replaces column",
+    "sibling replaces boundary",
+    "sibling replaces boundary"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 3 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-stale-context",
+  "before": "    return after, None\n\n\ndef _comment_after",
+  "after": "    return after, context\n\n\ndef _comment_after",
+  "required_arms": [
+   "fresh dedented paragraph ends item"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "fresh dedented paragraph ends item",
+    "heading ends item"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1089/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "fresh dedented paragraph ends item",
+    "heading ends item"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-no-lazy-hold",
+  "before": "if para == HELD and after == HELD:",
+  "after": "if False:",
+  "required_arms": [
+   "lazy line retains item"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "lazy line retains item",
+    "R238 C07",
+    "lazy resumed paragraph"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1088/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "lazy line retains item",
+    "R238 C07",
+    "lazy resumed paragraph",
+    "lazy line retains item",
+    "R238 C07"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 5 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-markers-in-blocks",
+  "before": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+  "after": "LIST_ITEM_RE.match(line)",
+  "required_arms": [
+   "R237 fenced-marker-indented-closer",
+   "R237 comment-marker-indented-closer",
+   "R237 HTML-marker-indented-closer"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "thematic break is no item",
+    "noninterrupting ordinal is no item",
+    "R237 fenced-marker-indented-closer",
+    "R237 comment-marker-indented-closer",
+    "R237 HTML-marker-indented-closer"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1086/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "thematic break is no item",
+    "noninterrupting ordinal is no item",
+    "R237 fenced-marker-indented-closer",
+    "R237 comment-marker-indented-closer",
+    "R237 HTML-marker-indented-closer"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 5 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ },
+ {
+  "name": "prior-no-ordinal-interruption-check",
+  "before": "LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None",
+  "after": "LIST_ITEM_RE.match(line) if label == TEXT else None",
+  "required_arms": [
+   "noninterrupting ordinal is no item"
+  ],
+  "toc": {
+   "exit": 1,
+   "failing": [
+    "thematic break is no item",
+    "noninterrupting ordinal is no item"
+   ],
+   "tail": [
+    "TOC selftest: FAIL (1089/1091 arm(s))"
+   ]
+  },
+  "emdash": {
+   "exit": 2,
+   "failing": [
+    "thematic break is no item",
+    "noninterrupting ordinal is no item"
+   ],
+   "tail": [
+    "check_em_dash: FATAL: 2 of 345 arm(s) did not hold"
+   ]
+  },
+  "missing": {
+   "toc": [],
+   "emdash": []
+  },
+  "killed": true
+ }
+]

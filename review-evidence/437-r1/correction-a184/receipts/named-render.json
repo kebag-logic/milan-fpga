@@ -1,0 +1,4127 @@
+[
+ {
+  "id": "R238 A01 two spaces",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "bfa81ab767c2bafd275a0da79daf774bab82f916138b1d0fe09261461978250d",
+  "wire_content_length": 133,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.772716+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A02 three spaces",
+  "page": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "9734b70a71dedc77135950c5aa8aac8449a000b09dc41d1393c5f7da03a2ba19",
+  "wire_content_length": 134,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.530670+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A03 star item",
+  "page": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"* item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "59aef581acc3ab6cc6597f25e170dac18822e71a4986056f31e3f5a97940bae9",
+  "wire_content_length": 133,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.531106+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A04 ordered item",
+  "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1. item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "1d18bb26e092f535bfbba0f05d1f710542e1e9bac322101d1a7971923ac318f9",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "1eae805bc5bd4919913607197c5075c9ec2840019ec4823cfc717b5fce641a1d",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.531709+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A05 two container paragraphs",
+  "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  first\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "944d1fa40785cf6e4613786a4a005b96eee5c8e53c4e939db1dec5ac528d597a",
+  "wire_content_length": 144,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "fa1f395bed7bc0fbc8a5fcd814dce0096590c701b3ae1f8dcb2d9eb65dc0111e",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.935292+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A06 task item",
+  "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [ ] item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "6d144880539dfe5b211830a5173841faed9468f0486dd65427a07dd5f636460c",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul class=\"contains-task-list\">\n<li class=\"task-list-item\">\n<p dir=\"auto\"><input type=\"checkbox\" id=\"\" disabled=\"\" class=\"task-list-item-checkbox\" aria-label=\"Incomplete task\"> item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3201fd7eebcd37ce22c068161b8c335abc908c61f910f45414de1842db75c883",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.978262+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A07 list after paragraph",
+  "page": "para\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "para\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"para\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b301adfa783184f4f7ad48e6effee516d4e2df07c3c6f752825e34d971247ffb",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<p dir=\"auto\">para</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5d3cff3ea5d55bdcf53c589e571bfda2836cff67f9dfb0b18ace161d5714d896",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:00.992308+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A08 b tag",
+  "page": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cb\\u003e\\n## Old\\n\\u003c/b\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "81d55f7e2aa05aee743e1292f728e4cb50e7be6dc1c9a36d5071088bc5d32b2a",
+  "wire_content_length": 127,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<b>\n## Old\n</b>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "87bf2762e66ad6b605bd1b194be0d8f680b6853c48207d10a24c50fd1a852504",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.016055+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A09 two blank lines",
+  "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "22db8cd654d959dccf2016f0e597913b3f1ad123ecc6b61c29ef98dbf1d71822",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.361274+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A10 plus item",
+  "page": "+ item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "+ item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"+ item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "aa33fcf44d3594142fb01add63ce14eeb335857338c137dacfe98199b0a334f4",
+  "wire_content_length": 133,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.386160+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A11 paren ordinal",
+  "page": "1) item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1) item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1) item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "ec6e516af2fd58b5393ec4c60e6d941e9e429b7dd391ec163d51e1429e5eef37",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "1eae805bc5bd4919913607197c5075c9ec2840019ec4823cfc717b5fce641a1d",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.386665+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A12 custom tag",
+  "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003ccustom-tag\\u003e\\n## Old\\n\\u003c/custom-tag\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "f2c4d8abc6d005ed44251ac623ba70f37f7ee61e8214bb6462b19ef8e5ae6f70",
+  "wire_content_length": 145,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ec812cc35d6875a831ceafaa6febcc988c4b28ca7f2adb24e1197893c5e18204",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.531619+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A13 lone closing tag",
+  "page": "- item\n\n  text\n</b>\n## Old\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n</b>\n## Old\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003c/b\\u003e\\n## Old\\n\\n## Real\\n\"}",
+  "request_sha256": "4e088fb1692d91489c1bd036ade78da4a5f36b74e038ca98fbfda3358c52a66b",
+  "wire_content_length": 112,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "831c16756633fa652955ed4530b48f56da69dce9a7adc5310bdab2054b57be7f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.782289+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A14 tag with attribute",
+  "page": "- item\n\n  text\n<span class=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span class=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan class=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "22135cd32fe200184dfd7a4314a84370fc695fe6d223d7aec17a4477f3eb59b6",
+  "wire_content_length": 145,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.789378+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A15 self-closing tag",
+  "page": "- item\n\n  text\n<br/>\n## Old\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<br/>\n## Old\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cbr/\\u003e\\n## Old\\n\\n## Real\\n\"}",
+  "request_sha256": "7e0c60e5f911f642d557e066bac7ef229da897f9ad3cc25872b0a223cc39a70c",
+  "wire_content_length": 113,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<br>\n## Old\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f703e54aebf8f86c2d6f18e0888d4e3f82ac34fb9d1b54e05902a943fa6542a1",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.789812+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A16 tag one column below col 2",
+  "page": "- item\n\n  text\n <span>\n## Old\n </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n <span>\n## Old\n </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003cspan\\u003e\\n## Old\\n \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b48bf92caaf0b21bdef19ec1e2c9ea8699fdfa56815c569709fc75967a4f31a6",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n## Old\n </span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "621c7c2239b0ce0c6127442079b27edeef57712742164604f57731612a61b5fc",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:01.889158+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A17 tag two columns below col 3",
+  "page": "1. item\n\n   text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1. item\n\n   text\n  <span>\n## Old\n  </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1. item\\n\\n   text\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2640d3651f8c614392d07775548be7aeb1833c7d4d3ad95e2bdd40771146b307",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n  <span>\n## Old\n  </span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ee8d00740467c0e24572c0851f137437f7f138b81218ae0102e8da82ad3e2174",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.208483+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A18 two-line first paragraph",
+  "page": "- item\n  more\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n  more\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  more\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "18847a26a98e071e6ef01ad070231d11547f352089b945b167d6cd520dee0df2",
+  "wire_content_length": 141,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item<br>\nmore</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "977232cc8d0eacff7bc86bf3c7fcd411aad748b15972f57b4f91042b81d66264",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.236528+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A19 resumed twice",
+  "page": "- item\n\n  text\n\n  again\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n\n  again\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\n  again\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "544c957b3d7387844bbfa7ee4c5bd7e7d70e062750993426830d070540a4acd7",
+  "wire_content_length": 144,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n<p dir=\"auto\">again</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ac5dbcb1b7dd2b487d319af585f8111e9d52ff92e2a45469345f3be4887a817a",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.257496+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 A20 zero ordinal",
+  "page": "0. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "0. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"0. item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "9cd2b27c285743ccebe65783fbfea017261de09eeef4c7b796a705c0b0c32409",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol start=\"0\" dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "2ace3c41e14eec149686d257ff12e53dfee448793dca4befa3473aa84ff14811",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.302836+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B01 one space",
+  "page": "- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "4b5a7005841dfa1ed3f8a00ce73bdf519eb26851f95b1bacef9744b4abcb3686",
+  "wire_content_length": 132,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.593856+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B02 four spaces",
+  "page": "- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n    text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2fbe716ced8ed47fff03850d9b464e05c0f1f8e344bee90773d5af1fc86c0480",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.638643+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B03 block quote",
+  "page": "> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "1be5d259f9172229b7a1441ebb0b90b6fdd65571072ee9e6e87839a13bc34059",
+  "wire_content_length": 138,
+  "request_length_matches_wire": true,
+  "response_bytes": "<blockquote>\n<p dir=\"auto\">item</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ce8fc42c5e2eb704095448ce65acb3f740437a893d02a96fa6164d93eec494ca",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.644560+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B04 footnote two spaces",
+  "page": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"[^1]: note\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "9348da08613ba90453b9aba44ce48aea2ac961e6133f8f7420c0cca1a3acd422",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "be6916ccb6dbd55d4cfe40b97fdc87ef661f1060f5e776873204f1d9d37f9a31",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.743335+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B05 footnote four spaces",
+  "page": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"[^1]: note\\n\\n    text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "9daa72a6ef9876d1d978feec1cd40c8ef11d82caaace7fc28f4137b4e2d0a750",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c1451d3bf7ddbb9e3b58de7b023d4569ea7f769e3e5be47a487829167296e542",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:02.936989+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 B06 tab",
+  "page": "- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n\\ttext\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "709f3f17579331e75a1bdd02840c9e53e4fb501c16eae8de35e3ce82fb4797e2",
+  "wire_content_length": 133,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.000425+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C01 tag at col 2 under resumed paragraph",
+  "page": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b07ce4f2c431d056c58928b1311d33857923771fcf463531cc556a756965c0b9",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f1a7b27954bb73b481c4ceb284ed4441adcc5f61417e0d6e8d7cbda752851d0f",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.044439+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C02 tag at col 3 under resumed paragraph (col 2 item)",
+  "page": "- item\n\n  text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n   <span>\n## Old\n   </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n   \\u003cspan\\u003e\\n## Old\\n   \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "438a651f11d59152236876062b266077a39b0492004122be27e7bf3eec07468e",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3129edbef142199a429fb6c01914c4cb8a373906df7fd16308f5a3e94ff6707a",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.116747+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C03 tag at col 3 under resumed paragraph (col 3 item)",
+  "page": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1. item\\n\\n   text\\n   \\u003cspan\\u003e\\n## Old\\n   \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "fb424472a8b8763d274f1dab784969d517a70cda29ee0203d3cbc52320feb917",
+  "wire_content_length": 141,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<h2 dir=\"auto\">Old</h2>\n   \n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "60d310743f06b3b4293e18be10ec2e8ff042b6ddfedc40b47d664e37fb34ed03",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.292784+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C04 C01 then column-0 fence",
+  "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "2354c5608ec99091005aab76154e958de2f4c81e3210c404e3179f901b502297",
+  "wire_content_length": 128,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3e7c044f3f702c599c346bafa247b48a062f205ada84683afc86516f7ca5ab40",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.471807+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C05 C01 then column-0 comment",
+  "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan\\u003e\\n\\u003c!--\\n\\n## Old\\n--\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "257661f0591cab9cd8a231e9c79938ea426c3c2993b7d836c4e939572b8eb72b",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "02527ef5476608e644b7c40caa562debd64549f85201e00ecc00ec10a326e696",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.486581+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C06 C01 then column-0 type-1 pre",
+  "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan\\u003e\\n\\u003cpre\\u003e\\n\\n## Old\\n\\u003c/pre\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "139ea4e707e9a3a15df29e2706f6dceaf43b986fc3562e63c092a8e3a467a149",
+  "wire_content_length": 153,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "9048686a00b2b24ddf5c131ebb46f3a1f3932d847099dfd322b9373a9faecbf3",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.491759+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C07 C04 after a lazy line",
+  "page": "- item\n\n  text\nlazy\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\nlazy\n  <span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\nlazy\\n  \\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "104d2d12963fb8c6c9f50edb178ad2269fdf3963b993d5b2e044057c6648adf3",
+  "wire_content_length": 134,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\nlazy<br>\n<span></span></p>\n</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f28be5f7b73c19181b49ec8909444c84bde8e7f7b9360eb4e8bb4a682ecad881",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.742783+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 C08 C04 with a col-3 item",
+  "page": "1. item\n\n   text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1. item\n\n   text\n   <span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1. item\\n\\n   text\\n   \\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "14e7575970fd0e6239d8c4c8268cf05e014491c41c5c62504970574c4c7d7d27",
+  "wire_content_length": 131,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ol>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "d3951bb102b8085b2d6f0d44475196028af18fb919565c01dfa6afdb94998ff3",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.827665+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 P01 tag at col 2 under the FIRST item paragraph, then fence",
+  "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "bd4ce0302eac4a78efe604a2272dbb90f38a6e1351418880a61b91f2c07c53b5",
+  "wire_content_length": 118,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "fec838f94703996fd017f7bf823b95c1c675e8a4f283658dc60784f4ff7411fa",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.856366+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 P02 tag at col 2 after a blank inside the item, then fence",
+  "page": "- item\n\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  <span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "68a6fd02a7c26ad55a6024422743ed46717d748b68f7f59ac488b74b6f291f54",
+  "wire_content_length": 120,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<span>\n</span></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8adb6fa25f6ebb9639e544f332070aca473c751ac5a8b0d0d142da1b092b918f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:03.945957+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 P03 type-6 div at col 2 inside the item, then fence",
+  "page": "- item\n\n  <div>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  <div>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "200e6336cbee09e01f02c9447c1580f82249829e19e3ebefd32129eca7c7d009",
+  "wire_content_length": 119,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3760041995aaa4f8a2dad9728cdcd98b6e8b641c9fb0b33b3341dda99b608b92",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.128598+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 P04 tag at col 2 under the FIRST item paragraph",
+  "page": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "f436cf5a19776df5e70785d3b1352cc05199ffff9fb90e3cea00d946bdbd3bd1",
+  "wire_content_length": 127,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "1006c70f23ac0f7cc4f96c4e171d817a9001d05daedf060c1ab9415cd16530d5",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.255703+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D01 column-0 quote after item, resumed text, tag",
+  "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "c8d3c2c98278f7ced44260c58bdb563654502f26d3dac686a4905c31655e9fa0",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.260785+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D02 column-0 footnote after item, resumed text, tag",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n[^1]: note\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "425add15a7a3e81b8c0e4994bf6bb68222ad39e5cb7de661209d69dd4f0e09ac",
+  "wire_content_length": 145,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8df1cc1b1c241639e6a63e4e4de58a9153d94456e3e9a240b4cb42049619e408",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.338201+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D03 D01 then column-0 fence",
+  "page": "- item\n> quote\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n> quote\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "ba023e0e98fac57d5c473872f27bcd710e95c52a2b374a37c132888922d56988",
+  "wire_content_length": 140,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "4db2f9c8f0192355395ed798c92da87947a8f3b46805b0698a7810154e1ce7ec",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.477842+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D04 D02 then column-0 fence",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n[^1]: note\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n[^1]: note\\n\\n  text\\n\\u003cspan\\u003e\\n```\\n\\n## Old\\n```\\n\\n## Real\\n\"}",
+  "request_sha256": "e302fd7dfbeb7b157bf8b61927d6c08ba5c0b88c8bdb016b8d1090d585d90899",
+  "wire_content_length": 138,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "a6ab40b1f5ecd5a98063232e340d4c0a8b83148c57779f30e186d2b70c224ac3",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.645682+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D05 quote after a blank releases the item",
+  "page": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n\\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b9f0778c4932b6e65d9f4046abba87b5d92c33a8872c76a4f9a947f1e427dc06",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.359948+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D06 quote inside the item keeps it",
+  "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "4f26c8ac21249809c031e45b0bba2ee0eaf75b591c096c3875ce5c24a7a6a718",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "eefd71de4374c8cb18bc8c2170a383d72adfb0b338c2b9979eb260ab7f8be926",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.760299+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 D07 indented quote below col 4 after item",
+  "page": "-   item\n  > quote\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "-   item\n  > quote\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"-   item\\n  \\u003e quote\\n\\n    text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2398eef163921a47e5ab6cb46250ebcd443c91511f82bddf0ef68b5a5093fb6d",
+  "wire_content_length": 153,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\">text\n</code></pre>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "96960b0f48cc0006458292c68d971f6da4f4a75df442dd7a2cacc7bd0fed3190",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:04.885707+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F01 new ordered list after blank",
+  "page": "- item\n\n2. other\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n2. other\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n2. other\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "cfdc2c72d25aa0d90d3eef457c177e3c86b0c60bbad31166add96dfc4e50d84e",
+  "wire_content_length": 146,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol start=\"2\" dir=\"auto\">\n<li>\n<p dir=\"auto\">other</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ee8666f973f5d833d4a09c2d93432bf905f7cfc95af843512008fa4c917a4a8c",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.066583+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F02 new bullet type after blank",
+  "page": "- item\n\n* other\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n* other\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n* other\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "04d5f1be49621cfd148fb7f7bc5042ba06feab9c94708a7758adda20b31cc7fb",
+  "wire_content_length": 144,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">other</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f5401acef40a4c5e52eb54cba169b3da2d0e4564dda12422094e006dc3be5637",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.201499+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F03 sibling then one space",
+  "page": "- item\n\n- other\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n- other\n\n text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n- other\\n\\n text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2ca157c2a9a5fb1d3ed9e52f4ba457f3988023a5bd307d694f55401b7d73eb8d",
+  "wire_content_length": 143,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">other</p>\n</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "e8fa0b28a44869233a5f9ae5f02e8f168007d5d91bd5ab8c2842d160048b10b4",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.231710+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F04 empty item then sibling",
+  "page": "-\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "-\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"-\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "c2fc2312d3a8d4ac9dcdbf3118c7e95a8870ffa7be2f5f42e317090e3b7be5a6",
+  "wire_content_length": 136,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "2719b00d0141bc741d1ef4ab7f06595d98e055f9b37ae380444f9d9f1a402461",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.286670+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F05 noninterrupting zero ordinal",
+  "page": "text\n0. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "text\n0. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n0. item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "8800b72bc5bad4305597961c36ea37ceac93f761cb79e152a4060242000b358f",
+  "wire_content_length": 141,
+  "request_length_matches_wire": true,
+  "response_bytes": "<p dir=\"auto\">text<br>\n0. item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "2f6f85f79fad5c6a3c43fb696af5f0646027966478f5ee0c60abdd5843ba22c1",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.455989+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F06 table inside item",
+  "page": "- item\n\n  a | b\n  --|--\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  a | b\n  --|--\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  a | b\\n  --|--\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "e6569669458dc9df528dbb7fc7e6fa178a781e7e5f53918e584ca54d5af94f23",
+  "wire_content_length": 143,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "a1e275ef395ea7f2712671343aa489f0931a2e5a137292f5641e97eb21163896",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.588449+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F07 setext inside item",
+  "page": "- item\n\n  text\n  ===\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  ===\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  ===\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "86ce0469821e6c995fbacb22915233736fada13959923baa3e9a65ce9cc5c302",
+  "wire_content_length": 140,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h1 dir=\"auto\">text</h1>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "fbd680a417f017f1a78551d78ef3be946173c71d4645a5a9cebccccef20142e4",
+  "github": [
+   [
+    1,
+    "text"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.593100+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F08 fence inside item",
+  "page": "- item\n\n  ```\n  code\n  ```\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  ```\n  code\n  ```\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  ```\\n  code\\n  ```\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "ae819a183f784d8dfedca8a87fc220b676b0562f16366ccb0db0f8a88e086a9f",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c967808ceb522af7fa26d1231df10ace6ec9ac36f47cd84f47981d6839144e51",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.666777+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F09 tag at col 2 after blank (no paragraph)",
+  "page": "- item\n\n  text\n\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n\n  <span>\n## Old\n  </span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "cece0cfd60346080f597e243834b5dba568c38b13b86ba57d7144ea5d10a2a8a",
+  "wire_content_length": 139,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n<span>\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f02c4af3e1abd0b36080fbdad12f397679c4ef29a0149f8f44ef5418d9a654ec",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.847369+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F10 type-1 below resumed paragraph",
+  "page": "- item\n\n  text\n<pre>\n## Old\n</pre>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<pre>\n## Old\n</pre>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cpre\\u003e\\n## Old\\n\\u003c/pre\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "06f3a42cab3c587c6d9e260cda84f96ef1c17e24195380edf975bde95de7b496",
+  "wire_content_length": 131,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<pre class=\"notranslate\">## Old\n</pre>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "dc8e568e0e5b21b8b34034a745ca0217f8dc5204e1e26220c39ee6a64599a99c",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:05.954781+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F11 dedented setext text ends nothing",
+  "page": "- item\n\n  text\n===\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n===\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n===\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "550fcebbd7e235b03eee2cb27e776e1b300e8abae29395b0dd6b9716abded52a",
+  "wire_content_length": 138,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n===</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "19f9249a919dcf6a418c32d5f6b39bfd1f5a3bcc4f176d46a68d36783cd81001",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.045812+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 F12 empty star item then lazy",
+  "page": "*\n  first\nlazy\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "*\n  first\nlazy\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"*\\n  first\\nlazy\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "c7f241cb03794dcdece4933897c40187847c0c8cc8790b94b3f4edf62a2a1893",
+  "wire_content_length": 143,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">first<br>\nlazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8602a357e94a0e40e7ae61bb84172a53d8aadd51a44a7304efd3bc415b0084fa",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.089020+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 G01 equals setext",
+  "page": "Alpha\n===\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "Alpha\n===\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"Alpha\\n===\\n\"}",
+  "request_sha256": "13eb3702950453b66a6c0a42d4dcec89025ca74cc4eb39ba30ad14577a55a7f9",
+  "wire_content_length": 71,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h1 dir=\"auto\">Alpha</h1>",
+  "response_sha256": "76bad60cdcc9e1197d34585519f95936cbcbdf2d9731b7015891d2b9121dacc0",
+  "github": [
+   [
+    1,
+    "Alpha"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.316651+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 G02 hyphen setext",
+  "page": "text\n---\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "text\n---\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n---\\n\"}",
+  "request_sha256": "8971dc90619a1967d10fc069aa12ceea3faacaa752fb5dc0022853b059db5718",
+  "wire_content_length": 70,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h2 dir=\"auto\">text</h2>",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.387501+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 G03 single hyphen setext",
+  "page": "text\n-\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "text\n-\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n-\\n\"}",
+  "request_sha256": "2ee344008d66c3cfd2a660a86ef933f5b3e960bcc58795511c9d27377f72b397",
+  "wire_content_length": 68,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h2 dir=\"auto\">text</h2>",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.455897+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 G04 quoted heading",
+  "page": "> ## Q\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "> ## Q\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e ## Q\\n\"}",
+  "request_sha256": "093e4b74de5af472c7f9791b5ea668f850130f791e8a406b512acf2226e36917",
+  "wire_content_length": 72,
+  "request_length_matches_wire": true,
+  "response_bytes": "<blockquote>\n<h2 dir=\"auto\">Q</h2>\n</blockquote>",
+  "response_sha256": "45c09cb780095e0edcbde590d68f06f53b31759407f2f17377840f94735ba908",
+  "github": [
+   [
+    2,
+    "Q"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.698188+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R238 G05 list heading",
+  "page": "- item\n\n  ## Inner\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  ## Inner\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  ## Inner\\n\"}",
+  "request_sha256": "c3804ec3fdb7e7108a1d3b6bec78e7841f790a03fbecb1a3c0a5e23addaf4b52",
+  "wire_content_length": 81,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Inner</h2>\n</li>\n</ul>",
+  "response_sha256": "d6a41b8b76ba28ed75c4d7ff32adacbca845d94416a020b555ea498a9acfa116",
+  "github": [
+   [
+    2,
+    "Inner"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.765083+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-0-<span>",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "bfa81ab767c2bafd275a0da79daf774bab82f916138b1d0fe09261461978250d",
+  "wire_content_length": 133,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "969275497c8554214b27e88327bac1357b9457069566cda8964948db3ae0e42f",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.772716+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-0-</span>",
+  "page": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003c/span\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "5a6337aadebe7931a0af7197b2fc46602e7f0ac19b4c8087f9e7d9c19f269e08",
+  "wire_content_length": 134,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n## Old\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ec812cc35d6875a831ceafaa6febcc988c4b28ca7f2adb24e1197893c5e18204",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.814455+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-0-<span title=\"x\">",
+  "page": "- item\n\n  text\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan title=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "0ac60883c1d430fd87de24d87e0e3db933759a382d76c31368ff18ca74199f5c",
+  "wire_content_length": 145,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "7e0c448e2be2a9998d13cb80cfa34bba345f2b346639d79324977b544e66ddaf",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:06.831349+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-1-<span>",
+  "page": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "6630e53a14382118c2e1b9af926c39445df82d56e8f7e564b3f6032eb58dbd61",
+  "wire_content_length": 134,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "10d11f656d54f64757aa1daa68bddd2cf3c5ff9bc98b562a75f7c6173c9cbe5a",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.024409+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-1-</span>",
+  "page": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003c/span\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "df9f6e711aab482403ce9f596000d7c7b0a886f98f09cb98d675238c9b2c05db",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n## Old\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3d78a95d9a0af66566f8addbb7f0091265ebb821c1e9c63017c25fe37ece1c9e",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.171839+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-1-<span title=\"x\">",
+  "page": "- item\n\n  text\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003cspan title=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "7430c645c1e7c687ed4ee496de3b3111e6d2ace81c3f013f62d9c7d379ebf278",
+  "wire_content_length": 146,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5bd798ad747cf83c907e170a93262d596c883792a6f0920ee0c804897da2b2e6",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.196297+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-2-<span>",
+  "page": "- item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "67e54588b86da47eabf1e3266ace1db396c6e6f5105cf8f6ee45db1b523283ee",
+  "wire_content_length": 135,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.210814+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-2-</span>",
+  "page": "- item\n\n  text\n  </span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  </span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003c/span\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "a8de2561eb774fe451b88237975c8ec7d84da5e25d8cd538b3bc4f190ed0798d",
+  "wire_content_length": 136,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.409303+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-2-<span title=\"x\">",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  \\u003cspan title=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "7d2738ee572769c13866a26535e8271bfa3dd3875e23f4da40b363f7e06c88c6",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.523896+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-3-<span>",
+  "page": "- item\n\n  text\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n   <span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n   \\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "ff2d92dfb5793714914491b7cf69a62b2027ec89831c4c9ebb91a92f723b7175",
+  "wire_content_length": 136,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.550580+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-3-</span>",
+  "page": "- item\n\n  text\n   </span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n   </span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n   \\u003c/span\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "03025c02128ee9cc86fb9f81e566f160d77accd4dbc9bd3f978449de2ec755f0",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.664978+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-3-<span title=\"x\">",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n   \\u003cspan title=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "c82901a03e884005b63918bc9757b9cd3ebc7cd8f63f1ec7f63196db6086efe0",
+  "wire_content_length": 148,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.847968+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-4-<span>",
+  "page": "- item\n\n  text\n    <span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n    <span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n    \\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2cab73d2ead0249b823deaf0207ca373e527d75e5b8d45ec8362cefb89ed56f0",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "d6be2ab0bc0ca9b3793d32778f344de3100ec1919b5a1a80c801cb0588bfdf77",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.933795+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-4-</span>",
+  "page": "- item\n\n  text\n    </span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n    </span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n    \\u003c/span\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "616ec2aed8ea04c393362f2a9228ff36bf161328345e697a4f07c32ae55f438d",
+  "wire_content_length": 138,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n</p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c04541e1ce80e5ff479995250d3301b1936dab1c1053efca0712aa2037256206",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:07.942368+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 tag-indent-4-<span title=\"x\">",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n    \\u003cspan title=\\\"x\\\"\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "f22276e0d0cbb207dc8a3166003e2324ec0446ef93c2f043854fc79ffecef61b",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text<br>\n<span title=\"x\"></span></p>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5a4b03821bc410454542119e9174d09cc6cd1dfb56cce29f4268512973a654a8",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.005337+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 quote-inside",
+  "page": "- item\n\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "3e054efe069ebf565beaff254da9a2ca2352d2602b38aa4fdbb753d45983da5c",
+  "wire_content_length": 151,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "eefd71de4374c8cb18bc8c2170a383d72adfb0b338c2b9979eb260ab7f8be926",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.223664+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 quote-outside",
+  "page": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n\\u003e quote\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b9f0778c4932b6e65d9f4046abba87b5d92c33a8872c76a4f9a947f1e427dc06",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "b3269e456f9a7eca76006e45a5a72b3c5d7de1c6b7eb74f46c21cc895fb162d6",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.359948+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 list-inside",
+  "page": "- item\n\n  - nested\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  - nested\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  - nested\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "5327133c5cfb5857ff0dbb395af8a7a6a0df3219f1a009572eb4768d0dee5658",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "6cbe3210a749de0b60a467db64c625608ce099b958bf0403c4f61d9645d7792c",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.375016+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 table-inside",
+  "page": "- item\n\n  A | B\n  - | -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  A | B\n  - | -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  A | B\\n  - | -\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "4f122327d62f3a002959691370be1c758381eef30f12ba77404743cefed444fa",
+  "wire_content_length": 153,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">A | B</p>\n<ul dir=\"auto\">\n<li>| -</li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "18e35ef67f7b77f01b788017b808ac56b1cee12cffac831fc1df98cbae49cedb",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.454555+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 table-outside",
+  "page": "- item\n\nA | B\n- | -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\nA | B\n- | -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\nA | B\\n- | -\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "070aaf3ae0a1d9c7b453a6b007b16b54187d734eea0e9dbaf6b794554f95ac76",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<p dir=\"auto\">A | B</p>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">| -</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "725103bbd26cab25c4ac62a07b0550de3087175102462bb3741aa4b14d537493",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.584594+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 setext-inside",
+  "page": "- item\n\n  title\n  ====\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  title\n  ====\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  title\\n  ====\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "d4589c9f0d80ff9f06cffa3cea5d8b83bb0f7f7f554aa9e365e8b8fe2504a742",
+  "wire_content_length": 152,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h1 dir=\"auto\">title</h1>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "7162eb59b44a5d7104b5478184ff7ef058bef5dd22d17331e45db37c6d29a295",
+  "github": [
+   [
+    1,
+    "title"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.748496+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 setext-outside",
+  "page": "- item\n\ntitle\n====\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\ntitle\n====\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\ntitle\\n====\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "1775d1506e4b68f25552a20ebd6d9479db58f55b6e64cbb771ad85e7c5ca122b",
+  "wire_content_length": 148,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<h1 dir=\"auto\">title</h1>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "f9592f9ef967b3baf87e9280a54cc5df3722f2e26599b67598591c0bce72bf42",
+  "github": [
+   [
+    1,
+    "title"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.828663+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 fence-inside",
+  "page": "- item\n\n  ```\n  code\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  ```\n  code\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  ```\\n  code\\n  ```\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "59e066376c680863a3030c1d48e8747701192b621dac3cb08762b6c5496b9e3b",
+  "wire_content_length": 157,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "4571ab18e7b9542315d2c923f9e0594593dbed0025929c52dbb784d844f732d0",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.837317+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 fence-outside",
+  "page": "- item\n\n```\ncode\n```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n```\ncode\n```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n```\\ncode\\n```\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "2f4c97da869655e818e96b348f1120ed5556f781053a92417b40d6749b626edd",
+  "wire_content_length": 151,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">code\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ac03ab3aca5979ee16dea7c7c1d65c8cb38d54739b0eaf9f5bf4f86b7ed17cd6",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:08.929465+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 html-inside",
+  "page": "- item\n\n  <div>\n  x\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  <div>\n  x\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\n  x\\n  \\u003c/div\\u003e\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "d0f04ce317eb1c3d39a846b1ba6c39a3633d5e367dfedd5a81f24598302384e5",
+  "wire_content_length": 179,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\nx\n</div>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "5d78706a969c832d0525da9b5d1884df2bd03fd790626ba45a262ef5dfcee9ed",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.104813+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 html-outside",
+  "page": "- item\n\n<div>\nx\n</div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n<div>\nx\n</div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n\\u003cdiv\\u003e\\nx\\n\\u003c/div\\u003e\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "eee97ab0bee702962b0065867bfb73a07dbfaba87ef4a22d0721d55134399b5d",
+  "wire_content_length": 173,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<div dir=\"auto\">\nx\n</div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "25a683ae2e185770bc84f8b8a9891adce874c3b8a915acdf36971dc7c2ec6c08",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.171701+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 quote-marker-inert",
+  "page": "> - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "> - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e - item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "5901fd29ff02eb8d5fefa0f3e82e29cab7b204d200e6b25b09f33182302af840",
+  "wire_content_length": 140,
+  "request_length_matches_wire": true,
+  "response_bytes": "<blockquote>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n</blockquote>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "3fc0929509f6b55a6eaf04bea7c8ae4ca0a01298e388568fc0ae95fb6480e5ec",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.207918+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 empty-ordinal",
+  "page": "1.\n   first\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "1.\n   first\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"1.\\n   first\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "1a83b2431eab7d8244674b41800f545b8d20e4e453f8b2fdd434fb6bc01682f1",
+  "wire_content_length": 140,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol dir=\"auto\">\n<li>\n<p dir=\"auto\">first</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "362f71d3ff1d01e15c4dda9db0de381061c91066fac8ccbfd1b5908c5e9d230c",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.275051+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 wide-ordinal",
+  "page": "12) item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "12) item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"12) item\\n\\n    text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "8e11e2e0576e8df681fd2ed43a3bc9585ff0f12ae3dffeb7763f02d95e4714f7",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ol start=\"12\" dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "afc8d047f7cfaff9b82293bd001f8f88ca7f7d5b2e5e0bb05179241404e090c5",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.485645+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 sibling-after-blank",
+  "page": "- item\n\n 1. next\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n 1. next\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n 1. next\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "edf4c5f8cc3dab867fc187c5fe7b05049c0edc80d3412972f9e34060562480de",
+  "wire_content_length": 145,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<ol dir=\"auto\">\n<li>next</li>\n</ol>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "7b1f8f06c5d21b340d408395c1ea2d6d52272828e94917e8c31579e8736a2ef6",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.534585+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 sibling-relative-indent",
+  "page": "- item\n\n - next\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n - next\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n - next\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "34075539ee2ab4fd43b4888599898de8158e8728941670070cce9051f9d27180",
+  "wire_content_length": 144,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li>\n<li>\n<p dir=\"auto\">next</p>\n</li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "ec6bb067b5e990872044b2e9e0476d2e7a66f4b6a0ed10186a1e9b2dc92af4da",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.606015+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 quote-lazy-list-marker",
+  "page": "> quote\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "> quote\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e quote\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "29ca9ca1a39252ee8b61dd014edbf7b16434dbea003e39d75481e64dc0ef8486",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "698720242cc601167cac28a9cdcc3e52c49249dd27fdf586bded89900c9f8e15",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.677034+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 table-list-looking-row",
+  "page": "A | B\n- | -\n2. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "A | B\n- | -\n2. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"A | B\\n- | -\\n2. item\\n\\n   text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "02cd003f28e76334bd63f3da82f97d4f23d25e3d3f5bb8c4e76fa8d746ac0d14",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<p dir=\"auto\">A | B</p>\n<ul dir=\"auto\">\n<li>| -</li>\n</ul>\n<ol start=\"2\" dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ol>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "eabd36ce395360ffe245a55c5b366c6286c2439a73eb99df6ddaacc308cf8bc0",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.894002+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 table-empty-marker-row",
+  "page": "A | B\n- | -\n-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "A | B\n- | -\n-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"A | B\\n- | -\\n-\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "fc27f7f16ea493e04740518c837231f617d7fb43c238661e281601648390624d",
+  "wire_content_length": 142,
+  "request_length_matches_wire": true,
+  "response_bytes": "<p dir=\"auto\">A | B</p>\n<ul dir=\"auto\">\n<li>| -</li>\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "82ae825ebc91f97f8ced46560cd61645970d26191d9c86a9a9c46446036e5010",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.894329+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 type1-cross-name",
+  "page": "<pre>\n</style>\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "<pre>\n</style>\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cpre\\u003e\\n\\u003c/style\\u003e\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "370f1f4197ee782ebb50e6d1e2695f3a9fb93e57d883e624b134d5da810e84c7",
+  "wire_content_length": 170,
+  "request_length_matches_wire": true,
+  "response_bytes": "<pre class=\"notranslate\">&lt;/style&gt;\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2></pre>",
+  "response_sha256": "f5c5de0ff6d20c95bd8dff7714998f4b27e530248622ec20d01282072e30edc0",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:09.975201+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 fence-trailing-space",
+  "page": "```\n- inert\n``` \t\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "```\n- inert\n``` \t\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"```\\n- inert\\n``` \\t\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "df17da5b2f620a64bf0ced0c2f432d607e4cf495650d4b19b6df903bb36c1abb",
+  "wire_content_length": 155,
+  "request_length_matches_wire": true,
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- inert\n</code></pre>\n<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "c173e797866ff5ed9f394b4f5362b07d2a42c600ecd78e87e4f1820341c87376",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.062158+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 fence-invalid-trailer",
+  "page": "```\n- inert\n``` x\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "```\n- inert\n``` x\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"```\\n- inert\\n``` x\\n- item\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "649908aad036d09f156e556b06d270a1860fc8ab8adb5126d0d60bd8688abefe",
+  "wire_content_length": 154,
+  "request_length_matches_wire": true,
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- inert\n``` x\n- item\n\n  text\n&lt;span&gt;\n## Old\n&lt;/span&gt;\n\n## Real\n</code></pre>",
+  "response_sha256": "f7269536d0743643a97cfa2582a362b8abfe115377b1b47f743d321962985292",
+  "github": [],
+  "utc": "2026-09-23T04:46:10.243660+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 omission-0",
+  "page": "Alpha\n===\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "Alpha\n===\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"Alpha\\n===\\n\"}",
+  "request_sha256": "13eb3702950453b66a6c0a42d4dcec89025ca74cc4eb39ba30ad14577a55a7f9",
+  "wire_content_length": 71,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h1 dir=\"auto\">Alpha</h1>",
+  "response_sha256": "76bad60cdcc9e1197d34585519f95936cbcbdf2d9731b7015891d2b9121dacc0",
+  "github": [
+   [
+    1,
+    "Alpha"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.316651+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 omission-1",
+  "page": "text\n---\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "text\n---\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n---\\n\"}",
+  "request_sha256": "8971dc90619a1967d10fc069aa12ceea3faacaa752fb5dc0022853b059db5718",
+  "wire_content_length": 70,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h2 dir=\"auto\">text</h2>",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.387501+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 omission-2",
+  "page": "text\n-\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "text\n-\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n-\\n\"}",
+  "request_sha256": "2ee344008d66c3cfd2a660a86ef933f5b3e960bcc58795511c9d27377f72b397",
+  "wire_content_length": 68,
+  "request_length_matches_wire": true,
+  "response_bytes": "<h2 dir=\"auto\">text</h2>",
+  "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+  "github": [
+   [
+    2,
+    "text"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.455897+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 omission-3",
+  "page": "> ## Q\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "> ## Q\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e ## Q\\n\"}",
+  "request_sha256": "093e4b74de5af472c7f9791b5ea668f850130f791e8a406b512acf2226e36917",
+  "wire_content_length": 72,
+  "request_length_matches_wire": true,
+  "response_bytes": "<blockquote>\n<h2 dir=\"auto\">Q</h2>\n</blockquote>",
+  "response_sha256": "45c09cb780095e0edcbde590d68f06f53b31759407f2f17377840f94735ba908",
+  "github": [
+   [
+    2,
+    "Q"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.698188+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 omission-4",
+  "page": "- item\n\n  ## Inner\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  ## Inner\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  ## Inner\\n\"}",
+  "request_sha256": "c3804ec3fdb7e7108a1d3b6bec78e7841f790a03fbecb1a3c0a5e23addaf4b52",
+  "wire_content_length": 81,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Inner</h2>\n</li>\n</ul>",
+  "response_sha256": "d6a41b8b76ba28ed75c4d7ff32adacbca845d94416a020b555ea498a9acfa116",
+  "github": [
+   [
+    2,
+    "Inner"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.765083+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 fenced-marker-indented-closer",
+  "page": "```\n- fake item\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "```\n- fake item\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"```\\n- fake item\\n  ```\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b132982304a3f3a98958b71cccff75444412dcddeb6a8d7cae147664b67b674d",
+  "wire_content_length": 150,
+  "request_length_matches_wire": true,
+  "response_bytes": "<pre class=\"notranslate\"><code class=\"notranslate\">- fake item\n</code></pre>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "a27588b55f778cd39e5961bccb2de0a794b4e6a284158aa1123d166e02ca11b4",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.775033+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 comment-marker-indented-closer",
+  "page": "<!--\n- fake item\n  -->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "<!--\n- fake item\n  -->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c!--\\n- fake item\\n  --\\u003e\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "63472a4a4a8467d1a165b1523382d99b8e3a5da4a2a8c39cad3bb39bd78baa9f",
+  "wire_content_length": 161,
+  "request_length_matches_wire": true,
+  "response_bytes": "\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8b18506bc21c5fdfdbdc6c165d7f1be0aa1e2de4b4cf6ef6976c80dd548c63ff",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:10.799354+00:00",
+  "exit": 0
+ },
+ {
+  "id": "R237 HTML-marker-indented-closer",
+  "page": "<div>\n- fake item\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "<div>\n- fake item\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n- fake item\\n  \\u003c/div\\u003e\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "78241a17cfafd2075ce7f755776cb8e1fa623b5a19b93d0dd77d045950513d3c",
+  "wire_content_length": 175,
+  "request_length_matches_wire": true,
+  "response_bytes": "<div dir=\"auto\">\n- fake item\n  </div>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+  "response_sha256": "8e1d04bd9462945f0a78b2ae00b0bb0523bcaa83dc522811721ef440c603933d",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "utc": "2026-09-23T04:46:11.073292+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 1",
+  "page": "- item\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003cspan\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "d4ee43bb063c8ad445824c3a53b26bd4370837b0e8ea89d24131295f7354f942",
+  "wire_content_length": 136,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span>\n</span>",
+  "response_sha256": "664a28a0e151909a74668a1d8aac5e4520fdda2c5677785d097c90bb95001f3b",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.113850+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 2",
+  "page": "- item\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003c/span\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "0e2c48f3ea589a34c1fd99b80e3c27fdd540604dd35cb53417cc6142c24e649b",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n",
+  "response_sha256": "f01b02578fe7acd260af5b28c379bb7a6608ccfefe6d6e51129782ca25633fab",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.166284+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 3",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003cspan title=\\\"x\\\"\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "04a3323511c4c9ff7a6c5eb9acb086e359cf0527ffe1905e8dedd71c8b506e41",
+  "wire_content_length": 159,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span title=\"x\">\n</span>",
+  "response_sha256": "6860693fb7c02330d0715efa6b66ad72aa89efc11be79a618b0a411b7089a174",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.175292+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 4",
+  "page": "- item\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n \\u003c/span\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b23f0611fa1e9b6d48e495468d27b024c23c54c5e10406a36ed6ad6ca42b2097",
+  "wire_content_length": 138,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n \n",
+  "response_sha256": "2b4eba5d93d9980a765c76c5803b8045fed3c4b541f2d009cd581decbbf04525",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.465764+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 5",
+  "page": "- item\n\n  text\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003cspan\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "5235d5161a99b0072a64f85bc23c0c42a5a1fb16d959ccc369a6bce89f62f1a4",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n <span>\n</span>",
+  "response_sha256": "282f134237ede9da447d6bced6c269dd114178eef948352fb7a2c71d80cba82b",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.496902+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 6",
+  "page": "- item\n\n  text\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003c/span\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "626b3450e3694203b2954a4d766fb9411678d12327d02cd4fb6dc3cdee0308e2",
+  "wire_content_length": 147,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n\n",
+  "response_sha256": "572992939b8a399b3cf3e168e5ec32759c7cdb19c8ebbb1d134b66ccb931c9be",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.504431+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 7",
+  "page": "- item\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n \\u003cspan\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "0b005ddd8c9eee7775de6006ad90bd94d2a02f2e9441ae6b54609dd0428bab11",
+  "wire_content_length": 137,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span>\n</span>",
+  "response_sha256": "ffb469b30daa82c5d5f480758315a5f473d82299754b8a61e85d590e0255ba7a",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.613057+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 8",
+  "page": "- item\n\n  text\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "e4463202abc4d81b4319077acb8e1189ff0372355a4311d5561306cc081be3e8",
+  "wire_content_length": 146,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n</span>",
+  "response_sha256": "e9ce7b4012f1be56f3821e47f043829d9e52a1979dd9c7eb855b809f223c9070",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.891018+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 9",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n\\u003cspan title=\\\"x\\\"\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "72af1491fcbff16e38c932e3534517f007425ca517249eddedb607b6997fd82d",
+  "wire_content_length": 158,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span title=\"x\">\n</span>",
+  "response_sha256": "ce25a62a7ba30391b617de4757e7d0cec499929f31a8eb89749ac872b7f4ff57",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.915010+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 10",
+  "page": "- item\n\n  text\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n\n  text\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n \\u003c/span\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "b74ba3ec9d86622037118f1bc21ac4091e5c3399c86ca998c39a95ff4bccc481",
+  "wire_content_length": 148,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n \n",
+  "response_sha256": "65fcec1ae93a30a927aa21952373ca427a93f54c23d3678cdd462d7736d19558",
+  "github": [],
+  "utc": "2026-09-23T04:46:11.928620+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 11",
+  "page": "- item\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003cspan title=\\\"x\\\"\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "fc729caa7ec69f92562bd8d7c6e105b39ab1b0c70e92aff2a75771cfe5818189",
+  "wire_content_length": 148,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<span title=\"x\">\n</span>",
+  "response_sha256": "c063673dd020da9c77f2f0f011c59d62cfbf6f7a9eb4e608269645f8242c095a",
+  "github": [],
+  "utc": "2026-09-23T04:46:12.025130+00:00",
+  "exit": 0
+ },
+ {
+  "id": "#516 variant 12",
+  "page": "- item\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "argv_display": [
+   "gh",
+   "api",
+   "markdown",
+   "-f",
+   "mode=gfm",
+   "-f",
+   "context=kebag-logic/milan-fpga",
+   "-f",
+   "text=<page>"
+  ],
+  "request": {
+   "context": "kebag-logic/milan-fpga",
+   "mode": "gfm",
+   "text": "- item\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n"
+  },
+  "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n \\u003cspan title=\\\"x\\\"\\u003e\\n\\u003c!--\\n\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+  "request_sha256": "0ba54b37e9b6ccbafcb944696ea0d37e78a92577e3a61e01c0e42c966ce9b3ae",
+  "wire_content_length": 149,
+  "request_length_matches_wire": true,
+  "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n <span title=\"x\">\n</span>",
+  "response_sha256": "9764924550ae50041baf5a43aa61f21f4b420bc30b47508ba224b814db8229b4",
+  "github": [],
+  "utc": "2026-09-23T04:46:12.224937+00:00",
+  "exit": 0
+ }
+]
