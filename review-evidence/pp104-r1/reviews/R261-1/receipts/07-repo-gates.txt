@@ -1,0 +1,24 @@
+# repo gates at 0ca178678490024707b3a2393a86dc9e7b2a0ca4 tree 897a49d0e7eb25e910ff63984c5000403375dca2
+$ python3 scripts/check-links.py
+links: 807 checked, OK
+exit=0
+$ python3 scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+exit=0
+$ python3 scripts/gen_matrix.py --check
+matrix: OK (86 rows, 0 untested)
+exit=0
+$ make stale
+
+exit=0
+$ python3 scripts/check_upc_map.py
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+exit=0
+$ PATH=$PINNED_TOOL_BIN:$PATH ./scripts/lint_hdl.sh
+lines: 37 LINT OK, 0 other
+LINT OK  KL_mrp_strip
+LINT OK  protocol_processor_top
+exit=0
+$ make lint (mermaid + wavedrom JSON)
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+exit=0

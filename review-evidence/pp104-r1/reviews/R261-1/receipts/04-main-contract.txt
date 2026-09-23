@@ -1,0 +1,16 @@
+[MATCH] 0 = all four PASS: rv=0 calls=5 last='fixture guards: 4 cases PASS'
+  annotation: type(rv) is int
+[MATCH] exit status differs -> 1 after printing output: rv=1 calls=2 out='FAIL: fixture default (no override): unexpected compiler result 1\n\n'
+[MATCH] static-assertion diagnostics differ -> 1: rv=1 calls=4
+[MATCH] error count differs -> 1: rv=1 calls=5
+[MATCH] warnings alone do not fail (error count only): rv=0
+[INFO] first mismatch returns immediately: compiler calls made = 1 of 4
+[MATCH] failed VERILATOR_ROOT query (non-zero exit) raises CalledProcessError: raised CalledProcessError
+[MATCH] failed model generation (non-zero exit) raises CalledProcessError: raised CalledProcessError
+[INFO] verilator executable absent: raised FileNotFoundError (docstring names only CalledProcessError)
+[INFO] compiler executable absent: raised FileNotFoundError (docstring: returns 1 on a case mismatch)
+[INFO] unknown option before --: raised SystemExit
+[INFO] flags after -- reach model generation as: '--cc -Wall x.sv --Mdir /tmp/pp-top-vid-guards-34gr5d6y'
+[INFO] flags WITHOUT --: raised SystemExit; model generation args: '(model generation not reached)'
+MAIN CONTRACT PROBE: PASS
+exit=0

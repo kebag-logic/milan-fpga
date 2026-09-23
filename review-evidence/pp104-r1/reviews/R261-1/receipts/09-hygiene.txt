@@ -1,0 +1,23 @@
+$ git diff --check base..head
+exit=0
+$ git diff --raw base..head (modes/blobs)
+:100644 100644 c20c539210e6e091f196f4ace65ddedff7435e85 e0ba767057ef3115f689fc26931dfe8ac0c31f7a M	tb/pp_top/fixture_guards.py
+:100644 100644 9201898d7e4fcbb242cf5e981ab13568955bdf91 4af2ceb4f28dc0a2fea573fb0234c44376293fc3 M	tb/pp_top/test_fixture_guards.py
+$ commit message (raw)
+tree 897a49d0e7eb25e910ff63984c5000403375dca2
+parent e1d0176d3a486bce4a80765cfbcefcb61964f8e9
+author hackerman-kl <email> 1790152948 +0200
+committer hackerman-kl <email> 1790152948 +0200
+
+Annotate and document the two public pp_top fixture-guard functions
+$ python3 -W error py_compile of both files at head
+fixture_guards.py compiles, no warnings
+test_fixture_guards.py compiles, no warnings
+$ max line length of added lines
+88
+$ docstrings as the interpreter sees them
+{'return': <class 'int'>}
+{'return': None}
+main() passes every argument through and sets LC_ALL=C for the compiler only.
+$ guard-line diff base vs head (Verilator walltime report excluded)
+identical

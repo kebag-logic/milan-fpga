@@ -1,0 +1,40 @@
+# hosted check runs at exact head 0ca178678490024707b3a2393a86dc9e7b2a0ca4 (read-only query 2026-09-23T14:29:23+02:00)
+docs-gates | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853380979/job/107156076667
+portability | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853380979/job/107156076619
+suites | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853380979/job/107156076335
+suites | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853375707/job/107156059577
+portability | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853375707/job/107156059556
+docs-gates | completed | success | head_sha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 | https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35853375707/job/107156059240
+run pull_request headSha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 conclusion=success
+  suites: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+  portability: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  docs-gates: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+run push headSha=0ca178678490024707b3a2393a86dc9e7b2a0ca4 conclusion=success
+  docs-gates: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+  portability: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+  suites: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+## suites job 107156076335 (key lines)
+2026-09-23T11:14:34.4952842Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-23T11:14:40.8161497Z LINT OK  protocol_processor_top
+2026-09-23T11:18:31.9814743Z PASS pp_top (1411 checks: 1411 PASS, 0 FAIL)
+2026-09-23T11:19:37.5477113Z suites: 14943 checks total, 0 failing
+2026-09-23T11:19:37.5847461Z matrix: OK (86 rows, 0 untested)
+## suites job 107156059577 (key lines)
+2026-09-23T11:14:30.8262391Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-23T11:14:40.9665833Z LINT OK  protocol_processor_top
+2026-09-23T11:20:45.3006290Z PASS pp_top (1411 checks: 1411 PASS, 0 FAIL)
+2026-09-23T11:22:28.3891059Z suites: 14943 checks total, 0 failing
+2026-09-23T11:22:28.4541684Z matrix: OK (86 rows, 0 untested)
+## docs-gates job 107156059240 (key lines)
+2026-09-23T11:14:37.0348281Z links: 807 checked, OK
+2026-09-23T11:14:37.0592725Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-09-23T11:14:37.4467708Z wavedrom: 18 blocks checked, OK
+## docs-gates job 107156076667 (key lines)
+2026-09-23T11:14:37.9530986Z links: 807 checked, OK
+2026-09-23T11:14:37.9804624Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-09-23T11:14:38.5078501Z wavedrom: 18 blocks checked, OK
+## PP refs
+e1d0176d3a486bce4a80765cfbcefcb61964f8e9	refs/heads/main
+0ca178678490024707b3a2393a86dc9e7b2a0ca4	refs/pull/105/head
+## parent dev
+ede8d48ecd7c7f589a14b957951f040d92c99c70

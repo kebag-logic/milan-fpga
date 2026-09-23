@@ -1,0 +1,43 @@
+diff --git a/tb/pp_top/fixture_guards.py b/tb/pp_top/fixture_guards.py
+index c20c539..e0ba767 100644
+--- a/tb/pp_top/fixture_guards.py
++++ b/tb/pp_top/fixture_guards.py
+@@ -10,7 +10,17 @@ import subprocess
+ import tempfile
+ 
+ 
+-def main():
++def main() -> int:
++    """Check each SRP VID fixture case against the real bench; 0 = all four PASS.
++
++    Reads --verilator, --cxx and the Verilator flags after `--` from the
++    command line, generates the model once into a temporary directory, then
++    syntax-checks sim_main.cpp with no override, 5A3C, 0002 and 1002 under
++    LC_ALL=C. Returns 1, after printing the compiler output, when a case's exit
++    status, static-assertion diagnostics or error count differs from the
++    expected. A failed VERILATOR_ROOT query or model generation raises
++    CalledProcessError.
++    """
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--verilator", default="verilator")
+     parser.add_argument("--cxx", default="c++")
+diff --git a/tb/pp_top/test_fixture_guards.py b/tb/pp_top/test_fixture_guards.py
+index 9201898..4af2ceb 100644
+--- a/tb/pp_top/test_fixture_guards.py
++++ b/tb/pp_top/test_fixture_guards.py
+@@ -12,7 +12,14 @@ import fixture_guards
+ 
+ 
+ class CompilerLocaleTest(unittest.TestCase):
+-    def test_compiler_environment_and_arguments(self):
++    def test_compiler_environment_and_arguments(self) -> None:
++        """main() passes every argument through and sets LC_ALL=C for the compiler only.
++
++        Runs with mocked subprocesses, once with LC_ALL unset and once with it
++        inherited. Requires exit 0, the caller's environment unchanged, and the
++        exact model-generation call and four compiler calls, each compiler call
++        getting the caller's environment plus LC_ALL=C.
++        """
+         wire = "SRP VID fixture must differ from product default 2 in the 16-bit wire value"
+         class_d = "SRP VID fixture must differ from product default 2 in the 12-bit class-D value"
+         cases = [(None, ()), ("5A3C", ()), ("0002", (wire, class_d)), ("1002", (class_d,))]

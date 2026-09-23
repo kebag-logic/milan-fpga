@@ -1,0 +1,16 @@
+== tb/pp_top/fixture_guards.py
+  module docstring unchanged: True
+  functions differing in args/returns/docstring: ['main']
+  main: base returns=None head returns=Name(id='int', ctx=Load())
+  main: base args==head args: True
+  unstripped head AST == base AST: False (expected False)
+  stripped ['main']; stripped head AST == base AST: True
+== tb/pp_top/test_fixture_guards.py
+  module docstring unchanged: True
+  functions differing in args/returns/docstring: ['test_compiler_environment_and_arguments']
+  test_compiler_environment_and_arguments: base returns=None head returns=Constant(value=None)
+  test_compiler_environment_and_arguments: base args==head args: True
+  unstripped head AST == base AST: False (expected False)
+  stripped ['test_compiler_environment_and_arguments']; stripped head AST == base AST: True
+AST PROBE: PASS
+exit=0

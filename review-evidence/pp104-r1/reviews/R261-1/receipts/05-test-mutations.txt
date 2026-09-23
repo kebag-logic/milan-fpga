@@ -1,0 +1,14 @@
+M0-control expect=pass rc=0 [OK] AS-EXPECTED -- unmodified head passes
+M1-no-lc-all expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- sets LC_ALL=C for the compiler
+M2-lc-all-if-unset expect=fail rc=1 [FAILED (failures=1)] AS-EXPECTED -- LC_ALL=C also when LC_ALL is inherited
+M3-env-to-model expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- LC_ALL=C for the compiler ONLY (not model generation)
+M4-env-to-root-query expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- LC_ALL=C for the compiler ONLY (not the root query)
+M5-mutate-caller-env expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- caller environment unchanged
+M6-drop-caller-env expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- compiler gets the caller environment plus LC_ALL=C
+M7-no-shlex expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- passes every argument through (--cxx split)
+M8-keep-dashdash expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- exact model-generation call
+M9-three-cases expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- four compiler calls
+M10-exit-1 expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- requires exit 0
+M11-drop-define expect=fail rc=1 [FAILED (failures=2)] AS-EXPECTED -- exact compiler calls
+mutation arms as expected: 12, unexpected: 0
+exit=0

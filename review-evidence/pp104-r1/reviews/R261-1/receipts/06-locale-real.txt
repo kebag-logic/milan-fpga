@@ -1,0 +1,14 @@
+== head under LANG=en_US.UTF-8 LANGUAGE=fr: exit 0
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+fixture guard 0002: refused: SRP VID fixture must differ from product default 2 in the 16-bit wire value; SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guard 1002: refused: SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+fixture guards: 4 cases PASS
+== M1 under LANG=en_US.UTF-8 LANGUAGE=fr: exit 1
+fixture guard default (no override): compiles
+fixture guard 5A3C: compiles
+FAIL: fixture 0002: unexpected compiler result 1
+sim_main.cpp:81:27: error: l'assertion statique a échoué : SRP VID fixture must differ from product default 2 in the 16-bit wire value
+sim_main.cpp:83:39: error: l'assertion statique a échoué : SRP VID fixture must differ from product default 2 in the 12-bit class-D value
+LOCALE PROBE: PASS
+exit=0
