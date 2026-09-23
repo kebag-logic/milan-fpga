@@ -1,0 +1,71 @@
+# path | candidate-blob == PR-head-blob | candidate-blob == dev-blob
+docs/design/TIME_SYNC.md cand=31a6f503f54a377a8ffdf431f58b4f4bfb0f38da prhead=SAME dev=DIFF
+docs/reference/REGISTER_MAP.md cand=8338434e77b2f737c9d80eb8c2d775797eee1dde prhead=SAME dev=DIFF
+docs/testing/TESTING.md cand=e8d287f12a09fe6dcb8a28b657d533e01a442dc2 prhead=DIFF dev=DIFF
+docs/traceability/MODULE_MATRIX.md cand=771ee5f373ebd91c39157c475211f1c7a369189e prhead=SAME dev=DIFF
+hdl/ieee1722/aaf/KL_chan_map_capture.sv cand=a46611c423e902c0f8ddade0dae0654236e8a85b prhead=SAME dev=DIFF
+hdl/ieee1722/aaf/README-tests.md cand=61857d6949fe2bf5976126a4d5f5adcf25b9a4ca prhead=SAME dev=DIFF
+hdl/ieee1722/crf/KL_media_grid_align.sv cand=cc41832204a2b572df077d1fd9561a695d97cf88 prhead=SAME dev=DIFF
+tb/verilator/chmap_capture/sim_main.cpp cand=0fb053bc119c088518cc95c5d3d8b73ea9b9df4a prhead=SAME dev=DIFF
+tb/verilator/media_grid_align/Makefile cand=920e6c98c7b8dc2cccb152231ccdf222be5dd425 prhead=SAME dev=DIFF
+tb/verilator/media_grid_align/README.md cand=2bf5f337b9697ef52d6c348daaf9faef4e0ab58e prhead=SAME dev=DIFF
+tb/verilator/media_grid_align/media_grid_align_wrap.sv cand=4bd71a385ed8e3690ab7169f4c8d7d24d45ce59e prhead=SAME dev=DIFF
+tb/verilator/media_grid_align/sim_main.cpp cand=86c5c32c08d31ec03b1141342291e97384eb9da5 prhead=SAME dev=DIFF
+.github/workflows/docs.yml cand=7b629a8c2837a927d54ba4ead7935e9da1a2c9f0 prhead=DIFF dev=SAME
+.github/workflows/elaborate.yml cand=af8f3700266d344f6de2f281cd4a7598b6a7639a prhead=DIFF dev=SAME
+CONTRIBUTING.md cand=117c372f0b57dc3f47aead475e917d534fd23372 prhead=DIFF dev=SAME
+docs/integration/BAREMETAL_FIRMWARE.md cand=cec7d8eb602271402705165bbbd3a2d3a7d7ab6a prhead=DIFF dev=SAME
+docs/testing/CI_WORKFLOWS.md cand=a22a2828b43733599fd24c52baf5c926a039dddb prhead=DIFF dev=SAME
+docs/testing/TESTING.md cand=e8d287f12a09fe6dcb8a28b657d533e01a442dc2 prhead=DIFF dev=DIFF
+scripts/check_baremetal_only.py cand=73770b17136f12954b7d7418c65ce19c158a3b32 prhead=DIFF dev=SAME
+scripts/ci_events.py cand=39b72110ae2f475ba84a19735f6d036a4285320a prhead=DIFF dev=SAME
+scripts/ci_rv32_sdk.py cand=b6ac4138972d2dd321edc523ab9c65ec1ad69fe3 prhead=DIFF dev=SAME
+scripts/ci_rv32_sdk_selftest.py cand=89ac5d445718229f2ecc53f1d1e0910c2c90c152 prhead=DIFF dev=SAME
+scripts/measure_test_evidence.py cand=c4892f181d6307b871ddb93c18874d99f1cbb055 prhead=DIFF dev=SAME
+scripts/owned_process.py cand=2f01be03e115ae05749e79c98baf758050b38075 prhead=DIFF dev=SAME
+scripts/process_test_support.py cand=531dce0d5d19bd7e87f5cdb3ae6e645f15a3f5a5 prhead=DIFF dev=SAME
+scripts/run_all_suites.sh cand=ba61d8607c26242b7335e06e955df5ff6ccc8853 prhead=DIFF dev=SAME
+scripts/test_suite_cancellation.py cand=839a870321c830c3107cb2d65bca8da0f42c6c85 prhead=DIFF dev=SAME
+sw/builder/test_builder.py cand=408e8790c48795dd654d4e7d403853af6f58853e prhead=DIFF dev=SAME
+sw/builder/test_firmware_compiler.py cand=2bde32ce1bca5562a1a08a064b277ad9eab6efce prhead=DIFF dev=SAME
+tb/verilator/gptp_shadow/Makefile cand=3820e8444affb7d442cc1eae832fda9bb07439c4 prhead=DIFF dev=SAME
+tb/verilator/gptp_shadow/README.md cand=0f97bf4d5d38dbb59cc3ccff229930df627c092f prhead=DIFF dev=SAME
+tb/verilator/gptp_shadow/mutants.py cand=a5ac251599e20dd80182eb3978ed661e0a84a509 prhead=DIFF dev=SAME
+tb/verilator/gptp_shadow/private_inputs.py cand=2b13fe5e726621ac088f9474c92e8e4ab5317f0d prhead=DIFF dev=SAME
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py cand=dca6bdc33f7f8ef4fd0e8b981769b5e8585be24a prhead=DIFF dev=SAME
+# whole-tree: paths differing between candidate and dev
+docs/design/TIME_SYNC.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+docs/traceability/MODULE_MATRIX.md
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/ieee1722/aaf/README-tests.md
+hdl/ieee1722/crf/KL_media_grid_align.sv
+tb/verilator/chmap_capture/sim_main.cpp
+tb/verilator/media_grid_align/Makefile
+tb/verilator/media_grid_align/media_grid_align_wrap.sv
+tb/verilator/media_grid_align/README.md
+tb/verilator/media_grid_align/sim_main.cpp
+# whole-tree: paths differing between candidate and PR head
+CONTRIBUTING.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+.github/workflows/docs.yml
+.github/workflows/elaborate.yml
+scripts/check_baremetal_only.py
+scripts/ci_events.py
+scripts/ci_rv32_sdk.py
+scripts/ci_rv32_sdk_selftest.py
+scripts/measure_test_evidence.py
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/run_all_suites.sh
+scripts/test_suite_cancellation.py
+sw/builder/test_builder.py
+sw/builder/test_firmware_compiler.py
+tb/verilator/gptp_shadow/Makefile
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/private_inputs.py
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py

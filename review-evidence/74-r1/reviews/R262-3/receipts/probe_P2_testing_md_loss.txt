@@ -1,0 +1,22 @@
+# P2a: shared TESTING.md with the dev side lost (PR-head blob)
+ M docs/testing/TESTING.md
+  rc=0 python3 scripts/docs_check.py
+  rc=0 python3 scripts/check_doc_style.py
+  rc=0 python3 scripts/gen_toc.py --check
+  rc=0 python3 scripts/gen_toc.py --verify-anchors
+  rc=0 python3 scripts/check_doc_paths.py
+  rc=0 python3 scripts/measure_test_evidence.py --check
+  rc=0 python3 scripts/ci_events.py --check
+  rc=0 python3 docs/traceability/gen_module_matrix.py --check
+# P2b: shared TESTING.md with the PR side lost (dev blob)
+ M docs/testing/TESTING.md
+  rc=0 python3 scripts/docs_check.py
+  rc=0 python3 scripts/check_doc_style.py
+  rc=0 python3 scripts/gen_toc.py --check
+  rc=0 python3 scripts/gen_toc.py --verify-anchors
+  rc=0 python3 scripts/check_doc_paths.py
+  rc=0 python3 scripts/measure_test_evidence.py --check
+  rc=0 python3 scripts/ci_events.py --check
+  rc=0 python3 docs/traceability/gen_module_matrix.py --check
+# restored
+e8d287f12a09fe6dcb8a28b657d533e01a442dc2

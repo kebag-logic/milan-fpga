@@ -1,0 +1,51 @@
+# per-commit path log, renames followed (-M), PR side ede8d48e..2accfadf
+commit 2accfadf The SLIP_TDM docs claim only what the raced-lock arms prove: a passage is exact in its net count, and the lock clears the tick by the keep-off less its dither (#74 item 2)
+
+M	docs/reference/REGISTER_MAP.md
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+commit 553edeb8 Regenerate the module matrix for the media-grid raced-lock arms
+
+M	docs/traceability/MODULE_MATRIX.md
+M	hdl/ieee1722/aaf/README-tests.md
+commit 6d1572d6 The junction counters stop chattering at a raced lock: the align loop parks the frame marker 1/128 sample off the tick, and a coincident tick takes the pending marker instead of dropping it (#74 item 2)
+
+M	docs/design/TIME_SYNC.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/TESTING.md
+M	hdl/ieee1722/aaf/KL_chan_map_capture.sv
+M	hdl/ieee1722/crf/KL_media_grid_align.sv
+M	tb/verilator/chmap_capture/sim_main.cpp
+M	tb/verilator/media_grid_align/Makefile
+M	tb/verilator/media_grid_align/README.md
+M	tb/verilator/media_grid_align/media_grid_align_wrap.sv
+M	tb/verilator/media_grid_align/sim_main.cpp
+
+# per-commit path log, renames followed (-M), predecessor side ede8d48e..759da623 (non-merge commits)
+
+CONTRIBUTING.md
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+.github/workflows/docs.yml
+.github/workflows/elaborate.yml
+scripts/check_baremetal_only.py
+scripts/ci_events.py
+scripts/ci_rv32_sdk.py
+scripts/ci_rv32_sdk_selftest.py
+scripts/measure_test_evidence.py
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/run_all_suites.sh
+scripts/test_suite_cancellation.py
+sw/builder/test_builder.py
+sw/builder/test_firmware_compiler.py
+tb/verilator/gptp_shadow/Makefile
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/private_inputs.py
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+
+# PR paths also touched by any predecessor commit
+docs/testing/TESTING.md
+# rename detection on both net diffs
+(no R lines above = no renames)

@@ -1,0 +1,44 @@
+01	0	em_dash_vs_dev	python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+02	0	em_dash_vs_mergebase	python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+03	0	em_dash_ci_derived	bash -c python3 scripts/check_em_dash.py --base "$(git merge-base 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD)"
+04	0	em_dash_selftest	python3 scripts/check_em_dash.py --selftest
+05	0	docs_check	python3 scripts/docs_check.py
+06	0	doc_style	python3 scripts/check_doc_style.py
+07	0	doc_style_selftest	python3 scripts/check_doc_style.py --selftest
+08	0	gptp_docs	python3 scripts/check_gptp_docs.py
+09	0	doc_map_check	python3 docs/DOC_MAP.gen.py --check
+10	0	timesync_chain_check	python3 docs/diagrams/timesync_chain.gen.py --check
+11	0	solution_docs	python3 scripts/check_solution_docs.py
+12	0	submodule_boundaries	python3 docs/diagrams/submodule_boundaries.gen.py --check
+13	0	submodule_docs	python3 scripts/check_submodule_docs.py
+14	0	feature_status	python3 scripts/check_feature_status.py
+15	0	feature_status_selftest	python3 scripts/check_feature_status.py --self-test
+16	0	module_matrix_check	python3 docs/traceability/gen_module_matrix.py --check
+17	0	doc_paths	python3 scripts/check_doc_paths.py
+18	0	archive	python3 scripts/check_archive.py
+19	0	toc_verify_anchors	python3 scripts/gen_toc.py --verify-anchors
+20	0	toc_check	python3 scripts/gen_toc.py --check
+21	0	toc_selftest	python3 scripts/gen_toc.py --selftest
+22	0	rtl_source_lists	python3 scripts/check_rtl_source_lists.py
+23	0	soc_sources	python3 scripts/check_soc_sources.py
+24	0	measure_naming	python3 scripts/measure_naming.py --check
+25	0	port_contracts	python3 scripts/check_port_contracts.py
+26	0	fail_fast	python3 scripts/measure_fail_fast.py --check
+27	0	todo_ownership	python3 scripts/check_todo_ownership.py
+28	0	test_evidence	python3 scripts/measure_test_evidence.py --check
+29	0	test_evidence_selftest	python3 scripts/measure_test_evidence.py --selftest
+30	0	hygiene	python3 scripts/check_hygiene.py --check
+31	0	sv_idiom	python3 scripts/check_sv_idiom.py
+32	0	cpp_idiom	python3 scripts/check_cpp_idiom.py
+33	0	py_idiom	python3 scripts/check_py_idiom.py
+34	0	sh_idiom	python3 scripts/check_sh_idiom.py
+35	0	ci_events_check	python3 scripts/ci_events.py --check
+36	0	ci_events_selftest	python3 scripts/ci_events.py --selftest
+37	0	baremetal_only	python3 scripts/check_baremetal_only.py --check
+38	0	pp_srcs_check	python3 scripts/pp_srcs.py --check
+39	0	lint_rtl_check	env PATH=<pinned-tool-bin>:$PATH python3 scripts/lint_rtl.py --check
+40	0	xvlog_gate_check	python3 scripts/xvlog_gate.py --check
+41	0	suite_list	bash scripts/run_all_suites.sh --list
+42	0	suite_shards_selftest	python3 scripts/suite_shards.py --selftest
+43	0	diff_check_vs_dev	git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
+44	0	diff_check_vs_mb	git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD
