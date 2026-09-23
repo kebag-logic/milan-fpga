@@ -1,0 +1,5 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=all stimulus_fault=none
+scenario single_beats from cycle 4
+[5000] %Error: axis_mux_rr_2in_1out_sva.sv:176: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_tvalid_forwarded: m TVALID is not the owning source's TVALID, or is high with no owner
+%Error: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:176: Verilog $stop
+Aborting...

@@ -1,0 +1,49 @@
+{
+  "cwd": "$VALIDATION",
+  "head": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+  "base": "52711029f374650dc93830d5ea28e81cb5c8f410",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/372-manager-r2/full-suite-logs",
+      "--wait"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/372-manager-r2/yosys-results"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/372-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "behave",
+      "tests/features"
+    ]
+  ]
+}

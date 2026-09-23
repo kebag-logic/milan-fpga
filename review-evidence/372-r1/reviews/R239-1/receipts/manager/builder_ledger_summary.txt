@@ -1,0 +1,49 @@
+spec commands: 48 results: 48 head match: True
+01 exit=0     0.1s spec-match=True :: python3 avdecc/gen_aem_store.py --self-test
+02 exit=0     0.2s spec-match=True :: python3 scripts/pp_srcs.py --check --selftest
+03 exit=0     8.7s spec-match=True :: python3 scripts/lint_rtl.py --check --self-test
+04 exit=0     0.1s spec-match=True :: python3 scripts/suite_shards.py --selftest
+05 exit=0     0.2s spec-match=True :: python3 scripts/ci_events.py --check
+06 exit=0     1.7s spec-match=True :: python3 scripts/ci_scope.py --selftest
+07 exit=0     7.1s spec-match=True :: python3 scripts/ci_events.py --selftest
+08 exit=0     0.9s spec-match=True :: python3 docs/traceability/gen_module_matrix.py --check
+09 exit=0     0.6s spec-match=True :: python3 scripts/check_feature_status.py
+10 exit=0     0.4s spec-match=True :: python3 scripts/check_submodule_docs.py
+11 exit=0     1.0s spec-match=True :: python3 scripts/check_cpp_idiom.py
+12 exit=0     2.8s spec-match=True :: python3 scripts/check_py_idiom.py
+13 exit=0     3.8s spec-match=True :: python3 scripts/docs_check.py
+14 exit=0     0.0s spec-match=True :: python3 scripts/check_doc_style.py
+15 exit=0     0.0s spec-match=True :: python3 scripts/check_doc_style.py --selftest
+16 exit=0     0.1s spec-match=True :: python3 scripts/check_solution_docs.py
+17 exit=0     0.1s spec-match=True :: python3 scripts/check_doc_paths.py
+18 exit=0     0.2s spec-match=True :: python3 scripts/check_archive.py
+19 exit=0     0.4s spec-match=True :: python3 scripts/gen_toc.py --verify-anchors
+20 exit=0     0.4s spec-match=True :: python3 scripts/gen_toc.py --check
+21 exit=0     0.3s spec-match=True :: python3 scripts/check_hygiene.py --check
+22 exit=0     1.2s spec-match=True :: python3 scripts/check_todo_ownership.py
+23 exit=0     0.4s spec-match=True :: python3 scripts/check_sv_idiom.py
+24 exit=0     0.2s spec-match=True :: python3 scripts/check_sh_idiom.py
+25 exit=0     1.3s spec-match=True :: python3 scripts/check_rtl_source_lists.py
+26 exit=0     0.1s spec-match=True :: python3 scripts/check_soc_sources.py
+27 exit=0     2.2s spec-match=True :: python3 scripts/check_port_contracts.py
+28 exit=0     1.8s spec-match=True :: python3 scripts/check_nvm_record_space.py
+29 exit=0    13.0s spec-match=True :: python3 scripts/check_baremetal_only.py --check
+30 exit=0     2.4s spec-match=True :: python3 scripts/check_baremetal_only.py --selftest
+31 exit=0    38.6s spec-match=True :: python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+32 exit=0    11.5s spec-match=True :: python3 scripts/check_sweep_shape.py --self-test
+33 exit=0   133.5s spec-match=True :: python3 scripts/xvlog_gate.py --check
+34 exit=0     0.1s spec-match=True :: python3 scripts/measure_control_flow.py --selftest
+35 exit=0     0.1s spec-match=True :: python3 scripts/measure_cohesion.py --selftest
+36 exit=0     0.9s spec-match=True :: python3 scripts/check_em_dash.py --base 52711029f374650dc93830d5ea28e81cb5c8f410
+37 exit=0     1.3s spec-match=True :: python3 scripts/measure_fail_fast.py --check
+38 exit=0     4.6s spec-match=True :: python3 scripts/measure_test_evidence.py --check
+39 exit=0     0.4s spec-match=True :: python3 scripts/measure_naming.py --check
+40 exit=0     4.6s spec-match=True :: python3 scripts/measure_test_evidence.py --selftest
+41 exit=0     0.2s spec-match=True :: python3 scripts/gen_toc.py --selftest
+42 exit=0     0.9s spec-match=True :: python3 scripts/check_em_dash.py --selftest
+43 exit=0     0.1s spec-match=True :: python3 scripts/docs_check.py --selftest
+44 exit=0     0.0s spec-match=True :: git diff --check 52711029f374650dc93830d5ea28e81cb5c8f410 059c3a60b8290873ed9fd14673f9981e8af754ce
+45 exit=0     0.2s spec-match=True :: python3 scripts/check_wire_accountability.py --self-test
+46 exit=0    38.0s spec-match=True :: python3 scripts/check_entity_shape.py --self-test
+47 exit=0     0.4s spec-match=True :: python3 scripts/check_deploy_shape.py --self-test
+48 exit=0   402.2s spec-match=True :: python3 sw/builder/test_builder.py

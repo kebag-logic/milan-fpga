@@ -1,0 +1,9 @@
+$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator --cc --exe --build -j 8 --assert --top-module axis_mux_rr_2in_1out -GTDATA_WIDTH=8 -Wall -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DAXIS_MUX_TDATA_WIDTH=8" -Mdir $MANAGEMENT/2026-09-23/372-r239-1/work/tree/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/obj $MANAGEMENT/2026-09-23/372-r239-1/work/tree/tb/verilator/ptp_ts/obj_dir_sva_campaign/mutant-tdata_hidden_while_stalled-w8/axis_mux_rr_2in_1out.sv ../../common/sva/axis_stream_source_sva.sv ../../common/sva/axis_mux_rr_2in_1out_sva.sv $MANAGEMENT/2026-09-23/372-r239-1/work/tree/tb/common/sva/axis_mux_rr_2in_1out_bind.sv mux_sva_main.cpp -o Vmux_sva
+%Warning-UNUSEDSIGNAL: ../../common/sva/axis_stream_source_sva.sv:48:36: Signal is not used: 'tdata_i'
+                                                                       : ... note: In instance 'axis_mux_rr_2in_1out.u_sva.u_m_dut'
+   48 |   input wire [TDATA_WIDTH_P-1:0]   tdata_i,   
+      |                                    ^~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.050
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Error: Exiting due to 1 warning(s)
+make: *** [Makefile:80: mux-sva-build] Error 1

@@ -1,0 +1,6 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=reset_while_stalled stimulus_fault=none
+scenario reset_while_stalled from cycle 4
+  [FAIL] reset_while_stalled, resume after the middle-beat reset: not reached within 200 cycles
+witness grading needs every scenario (+scenario= selected one; +grade_witnesses grades it anyway)
+== ptp_ts mux sva w64: checks: 13   failures: 1 ==
+RESULT: FAIL

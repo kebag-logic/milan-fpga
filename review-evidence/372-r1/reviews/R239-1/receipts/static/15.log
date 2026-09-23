@@ -1,0 +1,64 @@
+$ python3 tb/verilator/ptp_ts/sva_campaign.py --list
+clean-w8
+clean-w64
+stimulus-s0_drop_tvalid-w8
+stimulus-s0_flip_tdata-w8
+stimulus-s0_flip_tkeep-w8
+stimulus-s0_flip_tlast-w8
+stimulus-s1_drop_tvalid-w8
+stimulus-s1_flip_tdata-w8
+stimulus-s1_flip_tkeep-w8
+stimulus-s1_flip_tlast-w8
+stimulus-s0_drop_tvalid-w64
+stimulus-s0_flip_tdata-w64
+stimulus-s0_flip_tkeep-w64
+stimulus-s0_flip_tlast-w64
+stimulus-s1_drop_tvalid-w64
+stimulus-s1_flip_tdata-w64
+stimulus-s1_flip_tkeep-w64
+stimulus-s1_flip_tlast-w64
+mutant-tvalid_waits_for_tready-w64: the defect the mux's own comment records: TVALID made to wait for TREADY
+mutant-tdata_hidden_while_stalled-w8: the output TDATA is gated by TREADY, so it moves while stalled
+mutant-tkeep_hidden_while_stalled-w64: the output TKEEP is gated by TREADY, so it moves while stalled
+mutant-tlast_hidden_while_stalled-w8: the output TLAST is gated by TREADY, so it rises only at the handshake
+mutant-released_while_tlast_stalled-w64: s0 gives up the output on a TLAST beat the sink has not taken
+mutant-released_before_tlast_s0-w8: s0 gives up the output after any beat, not after its TLAST beat
+mutant-released_before_tlast_s1-w64: s1 gives up the output after any beat, not after its TLAST beat
+mutant-kept_after_tlast-w8: s1 keeps the output after its TLAST beat
+mutant-reset_ignored-w64: the state register ignores reset, so an owner survives it
+mutant-illegal_state_reached-w64: a grant decodes to the encoding no state name owns
+mutant-granted_without_request-w8: the arbiter grants s1 whether or not it offers a beat
+mutant-both_sources_ready-w64: s1 also sees TREADY while s0 owns the output
+mutant-ready_ignores_sink-w8: s0 sees TREADY while the sink is stalling the output
+mutant-tkeep_from_other_source-w64: an s1 beat leaves with s0's TKEEP
+scoreboard-round_robin_inverted-w8: the arbiter prefers the source it just served; no property claims fairness, so the scoreboard must catch it
+elaboration-tdata_width_12: gen_guard_tdata_width must refuse a TDATA width that is not whole bytes
+coverage-assertions_disabled-w64: --no-assert compiles every assertion, and every witness with it, out of a bound checker
+coverage-assertions_disabled-w64-s0_drop_tvalid
+coverage-assertions_disabled-w64-s0_flip_tdata
+coverage-assertions_disabled-w64-s0_flip_tkeep
+coverage-assertions_disabled-w64-s0_flip_tlast
+coverage-assertions_disabled-w64-s1_drop_tvalid
+coverage-assertions_disabled-w64-s1_flip_tdata
+coverage-assertions_disabled-w64-s1_flip_tkeep
+coverage-assertions_disabled-w64-s1_flip_tlast
+coverage-bind_target_mistyped-w8: a bind naming a module that does not exist binds nothing, and 5.050 builds it silently
+coverage-bind_target_mistyped-w8-s0_drop_tvalid
+coverage-bind_target_mistyped-w8-s0_flip_tdata
+coverage-bind_target_mistyped-w8-s0_flip_tkeep
+coverage-bind_target_mistyped-w8-s0_flip_tlast
+coverage-bind_target_mistyped-w8-s1_drop_tvalid
+coverage-bind_target_mistyped-w8-s1_flip_tdata
+coverage-bind_target_mistyped-w8-s1_flip_tkeep
+coverage-bind_target_mistyped-w8-s1_flip_tlast
+coverage-bind_ports_swapped-w64: a checker wired to the wrong ports still sees legal traffic; only the witness counts the harness takes from the ports can tell
+coverage-bind_ports_swapped-w64-s0_drop_tvalid
+coverage-bind_ports_swapped-w64-s0_flip_tdata
+coverage-bind_ports_swapped-w64-s0_flip_tkeep
+coverage-bind_ports_swapped-w64-s0_flip_tlast
+coverage-bind_ports_swapped-w64-s1_drop_tvalid
+coverage-bind_ports_swapped-w64-s1_flip_tdata
+coverage-bind_ports_swapped-w64-s1_flip_tkeep
+coverage-bind_ports_swapped-w64-s1_flip_tlast
+coverage-unused_path-w8: single_beats never stalls the output, so every u_m_dut property passes vacuously
+exit=0

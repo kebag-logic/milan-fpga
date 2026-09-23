@@ -1,0 +1,7 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=all stimulus_fault=none
+scenario single_beats from cycle 4
+scenario multi_beats from cycle 29
+scenario valid_gaps from cycle 66
+[79000] %Error: axis_mux_rr_2in_1out_sva.sv:169: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.forwarding_laws.ai_ready_only_for_owner_and_ready_sink: a source's TREADY is not exactly 'it owns the output and the sink is ready'
+%Error: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:169: Verilog $stop
+Aborting...

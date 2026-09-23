@@ -1,0 +1,16 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=multi_beats stimulus_fault=none
+scenario multi_beats from cycle 4
+  [FAIL] a beat that differs from the one handed over (cycle 28, data 0x80000000000000a5 keep 0x1c last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 29, data 0x80000000000100a5 keep 0x1d last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 30, data 0x80000000000200a5 keep 0x1e last 1)
+  [FAIL] an output packet leaves the mux intact and in its source's order
+  [FAIL] a beat that differs from the one handed over (cycle 32, data 0x80000001000000a5 keep 0x20 last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 33, data 0x80000001000100a5 keep 0x21 last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 34, data 0x80000001000200a5 keep 0x22 last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 35, data 0x80000001000300a5 keep 0x23 last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 36, data 0x80000001000400a5 keep 0x24 last 0)
+  [FAIL] a beat that differs from the one handed over (cycle 37, data 0x80000001000500a5 keep 0x25 last 1)
+  [FAIL] an output packet leaves the mux intact and in its source's order
+witness grading needs every scenario (+scenario= selected one; +grade_witnesses grades it anyway)
+== ptp_ts mux sva w64: checks: 22   failures: 11 ==
+RESULT: FAIL

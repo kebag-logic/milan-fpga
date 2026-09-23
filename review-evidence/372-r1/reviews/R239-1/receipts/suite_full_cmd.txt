@@ -1,0 +1,3 @@
+VFLAGS override: --cc --exe --build -j 8 --top-module $(TOP) +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra"
+cmd: taskset -c 0-7 make -C tb/verilator/ptp_ts VERILATOR=$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator VFLAGS=<above>
+exit=0 seconds=112

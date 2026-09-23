@@ -1,0 +1,6 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=8 seed=3728 (+seed=<n> replays random_mix) scenario=all stimulus_fault=none
+scenario single_beats from cycle 4
+scenario multi_beats from cycle 29
+[30000] %Error: axis_mux_rr_2in_1out_sva.sv:133: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.ap_grant_only_to_requester: the arbiter granted the output to a source that was not offering a beat
+%Error: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:133: Verilog $stop
+Aborting...

@@ -1,0 +1,6 @@
+native head/base: 059c3a60b8290873ed9fd14673f9981e8af754ce 52711029f374650dc93830d5ea28e81cb5c8f410 spec keys: ['cwd', 'head', 'base', 'commands']
+01 exit=0   2177.8s :: bash scripts/run_all_suites.sh $VALIDATION_STORAGE/372-manager-r2/full-suite-logs --wait
+02 exit=0    667.7s :: bash syn/yosys/run.sh --results $VALIDATION_STORAGE/372-manager-r2/yosys-results
+03 exit=0    178.1s :: bash -c cd protocol-processor && bash scripts/run_suites.sh
+04 exit=0    478.4s :: make -C gptp-processor all
+05 exit=0      1.1s :: behave tests/features

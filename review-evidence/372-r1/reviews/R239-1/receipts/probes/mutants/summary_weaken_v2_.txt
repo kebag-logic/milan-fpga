@@ -1,0 +1,4 @@
+weaken CAUGHT         v2_tdata_stable_true: positive mux-sva exit 0; stimulus-s0_flip_tdata-w8: exit 1 (checks: 1   failures: 1); stimulus-s1_flip_tdata-w64: exit 1 (checks: 1   failures: 1); mutant-tdata_hidden_while_stalled: exit 1 (checks: 1   failures: 1)
+weaken CAUGHT         v2_tkeep_stable_true: positive mux-sva exit 0; stimulus-s0_flip_tkeep-w64: exit 1 (checks: 1   failures: 1); mutant-tkeep_hidden_while_stalled: exit 1 (checks: 1   failures: 1)
+weaken CAUGHT         v2_tlast_stable_true: positive mux-sva exit 0; stimulus-s1_flip_tlast-w8: exit 1 (checks: 1   failures: 1); mutant-tlast_hidden_while_stalled: exit 1 (checks: 1   failures: 1)
+weaken INFO-survives  v2_tdata_stable_bit0_only: positive mux-sva exit 0; stimulus-s0_flip_tdata: exit 0 (checks: 2   failures: 0); stimulus-s1_flip_tdata: exit 0 (checks: 2   failures: 0); mutant-tdata_hidden_while_stalled: exit 0 (checks: 1   failures: 0)
