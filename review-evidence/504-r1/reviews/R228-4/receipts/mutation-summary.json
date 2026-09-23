@@ -1,0 +1,811 @@
+[
+ {
+  "group": "mutations-head",
+  "id": "footprint-last-word-short",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "a store's last written word computed one byte short (R227-3-S1 M17)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "hb-lt",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "a word starting at the store's last byte is kept (R228-S8)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "hb-plus1",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "a word starting one past the store's last byte is forgotten",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-drop",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "low term removed: every lower word is forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-ge-start-minus1",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "`>= start` -> `>= start - 1` (over-forget, other spelling)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-frame-only-without-frame-stale",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "frame slots narrowed, new frame stale probe deleted",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-frame-only",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "narrowed for frame slots only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-frame-stale-alone",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the F6 revert, new static stale probe deleted",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-static-stale-alone",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the F6 revert, new frame stale probe deleted",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a static word's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a static word's last byte the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accept",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-sym-only-without-static-stale",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "statics narrowed, new static stale probe deleted",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-sym-only",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "narrowed for statics only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a static word's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a static word's last byte the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accept",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt-without-new-stale",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the F6 revert with both new stale probes deleted (reproduces the R228-3 gap)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-gt",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "`+ 3 >= start` -> `+ 3 > start` (the R228-F6 revert)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus0",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "only words starting at or after the store are forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus2",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "`+ 3` -> `+ 2`: same boundary, other spelling",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4-frame-kept-alone",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "over-forget, new static kept probe deleted",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4-frame-only",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "widened for frame slots only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4-static-kept-alone",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "over-forget, new frame kept probe deleted",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a static word's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a static word's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places ",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4-sym-only",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "widened for statics only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a static word's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a static word's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places ",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4-without-new-kept",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "over-forget with both new kept probes deleted",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [],
+  "first_failure": "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "lb-plus4",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "`+ 3` -> `+ 4` (over-forget)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "null-drop-new-probes",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the four new probes deleted, resolver untouched (the deletion alone breaks nothing)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-head",
+  "id": "null",
+  "kind": "literal",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "no edit: stop hook only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "hb-lt",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "a word starting at the store's last byte is kept (R228-S8)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "hb-plus1",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "a word starting one past the store's last byte is forgotten",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-drop",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "low term removed: every lower word is forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [],
+  "first_failure": "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-ge-start-minus1",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "`>= start` -> `>= start - 1` (over-forget, other spelling)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [],
+  "first_failure": "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-gt-frame-only",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "narrowed for frame slots only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-gt-sym-only",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "narrowed for statics only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-gt",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "`+ 3 >= start` -> `+ 3 > start` (the R228-F6 revert)",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-plus0",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "only words starting at or after the store are forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store into a static's word"
+  ],
+  "first_failure": "AssertionError: after a byte store into a static's word the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-plus2",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "`+ 3` -> `+ 2`: same boundary, other spelling",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-plus4-frame-only",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "widened for frame slots only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [],
+  "first_failure": "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-plus4-sym-only",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "widened for statics only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "lb-plus4",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "`+ 3` -> `+ 4` (over-forget)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [],
+  "first_failure": "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement",
+  "gate_summary": []
+ },
+ {
+  "group": "mutations-prev",
+  "id": "null",
+  "kind": "literal",
+  "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+  "models": "no edit: stop hook only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": []
+ },
+ {
+  "group": "gate1b",
+  "id": "lb-gt-gate1b-absent",
+  "kind": "gate1b-absent",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the F6 revert, complete gate 1b, compiler absent",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "gate1b",
+  "id": "lb-gt-gate1b",
+  "kind": "gate1b",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "the F6 revert, complete gate 1b, SDK mapped",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store at a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": []
+ },
+ {
+  "group": "gate1b",
+  "id": "lb-plus4-gate1b",
+  "kind": "gate1b",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "over-forget, complete gate 1b, SDK mapped",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": [
+   "a byte store one past a frame slot's last byte"
+  ],
+  "first_failure": "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places a",
+  "gate_summary": []
+ },
+ {
+  "group": "gate1b",
+  "id": "null-gate1b-absent",
+  "kind": "gate1b-absent",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "pristine head, compiler absent",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": [
+   "NOT RUN [gate 1b]: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS #408 AND #409 ADD ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- and so are the instrument-level acceptance and refusal measurements taken with them. WHAT GRADED THIS RUN is every text rule this gate has ever had, unchanged and in force: the conditional-reach ban, the token-joining splice ban, the paste/digraph/trigraph ban, the pointer-cast, pointer-store and inline-asm sets and the directory pin. NOTHING IS RETIRED ONTO THE INSTRUMENTS, here or on a machine that has them, so this run refuses exactly what dev refuses and a run with a compiler refuses more; the six edits #408 and #409 would retire are refused here as mutations, as they are everywhere",
+   "GATE 1b PASS; 1 NOT RUN; 0 actual firmware compiler invocations"
+  ]
+ },
+ {
+  "group": "gate1b",
+  "id": "null-gate1b",
+  "kind": "gate1b",
+  "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+  "models": "pristine head, SDK mapped",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": [],
+  "first_failure": "",
+  "gate_summary": [
+   "GATE 1b PASS; 0 NOT RUN; 235 actual firmware compiler invocations"
+  ]
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "atomic-classes",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "AMO/SC no longer store classes",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported [unclassified(amoswap.w.aqrl a5,a5,0(a4))] for `amoswap.w.aqrl a5,a5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600']): the amoswap.w.aqrl store class must be j",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "atomic-operand",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "atomic memory operand read at position 2",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported [unreadable(amoswap.w.aqrl a5,a5,0(a4))] for `amoswap.w.aqrl a5,a5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600']): the amoswap.w.aqrl store class must be jud",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "atomic-rd",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "AMO/SC rd keeps its previous value",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an AMO writing its base register the RV32 resolver still placed the next store ([2147487744, 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "footprint-first-byte",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "store judged at its first byte only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every other store,",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "fp-classes",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "FP store classes dropped from RV32_STORE_BYTES",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported [unclassified(fsh fa5,0(a4))] for `fsh fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600']): the fsh store class must be judged by address like every other sto",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "frame-overlap-width-4",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "frame overlap judged over 4 bytes whatever the width (RM12)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an fsd over a frame slot the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "frame-overlap",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "frame words overlapped by a store are not forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an fsd over a frame slot the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "memop-displacement",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "memory operand must carry a numeric displacement",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[unclassified(c.sw a5,0(a4))], [unclassified(amocas.w a3,a5,0(a4))], []], not as one UNCLASSIFIED store: the classifi",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "mirror-integer-only",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "mirror stops only at integer stores (base behaviour)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: with an fsw over the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a word the slot no longer holds",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "mirror-no-memop",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "mirror ignores unclassified memory writers",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: with an amocas.w through a pointer to the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a word the ",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "null-literal",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "no change: stop hook only",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": null,
+  "first_failure": "",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "other-loads",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "FP loads and LR no longer recognised as loads",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported a load as a store: [unclassified(flw fa5,0(a4)), unclassified(fld fa4,0(a4)), unclassified(lr.w.aqrl a3,0(a4))]",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "overlap-first-byte",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "a word starting at the store's last byte is kept",
+  "verdict": "SURVIVED",
+  "returncode": 0,
+  "killing_probe": null,
+  "first_failure": "",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "overlap-last-byte",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "a store at a word's LAST byte leaves the word",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "range-footprint",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "ranged store judged by first bytes only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: a bltu-bounded `sw zero,0(a5)` loop from 0x8fffffbe came back as [[0x8fffffbe..0x8ffffffd]], not as its footprint [0x8fffffbe..0x90000000]: the loop's last store writes the window's first byte, so a range that stops at its f",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "stack-forget-frame",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "store through a stack pointer keeps frame slots",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an integer store through a pointer to a frame slot the RV32 resolver still placed the next store ([stack(-), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "stores-first-word",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "multi-word store reported at its first word only",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every other store,",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "sym-overlap-width-4",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "static overlap judged over 4 bytes whatever the width (R228-F4 RM11)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an fsd over a static's first word, reloaded at its second the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address t",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "sym-overlap",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "static words overlapped by a store are not forgotten",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after a byte store into a static's word the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "unclassified-default",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "class fail-closed default removed",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[], [], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "value-all-classes",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "every store class leaves its rs2 as the word",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after a byte store at a frame slot's own offset the RV32 resolver still placed the next store ([0]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "value-amo-sc",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "every AMO and SC leave rs2 as the word (R227-2-F2 root)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after an amoor.w into a frame slot, handed a placed address the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ },
+ {
+  "group": "prior-mutants-head",
+  "id": "value-subword",
+  "kind": "literal",
+  "tree_head": null,
+  "models": "sub-word stores leave their rs2 as the word (R227-2-F1 root)",
+  "verdict": "KILLED",
+  "returncode": 1,
+  "killing_probe": null,
+  "first_failure": "AssertionError: after a byte store at a frame slot's own offset the RV32 resolver still placed the next store ([0]): a word the store rewrote was read back as a placed address the census accepts",
+  "gate_summary": null
+ }
+]

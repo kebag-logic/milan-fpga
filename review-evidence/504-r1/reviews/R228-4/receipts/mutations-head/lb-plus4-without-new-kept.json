@@ -1,0 +1,33 @@
+{
+ "id": "lb-plus4-without-new-kept",
+ "kind": "literal",
+ "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+ "models": "over-forget with both new kept probes deleted",
+ "edits": [
+  [
+   "key[-1] + 3 >= start]",
+   "key[-1] + 4 >= start]"
+  ],
+  [
+   "        (\"a byte store one past a frame slot's last byte\",\n         frame + \"\\tsw a5,-20(s0)\\n\\tsb zero,-16(s0)\\n\\tlw a4,-20(s0)\\n\"),\n",
+   ""
+  ],
+  [
+   "        (\"a byte store one past a static word's last byte\",\n         static + \"\\tsw a5,0(a3)\\n\\tsb zero,4(a3)\\n\\tlw a4,0(a3)\\n\"),\n",
+   ""
+  ]
+ ],
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "expected": "SURVIVED",
+ "as_expected": false,
+ "killing_probe": [],
+ "first_failure": [
+  "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement"
+ ],
+ "gate_summary": [],
+ "seconds": 1.0,
+ "restored_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+ "restored": true
+}

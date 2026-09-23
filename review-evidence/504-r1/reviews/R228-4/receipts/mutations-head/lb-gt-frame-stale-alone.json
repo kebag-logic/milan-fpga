@@ -1,0 +1,31 @@
+{
+ "id": "lb-gt-frame-stale-alone",
+ "kind": "literal",
+ "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+ "models": "the F6 revert, new static stale probe deleted",
+ "edits": [
+  [
+   "key[-1] + 3 >= start]",
+   "key[-1] + 3 > start]"
+  ],
+  [
+   "        (\"a byte store at a static word's last byte\",\n         static + \"\\tsw a5,0(a3)\\n\\tsb zero,3(a3)\\n\\tlw a4,0(a3)\\n\"),\n",
+   ""
+  ]
+ ],
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "expected": "KILLED",
+ "as_expected": true,
+ "killing_probe": [
+  "a byte store at a frame slot's last byte"
+ ],
+ "first_failure": [
+  "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts"
+ ],
+ "gate_summary": [],
+ "seconds": 1.0,
+ "restored_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+ "restored": true
+}

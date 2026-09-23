@@ -1,0 +1,23 @@
+{
+ "id": "lb-plus4-sym-only",
+ "kind": "literal",
+ "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+ "models": "widened for statics only",
+ "edits": [
+  [
+   "key[-1] + 3 >= start]",
+   "key[-1] + 3 + (key[0] == \"sym\") >= start]"
+  ]
+ ],
+ "returncode": 0,
+ "stop_hook_reached": true,
+ "verdict": "SURVIVED",
+ "expected": "KILLED",
+ "as_expected": false,
+ "killing_probe": [],
+ "first_failure": [],
+ "gate_summary": [],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644",
+ "restored": true
+}

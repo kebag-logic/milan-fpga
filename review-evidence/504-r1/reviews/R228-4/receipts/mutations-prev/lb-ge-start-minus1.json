@@ -1,0 +1,25 @@
+{
+ "id": "lb-ge-start-minus1",
+ "kind": "literal",
+ "tree_head": "97aa1ec943ac740a27b942210a248f6512ae3ff6",
+ "models": "`>= start` -> `>= start - 1` (over-forget, other spelling)",
+ "edits": [
+  [
+   "key[-1] + 3 >= start]",
+   "key[-1] + 3 >= start - 1]"
+  ]
+ ],
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "expected": "KILLED",
+ "as_expected": true,
+ "killing_probe": [],
+ "first_failure": [
+  "AssertionError: the branch-refined range class did not bound a bltu-bounded loop store to base plus [0..63] ([]): the AEM copy loop's placement rests on exactly this refinement"
+ ],
+ "gate_summary": [],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644",
+ "restored": true
+}

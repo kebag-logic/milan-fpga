@@ -1,0 +1,42 @@
+# scope of the change at exact head 4876423d4cf8e89b820c56f8339f230abefb4827
+## git diff --name-status 574c29fa111c74e5e5ed63e4670aff1f492e28e2..4876423d4cf8e89b820c56f8339f230abefb4827
+M	.github/workflows/docs.yml
+M	.github/workflows/elaborate.yml
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/check_baremetal_only.py
+M	scripts/ci_events.py
+A	scripts/ci_rv32_sdk.py
+A	scripts/ci_rv32_sdk_selftest.py
+M	sw/builder/test_builder.py
+A	sw/builder/test_firmware_compiler.py
+## git diff --numstat 97aa1ec943ac740a27b942210a248f6512ae3ff6..4876423d4cf8e89b820c56f8339f230abefb4827 (delta since R228-3)
+20	7	sw/builder/test_builder.py
+## hunk ranges in the delta
+@@ -5266,2 +5266,4 @@ def test_baremetal_profile_contract() -> None:
+@@ -5278,0 +5281,2 @@ def test_baremetal_profile_contract() -> None:
+@@ -5292,0 +5297,2 @@ def test_baremetal_profile_contract() -> None:
+@@ -5312 +5318,3 @@ def test_baremetal_profile_contract() -> None:
+@@ -5319,0 +5328,4 @@ def test_baremetal_profile_contract() -> None:
+@@ -5338,4 +5350,5 @@ def test_baremetal_profile_contract() -> None:
+## blob ids of sw/builder/test_builder.py
+prev c82300514ffa243ef4e6a4cc25dcd86a303da2d4 head 408e8790c48795dd654d4e7d403853af6f58853e
+## every other path unchanged since 97aa1ec943ac740a27b942210a248f6512ae3ff6:
+0
+## RTL-scope diff 574c29fa111c74e5e5ed63e4670aff1f492e28e2..4876423d4cf8e89b820c56f8339f230abefb4827 (hdl tb syn sw/firmware sw/litex configs + gitlinks):
+0
+## gitlinks base / head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## docs/workflows/scripts touched in the delta:
+0
+## commit subject/trailers
+builder: control the store census overlap at a modelled word's last byte
+---body---
+---end---
