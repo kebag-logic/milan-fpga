@@ -151,10 +151,12 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: syntax). Four matrix legs at CONTAINER_MEMORY each could reach 64 GB, so a
 #: slot that overruns is killed inside its own slice rather than starving the
 #: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
-#: the cap itself cut short is refused rather than reported as a verdict
-#: (require_slot_memory_cap_unexhausted). Its effect on the shipping workflows
-#: is unmeasured; each slot run prints its peak. Slot 0 keeps only the
-#: per-container bound it had.
+#: in which the cap caused an OOM is refused rather than reported as a verdict
+#: (require_slot_memory_cap_unexhausted). That is all it detects: reclaim at the
+#: cap, and an allocation that fails there without an OOM, still yield a
+#: verdict, and each slot run prints only its peak and how often the cap was
+#: hit. Its effect on the shipping workflows is unmeasured. Slot 0 keeps only
+#: the per-container bound it had.
 SLOT_MEMORY_MAX = "24G"
 SLOT_COMMAND_TIMEOUT_SECONDS = 60
 #: A slot daemon's start job (until dockerd reports ready) and its stop job
@@ -4451,12 +4453,18 @@ def release_replay_slot(lease: SlotLease, *, host: SlotHost) -> None:
 
 
 def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str:
-    """The slot's memory peak; a Refusal when the slot's own cap ran out while the body ran, or cannot be read.
+    """The slot's memory report; a Refusal when the slot's own cap caused an OOM while the body ran, or cannot be read.
 
     `memory.events.local` counts only the slice's own limit, never a job
     container's CONTAINER_MEMORY limit below it, so a nonzero `oom` there means
     the slot cap, which hosted runners do not have, decided the run. That
     verdict is not the candidate's, so it is refused rather than reported.
+
+    Nothing else is refused. The slice counts under `max` each time usage hit
+    the cap and memory was reclaimed instead, which can slow a job into a
+    timeout, and no `oom` is raised for an allocation that fails without trying
+    the OOM killer. Such a run keeps its verdict, so the report gives the peak
+    and the `max` count and claims no more than those two numbers.
     """
     cgroup = CGROUP_ROOT / slot.slice_unit
     try:
@@ -4464,6 +4472,7 @@ def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str
             line.split() for line in host.read_text(cgroup / "memory.events.local").splitlines()
         )
         exhausted = int(events["oom"])
+        hits = int(events["max"])
     except (OSError, ValueError, KeyError) as exc:
         raise Refusal(
             f"cannot prove replay slot {slot.number}'s memory cap never ran out: {exc}"
@@ -4479,7 +4488,10 @@ def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str
         peak = f"{int(host.read_text(cgroup / 'memory.peak')) / 2**30:.1f} GiB"
     except (OSError, ValueError):
         peak = "unrecorded"
-    return f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap, which never ran out"
+    return (
+        f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap; the cap was hit {hits} "
+        "time(s), with no OOM at it"
+    )
 
 
 @contextlib.contextmanager
@@ -4492,8 +4504,9 @@ def replay_slot(
 ) -> Iterator[None]:
     """Run the body against `slot`'s daemon: none to start for slot 0, one owned for this invocation otherwise.
 
-    After a body that returns, an isolated slot proves its memory cap never
-    ran out and prints its peak; a body that raises keeps its own exception.
+    After a body that returns, an isolated slot proves its memory cap caused
+    no OOM and prints its peak and how often the cap was hit; a body that
+    raises keeps its own exception.
     """
     if not slot.isolated:
         yield
@@ -12163,17 +12176,18 @@ def selftest_slot_wiring(tally: SelftestTally) -> None:
 
 
 def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
-    """Arms: a slot whose own cap ran out is refused, not reported; its peak is printed; teardown always runs."""
+    """Arms: an OOM at a slot's own cap is refused; its peak and cap hits are printed; teardown always runs."""
     check = tally.check
     slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
     host = FakeSlotHost(slot)
     outcome, entry = drive_fake_slot(host, layout)
     check(
-        "a slot whose cap never ran out passes, printing its peak, and reads only the "
-        "slice's own events, never those of a container's limit below it",
+        "a slot whose cap caused no OOM passes, printing its peak and how often the cap "
+        "was hit, and reads only the slice's own events, never those of a container's "
+        "limit below it",
         outcome == ""
-        and "act-ci: slot 2: memory peak 12.5 GiB of its 24G cap, which never ran out\n"
-        in host.transcript
+        and "act-ci: slot 2: memory peak 12.5 GiB of its 24G cap; the cap was hit 3 "
+        "time(s), with no OOM at it\n" in host.transcript
         and host.keys[entry : entry + 2] == ["read-memory.events.local", "read-memory.peak"],
     )
     for events, described, named in (
@@ -12182,6 +12196,8 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
         (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
         ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
         ("low 0\nmax 0\n", "events without an oom count",
+         "cannot prove replay slot 2's memory cap never ran out"),
+        ("low 0\noom 0\n", "events without a max count",
          "cannot prove replay slot 2's memory cap never ran out"),
     ):
         host = FakeSlotHost(slot)
