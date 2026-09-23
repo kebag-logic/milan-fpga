@@ -39,7 +39,9 @@
 # `--selftest` grades these checks offline against a stand-in runner and a
 # stand-in sudo (Docker CLI, namespace entry and probes) in a scratch
 # directory: no Docker, no privilege, no network. It passes only when the
-# honest case PROVES and each broken case FAILS on the check meant to catch it.
+# honest case PROVES, each broken case FAILS on the check meant to catch it,
+# and a bad slot pair, runner install or log directory is refused (exit 2)
+# before any check runs.
 set -euo pipefail
 
 PROOF_LABEL=org.kebag-logic.milan-act-slot-proof
@@ -273,7 +275,7 @@ remove_target() {
   networks=$(sudo -n docker network ls --quiet --filter "label=$PROOF_LABEL=$target") \
     || networks=unknown
   if [ -n "$containers$networks" ]; then
-    record FAIL "isolation target $target survived its removal"
+    record FAIL "isolation target not proved absent after its removal: $target"
   fi
   target=""
 }
@@ -374,10 +376,14 @@ def value(flag, default):
     return args[args.index(flag) + 1] if flag in args else default
 slot = value("--slot", "0")
 if "--interrupt-selftest" in args:
-    print("interrupt-selftest: PASS (stand-in)")
+    if "interrupt-no-pass" not in faults:
+        print("interrupt-selftest: PASS (stand-in)")
     if "interrupt-no-slot" not in faults:
         print(f"interrupt-selftest: slot {slot}: its daemon, uplink, firewall table, slice "
               "and namespace were then torn down and proved absent")
+    if "interrupt-refused" in faults:
+        print("act-ci: REFUSED: replay slot teardown failed", file=sys.stderr)
+        sys.exit(2)
     sys.exit(0)
 workflows = [args[i + 1] for i, word in enumerate(args) if word == "--workflow"]
 workflows = workflows or ["docs", "elaborate", "rtl-fast", "rtl-full"]
@@ -390,11 +396,19 @@ with open(state / f"runs-{slot}-{pr}", "a+") as runs:
 if pr == "23" and slot == "1" and "rival-other-refusal" in faults:
     print("act-ci: REFUSED: act version check failed", file=sys.stderr)
     sys.exit(2)
+if pr == "23" and slot == "0" and run_number == 2 and "rival0-other-refusal" in faults:
+    print("act-ci: REFUSED: action clone failed", file=sys.stderr)
+    sys.exit(2)
 if pr == "23" and slot == "1" and "late-refusal" in faults:
     time.sleep(hold + 1)
     print("act-ci: REFUSED: replay slot 1 is in use by another runner invocation", file=sys.stderr)
     sys.exit(2)
 time.sleep(0.2)
+if slot == "2" and "refused-while-held" in faults:
+    for _ in range(600):
+        if (state / "refused-while-held").exists():
+            break
+        time.sleep(0.05)
 if "serialize" in faults:
     queue = open(state / "queue.lock", "w")
     fcntl.flock(queue, fcntl.LOCK_EX)
@@ -406,11 +420,16 @@ try:
 except BlockingIOError:
     print("act-ci: REFUSED: " + (f"replay slot {slot} is in use by another runner invocation"
           if slot != "0" else "shared Docker volume 'act-toolcache' already exists"), file=sys.stderr)
-    sys.exit(2)
+    sys.exit(1 if "rival-wrong-status" in faults else 2)
 if slot != "0":
     (state / f"netns-{slot}").touch()
-    print(f"act-ci: slot {slot}: own daemon unix:///run/milan-act-slot-{slot}/docker.sock", flush=True)
+    if "slot-unannounced" not in faults:
+        print(f"act-ci: slot {slot}: own daemon unix:///run/milan-act-slot-{slot}/docker.sock", flush=True)
 try:
+    if pr == "21" and slot == "1" and run_number == 1 and "refused-while-held" in faults:
+        print("act-ci: REFUSED: action clone failed", file=sys.stderr, flush=True)
+        (state / "refused-while-held").touch()
+        sys.exit(2)
     print(f"act-ci: running {workflows[0]} (stand-in)", flush=True)
     time.sleep(hold)
     if "refuse" in faults:
@@ -422,8 +441,11 @@ try:
             sys.exit(0)
         if (pr == "22" and index == 1) or (broken and slot == "1"):
             print(f"act-ci: {name}: FAILED (1)", file=sys.stderr, flush=True)
-            sys.exit(1)
+            sys.exit(2 if "failed-refused" in faults else 1)
         print(f"act-ci: {name}: PASS at {'a' * 40}", flush=True)
+    if "pass-then-refuse" in faults:
+        print("act-ci: REFUSED: replay slot teardown failed", file=sys.stderr)
+        sys.exit(2)
 finally:
     (state / f"netns-{slot}").unlink(missing_ok=True)
 EOF
@@ -449,11 +471,11 @@ def answers(specs, inside):
         name, host, port = spec.split(",")
         known = {("container", "172.30.0.2", "8080"), ("published", "172.30.0.1", "32768")}
         if name == "internet":
-            reached = host == "github.com" and port == "443"
+            reached = host == "github.com" and port == "443" and "slot-misses-internet" not in faults
         elif inside:
-            reached = alive and "slot-reaches" in faults and (name, host, port) in known
+            reached = alive and f"slot-reaches-{name}" in faults and (name, host, port) in known
         else:
-            reached = alive and (name, host, port) in known
+            reached = alive and f"host-misses-{name}" not in faults and (name, host, port) in known
         print(f"{name}={'reached' if reached else 'refused'}")
 if args[0] == "docker":
     verb = " ".join(args[1:3])
@@ -464,6 +486,8 @@ if args[0] == "docker":
         print("172.30.0.1")
     elif args[1] == "run":
         assert "--publish" in args and "172.30.0.1::8080" in args and "never" in args
+        if "target-unstartable" in faults:
+            sys.exit("docker: Error response from daemon: stand-in refuses the listener")
         live.touch()
         print("c" * 64)
     elif args[1] == "inspect":
@@ -472,9 +496,11 @@ if args[0] == "docker":
         print("172.30.0.1:32768")
     elif args[1] == "rm" and "target-survives" not in faults:
         live.unlink(missing_ok=True)
-    elif verb == "network rm":
+    elif verb == "network rm" and "network-survives" not in faults:
         (state / "network").unlink(missing_ok=True)
     elif args[1] == "ps":
+        if "target-query-fails" in faults:
+            sys.exit("docker: Cannot connect to the Docker daemon (stand-in)")
         print("c" * 12 if live.exists() else "", end="")
     elif verb == "network ls":
         print("n" * 12 if (state / "network").exists() else "", end="")
@@ -493,17 +519,36 @@ EOF
 }
 
 # selftest_case SCRATCH NAME FAULTS PR_B STATUS LINE: one graded run of this proof.
+# LINE is looked for in the SUMMARY, or for STATUS 2 in the proof's own output,
+# since a status-2 case must be refused before any check records anything.
 selftest_case() {
   local scratch=$1 name=$2 faults=$3 pr_b_case=$4 want_status=$5 want_line=$6 status=0
-  local case_dir=$scratch/$name
+  local case_dir=$scratch/$name runner=$scratch/runner.py digest slot_a_case=1 slot_b_case=2
+  local graded=$case_dir/logs/SUMMARY
   mkdir -p "$case_dir/state" "$case_dir/wt-a" "$case_dir/wt-b"
+  digest=$(sha256sum "$runner" | cut -d' ' -f1)
+  case ",$faults," in
+    *,wrong-digest,*)
+      digest=$(printf 'another runner' | sha256sum | cut -d' ' -f1) ;;
+    *,writable-runner,*)
+      runner=$case_dir/runner.py
+      cp "$scratch/runner.py" "$runner"
+      chmod 0464 "$runner" ;;
+    *,logs-not-empty,*) mkdir "$case_dir/logs" && : >"$case_dir/logs/stale.log" ;;
+    *,slot-a-word,*) slot_a_case=one ;;
+    *,same-slots,*) slot_b_case=1 ;;
+    *,slot-a-zero,*) slot_a_case=0 ;;
+    *,slot-b-zero,*) slot_b_case=0 ;;
+  esac
   FAKE_STATE=$case_dir/state FAKE_FAULTS=$faults PATH="$scratch/bin:$PATH" \
-    bash "$0" --runner "$scratch/runner.py" --sha256 "$(sha256sum "$scratch/runner.py" | cut -d' ' -f1)" \
+    bash "$0" --runner "$runner" --sha256 "$digest" \
     --act-bin /nonexistent/act --logs "$case_dir/logs" --pr-a 21 --worktree-a "$case_dir/wt-a" \
-    --pr-b "$pr_b_case" --worktree-b "$case_dir/wt-b" --slot-a 1 --slot-b 2 \
-    --poll-seconds 0.05 >"$case_dir/out" 2>&1 || status=$?
-  if [ "$status" = "$want_status" ] && grep -q -F -- "$want_line" "$case_dir/logs/SUMMARY" \
-    && { [ "$want_status" != 0 ] || [ "$(grep -c '^PASS' "$case_dir/logs/SUMMARY")" -eq 10 ]; }; then
+    --pr-b "$pr_b_case" --worktree-b "$case_dir/wt-b" --slot-a "$slot_a_case" \
+    --slot-b "$slot_b_case" --poll-seconds 0.05 >"$case_dir/out" 2>&1 || status=$?
+  if [ "$want_status" = 2 ]; then graded=$case_dir/out; fi
+  if [ "$status" = "$want_status" ] && grep -q -F -- "$want_line" "$graded" \
+    && { [ "$want_status" != 0 ] || [ "$(grep -c '^PASS' "$graded")" -eq 10 ]; } \
+    && { [ "$want_status" != 2 ] || [ ! -e "$case_dir/logs/SUMMARY" ]; }; then
     echo "  ok   $name: exit $status with '$want_line'"
   else
     echo "  FAIL $name: exit $status, wanted $want_status with '$want_line'"
@@ -528,19 +573,43 @@ selftest() {
     names+=("$name")
   done <<'EOF'
 honest, where PR B fails its second workflow||22|0|PROVED every slot proof held
+slot A is not a number|slot-a-word|23|2|slots are numbers: one
+slots A and B are the same slot|same-slots|23|2|slots A and B must be two distinct isolated slots
+slot A is slot 0|slot-a-zero|23|2|slots A and B must be two distinct isolated slots
+slot B is slot 0|slot-b-zero|23|2|slots A and B must be two distinct isolated slots
+the runner is not the recorded digest|wrong-digest|23|2|is not the audited read-only install
+the runner install is group-writable|writable-runner|23|2|is not the audited read-only install
+the log directory is not empty|logs-not-empty|23|2|is not empty
 every run refuses after taking its slot|refuse|23|1|FAIL serial-a did not complete
 a run stops before its last workflow|partial|23|1|FAIL serial-a did not complete
+a run passes every workflow and is then refused|pass-then-refuse|23|1|FAIL serial-a did not complete
+a run fails a workflow and is then refused|failed-refused|22|1|FAIL serial-b did not complete
+a parallel run refuses like its serial reference|refuse|23|1|FAIL parallel-a did not complete
 the interrupt gate ignores its slot|interrupt-no-slot|23|1|FAIL interrupt self-test in slot 1
+the interrupt gate prints no PASS line|interrupt-no-pass|23|1|FAIL interrupt self-test in slot 1
+the interrupt gate passes and is then refused|interrupt-refused|23|1|FAIL interrupt self-test in slot 1
 a slot changes a verdict|parallel-break|23|1|FAIL parallel-a != serial-a
+the parallel runs never overlap|serialize|23|1|FAIL overlap
+a run never reports its own slot daemon|slot-unannounced|23|1|FAIL overlap
+a run is refused before the other slot is taken|refused-while-held|23|1|FAIL overlap
+the isolation target cannot be started|target-unstartable|23|1|FAIL isolation target: it could not be started
+a slot reaches the default daemon's container|slot-reaches-container|23|1|FAIL isolation slot 1
+a slot reaches the container's published port|slot-reaches-published|23|1|FAIL isolation slot 1
+a slot cannot reach the probe name|slot-misses-internet|23|1|FAIL isolation slot 1
+the isolation target is dead|target-dead|23|1|FAIL isolation slot 1
+the host cannot reach the container|host-misses-container|23|1|FAIL isolation slot 1
+the host cannot reach the published port while the container answers|host-misses-published|23|1|FAIL isolation slot 1
+the isolation container survives removal|target-survives|23|1|FAIL isolation target not proved absent
+the isolation network survives removal|network-survives|23|1|FAIL isolation target not proved absent
+the isolation target cannot be queried after removal|target-query-fails|23|1|FAIL isolation target not proved absent
 the slot lock is missing|nolock|23|1|FAIL collision slot 1
 the rival is refused only after the holder left|late-refusal|23|1|FAIL collision slot 1
 the rival is refused for another reason|rival-other-refusal|23|1|FAIL collision slot 1
+the rival names the slot lock but exits 1|rival-wrong-status|23|1|FAIL collision slot 1
 the collision holder changes its verdict|holder-break|23|1|FAIL collision slot 1
+a collision holder refuses like its serial reference|refuse|23|1|FAIL collision slot 1
 the shared daemon does not collide|nolock0|23|1|FAIL collision slot 0
-a slot reaches the default daemon's container|slot-reaches|23|1|FAIL isolation slot 1
-the isolation target is dead|target-dead|23|1|FAIL isolation slot 1
-the isolation target survives removal|target-survives|23|1|FAIL isolation target
-the parallel runs never overlap|serialize|23|1|FAIL overlap
+the slot-0 rival is refused for neither the tool cache nor a job volume|rival0-other-refusal|23|1|FAIL collision slot 0
 EOF
   for index in "${!pids[@]}"; do
     if ! wait "${pids[$index]}"; then failures=$((failures + 1)); fi
