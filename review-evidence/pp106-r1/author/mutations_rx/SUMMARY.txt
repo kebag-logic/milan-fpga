@@ -1,0 +1,186 @@
+Receive half of #106, commit fc155c3ca28b04c2220bf41ebea9214379210452; driver ../mutate_rx.py; Verilator 5.050 (pinned wrapper).
+Three batches; each restores every hdl/srp file and verifies it by SHA-256.
+
+######## SUMMARY_RX0-dec_D1_D2_D3_D4.txt
+== RX0-dec the base decoder (9370f8ab): one application-wide strobe per flagged VectorHeader, read by the new suite as lane 0
+  srp_decoder: rc=2 tally=150 checks: 131 PASS, 19 FAIL fail_lines=19
+    FAIL: L on the Domain lane got 0
+    FAIL: P Listener lane once got 0
+    FAIL: P Domain lane once got 0
+    FAIL: P Talker Advertise lane once got 4
+    FAIL: P Talker Failed lane once got 0
+    FAIL: P strobe order
+    FAIL: Q Domain lane once got 0
+    FAIL: Q talker lanes never fire
+    FAIL: Q strobe order
+    FAIL: R Listener lane once got 0
+    FAIL: R strobe order
+    FAIL: S pdu 0 Listener lane once got 0
+    FAIL: S pdu 0 no other lane got 3
+    FAIL: S pdu 0 strobe order
+    FAIL: S pdu 1 Listener lane once got 0
+    FAIL: S pdu 1 no other lane got 3
+== D1 decoder: every lane strobed at every flagged VectorHeader (the old per-application rLA!, in the new port shape)
+  srp_decoder: rc=2 tally=150 checks: 129 PASS, 21 FAIL fail_lines=21
+    FAIL: L MSRP LeaveAll fires got 4
+    FAIL: P Listener lane once got 4
+    FAIL: P Domain lane once got 4
+    FAIL: P Talker Advertise lane once got 4
+    FAIL: P Talker Failed lane once got 4
+    FAIL: P four MSRP strobes in all got 16
+    FAIL: P strobe order
+    FAIL: Q Listener lane never fires got 1
+    FAIL: Q talker lanes never fire
+    FAIL: Q one MSRP strobe in all got 4
+    FAIL: Q strobe order
+    FAIL: R no other lane got 4
+    FAIL: R strobe order
+    FAIL: S pdu 0 Listener lane once got 3
+    FAIL: S pdu 0 no other lane got 12
+    FAIL: S pdu 0 strobe order
+  srp_top: rc=2 tally=252 checks: 247 PASS, 5 FAIL fail_lines=5
+    FAIL: F5a: Run B LeaveAll MRPDU: the Listener registration stays IN past T-MRP-LEAVE
+    FAIL: F5a: source 1 stays ACTIVE
+    FAIL: F5b: a Domain-only LeaveAll never ages the Listener registration
+    FAIL: F5b: nor sink 0's Talker Advertise
+    FAIL: F5c: sink 0's Talker Advertise untouched
+== D2 decoder: once-per-MRPDU gate removed (every flagged header strobes)
+  srp_decoder: rc=2 tally=150 checks: 142 PASS, 8 FAIL fail_lines=8
+    FAIL: S pdu 0 Listener lane once got 3
+    FAIL: S pdu 0 no other lane got 3
+    FAIL: S pdu 0 strobe order
+    FAIL: S pdu 1 Listener lane once got 3
+    FAIL: S pdu 1 no other lane got 3
+    FAIL: S pdu 1 strobe order
+    FAIL: S MVRP lane once per MRPDU got 2
+    FAIL: S MVRP strobe order
+== D3 decoder: the gate is never re-armed at the next MRPDU
+  srp_decoder: rc=2 tally=150 checks: 132 PASS, 18 FAIL fail_lines=18
+    FAIL: P Domain lane once got 0
+    FAIL: P Talker Advertise lane once got 0
+    FAIL: P four MSRP strobes in all got 2
+    FAIL: P strobe order
+    FAIL: Q Domain lane once got 0
+    FAIL: Q one MSRP strobe in all got 0
+    FAIL: Q strobe order
+    FAIL: R Listener lane once got 0
+    FAIL: R no other lane got 0
+    FAIL: R strobe order
+    FAIL: S pdu 0 Listener lane once got 0
+    FAIL: S pdu 0 no other lane got 0
+    FAIL: S pdu 0 strobe order
+    FAIL: S pdu 1 Listener lane once got 0
+    FAIL: S pdu 1 no other lane got 0
+    FAIL: S pdu 1 strobe order
+== D4 decoder: lane = AttributeType instead of AttributeType - 1
+  srp_decoder: rc=2 tally=150 checks: 139 PASS, 11 FAIL fail_lines=11
+    FAIL: L on the Domain lane got 0
+    FAIL: P strobe order
+    FAIL: Q Domain lane once got 0
+    FAIL: Q talker lanes never fire
+    FAIL: Q strobe order
+    FAIL: R Listener lane once got 0
+    FAIL: R strobe order
+    FAIL: S pdu 0 Listener lane once got 0
+    FAIL: S pdu 0 strobe order
+    FAIL: S pdu 1 Listener lane once got 0
+    FAIL: S pdu 1 strobe order
+restored KL_srp_decoder.sv sha256 255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0 OK
+restored KL_srp_talker_fsm.sv sha256 a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d OK
+restored KL_srp_listener_fsm.sv sha256 eb78347109c1e66a274809ec470bf8ca2f6dd44c4dc1a5184e120943493c58fc OK
+restored KL_srp_top.sv sha256 6c70aa52201ed6f8a41c38c4cb0de30083a24b34574339edf503f63cb67cbe28 OK
+restored srp_pkg.sv sha256 d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192 OK
+
+######## SUMMARY_T1_T2_T3_T4_L1_L2_L3.txt
+== T1 talker FSM: the Listener registrar ages on every lane
+  srp_stream_fsms: rc=2 tally=1068 checks: 1055 PASS, 13 FAIL fail_lines=13
+    FAIL: H TalkerAdvertise: talker Listener registrar 2
+    FAIL: H TalkerAdvertise: talker leave-timer ops 1
+    FAIL: H TalkerFailed: talker Listener registrar 2
+    FAIL: H TalkerFailed: talker leave-timer ops 1
+    FAIL: H Domain: talker Listener registrar 2
+    FAIL: H Domain: talker leave-timer ops 1
+    FAIL: I Listener registration stays IN, got 2
+    FAIL: I the Listener lane's ARM is CANCELled by the re-declaration (3 ops)
+    FAIL: I a leave expiry after the MRPDU leaves the registration IN
+    FAIL: J Domain-only LeaveAll: registrar stays IN, got 2
+    FAIL: J no leave timer armed, got 1 ops
+    FAIL: J nothing ages: Ready published, no change strobe
+    FAIL: J source 2 stays ACTIVE
+== T2 talker FSM: the Listener registrar deaf to the Listener lane (takes the Domain lane)
+  srp_stream_fsms: rc=2 tally=1068 checks: 1052 PASS, 16 FAIL fail_lines=16
+    FAIL: H Listener: talker Listener registrar 1
+    FAIL: H Listener: talker leave-timer ops 0
+    FAIL: H Domain: talker Listener registrar 2
+    FAIL: H Domain: talker leave-timer ops 1
+    FAIL: I Listener registration stays IN, got 2
+    FAIL: I the Listener lane's ARM is CANCELled by the re-declaration (1 ops)
+    FAIL: I a leave expiry after the MRPDU leaves the registration IN
+    FAIL: J Domain-only LeaveAll: registrar stays IN, got 2
+    FAIL: J no leave timer armed, got 1 ops
+    FAIL: J nothing ages: Ready published, no change strobe
+    FAIL: J source 2 stays ACTIVE
+    FAIL: K Listener LeaveAll -> LV, got 1
+    FAIL: K ARM slot 19 owner 0x43 now+5000 (got 0 ops)
+    FAIL: K leavetimer! -> MT
+    FAIL: K one LISTENER_REG_CHANGE, got 0
+    FAIL: K source 3 no longer ACTIVE
+== T3 talker FSM: the applicant takes every lane
+  srp_stream_fsms: rc=2 tally=1068 checks: 1062 PASS, 6 FAIL fail_lines=6
+    FAIL: H TalkerAdvertise: talker Failed applicant VP
+    FAIL: H TalkerFailed: talker Advertise applicant VP
+    FAIL: H Listener: talker Advertise applicant VP
+    FAIL: H Listener: talker Failed applicant VP
+    FAIL: H Domain: talker Advertise applicant VP
+    FAIL: H Domain: talker Failed applicant VP
+== T4 talker FSM: the applicant ignores the declared variant (Talker Advertise lane always)
+  srp_stream_fsms: rc=2 tally=1068 checks: 1066 PASS, 2 FAIL fail_lines=2
+    FAIL: H TalkerAdvertise: talker Failed applicant VP
+    FAIL: H TalkerFailed: talker Failed applicant QA
+== L1 listener FSM: the talker registrar ages on every lane
+  srp_stream_fsms: rc=2 tally=1068 checks: 1062 PASS, 6 FAIL fail_lines=6
+    FAIL: H TalkerAdvertise: listener Failed registrar 2
+    FAIL: H TalkerFailed: listener Advertise registrar 2
+    FAIL: H Listener: listener Advertise registrar 2
+    FAIL: H Listener: listener Failed registrar 2
+    FAIL: H Domain: listener Advertise registrar 2
+    FAIL: H Domain: listener Failed registrar 2
+== L2 listener FSM: the talker registrar ignores the registered type (Talker Advertise lane always)
+  srp_stream_fsms: rc=2 tally=1068 checks: 1066 PASS, 2 FAIL fail_lines=2
+    FAIL: H TalkerAdvertise: listener Failed registrar 2
+    FAIL: H TalkerFailed: listener Failed registrar 1
+== L3 listener FSM: the Listener applicant takes every lane
+  srp_stream_fsms: rc=2 tally=1068 checks: 1065 PASS, 3 FAIL fail_lines=3
+    FAIL: H TalkerAdvertise: listener Listener applicant VP
+    FAIL: H TalkerFailed: listener Listener applicant VP
+    FAIL: H Domain: listener Listener applicant VP
+restored KL_srp_decoder.sv sha256 255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0 OK
+restored KL_srp_talker_fsm.sv sha256 a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d OK
+restored KL_srp_listener_fsm.sv sha256 eb78347109c1e66a274809ec470bf8ca2f6dd44c4dc1a5184e120943493c58fc OK
+restored KL_srp_top.sv sha256 6c70aa52201ed6f8a41c38c4cb0de30083a24b34574339edf503f63cb67cbe28 OK
+restored srp_pkg.sv sha256 d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192 OK
+
+######## SUMMARY_RX0-top_P1_P2.txt
+== RX0-top the base receive side (9370f8ab decoder, both FSMs, KL_srp_top, srp_pkg): per-application rLA! end to end
+  srp_top: rc=2 tally=252 checks: 247 PASS, 5 FAIL fail_lines=5
+    FAIL: F5a: Run B LeaveAll MRPDU: the Listener registration stays IN past T-MRP-LEAVE
+    FAIL: F5a: source 1 stays ACTIVE
+    FAIL: F5b: a Domain-only LeaveAll never ages the Listener registration
+    FAIL: F5b: nor sink 0's Talker Advertise
+    FAIL: F5c: sink 0's Talker Advertise untouched
+== P1 KL_srp_top: every lane broadcast to every plane (per-application routing at the top)
+  srp_top: rc=2 tally=252 checks: 247 PASS, 5 FAIL fail_lines=5
+    FAIL: F5a: Run B LeaveAll MRPDU: the Listener registration stays IN past T-MRP-LEAVE
+    FAIL: F5a: source 1 stays ACTIVE
+    FAIL: F5b: a Domain-only LeaveAll never ages the Listener registration
+    FAIL: F5b: nor sink 0's Talker Advertise
+    FAIL: F5c: sink 0's Talker Advertise untouched
+== P2 KL_srp_top: the Domain participant deaf to the Domain lane (takes the Listener lane)
+  srp_top: rc=2 tally=252 checks: 251 PASS, 1 FAIL fail_lines=1
+    FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+restored KL_srp_decoder.sv sha256 255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0 OK
+restored KL_srp_talker_fsm.sv sha256 a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d OK
+restored KL_srp_listener_fsm.sv sha256 eb78347109c1e66a274809ec470bf8ca2f6dd44c4dc1a5184e120943493c58fc OK
+restored KL_srp_top.sv sha256 6c70aa52201ed6f8a41c38c4cb0de30083a24b34574339edf503f63cb67cbe28 OK
+restored srp_pkg.sv sha256 d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192 OK
+

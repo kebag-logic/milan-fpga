@@ -1,0 +1,73 @@
+--- $REVIEWS/530-a205-packet/repro/sim_repro.cpp	2026-09-23 16:44:29.045125979 +0200
++++ sim_repro.cpp	2026-09-23 17:46:05.386000000 +0200
+@@ -42,8 +42,9 @@
+ 
+ class Repro {
+  public:
+-    explicit Repro(bool per_type, long br_la_ms, long run_ms, bool bridge_la)
+-        : per_type_(per_type), br_la_ms_(br_la_ms), run_ms_(run_ms), bridge_la_(bridge_la) {}
++    explicit Repro(bool per_type, long br_la_ms, long run_ms, bool bridge_la, bool sw_la, long sw_restart_ms)
++        : per_type_(per_type), br_la_ms_(br_la_ms), run_ms_(run_ms), bridge_la_(bridge_la), sw_la_(sw_la), sw_restart_ms_(sw_restart_ms) {}
++    bool sw_la_; long sw_restart_ms_;
+ 
+     int run() {
+         dut = new Vmilan_datapath;
+@@ -238,6 +239,7 @@
+             if (ta_lv && bridge_declared_) { sched_lv = now_ms() + 2; sched_probe = now_ms() + 500; }
+             if (ta_join && !bridge_declared_ && listener_seen_ && sched_join < 0) sched_join = now_ms() + 5;
+             if (any_la && bridge_declared_ && (!per_type_ || lsn_la)) sched_redecl = now_ms() + 20;
++            if (any_la && sw_la_ && sw_restart_ms_ > 0 && next_br_la >= 0) next_br_la = now_ms() + sw_restart_ms_;
+             return;
+         }
+     }
+@@ -268,6 +270,26 @@
+         log("bridge sends Listener %s%s for the CRF stream", ev == 5 ? "Lv" : (ev == 1 ? "JoinIn Ready" : "?"), la ? " with LeaveAll" : "");
+     }
+ 
++    void send_switch_la() {
++        std::vector<uint8_t> f(14, 0);
++        const uint8_t da[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E}; const uint8_t sa[6] = {0x02, 0x0B, 0x21, 0x00, 0x00, 0x0E};
++        memcpy(f.data(), da, 6); memcpy(f.data() + 6, sa, 6); f[12] = 0x22; f[13] = 0xEA;
++        f.push_back(0x00);                                               // ProtocolVersion
++        const uint8_t lsn[6] = {0x03, 0x08, 0x00, 0x0E, 0x20, 0x01};    // Listener, LeaveAll, n 1
++        f.insert(f.end(), lsn, lsn + 6);
++        for (int i = 7; i >= 0; i--) f.push_back(uint8_t(crf_sid >> (8 * i)));
++        f.push_back(0x6C); f.push_back(0x80); f.push_back(0); f.push_back(0);   // JoinMt / Ready, EndMark
++        const uint8_t dom[13] = {0x04, 0x04, 0x00, 0x09, 0x20, 0x02, 0x05, 0x02, 0x00, 0x02, 0x7E, 0x00, 0x00};
++        f.insert(f.end(), dom, dom + 13);                                 // Domain {5,2,2} n 2
++        const uint8_t ta[6] = {0x01, 0x19, 0x00, 0x1D, 0x20, 0x00};
++        f.insert(f.end(), ta, ta + 6); f.insert(f.end(), 25, 0); f.push_back(0); f.push_back(0);
++        const uint8_t tf[6] = {0x02, 0x22, 0x00, 0x26, 0x20, 0x00};
++        f.insert(f.end(), tf, tf + 6); f.insert(f.end(), 34, 0); f.push_back(0); f.push_back(0);
++        f.push_back(0); f.push_back(0);                                   // MRPDU EndMark
++        push(f.data(), f.size());
++        log("bridge sends its LeaveAll MRPDU in the bench switch's layout: [Listener LA JoinMt/Ready][Domain LA n2][TA LA n0][TF LA n0]");
++    }
++
+     void service() {
+         const long t = now_ms();
+         if (sched_lv >= 0 && t >= sched_lv) { sched_lv = -1; send_listener(5, 2, 0); bridge_declared_ = false; }
+@@ -281,7 +303,7 @@
+         }
+         if (bridge_la_ && next_br_la >= 0 && t >= next_br_la) {
+             next_br_la = t + br_la_ms_;
+-            if (bridge_declared_) send_listener(1, 2, 1);
++            if (bridge_declared_) { if (sw_la_) send_switch_la(); else send_listener(1, 2, 1); }
+         }
+     }
+ 
+@@ -296,10 +318,12 @@
+ 
+ int main(int argc, char** argv) {
+     Verilated::commandArgs(argc, argv);
+-    const bool per_type = (argc > 1 && std::string(argv[1]) == "type");
++    const bool sw_la = (argc > 1 && std::string(argv[1]) == "switch");
++    const bool per_type = (argc > 1 && (std::string(argv[1]) == "type" || sw_la));
++    const long sw_restart = (argc > 5) ? atol(argv[5]) : 9990;
+     const long br_la = (argc > 2) ? atol(argv[2]) : 12500;
+     const long run_ms = (argc > 3) ? atol(argv[3]) : 60000;
+     const bool bridge_la = !(argc > 4 && std::string(argv[4]) == "nobla");
+-    Repro r(per_type, br_la, run_ms, bridge_la);
++    Repro r(per_type, br_la, run_ms, bridge_la, sw_la, sw_restart);
+     return r.run();
+ }

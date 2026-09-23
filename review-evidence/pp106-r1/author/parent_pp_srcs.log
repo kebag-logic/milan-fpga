@@ -1,0 +1,7 @@
+pp source list: 42 tracked source(s) derived; no build input carries a literal copy (self-test passed)
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror

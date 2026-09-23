@@ -1,0 +1,137 @@
+[A206] receipts, protocol-processor issue #106
+
+repository : Mister-M-alt/protocol-processor-control-plane-avb-milan
+lane       : $LANES/pp106-leaveall-scope, branch 106-leaveall-scope
+base       : fbc1f7156d711e5b7f511da8a16d9494256b017b (main)
+commits    : 9370f8ab80231bbf1a6a833312e6b4ffbd0a4f9b  "Signal LeaveAll for every registered MSRP attribute type" (transmit; one line, no trailers)
+             fc155c3ca28b04c2220bf41ebea9214379210452  "Route a received LeaveAll to its own attribute type, once per MRPDU" (receive; one line, no trailers)
+             the transmit-half receipts follow first; the receive half is the last section
+diff       : 9370f8ab: 7 files, +573 -44 (docs/architecture/10_srp_engine.md, hdl/srp/KL_srp_encoder.sv, hdl/srp/KL_srp_top.sv (banner comment only),
+             tb/srp_encoder/{README.md,sim_main.cpp}, tb/srp_top/{README.md,sim_main.cpp})
+push / PR / merge : none
+hdl/srp identical between the parent's pin 424c688f and base fbc1f715 (git diff --quiet)
+
+issue comments
+  TAKEN    https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/106#issuecomment-5797290433
+  DECISION https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/106#issuecomment-5797308575  (text: evidence/DECISION.md)
+  REVIEW READY https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/106#issuecomment-5798150193  (text: REVIEW-READY.md)
+
+simulator  : Verilator 5.050 2026-07-01 rev v5.050 (the CI pin), wrapper $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator,
+             wrapped binary sha256 fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf
+
+---- evidence (read-only fetch, git blob API) ----
+milan-fpga branch 117-review-evidence @ 160debeba11231e2fd38fde26c01c467039603ba
+review-evidence/117-r1/bench-a200/bench/runB/tap-runB.pcap  blob bf2e79eee2843952a8fd2d740a8d5da149e4ee9b (git hash-object verified)
+  sha256 febe8a1643e88c5b0b12eb3f0fa837b17e9330fcb5cd33998c7a9b30701d029b ; every runB file: evidence/runB.sha256
+tap record = 28-byte prefix {type, reclen, port, time_hi, time_lo, len, caplen}; tap ns = time_hi*2^32 + time_lo
+  (span 114.8715 s vs host 114.9014 s); port 3 = DUT->switch, port 2 = switch->DUT
+decoder    : evidence/decode_runB.py  sha256 d0d3be6e9b7afd03a1b2bfb1187c4a9b37ef65c6ea0683e707809ea5f3625f7f
+output     : evidence/decode_runB.txt sha256 2cb3b82c715ed259e0a95183e0e45c7693612f65714e940c2a95bc444bcb6138
+  189 MSRP MRPDUs (145 DUT = findings' count, 44 switch), 0 malformed
+  DUT LeaveAll x9: flag on Domain only; switch Domain re-declare +0.3..3.8 ms 9/9; switch Listener re-declare within 5 s: 0 (26.839, 37.039, 60.639)
+  switch LeaveAll x9: LA on every MSRP type; NoV-0 vectors with zero FirstValue (25/34/8 B), list length alen+4; 9.990..10.002 s after each DUT LeaveAll
+  burst ends: 32.4727 (probe+15 32.4737), 52.0289 (switch LA+5 52.0296; prediction 52.8391), 67.6051 (probe+15), 82.7513 (probe+15)
+standard   : 802.1Q-2014 clause text read from a local copy for the quotes in PR-BODY.md; no copy kept in the packet
+
+---- repository gates (lane at 9370f8ab) ----
+make check                              rc=0  lint 41 mermaid + 18 wavedrom OK; links 807 OK; matrix 115 REQ / 17 GAP OK; modmatrix 86 rows 0 untested   (gate_make_check.log)
+python3 scripts/gen_matrix.py --check   rc=0
+./scripts/lint_hdl.sh                   rc=0  37 LINT OK   (gate_lint_hdl.log)
+./scripts/run_suites.sh                 rc=0  30 suites, 15320 checks, 0 failing   (gate_run_suites.log)
+  baseline at fbc1f715                  rc=0  14943 checks, 0 failing   (baseline_run_suites.log)
+  deltas: srp_encoder 180 -> 556, srp_top 235 -> 236, every other suite identical
+./syn/yosys/run.sh                      rc=0  32 YOSYS OK + YOSYS XILINX OK KL_aecp_engine   (gate_yosys.log)
+
+---- failing arms (mutate.py sha256 ad55a1a4ea8d780608a0bf9dec6b3d82961e49e81c7f07d7104c0c6fed905114) ----
+mutations/SUMMARY.txt sha256 c24ce1826618e381d14528a43736d32e938037b2cc647c3d5dba091dfaa8cde8, per-arm logs mutations/M*.log
+  M0  base encoder vs new suite          146 FAIL   M5 first-vector-only flag     128 FAIL
+  M6  no LeaveAll-only append            115 FAIL   M7 NoV written 1              81 FAIL
+  M7b non-zero FirstValue                 50 FAIL   M8 always-append              128 FAIL (L1[15] adds 0 octets: got 228, plain 125)
+  M9  MVRP type set emptied                3 FAIL   M10 consume at commit           2 FAIL
+  M11 start-cycle latch ungated            2 FAIL   M12 same-cycle request ignored  2 FAIL
+  restored KL_srp_encoder.sv sha256 f1517e9f2f8c74da01f000ef87c3fe845a4085bb1011db1f16a0e031e2bece97 OK
+  srp_top with the base encoder: 1 FAIL "F1: the LeaveAll MRPDU flags every MSRP type once, first vector" (mutations/M0_srp_top.log); restored, sha256 equal
+
+---- parent consumer (disposable clone of $LANES/pp102-parent-consumer, deleted) ----
+clone at 574c29fa111c74e5e5ed63e4670aff1f492e28e2 (its pin 424c688f), submodules from local sources, protocol-processor gitlink staged at 9370f8ab
+python3 scripts/check_cpp_idiom.py               rc=0  every count 0 <= 0, 146 translation units   (parent_check_cpp_idiom.log)
+python3 scripts/check_py_idiom.py                rc=0  every ratchet held   (parent_check_py_idiom.log)
+python3 scripts/xvlog_gate.py --check            rc=0  PASS, 4 findings == ratchet, pinned protocol-processor@9370f8ab; none in hdl/srp   (parent_xvlog_gate.log)
+python3 scripts/pp_srcs.py --check --selftest    rc=0  42 sources derived, self-test passed   (parent_pp_srcs.log)
+make -C tb/verilator/pp_shadow                   rc=0  371 checks, 0 failures, RESULT: PASS   (parent_pp_shadow.log)
+extra: check_sv_idiom.py rc=0 (124 files OK); check_hygiene.py rc=0 (all rows 0)
+
+---- end-to-end simulation (#530 harness copied into scratch; repro/SHA256SUMS) ----
+harness build.sh c50b991d... and original sim_repro.cpp 9a9e8ec7... = the #530 packet's; switch-bridge mode added: repro/sim_repro.switch-bridge.patch
+run_base_type_60s.log   base PP fbc1f715, type bridge : loss 13073, 25642; gate 25642, 41178 - sha256 2fe82933... = the #530 packet's run_type_60s.log
+run_fix_type_60s.log    PP 9370f8ab, type bridge      : DUT LA [4 la1][1 la1][2 la1 n0][3 la1 n0]; no registration loss in 60 s
+run_fix_switch_300s.log PP 9370f8ab, switch layout, restart 9.99 s : no loss in 300 s (22 cycles; DUT intervals 10.196..14.4 s)
+run_base_switch_60s.log base, same bridge            : loss at switch LA 18268 + 5.00 s (23270); gate closes at probe + 15 s (38778)
+run_fix_switchfixed_60s.log PP 9370f8ab, switch layout, fixed 12.5 s : loss 5.00 s after switch LA 41534 (46536) - the receive-side mechanism
+
+scratch    : $REVIEWS/pp106-a206-packet/scratch deleted (1.2 GB)
+
+======== RECEIVE HALF (fc155c3c), 2026-09-23 ========
+
+scope      : manager decision https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/106#issuecomment-5798176959
+diff       : fc155c3c vs 9370f8ab: 13 files, +774 -76
+             docs/architecture/10_srp_engine.md; hdl/srp/{KL_srp_decoder,KL_srp_talker_fsm,KL_srp_listener_fsm,KL_srp_top,srp_pkg}.sv;
+             tb/srp_decoder/{README.md,sim_main.cpp}; tb/srp_stream_fsms/{README.md,sim_main.cpp,srp_stream_fsms_wrap.sv};
+             tb/srp_top/{README.md,sim_main.cpp}
+committed hdl/srp sha256 (= every restore in mutations_rx/SUMMARY.txt):
+  KL_srp_decoder.sv      255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0
+  KL_srp_talker_fsm.sv   a51aea18c7009dad9c3c34f36a31bd038f16c8bf2bf91fff00734fc2b9678e9d
+  KL_srp_listener_fsm.sv eb78347109c1e66a274809ec470bf8ca2f6dd44c4dc1a5184e120943493c58fc
+  KL_srp_top.sv          6c70aa52201ed6f8a41c38c4cb0de30083a24b34574339edf503f63cb67cbe28
+  srp_pkg.sv             d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192
+simulator  : the same pinned 5.050 wrapper and binary as above (sha256 fb2cc573...defcdf, re-hashed)
+
+standard   : 802.1Q-2014 and Milan v1.2 text extracted from local copies into scratch (deleted), no copy kept in the packet.
+  quoted: §10.7.5.20 (rLA! b)2) and NOTE), §10.8.2.6, §10.8 (DLSDU-order paragraph and NOTE 2), §10.8.1.2 BNF, §10.6 (LeaveAll
+  at the beginning of the MRPDU; timer restarted on reception), §10.7.4.3, §10.7.9 + Table 10-5 (rLA! -> Start leavealltimer, Passive),
+  Milan v1.2 Table 4.3 (leavealltimer range only)
+Run B bytes: evidence/runB/tap-runB.pcap switch port record at 47.029619 s, MRPDU body 109 B + 4 B FCS; transcribed into
+  tb/srp_decoder P (FCS dropped); layout of all 9 switch LeaveAll MRPDUs: one vector per message, every message LA=1, each type once
+
+---- repository gates (lane at fc155c3c) ----
+make check                              rc=0  41 mermaid + 18 wavedrom OK; links 809 OK; matrix 115 REQ / 17 GAP OK; modmatrix 86 rows 0 untested
+                                              (gates_rx/make_check.log b3a61c18...)
+python3 scripts/gen_matrix.py --check   rc=0  (gates_rx/gen_matrix.log 12176e42...)
+./scripts/lint_hdl.sh                   rc=0  37 LINT OK   (gates_rx/lint_hdl.log d2a29ad3...)
+./scripts/run_suites.sh                 rc=0  30 suites, 15436 checks, 0 failing   (gates_rx/run_suites.log dfd62348...)
+  deltas vs 9370f8ab: srp_decoder 113 -> 150, srp_stream_fsms 1005 -> 1068, srp_top 236 -> 252; srp_encoder 556 and every other suite identical
+./syn/yosys/run.sh                      rc=0  32 YOSYS OK + YOSYS XILINX OK KL_aecp_engine   (gates_rx/yosys.log 2f86befd...)
+existing srp_top checks that failed under the new routing before their stimulus was changed (all kept):
+  F2 x4 (Domain-only LeaveAll expected to age a Talker Advertise registration), F4 x1 (Talker-Advertise-only LeaveAll expected
+  to re-declare the Listener); both now flag every MSRP type and pass under the previous and the new routing
+
+---- failing arms (mutate_rx.py sha256 8fdb001618210bd259ba79da6dbfef1a1df4ca21bb73ec5fa089a47144872bed) ----
+mutations_rx/SUMMARY.txt sha256 935e360883e2f8f482956d940a1e56513bde4e588d34d0fcac9b4175bdb36a76, per-arm logs mutations_rx/<arm>_<suite>.log
+  RX0-dec previous decoder             srp_decoder 19/150   RX0-top previous receive side   srp_top 5/252 (F5a F5b F5c)
+  D1 every lane, every flagged header  srp_decoder 21/150, srp_top 5/252
+  D2 once-per-MRPDU gate removed       srp_decoder 8        D3 gate never re-armed           srp_decoder 18
+  D4 lane off by one                   srp_decoder 11 (P on strobe order only)
+  T1 talker registrar, every lane      srp_stream_fsms 13 (H I J)   T2 talker registrar deaf to Listener lane  16 (H I J K)
+  T3 talker applicant, every lane      6 (H)                        T4 talker applicant ignores the variant     2 (H)
+  L1 listener registrar, every lane    6 (H)                        L2 listener registrar ignores the type      2 (H)
+  L3 listener applicant, every lane    3 (H)
+  P1 KL_srp_top broadcasts every lane  srp_top 5 (F5a F5b F5c)      P2 Domain deaf to the Domain lane  srp_top 1 (F5b)
+  every restore: all five hdl/srp files sha256 OK
+
+---- parent consumer (disposable clone of $LANES/pp102-parent-consumer, deleted) ----
+clone at 574c29fa111c74e5e5ed63e4670aff1f492e28e2 (its pin 424c688f); gptp-processor and verilog-axis from the parent's local module
+repositories (working trees restored to their recorded commits), external not initialised (not initialised in the parent lane either);
+protocol-processor fetched from this lane, checked out and gitlink staged 424c688f -> fc155c3c
+python3 scripts/check_cpp_idiom.py               rc=0  every count 0 <= 0, 146 translation units   (parent_rx/check_cpp_idiom.log 66b7ebd6...)
+python3 scripts/check_py_idiom.py                rc=0  every ratchet held   (parent_rx/check_py_idiom.log cbfc44c5...)
+python3 scripts/xvlog_gate.py --check            rc=0  PASS, 4 findings == ratchet, pinned protocol-processor@fc155c3c; none in hdl/srp
+                                                       (parent_rx/xvlog_gate.log 4971726d...)
+python3 scripts/pp_srcs.py --check --selftest    rc=0  42 sources derived, self-test passed   (parent_rx/pp_srcs.log 8ff214d0...)
+make -C tb/verilator/pp_shadow                   rc=0  371 checks, 0 failures, RESULT: PASS; compiled protocol-processor/hdl/srp at fc155c3c
+                                                       (parent_rx/pp_shadow.log fcab957c...)
+extra: check_sv_idiom.py rc=0 (124 files OK, parent_rx/check_sv_idiom.log 59321f1a...); check_hygiene.py rc=0 (all rows 0, 56cf5460...)
+
+---- end-to-end simulation ----
+the #530 harness was not rerun at fc155c3c; the runs above are at 9370f8ab / fbc1f715
+
+scratch    : $REVIEWS/pp106-a206-packet/scratch deleted (258 MB: parent clone, standard text extracts, byte-dump helper)
