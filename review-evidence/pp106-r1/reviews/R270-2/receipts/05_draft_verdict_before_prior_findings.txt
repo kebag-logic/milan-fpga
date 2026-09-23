@@ -1,0 +1,9 @@
+Written 2026-09-23 before reading any prior review report (R270-1, R271-1) or any R271-2 material.
+Draft verdict: POSITIVE at 27763677 (no open MINOR/MAJOR/BLOCKER from my own pass).
+Ledger draft: Conformance CLEAN, RTL CLEAN, Robustness CLEAN, Tests CLEAN, Docs CLEAN.
+Own SUGGESTIONs:
+ S-a Tests/Conformance: own-LeaveAll registrar aging (10.7.9) unpinned; C1/C2 survive at head and at fbc1f715 (inherited).
+ S-b Tests/Conformance: VLAN participant taking the MSRP lanes (B3) survives at head and at fbc1f715 (inherited).
+ S-c Docs: 08 F08.4 row and tb/timer_map SRP_CAD_SLOTS_C=7 count Domain and MVRP VID registrars that 10 6.5 (this PR) says do not exist; pre-existing.
+ S-d Docs: 10_RESOURCE_AND_EFFORT.md:562 'its leavealltimer' ambiguous; PR body base srp_top count 236 vs measured 235.
+Then: read R270-1/R271-1 findings and resolve or retain each against this head.

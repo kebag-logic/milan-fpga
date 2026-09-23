@@ -1,0 +1,23 @@
+# R270-1 scripts/mutation_probes.py + run_srp_suites.sh (sha256 verified against the published MANIFEST; mode +x set on the downloaded copy) run unmodified at 27763677
+X1 srp_decoder rc=2 177 checks: 171 PASS, 6 FAIL
+X1 srp_top rc=0 253 checks: 253 PASS, 0 FAIL
+X1   srp_decoder: FAIL: T1 Listener lane once, no other lane got 0 of 0
+X1   srp_decoder: FAIL: T1 one message strobe order
+X1   srp_decoder: FAIL: T2 Listener and Domain lanes once each got 0 1 of 1
+X1   srp_decoder: FAIL: T2 across messages strobe order
+X1   srp_decoder: FAIL: T3 MVRP lane once got 0
+X1   srp_decoder: FAIL: T3 MVRP strobe order
+X7 srp_decoder rc=2 177 checks: 173 PASS, 4 FAIL
+X7   srp_decoder: FAIL: U1 re-armed after a truncated MRPDU strobe order
+X7   srp_decoder: FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+X7   srp_decoder: FAIL: U3 re-armed after a discarded MRPDU strobe order
+X7   srp_decoder: FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+X2 srp_top rc=2 253 checks: 252 PASS, 1 FAIL
+X2   srp_top: FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
+# R271-1 scripts/03_mutate.py (sha256 verified) run unmodified on the head export, pinned simulator through its vl_j2.sh (4 suites x -j 2)
+R1   KILLED   srp_decoder=6/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+R4   KILLED   srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=1/253 FAIL
+R8   KILLED   srp_decoder=4/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+R5   SURVIVED srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+R10  SURVIVED srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+R11  SURVIVED srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
