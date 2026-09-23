@@ -1,0 +1,62 @@
+# protocol-processor pin 424c688fa2205b934a7689a58f2aa766420f2326 (parent gitlink 424c688fa2205b934a7689a58f2aa766420f2326)
+## engine banner: which MVU command leaves the echo
+161://
+162://                  msg_type 6 + protocol_id 00-1B-C5-0A-C1-00
+163://                             + r 0 + command_type 0x0000
+164://                             + a Figure 5.3 payload (8 B)  -> UPC_MVUINFO_C
+165://
+166://                Anything else with message_type 6 — a foreign protocol_id, an
+167://                MVU command_type this build does not implement, a truncated
+168://                one — keeps the echo and answers MVU status 1
+169://                NOT_IMPLEMENTED (Milan Table 5.19 = IEEE Table 9-6, which is
+170://                the same code the AEM path uses, so the status register needs
+171://                no remapping).
+## MVU constants
+702:  localparam logic [15:0] MVU_PID_HI_C = 16'h001B;   // @22..@23
+703:  localparam logic [15:0] MVU_PID_MD_C = 16'hC50A;   // @24..@25
+704:  localparam logic  [7:0] MVU_PID_L1_C = 8'hC1;      // @26
+705:  localparam logic  [7:0] MVU_PID_L0_C = 8'h00;      // @27
+707:  localparam logic [15:0] MVU_GET_MILAN_INFO_C = 16'h0000;
+713:  localparam logic [10:0] MVU_CMD_PLD_C = 11'd8;
+1292:                                && (pld_cmd_r  >= MVU_CMD_PLD_C)
+1293:                                && (raw_ct_r   == MVU_PID_HI_C)
+## the only non-echo MVU decode
+  1290	  logic mvu_get_milan_info_w;
+  1291	  assign mvu_get_milan_info_w = (cmd_r.protocol == PP_PROTO_MVU)
+  1292	                                && (pld_cmd_r  >= MVU_CMD_PLD_C)
+  1293	                                && (raw_ct_r   == MVU_PID_HI_C)
+  1294	                                && (cfg_ix_r   == MVU_PID_MD_C)
+  1295	                                && (pid_lo_r   == 2'b11)
+  1296	                                && (desc_ty_r  == MVU_GET_MILAN_INFO_C);
+## every MVU command_type constant in hdl/
+hdl/aecp/KL_aecp_engine.sv:702:  localparam logic [15:0] MVU_PID_HI_C = 16'h001B;   // @22..@23
+hdl/aecp/KL_aecp_engine.sv:703:  localparam logic [15:0] MVU_PID_MD_C = 16'hC50A;   // @24..@25
+hdl/aecp/KL_aecp_engine.sv:707:  localparam logic [15:0] MVU_GET_MILAN_INFO_C = 16'h0000;
+hdl/aecp/KL_aecp_engine.sv:713:  localparam logic [10:0] MVU_CMD_PLD_C = 11'd8;
+exit=0
+## system_unique / media_clock_reference in hdl/
+hdl/top/protocol_processor_top.sv:1825:  logic [15:0] tkr_resp_tkuid_w, tkr_resp_lsuid_w, tkr_resp_cc_w,
+hdl/top/protocol_processor_top.sv:1913:      .resp_listener_uid_o   (tkr_resp_lsuid_w),
+hdl/top/protocol_processor_top.sv:2746:  logic [15:0] tkb_tkuid_r, tkb_lsuid_r, tkb_cc_r, tkb_seq_r, tkb_flags_r,
+hdl/top/protocol_processor_top.sv:2762:                      tkb_tkuid_r, tkb_lsuid_r, tkb_da_r, tkb_cc_r,
+hdl/top/protocol_processor_top.sv:2774:      tkb_tkuid_r <= 16'd0; tkb_lsuid_r <= 16'd0;
+hdl/top/protocol_processor_top.sv:2795:          tkb_lsuid_r <= tkr_resp_lsuid_w;
+exit=0
+## tb/pp_top M4: byte-exact NOT_IMPLEMENTED echo of GET_SYSTEM_UNIQUE_ID 0x0002
+  2330	  // ---- M4: an MVU command_type this build does not implement -------------
+  2331	  // GET_SYSTEM_UNIQUE_ID (Table 5.18 0x0002) is a Milan RECOMMENDATION this
+  2332	  // build does not serve: MVU status 1 with the command echoed, never
+  2333	  // silence and never a Figure 5.4 body it cannot fill.
+  2334	  void m4_an_mvu_command_type_this_build_does_not_implement() {
+  2335	    auto suid = mvu_cmd_pl(MVU_PID_LO, 0x0002, 8);
+  2336	    auto got = mvu(MVU_PID_LO, 0x0002, 0xC003);
+  2337	    auto want = mvu_expect(AECP_NOT_IMPLEMENTED, 0xC003, suid);
+  2338	    CHECK(!got.empty(), "M4: an unimplemented MVU command_type got silence");
+  2339	    CHECK(got == want, "M4: the unimplemented-MVU echo is not byte-exact");
+  2340	  }
+## any tb arm sending MVU 0x0001, 0x0003 or 0x0004
+exit=1
+## donor F01.5 parameter claim
+144:| P-N-AVB-INTERFACES | 1 | ≥1 (redundancy seam: keys registry/ADP/counters/records) | all per-interface state |
+169:| P-EN-MVU-SUID / P-EN-MVU-MCR | 1 / 1 | Milan "recommended" MVU groups | MVU decode |
+175:| P-EN-REDUNDANCY | 0 | reserved seam — must stay 0 (this spec) | GET_MILAN_INFO flag |

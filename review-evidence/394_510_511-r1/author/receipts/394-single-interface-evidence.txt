@@ -1,0 +1,19 @@
+# protocol-processor pin 424c688fa2205b934a7689a58f2aa766420f2326
+## features_flags source
+105:# REDUNDANCY (0x00000001) is a claim to implement Milan §8 seamless redundancy;
+112:MILAN_FEATURES_FLAGS = 0x00000000
+705:    u('MOVE', rd=6, imm=MILAN_FEATURES_FLAGS),
+## tb/pp_top M2: features_flags graded zero
+2290:  // ---- M2: the three fields a controller actually records ---------------
+2308:      CHECK(pv == 1u, "M2: protocol_version is %u, want 1 (Milan §4.2.4)", pv);
+2309:      CHECK(ff == 0u, "M2: features_flags is 0x%08x, want 0 — this PAAD "
+2311:      CHECK(cv == 0u, "M2: certification_version is 0x%08x, want 0 — no "
+## top: one interface
+1594:      .N_IF_P                (1),
+
+# parent 759da623072358afdb0e9d570a7b4b6a788492c9
+## the build selects exactly one port
+3632:    ap.add_argument("--eth-port", default="e1", choices=["e1", "e2"],
+3833:                   eth_phy_index=(1 if args.eth_port == "e2" else 0),
+## shipping configurations: AVB interfaces
+77:  # AVB_INTERFACE descriptor's clock fields and fabric microcode.

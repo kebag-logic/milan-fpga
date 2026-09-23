@@ -1,0 +1,15 @@
+[0] (4s) python3 -B scripts/docs_check.py :: docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+[0] (1s) python3 -B scripts/check_feature_status.py --self-test :: feature_status: 0 finding(s)
+[0] (0s) python3 -B scripts/check_feature_status.py :: feature_status: 0 finding(s)
+[0] (0s) python3 -B scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+[0] (0s) python3 -B scripts/check_gptp_docs.py :: gPTP documentation: OK (8 current pages)
+[0] (0s) python3 -B scripts/check_gptp_docs.py --with-submodule :: gPTP documentation: OK (8 current pages, donor checkout verified)
+[0] (1s) python3 -B docs/traceability/gen_module_matrix.py --check :: traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+[0] (14s) python3 -B scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 846 tracked first-party file(s))
+[0] (0s) python3 -B scripts/gen_toc.py --check :: TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+[0] (1s) python3 -B scripts/gen_toc.py --verify-anchors :: anchor check: 147 existing cross-page fragment links reproduced
+[0] (0s) python3 -B scripts/check_doc_paths.py :: doc path gate: OK (832 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+[0] (0s) python3 -B scripts/check_solution_docs.py :: solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+[0] (0s) python3 -B scripts/check_archive.py :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+[0] (1s) python3 -B scripts/check_submodule_docs.py :: submodule documentation: OK (4 exact gitlinks)
+[0] (0s) python3 -B scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 726 file(s))

@@ -1,0 +1,9 @@
+# parent dcbe3cfaadcd7c340e74ce9b62bf06e9d401c2fc: no asymmetry control in RTL, firmware, builder or configs
+$ git grep -n -I -i -E "delay_?asym|asym_|cfg_asym|asymmetry_ns" -- hdl sw configs avdecc scripts ; echo exit=$?
+exit=1
+$ grep -n "_known_gp = " -A4 sw/builder/endstation_builder.py
+3940:        _known_gp = {"priority1", "priority2", "clock_class",
+3941-                     "clock_accuracy", "offset_scaled_log_variance",
+3942-                     "domain", "log_sync_interval", "log_announce_interval",
+3943-                     "log_pdelay_interval",
+3944-                     "ingress_latency_ns", "egress_latency_ns"}

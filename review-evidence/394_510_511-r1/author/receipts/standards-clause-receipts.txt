@@ -1,0 +1,45 @@
+# pdftotext -layout over the local standards archive ($STANDARDS_DIR), 2026-09-23
+## IEEE 802.1AS-2011
+427:                  8.3 Communication path asymmetry ............................................................................................... 28
+2137:          This standard does not explicitly require the measurement of delayAsymmetry; however, if
+2150:          NOTE—A time-aware system can change the value of delayAsymmetry during operation using methods not specified in
+3802:          10.2.4.8 delayAsymmetry: the asymmetry in the propagation delay on the link attached to this port relative
+3804:          delayAsymmetry is zero.
+4532:          10.2.12 ClockSlaveSync state machine
+7373:          11.2.13.2.1 setMDSyncReceive(): creates an MDSyncReceive structure, and returns a pointer to this
+7675:          11.2.15 MDPdelayReq state machine
+7790:          11.2.15.2.4 computePropTime(): computes the mean propagation delay on the link attached to this MD
+11063:          14.6.9 delayAsymmetry
+11204:           delayAsymmetry                        scaledNs                     RW               Tdot3FD             14.6.9
+3790:          10.2.4.5 syncInterval: a variable containing the mean time-synchronization event message transmission
+2179:          8.4.3 Generation of event message timestamps
+2204:                    <ingressTimestamp> = <ingressMeasuredTimestamp> ingressLatency
+## Milan v1.2 (2023-11-30)
+1013:4.2.5 Redundancy
+1015:A PAAD may implement seamless redundancy as defined by Section 8.
+1016:If a PAAD implements redundancy compliant to Section 8, it shall set the REDUNDANCY bit in the
+6135:Seamless network redundancy is not a mandatory requirement for a PAAD to be compliant with this specifica-
+6204:8.3.1 General
+6206:    • The R-PAAD shall have at least two AVB-capable Ethernet ports.
+3314: 31            0x00000001            REDUNDANCY                                    The ATDECC Entity, in its currently active
+3329:5.4.4.2 SET_SYSTEM_UNIQUE_ID
+3382:5.4.4.3 GET_SYSTEM_UNIQUE_ID
+3395:5.4.4.4 SET_MEDIA_CLOCK_REFERENCE_INFO
+3497:5.4.4.5 GET_MEDIA_CLOCK_REFERENCE_INFO
+3331:Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+6024:7.6 Media Clock Management
+3153:                                          Table 5.18: MVU commands.
+3187: 1           NOT_IMPLEMENTED                   The PAAD-AE does not support the command type.
+## count of the RECOMMENDED note (5.4.4.2, .3, .4, .5 and 7.6)
+5
+## Milan v1.2 mentions of asymmetry
+0
+## supplementary lines
+4615:                                                neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+7399:                   delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+582:          Figure 10-9—ClockSlaveSync state machine ............................................................................................... 67
+2953:          block of the ClockSlaveSync state machine (see 10.2.12 and Figure 10-9). The invocation occurs when a
+1803:equal to the mean propagation delay plus the quantity delayAsymmetry (see 8.3 and 10.2.4.8);
+1804:delayAsymmetry is already expressed in the grandmaster time base. The residence time, ts,i–tr,i, must be
+1816:     d)   The quantity delayAsymmetry (see 10.2.4.8) divided by rateRatioi.
+(cor1.txt = 802.1AS-2011/Cor1-2013; cor2 has 0 hits)

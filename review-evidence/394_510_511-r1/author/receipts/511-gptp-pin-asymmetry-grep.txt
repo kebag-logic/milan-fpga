@@ -1,0 +1,35 @@
+# gptp-processor pin c1b617435824929a790739ea8585c3fe1a328cc0 (parent gitlink c1b617435824929a790739ea8585c3fe1a328cc0)
+$ git -C gptp-processor grep -n -I -i -w -E "delayAsymmetry|delay_asymmetry|asymmetry|asym|cfg_asym" -- . ":!*.svg" ; echo exit=$?
+docs/history/v1/prototype/ARCHITECTURE.md:46:        region map   PHC/ms/asym   KL_gptp_tx_slot  OP_COMMIT
+docs/history/v1/prototype/ARCHITECTURE.md:103:**sel 1** free-running ms, **sel 2** `cfg_asym_i` (delayAsymmetry).
+docs/history/v1/prototype/ARCHITECTURE.md:272:                     + meanLinkDelay + delayAsymmetry)
+docs/history/v1/prototype/BENCH_OPERATIONS.md:70:| `Y` | 8 | live delayAsymmetry readback, ns signed |
+docs/history/v1/prototype/BENCH_OPERATIONS.md:117:| `Y<8 hex>` | `delayAsymmetry`, signed ns (802.1AS-2011 10.2.4.5) | 0 |
+docs/history/v1/prototype/BENCH_OPERATIONS.md:123:printf 'Y00000100\r' > /dev/ttyUSB3      # +256 ns asymmetry
+docs/history/v1/prototype/BENCH_OPERATIONS.md:162:asymmetry biases the offset).
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md:137:(`bench_uart_tune`): `Y<8 hex>` sets delayAsymmetry (signed ns, the
+docs/history/v1/prototype/FSM_CONFORMANCE.md:42:| **PortSyncSyncReceive** (10.2.7) / **SiteSyncSync** (10.2.6) / **ClockSlaveSync** (10.2.8) | the chain that turns a received sync into `syncReceiptTime` and drives the local clock | **Consolidated into one path** (`prog_rx_followup`): a single port means SiteSync's "select one port" is the identity function and the PortSync↔SiteSync hand-off carries no information a second port could change. Computes `offset = t2ₗₒcₐₗ − (preciseOrigin + correctionField + meanLinkDelay + delayAsymmetry)` (10.2.12 / 10.2.4.5) and steers the PHC | `pub offset ±`, `servo pi #1/#2`, `asym+/- offset`, closed-loop convergence; hardware: −0.3 ns mean / 3.3 ns σ vs an AVB switch GM |
+docs/history/v1/prototype/INTEGRATION_GUIDE.md:298:* `cfg_asym_i` — `delayAsymmetry` (10.2.4.5), signed ns. **Only the
+docs/history/v1/prototype/IP_BLOCKS.md:280:The one input alongside them is `cfg_asym_i` (delayAsymmetry,
+docs/history/v1/prototype/IP_BLOCKS.md:284:**🔭 The Bench Engineer.** Words 0–5 plus the live asymmetry are the 1 Hz
+docs/history/v1/prototype/MGMT_INTERFACE.md:54:| `cfg_asym_i[63:0]` | in | delayAsymmetry for this link, signed ns (802.1AS-2011 10.2.4.5: `t_ms = meanLinkDelay + delayAsymmetry`). A per-port managed object — a CSR in the parent integration; on the bench, the UART tuner (`bench_uart_tune`, command `Y<8 hex>`). µcode reads it through gather sel 2 in the Follow_Up offset path; ONLY the slave side of a link may compensate, or corrections double. |
+docs/history/v1/prototype/MGMT_INTERFACE.md:59:live delayAsymmetry as the `Y=` field of the once-a-second line.
+docs/history/v1/prototype/MGMT_INTERFACE.md:78:  the live delayAsymmetry once per second: `F=` is `flags[7:0]` —
+docs/history/v1/prototype/RESOURCE_VALIDATION.md:96:**Re-measured after the delayAsymmetry input (same day):** the engine's
+docs/history/v1/prototype/VERIFICATION.md:67:| 7–8 | offset arithmetic and the PI servo **bit-exact against a C++ mirror** of the µcode's own arithmetic; step beyond 1 ms; delayAsymmetry, signed both ways |
+exit=0
+
+$ git -C gptp-processor grep -n -I -i -E "bench_uart_tune|uart_tune" -- . ":!*.svg" ; echo exit=$?
+docs/history/v1/prototype/BENCH_OPERATIONS.md:202:| `bench_uart_tune.sv` | the RX tuner |
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md:137:(`bench_uart_tune`): `Y<8 hex>` sets delayAsymmetry (signed ns, the
+docs/history/v1/prototype/IP_BLOCKS.md:347:step), `bench_uart_report` (the 1 Hz line), `bench_uart_tune` (runtime
+docs/history/v1/prototype/MGMT_INTERFACE.md:54:| `cfg_asym_i[63:0]` | in | delayAsymmetry for this link, signed ns (802.1AS-2011 10.2.4.5: `t_ms = meanLinkDelay + delayAsymmetry`). A per-port managed object — a CSR in the parent integration; on the bench, the UART tuner (`bench_uart_tune`, command `Y<8 hex>`). µcode reads it through gather sel 2 in the Follow_Up offset path; ONLY the slave side of a link may compensate, or corrections double. |
+exit=0
+
+# the same search outside the historic prototype pages
+$ git -C gptp-processor grep -n -I -i -w -E "delayAsymmetry|delay_asymmetry|asymmetry|asym|cfg_asym|bench_uart_tune|uart_tune" -- . ":!*.svg" ":!docs/history/**" ; echo exit=$?
+exit=1
+
+# broader search: any "asym" substring, text files, outside docs/history and svg
+$ git -C gptp-processor grep -n -I -i "asym" -- . ":!*.svg" ":!docs/history/**" ; echo exit=$?
+exit=1
