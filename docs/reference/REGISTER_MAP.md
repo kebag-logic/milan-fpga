@@ -1813,10 +1813,16 @@ un-armed fails `obj_prune` instead of passing it.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
-evidence only beside proof that the front end frames. A non-zero `SLIP_TDM`
-dup count beside a healthy align-loop phase error can be the detector's known
-coincidence chatter (the `KL_chan_map_capture` banner): false-alarm direction
-only, never a hidden slip.
+evidence only beside proof that the front end frames. A frame marker and a
+media tick in the same cycle count nothing, and the tick takes a marker that
+was already pending first, so a slow free-running passage counts once in its
+own direction. Before #74 item 2 that coincidence dropped the pending marker:
+a marker dithering across the tick counted about a dozen dups per slip, read a
+skip-direction slip as dups, and a CRF lock parked with the marker on the tick
+chattered thousands of dups per 0.2 s. Under a CRF selection the align loop
+now also holds the marker at least 1/128 sample off the tick (the
+`KL_media_grid_align` lock target), so a static `SLIP_TDM` at lock does not
+depend on the engagement phase (`tb/verilator/media_grid_align` [G7] to [G9]).
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
 listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the

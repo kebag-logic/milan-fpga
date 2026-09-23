@@ -494,20 +494,25 @@ module KL_chan_map_capture #(
   // marker is the slot-0 write (every TDM frame delivers slot 0 first);     //
   // a tick consuming no marker is a dup, a marker landing on an unconsumed  //
   // marker is a skip. Rate accounting only - which slots a walk maps does   //
-  // not matter, so this stays honest for every map. A tick and a marker in  //
-  // the same cycle consume each other: coincidence is alignment, not slip.  //
-  // Counts gate on tdm_fed_r so a bench with no TDM feed reads 0/0 rather   //
-  // than a dup per tick forever. Saturating like the LOOP counters; with    //
-  // aligned grids both stay at ZERO - the #74 acceptance state.             //
+  // not matter, so this stays honest for every map. Counts gate on          //
+  // tdm_fed_r so a bench with no TDM feed reads 0/0 rather than a dup per   //
+  // tick forever. Saturating like the LOOP counters; with aligned grids     //
+  // both stay at ZERO - the #74 acceptance state.                           //
   //                                                                         //
-  // KNOWN CAVEAT ([R1] on PR #323, on issue #74's ledger): when the align   //
-  // loop happens to LOCK with the frame marker raced right onto the tick    //
-  // (~0.1-0.3% of engagements), the coincidence branch can resolve          //
-  // asymmetrically and this counter chatters dups at a genuinely slip-free  //
-  // lock. False-alarm direction ONLY - it can cry wolf, never hide a slip - //
-  // and a reselect re-rolls the phase. A fixed lock-phase target or         //
-  // detector hysteresis is the recorded follow-up; until then read a        //
-  // non-zero dup count beside mga_err_w before believing it.                //
+  // COINCIDENCE (#74 item 2). A tick and a marker in the same cycle: the    //
+  // tick consumes the PENDING marker when there is one, and the coincident  //
+  // one takes its place, so pend carries over. The law until #74 item 2     //
+  // cleared pend instead, dropping a marker uncounted. A free-running grid  //
+  // dithering across the tick then counted about a dozen dups per real slip //
+  // and read a skip-direction slip as dups with no skip; a loop locked with //
+  // the marker on the tick chattered thousands of dups per 0.2 s (PR #323   //
+  // [R1]). Carried over, a passage whose marker dithers between two         //
+  // adjacent cycles counts once, in its direction                           //
+  // (tb/verilator/media_grid_align [G9]); a wider dither on the way through //
+  // adds balanced dup/skip pairs. What keeps the LOCK clean is the other    //
+  // half: KL_media_grid_align parks the marker a keep-off (1/128 sample)    //
+  // away from the tick, so a lock never dithers across it and a real step   //
+  // slip there counts exactly once ([G7]/[G8]).                             //
   // ---------------------------------------------------------------------- //
   wire tdm_frame_ev_w = tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0);
   logic tdm_fed_r        /* verilator public_flat_rd */;
@@ -534,8 +539,10 @@ module KL_chan_map_capture #(
             tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;
         end
         2'b11: begin
+          //! the tick takes the pending marker, if any; the coincident one
+          //! pends in its place (the COINCIDENCE paragraph above)
           tdm_fed_r        <= 1'b1;
-          tdm_frame_pend_r <= 1'b0;
+          tdm_frame_pend_r <= tdm_frame_pend_r;
         end
         default: ;
       endcase
