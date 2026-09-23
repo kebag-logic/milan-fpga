@@ -1,0 +1,12 @@
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn_probe_acopy.cpp
+@@ -1330,6 +1330,9 @@
+         const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
+         ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
+            "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
++        { const std::vector<uint8_t>* pa = notify_last(0x0029, CTL_A, 0x0005, ix);
++          if (pa && pa->size() > 60)
++              const_cast<std::vector<uint8_t>&>(*pa)[60] ^= 0x01; }   // PROBE: one body bit of A's copy
+         ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+                notify_last(0x0029, CTL_A, 0x0005, ix), g, 38)), 1);
+ 

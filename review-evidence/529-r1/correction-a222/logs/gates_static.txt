@@ -1,0 +1,26 @@
+HEAD 31e62ffead16e43d648993278b0ab9190d99b672
+== docs_check
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit 0
+== check_em_dash --base ede8d48e
+check_em_dash: 0 finding(s) over 164 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+exit 0
+== check_cpp_idiom
+cpp idiom: 146 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+exit 0
+== git diff --check ede8d48e..HEAD
+exit 0
+== git diff --check 535701a0..HEAD
+exit 0
+== status
+(end status)
