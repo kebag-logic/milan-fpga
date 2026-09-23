@@ -291,7 +291,7 @@ directory is outside this measurement, and the CONTENTS behind each resolved
 third-party name stay trusted rather than read.
 
 Both instruments take the census's RV32 compiler, so both stand down where
-there is none -- which is every hosted runner today. That is why neither
+there is none. #504 provisions both hosted builder consumers. Neither
 REPLACES a refusal: the text rules they measure beside are in force on every
 machine, unchanged, and gate 1b's verdict says in its first clause whether
 the instruments graded with them. The section "Instruments added beside the
@@ -448,6 +448,98 @@ address helper's return. The classifier's fail-closed default -- a store operand
 the resolver cannot even read -- is measured on a hand-written `sw rd, sym, rt`,
 because GCC never emits that pseudo-instruction here and an unexercised
 fail-closed branch is a claim rather than a measurement.
+
+**Every store CLASS, not only the integer ones** (R228-F1 on PR #521). The
+census compiles at the adopted compiler's default ISA. For the #504 SDK that
+is `rv32imafd` with the ILP32D ABI, and the overlay above with a `float`
+member is stored with `fsw`, with a `double` member with `fsd`. The
+classifier used to know only `sw`, `sh` and `sb`, so those two stores left no
+observation at all and passed the whole gate, while the `uint32_t` one was
+refused. Stores are now classified by instruction class:
+
+- integer: `sb`, `sh`, `sw`;
+- floating-point: `fsh`, `fsw`, `fsd`, `fsq`, whose stored value the
+  lattice does not hold;
+- RV32A: every `amo*.w` and `sc.w` instruction, whose memory operand is the
+  third. These are instruction classes. An atomic builtin that GCC compiles
+  to a call is not one of them; see the boundary below.
+
+A store is judged at EVERY 32-bit word it writes, so an `fsd`, or a
+misaligned `sw`, whose first byte lies just below the window is refused on the
+window word it reaches. A store through a bounded range is judged over its
+footprint, up to the last byte its highest placement writes. Any other
+instruction that addresses memory and is not a recognised load (`lb` to `lw`,
+`flh` to `flq`, `lr.w`) is reported as UNCLASSIFIED and refused by rule 1b, so
+a class missing from the table fails closed.
+
+**What a store leaves behind** (R227-2-F1 and R228-F5 on PR #521). The
+lattice models two kinds of memory word: a frame slot, keyed by frame register
+and displacement, and a word of a static this unit defines, keyed by symbol
+and displacement. That is what lets a parked address be read back and a later
+store through it be placed. A modelled word keeps a value only after a
+whole-word integer store to it (`sw`) or an `amoswap.w`. Every other store
+leaves it unknown: a byte or half-word store, even at the word's own offset,
+an FP store, any other AMO, and an SC. A store through a frame register or a
+static's address also makes every other word of that frame or that static
+its footprint overlaps unknown. A store through a stack address may
+land on any frame slot, so it makes every frame slot unknown. That covers a
+pointer to one of this function's locals, `q = (T *)&v; q->w = x;`, and a
+pointer a caller handed down. A word reloaded after any of these places
+nothing, so a store through it is refused by rule 1b. Four shapes passed the
+whole gate before this: a union byte and a union half-word overwrite that
+leave a parked `ADP_CTRL` address in place, and an integer and a `float`
+rewrite of a local through a pointer to it. All four are permanent compiled
+mutants now.
+
+Literal-assembly controls for all of this run on every machine, compiler or
+none. They cover the class table, the footprint of a straddling store and of
+a ranged one, and the rewrites above, each against a whole-word positive arm.
+They also cover the branch refinement, which may bound a frame slot only while
+no store of any class can have rewritten it since the slot was loaded. Five
+compiled mutants through the paged base must each be refused on the resolved
+address: `float`, `double`, and the 32-bit atomic exchange, fetch-or and
+compare-exchange builtins. Each must actually emit its class where the census
+ISA declares that extension. The atomic three are registered only where the
+census ISA carries `a`, because without it GCC compiles them to library
+calls; elsewhere that is a registered `NOT RUN`. The four compiled rewrite
+mutants must each be refused as the one store `configure_fabric()` cannot
+place.
+
+**The boundary of that classification.** It reads the instructions the
+compiler prints as mnemonics, in this translation unit. A raw encoding --
+`.insn`, or a data word emitted inside a function -- is not an instruction to
+this reader; only an inline-`asm` template can produce one here, and the
+inline-`asm` set pins those templates on every machine. GCC's `lr.w`/`sc.w`
+retry loop branches to numeric local labels (`1:`, `1f`, `1b`), which this
+reader does not bind. So neither the loop's back edge nor its forward exit
+past the SC is modelled, and the SC store is still reached in order and
+judged. The census ISA is not the shipping CPU's: the shipping hart is RV32I, so
+FP stores and RV32A instructions exist only in the census compile, and
+classifying them makes the census stricter, never looser.
+
+**What the census does NOT observe** (R228-F5 on PR #521), stated so no
+reader takes it for more:
+
+- A store made inside a CALLED function. The resolver records a call's
+  arguments and does not judge them. So a C-library or libatomic call that
+  writes through a pointer this unit forms is not observed, even when that
+  pointer is a window address. Examples are `__builtin_memset` or `memcpy`
+  onto `ADP_CTRL`, and a 64-bit atomic builtin, which RV32A has no
+  instruction for and GCC compiles to `call __atomic_exchange_8`. The memset
+  and 64-bit exchange shapes were measured passing the complete gate on the
+  adopted SDK. A callee this unit defines is resolved on its own, and its
+  stores are classified like any other. What it writes into its caller's
+  frame through a pointer it was handed is not modelled for the caller, which
+  keeps its value for that local across the call.
+- A store through a resolved number changes neither model, and one through a
+  bounded range drops the static words but not the frame slots. The resolver
+  does not know where the linker places the stack or the statics, and it
+  assumes a numeric address reaches neither.
+- A byte or half-word load from a frame slot reads the slot's whole modelled
+  word. A static's word is read back only by `lw`.
+
+A text rule retired onto the census (#408, #409) would not cover these shapes
+either.
 
 **The residual that was a hole, and why it is gone.** An earlier revision
 DECLARED the copy loop's store rather than placing it, as the residual entry
@@ -1156,11 +1248,12 @@ strictly more than it did before; with none it refuses exactly what it did
 before, and says which instruments did not grade. The refusals are unchanged
 on every machine, including the hosted runners.
 
-The reason is where the instruments can run at all. Every one of them takes
-the census's RV32 compiler, and no hosted runner this repository uses has
-one, so a retirement that lifted a refusal where the instrument runs would
-lift it nowhere a merge is graded -- and would leave it lifted on the one
-machine the author sees. The first head of PR #498 retired them
+Every instrument requires the census's RV32 compiler.
+At #498, hosted runners lacked that compiler.
+#504 provisions both builder jobs with the selected Bootlin SDK.
+See the [installation and cache contract](../testing/CI_WORKFLOWS.md#elaboration).
+Compiler availability alone does not authorize text-rule retirement.
+The first head of PR #498 retired them
 unconditionally and a phase-2 token splice,
 `milan_\`+newline+`write(ADP_CTRL, 1u)`, advertised the entity before the AEM
 verdict and PASSED the complete gate on the hosted runners.
@@ -1169,12 +1262,12 @@ verdict and PASSED the complete gate on the hosted runners.
 |---|---|---|
 | the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 and 2, with what a conditional may select inside one of those bodies bounded to names this file does not define | the text the compiler is actually handed, so a splice or a paste that changes a call name, a conditional arm this gate reads and the compiler drops, and an arm whose selection differs between the census stub tree and the product, are each a measured disagreement rather than a construct someone had to anticipate | the conditional-reach ban, the token-joining splice ban and the `##`/`%:`/`??` ban |
 | the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may reach one beside the firmware | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
-| the resolver's store census: every store the compiler emits, classified by the address it RESOLVES to, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, and a store behind a brace-less `if` that the text store set cannot see at all (#495) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
+| the resolver's store census: every store the compiler emits, of every instruction class, classified by the address it RESOLVES to at every word it writes, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, a store behind a brace-less `if` that the text store set cannot see at all (#495), an FP store or an RV32A AMO or SC instruction through a paged base (R228-F1 on PR #521), and a local's parked address rewritten by a union byte or half-word store or through a pointer to the local (R227-2-F1 on PR #521). Not a store made inside a called function, such as a `memset` or 64-bit atomic library call handed a window pointer; see [What the census does NOT observe](#editing-contract-for-this-firmware) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
 
-**The two preconditions of retirement**, neither of which this change meets:
+**The two preconditions of retirement** remain separate acceptance obligations:
 
 1. an RV32-capable compiler on the hosted runners, so the instrument answers
-   where a merge is graded. No workflow file is touched here;
+   where a merge is graded. #504 owns installation and hosted evidence;
 2. an instrument-level acceptance for each refusal being retired: the
    instrument, asked on its own about the edit that refusal costs, must
    accept it. Gate 1b measures that on every run where a compiler answers,
@@ -1231,8 +1324,9 @@ already expanded. Retiring the remaining store-recognition families still
 requires #162's Makefile half. No further refusal family is deleted until a
 replacement rejects the recorded escapes by measurement.
 
-**What a runner with no RV32 compiler gets**, stated here because it is what
-the hosted runners get. The `-E` comparison, the `-H` resolution measurement
+**What a runner with no RV32 compiler gets** remains explicitly weaker.
+The compiler-absent CI control keeps this path executable.
+The `-E` comparison, the `-H` resolution measurement
 and the resolved store census all take the census's compiler, so its
 stand-down stands them down too, and the instrument-level measurements above
 go with them.
@@ -1257,12 +1351,16 @@ gap is the same one this gate has always had on such a runner: a cast with no
 behind a brace-less `if` (#495), and the verifier's CFG and CRC provenance
 need the same compile and are simply not measured there.
 
-**Installing an RV32-capable compiler in the workflows is follow-up work and
-is not claimed here.** It is the first precondition above: it would put every
-hosted run on the instruments, close the two gaps in the paragraph before
-this one where a merge is graded, and make a retirement mean something. It
-belongs in one lane with the retirement itself, which is the remaining scope
-of #408 and #409.
+**#504 installs the selected compiler without retiring any text refusal.**
+Both hosted builder calls require the RV32 instruments to execute.
+The pinned Bootlin glibc SDK retains the existing `__errno_location` residual.
+No additional C-library residual is accepted.
+Its default ISA, `rv32imafd` with ILP32D, is the census ISA.
+That ISA emits FP stores and RV32A AMO and SC instructions the shipping hart never runs.
+The store census classifies them; see the [editing contract](#editing-contract-for-this-firmware).
+Local mapped-prefix trials establish compatibility only.
+Fresh hosted installation and trusted act need their own evidence.
+Text-rule retirement remains the separate scope of #408 and #409.
 
 ## Saved state: the flash writer
 

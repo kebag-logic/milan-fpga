@@ -239,12 +239,25 @@ jobs:
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: sw/litex/patches/apply.sh
 
+      - name: Cache the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        if: ${{ steps.scope.outputs.rtl == 'true' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
       # The gates that could not run in CI, running in CI. 23f/23g observe
       # what elaboration hands Instance("milan_datapath"); their mutation arms
       # sever the chain hop by hop and require the gate to go red.
       - name: Elaboration gates
         if: ${{ steps.scope.outputs.rtl == 'true' }}
-        run: python3 sw/builder/test_builder.py --require-elaboration
+        run: python3 sw/builder/test_builder.py --require-elaboration --require-rv32
 
       # Verilator for the converted-versus-source MAC comparison in the
       # aggregate below (see the VERILATOR_VERSION comment at the top of this

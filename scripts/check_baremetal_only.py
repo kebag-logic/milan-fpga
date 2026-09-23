@@ -38,9 +38,10 @@ T. retired-stack TERM, anywhere, any context: the appearance itself is the
 P. protected product documentation: even an embedded ``linux`` substring is
    forbidden. Host-tooling masks never apply there. Deleting the protected
    document is also a failure, preventing removal from bypassing this class.
-   A file-pinned mask (``TERM_MASKS``) covers the one generic
-   container-image name in dev's CI-contract fixture; like the class-R
-   masks it is bound to its single file and cannot launder the same term on
+   File-pinned masks (``TERM_MASKS``) cover the one generic
+   container-image name in dev's CI-contract fixture and #504's selected
+   host SDK identity/relocation literals; like the class-R
+   masks each is bound to its file and cannot launder the same term on
    another line or in another file.
 R. retired target RUNTIME/service surface: the former helper services and
    target-OS interfaces are forbidden even when a line avoids the broader
@@ -256,8 +257,19 @@ TARGET_OS_DEVICE_RE = re.compile(
 # not a retired userland: mask the exact fixture spelling in its one file so
 # the term stays banned everywhere else, including a bare `busybox` elsewhere
 # in that same file. Renaming the fixture image on dev retires this entry.
+# #504 selects this SDK as a verification tool under #259's host-tooling
+# non-goal. These literals identify that tool and its relocation receipt.
+# Only the two installer files may carry them; no global triplet expansion,
+# whole-line exemption or product-document allowance follows from this mask.
+SDK_IDENTITY_MASK = (
+    r"(?<![A-Za-z0-9_./-])(?:riscv32-buildroot-linux-gnu|"
+    r"share/buildroot/sdk-location)(?![A-Za-z0-9_./-])"
+)
 TERM_MASKS = {
     "scripts/ci_events.py": re.compile(r'"image":\s*"busybox"'),
+    "scripts/ci_rv32_sdk.py": re.compile(
+        SDK_IDENTITY_MASK + r'|\("Linux", "x86_64"\)'),
+    "scripts/ci_rv32_sdk_selftest.py": re.compile(SDK_IDENTITY_MASK),
 }
 
 HOST_RUNTIME_MASKS = {
@@ -983,6 +995,33 @@ def _arms_host_tooling_masks(arm):
         arm(f"runner-host-inventory-does-not-launder-{path}",
             lambda r, p=path, t=payload: plant_runner_path(
                 r, p, t.rstrip() + " /proc/mtd\n"), True, "[R]")
+
+    sdk_literals = (
+        ("host", "scripts/ci_rv32_sdk.py", '("Linux", "x86_64")'),
+        ("target", "scripts/ci_rv32_sdk.py", '"riscv32-buildroot-linux-gnu"'),
+        ("location", "scripts/ci_rv32_sdk.py", '"share/buildroot/sdk-location"'),
+        ("fixture-target", "scripts/ci_rv32_sdk_selftest.py",
+         "echo riscv32-buildroot-linux-gnu ;;"),
+        ("fixture-location", "scripts/ci_rv32_sdk_selftest.py",
+         "pwd > share/buildroot/sdk-location\\n"),
+    )
+    for label, path, payload in sdk_literals:
+        arm(f"sdk-identity-allowed-{label}",
+            lambda r, p=path, t=payload: plant_runner_path(r, p, t), False)
+        for destination in ("other.txt", PRODUCT_DOCS[0]):
+            expected = "[P]" if destination in PRODUCT_DOCS and "linux" in payload.lower() else "[T]"
+            arm(f"sdk-identity-wrong-file-{label}-{destination}",
+                lambda r, p=destination, t=payload: plant_runner_path(r, p, t),
+                True, expected)
+        arm(f"sdk-identity-second-term-{label}",
+            lambda r, p=path, t=payload: plant_runner_path(r, p, t + " rootfs"),
+            True, "[T]")
+    for payload in ('"share/buildroot/sdk-location/other"',
+                    '"riscv32-buildroot-linux-gnu-other"',
+                    '("Linux", "aarch64")'):
+        arm(f"sdk-identity-boundary-{payload}",
+            lambda r, t=payload: plant_runner_path(r, "scripts/ci_rv32_sdk.py", t),
+            True, "[T]")
 
     # generated outputs are scanned: a term planted in an .svg text node
     arm("term-in-generated-svg",
