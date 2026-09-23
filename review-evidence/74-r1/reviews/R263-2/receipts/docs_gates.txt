@@ -1,0 +1,32 @@
+HEAD 2accfadfd3d4d8a318e3e714ee0dc87fc84e4164
+== python3 -B scripts/docs_check.py
+  docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+  rc=0
+== python3 -B scripts/check_doc_style.py
+  documentation style: OK (22 current documents)
+  rc=0
+== python3 -B scripts/gen_toc.py --check
+  TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+  rc=0
+== python3 -B scripts/gen_toc.py --verify-anchors
+  anchor check: 144 existing cross-page fragment links reproduced
+  rc=0
+== python3 -B scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+  check_em_dash: 0 finding(s) over 54 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+  rc=0
+== python3 -B scripts/check_em_dash.py --base 553edeb86b9144f7b15721255fbe5ad11ef1fe36
+  check_em_dash: 0 finding(s) over 24 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [553edeb8..HEAD]
+  rc=0
+== python3 -B docs/traceability/gen_module_matrix.py --check
+  traceability generator controls: 5/5
+  traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+  rc=0
+== git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD
+  rc=0
+== git diff --check 553edeb86b9144f7b15721255fbe5ad11ef1fe36 HEAD
+  rc=0
+== U+2014 in lines ADDED by 553edeb86b9144f7b15721255fbe5ad11ef1fe36..HEAD (any file)
+  0
+== added-line count by file, 553edeb86b9144f7b15721255fbe5ad11ef1fe36..HEAD
+  24	9	docs/reference/REGISTER_MAP.md
+  6	3	hdl/ieee1722/crf/KL_media_grid_align.sv

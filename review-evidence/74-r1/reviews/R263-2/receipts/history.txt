@@ -1,0 +1,9 @@
+2accfadfd3d4d8a318e3e714ee0dc87fc84e4164 37b72c34062ccf6c9370311cd2e203a64c65fdd0 553edeb86b9144f7b15721255fbe5ad11ef1fe36
+The SLIP_TDM docs claim only what the raced-lock arms prove: a passage is exact in its net count, and the lock clears the tick by the keep-off less its dither (#74 item 2)
+
+553edeb86b9144f7b15721255fbe5ad11ef1fe36 d78849a3b5b3c9f5eb48b4ce4df5785233ab6245 6d1572d6caeb94cd3dd871b9df90e4c5298998b6
+Regenerate the module matrix for the media-grid raced-lock arms
+
+6d1572d6caeb94cd3dd871b9df90e4c5298998b6 5c66dc66bfae09bdd50143afcb318f91c2351ec9 ede8d48ecd7c7f589a14b957951f040d92c99c70
+The junction counters stop chattering at a raced lock: the align loop parks the frame marker 1/128 sample off the tick, and a coincident tick takes the pending marker instead of dropping it (#74 item 2)
+

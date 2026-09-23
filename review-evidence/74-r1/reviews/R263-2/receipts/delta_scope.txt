@@ -1,0 +1,40 @@
+== verilator: Verilator 5.050 2026-07-01 rev v5.050
+== parents: 553edeb86b9144f7b15721255fbe5ad11ef1fe36 (expect 553edeb86b9144f7b15721255fbe5ad11ef1fe36); ede8d48ecd7c7f589a14b957951f040d92c99c70 (expect ede8d48ecd7c7f589a14b957951f040d92c99c70)
+== raw delta 553edeb86b9144f7b15721255fbe5ad11ef1fe36..2accfadfd3d4d8a318e3e714ee0dc87fc84e4164 (no renames)
+:100644 100644 d7b9753a93151278f7d307dc792f60eea17ad5b7 8338434e77b2f737c9d80eb8c2d775797eee1dde M	docs/reference/REGISTER_MAP.md
+:100644 100644 4d298a839e24de77f4c18a6325360f596d96a5bb cc41832204a2b572df077d1fd9561a695d97cf88 M	hdl/ieee1722/crf/KL_media_grid_align.sv
+== per-subtree tree ids, old vs new
+  tb: same (9866d28fc01280baa2f42d61ee02ebb71d224293 / 9866d28fc01280baa2f42d61ee02ebb71d224293)
+  hdl: DIFFERENT (4fd4cef4cb6ec140186e1fae90decdb16ba30eff / dcbb676d6bdea3ac363ad293d589c18b5f6989ad)
+  docs: DIFFERENT (3653da779678367b740824fd7f2034ce7de4bc1f / e5653293363901c0a5d5ca26fa42148dd4d41e6f)
+  scripts: same (7170f4abc88019c8d51b45628c80716befea012a / 7170f4abc88019c8d51b45628c80716befea012a)
+  syn: same (d324fbf5fa20b345528250e617bc86307569acc4 / d324fbf5fa20b345528250e617bc86307569acc4)
+  sw: same (2813fac4c531e5228ca1d423abe70d354df725a2 / 2813fac4c531e5228ca1d423abe70d354df725a2)
+  tests: same (0af4222d01188c2e996a7d05850c15f72db55c5a / 0af4222d01188c2e996a7d05850c15f72db55c5a)
+== gitlinks old vs new
+  identical
+  160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+  160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+  160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+  160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+== hunk headers of the .sv edit
+@@ -84,3 +84,6 @@
+== banner span in the new file (/* ... */ delimiters)
+  line 3:/*
+  line 101:*/
+== preprocessed (-E -P) identity, old vs new KL_media_grid_align.sv
+  source sha256 old: 25e899e09f16a3073fd837e769ab08312311307e2e30dfeeaa5a2ddb1ad9702f
+  source sha256 new: 1ef493a3c7a7c4bf308a1c3edd49546cd8635b18ca16a4b6fec5eb3123b4b192
+  -E -P sha256 old:  e3a16b1811a1f117b9e54788e57333a72fcbc32761dbe6f939ec9e46630079a9
+  -E -P sha256 new:  e3a16b1811a1f117b9e54788e57333a72fcbc32761dbe6f939ec9e46630079a9
+  preprocessed output: IDENTICAL
+  control: a one-token logic edit changes -E -P output (comparison sees logic)
+== lint-only warnings, old vs new (module alone, -Wall, same file name, line numbers normalised)
+  old rc=1, 5 diagnostic lines
+  new rc=1, 5 diagnostic lines
+  lint diagnostics (normalised): IDENTICAL
+  new: %Warning-GENUNNAMED: KL_media_grid_align.sv:L: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+  new: %Warning-GENUNNAMED: KL_media_grid_align.sv:L: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+  new: %Warning-GENUNNAMED: KL_media_grid_align.sv:L: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+  new: %Warning-GENUNNAMED: KL_media_grid_align.sv:L: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+  new: %Error: Exiting due to 4 warning(s)

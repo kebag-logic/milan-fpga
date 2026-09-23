@@ -1,0 +1,760 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 56df6d4b..31a6f503 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -111,6 +111,7 @@ Each link has exactly one master.
+ | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+ | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
+ | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
++| Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+ 
+ | Function | Implemented | Product effect |
+ |---|---|---|
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 6de3775f..8338434e 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1777,7 +1777,7 @@ least 65535, spent", never a rate. Time to the ceiling:
+ | upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
+ | upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
+ | TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
+-| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h |
++| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
+ 
+ Live RO, no arm, no snapshot (the same `>= 0x800` carve-out as `0x8F8`);
+ writes land nowhere. Read twice and difference for a rate while both halves are
+@@ -1813,10 +1813,31 @@ un-armed fails `obj_prune` instead of passing it.
+ `SLIP_TDM` counts on every shape with a physical capture front end, but only
+ once the first frame has been seen: a front end that never frames (a TDM slave
+ with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
+-evidence only beside proof that the front end frames. A non-zero `SLIP_TDM`
+-dup count beside a healthy align-loop phase error can be the detector's known
+-coincidence chatter (the `KL_chan_map_capture` banner): false-alarm direction
+-only, never a hidden slip.
++evidence only beside proof that the front end frames. A frame marker and a
++media tick in the same cycle count nothing: the tick takes the marker already
++pending, if there is one, and the coincident marker pends in its place. From
++the first frame on and below the ceiling, dups minus skips therefore follows
++ticks minus frame markers to within the one pending marker, so the NET count
++is the slip count: +1 per slow free-running passage across the tick, -1 per
++fast one. Each half alone counts once per passage while the marker dithers
++between two adjacent cycles on its way across, which is what
++`tb/verilator/media_grid_align` [G9] grades (one dup slow, one skip fast, no
++delivery jitter). A wider dither on the way through, such as the one edge of
++marker delivery jitter that suite models for the root's capture FIFO, adds
++balanced dup/skip pairs: both halves climb, and only their difference is the
++slip. Before #74 item 2 that coincidence dropped the pending marker: a marker
++dithering across the tick counted about a dozen dups per slip, read a
++skip-direction slip as dups, and a CRF lock parked with the marker on the tick
++chattered thousands of dups per 0.2 s. Under a CRF selection the align loop
++now also clamps the engagement capture that becomes its lock target into
++[`LOCK_KEEPOFF_CYC_P`, `DIV_C - LOCK_KEEPOFF_CYC_P`] cycles after the tick
++(`KL_media_grid_align`; the default keep-off is `DIV_C/128`, 16 cycles at
++100 MHz, just under 1/128 sample). The marker then dithers around that target,
++so its clearance from every tick at lock is the keep-off less the lock's own
++dither and the delivery jitter: [G7] and [G8], engaged on the tick and just
++before it with one edge of delivery jitter, grade that clearance at 12 cycles
++or more and count no dup and no skip over their lock windows, and at the [G7]
++lock a held frame is exactly one dup and a surplus frame exactly one skip.
+ 
+ **Reading them** (the lane established, a loopback pair fed and mapped, the
+ listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
+@@ -1826,7 +1847,7 @@ upstream talker runs at the physical grid's rate, the disciplined peer
+ | `SLIP_LB` | `SLIP_TDM` | verdict |
+ |---|---|---|
+ | static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock |
+-| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups climbing 0.51/s | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
++| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
+ | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
+ | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
+ 
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 2e90daf1..e0913737 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -425,7 +425,7 @@ verdicts and for check counts.
+ | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
+ | [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
+ | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
+-| [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery |
++| [`tb/verilator/media_grid_align`](../../tb/verilator/media_grid_align) | `KL_media_grid_align`, the #74 packet-grid alignment loop, closed-loop over the real `KL_media_nco` at the true 391/1591 divider ratio: both rate directions, zero junction slips, the watchdog disengage, and the beyond-authority clamp and recovery. Since #74 item 2 the real `KL_chan_map_capture` counters grade a lock raced onto the tick from either side, a held and a surplus frame there, and one free-running passage each way, with two mutants that must fail |
+ | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. Since #74 `KL_media_grid_align` steers it under a CRF selection; at INTERNAL it free-runs |
+ | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule, and every leg parses the `gptp-processor` sources |
+ | [`tb/verilator/milan_dp_render` `tdm8render`](../../tb/verilator/milan_dp_render) | **#447, the shipping TDM8 render lane end to end**: `make -C tb/verilator/milan_dp_render tdm8render`. Binds listener 0 over ACMP, programs a no-fixed-point permutation through the real dynamic `ADD_AUDIO_MAPPINGS` path, grades `GET_AUDIO_MAP` and the render RAM readback against its OWN issued route record, feeds channel-distinct AAF through the real acceptance/depacketizer/setpoint/crossbar chain, and decodes `tdm_bclk_o`/`tdm_fsync_o`/`tdm_dout_o` with a pin-only receiver that reads no DUT internal. It grades every 24-bit word and every 8-bit pad against an IMMUTABLE injection record, measures the commit-to-pin terms from registered events, and exercises the render epoch over a reset with the serial clock stopped, a reset inside the frame, a reset ON the frame wrap, a reset while a round trip is outstanding, a bind loss, a map write inside the closed epoch and a rebind. It grades the GRACEFUL FLUSH BOUNDARY from the pins as its own property: the last frame before digital silence must be a complete frame carrying one media event's identity in every routed slot, which is the whole-frame half of the flush contract that the silence checks cannot see. Every one of those states an EXACT epoch count - one counted reopening per event, two for two bind falls inside one round trip - counts the adapter's commits between a reset release and the reopening with the feed still running, and derives the first eligible media event from the preserved prefill rule instead of searching for it. Its `[CRF]` phase then selects this shape's CRF `CLOCK_SOURCE` through a real `SET_CLOCK_SOURCE` on the same AECP face, UNDER the running stream, feeds a real CRF stream into the provisioned sink and decodes the same pins again: the settled-grid recentre fires exactly once, the setpoint law holds in both states, and the commit-to-pin walk drops from the divider plan's `+10.64` ppm to zero. The deselect back to INTERNAL is the same transition the other way |
+diff --git a/docs/traceability/MODULE_MATRIX.md b/docs/traceability/MODULE_MATRIX.md
+index e0cb8779..771ee5f3 100644
+--- a/docs/traceability/MODULE_MATRIX.md
++++ b/docs/traceability/MODULE_MATRIX.md
+@@ -68,7 +68,7 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰milan_dp_render · 🔬`make aaf` | -- |
+diff --git a/hdl/ieee1722/aaf/KL_chan_map_capture.sv b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+index 69a7653e..a46611c4 100644
+--- a/hdl/ieee1722/aaf/KL_chan_map_capture.sv
++++ b/hdl/ieee1722/aaf/KL_chan_map_capture.sv
+@@ -494,20 +494,25 @@ module KL_chan_map_capture #(
+   // marker is the slot-0 write (every TDM frame delivers slot 0 first);     //
+   // a tick consuming no marker is a dup, a marker landing on an unconsumed  //
+   // marker is a skip. Rate accounting only - which slots a walk maps does   //
+-  // not matter, so this stays honest for every map. A tick and a marker in  //
+-  // the same cycle consume each other: coincidence is alignment, not slip.  //
+-  // Counts gate on tdm_fed_r so a bench with no TDM feed reads 0/0 rather   //
+-  // than a dup per tick forever. Saturating like the LOOP counters; with    //
+-  // aligned grids both stay at ZERO - the #74 acceptance state.             //
++  // not matter, so this stays honest for every map. Counts gate on          //
++  // tdm_fed_r so a bench with no TDM feed reads 0/0 rather than a dup per   //
++  // tick forever. Saturating like the LOOP counters; with aligned grids     //
++  // both stay at ZERO - the #74 acceptance state.                           //
+   //                                                                         //
+-  // KNOWN CAVEAT ([R1] on PR #323, on issue #74's ledger): when the align   //
+-  // loop happens to LOCK with the frame marker raced right onto the tick    //
+-  // (~0.1-0.3% of engagements), the coincidence branch can resolve          //
+-  // asymmetrically and this counter chatters dups at a genuinely slip-free  //
+-  // lock. False-alarm direction ONLY - it can cry wolf, never hide a slip - //
+-  // and a reselect re-rolls the phase. A fixed lock-phase target or         //
+-  // detector hysteresis is the recorded follow-up; until then read a        //
+-  // non-zero dup count beside mga_err_w before believing it.                //
++  // COINCIDENCE (#74 item 2). A tick and a marker in the same cycle: the    //
++  // tick consumes the PENDING marker when there is one, and the coincident  //
++  // one takes its place, so pend carries over. The law until #74 item 2     //
++  // cleared pend instead, dropping a marker uncounted. A free-running grid  //
++  // dithering across the tick then counted about a dozen dups per real slip //
++  // and read a skip-direction slip as dups with no skip; a loop locked with //
++  // the marker on the tick chattered thousands of dups per 0.2 s (PR #323   //
++  // [R1]). Carried over, a passage whose marker dithers between two         //
++  // adjacent cycles counts once, in its direction                           //
++  // (tb/verilator/media_grid_align [G9]); a wider dither on the way through //
++  // adds balanced dup/skip pairs. What keeps the LOCK clean is the other    //
++  // half: KL_media_grid_align parks the marker a keep-off (1/128 sample)    //
++  // away from the tick, so a lock never dithers across it and a real step   //
++  // slip there counts exactly once ([G7]/[G8]).                             //
+   // ---------------------------------------------------------------------- //
+   wire tdm_frame_ev_w = tdm_pair_valid_i && (tdm_pair_slot_i == 4'd0);
+   logic tdm_fed_r        /* verilator public_flat_rd */;
+@@ -534,8 +539,10 @@ module KL_chan_map_capture #(
+             tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;
+         end
+         2'b11: begin
++          //! the tick takes the pending marker, if any; the coincident one
++          //! pends in its place (the COINCIDENCE paragraph above)
+           tdm_fed_r        <= 1'b1;
+-          tdm_frame_pend_r <= 1'b0;
++          tdm_frame_pend_r <= tdm_frame_pend_r;
+         end
+         default: ;
+       endcase
+diff --git a/hdl/ieee1722/aaf/README-tests.md b/hdl/ieee1722/aaf/README-tests.md
+index f1bbc207..61857d69 100644
+--- a/hdl/ieee1722/aaf/README-tests.md
++++ b/hdl/ieee1722/aaf/README-tests.md
+@@ -17,7 +17,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `chmap_capture` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `KL_i2s_feed_mux.sv` | `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰milan_dp_render · 🔬`make aaf` | -- |
+diff --git a/hdl/ieee1722/crf/KL_media_grid_align.sv b/hdl/ieee1722/crf/KL_media_grid_align.sv
+index f399c049..cc418322 100644
+--- a/hdl/ieee1722/crf/KL_media_grid_align.sv
++++ b/hdl/ieee1722/crf/KL_media_grid_align.sv
+@@ -69,6 +69,25 @@
+                 actuators' shared authority class) so windup cannot outrun
+                 the NCO's own clamp.
+ 
++                LOCK TARGET (#74 item 2). The integrator walks the error to
++                the reference, so the reference IS the lock phase. The raw
++                engagement capture would lock anywhere, including with the
++                frame marker ON the tick, where KL_chan_map_capture's
++                junction counters cannot tell a jittered marker from a
++                slipped one (PR #323 [R1]: sustained phantom dups at a
++                slip-free lock). So the capture is clamped into
++                [LOCK_KEEPOFF_CYC_P, DIV_C - LOCK_KEEPOFF_CYC_P] cycles after
++                the tick. A capture already that far from both ticks keeps
++                its phase bit for bit; a raced one is pulled at most the keep-off,
++                1/128 sample by default - half the root's 1/64-sample settle
++                band, so a raced engagement starts inside it. Only the
++                engagement is steered: under the lock the marker dithers
++                around that target, so its clearance from every tick is the
++                keep-off less the lock's own dither and the marker delivery
++                jitter. tb/verilator/media_grid_align [G7]/[G8] grade it at
++                12 or more of the default 16 cycles at 100 MHz, with one
++                cycle of delivery jitter.
++
+                 FEED WATCHDOG. No frame marker for TIMEOUT_C cycles (a dead
+                 TDM plane, a bench without the audio clock) = disengage:
+                 u -> 0, the NCO free-runs at nominal, and the next frame
+@@ -92,7 +111,10 @@ module KL_media_grid_align #(
+   parameter int unsigned KP_LOG2_P     = 2,   //! u_p = err << KP_LOG2_P
+   parameter int unsigned KI_LOG2_P     = 12,  //! acc >> KI_LOG2_P per frame
+   //! |u| clamp in 1/16 ppm LSB: 3200 = 200 ppm, the MMCM/NCO authority class
+-  parameter int unsigned U_LIM_PPM16_P       = 3200
++  parameter int unsigned U_LIM_PPM16_P       = 3200,
++  //! lock-phase keep-off, clk_i cycles: the lock target stays this far from
++  //! either tick (default 1/128 sample; 0 = the raw capture, negative control)
++  parameter int unsigned LOCK_KEEPOFF_CYC_P  = (CLK_FREQ_HZ_P / FS_HZ_P) / 128
+ )(
+   input  wire                 clk_i,     //! datapath clock
+   input  wire                 rst_n,     //! active-low synchronous reset
+@@ -122,6 +144,8 @@ module KL_media_grid_align #(
+     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+   if (U_LIM_PPM16_P > 32767 - (2 * DIV_C << KP_LOG2_P))
+     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
++  if (2 * LOCK_KEEPOFF_CYC_P >= DIV_C)
++    $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+ 
+   // ---------------------------------------------------------------------- //
+   // Detector: time-since-tick capture + a TRACKING UNWRAPPER               //
+@@ -142,7 +166,7 @@ module KL_media_grid_align #(
+   // +/-0.42 cycles per frame, jitter adds one), so the nearest candidate is
+   // always the true one, and no pulse alignment can fool it.
+   logic [TSTW_C-1:0]        tst_r;       //! clk cycles since the last tick
+-  logic [TSTW_C-1:0]        ref_r;       //! capture at engagement
++  logic [TSTW_C-1:0]        ref_r;       //! lock target: kept-off capture
+   logic signed [4:0]        slip_r;      //! whole-sample fold (+ = ticks lead)
+   logic [TOW_C-1:0]         quiet_r;     //! cycles since the last frame
+   logic                     engaged_r;
+@@ -153,6 +177,14 @@ module KL_media_grid_align #(
+                                : (tst_r == TSTW_C'(2 * DIV_C - 1))
+                                  ? tst_r : tst_r + 1'b1;
+ 
++  //! the lock target an engaging frame captures: its own phase, clamped the
++  //! keep-off clear of both ticks (the LOCK TARGET banner paragraph)
++  localparam logic [TSTW_C-1:0] KEEP_LO_C = TSTW_C'(LOCK_KEEPOFF_CYC_P);
++  localparam logic [TSTW_C-1:0] KEEP_HI_C = TSTW_C'(DIV_C - LOCK_KEEPOFF_CYC_P);
++  wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_LO_C
++                               : (tst_next_w > KEEP_HI_C) ? KEEP_HI_C
++                                                          : tst_next_w;
++
+   logic signed [15:0] err_r;
+   assign err_cyc_o = err_r;
+ 
+@@ -232,7 +264,7 @@ module KL_media_grid_align #(
+       err_r     <= '0;
+       acc_r     <= '0;
+       u_o       <= '0;
+-      if (frame_ev_i) ref_r <= tst_next_w;
++      if (frame_ev_i) ref_r <= ref_keep_w;
+     end
+     else begin
+       tst_r   <= tst_next_w;
+diff --git a/tb/verilator/chmap_capture/sim_main.cpp b/tb/verilator/chmap_capture/sim_main.cpp
+index b979d6fc..0fb053bc 100644
+--- a/tb/verilator/chmap_capture/sim_main.cpp
++++ b/tb/verilator/chmap_capture/sim_main.cpp
+@@ -351,9 +351,10 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
+   // virgin: the unfed gate needs a lane that has never seen a TDM write.   //
+   // Rate accounting on lane A (frame marker = slot-0 write, vs tick_i):    //
+   // dup = tick with no fresh frame (grid fast), skip = frame over an       //
+-  // unread frame (grid slow), a same-cycle coincidence consumes silently,  //
+-  // and a non-zero slot is not a frame marker. Later arms interleave       //
+-  // frames and ticks freely, so nothing below re-reads these counters.     //
++  // unread frame (grid slow), a same-cycle coincidence counts nothing and  //
++  // carries a pending frame over (#74 item 2), and a non-zero slot is not  //
++  // a frame marker. Later arms interleave frames and ticks freely, so      //
++  // nothing below re-reads these counters.                                 //
+   // ====================================================================== //
+   printf("\n[T0] TDM junction slip detector (frame marker vs tick)\n");
+   ck("T0: virgin dup",  dut->a_tdm_dup_cnt_o,  0);
+@@ -374,17 +375,34 @@ void ChanMapCaptureHarness::pin_tdm_junction_slip_detector() {
+   a_tick();                               // consumes the slot-0 pend
+   ck("T0: non-zero slots are not frame markers (dup)",
+      dut->a_tdm_dup_cnt_o, 3);
+-  for (int i = 0; i < 3; i++) {           // same-cycle frame + tick
++  const auto coincide = [this] {          // same-cycle frame + tick
+     dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 0;
+     dut->tdm_l_i = 0x171717; dut->tdm_r_i = 0x181818;
+     dut->a_tick_i = 1; cyc();
+     dut->tdm_pair_valid_i = 0; dut->a_tick_i = 0; cyc(WALK_C + 60);
+-  }
++  };
++  for (int i = 0; i < 3; i++) coincide();
+   ck("T0: coincidence counts nothing (dup)",  dut->a_tdm_dup_cnt_o,  3);
+   ck("T0: coincidence counts nothing (skip)", dut->a_tdm_skip_cnt_o, 2);
+   a_tick();                               // fed, nothing pending -> one dup
+   ck("T0: still fed and consumed after coincidence",
+      dut->a_tdm_dup_cnt_o, 4);
++  // #74 item 2: a coincidence OVER a pending frame. The tick takes the
++  // pending frame and the coincident one pends in its place; the law before
++  // dropped it uncounted, so the next tick cried a dup and the next frame
++  // hid its skip - the free-running miscount and the raced-lock chatter.
++  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
++  coincide();                             // carried over, not dropped
++  a_tick();                               // takes the carried frame
++  ck("T0: a coincidence carries a pending frame (no dup after)",
++     dut->a_tdm_dup_cnt_o, 4);
++  drv_tdm(0, 0x1B1B1B, 0x1C1C1C);         // pending
++  coincide();                             // carried over
++  drv_tdm(0, 0x1D1D1D, 0x1E1E1E);         // lands on the carried frame
++  ck("T0: a frame over a carried frame is a skip",
++     dut->a_tdm_skip_cnt_o, 3);
++  a_tick();                               // takes it, nothing left pending
++  ck("T0: the carried frames leave no dup behind", dut->a_tdm_dup_cnt_o, 4);
+ }
+ 
+ void ChanMapCaptureHarness::pin_capability_mask_says_mapped_but_unfed() {
+diff --git a/tb/verilator/media_grid_align/Makefile b/tb/verilator/media_grid_align/Makefile
+index 1ce12273..920e6c98 100644
+--- a/tb/verilator/media_grid_align/Makefile
++++ b/tb/verilator/media_grid_align/Makefile
+@@ -2,7 +2,8 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ #
+ # Verilator verification of KL_media_grid_align.sv closed over the REAL
+-# KL_media_nco - the #74 grid-alignment loop, physical grid modelled in C++.
++# KL_media_nco - the #74 grid-alignment loop, physical grid modelled in C++ -
++# with the REAL KL_chan_map_capture junction counters on the same grids.
+ #
+ #   make        - build and run the self-checking harness
+ #   make clean  - remove build artifacts
+@@ -16,22 +17,39 @@ TOP        = media_grid_align_wrap
+ VFLAGS = --cc --exe --build -j 0 \
+          --top-module $(TOP) \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+-         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
++         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
+          +incdir+$(RTL_DIR)/common \
+          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CURDIR)"
+ 
++CAPTURE = $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv
+ SRCS = media_grid_align_wrap.sv \
+        $(RTL_DIR)/ieee1722/crf/KL_media_grid_align.sv \
+        $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv
+ CPP  = sim_main.cpp
+ 
++# MGA_MUT_COIN: the junction detector with its coincidence branch reverted to
++# the law before #74 item 2 (a coincident tick drops the pending marker). The
++# copy is refused if the substitution found nothing to revert.
++MUT_COIN_SV = obj_mut_coin/KL_chan_map_capture.sv
++
+ .PHONY: all run clean
+ all: run
+ 
+ run:
+-	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vmedia_grid_align_sim
++	$(VERILATOR) $(VFLAGS) $(SRCS) $(CAPTURE) $(CPP) -o Vmedia_grid_align_sim
+ 	$(VERILATOR) $(VFLAGS) --Mdir obj_mut_usign +define+MGA_MUT_U_SIGN \
+-	  $(SRCS) $(CPP) -o Vmedia_grid_align_sim
++	  $(SRCS) $(CAPTURE) $(CPP) -o Vmedia_grid_align_sim
++	$(VERILATOR) $(VFLAGS) --Mdir obj_mut_keepoff +define+MGA_MUT_NO_KEEPOFF \
++	  $(SRCS) $(CAPTURE) $(CPP) -o Vmedia_grid_align_sim
++	mkdir -p obj_mut_coin
++	sed "s/tdm_frame_pend_r <= tdm_frame_pend_r;/tdm_frame_pend_r <= 1'b0;/" \
++	  $(CAPTURE) > $(MUT_COIN_SV)
++	@if cmp -s $(CAPTURE) $(MUT_COIN_SV); then \
++	  echo "SELF-TEST FAILED: MGA_MUT_COIN found no coincidence branch to revert."; \
++	  exit 1; \
++	fi
++	$(VERILATOR) $(VFLAGS) --Mdir obj_mut_coin \
++	  $(SRCS) $(MUT_COIN_SV) $(CPP) -o Vmedia_grid_align_sim
+ 	@echo "======================================================================"
+ 	./obj_dir/Vmedia_grid_align_sim
+ 	@echo "---- negative control: the inverted-sign build MUST fail -------------"
+@@ -41,6 +59,22 @@ run:
+ 	else \
+ 	  echo "negative control MGA_MUT_U_SIGN: RED as required -- $$(grep -m1 'FAIL' obj_mut_usign/mut.log)"; \
+ 	fi
++	@echo "---- negative control: no lock-phase keep-off MUST fail [G7] ---------"
++	@./obj_mut_keepoff/Vmedia_grid_align_sim > obj_mut_keepoff/mut.log 2>&1; \
++	if ! grep -q '\[FAIL\] G7: zero junction' obj_mut_keepoff/mut.log; then \
++	  echo "SELF-TEST FAILED: MGA_MUT_NO_KEEPOFF did not fail the [G7] counters."; \
++	  exit 1; \
++	else \
++	  echo "negative control MGA_MUT_NO_KEEPOFF: RED as required -- $$(grep -m1 '\[FAIL\] G7: zero junction' obj_mut_keepoff/mut.log)"; \
++	fi
++	@echo "---- negative control: the old coincidence law MUST fail [G9] --------"
++	@./obj_mut_coin/Vmedia_grid_align_sim > obj_mut_coin/mut.log 2>&1; \
++	if ! grep -q '\[FAIL\] G9: ' obj_mut_coin/mut.log; then \
++	  echo "SELF-TEST FAILED: MGA_MUT_COIN did not fail the [G9] passage."; \
++	  exit 1; \
++	else \
++	  echo "negative control MGA_MUT_COIN: RED as required -- $$(grep -m1 '\[FAIL\] G9: ' obj_mut_coin/mut.log)"; \
++	fi
+ 
+ clean:
+-	rm -rf obj_dir obj_mut_usign
++	rm -rf obj_dir obj_mut_usign obj_mut_keepoff obj_mut_coin
+diff --git a/tb/verilator/media_grid_align/README.md b/tb/verilator/media_grid_align/README.md
+index 255a4a84..2bf5f337 100644
+--- a/tb/verilator/media_grid_align/README.md
++++ b/tb/verilator/media_grid_align/README.md
+@@ -6,7 +6,9 @@ The C++ harness IS the physical grid - it pulses the frame marker on a
+ double-precision fractional-period model of the TDM fsync - and the oracle
+ is the NCO's `tick_o`, graded through the harness's own copy of the
+ junction pend/consume law (the same law behind `KL_chan_map_capture`'s
+-`tdm_dup_cnt_o`/`tdm_skip_cnt_o`), never an internal signal.
++`tdm_dup_cnt_o`/`tdm_skip_cnt_o`), never an internal signal. Arms G7-G9
++read the counters of a REAL `KL_chan_map_capture`, wired on the same frame
++marker and tick as `milan_datapath` wires it, instead of that copy.
+ 
+ The reference rate is the true divider plan: `100 MHz * 391/1591 / 512 =
+ 47,999.4893 Hz`, the -10.6393 ppm Plan A that slips one sample every
+@@ -16,10 +18,10 @@ table; measured in the [historical Section 3.5.1](../../../docs/history/v1/desig
+ 
+ ## Contents
+ 
+-- **[Arms](#arms)** — The seven closed-loop arms G0-G6: deselected free-run, engagement and acquisition in both rate directions, the feed watchdog, mid-lock deselect, and the beyond-authority clamp with recovery.
+-- **[The negative control](#the-negative-control)** — the inverted-sign build must fail.
+-- **[What this suite caught while it was being written](#what-this-suite-caught-while-it-was-being-written)** — The two detector fold schemes that passed a desk check and failed loudly here, and the sign-chain pin G2/G3 holds in both directions.
+-- **[Boundaries](#boundaries)** — What this suite deliberately does not own: selection truth, the MMCM servo and the fsync CDC belong to the datapath-level arms in `tb/verilator/milan_dp`.
++- **[Arms](#arms)** -- The ten closed-loop arms G0-G9: deselected free-run, engagement and acquisition in both rate directions, the feed watchdog, mid-lock deselect, the beyond-authority clamp with recovery, a lock raced onto the tick from either side, and one free-running passage each way.
++- **[The negative control](#the-negative-control)** -- the inverted-sign, no-keep-off and old-coincidence builds must fail.
++- **[What this suite caught while it was being written](#what-this-suite-caught-while-it-was-being-written)** -- The two detector fold schemes that passed a desk check and failed loudly here, and the sign-chain pin G2/G3 holds in both directions.
++- **[Boundaries](#boundaries)** -- What this suite deliberately does not own: selection truth, the MMCM servo and the fsync CDC belong to the datapath-level arms in `tb/verilator/milan_dp`.
+ 
+ ## Arms
+ 
+@@ -32,6 +34,9 @@ table; measured in the [historical Section 3.5.1](../../../docs/history/v1/desig
+ | G4  | feed watchdog: silence disengages (u = 0, exact free-run), frames re-engage from a fresh reference and reacquire |
+ | G5  | deselect mid-lock: instant disengage, bit-exact free-run returns |
+ | G6  | a 400 ppm feed (beyond the +/-200 ppm authority): u parks at the clamp, slips honestly, and conditional integration makes recovery a re-acquisition rather than a ~1.5 s integrator bleed |
++| G7  | #74 item 2: the engaging frame lands ON a tick, then every marker arrives 0 or 1 edge late (the root's capture FIFO pop). The real junction counters stay at zero over eight 0.2 s windows after 0.6 s of settling, the marker stays at least 12 cycles off every tick, and at that lock a held frame is exactly one dup and a surplus frame exactly one skip |
++| G8  | the same from below: the engaging frame lands 1-2 edges BEFORE a tick; after 1 s the counters stay at zero over 0.2 s and the marker stays at least 12 cycles off. Acquisition from this side crosses the tick and back, and the jittered crossings print balanced dup/skip pairs |
++| G9  | free-running (deselected), the marker 20 edges from a tick: one slow passage is exactly one dup in the plan direction and exactly one skip in the mirrored one |
+ 
+ ## The negative control
+ 
+@@ -41,6 +46,19 @@ default `make` runs that build expecting FAILURE (it dies in [G2] with the
+ phase past five samples). If the mutant ever passes, the sign checks have
+ gone vacuous.
+ 
++Two more mutants hold the #74 item 2 arms to the same standard, and each
++must fail on its own arm, not merely somewhere:
++
++- `MGA_MUT_NO_KEEPOFF` builds the loop with `LOCK_KEEPOFF_CYC_P = 0`, so it
++  locks on its raw engagement capture. [G7] must fail on its junction
++  counters: once the integrator has walked the marker back onto the tick,
++  the jittered marker dithers across it and counts 1,000 to 1,400 dup/skip
++  pairs in every 0.2 s window from then on.
++- `MGA_MUT_COIN` builds a copy of `KL_chan_map_capture` whose coincidence
++  branch drops the pending marker again (the recipe refuses the copy if the
++  substitution finds nothing to revert). [G9] must fail: the slow passage
++  counts about a dozen dups, and the mirrored one counts dups and no skip.
++
+ ## What this suite caught while it was being written
+ 
+ Both detector fold schemes that preceded the tracking unwrapper passed a
+diff --git a/tb/verilator/media_grid_align/media_grid_align_wrap.sv b/tb/verilator/media_grid_align/media_grid_align_wrap.sv
+index e6604b04..4bd71a38 100644
+--- a/tb/verilator/media_grid_align/media_grid_align_wrap.sv
++++ b/tb/verilator/media_grid_align/media_grid_align_wrap.sv
+@@ -6,7 +6,9 @@
+ //! gate feeding both). The C++ side is the physical grid: it pulses
+ //! frame_ev_i on a fractional-period model of the TDM fsync and grades the
+ //! loop on the NCO's own tick_o - the oracle is the grid that comes out,
+-//! never an internal signal.
++//! never an internal signal. The REAL KL_chan_map_capture sits beside them
++//! on the same frame marker and tick, so [G7]-[G9] read the junction
++//! counters the datapath ships, not a copy of their law.
+ 
+ `default_nettype none
+ 
+@@ -19,7 +21,9 @@ module media_grid_align_wrap (
+   output wire signed [15:0] u_o,
+   output wire         engaged_o,
+   output wire signed [15:0] err_cyc_o,
+-  output wire [15:0]  phase_o
++  output wire [15:0]  phase_o,
++  output wire [15:0]  tdm_dup_cnt_o,  //! the shipped junction counters
++  output wire [15:0]  tdm_skip_cnt_o
+ );
+ 
+   wire signed [15:0] u_w;
+@@ -28,7 +32,9 @@ module media_grid_align_wrap (
+   //! the one defect this loop must never ship - the command sign inverted
+   //! into the NCO, the runaway the whole sign chain exists to prevent. The
+   //! Makefile runs that build expecting FAILURE; if it ever passes, the
+-  //! G2/G3 sign checks have gone vacuous.
++  //! G2/G3 sign checks have gone vacuous. MGA_MUT_NO_KEEPOFF zeroes the
++  //! lock-phase keep-off (#74 item 2): the loop then locks on its raw
++  //! engagement capture, and [G7] must fail.
+ `ifdef MGA_MUT_U_SIGN
+   wire signed [15:0] u_nco_w = -u_w;
+ `else
+@@ -38,6 +44,9 @@ module media_grid_align_wrap (
+   KL_media_grid_align #(
+     .CLK_FREQ_HZ_P (100_000_000),
+     .FS_HZ_P       (48_000)
++`ifdef MGA_MUT_NO_KEEPOFF
++    , .LOCK_KEEPOFF_CYC_P (0)
++`endif
+   ) u_align (
+     .clk_i (clk), .rst_n (rst_n),
+     .sel_i (sel_i),
+@@ -63,6 +72,27 @@ module media_grid_align_wrap (
+ 
+   assign u_o = u_w;
+ 
++  //! the junction detector, wired as milan_datapath wires it: the loop's
++  //! frame marker is its slot-0 pair write and the packet grid is its tick.
++  //! The smallest legal shape - the tdm_slip_count block reads only those
++  //! two, whatever the map and the lanes.
++  KL_chan_map_capture #(
++    .N_SLOTS_P (2), .N_TDM_P (2), .N_LB_STREAMS_P (1), .N_LB_CH_P (2)
++  ) u_junction (
++    .clk_i (clk), .rst_n (rst_n),
++    .map_wr_en_i (1'b0), .map_wr_addr_i (2'd0), .map_wr_data_i (13'd0),
++    .map_rd_en_i (1'b0), .map_rd_addr_i (2'd0),
++    .map_rd_data_o (), .map_rd_valid_o (), .map_flat_o (),
++    .i2s_pair_valid_i (1'b0), .i2s_l_i (24'd0), .i2s_r_i (24'd0),
++    .tdm_pair_valid_i (frame_ev_i), .tdm_pair_slot_i (4'd0),
++    .tdm_l_i (24'd0), .tdm_r_i (24'd0),
++    .tone_smp_i (24'd0),
++    .tick_i (tick_o),
++    .pair_valid_o (), .pair_slot_o (), .pair_l_o (), .pair_r_o (),
++    .lb_dup_cnt_o (), .lb_skip_cnt_o (),
++    .tdm_dup_cnt_o (tdm_dup_cnt_o), .tdm_skip_cnt_o (tdm_skip_cnt_o)
++  );
++
+ endmodule
+ 
+ `default_nettype wire
+diff --git a/tb/verilator/media_grid_align/sim_main.cpp b/tb/verilator/media_grid_align/sim_main.cpp
+index a91a99b7..86c5c32c 100644
+--- a/tb/verilator/media_grid_align/sim_main.cpp
++++ b/tb/verilator/media_grid_align/sim_main.cpp
+@@ -14,7 +14,15 @@
+ // harness runs its own copy
+ // of the junction pend/consume law (the same law as KL_chan_map_capture's
+ // tdm_dup/tdm_skip counters), so "no sample slip" is graded by the
+-// instrument the datapath actually ships.
++// instrument the datapath actually ships. Its coincidence line follows the
++// #74 item 2 law: pend carries over.
++//
++// [G7]-[G9] (#74 item 2) do not trust that copy: they read the counters of
++// the REAL KL_chan_map_capture the wrap instantiates on the same marker and
++// tick. [G7]/[G8] engage with the marker raced onto the tick and hold the
++// counters at zero through the lock, with one edge of marker delivery
++// jitter (the root's capture FIFO); a held and a surplus frame there still
++// count once each. [G9] drives one slow free-running passage each way.
+ //
+ // Sign lesson, pinned here in BOTH rate directions: err > 0 = ticks fast =
+ // u must go NEGATIVE (the NCO port speaks the servo's "u > 0 = speed up").
+@@ -23,6 +31,8 @@
+ #include <cstdint>
+ #include <cstdio>
+ #include <cmath>
++#include <algorithm>
++#include <climits>
+ #include "../../common/verilator_harness.hpp"
+ #include "Vmedia_grid_align_wrap.h"
+ #include "verilated.h"
+@@ -32,6 +42,12 @@ constexpr double kNominalHz = 48000.0; // the NCO's exact media rate
+ constexpr int    kResetCycles = 8;     // clock edges held in reset
+ 
+ constexpr double PLAN_A = kClkHz * (391.0 / 1591.0) / 512.0; // 47999.4893 Hz
++constexpr double kPlanPeriod = kClkHz / PLAN_A;                 // cycles/frame
++//! the mirrored feed: +10.64 ppm, as [G3] drives it
++constexpr double kFastPeriod = kPlanPeriod * (PLAN_A / kNominalHz) * (PLAN_A / kNominalHz);
++//! [G7]/[G8] clearance floor: the keep-off (2083/128 = 16 cycles) less the
++//! lock's own dither and the delivery jitter
++constexpr long   kLockClearMin = 12;
+ 
+ namespace {
+ 
+@@ -58,6 +74,9 @@ class MediaGridAlignHarness {
+         prove_feed_watchdog_disengages_and_re_engages();
+         prove_deselect_mid_lock_restores_free_run();
+         prove_beyond_authority_parks_at_the_clamp();
++        prove_a_lock_raced_onto_the_tick_counts_nothing();
++        prove_a_lock_raced_before_the_tick_counts_nothing();
++        prove_a_free_running_passage_counts_one_slip();
+ 
+         return report();
+     }
+@@ -78,10 +97,16 @@ class MediaGridAlignHarness {
+ 
+     // ---- the physical grid model + the shipped junction law ----------------
+     void cyc() {
+-        bool fev = false;
++        bool fev = surplus_frame || late_frame;
++        surplus_frame = false;
++        late_frame    = false;
+         if (frame_period > 0.0) {
+             frame_acc += 1.0;
+-            if (frame_acc >= frame_period) { frame_acc -= frame_period; fev = true; }
++            if (frame_acc >= frame_period) {
++                frame_acc -= frame_period;
++                if (marker_jitter && (next_rand() & 1u)) late_frame = true;
++                else fev = true;
++            }
+         }
+         dut->frame_ev_i = fev;
+         dut->clk = 0; dut->eval();
+@@ -91,8 +116,36 @@ class MediaGridAlignHarness {
+         if (tk)  tick_count++;
+         if (fev && !tk)      { if (pend) skips++; pend = true; }
+         else if (tk && !fev) { if (!pend) dups++; pend = false; }
+-        else if (fev && tk)  { pend = false; }
++        // fev && tk: the tick takes the pending frame, the new one pends
++        track_clearance(fev);
++        tick_q = tk;
+     }
++    //! Marker-to-tick clearance as the RTL pairs them: the tick_i an edge
++    //! samples is the tick_o the PREVIOUS edge produced, and a marker's
++    //! phase is the aligner's own capture (0 on the tick's edge, n edges
++    //! after it otherwise). A marker n edges after one tick and m before
++    //! the next is min(n, m) clear of the junction's race.
++    void track_clearance(bool fev) {
++        if (tick_q) {
++            if (mark_phase > 0)
++                clear_min = std::min(clear_min, edges_since_tick + 1 - mark_phase);
++            edges_since_tick = 0;
++            mark_phase = -1;
++        } else {
++            edges_since_tick++;
++        }
++        if (fev) {
++            mark_phase = tick_q ? 0 : edges_since_tick;
++            last_phase = mark_phase;
++            clear_min  = std::min(clear_min, mark_phase);
++        }
++    }
++    uint32_t next_rand() {                 // xorshift32: a fixed, repeatable draw
++        rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5;
++        return rng;
++    }
++    long rtl_dups()  const { return dut->tdm_dup_cnt_o; }
++    long rtl_skips() const { return dut->tdm_skip_cnt_o; }
+     void run_cycles(long n) { for (long i = 0; i < n; i++) cyc(); }
+     void slip_reset() { dups = 0; skips = 0; }
+ 
+@@ -218,6 +271,112 @@ class MediaGridAlignHarness {
+                  -200, -140);
+     }
+ 
++    // ---------------------------------------------------------------------- //
++    //! Deselect, then re-anchor the physical grid so its next frame lands
++    //! `lead` edges after the edge on which the RTL samples a tick (0 = ON
++    //! the tick). The frame after this call's return is that frame.
++    void anchor_grid(double period, long lead) {
++        dut->sel_i = 0;
++        marker_jitter = false;
++        frame_period = period;
++        run_cycles(10'000);
++        while (!dut->tick_o) cyc();           // the RTL samples a tick next edge
++        frame_acc = frame_period - 0.5 - static_cast<double>(lead);
++        run_cycles(lead);
++    }
++    //! ...and let exactly that frame engage the loop: the engagement
++    //! capture is the lock target, so the lock lands where the caller aims
++    void engage_at_phase(long lead) {
++        anchor_grid(kPlanPeriod, lead);
++        dut->sel_i = 1;
++        cyc();
++    }
++
++    // ---------------------------------------------------------------------- //
++    void prove_a_lock_raced_onto_the_tick_counts_nothing() {
++        printf("\n[G7] raced lock: the engaging frame lands ON a tick (#74 item 2)\n");
++        engage_at_phase(0);
++        ck("G7: the loop engaged on that frame", dut->engaged_o, 1);
++        ck("G7: the engaging frame raced onto the tick (phase)", last_phase, 0);
++        marker_jitter = true;                         // the root's FIFO pop
++        long d0 = rtl_dups(), s0 = rtl_skips();
++        run_cycles(60'000'000);                       // 0.6 s: settle, as G2
++        printf("  acquisition: %ld junction dups, %ld skips\n",
++               rtl_dups() - d0, rtl_skips() - s0);
++        ck("G7: still engaged after settling", dut->engaged_o, 1);
++        // PR #323's [R1] saw the chatter come and go in 0.2 s windows, and
++        // it starts only once the integrator has walked the marker onto the
++        // tick (~1.4 s after engaging), so eight windows are printed and
++        // their sum is graded
++        clear_min = LONG_MAX;
++        d0 = rtl_dups(); s0 = rtl_skips();
++        for (int w = 0; w < 8; w++) {
++            const long wd = rtl_dups(), ws = rtl_skips();
++            run_cycles(20'000'000);
++            printf("  window %d: %ld junction dups, %ld skips, err %d cycles\n", w,
++                   rtl_dups() - wd, rtl_skips() - ws,
++                   static_cast<int16_t>(dut->err_cyc_o));
++        }
++        ck("G7: zero junction dups over 8 x 0.2 s at the raced lock",  rtl_dups() - d0, 0);
++        ck("G7: zero junction skips over 8 x 0.2 s at the raced lock", rtl_skips() - s0, 0);
++        ck_range("G7: marker clearance from every tick at lock (cycles)",
++                 clear_min, kLockClearMin, 2083);
++
++        // the negative controls, AT this lock: a real slip still counts once
++        d0 = rtl_dups(); s0 = rtl_skips();
++        frame_acc -= frame_period;                    // hold the grid one frame
++        run_cycles(1'000'000);
++        ck("G7: a held frame is one junction dup",   rtl_dups() - d0, 1);
++        ck("G7: a held frame is no junction skip",   rtl_skips() - s0, 0);
++        d0 = rtl_dups(); s0 = rtl_skips();
++        while (!dut->frame_ev_i) cyc();               // just past a frame
++        run_cycles(520);                              // a quarter frame on
++        surplus_frame = true;
++        run_cycles(1'000'000);
++        ck("G7: a surplus frame is one junction skip", rtl_skips() - s0, 1);
++        ck("G7: a surplus frame is no junction dup",   rtl_dups() - d0, 0);
++        ck("G7: the loop stayed engaged through both slips", dut->engaged_o, 1);
++    }
++
++    // ---------------------------------------------------------------------- //
++    void prove_a_lock_raced_before_the_tick_counts_nothing() {
++        printf("\n[G8] raced lock from below: the engaging frame lands just BEFORE a tick\n");
++        engage_at_phase(2082);                        // 1-2 edges before the next
++        ck("G8: the loop engaged on that frame", dut->engaged_o, 1);
++        ck_range("G8: the engaging frame raced the next tick (phase)",
++                 last_phase, 2081, 2083);
++        marker_jitter = true;
++        long d0 = rtl_dups(), s0 = rtl_skips();
++        run_cycles(100'000'000);                      // 1 s: this side settles last
++        printf("  acquisition: %ld junction dups, %ld skips\n",
++               rtl_dups() - d0, rtl_skips() - s0);
++        clear_min = LONG_MAX;
++        d0 = rtl_dups(); s0 = rtl_skips();
++        run_cycles(20'000'000);
++        ck("G8: zero junction dups over 0.2 s at the lock",  rtl_dups() - d0, 0);
++        ck("G8: zero junction skips over 0.2 s at the lock", rtl_skips() - s0, 0);
++        ck_range("G8: marker clearance from every tick at lock (cycles)",
++                 clear_min, kLockClearMin, 2083);
++    }
++
++    // ---------------------------------------------------------------------- //
++    void prove_a_free_running_passage_counts_one_slip() {
++        printf("\n[G9] free-running: one slow passage across a tick is ONE slip, its way\n");
++        // the plan's slow grid: the marker drifts ~1064 cycles/s later and
++        // crosses the tick it starts 20 edges before, once in 0.1 s
++        anchor_grid(kPlanPeriod, 2063);
++        long d0 = rtl_dups(), s0 = rtl_skips();
++        run_cycles(10'000'000);
++        ck("G9: a slow grid's passage is one junction dup",   rtl_dups() - d0, 1);
++        ck("G9: a slow grid's passage is no junction skip",   rtl_skips() - s0, 0);
++        // the mirrored fast grid crosses the tick it starts 20 edges after
++        anchor_grid(kFastPeriod, 20);
++        d0 = rtl_dups(); s0 = rtl_skips();
++        run_cycles(10'000'000);
++        ck("G9: a fast grid's passage is one junction skip",  rtl_skips() - s0, 1);
++        ck("G9: a fast grid's passage is no junction dup",    rtl_dups() - d0, 0);
++    }
++
+     int report() {
+         printf("\n----------------------------------------------------------------------\n");
+         printf("%d checks, %d failures\n", checks, fails);
+@@ -236,6 +395,17 @@ class MediaGridAlignHarness {
+     long   skips = 0;           // surplus frames
+     long   tick_count  = 0;
+     long   frame_count = 0;
++
++    // ---- [G7]-[G9]: marker placement and the clearance it keeps --------------
++    bool     surplus_frame = false; // one extra marker on the next edge
++    bool     late_frame    = false; // a marker the delivery jitter held one edge
++    bool     marker_jitter = false; // [G7]/[G8]: each marker 0 or 1 edge late
++    uint32_t rng           = 0x74A197u;
++    bool     tick_q        = false; // tick_o after the previous edge = tick_i now
++    long     edges_since_tick = 0;
++    long     mark_phase    = -1;    // this tick period's marker, -1 = none
++    long     last_phase    = -1;    // the most recent marker's phase
++    long     clear_min     = LONG_MAX;
+ };
+ 
+ }  // namespace

@@ -1,0 +1,283 @@
+--- media_grid_align/sim_main.cpp	2026-09-23 17:13:28.000000000 +0200
++++ media_grid_align_probe/sim_main.cpp	2026-09-23 20:13:26.633849938 +0200
+@@ -35,6 +35,9 @@
+ #include <climits>
+ #include "../../common/verilator_harness.hpp"
+ #include "Vmedia_grid_align_wrap.h"
++#include "Vmedia_grid_align_wrap___024root.h"
++#include <vector>
++#include <map>
+ #include "verilated.h"
+ 
+ constexpr double kClkHz     = 100e6;   // the 100 MHz fabric clock
+@@ -77,6 +80,8 @@
+         prove_a_lock_raced_onto_the_tick_counts_nothing();
+         prove_a_lock_raced_before_the_tick_counts_nothing();
+         prove_a_free_running_passage_counts_one_slip();
++        probe_jittered_passages();
++        probe_report();
+ 
+         return report();
+     }
+@@ -112,6 +117,7 @@
+         dut->clk = 0; dut->eval();
+         dut->clk = 1; dut->eval();
+         bool tk = dut->tick_o;
++        probe_invariant(fev);
+         if (fev) frame_count++;
+         if (tk)  tick_count++;
+         if (fev && !tk)      { if (pend) skips++; pend = true; }
+@@ -127,6 +133,13 @@
+     //! the next is min(n, m) clear of the junction's race.
+     void track_clearance(bool fev) {
+         if (tick_q) {
++            if (probe_log) {
++                for (long n : probe_phases) {
++                    const long m = edges_since_tick + 1 - n;
++                    probe_offset(n <= m ? n : -m);
++                }
++            }
++            probe_phases.clear();
+             if (mark_phase > 0)
+                 clear_min = std::min(clear_min, edges_since_tick + 1 - mark_phase);
+             edges_since_tick = 0;
+@@ -134,6 +147,10 @@
+         } else {
+             edges_since_tick++;
+         }
++        if (fev && probe_log) {
++            if (tick_q) probe_offset(0);
++            else probe_phases.push_back(edges_since_tick);
++        }
+         if (fev) {
+             mark_phase = tick_q ? 0 : edges_since_tick;
+             last_phase = mark_phase;
+@@ -366,13 +383,17 @@
+         // crosses the tick it starts 20 edges before, once in 0.1 s
+         anchor_grid(kPlanPeriod, 2063);
+         long d0 = rtl_dups(), s0 = rtl_skips();
++        probe_begin(+1);
+         run_cycles(10'000'000);
++        probe_end("P2 G9 slow passage, no jitter", d0, s0);
+         ck("G9: a slow grid's passage is one junction dup",   rtl_dups() - d0, 1);
+         ck("G9: a slow grid's passage is no junction skip",   rtl_skips() - s0, 0);
+         // the mirrored fast grid crosses the tick it starts 20 edges after
+         anchor_grid(kFastPeriod, 20);
+         d0 = rtl_dups(); s0 = rtl_skips();
++        probe_begin(-1);
+         run_cycles(10'000'000);
++        probe_end("P2 G9 fast passage, no jitter", d0, s0);
+         ck("G9: a fast grid's passage is one junction skip",  rtl_skips() - s0, 1);
+         ck("G9: a fast grid's passage is no junction dup",    rtl_dups() - d0, 0);
+     }
+@@ -406,6 +427,86 @@
+     long     mark_phase    = -1;    // this tick period's marker, -1 = none
+     long     last_phase    = -1;    // the most recent marker's phase
+     long     clear_min     = LONG_MAX;
++
++    // ======================= PROBE (disposable, never committed) ============
++    bool  inv_on = false;
++    long  inv_T = 0, inv_M = 0, inv_edges = 0, inv_viol = 0;
++    long  inv_dev_min = LONG_MAX, inv_dev_max = LONG_MIN;
++    void probe_invariant(bool fev) {
++        auto* r = dut->rootp;
++        const bool fed  = r->media_grid_align_wrap__DOT__u_junction__DOT__tdm_fed_r;
++        const bool pnd  = r->media_grid_align_wrap__DOT__u_junction__DOT__tdm_frame_pend_r;
++        if (!fed) return;
++        inv_on = true;
++        if (tick_q) inv_T++;
++        if (fev)    inv_M++;
++        inv_edges++;
++        const long dev = (rtl_dups() - rtl_skips()) - (inv_T - inv_M);
++        inv_dev_min = std::min(inv_dev_min, dev);
++        inv_dev_max = std::max(inv_dev_max, dev);
++        const long I = dev - (pnd ? 1 : 0);
++        if (I != 0 && ++inv_viol <= 5)
++            printf("  [probe] P1 VIOLATION I=%ld at edge %ld\n", I, inv_edges);
++        if (rtl_dups() >= 0xFFFF || rtl_skips() >= 0xFFFF)
++            printf("  [probe] P1 counter saturated at edge %ld\n", inv_edges);
++    }
++
++    bool  probe_log = false;
++    int   probe_dir = 0;
++    std::vector<long> probe_phases;
++    std::map<long, long> probe_hist;
++    long  probe_run_ext = 0, probe_back = 0, probe_n = 0;
++    void probe_offset(long o) {
++        probe_n++;
++        if (o >= -6 && o <= 6) probe_hist[o]++;
++        // step back against the passage direction, near the crossing only
++        if (o < -200 || o > 200) return;
++        const long v = probe_dir * o;               // increasing along the passage
++        if (v > probe_run_ext) probe_run_ext = v;
++        probe_back = std::max(probe_back, probe_run_ext - v);
++    }
++    void probe_begin(int dir) {
++        probe_log = true; probe_dir = dir; probe_phases.clear(); probe_hist.clear();
++        probe_run_ext = LONG_MIN / 2; probe_back = 0; probe_n = 0;
++    }
++    void probe_end(const char* what, long d0, long s0) {
++        probe_log = false;
++        const long d = rtl_dups() - d0, s = rtl_skips() - s0;
++        printf("  [probe] %s: dups %ld, skips %ld, net %+ld, markers logged %ld, "
++               "largest step back %ld\n", what, d, s, d - s, probe_n, probe_back);
++        printf("  [probe]   offsets -6..6 (marker edge minus nearest tick edge):");
++        for (auto& kv : probe_hist) printf(" %ld:%ld", kv.first, kv.second);
++        printf("\n");
++    }
++    int p3_fail = 0;
++    void probe_jittered_passages() {
++        printf("\n[P3] probe: [G9]'s passages with one edge of delivery jitter\n");
++        for (uint32_t seed = 1; seed <= 8; seed++) {
++            for (int dir : {+1, -1}) {
++                anchor_grid(dir > 0 ? kPlanPeriod : kFastPeriod, dir > 0 ? 2063 : 20);
++                marker_jitter = true;
++                rng = 0x9E3779B9u * seed;
++                const long d0 = rtl_dups(), s0 = rtl_skips();
++                probe_begin(dir);
++                run_cycles(10'000'000);
++                char what[96];
++                snprintf(what, sizeof what, "P3 seed %u %s passage, 1-edge jitter",
++                         seed, dir > 0 ? "slow" : "fast");
++                probe_end(what, d0, s0);
++                const long net = (rtl_dups() - d0) - (rtl_skips() - s0);
++                if (net != dir) { p3_fail++; printf("  [probe] P3 NET MISMATCH\n"); }
++                marker_jitter = false;
++            }
++        }
++    }
++    void probe_report() {
++        printf("\n[P1] probe: net-count law over every edge from the first frame on\n");
++        printf("  [probe] P1 edges checked %ld, ticks %ld, markers %ld, violations %ld, "
++               "(dups-skips)-(ticks-markers) in [%ld, %ld]\n",
++               inv_edges, inv_T, inv_M, inv_viol, inv_dev_min, inv_dev_max);
++        printf("  [probe] P1 %s\n", (inv_on && inv_viol == 0) ? "HOLDS" : "BROKEN");
++        printf("  [probe] P3 net mismatches %d\n", p3_fail);
++    }
+ };
+ 
+ }  // namespace
+--- media_grid_align/media_grid_align_wrap.sv	2026-09-23 17:13:28.000000000 +0200
++++ media_grid_align_probe/media_grid_align_wrap.sv	2026-09-23 20:13:26.633600575 +0200
+@@ -47,6 +47,9 @@
+ `ifdef MGA_MUT_NO_KEEPOFF
+     , .LOCK_KEEPOFF_CYC_P (0)
+ `endif
++`ifdef PROBE_KEEPOFF
++    , .LOCK_KEEPOFF_CYC_P (`PROBE_KEEPOFF)
++`endif
+   ) u_align (
+     .clk_i (clk), .rst_n (rst_n),
+     .sel_i (sel_i),
+--- media_grid_align_probe/sim_main.cpp	2026-09-23 20:13:26.633849938 +0200
++++ media_grid_align_probe50/sim_main.cpp	2026-09-23 20:19:40.197558441 +0200
+@@ -40,11 +40,11 @@
+ #include <map>
+ #include "verilated.h"
+ 
+-constexpr double kClkHz     = 100e6;   // the 100 MHz fabric clock
++constexpr double kClkHz     = 50e6;   // the 100 MHz fabric clock
+ constexpr double kNominalHz = 48000.0; // the NCO's exact media rate
+ constexpr int    kResetCycles = 8;     // clock edges held in reset
+ 
+-constexpr double PLAN_A = kClkHz * (391.0 / 1591.0) / 512.0; // 47999.4893 Hz
++constexpr double PLAN_A = 100e6 * (391.0 / 1591.0) / 512.0; // 47999.4893 Hz
+ constexpr double kPlanPeriod = kClkHz / PLAN_A;                 // cycles/frame
+ //! the mirrored feed: +10.64 ppm, as [G3] drives it
+ constexpr double kFastPeriod = kPlanPeriod * (PLAN_A / kNominalHz) * (PLAN_A / kNominalHz);
+@@ -187,7 +187,7 @@
+         printf("\n[G1] INTERNAL equivalence: deselected NCO is bit-exact nominal\n");
+         tick_count = 0;
+         run_cycles(10'000'000);                       // 0.1 s
+-        ck("G1: 4800 ticks in 10M cycles (exact 48 kHz)", tick_count, 4800);
++        ck("G1: 4800 ticks in 10M cycles (exact 48 kHz)", tick_count, 9600);
+     }
+ 
+     // ---------------------------------------------------------------------- //
+@@ -249,7 +249,7 @@
+         ck("G4: u_o returns to 0 on a dead feed",     dut->u_o, 0);
+         tick_count = 0;
+         run_cycles(10'000'000);
+-        ck("G4: dead-feed NCO free-runs at exact 48 kHz", tick_count, 4800);
++        ck("G4: dead-feed NCO free-runs at exact 48 kHz", tick_count, 9600);
+         frame_period = kClkHz / PLAN_A;               // feed returns
+         slip_reset();
+         run_cycles(60'000'000);
+@@ -267,7 +267,7 @@
+         ck("G5: engaged_o drops on deselect",         dut->engaged_o, 0);
+         tick_count = 0;
+         run_cycles(10'000'000);
+-        ck("G5: deselected NCO is bit-exact nominal again", tick_count, 4800);
++        ck("G5: deselected NCO is bit-exact nominal again", tick_count, 9600);
+     }
+ 
+     // ---------------------------------------------------------------------- //
+@@ -337,7 +337,7 @@
+         ck("G7: zero junction dups over 8 x 0.2 s at the raced lock",  rtl_dups() - d0, 0);
+         ck("G7: zero junction skips over 8 x 0.2 s at the raced lock", rtl_skips() - s0, 0);
+         ck_range("G7: marker clearance from every tick at lock (cycles)",
+-                 clear_min, kLockClearMin, 2083);
++                 clear_min, kLockClearMin, 1041);
+ 
+         // the negative controls, AT this lock: a real slip still counts once
+         d0 = rtl_dups(); s0 = rtl_skips();
+@@ -358,10 +358,10 @@
+     // ---------------------------------------------------------------------- //
+     void prove_a_lock_raced_before_the_tick_counts_nothing() {
+         printf("\n[G8] raced lock from below: the engaging frame lands just BEFORE a tick\n");
+-        engage_at_phase(2082);                        // 1-2 edges before the next
++        engage_at_phase(1040);                        // 1-2 edges before the next
+         ck("G8: the loop engaged on that frame", dut->engaged_o, 1);
+         ck_range("G8: the engaging frame raced the next tick (phase)",
+-                 last_phase, 2081, 2083);
++                 last_phase, 1039, 1042);
+         marker_jitter = true;
+         long d0 = rtl_dups(), s0 = rtl_skips();
+         run_cycles(100'000'000);                      // 1 s: this side settles last
+@@ -373,7 +373,7 @@
+         ck("G8: zero junction dups over 0.2 s at the lock",  rtl_dups() - d0, 0);
+         ck("G8: zero junction skips over 0.2 s at the lock", rtl_skips() - s0, 0);
+         ck_range("G8: marker clearance from every tick at lock (cycles)",
+-                 clear_min, kLockClearMin, 2083);
++                 clear_min, kLockClearMin, 1041);
+     }
+ 
+     // ---------------------------------------------------------------------- //
+@@ -381,7 +381,7 @@
+         printf("\n[G9] free-running: one slow passage across a tick is ONE slip, its way\n");
+         // the plan's slow grid: the marker drifts ~1064 cycles/s later and
+         // crosses the tick it starts 20 edges before, once in 0.1 s
+-        anchor_grid(kPlanPeriod, 2063);
++        anchor_grid(kPlanPeriod, 1021);
+         long d0 = rtl_dups(), s0 = rtl_skips();
+         probe_begin(+1);
+         run_cycles(10'000'000);
+@@ -483,7 +483,7 @@
+         printf("\n[P3] probe: [G9]'s passages with one edge of delivery jitter\n");
+         for (uint32_t seed = 1; seed <= 8; seed++) {
+             for (int dir : {+1, -1}) {
+-                anchor_grid(dir > 0 ? kPlanPeriod : kFastPeriod, dir > 0 ? 2063 : 20);
++                anchor_grid(dir > 0 ? kPlanPeriod : kFastPeriod, dir > 0 ? 1021 : 20);
+                 marker_jitter = true;
+                 rng = 0x9E3779B9u * seed;
+                 const long d0 = rtl_dups(), s0 = rtl_skips();
+--- media_grid_align_probe/media_grid_align_wrap.sv	2026-09-23 20:13:26.633600575 +0200
++++ media_grid_align_probe50/media_grid_align_wrap.sv	2026-09-23 20:19:40.197706242 +0200
+@@ -42,7 +42,7 @@
+ `endif
+ 
+   KL_media_grid_align #(
+-    .CLK_FREQ_HZ_P (100_000_000),
++    .CLK_FREQ_HZ_P (50_000_000),
+     .FS_HZ_P       (48_000)
+ `ifdef MGA_MUT_NO_KEEPOFF
+     , .LOCK_KEEPOFF_CYC_P (0)
+@@ -61,7 +61,7 @@
+   );
+ 
+   KL_media_nco #(
+-    .CLK_FREQ_HZ_P (100_000_000),
++    .CLK_FREQ_HZ_P (50_000_000),
+     .FS_HZ_P       (48_000)
+   ) u_nco (
+     .clk_i (clk), .rst_n (rst_n),

@@ -1,0 +1,145 @@
+== KL_media_grid_align closed over KL_media_nco (#74) ==
+
+[G0] reset / deselected: no command, no engagement
+  [probe] P1 VIOLATION I=1 at edge 35418
+  [probe] P1 VIOLATION I=1 at edge 35419
+  [probe] P1 VIOLATION I=1 at edge 35420
+  [probe] P1 VIOLATION I=1 at edge 35421
+  [probe] P1 VIOLATION I=1 at edge 35422
+  [ ok ] G0: u_o stays 0 with sel_i low                       = 0
+  [ ok ] G0: engaged_o stays 0 with sel_i low                 = 0
+
+[G1] INTERNAL equivalence: deselected NCO is bit-exact nominal
+  [ ok ] G1: 4800 ticks in 10M cycles (exact 48 kHz)          = 4800
+
+[G2] select at the true Plan-A ratio: acquire, bound, hold
+  [ ok ] G2: loop engaged                                     = 1
+  [ ok ] G2: |err| peak over acquisition (cycles, <1 sample=2083) = 35 (in [0, 300])
+  [ ok ] G2: zero surplus ticks while engaged (junction law)  = 0
+  [ ok ] G2: zero surplus frames while engaged (junction law) = 0
+  [ ok ] G2: settled u (LSB of 1/16 ppm; plan needs ~-170)    = -172 (in [-200, -140])
+  [ ok ] G2: settled |err| (cycles)                           = 7 (in [0, 60])
+  [ ok ] G2: locked tick count tracks frame count (+/-1)      = 0 (in [-1, 1])
+
+[G3] the opposite direction: a +10.64 ppm fast feed
+  [ ok ] G3: zero surplus ticks (junction law)                = 0
+  [ ok ] G3: zero surplus frames (junction law)               = 0
+  [ ok ] G3: u flips sign with the rate (~+170 LSB)           = 175 (in [140, 200])
+
+[G4] feed watchdog: silence disengages, frames re-engage
+  [ ok ] G4: engaged_o falls on a dead feed                   = 0
+  [ ok ] G4: u_o returns to 0 on a dead feed                  = 0
+  [ ok ] G4: dead-feed NCO free-runs at exact 48 kHz          = 4800
+  [ ok ] G4: re-engaged after the feed returns                = 1
+  [ ok ] G4: reacquired u (~-170 LSB)                         = -176 (in [-200, -140])
+
+[G5] deselect mid-lock: INTERNAL free-run comes back untouched
+  [ ok ] G5: u_o drops to 0 on deselect                       = 0
+  [ ok ] G5: engaged_o drops on deselect                      = 0
+  [ ok ] G5: deselected NCO is bit-exact nominal again        = 4800
+
+[G6] beyond authority: a 400 ppm feed parks at the clamp,
+     slips honestly, and recovery is frames - not seconds
+  [ ok ] G6: u parked at the negative clamp                   = -3200
+  [ ok ] G6: slips stop after recovery (surplus ticks)        = 0
+  [ ok ] G6: slips stop after recovery (surplus frames)       = 0
+  [ ok ] G6: recovered u (~-170 LSB)                          = -152 (in [-200, -140])
+
+[G7] raced lock: the engaging frame lands ON a tick (#74 item 2)
+  [ ok ] G7: the loop engaged on that frame                   = 1
+  [ ok ] G7: the engaging frame raced onto the tick (phase)   = 0
+  acquisition: 7 junction dups, 0 skips
+  [ ok ] G7: still engaged after settling                     = 1
+  window 0: 0 junction dups, 0 skips, err 5 cycles
+  window 1: 0 junction dups, 0 skips, err 3 cycles
+  window 2: 771 junction dups, 0 skips, err 0 cycles
+  window 3: 2351 junction dups, 0 skips, err 1 cycles
+  window 4: 2431 junction dups, 569 skips, err 1 cycles
+  window 5: 1980 junction dups, 870 skips, err 0 cycles
+  window 6: 1694 junction dups, 853 skips, err 0 cycles
+  window 7: 1701 junction dups, 871 skips, err 0 cycles
+  [FAIL] G7: zero junction dups over 8 x 0.2 s at the raced lock = 10928 (expected 0)
+  [FAIL] G7: zero junction skips over 8 x 0.2 s at the raced lock = 3163 (expected 0)
+  [FAIL] G7: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+  [FAIL] G7: a held frame is one junction dup                 = 73 (expected 1)
+  [FAIL] G7: a held frame is no junction skip                 = 36 (expected 0)
+  [FAIL] G7: a surplus frame is one junction skip             = 13 (expected 1)
+  [FAIL] G7: a surplus frame is no junction dup               = 21 (expected 0)
+  [ ok ] G7: the loop stayed engaged through both slips       = 1
+
+[G8] raced lock from below: the engaging frame lands just BEFORE a tick
+  [ ok ] G8: the loop engaged on that frame                   = 1
+  [ ok ] G8: the engaging frame raced the next tick (phase)   = 2082 (in [2081, 2083])
+  acquisition: 418 junction dups, 3 skips
+  [FAIL] G8: zero junction dups over 0.2 s at the lock        = 2278 (expected 0)
+  [FAIL] G8: zero junction skips over 0.2 s at the lock       = 356 (expected 0)
+  [FAIL] G8: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+
+[G9] free-running: one slow passage across a tick is ONE slip, its way
+  [probe] P2 G9 slow passage, no jitter: dups 10, skips 0, net +10, markers logged 4799, largest step back 1
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:45 -5:45 -4:45 -3:45 -2:45 -1:45 0:45 1:46 2:45 3:45 4:45 5:45 6:45
+  [FAIL] G9: a slow grid's passage is one junction dup        = 10 (expected 1)
+  [ ok ] G9: a slow grid's passage is no junction skip        = 0
+  [probe] P2 G9 fast passage, no jitter: dups 9, skips 0, net +9, markers logged 4801, largest step back 1
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:45 -5:45 -4:45 -3:45 -2:45 -1:46 0:45 1:45 2:45 3:45 4:45 5:45 6:45
+  [FAIL] G9: a fast grid's passage is one junction skip       = 0 (expected 1)
+  [FAIL] G9: a fast grid's passage is no junction dup         = 9 (expected 0)
+
+[P3] probe: [G9]'s passages with one edge of delivery jitter
+  [probe] P3 seed 1 slow passage, 1-edge jitter: dups 20, skips 1, net +19, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:39 -5:58 -4:37 -3:52 -2:43 -1:37 0:50 1:41 2:48 3:44 4:53 5:39 6:43
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 1 fast passage, 1-edge jitter: dups 18, skips 3, net +15, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:43 -5:39 -4:51 -3:46 -2:40 -1:44 0:48 1:43 2:46 3:52 4:41 5:50 6:37
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 2 slow passage, 1-edge jitter: dups 14, skips 2, net +12, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:45 -5:37 -4:42 -3:53 -2:42 -1:50 0:53 1:32 2:47 3:46 4:43 5:44 6:43
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 2 fast passage, 1-edge jitter: dups 11, skips 3, net +8, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:46 -5:46 -4:43 -3:48 -2:45 -1:53 0:44 1:39 2:44 3:39 4:49 5:49 6:51
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 3 slow passage, 1-edge jitter: dups 20, skips 3, net +17, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:44 -5:46 -4:51 -3:39 -2:44 -1:47 0:45 1:42 2:44 3:42 4:53 5:41 6:41
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 3 fast passage, 1-edge jitter: dups 17, skips 4, net +13, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:43 -5:42 -4:54 -3:39 -2:50 -1:42 0:48 1:46 2:45 3:48 4:47 5:40 6:43
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 4 slow passage, 1-edge jitter: dups 15, skips 3, net +12, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:50 -5:41 -4:46 -3:45 -2:47 -1:40 0:45 1:48 2:50 3:45 4:45 5:43 6:42
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 4 fast passage, 1-edge jitter: dups 18, skips 4, net +14, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:54 -5:38 -4:51 -3:43 -2:52 -1:37 0:38 1:55 2:40 3:46 4:46 5:45 6:50
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 5 slow passage, 1-edge jitter: dups 11, skips 2, net +9, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:47 -5:38 -4:47 -3:52 -2:33 -1:44 0:51 1:42 2:47 3:44 4:51 5:44 6:45
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 5 fast passage, 1-edge jitter: dups 15, skips 4, net +11, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:45 -5:45 -4:39 -3:48 -2:42 -1:48 0:45 1:43 2:50 3:50 4:37 5:50 6:45
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 6 slow passage, 1-edge jitter: dups 14, skips 3, net +11, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:49 -5:40 -4:52 -3:37 -2:47 -1:51 0:39 1:49 2:47 3:38 4:50 5:46 6:38
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 6 fast passage, 1-edge jitter: dups 14, skips 5, net +9, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:41 -5:51 -4:43 -3:42 -2:49 -1:47 0:42 1:50 2:37 3:46 4:53 5:36 6:53
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 7 slow passage, 1-edge jitter: dups 12, skips 1, net +11, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:42 -5:54 -4:40 -3:40 -2:47 -1:48 0:48 1:47 2:31 3:52 4:50 5:44 6:42
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 7 fast passage, 1-edge jitter: dups 15, skips 4, net +11, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:40 -5:48 -4:50 -3:39 -2:41 -1:48 0:54 1:43 2:39 3:42 4:53 5:46 6:39
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 8 slow passage, 1-edge jitter: dups 20, skips 2, net +18, markers logged 4799, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:49 -5:46 -4:37 -3:54 -2:46 -1:40 0:44 1:45 2:48 3:41 4:49 5:39 6:53
+  [probe] P3 NET MISMATCH
+  [probe] P3 seed 8 fast passage, 1-edge jitter: dups 14, skips 3, net +11, markers logged 4801, largest step back 2
+  [probe]   offsets -6..6 (marker edge minus nearest tick edge): -6:37 -5:53 -4:37 -3:49 -2:47 -1:45 0:45 1:51 2:41 3:37 4:54 5:44 6:40
+  [probe] P3 NET MISMATCH
+
+[P1] probe: net-count law over every edge from the first frame on
+  [probe] P1 edges checked 859252503, ticks 412432, markers 407621, violations 859217086, (dups-skips)-(ticks-markers) in [0, 10392]
+  [probe] P1 BROKEN
+  [probe] P3 net mismatches 16
+
+----------------------------------------------------------------------
+45 checks, 13 failures
+RESULT: FAIL
