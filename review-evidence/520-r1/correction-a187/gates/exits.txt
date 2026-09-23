@@ -1,0 +1,19 @@
+head d253f86e410e301d146d4bd4e74d027f00cfb462 tree ab5c567780993d405d0954092361396492cf49be
+0  gen_toc-check  :: python3 scripts/gen_toc.py --check
+0  gen_toc-verify-anchors  :: python3 scripts/gen_toc.py --verify-anchors
+0  gen_toc-selftest  :: python3 scripts/gen_toc.py --selftest
+0  docs_check  :: python3 scripts/docs_check.py
+0  docs_check-selftest  :: python3 scripts/docs_check.py --selftest
+0  check_doc_style  :: python3 scripts/check_doc_style.py
+0  check_em_dash  :: python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+0  check_em_dash-selftest  :: python3 scripts/check_em_dash.py --selftest
+0  ci_events-check  :: python3 scripts/ci_events.py --check
+0  ci_events-selftest  :: python3 scripts/ci_events.py --selftest
+0  measure_fail_fast-check  :: python3 scripts/measure_fail_fast.py --check
+0  measure_fail_fast-selftest  :: python3 scripts/measure_fail_fast.py --selftest
+0  ci_scope-selftest  :: python3 scripts/ci_scope.py --selftest
+0  check_hygiene-check  :: python3 scripts/check_hygiene.py --check
+0  git-diff-check-base  :: git diff --check 483a133ed08867ea0d300d2b4a027b5b48a4282f HEAD
+0  git-diff-check-prev  :: git diff --check HEAD~1 HEAD
+0  git-diff-check-worktree  :: git diff --check
+status_lines=0
