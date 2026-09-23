@@ -1,0 +1,51 @@
+MSRP frames: 189; MRPDUs carrying LeaveAll: 18
+     0.438938 02:00:00:00:00:01 [t4 LA1/n1]
+    10.429430 3c:c0:c6:fe:02:11 [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0] [t3 LA1/n0]
+    13.638971 02:00:00:00:00:01 [t4 LA1/n1] [t1 LA0/n1]
+    23.629745 3c:c0:c6:fe:02:11 [t3 LA1/n1] [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0]
+    26.839001 02:00:00:00:00:01 [t4 LA1/n1] [t1 LA0/n1]
+    36.829562 3c:c0:c6:fe:02:11 [t3 LA1/n1] [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0]
+    37.039026 02:00:00:00:00:01 [t4 LA1/n1,LA0/n1] [t1 LA0/n1]
+    47.029619 3c:c0:c6:fe:02:11 [t3 LA1/n1] [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0]
+    47.839050 02:00:00:00:00:01 [t4 LA1/n1] [t1 LA0/n1]
+    57.829721 3c:c0:c6:fe:02:11 [t3 LA1/n1] [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0]
+    60.639080 02:00:00:00:00:01 [t4 LA1/n1] [t1 LA0/n1]
+    70.630543 3c:c0:c6:fe:02:11 [t3 LA1/n1] [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0]
+    75.439115 02:00:00:00:00:01 [t4 LA1/n1] [t1 LA0/n1]
+    85.430022 3c:c0:c6:fe:02:11 [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0] [t3 LA1/n0]
+    89.239145 02:00:00:00:00:01 [t4 LA1/n1]
+    99.240799 3c:c0:c6:fe:02:11 [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0] [t3 LA1/n0]
+   100.839172 02:00:00:00:00:01 [t4 LA1/n1]
+   110.830113 3c:c0:c6:fe:02:11 [t4 LA1/n2] [t1 LA1/n0] [t2 LA1/n0] [t3 LA1/n0]
+
+switch MSRP frames within 5 s after each DUT LeaveAll MRPDU:
+  DUT LA   0.438938: 2 switch frame(s): +1.2 ms t4:LA0/n2; +100.9 ms t4:LA0/n2
+  DUT LA  13.638971: 5 switch frame(s): +0.9 ms t4:LA0/n2; +100.9 ms t4:LA0/n2; +3846.3 ms t3:LA0/n1; +3940.4 ms t3:LA0/n1; +4040.4 ms t3:LA0/n1
+  DUT LA  26.839001: 2 switch frame(s): +0.9 ms t4:LA0/n2; +101.3 ms t4:LA0/n2
+  DUT LA  37.039026: 2 switch frame(s): +0.9 ms t4:LA0/n2; +101.1 ms t4:LA0/n2
+  DUT LA  47.839050: 5 switch frame(s): +0.4 ms t4:LA0/n2; +101.4 ms t4:LA0/n2; +4202.0 ms t1:LA0/n1 t3:LA0/n1; +4807.4 ms t3:LA0/n1; +4901.1 ms t3:LA0/n1
+  DUT LA  60.639080: 2 switch frame(s): +0.4 ms t4:LA0/n2; +101.2 ms t4:LA0/n2
+  DUT LA  75.439115: 2 switch frame(s): +0.4 ms t4:LA0/n2; +91.6 ms t4:LA0/n2
+  DUT LA  89.239145: 2 switch frame(s): +3.8 ms t4:LA0/n2; +100.8 ms t4:LA0/n2
+  DUT LA 100.839172: 2 switch frame(s): +0.3 ms t4:LA0/n2; +90.9 ms t4:LA0/n2
+
+LeaveAll MRPDU nearest 10.429430 s: 10.429430 s from 3c:c0:c6:fe:02:11, 107 B header-stripped through the MRPDU EndMark:
+  00 04 04 00 09 20 02 05 02 00 02 7e 00 00 01 19
+  00 1d 20 00 00 00 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02
+  22 00 26 20 00 00 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 03 08 00 0c 20 00 00
+  00 00 00 00 00 00 00 00 00 00 00
+
+LeaveAll MRPDU nearest 47.029619 s: 47.029619 s from 3c:c0:c6:fe:02:11, 109 B header-stripped through the MRPDU EndMark:
+  00 03 08 00 0e 20 01 02 00 00 00 00 01 00 01 6c
+  80 00 00 04 04 00 09 20 02 05 02 00 02 7e 00 00
+  01 19 00 1d 20 00 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  00 02 22 00 26 20 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00
+
+records differing between the two files: 7; MSRP among them: 0
+rc=0

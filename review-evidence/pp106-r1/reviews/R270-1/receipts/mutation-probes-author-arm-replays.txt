@@ -1,0 +1,18 @@
+A-D2 srp_decoder rc=2 150 checks: 142 PASS, 8 FAIL
+A-D2   srp_decoder: FAIL: S pdu 0 Listener lane once got 3
+A-D2   srp_decoder: FAIL: S pdu 0 no other lane got 3
+A-D2   srp_decoder: FAIL: S pdu 0 strobe order
+A-D2   srp_decoder: FAIL: S pdu 1 Listener lane once got 3
+A-D2   srp_decoder: FAIL: S pdu 1 no other lane got 3
+A-D2   srp_decoder: FAIL: S pdu 1 strobe order
+A-P2 srp_top rc=2 252 checks: 250 PASS, 2 FAIL
+A-P2   srp_top: FAIL: F4: six LeaveAll cycles emit a bounded exchange
+A-P2   srp_top: FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+A-T2 srp_stream_fsms rc=2 1068 checks: 1052 PASS, 16 FAIL
+A-T2   srp_stream_fsms: FAIL: H Listener: talker Listener registrar 1
+A-T2   srp_stream_fsms: FAIL: H Listener: talker leave-timer ops 0
+A-T2   srp_stream_fsms: FAIL: H Domain: talker Listener registrar 2
+A-T2   srp_stream_fsms: FAIL: H Domain: talker leave-timer ops 1
+A-T2   srp_stream_fsms: FAIL: I Listener registration stays IN, got 2
+A-T2   srp_stream_fsms: FAIL: I the Listener lane's ARM is CANCELled by the re-declaration (1 ops)
+rc=0

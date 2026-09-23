@@ -1,0 +1,9 @@
+# parent kebag-logic/milan-fpga @ 759da623072358afdb0e9d570a7b4b6a788492c9, read-only via the GitHub contents API
+# 132 .sv/.v/.svh files under hdl/ tb/ sim/ syn/ tests/ (third_party excluded) fetched and searched
+# pattern: KL_srp_ | la_msrp | leaveall_rx
+hdl_milan_milan_datapath.sv:6514:  //! The processor has no hold. KL_srp_admission walks its sources and
+hdl_milan_milan_datapath.sv:6555:  //! hdl/srp/KL_srp_top.sv:193, driven at hdl/srp/KL_srp_listener_fsm.sv:
+# result: no instantiation of KL_srp_decoder / KL_srp_talker_fsm / KL_srp_listener_fsm and no la_msrp/leaveall_rx net outside the submodule (comments only)
+# parent docs/traceability/ieee8021q.md MRP-5 row at the same commit:
+112:| MRP-5 | 10.7.9 | LeaveAll: on rx/tx LeaveAll, all registrations enter leave-pending and must be re-declared | processor timer service + SRP FSMs | 🔵 PROCESSOR -- the LeaveAll turn and prompt re-declare were pinned by the deleted `lwsrp` suite | 10.7.9: mi
+# (U+2014 in quoted parent text rendered as --)
