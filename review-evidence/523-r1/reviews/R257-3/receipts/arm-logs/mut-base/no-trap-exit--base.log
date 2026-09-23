@@ -1,0 +1,44 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2775624, "cwd": "<packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/normal-orphan input [523]", "identities": {"2775619": ["20425371", "S"], "2775624": ["20425373", "S"]}, "pid": 2775619}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2776366, "cwd": "<packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-selection-SIGINT input [523]", "identities": {"2776361": ["20425678", "S"], "2776366": ["20425681", "S"]}, "pid": 2776361}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2776675, "cwd": "<packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-selection-SIGTERM input [523]", "identities": {"2776670": ["20425914", "S"], "2776675": ["20425916", "S"]}, "pid": 2776670}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2776866, "cwd": "<packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-preflight-SIGINT input [523]", "identities": {"2776863": ["20426153", "S"], "2776866": ["20426156", "S"]}, "pid": 2776863}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2777219, "cwd": "<packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-preflight-SIGTERM input [523]", "identities": {"2777212": ["20426397", "S"], "2777219": ["20426400", "S"]}, "pid": 2777212}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-base/no-trap-exit--base/scripts/test_suite_cancellation.py", line 339, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-base/no-trap-exit--base/scripts/test_suite_cancellation.py", line 324, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-base/no-trap-exit--base/scripts/test_suite_cancellation.py", line 167, in cancellation
+    assert next_suite == unsafe, output
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+CANCELLED: INT; no completed sweep result
+partial logs: <packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-command-SIGINT input [523]/logs
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+FAIL     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 1   failed: 1   timed out: 0
+checks: 1   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  alpha: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: alpha
+logs: <packet>/scratch/mut-base/no-trap-exit--base/suite-cancellation-rgascoeo/cancel-command-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+

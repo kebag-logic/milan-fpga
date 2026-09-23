@@ -1,0 +1,32 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2752809, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/normal-orphan input [523]", "identities": {"2752805": ["20411904", "S"], "2752809": ["20411906", "S"]}, "pid": 2752805}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2753749, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-selection-SIGINT input [523]", "identities": {"2753747": ["20412207", "S"], "2753749": ["20412209", "S"]}, "pid": 2753747}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2754330, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-selection-SIGTERM input [523]", "identities": {"2754325": ["20412443", "S"], "2754330": ["20412445", "S"]}, "pid": 2754325}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2754681, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-preflight-SIGINT input [523]", "identities": {"2754677": ["20412683", "S"], "2754681": ["20412686", "S"]}, "pid": 2754677}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2755165, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-preflight-SIGTERM input [523]", "identities": {"2755161": ["20412923", "S"], "2755165": ["20412927", "S"]}, "pid": 2755161}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2755708, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-command-SIGINT input [523]", "identities": {"2755704": ["20413187", "S"], "2755708": ["20413191", "S"]}, "pid": 2755704}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2756229, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-command-SIGTERM input [523]", "identities": {"2756225": ["20413448", "S"], "2756229": ["20413451", "S"]}, "pid": 2756225}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2756784, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-transition-SIGINT input [523]", "identities": {"2756780": ["20413710", "S"], "2756784": ["20413713", "S"]}, "pid": 2756780}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2757073, "cwd": "<packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-transition-SIGTERM input [523]", "identities": {"2757071": ["20413972", "S"], "2757073": ["20413975", "S"]}, "pid": 2757071}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-head/prepare-before-lock--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-head/prepare-before-lock--head/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/prepare-before-lock--head/scripts/test_suite_cancellation.py", line 240, in lock_wait
+    cancel_report(output, root, signum, prepared=False)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/prepare-before-lock--head/scripts/test_suite_cancellation.py", line 125, in cancel_report
+    assert partial == [] and unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+partial logs: <packet>/scratch/mut-head/prepare-before-lock--head/suite-cancellation-pw3tbz0j/cancel-lock-wait-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+

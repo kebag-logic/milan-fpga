@@ -1,0 +1,32 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2838577, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/normal-orphan input [523]", "identities": {"2838576": ["20454913", "S"], "2838577": ["20454916", "S"]}, "pid": 2838576}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2838779, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-selection-SIGINT input [523]", "identities": {"2838778": ["20455210", "S"], "2838779": ["20455213", "S"]}, "pid": 2838778}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2838921, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-selection-SIGTERM input [523]", "identities": {"2838920": ["20455446", "S"], "2838921": ["20455449", "S"]}, "pid": 2838920}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2839148, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-preflight-SIGINT input [523]", "identities": {"2839137": ["20455686", "S"], "2839148": ["20455689", "S"]}, "pid": 2839137}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2839307, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-preflight-SIGTERM input [523]", "identities": {"2839306": ["20455942", "S"], "2839307": ["20455945", "S"]}, "pid": 2839306}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2839724, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-command-SIGINT input [523]", "identities": {"2839723": ["20456206", "S"], "2839724": ["20456208", "S"]}, "pid": 2839723}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2840694, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-command-SIGTERM input [523]", "identities": {"2840690": ["20456465", "S"], "2840694": ["20456468", "S"]}, "pid": 2840690}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2841297, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-transition-SIGINT input [523]", "identities": {"2841285": ["20456728", "S"], "2841297": ["20456730", "S"]}, "pid": 2841285}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2841737, "cwd": "<packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-transition-SIGTERM input [523]", "identities": {"2841736": ["20456985", "S"], "2841737": ["20456988", "S"]}, "pid": 2841736}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py", line 240, in lock_wait
+    cancel_report(output, root, signum, prepared=False)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py", line 125, in cancel_report
+    assert partial == [] and unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+partial logs: <packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-lock-wait-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+
