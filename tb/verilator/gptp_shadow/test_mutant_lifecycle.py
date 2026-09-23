@@ -30,9 +30,13 @@ DEPENDENCIES = ("gptp-processor", "third_party/verilog-axis")
 #: The local headers sim_main.cpp includes. Stated here, independently of the
 #: driver's include walk, so a walk that loses one fails the population check.
 HEADERS = ("tb/common/verilator_harness.hpp", "tb/common/gptp_tx_flags.hpp")
-#: Tracked files the build never reads. Their state must never refuse.
-UNRELATED = ("tb/verilator/gptp_shadow/README.md", "hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md",
-             "hdl/ieee1722/aaf/doc/TEST_RESULTS.md", "tb/common/gptp_launch_observer.hpp")
+#: Tracked files the build never reads. Their state must never refuse. The
+#: suite-directory one is this test, which `make run` never reads; not the
+#: README, whose path ends in a documentation page's name that ci_scope.py
+#: would then file as read by a gate.
+UNRELATED = ("tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+             "hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md", "hdl/ieee1722/aaf/doc/TEST_RESULTS.md",
+             "tb/common/gptp_launch_observer.hpp")
 UNRELATED_DEPENDENCY = "third_party/verilog-axis/rtl/axis_adapter.v"
 #: Ordinary settings that cannot change what the identity commands read.
 PRESENTATION = dict(GIT_EDITOR="true", GIT_SEQUENCE_EDITOR="true", GIT_PAGER="cat",
