@@ -1,0 +1,59 @@
+commit 27763677d83d4df7237389ffc0945ef9e224aa31
+plants K0 K5 K6 K7 K8 K13 K14 X-E
+build jobs per suite 2, plants in parallel 4
+
+== K0: CONTROL PASSES -- control, no change
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K5: SURVIVED -- gate re-armed at a malformed or an unpadded clean end, never after a padded MRPDU
+   planted hdl/srp/KL_srp_decoder.sv sha256 36411c7265b7b570a6ac93c6e98c704a9b9464373c55819c49238ebf68176ab8
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K6: SURVIVED -- the gate remembers only the last type that fired
+   planted hdl/srp/KL_srp_decoder.sv sha256 6987592c5d426490970da321c061c012af9411d68f99a9f0910b9b2f292cc788
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K7: SURVIVED -- an unflagged VectorHeader re-opens its type's gate
+   planted hdl/srp/KL_srp_decoder.sv sha256 a8fa9739f2f3f6270f95d550d3ac328d06a442bc8829a2531e5af1aea7d4152f
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K8: SURVIVED -- gate re-armed at every message whose AttributeType differs from the previous one
+   planted hdl/srp/KL_srp_decoder.sv sha256 3cc1a80fa2b2d026b9d4ad9c6f519899dea7ce930efb7e67175af880ee1338c3
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K13: SURVIVED -- Domain participant also takes the Talker Advertise lane
+   planted hdl/srp/KL_srp_top.sv sha256 ee54f43ff1eb8e48fdd620f3efdab477938592f2834b8db68f6582e647279081
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== K14: SURVIVED -- Domain participant also takes the Talker Failed lane
+   planted hdl/srp/KL_srp_top.sv sha256 19d20094a4d56e0b757df006af1b01fb04a447d52fe4466e7721d12101437985
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+
+== X-E: SURVIVED -- VLAN participant also takes every MSRP lane (inherited routing gap)
+   planted hdl/srp/KL_srp_top.sv sha256 78f402fe9d8b58d940fefa1bbcc0e3d01a22538036c93328cc2f18bcb36e6443
+   srp_decoder: 177 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 253 checks, 0 FAIL (rc 0)
+

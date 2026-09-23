@@ -1,0 +1,61 @@
+manager exact-head banks read from $VALIDATION_STORAGE/pp106-manager-r3 (local; not in the public evidence tree at milan-fpga 10673f47, whose latest bank is manager-r2 at 27763677)
+
+== donor-full: head 5f8cb1325312002c2c8bda45f30d98abc750ca7c base fbc1f7156d711e5b7f511da8a16d9494256b017b
+note: -
+complete: {"head":"5f8cb1325312002c2c8bda45f30d98abc750ca7c","exit_code":0,"finished":"2026-09-24T00:42:31.992125+02:00"}
+  01 exit 0  [pinned simulator 5.050 on PATH] verilator --version
+  02 exit 0  [pinned simulator 5.050 on PATH] git fetch --no-tags origin refs/pull/13/head
+  03 exit 0  [pinned simulator 5.050 on PATH] bash scripts/lint_hdl.sh
+  04 exit 0  [pinned simulator 5.050 on PATH] bash scripts/run_suites.sh
+  05 exit 0  [pinned simulator 5.050 on PATH] make -j1 check
+  06 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/gen_matrix.py --check
+  07 exit 0  [pinned simulator 5.050 on PATH] bash syn/yosys/run.sh
+  08 exit 0  [pinned simulator 5.050 on PATH] make -C tb/nvm_port figures
+  09 exit 0  [pinned simulator 5.050 on PATH] git diff --check fbc1f7156d711e5b7f511da8a16d9494256b017b HEAD
+== parent-consumer: head f2b32428ab59a09357a16a39b773cbcd89b9ceb3 base 26d855a9176d63625e6635a029a0c44e3d57ce9a
+note: parent live dev 26d855a9 + one LOCAL commit setting protocol-processor to 5f8cb1325312002c2c8bda45f30d98abc750ca7c
+complete: {"head":"f2b32428ab59a09357a16a39b773cbcd89b9ceb3","exit_code":0,"finished":"2026-09-24T00:43:24.284515+02:00"}
+  01 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/check_cpp_idiom.py
+  02 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/check_py_idiom.py
+  03 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/xvlog_gate.py --check
+  04 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/check_rtl_source_lists.py
+  05 exit 0  [pinned simulator 5.050 on PATH] python3 scripts/pp_srcs.py --check --selftest
+  06 exit 0  [pinned simulator 5.050 on PATH] python3 sw/builder/test_builder.py
+  07 exit 0  [pinned simulator 5.050 on PATH] make -C tb/verilator/pp_shadow -j8
+
+key lines:
+donor-full 03: 37 LINT OK, 0 FAIL/ERROR
+donor-full 04: suites: 15479 checks total, 0 failing
+donor-full 04 srp: PASS srp_decoder (190 checks: 190 PASS, 0 FAIL) PASS srp_encoder (556 checks: 556 PASS, 0 FAIL) PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL) PASS srp_top (255 checks: 255 PASS, 0 FAIL) 
+donor-full 05: lint: 41 mermaid + 18 wavedrom blocks checked, OK wavedrom: 18 blocks checked, OK links: 810 checked, OK matrix: 115 REQ rows, 17 GAP findings, OK matrix: OK (86 rows, 0 untested) 
+donor-full 06: matrix: OK (86 rows, 0 untested)
+donor-full 07: 32 'YOSYS OK <top>' lines, 1 'YOSYS XILINX OK KL_aecp_engine', 0 FAIL lines
+donor-full 09 (git diff --check fbc1f715 HEAD) bytes: 0
+parent-consumer 03: xvlog gate: 4 finding(s) across 4 module(s)
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+parent-consumer 06: 1 GATE ARM(S) DID NOT RUN - this verdict does not cover them: ALL GATES PASS EXCEPT 1 NOT RUN 
+parent-consumer 07: pp_shadow: 371 checks, 0 failures RESULT: PASS 
+
+sha256 of files read:
+3a52b6d91d2715bce7dced067fbded4156c2125352648e389453888a7601e313  donor-full.json
+000fe0d80571408332040b2b35ca0ea97f55219bd469887b03f356a2a6e7f6e3  parent-consumer.json
+46aedd5b30efdd94426c9eebbcf4a6ae7a9680526cc90ce8fec95977c2d6b12d  donor-full/01.log
+6321e927f120057597592cf5f1a693ccfd14340c4cb54274074493dd4cdbfb9e  donor-full/02.log
+d2a29ad3ad7491d0e2546e5b6890ca4f4be5ee6a974b48a2c8a60b7c792379c7  donor-full/03.log
+46e2be3610c2676238218f81201013c1b65897e2824fd486fe4d40867efd47cd  donor-full/04.log
+73ceb72e8e15518142a20e16c437b547211dc1524ac236ba2675cccbce9ae799  donor-full/05.log
+12176e4206f2f6f318251f8d1b36b56cf2821e41e89d45f365910c412b015697  donor-full/06.log
+2f86befd93f340005587a31b1edd1efcf8eb1d552a9b48d79e4e044826f7a1a2  donor-full/07.log
+149f5c7279f3a35f2953cfa97982750c0eb355334f607331edbfd0f78819b5ce  donor-full/08.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  donor-full/09.log
+c466314684ff5f49dbf913709f05a67b313b7218083a2717be98e93558efd6a0  donor-full/complete.json
+c9f5543f0ee00bb5d76c464668f41aacced6ad4881a02c75e560c83d5f3e9773  donor-full/results.json
+66b7ebd6003d7a2cadf302cac5b8dd12d1b03ee2a1356bb8af7675627ce39780  parent-consumer/01.log
+068e5b5b2fbf65aecf759f215e9bcb28e43b7e3684cc0b3133113d35b47e5e27  parent-consumer/02.log
+a37e10dd774918ddcb365f45a9548b3f21e90e1cca632f3a7c8c971c11f7038d  parent-consumer/03.log
+4e9a2d1b7ea0c08ce9f039d8e6c6fd2eff0002a5ca39ae6799016ffeb16a3e27  parent-consumer/04.log
+8ff214d02993a2b1dea0268a8a96c3f7bfb2c37fd8f974de6fe8662305d256fb  parent-consumer/05.log
+4e396c97e77a2b2242e59f42627579468f358063a7e9921c4470808091322c92  parent-consumer/06.log
+4e196e62dc38d34946523a525654ade05bce1aeaa4f225202f7d3a4a1a09ce21  parent-consumer/07.log
+b86345802e7802f3427f5d18421971e7a7feb8f0ca252406edd24051833fedf6  parent-consumer/complete.json
+5b0726184d09218db5ee8712493b7af2e0999bb30c537268d17f621fa9bc9db5  parent-consumer/results.json
