@@ -1,0 +1,8 @@
+Q1 blank line ends a quote and its fence head=AGREE base=AGREE mutR28=ESCAPE  rendered=[]  head=[] base=[] mutR28=['Old']
+Q2 blank line ends a quote and its fence (heading control) head=AGREE base=AGREE mutR28=AGREE  rendered=['Old']  head=['Old'] base=['Old'] mutR28=['Old']
+E8 inline PI in a heading                head=ESCAPE+WITHHOLD base=ESCAPE+WITHHOLD mutR28=ESCAPE+WITHHOLD  rendered=['A']  head=['A <?p > <!-- ?>', 'Old'] base=['A <?p > <!-- ?>'] mutR28=['A <?p > <!-- ?>', 'Old']
+E9 inline PI in a table cell             head=ESCAPE base=AGREE mutR28=ESCAPE  rendered=[]  head=['Old'] base=[] mutR28=['Old']
+E10 inline PI opens a quoted value       head=ESCAPE base=ESCAPE mutR28=ESCAPE  rendered=[]  head=['Old'] base=['Old'] mutR28=['Old']
+E11 inline PI across lines               head=AGREE base=AGREE mutR28=AGREE  rendered=[]  head=[] base=[] mutR28=[]
+E12 comment closed early by --!>         head=ESCAPE base=ESCAPE mutR28=ESCAPE  rendered=[]  head=['Old'] base=['Old'] mutR28=['Old']
+C4 control: inline PI without >          head=AGREE base=WITHHOLD mutR28=AGREE  rendered=['Old']  head=['Old'] base=[] mutR28=['Old']

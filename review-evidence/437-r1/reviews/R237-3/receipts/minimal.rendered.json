@@ -1,0 +1,97 @@
+{
+ "C1 control: comment in a type 6 block": {
+  "headings": [],
+  "request_sha256": "20411b9066b846693ab05ba7215ccec59455243247353d327d20f917071bc735",
+  "response_sha256": "9edb21ef1c78abd3871badac6bfaf720d0f1b1782f74f148593b586969ffd2df"
+ },
+ "C2 control: closer in inline HTML": {
+  "headings": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "request_sha256": "0d665ff32ed8df042848e63d04633807a231d1e812000b9fa7c84ac464614bbf",
+  "response_sha256": "0d4f4201ffff46391315b377205e99bc2afa368713f0854504c49e1986ea3d30"
+ },
+ "C3 control: prose comment then heading": {
+  "headings": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "request_sha256": "bba71c58d095a41f2e52f1b808a936e9112afd0e11f80b50103059da9cfadbda",
+  "response_sha256": "3505be39338953306ea9a65bbd02f8a0210959f80a253061de945b64ea30e80b"
+ },
+ "E1 inline PI carrying > then <!--": {
+  "headings": [],
+  "request_sha256": "4efea79db8135bf3736ead33d0e132f036b25c8619ad3d8f44674d41be4e3052",
+  "response_sha256": "c414b55d76ac446bd2a34de1b596c1ee4935f95523402fc94d17ca4300e2ed44"
+ },
+ "E1b inline PI, heading directly after": {
+  "headings": [],
+  "request_sha256": "c9f64830e5e9205cde5b2cb8ecf8bc692242ee6f765fc01f32bade8c94d69a93",
+  "response_sha256": "c414b55d76ac446bd2a34de1b596c1ee4935f95523402fc94d17ca4300e2ed44"
+ },
+ "E2 inline CDATA carrying > then <!--": {
+  "headings": [],
+  "request_sha256": "8189eea64dcef6cab21ab45edce3bf9116cf0ec06bee4ab4ffeee8cfc0cfcdab",
+  "response_sha256": "c414b55d76ac446bd2a34de1b596c1ee4935f95523402fc94d17ca4300e2ed44"
+ },
+ "E2b inline PI in a list item": {
+  "headings": [],
+  "request_sha256": "05ef21fa68f9aa804d8c5b144605bb396fec3a23d86b7b57d511f153aa151523",
+  "response_sha256": "3e8a09abaa27929db12c82e42fb818ae473b2a5812de22235a5c8d45c4ed5fd6"
+ },
+ "E3 image alt carries the closer": {
+  "headings": [],
+  "request_sha256": "3fb494d7eb57d1a934150a57e7bede35081eb600a4b153cb707b00d38b6c0531",
+  "response_sha256": "9edb21ef1c78abd3871badac6bfaf720d0f1b1782f74f148593b586969ffd2df"
+ },
+ "E4 link reference title carries the closer": {
+  "headings": [],
+  "request_sha256": "08378af9816304090cc60b2319d9b70a90058d23a7c6d4d4d9b44e0f7bc85e28",
+  "response_sha256": "9edb21ef1c78abd3871badac6bfaf720d0f1b1782f74f148593b586969ffd2df"
+ },
+ "E5 type 4 block exposed by an empty comment": {
+  "headings": [],
+  "request_sha256": "efe7865b7d349518b51066832478d15eb834c53751831890ebdfdd7c95ba691d",
+  "response_sha256": "b9cdf5102b2aa77faa5123cbb7bbb679ff74e64bf645810028aa0289bf0d67d2"
+ },
+ "E5b type 3 block after a prose comment": {
+  "headings": [],
+  "request_sha256": "251249b22ed2d9656ebdae836e225ac5282c85aa89d76b88b3f4aca71257c3a4",
+  "response_sha256": "3098112dd3417b195c1203859627c6c801b93a7247b8cda50947fe36dcee6152"
+ },
+ "E6 open quoted value after a prose comment": {
+  "headings": [],
+  "request_sha256": "291ad4a33566666da9638fc2d308640c6a303c969276bd2d722d143348d934e6",
+  "response_sha256": "3098112dd3417b195c1203859627c6c801b93a7247b8cda50947fe36dcee6152"
+ },
+ "E6b open quoted value after a code span": {
+  "headings": [],
+  "request_sha256": "1088db524a771d86c21a67f8a991474a4db9f0cda9702f96f2a23871e3bc8993",
+  "response_sha256": "b8fb438fb2b06f63d3375a44286a34fcb511ecc132a3b967d78d64757eed8ca3"
+ },
+ "E7 reference-only item ends at the second blank": {
+  "headings": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "request_sha256": "5915ce9077d74fdcf159890b675e86e61b838db1e967abaf5d4567e2d009c14c",
+  "response_sha256": "3dc0374c44710235c497a8f42d2fdbcb544cfe140c0e07dc46eec1a32afdc1fb"
+ },
+ "E7b reference-only item, one blank": {
+  "headings": [],
+  "request_sha256": "76ba8e94c7930773dd753c8f76a9a8f7fdd9324534df9a1da05de23b76be81f5",
+  "response_sha256": "625fa6830036025ad8ecb5fa1e480ee9950dcac10e3ee812d5937a506e06ec16"
+ },
+ "E7c ordinary item, two blanks": {
+  "headings": [],
+  "request_sha256": "c2f41657b7440de7edca6931a48302a9a59a9f616538be5a747a6d15b6eeec7a",
+  "response_sha256": "4e59d94908be0af9fe566da5d2f1815e69a1f66c984e0701bfe4fb16cb406c17"
+ }
+}

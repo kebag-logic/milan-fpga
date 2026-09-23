@@ -1,0 +1,18 @@
+{
+ "E1 inline PI carrying > then <!--": "Text <?p > <!-- ?> more.\n\n## Old\n",
+ "E1b inline PI, heading directly after": "Text <?p > <!-- ?> more.\n## Old\n",
+ "E2 inline CDATA carrying > then <!--": "Text <![CDATA[ > <!-- ]]> more.\n\n## Old\n",
+ "E2b inline PI in a list item": "- item <?p > <!-- ?>\n\n## Old\n",
+ "E3 image alt carries the closer": "<div>\n<!--\n\n![<b title=\"-->\">](u)\n\n## Old\n",
+ "E4 link reference title carries the closer": "<div>\n<!--\n\n[r]: /u '<b title=\"-->\">'\n\n## Old\n",
+ "E5 type 4 block exposed by an empty comment": "<![CDATA[\nx <!---> y\n\n## Old\n",
+ "E5b type 3 block after a prose comment": "t <!--\n\n<?x\n\n## Old\n",
+ "E6 open quoted value after a prose comment": "t <!--\n\n<div title='\n\n## Old\n",
+ "E6b open quoted value after a code span": "`x <!--`\n\n<div title='\n\n## Old\n",
+ "E7 reference-only item ends at the second blank": "- [r]: /u\n\n\n    <!--\n\n## Old\n",
+ "E7b reference-only item, one blank": "- [r]: /u\n\n    <!--\n\n## Old\n",
+ "E7c ordinary item, two blanks": "- text\n\n\n    <!--\n\n## Old\n",
+ "C1 control: comment in a type 6 block": "<div>\n<!--\n\n## Old\n",
+ "C2 control: closer in inline HTML": "<div>\n<!--\n\nx <b title=\"-->\">\n\n## Old\n",
+ "C3 control: prose comment then heading": "t <!--\n\n## Old\n"
+}
