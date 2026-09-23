@@ -1,0 +1,59 @@
+{
+ "pages": 164,
+ "differing_pages": 16,
+ "fields": {
+  "blocks": 6,
+  "line_kinds": 16,
+  "headings": 6,
+  "plan": 5
+ }
+}
+== CONTRIBUTING.md
+  blocks: 94 line(s): 320:indented code line->fenced line, 321:indented code line->fenced line, 322:indented code line->fenced line, 323:indented code line->fenced line, 324:indented code line->fenced line, 325:indented code line->prose line ...
+  line_kinds: 94 line(s): 320:indented code line->fenced line, 321:indented code line->fenced line, 322:indented code line->fenced line, 323:indented code line->fenced line, 324:indented code line->fenced line, 325:indented code line->prose line ...
+== QUICKSTART.md
+  blocks: 5 line(s): 24:prose line->fenced line, 25:prose line->fenced line, 26:prose line->fenced line, 27:prose line->fenced line, 28:prose line->fenced line 
+  line_kinds: 5 line(s): 24:prose line->fenced line, 25:prose line->fenced line, 26:prose line->fenced line, 27:prose line->fenced line, 28:prose line->fenced line 
+== docs/MILAN_V12_ROADMAP.md
+  line_kinds: 1 line(s): 135:table row->prose line 
+== docs/design/SAVED_STATE_FASTCONNECT.md
+  line_kinds: 19 line(s): 15:prose line->table row, 16:prose line->table row, 17:prose line->table row, 18:prose line->table row, 19:prose line->table row, 20:prose line->table row ...
+== docs/design/SAVED_STATE_MATERIALIZATION.md
+  blocks: 4 line(s): 336:indented code line->prose line, 337:indented code line->prose line, 338:indented code line->prose line, 339:indented code line->prose line 
+  line_kinds: 4 line(s): 336:indented code line->prose line, 337:indented code line->prose line, 338:indented code line->prose line, 339:indented code line->prose line 
+== docs/history/v1/SPEC_TRACEABILITY.md
+  line_kinds: 1 line(s): 15:prose line->heading 
+  headings: {"old_only": [], "new_only": [[2, "STATUS 2026-08-13 — the control plane changed hands, and the tallies below predate it", "status-2026-08-13--the-control-plane-changed-hands-and-the-tallies-below-predate-it"]]}
+  plan: {"old": [[2, "The chain, and which file holds each link", "the-chain-and-which-file-holds-each-link"], [2, "Family files", "family-files"], [2, "Why rows are N/A (taxonomy)", "why-rows-are-na-taxonomy"], [2, "Module → family map", "module--family-map"], [2, "tsn_gen (wire-test engine) -- model inventory and gaps", "tsn_gen-wire-test-engine----model-inventory-and-gaps"], [2, "Top MISSING rows (attack-order preview)", "top-missing-rows-attack-order-preview"], [2, "Review workflow", "review-workflow"]], "new": [[2, "STATUS 2026-08-13 — the control plane changed hands, and the tallies below predat
+== docs/history/v1/design/TIME_SYNC.md
+  blocks: 1 line(s): 477:indented code line->prose line 
+  line_kinds: 2 line(s): 477:indented code line->prose line, 495:table row->prose line 
+== docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md
+  line_kinds: 1 line(s): 15:prose line->heading 
+  headings: {"old_only": [], "new_only": [[2, "STATUS 2026-08-13 — a `Today` column, because the control plane changed", "status-2026-08-13--a-today-column-because-the-control-plane-changed"]]}
+  plan: {"old": [[2, "How to read  -  dependency types", "how-to-read-----dependency-types"], [2, "Verification method letters (as in [`FR_NFR.md`](../../../reference/FR_NFR.md))", "verification-method-letters-as-in-fr_nfrmd"], [2, "Verification artifacts (tokens used in the *Verify* column)", "verification-artifacts-tokens-used-in-the-verify-column"], [2, "A. Discovery  -  ADP  *(Milan v1.2 Discovery; IEEE 1722.1-2021 §6)*", "a-discovery-----adp--milan-v12-discovery-ieee-17221-2021-6"], [2, "B. AEM descriptor model  *(Milan v1.2 §5.3.3.1–5.3.3.11)*", "b-aem-descriptor-model--milan-v12-533153311"], [2
+== docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md
+  line_kinds: 1 line(s): 15:prose line->heading 
+  headings: {"old_only": [], "new_only": [[2, "STATUS 2026-08-13 — **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED — BUT NOT FOR THE REASON THIS BANNER USED TO GIVE.**", "status-2026-08-13--every-row-on-this-page-is-still-not-implemented--but-not-for-the-reason-this-banner-used-to-give"]]}
+  plan: {"old": [[2, "1. GET_COUNTERS sets (5.4.2.25, Tables 5.13–5.17)", "1-get_counters-sets-54225-tables-513517"], [2, "2. Counter UPDATE LAWS (the \"when does it move\" half — the named pain)", "2-counter-update-laws-the-when-does-it-move-half--the-named-pain"], [2, "3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)", "3-unsolicited-notifications-5452-table-522--17221-752"], [2, "4. Controller liveness (5.4.5.3)", "4-controller-liveness-5453"], [2, "5. Not yet inventoried (the \"etc\" — the round grows this section)", "5-not-yet-inventoried-the-etc--the-round-grows-this-section"], [
+== docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md
+  line_kinds: 1 line(s): 15:prose line->heading 
+  headings: {"old_only": [], "new_only": [[2, "STATUS 2026-08-13 — **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMENTED ECHO FOR EVERYTHING ELSE.**", "status-2026-08-13--this-device-answers-aecp-read_descriptor-plus-a-conformant-not_implemented-echo-for-everything-else"]]}
+  plan: {"old": [[2, "What is gone, and what replaced it", "what-is-gone-and-what-replaced-it"], [2, "Why a command needs a *fixture class* (not one generic test)", "why-a-command-needs-a-fixture-class-not-one-generic-test"], [2, "AECP / AEM + MVU — what the uCPU answers, and what is still absent", "aecp--aem--mvu--what-the-ucpu-answers-and-what-is-still-absent"], [2, "ACMP — owned by the protocol processor", "acmp--owned-by-the-protocol-processor"], [2, "ADP — owned by the protocol processor", "adp--owned-by-the-protocol-processor"], [2, "AAF — unaffected", "aaf--unaffected"], [2, "Prerequisites & ru
+== docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md
+  line_kinds: 1 line(s): 20:prose line->heading 
+  headings: {"old_only": [], "new_only": [[2, "What this plan can still be run against (2026-08-13)", "what-this-plan-can-still-be-run-against-2026-08-13"]]}
+  plan: {"old": [[2, "What already exists (do not rebuild it)", "what-already-exists-do-not-rebuild-it"], [2, "Lane A — the 5.4.2 command matrix (the analysis half)", "lane-a--the-542-command-matrix-the-analysis-half"], [2, "Lane B — getter/setter gap closure — **VOID**", "lane-b--gettersetter-gap-closure--void"], [2, "Lane C — per-sink probe SM (the enabler RTL) — **NOT THIS REPOSITORY'S ITEM**", "lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item"], [2, "Lane D — ACMP sink SM, Table 5.30 cell by cell", "lane-d--acmp-sink-sm-table-530-cell-by-cell"], [2, "Lane E — ADP state machines
+== docs/limitations/TROUBLESHOOTING.md
+  line_kinds: 11 line(s): 567:prose line->table row, 568:prose line->table row, 569:prose line->table row, 570:prose line->table row, 571:prose line->table row, 572:prose line->table row ...
+== docs/reference/REGISTER_MAP.md
+  line_kinds: 5 line(s): 355:table row->prose line, 356:table row->prose line, 357:table row->prose line, 358:table row->prose line, 359:table row->prose line 
+== docs/testing/CI_WORKFLOWS.md
+  blocks: 120 line(s): 509:indented code line->prose line, 510:indented code line->prose line, 511:indented code line->prose line, 512:indented code line->prose line, 513:indented code line->prose line, 514:indented code line->prose line ...
+  line_kinds: 120 line(s): 509:indented code line->prose line, 510:indented code line->prose line, 511:indented code line->prose line, 512:indented code line->prose line, 513:indented code line->prose line, 514:indented code line->prose line ...
+== docs/testing/TESTING.md
+  line_kinds: 2 line(s): 15:prose line->heading, 605:table row->prose line 
+  headings: {"old_only": [], "new_only": [[3, "The capability boundary this page is now written against (2026-08-16)", "the-capability-boundary-this-page-is-now-written-against-2026-08-16"]]}
+== tb/verilator/gptp_txts/README.md
+  blocks: 2 line(s): 80:indented code line->prose line, 87:indented code line->prose line 
+  line_kinds: 2 line(s): 80:indented code line->prose line, 87:indented code line->prose line 

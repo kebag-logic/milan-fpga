@@ -1,0 +1,9 @@
+Python 3.12.13
+TOC selftest: PASS (1433/1433 arm(s))
+gen_toc --selftest rc=0
+anchor check: 147 existing cross-page fragment links reproduced
+gen_toc --verify-anchors rc=0
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+gen_toc --check rc=0
+check_em_dash selftest: PASS (332 arm(s))
+check_em_dash --selftest rc=0

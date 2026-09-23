@@ -1,0 +1,45 @@
+[
+ {
+  "id": "M09",
+  "property": "the dom builder keeps foster-parented nodes",
+  "file": "gen_toc_renderer.py",
+  "gen_toc_rc": 1,
+  "gen_toc_failing": [
+   "I437 a heading the HTML parse moves out of an open table is listed",
+   "I437 renders as GitHub does: R237-3 E8",
+   "I437 renders as GitHub does: I437 arm page: headings the parse moves out of an open table",
+   "I437 renders as GitHub does: I437 arm page: a heading after an open table and a stray closer",
+   "I437 exactly one recorded shape renders a heading the pinned renderer does not, GitHub's hidden footnote label"
+  ],
+  "em_dash_rc": 0,
+  "em_dash_failing": [],
+  "tail": ""
+ },
+ {
+  "id": "M17",
+  "property": "headings are listed in rendered order",
+  "file": "gen_toc.py",
+  "gen_toc_rc": 1,
+  "gen_toc_failing": [
+   "I437 a heading in a referenced footnote is listed where the renderer places it, and numbered there",
+   "I437 renders as GitHub does: I437 arm page: a footnote heading follows the page's own",
+   "I437 exactly one recorded shape renders a heading the pinned renderer does not, GitHub's hidden footnote label"
+  ],
+  "em_dash_rc": 0,
+  "em_dash_failing": [],
+  "tail": ""
+ },
+ {
+  "id": "M25",
+  "property": "a hash counts only after its requirement",
+  "file": "gen_toc_renderer.py",
+  "gen_toc_rc": 1,
+  "gen_toc_failing": [
+   "I437 a hash that is not a sha256 counts none",
+   "I437 exactly one recorded shape renders a heading the pinned renderer does not, GitHub's hidden footnote label"
+  ],
+  "em_dash_rc": 0,
+  "em_dash_failing": [],
+  "tail": ""
+ }
+]

@@ -1,0 +1,3437 @@
+{
+ "stats": {
+  "agree_both": 221,
+  "fixed": 131,
+  "regressed": 0,
+  "wrong_both": 0
+ },
+ "detail": [
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet at column, inline tag outside",
+   "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet at column, unknown tag outside",
+   "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet past column, inline tag outside",
+   "page": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet past column, unknown tag outside",
+   "page": "- item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "star at column, inline tag outside",
+   "page": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "star at column, unknown tag outside",
+   "page": "* item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "star past column, inline tag outside",
+   "page": "* item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "star past column, unknown tag outside",
+   "page": "* item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "ordered at column, inline tag outside",
+   "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "ordered at column, unknown tag outside",
+   "page": "1. item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet two paragraphs, inline tag outside",
+   "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "task at column, inline tag outside",
+   "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "interrupting bullet at column, inline tag outside",
+   "page": "text\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet at column, b tag outside",
+   "page": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family one",
+   "name": "bullet after two blanks, inline tag outside",
+   "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 0 open",
+   "page": "- item\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 0 close",
+   "page": "- item\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 0 attribute",
+   "page": "- item\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 1 open",
+   "page": "- item\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 1 close",
+   "page": "- item\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "#516",
+   "name": "#516 first tag column 1 attribute",
+   "page": "- item\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "top-level tag leaves comment open",
+   "page": "<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "type-6 block leaves comment open",
+   "page": "<div>\n<!--\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "comment opened on the type-6 line",
+   "page": "<div><!--\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed then reopened in a block",
+   "page": "<div>\n<!-- a --> <!--\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "type-1 pre leaves comment open",
+   "page": "<pre>\n<!--\n</pre>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "type-1 script leaves comment open",
+   "page": "<script>\n<!--\n</script>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a later type-6 block",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<div>\n-->\n</div>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a later type-7 block",
+   "page": "<span>\n<!--\n\n## Hidden\n\n<span>\n-->\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a later type-1 block",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<pre>\n-->\n</pre>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a type-2 block",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<!-- b -->\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a multi-line type-2 block",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<!--\nnote\n-->\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by an abrupt comment in a block",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<div>\n<!-->\n</div>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by an inline comment",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!-- x --> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "closed by a comment in a heading",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden <!-- x -->\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden <!-- x -->"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "prose arrow closes nothing",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n-->\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "heading arrow closes nothing",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden -->\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden -->"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "code span arrow closes nothing",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n`-->`\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "fenced arrow closes nothing",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n```\n-->\n```\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "comment",
+   "name": "indented arrow closes nothing",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n    -->\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "resumed paragraph, in-item fence would escape",
+   "page": "- item\n\n  text\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R238 P02 tag after a blank in the item, then fence",
+   "page": "- item\n\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R238 P03 div after a blank in the item, then fence",
+   "page": "- item\n\n  <div>\n```\n\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R238 F09 tag after a blank in the item, heading after",
+   "page": "- item\n\n  text\n\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "empty item kept by a blank of its column",
+   "page": "-\n  \n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "lazy indented line continues a nested quote",
+   "page": "- item\n  > quote\n      code\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "tag filter leaves the attribute as text",
+   "page": "<div>\n<textarea title=\"<!--\">\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "a greater-than ends the bogus comment",
+   "page": "<div>\n<![CDATA[ a > <!-- ]]>\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "spaced dashes close nothing",
+   "page": "<div>\n<!-- a -- >\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "a bang right after the opener closes nothing",
+   "page": "<div>\n<!--!>\n</div>\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R237-2 S1 opener four columns into an item",
+   "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R237-2 S1 opener after a tag four columns in",
+   "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "single-quoted attribute closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title='-->'> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "unquoted attribute closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=--> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "comment with dashes closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!-- a -- b --> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "processing instruction closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <?-->?>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "uppercase declaration closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!X -->\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "lowercase declaration is text",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!x -->\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "CDATA closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <![CDATA[-->]]>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "tag across lines closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a\ntitle=\"-->\"> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "code span hides the tag",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext `` <a title=\"-->\"> `` more\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "escape hides the tag",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext \\<a title=\"-->\"> more\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "prose bang closer is text",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext --!> more\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "attribute bang closer closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=\"--!>\"> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "footnote content is read at the page end",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n[^1]: n <!-- x -->\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "table cell comment closes",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n| a <!-- x --> |\n| - |\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "tag filter keeps the attribute's closer",
+   "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <textarea title=\"-->\"> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "raw closer after a type-7 opener",
+   "page": "<span>\n<!--\n\n## Hidden\n\n<div>\n--!>\n</div>\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Hidden"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R237-3 F2 definition-only item survives one blank",
+   "page": "- [r]: /u\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R237-3 F2 lazy text keeps a definition's item",
+   "page": "- [r]: /u\nlazy\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R237-3 F2 indented text keeps a definition's item",
+   "page": "- [r]: /u\n  more\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "nested empty item holds the item",
+   "page": "-\n  -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "nested quote holds an empty item",
+   "page": "-\n  >\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "container",
+   "name": "R238-2 F2 C17 a type-3 block ends at its marker",
+   "page": "<? x\n?>\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-r1 F1 resumed paragraph, tag column 0 close",
+   "page": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-r1 F1 resumed paragraph, tag column 0 attribute",
+   "page": "- item\n\n  text\n<span class=\"x\">\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-r1 F1 resumed paragraph, tag column 1 open",
+   "page": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-r1 F1 resumed paragraph, tag column 1 close",
+   "page": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-r1 F1 resumed paragraph, tag column 1 attribute",
+   "page": "- item\n\n  text\n <span class=\"x\">\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-r1 D06 quote inside the item",
+   "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-r1 P01 first paragraph, tag then fence",
+   "page": "- item\n  <span>\n```\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-r1 P04 first paragraph, tag",
+   "page": "- item\n  <span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E8",
+   "page": "## A <?p > <!-- ?>\n\n## Old\n",
+   "github": [
+    [
+     2,
+     "A"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "A <?p > <!-- ?>"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "A"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E7b",
+   "page": "- [r]: /u\n\n    <!--\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E7c",
+   "page": "- item\n\n\n    <!--\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E3",
+   "page": "<div>\n<!--\n\n![<b title=\"-->\">](u)\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E4",
+   "page": "<div>\n<!--\n\n[r]: /u '<b title=\"-->\">'\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E10",
+   "page": "Text <?p > <b title=\" ?> more.\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-3 E12",
+   "page": "Text <!-- a --!> <b title=\"-->\"> more.\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-2 F1a control",
+   "page": "text <? <!-- ?>\n\n## X\n\n## Y\n",
+   "github": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-2 F1c control",
+   "page": "<? x\n## X\n\n## Y\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-2 F2 C17",
+   "page": "<? x\n?>\n<div>\n<!--\n\n## X\n\n## Y\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-2 F3 select",
+   "page": "<select>\n\n## X\n\n</select>\n\n\n## Y\n",
+   "github": [
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Y"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-2 F3 link destination closer",
+   "page": "<div>\n<!--\n\n[x](<a-->)\n\n## X\n\n## Y\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "R237",
+   "name": "R237-4 F3 inline comment rule",
+   "page": "text <!-- c\nmore -->\n<span>\n## Old\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Old"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-3 T3",
+   "page": "| a | b |\n|---|---|\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-3 T8",
+   "page": "## Top\n| a | b |\n|---|---|\n| c | d |\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-3 T2",
+   "page": "text\n|-|\n    x\ny\n-\n   ~~~\n\n## H1\n",
+   "github": [
+    [
+     2,
+     "y"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "y"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-3 T5",
+   "page": "text\n|-|\ny\n-\n   ~~~\n\n## H1\n",
+   "github": [
+    [
+     2,
+     "H1"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "H1"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "R238",
+   "name": "R238-3 F3 M21",
+   "page": "text \\<!-- more\n1) item\n  [b]: /v\n- - x\n-->\n\n    text\n  ```\n    text\n\n## H1\n",
+   "github": [
+    [
+     2,
+     "H1"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "H1"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family two",
+   "name": "setext equals",
+   "page": "Alpha\n===\n",
+   "github": [
+    [
+     1,
+     "Alpha"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     1,
+     "Alpha"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family two",
+   "name": "setext dashes",
+   "page": "text\n---\n",
+   "github": [
+    [
+     2,
+     "text"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "text"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family two",
+   "name": "setext one dash",
+   "page": "text\n-\n",
+   "github": [
+    [
+     2,
+     "text"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "text"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family two",
+   "name": "heading in a block quote",
+   "page": "> ## Q\n",
+   "github": [
+    [
+     2,
+     "Q"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Q"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "family two",
+   "name": "heading in a list item",
+   "page": "- item\n\n  ## Inner\n",
+   "github": [
+    [
+     2,
+     "Inner"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Inner"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "corpus",
+   "name": "heading three in a block quote",
+   "page": "> ### Title\n>\n> text\n\n## Real\n",
+   "github": [
+    [
+     3,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     3,
+     "Title"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "corpus",
+   "name": "heading two in a block quote",
+   "page": "> ## STATUS 2026-08-13 - text\n>\n> more\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "STATUS 2026-08-13 - text"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "STATUS 2026-08-13 - text"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: open double-quoted value swallows the rest",
+   "page": "<div title=\"\n\n## Old\n\ntext\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: open double-quoted value, then a heading and a paragraph",
+   "page": "<div title=\"\n\n## Old\n\ntext\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: open single-quoted value swallows the rest",
+   "page": "<div title='\n\n## Old\n\n## Real\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: open double-quoted value closed by a later quote",
+   "page": "<div title=\"\n\n## Old\n\n<b title=\"x\">\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: two-line setext heading",
+   "page": "Alpha\nbeta\n---\n",
+   "github": [
+    [
+     2,
+     "Alpha beta"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Alpha beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: indented ATX heading",
+   "page": "   # H\n",
+   "github": [
+    [
+     1,
+     "H"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     1,
+     "H"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: empty ATX heading",
+   "page": "##\n",
+   "github": [
+    [
+     2,
+     ""
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     ""
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: heading in a block quote with a closing run",
+   "page": "> ## Q ##\n",
+   "github": [
+    [
+     2,
+     "Q"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Q"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: heading in a list item with a closing run",
+   "page": "- item\n\n  ## Inner `x` ##\n",
+   "github": [
+    [
+     2,
+     "Inner x"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Inner x"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: heading in a referenced footnote",
+   "page": "[^1]: note\n\n    ## Same\n\n## Same\n\nref[^1]\n",
+   "github": [
+    [
+     2,
+     "Same"
+    ],
+    [
+     2,
+     "Same"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Same"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Same"
+    ],
+    [
+     2,
+     "Same"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: rendered heading text",
+   "page": "## a `b` *c*\n",
+   "github": [
+    [
+     2,
+     "a b c"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "a b *c*"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "a b c"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: headings the parse moves out of an open table",
+   "page": "<table>\n***\n\n   ## H1\n\n## H2\n",
+   "github": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "H2"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: an item the parse swallows while its list renders",
+   "page": "- <div title=\"\n- two\n\n## Old\n",
+   "github": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "new": []
+  },
+  {
+   "class": "fixed",
+   "set": "renderer",
+   "name": "I437 arm page: a footnote heading follows the page's own",
+   "page": "[^1]: note\n\n    ## Same\n\n## Top\n\n## Same\n\nref[^1]\n",
+   "github": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Same"
+    ],
+    [
+     2,
+     "Same"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Same"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "Top"
+    ],
+    [
+     2,
+     "Same"
+    ],
+    [
+     2,
+     "Same"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under a setext underline hides the heading it wraps",
+   "page": "Alpha\n===\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under an ATX heading indented three spaces hides the heading it wraps",
+   "page": "text\n   # H\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "H"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "H"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under an empty ATX heading hides the heading it wraps",
+   "page": "text\n##\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     2,
+     ""
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     ""
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under a setext underline indented one space hides the heading it wraps",
+   "page": "text\n =\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under a setext underline ending in a space hides the heading it wraps",
+   "page": "text\n= \n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under a setext underline ending in a tab hides the heading it wraps",
+   "page": "text\n=\t\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "text"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag directly under an indented code line under a setext underline hides the heading it wraps",
+   "page": "Alpha\n===\n    code\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     1,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     1,
+     "Alpha"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: a lone tag under a plain line after a setext underline of one hyphen continues it, so the heading renders",
+   "page": "text\n-\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n",
+   "github": [
+    [
+     2,
+     "text"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ],
+   "new": [
+    [
+     2,
+     "text"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Beta"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: I440-F-invalid '```' U+000D",
+   "page": "```\n```\r\n## Probe\n",
+   "github": [
+    [
+     2,
+     "Probe"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Probe"
+    ]
+   ]
+  },
+  {
+   "class": "fixed",
+   "set": "arm",
+   "name": "arm: I440-F-invalid '~~~' U+000D",
+   "page": "~~~\n~~~\r\n## Probe\n",
+   "github": [
+    [
+     2,
+     "Probe"
+    ]
+   ],
+   "base": [],
+   "new": [
+    [
+     2,
+     "Probe"
+    ]
+   ]
+  }
+ ]
+}
