@@ -1,0 +1,90 @@
+== 1. tap captures: records without a valid envelope (tag 6, port 2/3)
+   tap     bench-a200/bench/final/tap-final.pcap                   records    1062 no-envelope 0
+   tap     bench-a200/bench/probe-tap-0.pcap                       records     317 no-envelope 0
+   non-tap bench-a200/bench/pw1-link-all.pcap                      records      65 no-envelope 65
+   non-tap bench-a200/bench/pw1-link-probe.pcap                    records      14 no-envelope 14
+   tap     bench-a200/bench/runA/tap-runA.pcap                     records    8759 no-envelope 76
+   tap     bench-a200/bench/runB/tap-runB.pcap                     records   37350 no-envelope 0
+   tap     bench-a200/bench/runC/tap-runC.pcap                     records    2882 no-envelope 0
+   non-tap bench-a202/bench/attempt1-aborted/pw1-c1.pcap           records     519 no-envelope 519
+   tap     bench-a202/bench/attempt1-aborted/tap-c1.pcap           records    1037 no-envelope 0
+   non-tap bench-a202/bench/cycle1/pw1-c1.pcap                     records    2178 no-envelope 2178
+   tap     bench-a202/bench/cycle1/tap-c1.pcap                     records    4525 no-envelope 38
+   non-tap bench-a202/bench/cycle2/pw1-c2.pcap                     records    1550 no-envelope 1550
+   tap     bench-a202/bench/cycle2/tap-c2.pcap                     records    3173 no-envelope 0
+   non-tap bench-a202/bench/cycle3/pw1-c3.pcap                     records    1550 no-envelope 1550
+   tap     bench-a202/bench/cycle3/tap-c3.pcap                     records    3218 no-envelope 38
+   non-tap bench-a202/bench/cycle4/pw1-c4.pcap                     records    2474 no-envelope 2474
+   tap     bench-a202/bench/cycle4/tap-c4.pcap                     records   51498 no-envelope 45
+   non-tap bench-a202/bench/cycle5/pw1-c5.pcap                     records    2487 no-envelope 2487
+   tap     bench-a202/bench/cycle5/tap-c5.pcap                     records   50699 no-envelope 0
+   non-tap bench-a202/bench/cycle6/pw1-c6.pcap                     records    2479 no-envelope 2479
+   tap     bench-a202/bench/cycle6/tap-c6.pcap                     records   51836 no-envelope 37
+   tap     bench-a202/bench/final/tap-final.pcap                   records     615 no-envelope 18
+== 2. tcpdump logs
+   logs: 19
+   bench-a200/bench/final/tcpdump.log                      captured ['1062'] dropped-by-kernel ['0']
+   bench-a200/bench/runA/tcpdump.log                       captured ['8759'] dropped-by-kernel ['0']
+   bench-a200/bench/runB/tcpdump.log                       captured ['37350'] dropped-by-kernel ['0']
+   bench-a200/bench/runC/tcpdump.log                       captured ['2882'] dropped-by-kernel ['0']
+   bench-a202/bench/attempt1-aborted/tcpdump-pw1.log       captured ['519'] dropped-by-kernel ['0']
+   bench-a202/bench/attempt1-aborted/tcpdump-tap.log       captured ['1037'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle1/tcpdump-pw1.log                 captured ['2178'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle1/tcpdump-tap.log                 captured ['4525'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle2/tcpdump-pw1.log                 captured ['1550'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle2/tcpdump-tap.log                 captured ['3173'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle3/tcpdump-pw1.log                 captured ['1550'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle3/tcpdump-tap.log                 captured ['3218'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle4/tcpdump-pw1.log                 captured ['2474'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle4/tcpdump-tap.log                 captured ['51498'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle5/tcpdump-pw1.log                 captured ['2487'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle5/tcpdump-tap.log                 captured ['50699'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle6/tcpdump-pw1.log                 captured ['2479'] dropped-by-kernel ['0']
+   bench-a202/bench/cycle6/tcpdump-tap.log                 captured ['51836'] dropped-by-kernel ['0']
+   bench-a202/bench/final/tcpdump-tap.log                  captured ['615'] dropped-by-kernel ['0']
+== 3. console transcripts
+   transcripts with command headers: 14
+   bench-a200/bench/console-memread-test.txt                   10 {'mem_read': 10}
+   bench-a200/bench/final/console-final.txt                    11 {'milan_status': 1, 'mem_read': 10}
+   bench-a200/bench/runA/console.txt                          600 {'milan_status': 60, 'mem_read': 540}
+   bench-a200/bench/runB/console.txt                          371 {'milan_status': 53, 'mem_read': 318}
+   bench-a200/identity/console-identity.txt                     6 {'milan_status': 2, 'mem_list': 1, 'crc': 3}
+   bench-a202/bench/cycle1/console.txt                       6400 {'milan_status': 1600, 'mem_read': 4800}
+   bench-a202/bench/cycle2/console.txt                       4800 {'milan_status': 1200, 'mem_read': 3600}
+   bench-a202/bench/cycle3/console.txt                       4800 {'milan_status': 1200, 'mem_read': 3600}
+   bench-a202/bench/cycle4/console.txt                       7242 {'milan_status': 1207, 'mem_read': 6035}
+   bench-a202/bench/cycle5/console.txt                       7248 {'milan_status': 1208, 'mem_read': 6040}
+   bench-a202/bench/cycle6/console.txt                       7248 {'milan_status': 1208, 'mem_read': 6040}
+   bench-a202/bench/final/console-final.txt                     9 {'milan_status': 1, 'mem_read': 8}
+   bench-a202/bench/poll-test/console.txt                     200 {'milan_status': 50, 'mem_read': 150}
+   bench-a202/identity/console-identity.txt                     9 {'milan_status': 2, 'mem_list': 1, 'crc': 3, 'mem_read': 3}
+   total commands: 38954 {'mem_read': 31154, 'milan_status': 7792, 'mem_list': 2, 'crc': 6}
+== 4. A200 host daemon record (lines naming a time daemon)
+   | NTPSynchronized=no
+   | NTPSynchronized=yes
+   | no gPTP/AVB daemon process
+   | NTPSynchronized=yes
+   | no gPTP/AVB daemon process
+== 5. A200 binding census start vs final: fields that differ
+   rows start 53 final 59
+   differs: GET_STREAM_FORMAT field payload x1
+   differs: GET_STREAM_FORMAT field req x1
+   differs: None field argv x38
+   differs: None field conn_count x18
+   differs: None field controller x18
+   differs: None field controller_eid x18
+   differs: None field dmac x18
+   differs: None field flags x18
+   differs: None field listener x18
+   differs: None field listener_uid x18
+   differs: None field mode x36
+   differs: None field query x18
+   differs: None field status x18
+   differs: None field stream_id x18
+   differs: None field talker x18
+   differs: None field talker_uid x18
+   differs: None field type x18
+   differs: None field vlan x18
+   differs: READ_DESCRIPTOR field cdl x1
+   differs: READ_DESCRIPTOR field payload x7
+   differs: READ_DESCRIPTOR field req x6
