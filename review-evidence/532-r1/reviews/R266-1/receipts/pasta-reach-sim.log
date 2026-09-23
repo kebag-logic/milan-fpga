@@ -1,0 +1,34 @@
+== fake host H: addresses and routes
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+up0              UNKNOWN        192.0.2.10/24 fe80::c40c:ceff:fe3c:1ca3/64 
+br0h@if2         UP             172.31.0.1/24 fe80::a4b9:bcff:feae:bbba/64 
+default via 192.0.2.1 dev up0 
+172.31.0.0/24 dev br0h proto kernel scope link src 172.31.0.1 
+192.0.2.0/24 dev up0 proto kernel scope link src 192.0.2.10 
+== slot netns S as pasta configured it
+lo               UNKNOWN        127.0.0.1/8 ::1/128 
+up0              UNKNOWN        192.0.2.10/24 fe80::14c4:bdff:fe77:afea/64 
+default via 192.0.2.1 dev up0 
+192.0.2.0/24 dev up0 proto kernel scope link 
+192.0.2.0/24 dev up0 proto kernel scope link src 192.0.2.10 
+== control: no slot firewall table
+S -> host-local bridge gateway 172.31.0.1    REACHED host-bridge-gateway-listener
+S -> routed container IP 172.31.0.2          REACHED container-listener
+== with the runner's rule body (fib daddr type local counter reject)
+S -> host-local bridge gateway 172.31.0.1    BLOCKED TimeoutError None
+S -> routed container IP 172.31.0.2          REACHED container-listener
+== plus a Docker-style published port: nat output DNAT 172.31.0.1:9090 -> 172.31.0.2:8080
+S -> host-local 172.31.0.1:9090 (published)  REACHED container-listener
+S -> host-local 172.31.0.1:8082 (unpublished) BLOCKED TimeoutError None
+table inet sim_slot {
+	chain output {
+		type filter hook output priority filter; policy accept;
+		fib daddr type local counter packets 24 bytes 1776 reject
+	}
+}
+table ip sim_publish {
+	chain output {
+		type nat hook output priority dstnat; policy accept;
+		ip daddr 172.31.0.1 tcp dport 9090 counter packets 1 bytes 60 dnat to 172.31.0.2:8080
+	}
+}
