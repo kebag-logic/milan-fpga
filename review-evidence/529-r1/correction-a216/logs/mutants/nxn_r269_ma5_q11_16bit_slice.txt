@@ -1,0 +1,10 @@
+# leg=nxn tag=nxn_r269_ma5_q11_16bit_slice
+# datapath sha256 921f098cdf1cff50a0d3213a7f425f8c07ea386b6512212d00290b32c97d91b6
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0xc0c exp=0xa50c0c0c
+  [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0xffff exp=0xffffffff
+checks: 1705   failures: 2
+RESULT: FAIL

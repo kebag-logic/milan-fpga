@@ -1,0 +1,11 @@
+# leg=nxn tag=nxn_pw_seq_tu
+# datapath sha256 32016867989d69e5c70e4217a430fa5ca5cb6f1d62e75606c8b65a44439f943e
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x6 exp=0x4
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x4 exp=0x6
+checks: 1705   failures: 3
+RESULT: FAIL

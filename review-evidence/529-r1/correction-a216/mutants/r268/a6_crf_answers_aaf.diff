@@ -1,0 +1,38 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1789,8 +1789,13 @@
+   wire        crf_locked_w;
+   //! ...and the seven with no CSR slice. Their one reader is the
+   //! GET_COUNTERS row for STREAM_INPUT N_STREAMS (#529), which serves all ten
+-  wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+-  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
++  wire [31:0] crf_lockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_unlockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_intrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_mrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_tucnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_latecnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_earlycnt_w /* verilator public_flat_rw */;
+   //! the CRF Media Clock Input's Table 5.22 counter-change pulse (gh #60 F2),
+   //! consumed by the descriptor arbiter in front of KL_pp_shadow
+   wire        crf_dirty_p_w;
+@@ -3523,7 +3528,7 @@
+   localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
+   wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+                 && (ctrq_type_r == DESC_STREAM_INPUT_C)
+-                && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
++;
+   logic [31:0] ctr_crf_blk_w;
+   always_comb begin : ctr_crf_block
+     unique case (ctrq_word_r)
+@@ -3544,8 +3549,8 @@
+ 
+   //! Everything else, including ENTITY and out-of-range indices, answers zero data
+   //! AND an empty mask on the same term, so the two can never disagree.
+-  assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+-                       : ctr_crf_w ? ctr_crf_blk_w
++  assign ctr_ans_raw_w = ctr_crf_w ? ctr_crf_blk_w
++                       : ctr_sin_w ? ctr_blk_w
+                        : ctr_sout_w ? ctr_sout_blk_w
+                        : ctr_avb_w ? ctr_avb_blk_w
+                        : ctr_ckd_w ? ctr_ckd_blk_w

@@ -1,0 +1,40 @@
+# leg=nxn tag=nxn_r269_ma7_row_removed_public
+# datapath sha256 de66991e6b6a87340a170135ed8fee05cbbe30a49c058e4dd144290147cc1754
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) got=0x0 exp=0xf3f
+  [FAIL] [CTRS-CRF] signatures: counters_valid still 0xF3F got=0x0 exp=0xf3f
+  [FAIL] [CTRS-CRF] signatures: @0 MEDIA_LOCKED         got=0x0 exp=0xa5010101
+  [FAIL] [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       got=0x0 exp=0xa5020202
+  [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+  [FAIL] [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH    got=0x0 exp=0xa5040404
+  [FAIL] [CTRS-CRF] signatures: @16 MEDIA_RESET         got=0x0 exp=0xa5050505
+  [FAIL] [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN got=0x0 exp=0xa5060606
+  [FAIL] [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT  got=0x0 exp=0xa5090909
+  [FAIL] [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      got=0x0 exp=0xa50a0a0a
+  [FAIL] [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     got=0x0 exp=0xa50b0b0b
+  [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0x0 exp=0xa50c0c0c
+  [FAIL] [CTRS-CRF] after the bind edge: counters_valid still 0xF3F got=0x0 exp=0xf3f
+  [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: counters_valid still 0xF3F  got=0x0 exp=0xf3f
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x0 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x0 exp=0x3
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x0 exp=0x4
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x0 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x0 exp=0x6
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x0 exp=0x7
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x0 exp=0x8
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x0 exp=0x9
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x0 exp=0x15
+checks: 1705   failures: 32
+RESULT: FAIL

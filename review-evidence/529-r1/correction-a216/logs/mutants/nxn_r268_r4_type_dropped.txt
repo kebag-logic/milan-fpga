@@ -1,0 +1,14 @@
+# leg=nxn tag=nxn_r268_r4_type_dropped
+# datapath sha256 f9409fcca2680e1769012a81928804b829d4d308ee93de40865193464753464e
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-OUT] every AAF and CRF output returns mask 0x1F got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real start/stop edges reach every index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real q3/q4 stimuli reach every AAF and CRF index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real q2 stimulus reaches every AAF and CRF index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] every NxN row preserves its unique five-word signature got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] unclaimed quadlets 5..31 are zero   got=0x5 exp=0x0
+checks: 1705   failures: 6
+RESULT: FAIL

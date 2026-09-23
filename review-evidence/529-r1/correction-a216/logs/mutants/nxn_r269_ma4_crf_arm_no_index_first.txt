@@ -1,0 +1,16 @@
+# leg=nxn tag=nxn_r269_ma4_crf_arm_no_index_first
+# datapath sha256 24283fcc183f15b026ff6f2059c032e57ce1602f24963bd78bf4aaf1a17ef2e5
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS] counters_valid = 0xFFF (quadlets 0..11) got=0xf3f exp=0xfff
+  [FAIL] [CTRS] @0 MEDIA_LOCKED == CSR CNT0             got=0x0 exp=0x1
+  [FAIL] [CTRS] @8 STREAM_INTERRUPTED == CSR CNT2       got=0x0 exp=0x1
+  [FAIL] [CTRS] @12 SEQ_NUM_MISMATCH == CSR CNT3        got=0x0 exp=0x1
+  [FAIL] [CTRS] @36 LATE_TIMESTAMP == CSR CNT7          got=0x0 exp=0xa
+  [FAIL] [CTRS] @44 FRAMES_RX == CSR CNT9               got=0x0 exp=0xa
+  [FAIL] [CTRS] the graded counters are DISTINCT, not a flat block got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet got=0x0 exp=0x1
+checks: 1705   failures: 8
+RESULT: FAIL

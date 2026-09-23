@@ -1,0 +1,10 @@
+# leg=nxn8 tag=nxn8_pw_pdu_early
+# datapath sha256 0df67db008370627a73d0d709d960df99b4b1fb9661fa09ae11e8a98f3d15ad2
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x15 exp=0x9
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x9 exp=0x15
+checks: 3133   failures: 2
+RESULT: FAIL

@@ -1,0 +1,11 @@
+# leg=nxn tag=nxn_pw_fmt_early
+# datapath sha256 b70828610bcf67b1b0a96e33fce8fe27f1a8fa6e2cf0a6c6d38a32a5a28a1b30
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x9 exp=0x7
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x7 exp=0x9
+  [FAIL] CRF 5.3.8.7 stopped: fmt/seq stayed clean      got=0xa00 exp=0x0
+checks: 1705   failures: 3
+RESULT: FAIL

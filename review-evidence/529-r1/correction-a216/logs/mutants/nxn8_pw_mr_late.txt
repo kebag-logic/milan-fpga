@@ -1,0 +1,10 @@
+# leg=nxn8 tag=nxn8_pw_mr_late
+# datapath sha256 a9d1b6e47fbe02aff870d7c1c51cf39c5db61d26d29cac46fe24d31bfbbe2ca0
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x8 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x5 exp=0x8
+checks: 3133   failures: 2
+RESULT: FAIL

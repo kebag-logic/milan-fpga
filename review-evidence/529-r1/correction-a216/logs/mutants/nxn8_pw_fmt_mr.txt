@@ -1,0 +1,10 @@
+# leg=nxn8 tag=nxn8_pw_fmt_mr
+# datapath sha256 4880115537ba41fd30f6da81a91641118f42eac05250c4f2d13381d9ea328c51
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x7 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x5 exp=0x7
+checks: 3133   failures: 2
+RESULT: FAIL

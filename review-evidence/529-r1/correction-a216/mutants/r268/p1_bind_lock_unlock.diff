@@ -1,0 +1,29 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1789,8 +1789,13 @@
+   wire        crf_locked_w;
+   //! ...and the seven with no CSR slice. Their one reader is the
+   //! GET_COUNTERS row for STREAM_INPUT N_STREAMS (#529), which serves all ten
+-  wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+-  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
++  wire [31:0] crf_lockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_unlockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_intrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_mrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_tucnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_latecnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_earlycnt_w /* verilator public_flat_rw */;
+   //! the CRF Media Clock Input's Table 5.22 counter-change pulse (gh #60 F2),
+   //! consumed by the descriptor arbiter in front of KL_pp_shadow
+   wire        crf_dirty_p_w;
+@@ -5491,8 +5496,8 @@
+     .late_cnt_o  (crf_latecnt_w),
+     .early_cnt_o (crf_earlycnt_w),
+     .locked_o    (crf_locked_w),
+-    .cnt_locked_o   (crf_lockcnt_w),
+-    .cnt_unlocked_o (crf_unlockcnt_w),
++    .cnt_locked_o   (crf_unlockcnt_w),
++    .cnt_unlocked_o (crf_lockcnt_w),
+     .cnt_intr_o     (crf_intrcnt_w),
+     //! ...and that row's Table 5.22 source: the descriptor arbiter in front
+     //! of KL_pp_shadow delivers it as {STREAM_INPUT, N_STREAMS} to the

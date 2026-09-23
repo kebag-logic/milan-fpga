@@ -1,0 +1,14 @@
+# leg=nxn tag=nxn_r269_ma2_mux_swap_q0_q1
+# datapath sha256 4db0ad5d21eb52bc585f9289b76caea71c74232ead26268ee2d6dda9a287203f
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] signatures: @0 MEDIA_LOCKED         got=0xa5020202 exp=0xa5010101
+  [FAIL] [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       got=0xa5010101 exp=0xa5020202
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x1 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x2 exp=0x1
+checks: 1705   failures: 6
+RESULT: FAIL

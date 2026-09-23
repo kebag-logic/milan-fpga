@@ -1,0 +1,12 @@
+# leg=nxn tag=nxn_pw_early_unlock
+# datapath sha256 30ed16d25f1671f99ea81de0c5b2bd9eb8175964fcbfd915792c1ef8d47eb891
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x5 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x5 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x9 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x1 exp=0x9
+checks: 1705   failures: 4
+RESULT: FAIL

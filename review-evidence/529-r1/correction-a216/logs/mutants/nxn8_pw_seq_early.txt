@@ -1,0 +1,12 @@
+# leg=nxn8 tag=nxn8_pw_seq_early
+# datapath sha256 65b05319267eff613da010ce2b5cdf74a286c70a76712d37b1fc32d81be4378e
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x2 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x9 exp=0x4
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x4 exp=0x9
+  [FAIL] CRF 5.3.8.7 stopped: fmt/seq stayed clean      got=0xa exp=0x0
+checks: 3133   failures: 4
+RESULT: FAIL

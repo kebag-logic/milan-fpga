@@ -1,0 +1,10 @@
+# leg=nxn tag=base_nxn_pw_early_intr
+# datapath sha256 e8add0156e0cbdc9ba914fd86eb5bd764fdf68663d3d59b89acd890bfe6b0811
+# harness  sha256 3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a (a216_base_sim_nxn.cpp)
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0x1 exp=0x0
+checks: 1687   failures: 2
+RESULT: FAIL

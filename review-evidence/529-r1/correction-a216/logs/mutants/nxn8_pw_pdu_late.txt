@@ -1,0 +1,14 @@
+# leg=nxn8 tag=nxn8_pw_pdu_late
+# datapath sha256 ec2ed862eafdf0fca64d2f9fb58657eceb18a5ffe708423828abb7585a13bdd3
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0xffffffff exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x15 exp=0x8
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x8 exp=0x15
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3
+checks: 3133   failures: 6
+RESULT: FAIL

@@ -1,0 +1,10 @@
+# leg=nxn4c tag=nxn4c_r268_p2_bind_late_early
+# datapath sha256 1b5419b3a7654253cbfb28bfb76c009778a25114c0eca4f2f2f7af7a3d5b2128
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x9 exp=0x8
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x8 exp=0x9
+checks: 1705   failures: 2
+RESULT: FAIL

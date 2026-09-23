@@ -1,0 +1,16 @@
+# leg=nxn8 tag=nxn8_pw_pdu_lock
+# datapath sha256 1f16e27e384b6db6175a0012b815eed3cd60adc3e7e5f8e05af96e84d98a94e8
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0xffffffff exp=0x1
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0xd exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0xd exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x15 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x2 exp=0x15
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3
+checks: 3133   failures: 8
+RESULT: FAIL

@@ -1,0 +1,10 @@
+# leg=nxn tag=nxn_pw_tu_late
+# datapath sha256 34aa535464e87348b8ae1e80a3f14db2a728c39444aebb274563b972adbe516c
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x8 exp=0x6
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x6 exp=0x8
+checks: 1705   failures: 2
+RESULT: FAIL

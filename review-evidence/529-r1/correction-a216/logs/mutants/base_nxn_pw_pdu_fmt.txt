@@ -1,0 +1,13 @@
+# leg=nxn tag=base_nxn_pw_pdu_fmt
+# datapath sha256 26c992c12311615cd162b778a3af7b57f87a43ecf2587a091cf577fc10a8e50d
+# harness  sha256 3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a (a216_base_sim_nxn.cpp)
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0xffffffff exp=0x1
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 stopped: fmt/seq stayed clean      got=0xa00 exp=0x0
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3
+checks: 1687   failures: 5
+RESULT: FAIL

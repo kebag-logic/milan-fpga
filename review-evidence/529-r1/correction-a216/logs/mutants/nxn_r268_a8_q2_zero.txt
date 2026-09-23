@@ -1,0 +1,12 @@
+# leg=nxn tag=nxn_r268_a8_q2_zero
+# datapath sha256 32cc3767046df73bc88a7b8be6844186e999228cb0dc109929bb438e1b22bf1e
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+  [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x0 exp=0x3
+checks: 1705   failures: 4
+RESULT: FAIL

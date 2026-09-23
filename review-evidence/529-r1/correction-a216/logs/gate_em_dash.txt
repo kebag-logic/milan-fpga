@@ -1,0 +1,7 @@
+=== python3 scripts/check_em_dash.py --base 759da623
+CONTRIBUTING.md:342: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+check_em_dash: 1 finding(s) over 175 added line(s) in 14 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+exit 1
+=== python3 scripts/check_em_dash.py --base $(git merge-base origin/dev HEAD) = ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 153 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+exit 0

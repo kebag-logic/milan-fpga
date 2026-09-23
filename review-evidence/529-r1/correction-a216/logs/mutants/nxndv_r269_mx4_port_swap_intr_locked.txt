@@ -1,0 +1,13 @@
+# leg=nxndv tag=nxndv_r269_mx4_port_swap_intr_locked
+# datapath sha256 502a4a50c6c0b446767b6fad6e033b0100096ee51b1aa7e2909efbdb5761dc5d
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x3 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x2 exp=0x3
+checks: 1707   failures: 5
+RESULT: FAIL

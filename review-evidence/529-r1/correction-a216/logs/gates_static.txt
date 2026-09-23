@@ -1,0 +1,47 @@
+=== python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+exit 0
+=== python3 scripts/check_cpp_idiom.py
+cpp idiom: 146 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+exit 0
+=== python3 scripts/check_py_idiom.py
+py idiom: 218 first-party modules, 160238 lines
+  bare except: 0
+  mutable default argument: 0
+  shell invocation: 0
+  shadowed builtin: 0
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+exit 0
+=== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 838 tracked first-party file(s))
+exit 0
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit 0
+=== python3 scripts/check_em_dash.py --base 759da623
+check_em_dash: cannot judge: `759da623` is not a commit in this repository
+exit 2
+=== git diff --check ede8d48e..HEAD
+exit 0

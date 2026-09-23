@@ -1,0 +1,10 @@
+# leg=nxn8 tag=nxn8_pw_seq_intr
+# datapath sha256 4ea7d438bf4de18e76be1ea651cb45b90a2cfd68b39a003ddcdddbf32056c89d
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x4 exp=0x3
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x3 exp=0x4
+checks: 3133   failures: 2
+RESULT: FAIL

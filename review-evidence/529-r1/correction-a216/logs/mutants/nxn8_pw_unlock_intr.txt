@@ -1,0 +1,13 @@
+# leg=nxn8 tag=nxn8_pw_unlock_intr
+# datapath sha256 fa89ccd8008eae47d13a57e285357fe65ff0199724d0cd364ec8569513e5e33c
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x3 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x1 exp=0x3
+checks: 3133   failures: 5
+RESULT: FAIL

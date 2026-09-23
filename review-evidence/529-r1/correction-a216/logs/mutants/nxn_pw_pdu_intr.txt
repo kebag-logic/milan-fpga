@@ -1,0 +1,16 @@
+# leg=nxn tag=nxn_pw_pdu_intr
+# datapath sha256 5e6e7fff38782578d9c0b2446148f2e1698cc28e2c943c18610fe8bc9901c9b1
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x15 exp=0x3
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x3 exp=0x15
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3
+checks: 1705   failures: 8
+RESULT: FAIL

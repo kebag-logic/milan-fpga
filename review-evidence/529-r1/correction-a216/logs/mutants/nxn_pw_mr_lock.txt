@@ -1,0 +1,12 @@
+# leg=nxn tag=nxn_pw_mr_lock
+# datapath sha256 0b749fdc69afccf26a0e388b47eb7f020f7a459d8f76105b226a4e76c4646b78
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x5 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x5 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x5 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x2 exp=0x5
+checks: 1705   failures: 4
+RESULT: FAIL

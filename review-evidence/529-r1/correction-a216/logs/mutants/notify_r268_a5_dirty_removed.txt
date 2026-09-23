@@ -1,0 +1,18 @@
+# leg=notify tag=notify_r268_a5_dirty_removed
+# datapath sha256 2d076efee5fc342ccb7425f9763094c3b95b2635e68beeb221492827a34cbc6b
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+  [FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x0 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x0 exp=0x2
+checks: 145   failures: 10
+RESULT: FAIL

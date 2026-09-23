@@ -1,0 +1,10 @@
+# leg=nxn tag=nxn_r268_r5_dirty_order
+# datapath sha256 e7d71aa30aee92637dc76159f85b69c8e8e0088d22132b367d92f26fce8822b4
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS] real input counter changes reached the descriptor arbiter got=0x4 exp=0x6
+  [FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x1 exp=0x10
+checks: 1705   failures: 2
+RESULT: FAIL

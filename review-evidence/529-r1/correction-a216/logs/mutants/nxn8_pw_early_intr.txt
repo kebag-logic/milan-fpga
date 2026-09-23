@@ -1,0 +1,12 @@
+# leg=nxn8 tag=nxn8_pw_early_intr
+# datapath sha256 e8add0156e0cbdc9ba914fd86eb5bd764fdf68663d3d59b89acd890bfe6b0811
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x9 exp=0x3
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x3 exp=0x9
+checks: 3133   failures: 4
+RESULT: FAIL

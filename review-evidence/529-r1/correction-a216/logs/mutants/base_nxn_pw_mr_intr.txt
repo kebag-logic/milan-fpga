@@ -1,0 +1,9 @@
+# leg=nxn tag=base_nxn_pw_mr_intr
+# datapath sha256 e1af36120006c0d2cfb4ce8e693a184292ea1f6022f8a6fbf8bee5325eb909b8
+# harness  sha256 3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a (a216_base_sim_nxn.cpp)
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+checks: 1687   failures: 1
+RESULT: FAIL

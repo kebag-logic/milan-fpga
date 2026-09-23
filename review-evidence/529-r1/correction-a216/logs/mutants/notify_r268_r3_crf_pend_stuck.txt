@@ -1,0 +1,10 @@
+# leg=notify tag=notify_r268_r3_crf_pend_stuck
+# datapath sha256 6e876a42ff26ff15a5e1be0bb4ddab725d8ab2dd558e6d538ed88bee4750d528
+# harness  sha256 fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+# simulator Verilator 5.050 2026-07-01 rev v5.050
+# build exit 0
+# run exit 1
+  [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x4 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x4 exp=0x2
+checks: 145   failures: 2
+RESULT: FAIL
