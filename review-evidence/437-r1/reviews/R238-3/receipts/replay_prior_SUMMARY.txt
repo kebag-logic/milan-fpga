@@ -1,0 +1,14 @@
+rows replayed: 2825
+  R237-3 head!=gh base!=gh: 1085
+  R237-3 head=gh base!=gh: 10
+  R237-3 head=gh base=gh: 429
+  R238-2 head!=gh base!=gh: 784
+  R238-2 head!=gh base=gh: 5
+  R238-2 head=gh base!=gh: 140
+  R238-2 head=gh base=gh: 372
+base agreed, head disagrees: 5
+   R238-2 batch4_prior R237-2 F2 flat item code span "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n" gh [[2, 'Old'], [2, 'Real']] head []
+   R238-2 batch4_prior R237-2 F2 flat item escape "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n" gh [[2, 'Old'], [2, 'Real']] head []
+   R238-2 batch4_prior R237-2 F2 flat item attr "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n" gh [[2, 'Old'], [2, 'Real']] head []
+   R238-2 fuzz_seed238_complete fuzz_seed238_complete#668 "* <![CDATA[\n  <script>\n<? x\n- > a <!-- b\nc --> d\n## Z\n" gh [] head [[2, 'Z']]
+   R238-2 fuzz_seed238_complete fuzz_seed238_complete#672 "- - item\n   <div title=\"x\">\n* ===\n<? x\n>---\n## X5\n<!-->\n## Z\n" gh [] head [[2, 'X5']]

@@ -1,0 +1,433 @@
+[
+ {
+  "name": "D-escape double-quoted title (read)",
+  "page": "- [a]: /u \"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5edb22bfda8178b785d5cb39b6908f8bea9df9e6241348ddf5ada52aa5e3f7c0",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-withhold double-quoted title (read)",
+  "page": "- [a]: /u \"x\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "918eae616a6cf26ca2ec0f768efb3f180cfd7ed0905e94727ad143927e205287",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-escape single-quoted title",
+  "page": "- [a]: /u 'x'\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "83eb117566df0917260c326ac28ad75c3e96e8e9b1e632ff5279bf6c165a2e3c",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-withhold single-quoted title",
+  "page": "- [a]: /u 'x'\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "025d84dfb0d5ab1507920d4034d804d3fd2f6c5e97c8868849d973e4317dd5a8",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-escape parenthesized title",
+  "page": "- [a]: /u (x)\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "3c6edf8415e5750a63369650d6ce2ccee65584c5c1dfc33856fb60bc3c8b2442",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-withhold parenthesized title",
+  "page": "- [a]: /u (x)\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "6d9abbfd0dee9613e9251e9d3e4304d6c7636a1bbb145a67f18e27bca872c3df",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-escape angle destination",
+  "page": "- [a]: <u>\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "44b6b7ad78d540099a01c719726edd5301fd5575a4ffca64fcdbd7d2cc4dc824",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-withhold angle destination",
+  "page": "- [a]: <u>\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "04740d00d2eeba65fa11d1702a9a30edd41b938808e7cd2e31ba2e8dc44479ce",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-escape title on the next line",
+  "page": "- [a]: /u\n  \"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "965c105cace62ba1cd990fc9ffe16f33c387753d7476f51f0db9915039510500",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "D-withhold title on the next line",
+  "page": "- [a]: /u\n  \"x\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d497fc7f395bade741dd9dd38348847a205838b3d5f223ccbe0accde4fdc1798",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ }
+]

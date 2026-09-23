@@ -1,0 +1,10 @@
+seed 4371 regressions (base walk agreed with GitHub, head walk does not) on pages carrying no '<!--' and no '-->' at all: 66
+  none (table hold) [escape]: 1
+  open quoted value [escape]: 24
+  select element [escape]: 10
+  select element + open quoted value [escape]: 4
+  select element + type 3-5 raw HTML (#413) [escape]: 1
+  select element + type 3-5 raw HTML (#413) + open quoted value [escape]: 1
+  type 3-5 raw HTML (#413) [escape]: 23
+  type 3-5 raw HTML (#413) + open quoted value [escape]: 2
+by direction: {'escape': 66, 'withhold': 0, 'mixed': 0}

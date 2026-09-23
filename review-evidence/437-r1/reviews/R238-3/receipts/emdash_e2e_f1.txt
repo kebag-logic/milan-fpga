@@ -1,0 +1,10 @@
+== head 34f124f9
+fixture item end uncovers an open quoted value: findings=0 exempt=1
+fixture item end uncovers a type-3 block: findings=0 exempt=1
+fixture item end uncovers a comment over a fence: findings=0 exempt=1
+select uncovered by an item end: findings=0 exempt=1
+== base ede8d48e
+fixture item end uncovers an open quoted value: findings=1 exempt=0
+fixture item end uncovers a type-3 block: findings=1 exempt=0
+fixture item end uncovers a comment over a fence: findings=1 exempt=0
+select uncovered by an item end: findings=0 exempt=1

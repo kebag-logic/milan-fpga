@@ -1,0 +1,1311 @@
+[
+ {
+  "name": "R237-2 #0",
+  "page": "- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "b0ba646a8f08bfcfcf978c2b3d565add5c18dfa9cfa2a7b82896c73e5cbae00b",
+  "response_sha256": "ce4784940cb67c003c92b476a8bd7b616bff2bb599351b1a007bd266c612d8c5",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n```\n</span></li>\n</ul>\n<p dir=\"auto\">text</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "R237-2 #1",
+  "page": "- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5c92b5b002a570d53cd7ecb181062cbb448af8f1a37ba9d35924b0d9938a1de7",
+  "response_sha256": "a13d189e730b625c2285759417027fdb6a68f357c6e3cf0660a78f1430f88379",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "R237-2 #2",
+  "page": "- item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "29ebb08ea5699b7d6d9375ca15bb0e4d3b78f47e6dd43918b55f83c75a0f135d",
+  "response_sha256": "ea5a36e64568a9280205ca05dd8dc227095bc08edc7ef955ad2ec80d2620517b",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item<br>\n<span>\n<pre class=\"notranslate\"><code class=\"notranslate\">\n</code></pre>\n</span></li>\n</ul>\n<p dir=\"auto\">text</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "R237-2 #3",
+  "page": "-\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "29a50f7834d1f88a72d7a91918c8d9b948b6759467cf2a45d494abb8cce395d0",
+  "response_sha256": "67bdbee88b5eb7237e8d32334847e2fdd7f3b3299b4290aa4ab088bc6a1cbad3",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "R237-2 #4",
+  "page": "-\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "7e7499eef4071829f9be393cb22a4df8dfd37ce8f7b18a29710d11f88e02aba5",
+  "response_sha256": "1bef5a6528539641f6ff8e6c2f328652b66c6800a9ac752836619eff666a027e",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n<span>\n```\n</span></li>\n</ul>\n<p dir=\"auto\">text</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "R237-3 #6",
+  "page": "Text <?p > <!-- ?> more.\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "e6a7647bc99387e57e6194784c7c4cd5d17893c001f94e472d4a0269d21cfb5a",
+  "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5",
+  "response_bytes": "<p dir=\"auto\">Text  </p>"
+ },
+ {
+  "name": "R237-3 #7",
+  "page": "Text <![CDATA[ > <!-- ]]> more.\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "3703b57e37a0c48d741b39301ad51d29e897d8e9b14c32aa6ff2516dca8fdf68",
+  "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5",
+  "response_bytes": "<p dir=\"auto\">Text  </p>"
+ },
+ {
+  "name": "R237-3 #8",
+  "page": "- item <?p > <!-- ?>\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "25d6b31c9597dad5f4204dbc554dbed378c8c0a2e1d65fe1be20aa98613016cc",
+  "response_sha256": "7d62435e99dda79e5ede2a206d9dcfd41fe6476d0d3c166bc34a80680e722569",
+  "response_bytes": "<ul dir=\"auto\">\n<li>item  </li></ul>"
+ },
+ {
+  "name": "R237-3 #9",
+  "page": "## A <?p > <!-- ?>\n\n## Old\n",
+  "github": [
+   [
+    2,
+    "A"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "A <?p > <!-- ?>"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "A <?p > <!-- ?>"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "e2101c7f5158f373b95ea0eadcc522683357e51b81c3ea8da141556368f36ad1",
+  "response_sha256": "9238102d0b5b93a1b07e3229d2018415b6fb32cfdf069de920391cf338fd8f9f",
+  "response_bytes": "<h2 dir=\"auto\">A  </h2>"
+ },
+ {
+  "name": "R237-3 #10",
+  "page": "<![CDATA[\nx <!---> y\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "1c3d307210851d6bc0ebdf7ac9e8e2ee2f877c20f390598f972d9b5f8057c9b2",
+  "response_sha256": "b9cdf5102b2aa77faa5123cbb7bbb679ff74e64bf645810028aa0289bf0d67d2",
+  "response_bytes": " y\n\n## Old"
+ },
+ {
+  "name": "R237-3 #12",
+  "page": "t <!--\n\n<?x\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "bb15a5278f55a3eb3a145b1663d7146eb0b340fe0fd1f594ccc21f2a6005786f",
+  "response_sha256": "7234eea32c897a95c99b5ee3bd6d2c14c14222acacd88d11b64b0f2956ab9367",
+  "response_bytes": "<p dir=\"auto\">t &lt;!--</p>\n"
+ },
+ {
+  "name": "R237-3 #13",
+  "page": "t <!--\n\n<div title='\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "9319491e96e4547d324c93666d989d375fd680e59894b83da371bec445d65a61",
+  "response_sha256": "7234eea32c897a95c99b5ee3bd6d2c14c14222acacd88d11b64b0f2956ab9367",
+  "response_bytes": "<p dir=\"auto\">t &lt;!--</p>\n"
+ },
+ {
+  "name": "R237-3 #14",
+  "page": "- [r]: /u\n\n\n    <!--\n\n## Old\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "indented code line",
+   "indented code line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bd4363b8da6deea6c2e9cbcbb905832f2c9e5e81b0306461c7af3ea03c0aa10e",
+  "response_sha256": "054a9f22c36263972d367e207e4b16638d462fec7a8201446bbdd57fc166dd58",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">&lt;!--\n</code></pre>\n<h2 dir=\"auto\">Old</h2>"
+ },
+ {
+  "name": "R237-3 #15",
+  "page": "<div>\n<!--\n\n![<b title=\"-->\">](https://github.com/kebag-logic/milan-fpga/blob/a75d3b918bec05e287bcb576ab3d6855afe3f092/review-evidence/437-r1/reviews/R237-3/u)\n\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e7ccaa805f991460acf5c707a593d3f9a6e011513ae0004efb55718caa5cd382",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "response_bytes": "<div dir=\"auto\">\n</div>"
+ },
+ {
+  "name": "R237-3 #16",
+  "page": "<div>\n<!--\n\n[r]: /u '<b title=\"-->\">'\n\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d9d1ff873ce11ccf57b2b02991dc09ee108618c9e5715af3b646018295a935d4",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "response_bytes": "<div dir=\"auto\">\n</div>"
+ },
+ {
+  "name": "R237-3 #17",
+  "page": "Text <?p > <b title=\" ?> more.\n\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "45c7f990d7fa8258489946bd271e3d06fd1de3c8ec081e17e2ca51f8d6d2916f",
+  "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5",
+  "response_bytes": "<p dir=\"auto\">Text  </p>"
+ },
+ {
+  "name": "R237-3 #18",
+  "page": "Text <!-- a --!> <b title=\"-->\"> more.\n\n## Old\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ae8e1c7fb6cc02d861eff958fd7d0fc70b06b8c0381c4f43290013ac92e999c7",
+  "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5",
+  "response_bytes": "<p dir=\"auto\">Text  </p>"
+ },
+ {
+  "name": "R237-3 #19",
+  "page": "> ```\n\n> <!--\n\n## Old\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "e56ab9aeabe96aa6f3e16fcc68f9434b11b39f45e5ab30c08ea66cf11cc0badf",
+  "response_sha256": "ffbdf2eb9b2869381acb2de82b08eb65c801ab59bd4a318e400e4e748723532c",
+  "response_bytes": "<blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\"></code></pre>\n</blockquote>\n<blockquote>\n</blockquote>"
+ },
+ {
+  "name": "R237-3 #20",
+  "page": "\" y\n\n## Old\"\n",
+  "github": [
+   [
+    2,
+    "Old\""
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old\""
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old\""
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "7efe2ccedfa33fb78eb2743568fdce6e087de9a1869a608592fa6045b563b798",
+  "response_sha256": "0552b1bdf2bb92b8c7ee0aebf42b112c330a4ac1462bf49999809c1dd1726bfb",
+  "response_bytes": "<p dir=\"auto\">\" y</p>\n<h2 dir=\"auto\">Old\"</h2>"
+ },
+ {
+  "name": "R238-2 #21",
+  "page": "text <? > <!-- ?>\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "e8350aa54d5178b18071d418a7faf42aa6098a9d24335f7993aabaef150e86fd",
+  "response_sha256": "4bb0fcbf09ed9234282dba9169aab91e4ed2713611bb2ca1ea3debe372a48a17",
+  "response_bytes": "<p dir=\"auto\">text  </p>"
+ },
+ {
+  "name": "R238-2 #22",
+  "page": "text <![CDATA[ > <!-- ]]>\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "093dc9718021a868ee7176852c55f5fd9775c5c4458bdb7a908076ae493b6eff",
+  "response_sha256": "4bb0fcbf09ed9234282dba9169aab91e4ed2713611bb2ca1ea3debe372a48a17",
+  "response_bytes": "<p dir=\"auto\">text  </p>"
+ },
+ {
+  "name": "R238-2 #23",
+  "page": "- text <? > <!-- ?>\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "6ae22f41fc4a5c7f7b9778a112515a6e1be356a02c746de51de93f0bb901596c",
+  "response_sha256": "ff17527d4d9bec275ad1ec3546029da475666f14702e11e72c4c7b6951546770",
+  "response_bytes": "<ul dir=\"auto\">\n<li>text  </li></ul>"
+ },
+ {
+  "name": "R238-2 #24",
+  "page": "text <? > <!-- ?>\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "8bf1e86adf676245b53288910e273ca8b955cbfda644b0152b45f879e337b43f",
+  "response_sha256": "4bb0fcbf09ed9234282dba9169aab91e4ed2713611bb2ca1ea3debe372a48a17",
+  "response_bytes": "<p dir=\"auto\">text  </p>"
+ },
+ {
+  "name": "R238-2 #25",
+  "page": "text <? <!-- ?>\n\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [],
+  "base": [],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "ecd342cdc9853dbd15cbafbe9b408578a15d45fd482fbb705356c6bef9325b43",
+  "response_sha256": "7682ce5ef6edc24d44fc584a4d458e970c02a1c9ab0cf2b8b1206f554b39a1c6",
+  "response_bytes": "<p dir=\"auto\">text </p>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #26",
+  "page": "- <!X y\n- <!--\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "e6f85ddc5dc938e751db87cf546f2c0b175b6f7b11693086a56f2ff2cc29f713",
+  "response_sha256": "471abffa326718f065b837ea5bdd237f1e852407c50edd2744025de8ab923079",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n\n</li><li>\n</li></ul>"
+ },
+ {
+  "name": "R238-2 #27",
+  "page": "- <? x\n- <!--\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "4d6062abbbdc1332b80547e4b1467672dbc36913aa628b06422baec01862f2d3",
+  "response_sha256": "471abffa326718f065b837ea5bdd237f1e852407c50edd2744025de8ab923079",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n\n</li><li>\n</li></ul>"
+ },
+ {
+  "name": "R238-2 #28",
+  "page": "- <![CDATA[ x\n> <!--\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "34d6649d3f41277a3dc92302a5d47efa0efc397d562f24bf2bcc02b411785b93",
+  "response_sha256": "70e118dcb5ffafeb769d6160107f48b2771994b8003e512be73f884c1e5eb5cb",
+  "response_bytes": "<ul dir=\"auto\">\n<li>\n\n</li></ul>\n<blockquote>\n</blockquote>"
+ },
+ {
+  "name": "R238-2 #29",
+  "page": "<? x\n- <!--\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "1b286217bb4a2dcf827e29b2ff5631fa1e4db7b7180bff718571f8c391ed73d5",
+  "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "response_bytes": ""
+ },
+ {
+  "name": "R238-2 #30",
+  "page": "<? x\n<!-->\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "f07cb31b5c2a0e09cc19792110d339f24a43c22566543b93fe1f94a761ec2754",
+  "response_sha256": "eabcda6ebc8d9667d054e5d476319a78e0811d41bc35ab12595e58c2bd0b0a69",
+  "response_bytes": "\n## X\n\n## Y"
+ },
+ {
+  "name": "R238-2 #31",
+  "page": "<![CDATA[\n> <!--\n## X\n\n## Y\n",
+  "github": [],
+  "head": [],
+  "base": [],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "commented line",
+   "commented line",
+   "commented line",
+   "commented line"
+  ],
+  "request_sha256": "2548ebab45a03dd12fce24839c092edd84d0b5bb5407dd5a20ed4697caa5b615",
+  "response_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+  "response_bytes": " "
+ },
+ {
+  "name": "R238-2 #32",
+  "page": "<? x\n## X\n\n## Y\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "adbd453dc7d4af0ec3c442d43e61133db07084a8350a68ed355170343eecdbdf",
+  "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "response_bytes": ""
+ },
+ {
+  "name": "R238-2 #33",
+  "page": "<!X y\n<b>\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "419306cfe1ae07d384c51c82b93c5ba107bfc088d7a98ccc0e6ab32c25f9df4c",
+  "response_sha256": "bcaf2221646f66a3d4d7cae9c038ed70addf4b351e4940a060bb04033d894bb0",
+  "response_bytes": "\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #34",
+  "page": "<? x\n<span>\n?>\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3d91e239c6c5072e6218daaa24a76c6a7a5352b5dfa8bbeec9971e93df2e388d",
+  "response_sha256": "5f3f826be8fc13c9bfde5263251107535a9bdfd17c573428dcc576de2e340430",
+  "response_bytes": "\n?&gt;\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #35",
+  "page": "<![CDATA[\n<span>\n]]>\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "fc0f2338eda77c16256392e3b39bb33bdf0e8ae95a636b3e3ff8503a1cb2ac1d",
+  "response_sha256": "1189e802aa00086fc8cbcb7b829754db4cc88d5969af325ef5fca77c62433210",
+  "response_bytes": "\n]]&gt;\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #36",
+  "page": "<? x\ntext\n?>\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "384775b39dde717ac1ffc819bc9bbda6139cf4b2849a729ce1952c70e7a5d6a4",
+  "response_sha256": "bcaf2221646f66a3d4d7cae9c038ed70addf4b351e4940a060bb04033d894bb0",
+  "response_bytes": "\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #37",
+  "page": "<? x\n?>\n<div>\n<!--\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "3b9daaf9544be6635fc9874b9d8ceb1f02e19d13512dc45708246dda3d5ced0e",
+  "response_sha256": "867c2199f39673cba3c127ebae42f9a102b47344917d4e9d35d1d161699bff3e",
+  "response_bytes": "\n<div dir=\"auto\">\n</div>"
+ },
+ {
+  "name": "R238-2 #38",
+  "page": "<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "bc88851ca0b529335b75e8b0dacee0a814312b7587b27164a4a359cfdf57f2f2",
+  "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+  "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #39",
+  "page": "<div title=\"a\n<!--\nb\">\n\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "d09799c78667bc1ad4cdf3ede34cbde0d9c5725049eeda5b41f0bfa2a2a58168",
+  "response_sha256": "d213d81c9be12f336d553b605e40e56d573d9ec5a51a8ce59dd32d13becfa288",
+  "response_bytes": "<div title=\"a\n&lt;!--\nb\" dir=\"auto\">\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2></div>"
+ },
+ {
+  "name": "R238-2 #40",
+  "page": "<div\ntitle=\"<!--\">\n\n## X\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "f5213df7efe1b7290d7d4cf638d132727af7eac6fedcb3bd5284e92d98744e37",
+  "response_sha256": "e7ddf1f85f25bfa9b30f28f5d5c5e623b9c4d13ba7c82fc10d33852c0bd835bd",
+  "response_bytes": "<div title=\"&lt;!--\" dir=\"auto\">\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2></div>"
+ },
+ {
+  "name": "R238-2 #41",
+  "page": "<select>\n\n## X\n\n</select>\n\n\n## Y\n",
+  "github": [
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "ea2f3753a777552ee8b103343c6de1424e8d1418b8a42e090c9f2d773bc0fa6b",
+  "response_sha256": "a0ad4a0892beec9b8557c40314f9744c8829bad3615a38afdb446a3f074aaef9",
+  "response_bytes": "\nX\n\n<h2 dir=\"auto\">Y</h2>"
+ },
+ {
+  "name": "R238-2 #42",
+  "page": "<div>\n<!--\n\n[x](https://github.com/kebag-logic/milan-fpga/blob/1f4b0af7dbb953cd2a0179a602e1d07ebdcc80cd/review-evidence/437-r1/reviews/R238-2/<a-->)\n\n## X\n\n## Y\n",
+  "github": [],
+  "head": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": false,
+  "head_blocks": [
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "67601ddfcf24f444a06597070ac1318dd16af5fd535239273a6c62499d5826e2",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "response_bytes": "<div dir=\"auto\">\n</div>"
+ }
+]

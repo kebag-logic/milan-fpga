@@ -1,0 +1,42 @@
+[
+ {
+  "name": "D-escape double-quoted title (read)",
+  "page": "- [a]: /u \"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-withhold double-quoted title (read)",
+  "page": "- [a]: /u \"x\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+ },
+ {
+  "name": "D-escape single-quoted title",
+  "page": "- [a]: /u 'x'\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-withhold single-quoted title",
+  "page": "- [a]: /u 'x'\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+ },
+ {
+  "name": "D-escape parenthesized title",
+  "page": "- [a]: /u (x)\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-withhold parenthesized title",
+  "page": "- [a]: /u (x)\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+ },
+ {
+  "name": "D-escape angle destination",
+  "page": "- [a]: <u>\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-withhold angle destination",
+  "page": "- [a]: <u>\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+ },
+ {
+  "name": "D-escape title on the next line",
+  "page": "- [a]: /u\n  \"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "D-withhold title on the next line",
+  "page": "- [a]: /u\n  \"x\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n"
+ }
+]

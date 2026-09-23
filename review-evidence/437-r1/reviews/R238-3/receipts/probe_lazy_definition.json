@@ -1,0 +1,128 @@
+[
+ {
+  "name": "L-escape lazy bare definition",
+  "page": "- [a]: /u\n[b]: /v\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "fenced line"
+  ],
+  "request_sha256": "20f1c9e7f1ff2a036e11a8888bd4b3411024e1b990b4f0dd96aad2113a51e6b5",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "L-withhold lazy bare definition",
+  "page": "- [a]: /u\n[b]: /v\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": false,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "raw HTML line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "5f70e75aa0a2d616cc39afb80fe91b797a8432fc1c0e392469bf1b8ad085cc24",
+  "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>"
+ },
+ {
+  "name": "L-control indented bare definition (handled)",
+  "page": "- [a]: /u\n  [b]: /v\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_agrees": true,
+  "base_agrees": true,
+  "head_blocks": [
+   "prose line",
+   "prose line",
+   "prose line",
+   "prose line",
+   "fenced line",
+   "fenced line",
+   "fenced line",
+   "prose line",
+   "prose line",
+   "prose line"
+  ],
+  "request_sha256": "e345ff27973aa18841a0e106728abec0544e76395ea8dd929b69cdbbe3712f8c",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>"
+ }
+]

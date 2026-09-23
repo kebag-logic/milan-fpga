@@ -1,0 +1,76 @@
+shapes 175
+encoder reproduces every recorded request: True
+response bytes identical today: 175/175
+headings identical today: 175/175
+gen_toc_comment_shapes.json limitation head!=gh base!=gh: 25
+gen_toc_comment_shapes.json limitation head!=gh base=gh: 6
+gen_toc_comment_shapes.json plain head=gh base=gh: 7
+gen_toc_container_walk.json limitation head!=gh base!=gh: 22
+gen_toc_container_walk.json limitation head!=gh base=gh: 6
+gen_toc_container_walk.json plain head=gh base!=gh: 12
+gen_toc_container_walk.json plain head=gh base=gh: 46
+gen_toc_family_one.json plain head=gh base!=gh: 15
+gen_toc_family_one.json plain head=gh base=gh: 36
+limitation records inconsistent with measured walks: []
+base agreed, head disagrees (12):
+  gen_toc_comment_shapes.json: #516 resumed tag column 0 open
+  gen_toc_comment_shapes.json: #516 resumed tag column 0 close
+  gen_toc_comment_shapes.json: #516 resumed tag column 0 attribute
+  gen_toc_comment_shapes.json: #516 resumed tag column 1 open
+  gen_toc_comment_shapes.json: #516 resumed tag column 1 close
+  gen_toc_comment_shapes.json: #516 resumed tag column 1 attribute
+  gen_toc_container_walk.json: item block ends before a code span
+  gen_toc_container_walk.json: item block ends before an escape
+  gen_toc_container_walk.json: item block ends before an inline attribute
+  gen_toc_container_walk.json: item end uncovers an open quoted value
+  gen_toc_container_walk.json: item end uncovers a type-3 block
+  gen_toc_container_walk.json: item end uncovers a comment over a fence
+base disagreed, head agrees (27)
+both disagree (47):
+  gen_toc_comment_shapes.json: #516 first tag column 0 open
+  gen_toc_comment_shapes.json: #516 first tag column 0 close
+  gen_toc_comment_shapes.json: #516 first tag column 0 attribute
+  gen_toc_comment_shapes.json: #516 first tag column 1 open
+  gen_toc_comment_shapes.json: #516 first tag column 1 close
+  gen_toc_comment_shapes.json: #516 first tag column 1 attribute
+  gen_toc_comment_shapes.json: top-level tag leaves comment open
+  gen_toc_comment_shapes.json: type-6 block leaves comment open
+  gen_toc_comment_shapes.json: comment opened on the type-6 line
+  gen_toc_comment_shapes.json: closed then reopened in a block
+  gen_toc_comment_shapes.json: type-1 pre leaves comment open
+  gen_toc_comment_shapes.json: type-1 script leaves comment open
+  gen_toc_comment_shapes.json: closed by a later type-6 block
+  gen_toc_comment_shapes.json: closed by a later type-7 block
+  gen_toc_comment_shapes.json: closed by a later type-1 block
+  gen_toc_comment_shapes.json: closed by a type-2 block
+  gen_toc_comment_shapes.json: closed by a multi-line type-2 block
+  gen_toc_comment_shapes.json: closed by an abrupt comment in a block
+  gen_toc_comment_shapes.json: closed by an inline comment
+  gen_toc_comment_shapes.json: closed by a comment in a heading
+  gen_toc_comment_shapes.json: prose arrow closes nothing
+  gen_toc_comment_shapes.json: heading arrow closes nothing
+  gen_toc_comment_shapes.json: code span arrow closes nothing
+  gen_toc_comment_shapes.json: fenced arrow closes nothing
+  gen_toc_comment_shapes.json: indented arrow closes nothing
+  gen_toc_container_walk.json: tag filter leaves the attribute as text
+  gen_toc_container_walk.json: a greater-than ends the bogus comment
+  gen_toc_container_walk.json: spaced dashes close nothing
+  gen_toc_container_walk.json: a bang right after the opener closes nothing
+  gen_toc_container_walk.json: R237-2 S1 opener four columns into an item
+  gen_toc_container_walk.json: R237-2 S1 opener after a tag four columns in
+  gen_toc_container_walk.json: single-quoted attribute closes
+  gen_toc_container_walk.json: unquoted attribute closes
+  gen_toc_container_walk.json: comment with dashes closes
+  gen_toc_container_walk.json: processing instruction closes
+  gen_toc_container_walk.json: uppercase declaration closes
+  gen_toc_container_walk.json: lowercase declaration is text
+  gen_toc_container_walk.json: CDATA closes
+  gen_toc_container_walk.json: tag across lines closes
+  gen_toc_container_walk.json: code span hides the tag
+  gen_toc_container_walk.json: escape hides the tag
+  gen_toc_container_walk.json: prose bang closer is text
+  gen_toc_container_walk.json: attribute bang closer closes
+  gen_toc_container_walk.json: footnote content is read at the page end
+  gen_toc_container_walk.json: table cell comment closes
+  gen_toc_container_walk.json: tag filter keeps the attribute's closer
+  gen_toc_container_walk.json: raw closer after a type-7 opener

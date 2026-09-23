@@ -1,0 +1,987 @@
+[
+ {
+  "name": "probe two spaces",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe three spaces",
+  "page": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe star item",
+  "page": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe ordered item",
+  "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe two paragraphs",
+  "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe task item",
+  "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe interrupting item",
+  "page": "text\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe bold tag",
+  "page": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe two blank lines",
+  "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe plus item",
+  "page": "+ item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe custom tag",
+  "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe one space outside item",
+  "page": "- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe four spaces",
+  "page": "- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe quote boundary",
+  "page": "> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe footnote two spaces",
+  "page": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe footnote four spaces",
+  "page": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe tab continuation",
+  "page": "- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe no item",
+  "page": "plain\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe padding outside",
+  "page": "-  item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe padding inside",
+  "page": "-  item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe ordered outside",
+  "page": "1. item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe marker indent outside",
+  "page": " - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe marker indent inside",
+  "page": " - item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe code padding uses one",
+  "page": "-     code\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe four padding columns",
+  "page": "-    item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe tab padding columns",
+  "page": "- \titem\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe empty item ends at blank",
+  "page": "-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe empty padded item ends at blank",
+  "page": "-   \n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe empty item gains content",
+  "page": "-\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe empty item ignores padding",
+  "page": "-   \n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe nested item retains outer column",
+  "page": "- item\n  - nested\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe sibling replaces column",
+  "page": "- item\n\n1. item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe fresh dedented paragraph ends item",
+  "page": "- item\n\noutside\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe lazy line retains item",
+  "page": "- item\nlazy\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "probe heading ends item",
+  "page": "- item\n\n## Outside\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe fenced marker is inert",
+  "page": "```\n- item\n```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe commented marker is inert",
+  "page": "<!--\n- item\n-->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe HTML marker is inert",
+  "page": "<div>\n- item\n</div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe code marker is inert",
+  "page": "    - item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe thematic break is no item",
+  "page": "- - -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe noninterrupting ordinal is no item",
+  "page": "text\n2. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "probe setext dash is no item",
+  "page": "text\n-\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 C01",
+  "page": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 C02",
+  "page": "- item\n\n  text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 C03",
+  "page": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 C04",
+  "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 C05",
+  "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 C06",
+  "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 C07",
+  "page": "- item\n\n  text\nlazy\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 C08",
+  "page": "1. item\n\n   text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 P01",
+  "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 P04",
+  "page": "- item\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 D01",
+  "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 D02",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 D03",
+  "page": "- item\n> quote\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 D04",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 D05",
+  "page": "- item\n\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R238 D06",
+  "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R238 D07",
+  "page": "-   item\n  > quote\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction R237 fenced-marker-indented-closer",
+  "page": "```\n- fake item\n  ```\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R237 comment-marker-indented-closer",
+  "page": "<!--\n- fake item\n  -->\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction R237 HTML-marker-indented-closer",
+  "page": "<div>\n- fake item\n  </div>\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 open",
+  "page": "- item\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 0 open swallows fence",
+  "page": "- item\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 open swallows closed comment",
+  "page": "- item\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 open swallows pre",
+  "page": "- item\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 close",
+  "page": "- item\n</span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 0 close swallows fence",
+  "page": "- item\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 close swallows closed comment",
+  "page": "- item\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 close swallows pre",
+  "page": "- item\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 attribute",
+  "page": "- item\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows fence",
+  "page": "- item\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows closed comment",
+  "page": "- item\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 0 attribute swallows pre",
+  "page": "- item\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 open",
+  "page": "- item\n <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 1 open swallows fence",
+  "page": "- item\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 open swallows closed comment",
+  "page": "- item\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 open swallows pre",
+  "page": "- item\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 close",
+  "page": "- item\n </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 1 close swallows fence",
+  "page": "- item\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 close swallows closed comment",
+  "page": "- item\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 close swallows pre",
+  "page": "- item\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 attribute",
+  "page": "- item\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows fence",
+  "page": "- item\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows closed comment",
+  "page": "- item\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 1 attribute swallows pre",
+  "page": "- item\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 2 open",
+  "page": "- item\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 2 open then fence",
+  "page": "- item\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 open then comment",
+  "page": "- item\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 open then pre",
+  "page": "- item\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 close",
+  "page": "- item\n  </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 2 close then fence",
+  "page": "- item\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 close then comment",
+  "page": "- item\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 close then pre",
+  "page": "- item\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 attribute",
+  "page": "- item\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 2 attribute then fence",
+  "page": "- item\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 attribute then comment",
+  "page": "- item\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 2 attribute then pre",
+  "page": "- item\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 open",
+  "page": "- item\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 3 open then fence",
+  "page": "- item\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 open then comment",
+  "page": "- item\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 open then pre",
+  "page": "- item\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 close",
+  "page": "- item\n   </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 3 close then fence",
+  "page": "- item\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 close then comment",
+  "page": "- item\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 close then pre",
+  "page": "- item\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 attribute",
+  "page": "- item\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 3 attribute then fence",
+  "page": "- item\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 attribute then comment",
+  "page": "- item\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 3 attribute then pre",
+  "page": "- item\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 open",
+  "page": "- item\n    <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 4 open then fence",
+  "page": "- item\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 open then comment",
+  "page": "- item\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 open then pre",
+  "page": "- item\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 close",
+  "page": "- item\n    </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 4 close then fence",
+  "page": "- item\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 close then comment",
+  "page": "- item\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 close then pre",
+  "page": "- item\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 attribute",
+  "page": "- item\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction first tag column 4 attribute then fence",
+  "page": "- item\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 attribute then comment",
+  "page": "- item\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction first tag column 4 attribute then pre",
+  "page": "- item\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 0 open",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows fence",
+  "page": "- item\n\n  text\n<span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows closed comment",
+  "page": "- item\n\n  text\n<span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 open swallows pre",
+  "page": "- item\n\n  text\n<span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 close",
+  "page": "- item\n\n  text\n</span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows fence",
+  "page": "- item\n\n  text\n</span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows closed comment",
+  "page": "- item\n\n  text\n</span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 close swallows pre",
+  "page": "- item\n\n  text\n</span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 attribute",
+  "page": "- item\n\n  text\n<span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows fence",
+  "page": "- item\n\n  text\n<span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows closed comment",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 0 attribute swallows pre",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 open",
+  "page": "- item\n\n  text\n <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows fence",
+  "page": "- item\n\n  text\n <span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows closed comment",
+  "page": "- item\n\n  text\n <span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 open swallows pre",
+  "page": "- item\n\n  text\n <span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 close",
+  "page": "- item\n\n  text\n </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows fence",
+  "page": "- item\n\n  text\n </span>\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows closed comment",
+  "page": "- item\n\n  text\n </span>\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 close swallows pre",
+  "page": "- item\n\n  text\n </span>\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 attribute",
+  "page": "- item\n\n  text\n <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows fence",
+  "page": "- item\n\n  text\n <span title=\"x\">\n```\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows closed comment",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<!--\n-->\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 1 attribute swallows pre",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<pre>\n\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 2 open",
+  "page": "- item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 2 open then fence",
+  "page": "- item\n\n  text\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 open then comment",
+  "page": "- item\n\n  text\n  <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 open then pre",
+  "page": "- item\n\n  text\n  <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 close",
+  "page": "- item\n\n  text\n  </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 2 close then fence",
+  "page": "- item\n\n  text\n  </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 close then comment",
+  "page": "- item\n\n  text\n  </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 close then pre",
+  "page": "- item\n\n  text\n  </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 attribute",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then fence",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then comment",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 2 attribute then pre",
+  "page": "- item\n\n  text\n  <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 open",
+  "page": "- item\n\n  text\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 3 open then fence",
+  "page": "- item\n\n  text\n   <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 open then comment",
+  "page": "- item\n\n  text\n   <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 open then pre",
+  "page": "- item\n\n  text\n   <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 close",
+  "page": "- item\n\n  text\n   </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 3 close then fence",
+  "page": "- item\n\n  text\n   </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 close then comment",
+  "page": "- item\n\n  text\n   </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 close then pre",
+  "page": "- item\n\n  text\n   </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 attribute",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then fence",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then comment",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 3 attribute then pre",
+  "page": "- item\n\n  text\n   <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 open",
+  "page": "- item\n\n  text\n    <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 4 open then fence",
+  "page": "- item\n\n  text\n    <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 open then comment",
+  "page": "- item\n\n  text\n    <span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 open then pre",
+  "page": "- item\n\n  text\n    <span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 close",
+  "page": "- item\n\n  text\n    </span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 4 close then fence",
+  "page": "- item\n\n  text\n    </span>\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 close then comment",
+  "page": "- item\n\n  text\n    </span>\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 close then pre",
+  "page": "- item\n\n  text\n    </span>\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 attribute",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then fence",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n```\n\n## Old\n```\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then comment",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n<!--\n\n## Old\n-->\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction resumed tag column 4 attribute then pre",
+  "page": "- item\n\n  text\n    <span title=\"x\">\n<pre>\n\n## Old\n</pre>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction ordered first",
+  "page": "1. item\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction ordered below column",
+  "page": "1. item\n\n   text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction star first",
+  "page": "* item\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction plus resumed",
+  "page": "+ item\n\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction empty gains paragraph",
+  "page": "-\n  text\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction empty resumed paragraph",
+  "page": "-\n  text\n\n  more\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction lazy resumed paragraph",
+  "page": "- item\n\n  text\nlazy\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction sibling first paragraph",
+  "page": "- item\n1. next\n   <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction sibling replaces boundary",
+  "page": "- item\n1. next\n  <span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction quote column 0 releases iff dedented",
+  "page": "- item\n> quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction quote column 1 releases iff dedented",
+  "page": "- item\n > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction quote column 2 releases iff dedented",
+  "page": "- item\n  > quote\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ },
+ {
+  "name": "correction footnote column 0 releases iff dedented",
+  "page": "- item\n[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction footnote column 1 releases iff dedented",
+  "page": "- item\n [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": true
+ },
+ {
+  "name": "correction footnote column 2 releases iff dedented",
+  "page": "- item\n  [^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "expect_old": false
+ }
+]

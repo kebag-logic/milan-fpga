@@ -1,0 +1,34 @@
+[
+ {
+  "name": "T1 fuzz original",
+  "page": "text\n|-|\n    <span>\n'>\n-\n   ~~~\n\n## H1\n"
+ },
+ {
+  "name": "T2 minimal empty item",
+  "page": "text\n|-|\n    x\ny\n-\n   ~~~\n\n## H1\n"
+ },
+ {
+  "name": "T3 natural table, backtick fence",
+  "page": "| a | b |\n|---|---|\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "T4 ordered two",
+  "page": "text\n|-|\n    x\ny\n2. z\n   ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "T5 no indented line (control)",
+  "page": "text\n|-|\ny\n-\n   ~~~\n\n## H1\n"
+ },
+ {
+  "name": "T6 no paragraph line (control)",
+  "page": "text\n|-|\n    x\n-\n   ~~~\n\n## H1\n"
+ },
+ {
+  "name": "T7 two-digit ordered",
+  "page": "text\n|-|\n    x\ny\n10. z\n    ```\n## Old\n```\n\n## Real\n"
+ },
+ {
+  "name": "T8 blank-free table in doc",
+  "page": "## Top\n\n| k | v |\n|---|---|\n| a | 1 |\n    note\nNext\n-\n  ```\n## Old\n```\n\n## Real\n"
+ }
+]

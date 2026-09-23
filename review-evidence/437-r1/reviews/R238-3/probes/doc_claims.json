@@ -1,0 +1,66 @@
+[
+ {
+  "name": "F2 equals setext",
+  "page": "Alpha\n===\n"
+ },
+ {
+  "name": "F2 hyphen setext",
+  "page": "text\n---\n"
+ },
+ {
+  "name": "F2 single hyphen setext",
+  "page": "text\n-\n"
+ },
+ {
+  "name": "F2 quoted heading",
+  "page": "> ## Q\n"
+ },
+ {
+  "name": "F2 list heading",
+  "page": "- item\n\n  ## Inner\n"
+ },
+ {
+  "name": "DOC unclosed tag hides the next heading",
+  "page": "<div\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC bogus comment hides the next heading",
+  "page": "<div>\n<!x\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC open quoted value hides every later",
+  "page": "<div title='x\n\n## A\n\n## B\n\n## C\n"
+ },
+ {
+  "name": "DOC select hides the headings inside it",
+  "page": "<select>\n\n## A\n\n</select>\n\n## B\n"
+ },
+ {
+  "name": "DOC type-3 heading listed",
+  "page": "<? x\n## A\n?>\n\n## B\n"
+ },
+ {
+  "name": "DOC comment closed inside its own raw HTML block agrees",
+  "page": "<div>\n<!-- c -->\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC opener in a raw HTML block hides the rest",
+  "page": "<div>\n<!--\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC opener four columns into an item",
+  "page": "- item\n\n    <!--\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC closer printed as text ends only the walk's comment",
+  "page": "<!--\n`-->`\n## A\n-->\n\n## B\n"
+ },
+ {
+  "name": "DOC comment wherever it sits: in a fence opens none",
+  "page": "```\n<!--\n```\n\n## A\n\n## B\n"
+ },
+ {
+  "name": "DOC empty comment withholds",
+  "page": "<!-->\n\n## A\n\n## B\n"
+ }
+]

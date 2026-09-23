@@ -1,0 +1,82 @@
+[
+ {
+  "id": "M27 containers open inside an open fence, comment or raw HTML block (R237-r1 F3)",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1257/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag directly under a closing comment line hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a type-1 block's closing tag hides the heading it wraps]",
+    "  FAIL [a lone tag directly under an indented code line under a closing comment line hides the heading it wraps]",
+    "  FAIL [a lone tag directly under an indented code line under a type-1 block's closing tag hides the heading it wraps]",
+    "  FAIL [I437 commented marker is inert]",
+    "  FAIL [I437 R237 fenced-marker-indented-closer]",
+    "  FAIL [I437 R237 comment-marker-indented-closer]",
+    "  FAIL [I437 R237 HTML-marker-indented-closer]",
+    "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+    "  FAIL [I437 rendered type-4 block leaves the gate to the walk]",
+    "  FAIL [I437 rendered type-3 block leaves the gate to the walk]",
+    "  FAIL [I437 rendered type-5 block leaves the gate to the walk]"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 9 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M28 an ordered item interrupting a paragraph needs no ordinal 1",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [I437 noninterrupting ordinal is no item]",
+    "TOC selftest: FAIL (1267/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "id": "M29 an empty item may interrupt a paragraph",
+  "file": "gen_toc_containers.py",
+  "applies": 1,
+  "gen_toc.py": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ],
+   "failing_lines": [
+    "  FAIL [a lone tag under an empty item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "TOC selftest: FAIL (1268/1269 arm(s))"
+   ]
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failing_lines": []
+  },
+  "verdict": "KILLED"
+ }
+]

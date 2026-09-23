@@ -1,0 +1,26 @@
+$ git diff --raw ede8d48e..34f124f9
+:100644 100644 0aa31c72 86aa8f9d M	CONTRIBUTING.md
+:100644 100644 a759044b f18d0c3d M	docs/DOC_GENERATION.md
+:100755 100755 641432e7 a6586e5a M	scripts/check_em_dash.py
+:100644 100644 b2013963 ee73ea99 M	scripts/gen_toc.py
+:100644 100644 e056d6cb 281ea6a4 M	scripts/gen_toc_cases.py
+:000000 100644 00000000 6903841f A	scripts/gen_toc_comment_shapes.json
+:000000 100644 00000000 ec5a09ed A	scripts/gen_toc_container_cases.py
+:000000 100644 00000000 20ec041a A	scripts/gen_toc_container_walk.json
+:000000 100644 00000000 156a0bdc A	scripts/gen_toc_containers.py
+:000000 100644 00000000 96217081 A	scripts/gen_toc_family_one.json
+$ gitlinks at base
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+$ gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+$ git ls-files -s (gitlinks in index)
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 c1b617435824929a790739ea8585c3fe1a328cc0 0	gptp-processor
+160000 424c688fa2205b934a7689a58f2aa766420f2326 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis

@@ -1,0 +1,132 @@
+{
+ "tally": {
+  "R238-2 head=gh base=gh": 372,
+  "R238-2 head!=gh base!=gh": 784,
+  "R238-2 head=gh base!=gh": 140,
+  "R238-2 head!=gh base=gh": 5,
+  "R237-3 head!=gh base!=gh": 1085,
+  "R237-3 head=gh base=gh": 429,
+  "R237-3 head=gh base!=gh": 10
+ },
+ "regressions": [
+  {
+   "source": "R238-2 batch4_prior",
+   "name": "R237-2 F2 flat item code span",
+   "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "their_verdict": null,
+   "head": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "base_agrees": true
+  },
+  {
+   "source": "R238-2 batch4_prior",
+   "name": "R237-2 F2 flat item escape",
+   "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "their_verdict": null,
+   "head": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "base_agrees": true
+  },
+  {
+   "source": "R238-2 batch4_prior",
+   "name": "R237-2 F2 flat item attr",
+   "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "their_verdict": null,
+   "head": [],
+   "base": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "base_agrees": true
+  },
+  {
+   "source": "R238-2 fuzz_seed238_complete",
+   "name": "fuzz_seed238_complete#668",
+   "page": "* <![CDATA[\n  <script>\n<? x\n- > a <!-- b\nc --> d\n## Z\n",
+   "github": [],
+   "their_verdict": "regression",
+   "head": [
+    [
+     2,
+     "Z"
+    ]
+   ],
+   "base": [],
+   "head_agrees": false,
+   "base_agrees": true
+  },
+  {
+   "source": "R238-2 fuzz_seed238_complete",
+   "name": "fuzz_seed238_complete#672",
+   "page": "- - item\n   <div title=\"x\">\n* ===\n<? x\n>---\n## X5\n<!-->\n## Z\n",
+   "github": [],
+   "their_verdict": "regression",
+   "head": [
+    [
+     2,
+     "X5"
+    ]
+   ],
+   "base": [],
+   "head_agrees": false,
+   "base_agrees": true
+  }
+ ]
+}
