@@ -1,0 +1,7 @@
+$ python3 scripts/ci_events.py --check
+[mutation] .github/workflows/rtl.yml | 1 +
+ 1 file changed, 1 insertion(+)
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+  FAIL .github/workflows/rtl.yml: job `yosys-shards` step 9 (`Run this weighted portability shard`) script is not the canonical form: line 1 must be 'syn/yosys/run.sh --shard "${{ matrix.shard }}/${{ matrix.total }}" --results "$RUNNER_TEMP/yosys-results" --cache "$RUNNER_TEMP/yosys-result-cache"' (found '# the generated ROM bundle (#520) is in the key'); 1 line(s) expected, 2 found
+ci_events: 1 finding(s) over 1589 contract item(s)
+[exit 1]

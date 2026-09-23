@@ -1,0 +1,81 @@
+[
+  {
+    "id": "P0",
+    "what": "unmutated candidate",
+    "expect": "accepted",
+    "exit": 0,
+    "tail": [
+      "ci_events: OK (1589 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ]
+  },
+  {
+    "id": "P1",
+    "what": "#439 content pin x this PR's rtl.yml edit: the same kind of comment placed INSIDE the yosys-shards run body instead of between steps",
+    "expect": "refused",
+    "exit": 1,
+    "restored_clean": true,
+    "tail": [
+      "ci_events: 1 finding(s) over 1589 contract item(s)"
+    ],
+    "diagnostics": [
+      "FAIL .github/workflows/rtl.yml: job `yosys-shards` step 9 (`Run this weighted portability shard`) script is not the canonical form: line 1 must be 'syn/yosys/run.sh --shard \"${{ matrix.shard }}/${{ matrix.total }}\" --results \"$RUNNER_TEMP/yosys-results\" --cache \"$RUNNER_TEMP/yosys-result-cache\"' (found '# the generated ROM bundle (#520) is in the key'); 1 line(s) expected, 2 found"
+    ]
+  },
+  {
+    "id": "P2",
+    "what": "control for P1: an extra YAML comment line between steps, where this PR put its comment",
+    "expect": "accepted",
+    "exit": 0,
+    "restored_clean": true,
+    "tail": [
+      "ci_events: OK (1589 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "id": "P3",
+    "what": "#350 policy mark in the result-cache paragraph this PR edited: drop `syn/yosys/result_cache.py` from the composed page",
+    "expect": "refused",
+    "exit": 1,
+    "restored_clean": true,
+    "tail": [
+      "ci_events: 1 finding(s) over 1589 contract item(s)"
+    ],
+    "diagnostics": [
+      "FAIL docs/testing/CI_WORKFLOWS.md: must state the result cache and its trust boundary, naming ['`syn/yosys/result_cache.py`', 'yosys-result-cache', '`restore-keys`'] (missing: ['`syn/yosys/result_cache.py`'])"
+    ]
+  },
+  {
+    "id": "P4",
+    "what": "mis-merge model: shared page taken from this PR's source head (drops #439's prose)",
+    "expect": "informational",
+    "exit": 0,
+    "restored_clean": true,
+    "tail": [
+      "ci_events: OK (1589 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "id": "P5",
+    "what": "mis-merge model: shared page taken from #439's head (drops this PR's prose)",
+    "expect": "informational",
+    "exit": 0,
+    "restored_clean": true,
+    "tail": [
+      "ci_events: OK (1589 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ],
+    "diagnostics": []
+  },
+  {
+    "id": "P6",
+    "what": "same as P5, through the docs gates that read the page",
+    "expect": "informational",
+    "exit": 0,
+    "restored_clean": true,
+    "tail": [
+      "documentation style: OK (22 current documents)"
+    ],
+    "diagnostics": []
+  }
+]
