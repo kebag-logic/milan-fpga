@@ -1,0 +1,122 @@
+gate mask mutants at a37af3c6ad54aa16403861c969f68cf2a83679c6, sha256 533c1205ccf39d3edd131d20759e4adceb16c5ba723165f8390347cf44405e51 of scripts/check_baremetal_only.py
+T-removed: rc=2 act-slot arms failed=7
+    act-slot-cgroup-driver-exact-context
+    act-slot-daemon-argv-exact-context
+    act-slot-fake-classify-exact-context
+    act-slot-golden-cgroup-driver-exact-context
+    act-slot-require-tool-exact-context
+    act-slot-tool-inventory-exact-context
+    act-slot-uplink-argv-exact-context
+T-context-free: rc=2 act-slot arms failed=27
+    act-slot-cgroup-driver-glued
+    act-slot-cgroup-driver-prefixed
+    act-slot-cgroup-driver-trailing
+    act-slot-cgroup-driver-wrong-context
+    act-slot-daemon-argv-glued
+    act-slot-daemon-argv-prefixed
+    act-slot-daemon-argv-trailing
+    act-slot-daemon-argv-wrong-context
+    act-slot-fake-classify-glued
+    act-slot-fake-classify-prefixed
+    act-slot-fake-classify-trailing
+    act-slot-fake-classify-wrong-context
+    act-slot-golden-cgroup-driver-glued
+    act-slot-golden-cgroup-driver-prefixed
+    act-slot-golden-cgroup-driver-trailing
+    act-slot-require-tool-glued
+    act-slot-require-tool-prefixed
+    act-slot-require-tool-trailing
+    act-slot-require-tool-wrong-context
+    act-slot-tool-inventory-glued
+    act-slot-tool-inventory-prefixed
+    act-slot-tool-inventory-trailing
+    act-slot-tool-inventory-wrong-context
+    act-slot-uplink-argv-glued
+    act-slot-uplink-argv-prefixed
+    act-slot-uplink-argv-trailing
+    act-slot-uplink-argv-wrong-context
+T-whole-line: rc=2 act-slot arms failed=35
+    act-slot-cgroup-driver-glued
+    act-slot-cgroup-driver-prefixed
+    act-slot-cgroup-driver-same-line-term
+    act-slot-cgroup-driver-trailing
+    act-slot-cgroup-driver-wrong-context
+    act-slot-daemon-argv-glued
+    act-slot-daemon-argv-prefixed
+    act-slot-daemon-argv-same-line-term
+    act-slot-daemon-argv-trailing
+    act-slot-daemon-argv-wrong-context
+    act-slot-fake-classify-glued
+    act-slot-fake-classify-prefixed
+    act-slot-fake-classify-same-line-term
+    act-slot-fake-classify-trailing
+    act-slot-fake-classify-wrong-context
+    act-slot-golden-cgroup-driver-glued
+    act-slot-golden-cgroup-driver-prefixed
+    act-slot-golden-cgroup-driver-same-line-term
+    act-slot-golden-cgroup-driver-trailing
+    act-slot-golden-cgroup-driver-wrong-context
+    act-slot-require-tool-glued
+    act-slot-require-tool-prefixed
+    act-slot-require-tool-same-line-term
+    act-slot-require-tool-trailing
+    act-slot-require-tool-wrong-context
+    act-slot-tool-inventory-glued
+    act-slot-tool-inventory-prefixed
+    act-slot-tool-inventory-same-line-term
+    act-slot-tool-inventory-trailing
+    act-slot-tool-inventory-wrong-context
+    act-slot-uplink-argv-glued
+    act-slot-uplink-argv-prefixed
+    act-slot-uplink-argv-same-line-term
+    act-slot-uplink-argv-trailing
+    act-slot-uplink-argv-wrong-context
+T-no-end-guard: rc=2 act-slot arms failed=7
+    act-slot-cgroup-driver-trailing
+    act-slot-daemon-argv-trailing
+    act-slot-fake-classify-trailing
+    act-slot-golden-cgroup-driver-trailing
+    act-slot-require-tool-trailing
+    act-slot-tool-inventory-trailing
+    act-slot-uplink-argv-trailing
+T-no-start-guard: rc=2 act-slot arms failed=7
+    act-slot-cgroup-driver-prefixed
+    act-slot-daemon-argv-prefixed
+    act-slot-fake-classify-prefixed
+    act-slot-golden-cgroup-driver-prefixed
+    act-slot-require-tool-prefixed
+    act-slot-tool-inventory-prefixed
+    act-slot-uplink-argv-prefixed
+R-no-dollar: rc=2 act-slot arms failed=1
+    act-slot-cgroup-root-trailing
+R-no-caret: rc=2 act-slot arms failed=1
+    act-slot-cgroup-root-prefixed
+T-unpinned: rc=2 act-slot arms failed=14
+    act-slot-cgroup-driver-product-file
+    act-slot-cgroup-driver-wrong-file
+    act-slot-daemon-argv-product-file
+    act-slot-daemon-argv-wrong-file
+    act-slot-fake-classify-product-file
+    act-slot-fake-classify-wrong-file
+    act-slot-golden-cgroup-driver-product-file
+    act-slot-golden-cgroup-driver-wrong-file
+    act-slot-require-tool-product-file
+    act-slot-require-tool-wrong-file
+    act-slot-tool-inventory-product-file
+    act-slot-tool-inventory-wrong-file
+    act-slot-uplink-argv-product-file
+    act-slot-uplink-argv-wrong-file
+R-removed: rc=2 act-slot arms failed=1
+    act-slot-cgroup-root-exact-context
+R-context-free: rc=2 act-slot arms failed=4
+    act-slot-cgroup-root-glued
+    act-slot-cgroup-root-prefixed
+    act-slot-cgroup-root-trailing
+    act-slot-cgroup-root-wrong-context
+R-no-end-guard: rc=2 act-slot arms failed=2
+    act-slot-cgroup-root-glued
+    act-slot-cgroup-root-trailing
+R-unpinned: rc=2 act-slot arms failed=2
+    act-slot-cgroup-root-product-file
+    act-slot-cgroup-root-wrong-file
+    other failing arms: ['owned_process-product-file', 'owned_process-wrong-file', 'process_test_support-product-file', 'process_test_support-wrong-file', 'runner-host-inventory-wrong-file-scripts/act_ci.py']
