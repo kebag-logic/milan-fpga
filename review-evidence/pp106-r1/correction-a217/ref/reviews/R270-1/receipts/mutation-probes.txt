@@ -1,0 +1,19 @@
+X1 srp_decoder rc=0 150 checks: 150 PASS, 0 FAIL
+X1 srp_top rc=0 252 checks: 252 PASS, 0 FAIL
+X2 srp_top rc=0 252 checks: 252 PASS, 0 FAIL
+X3 srp_stream_fsms rc=2 1068 checks: 1066 PASS, 2 FAIL
+X3 srp_top rc=0 252 checks: 252 PASS, 0 FAIL
+X3   srp_stream_fsms: FAIL: H Listener: listener Listener applicant QA
+X3   srp_stream_fsms: FAIL: H Domain: listener Listener applicant VP
+X4 srp_stream_fsms rc=2 1068 checks: 1066 PASS, 2 FAIL
+X4   srp_stream_fsms: FAIL: H TalkerAdvertise: talker Advertise applicant QA
+X4   srp_stream_fsms: FAIL: H Listener: talker Advertise applicant VP
+X5 srp_encoder rc=2 556 checks: 540 PASS, 16 FAIL
+X5   srp_encoder: FAIL: E7: byte-exact against the independent packer
+X5   srp_encoder: FAIL: L1[1]: byte-exact against the independent packer
+X5   srp_encoder: FAIL: L1[2]: byte-exact against the independent packer
+X5   srp_encoder: FAIL: L1[3]: byte-exact against the independent packer
+X5   srp_encoder: FAIL: L1[4]: byte-exact against the independent packer
+X5   srp_encoder: FAIL: L1[5]: byte-exact against the independent packer
+X7 srp_decoder rc=0 150 checks: 150 PASS, 0 FAIL
+rc=0

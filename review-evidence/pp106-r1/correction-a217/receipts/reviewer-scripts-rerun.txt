@@ -1,0 +1,25 @@
+b7c0a535adf9468c812dca7559df2cd0973788732f67a488ba6fc3f432336402  $MANAGEMENT/2026-09-23/pp106-a217/scratch/reviewer-scripts/r270/mutation_probes.py
+a31f36a2a651a57e98b81bdd87cde797aa1d5e8889c6655237089f363477c5c5  $MANAGEMENT/2026-09-23/pp106-a217/scratch/reviewer-scripts/r270/run_srp_suites.sh
+448f18422e706f194eca98a47cd50d7bd3821549b82968f8a1761cede00e26b4  $MANAGEMENT/2026-09-23/pp106-a217/scratch/reviewer-scripts/r271/03_mutate.py
+== R270-1 scripts/mutation_probes.py <repo> acd44d7 <scratch> <pinned dir> X1 X7 X2
+X1 srp_decoder rc=2 177 checks: 171 PASS, 6 FAIL
+X1 srp_top rc=0 253 checks: 253 PASS, 0 FAIL
+X1   srp_decoder: FAIL: T1 Listener lane once, no other lane got 0 of 0
+X1   srp_decoder: FAIL: T1 one message strobe order
+X1   srp_decoder: FAIL: T2 Listener and Domain lanes once each got 0 1 of 1
+X1   srp_decoder: FAIL: T2 across messages strobe order
+X1   srp_decoder: FAIL: T3 MVRP lane once got 0
+X1   srp_decoder: FAIL: T3 MVRP strobe order
+X7 srp_decoder rc=2 177 checks: 173 PASS, 4 FAIL
+X7   srp_decoder: FAIL: U1 re-armed after a truncated MRPDU strobe order
+X7   srp_decoder: FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+X7   srp_decoder: FAIL: U3 re-armed after a discarded MRPDU strobe order
+X7   srp_decoder: FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+X2 srp_top rc=2 253 checks: 252 PASS, 1 FAIL
+X2   srp_top: FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
+rc=0
+== R271-1 scripts/03_mutate.py <export of acd44d7> <scratch> <pinned verilator> <out> R1 R4 R8
+R1   KILLED   srp_decoder=6/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+R4   KILLED   srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=1/253 FAIL
+R8   KILLED   srp_decoder=4/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+rc=0

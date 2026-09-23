@@ -1,0 +1,18 @@
+probe-head: 159 checks: 159 PASS, 0 FAIL
+mut-R1: 159 checks: 156 PASS, 3 FAIL
+    FAIL: U1 one message strobe order
+    FAIL: U2 across messages strobe order
+    FAIL: U3 MVRP strobe order
+      got : E3 E3
+      want: E3 L3 E3
+      got : E3 L4 E4 E3
+      want: E3 L4 E4 L3 E3
+      got : E1 E1
+      want: E1 M1 E1
+mut-R8: 159 checks: 157 PASS, 2 FAIL
+    FAIL: A2 re-armed after a malformed MRPDU strobe order
+    FAIL: A3 re-armed after a discarded MRPDU strobe order
+      got :
+      want: L3
+      got :
+      want: L3
