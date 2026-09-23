@@ -1,0 +1,30 @@
+head 27763677d83d4df7237389ffc0945ef9e224aa31
+tree 7bfd82de512acd31a3378cf69a6bb30931395a56
+status: 0 changed entries
+
+$ git diff --stat acd44d7 HEAD (arms were measured at acd44d7)
+ tb/srp_decoder/README.md | 11 +++++++++++
+ tb/srp_top/README.md     |  7 +++++++
+ 2 files changed, 18 insertions(+)
+
+$ make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 810 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (86 rows, 0 untested)
+rc=0
+
+$ python3 scripts/check-links.py
+links: 810 checked, OK
+rc=0
+
+$ python3 scripts/gen_matrix.py --check
+matrix: OK (86 rows, 0 untested)
+rc=0
+
+$ git diff --check fbc1f715..HEAD
+rc=0
+
+$ added lines carrying U+2014 in fc155c3c..HEAD
+0

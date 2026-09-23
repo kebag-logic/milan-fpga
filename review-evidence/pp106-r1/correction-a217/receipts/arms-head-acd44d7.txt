@@ -1,0 +1,62 @@
+rev acd44d7fbf6dddd4d346045302cdc3a2b48a01d5 (acd44d7)
+simulator Verilator 5.050 2026-07-01 rev v5.050
+
+none   baseline srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+X1/R1  KILLED   srp_decoder=6/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+         plant: hdl/srp/KL_srp_decoder.sv 255adc30e55463a8 -> bff65905425b5702
+         srp_decoder: FAIL: T1 Listener lane once, no other lane got 0 of 0
+         srp_decoder: FAIL: T1 one message strobe order
+         srp_decoder: FAIL: T2 Listener and Domain lanes once each got 0 1 of 1
+         srp_decoder: FAIL: T2 across messages strobe order
+         srp_decoder: FAIL: T3 MVRP lane once got 0
+         srp_decoder: FAIL: T3 MVRP strobe order
+           got : E3 E3 E3
+           want: E3 L3 E3 E3
+           got : E3 L4 E4 E4 E3
+           want: E3 L4 E4 E4 L3 E3
+           got : E1 E1
+           want: E1 M1 E1
+Y2     KILLED   srp_decoder=2/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+         plant: hdl/srp/KL_srp_decoder.sv 255adc30e55463a8 -> 405eb871c23ad8a2
+         srp_decoder: FAIL: T1 Listener lane once, no other lane got 0 of 0
+         srp_decoder: FAIL: T1 one message strobe order
+           got : E3 E3 E3
+           want: E3 L3 E3 E3
+X7     KILLED   srp_decoder=4/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+         plant: hdl/srp/KL_srp_decoder.sv 255adc30e55463a8 -> 888e3e37bfd6b60c
+         plant: hdl/srp/KL_srp_decoder.sv 888e3e37bfd6b60c -> 67c7d61c3daeeb94
+         srp_decoder: FAIL: U1 re-armed after a truncated MRPDU strobe order
+         srp_decoder: FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+         srp_decoder: FAIL: U3 re-armed after a discarded MRPDU strobe order
+         srp_decoder: FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+           got :
+           want: L3
+           got :
+           want: L3
+           got :
+           want: L3
+           got : E1
+           want: M1 E1
+R8     KILLED   srp_decoder=4/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+         plant: hdl/srp/KL_srp_decoder.sv 255adc30e55463a8 -> f6c266aeb7210c6b
+         plant: hdl/srp/KL_srp_decoder.sv f6c266aeb7210c6b -> bac06f5a76d8e6e8
+         srp_decoder: FAIL: U1 re-armed after a truncated MRPDU strobe order
+         srp_decoder: FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+         srp_decoder: FAIL: U3 re-armed after a discarded MRPDU strobe order
+         srp_decoder: FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+           got :
+           want: L3
+           got :
+           want: L3
+           got :
+           want: L3
+           got : E1
+           want: M1 E1
+Y1     KILLED   srp_decoder=1/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=0/253 FAIL
+         plant: hdl/srp/KL_srp_decoder.sv 255adc30e55463a8 -> 9f2e52a66301e850
+         srp_decoder: FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+           got : E1
+           want: M1 E1
+X2/R4  KILLED   srp_decoder=0/177 FAIL  srp_encoder=0/556 FAIL  srp_stream_fsms=0/1068 FAIL  srp_top=1/253 FAIL
+         plant: hdl/srp/KL_srp_top.sv 78d6c824771b5aee -> 21132ea1458d15c1
+         srp_top: FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
