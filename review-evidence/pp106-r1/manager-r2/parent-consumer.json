@@ -1,0 +1,62 @@
+{
+  "cwd": "$LANES/pp104-parent-consumer",
+  "head": "c088b4cf9ccd09a4a5fa653b5fed0738aad1c4ee",
+  "base": "26d855a9176d63625e6635a029a0c44e3d57ce9a",
+  "note": "parent live dev 26d855a9 + one LOCAL commit setting protocol-processor to 27763677d83d4df7237389ffc0945ef9e224aa31",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/pp106-manager-r2/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ]
+  ]
+}

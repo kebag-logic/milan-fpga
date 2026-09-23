@@ -1,0 +1,452 @@
+make: Entering directory '$LANES/pp104-parent-consumer/tb/verilator/pp_shadow'
+verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall waivers.vlt -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -CFLAGS "-std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_main.cpp -o Vpp_shadow_sim
+make[1]: Entering directory '$LANES/pp104-parent-consumer/tb/verilator/pp_shadow/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -c -o verilated_dpi.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__1__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__1.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__2.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__3.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__4.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__5.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__7.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__8.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_shadow_sim
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$LANES/pp104-parent-consumer/tb/verilator/pp_shadow/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 130.219 MB sources in 113 modules, into 11.714 MB in 21 C++ files needing 0.005 MB
+- Verilator: Walltime 12.283 s (elab=0.452, cvt=2.753, bld=8.630); cpu 3.769 s on 8 threads; allocated 928.363 MB
+./obj_dir/Vpp_shadow_sim
+=== milan_datapath + the protocol processor AS the control plane ===
+[A] presence + CSR window
+  [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+  [PASS] PP_STAT tag == 0x5B (plane present)        got=0x0000005B exp=0x0000005B
+  [PASS] PP_DIAG clean at reset                     got=0x00000000 exp=0x00000000
+  [PASS] TXARB_DIAG tag == 0xA7 (window decodes)    got=0x000000A7 exp=0x000000A7
+  [PASS] TXARB_DIAG lanes 7:4 are a structural zero got=0x00000000 exp=0x00000000
+[P] saved state: an absent backend must not report a restore
+  [i]    PP_STAT 0x924 = 0x5B00088C (backed 0 blank 1 alarm 0 fail 1 done 1)
+  [PASS] the restore walk terminates                restore_done set
+  [PASS] a build with NO backend does not report a successful restore reported not-successful
+  [PASS] PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[7] nvm_blank == 1 (the walk validated zero records) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[3] restore_fail == 1 (an absent backend is not a success) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried) got=0x00000000 exp=0x00000000
+  [PASS] the presence tag is unchanged by the verdict bits got=0x0000005B exp=0x0000005B
+  [PASS] PP_STAT[8] nvm_dirty == 0 (no change was accepted) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[10] nvm_img_valid == 0 (no image was validated) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[15:12] nvm_verdict == 0 (no image was offered) got=0x00000000 exp=0x00000000
+[P2] saved state: the control face answers, liveness heals no walk
+  [PASS] PP_NVM_SEL reads back the index            got=0x00000002 exp=0x00000002
+  [PASS] PP_NVM_DATA reads back the backend's word 2 (sequence) got=0xA5C30001 exp=0xA5C30001
+  [PASS] PP_NVM_STAT: not configured, not backed, no operation in flight got=0x00000000 exp=0x00000000
+  [i]    PP_STAT 0x924 = 0x5B0008CC after a heartbeat
+  [PASS] PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence) got=0x00000001 exp=0x00000001
+  [PASS] PP_NVM_STAT[6] agrees with PP_STAT[6]      got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+  [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+[E] side-port bridge -> the processor's snapshot window
+  [PASS] side-port access completed                 ack seen
+  [PASS] snapshot[0] magic == 'KLPP'                got=0x4B4C5050 exp=0x4B4C5050
+  [PASS] snapshot[1] shape non-zero                 shape word present
+[B] RX classify -> FIFO -> serializer -> the processor's validator
+  [PASS] ADP DISCOVER accepted (rx_frames +1)       got=0x00000001 exp=0x00000001
+  [PASS] no frame lost to a full FIFO               got=0x00000000 exp=0x00000000
+[C] the filter that keeps a 1 B/clk serializer ahead of the wire
+  [PASS] 8 IPv4 frames REJECTED (rx_frames flat)    got=0x00000000 exp=0x00000000
+  [PASS] and none of them was counted as a drop     got=0x00000000 exp=0x00000000
+[D] substitution — the processor transmits AND the wire carries it
+  [PASS] the processor SENT (tx_frames > 0)         its TX lanes produced frames
+  [PASS] MAC TX CARRIED them (the drain is off)     1 frame(s) egressed at the MAC boundary
+  [PASS] every frame in the window was a processor control PDU got=0x00000000 exp=0x00000000
+[G] class-D fabric face — reachable, and it MOVES
+  [PASS] adp_next_avail_index read 0 before any advertisement got=0x00000000 exp=0x00000000
+  [PASS] adp_next_avail_index CHANGED (the engine drives it) index advanced with the first ENTITY_AVAILABLE
+[F] the ENTITY_AVAILABLE the processor emits, decoded byte-exact
+  [PASS] an ADP frame reached the MAC TX boundary   1 ADPDU(s) at the MAC boundary of 3 frames
+  [PASS] ADPDU is 82 octets on the wire             got=0x00000052 exp=0x00000052
+  [PASS] ADPDU DA == 91:E0:F0:01:00:00              got=0x91E0F001 exp=0x91E0F001
+  [PASS] ADPDU EtherType 0x22F0 + subtype 0xFA      got=0x0022F0FA exp=0x0022F0FA
+  [PASS] ADPDU sv=0 version=0 message_type=ENTITY_AVAILABLE got=0x00000000 exp=0x00000000
+  [PASS] ADPDU control_data_length == 56            got=0x00000038 exp=0x00000038
+  [PASS] ADPDU entity_id == the 0x604/0x608 pair    got=0x001BC50C exp=0x001BC50C
+  [PASS] ADPDU entity_id low half                   got=0xAC000001 exp=0xAC000001
+  [PASS] ADPDU entity_model_id == the 0x60C/0x610 pair got=0x001BC544 exp=0x001BC544
+  [PASS] ADPDU talker_stream_sources == 0x618       got=0x00000001 exp=0x00000001
+  [PASS] ADPDU talker_capabilities == 0x618         got=0x00004001 exp=0x00004001
+  [PASS] ADPDU listener_stream_sinks == 0x61C       got=0x00000002 exp=0x00000002
+  [PASS] ADPDU listener_capabilities == 0x61C       got=0x00004801 exp=0x00004801
+  [PASS] ADPDU is byte-exact against the CSR identity group 0 differing octet(s); first at wire byte -1
+  [PASS] available_index strictly increases across ADPDUs got=0x00000000 exp=0x00000000
+  [PASS] class-D available_index >= the last one on the wire the published index tracks the wire
+[H] maap adapter with NO allocator: refuse, never wedge
+  [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+  [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+  [PASS] every accepted request was ANSWERED        accepted == answered
+  [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+  [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+  [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+  [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+  [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+  [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+[I] maap adapter with a claimed block: grant + DA gate
+  [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+  [PASS] the shim GRANTED an address                ok = 1 returned
+  [PASS] every accepted request was ANSWERED        accepted == answered
+  [PASS] granted DA == KL_maap base + source index  matches MAAP_STAT0's offset
+  [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+  [PASS] and it was held, not a one-cycle blip      gate held
+  [PASS] a CONNECT_TX_RESPONSE came back with a block claimed response on the wire
+  [PASS] PROBE_TX now answers SUCCESS               got=0x00000000 exp=0x00000000
+  [PASS] ...naming stream_id {station MAC, uid 0} high half got=0x02000000 exp=0x02000000
+  [PASS] ...and its low half                        got=0x00010000 exp=0x00010000
+  [PASS] ...with stream_dest_mac = the granted DA (high half) got=0x91E0F000 exp=0x91E0F000
+  [PASS] ...and its low half = base offset + 0      got=0x000001BA exp=0x000001BA
+[L] AECP: the device ANSWERS — decoded, not counted
+  [PASS] the store FETCHED from descriptor memory   bursts served
+  [i]    desc-store word34 = 0x00000001 (2 burst(s))
+  [PASS] the descriptor image VALIDATED (magic+version+checksum) got=0x00000001 exp=0x00000001
+  [PASS] ...with no header fault                    got=0x00000000 exp=0x00000000
+  [PASS] L1 READ_DESCRIPTOR(ENTITY,0) was ANSWERED  an AECPDU egressed
+  [PASS] L1: message_type = command + 1             got=0x00000001 exp=0x00000001
+  [PASS] L1: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+  [PASS] L1: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+  [PASS] L1: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L1: sequence_id echoed                     got=0x00000101 exp=0x00000101
+  [PASS] L1: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+  [PASS] L1: unicast back to the requester          got=0x02112233 exp=0x02112233
+  [PASS] L1: source address is the station MAC      got=0x02000000 exp=0x02000000
+  [PASS] L1: control_data_length = 12 + payload     got=0x00000038 exp=0x00000038
+  [PASS] L1: frame length matches (60-octet min)    got=0x00000052 exp=0x00000052
+  [PASS] L1: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+  [PASS] L1: configuration_index @24 echoed         got=0x00000000 exp=0x00000000
+  [PASS] L1: reserved @26 is zero                   got=0x00000000 exp=0x00000000
+  [PASS] L1: the DESCRIPTOR bytes @28 are the image's, exactly got=0x00000000 exp=0x00000000
+  [PASS] L2 READ_DESCRIPTOR(CONFIGURATION,1) was ANSWERED an AECPDU egressed
+  [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=0x00000028
+  [PASS] L2: frame length matches (60-octet min)    got=0x00000042 exp=0x00000042
+  [PASS] L2: status SUCCESS(0)                      got=0x00000000 exp=0x00000000
+  [PASS] L2: index 1 served at elem_off + 1*elem_stride got=0x00000000 exp=0x00000000
+  [PASS] L2: ...and it is NOT index 0's descriptor  got=0x00000001 exp=0x00000001
+  [PASS] L3 READ_DESCRIPTOR(index beyond the count) was ANSWERED an AECPDU egressed
+  [PASS] L3: message_type = command + 1             got=0x00000001 exp=0x00000001
+  [PASS] L3: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+  [PASS] L3: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+  [PASS] L3: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L3: sequence_id echoed                     got=0x00000103 exp=0x00000103
+  [PASS] L3: command_type echoed, u = 0             got=0x00000004 exp=0x00000004
+  [PASS] L3: unicast back to the requester          got=0x02112233 exp=0x02112233
+  [PASS] L3: source address is the station MAC      got=0x02000000 exp=0x02000000
+  [PASS] L3: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+  [PASS] L3: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+  [PASS] L3: status NO_SUCH_DESCRIPTOR(2)           got=0x00000002 exp=0x00000002
+  [PASS] L3: the IEEE 7.4.5 stub names the descriptor_type got=0x00000002 exp=0x00000002
+  [PASS] L3: ...and the descriptor_index            got=0x00000007 exp=0x00000007
+  [PASS] L3t READ_DESCRIPTOR(absent type) was ANSWERED an AECPDU egressed
+  [PASS] L3t: message_type = command + 1            got=0x00000001 exp=0x00000001
+  [PASS] L3t: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+  [PASS] L3t: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+  [PASS] L3t: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L3t: sequence_id echoed                    got=0x00000113 exp=0x00000113
+  [PASS] L3t: command_type echoed, u = 0            got=0x00000004 exp=0x00000004
+  [PASS] L3t: unicast back to the requester         got=0x02112233 exp=0x02112233
+  [PASS] L3t: source address is the station MAC     got=0x02000000 exp=0x02000000
+  [PASS] L3t: control_data_length = 12 + payload    got=0x00000014 exp=0x00000014
+  [PASS] L3t: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+  [PASS] L3t: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+  [PASS] L3t: the IEEE 7.4.5 stub names the descriptor_type got=0x0000000F exp=0x0000000F
+  [PASS] L3t: ...and the descriptor_index           got=0x00000007 exp=0x00000007
+  [PASS] L4 READ_DESCRIPTOR(bad config) was ANSWERED an AECPDU egressed
+  [PASS] L4: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+  [PASS] L4: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+  [PASS] L4: status BAD_ARGUMENTS(7), NOT NO_SUCH_DESCRIPTOR got=0x00000007 exp=0x00000007
+  [PASS] L4: the stub still names the type          got=0x00000001 exp=0x00000001
+  [PASS] L4: ...and the index                       got=0x00000001 exp=0x00000001
+  [PASS] L4: configuration_index @24 is the BAD one, echoed got=0x00000005 exp=0x00000005
+  [PASS] L5 an unassigned opcode was ANSWERED, not dropped an AECPDU egressed
+  [PASS] L5: message_type = command + 1             got=0x00000001 exp=0x00000001
+  [PASS] L5: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+  [PASS] L5: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+  [PASS] L5: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L5: sequence_id echoed                     got=0x00000105 exp=0x00000105
+  [PASS] L5: command_type echoed, u = 0             got=0x00007FFE exp=0x00007FFE
+  [PASS] L5: unicast back to the requester          got=0x02112233 exp=0x02112233
+  [PASS] L5: source address is the station MAC      got=0x02000000 exp=0x02000000
+  [PASS] L5: control_data_length = 12 + payload     got=0x00000014 exp=0x00000014
+  [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+  [PASS] L5: status NOT_IMPLEMENTED(1)              got=0x00000001 exp=0x00000001
+  [PASS] L5: the command's payload is ECHOED back   got=0x00000000 exp=0x00000000
+  [PASS] L5b GET_COUNTERS(STREAM_INPUT 0) was ANSWERED an AECPDU egressed
+  [PASS] L5b: message_type = command + 1            got=0x00000001 exp=0x00000001
+  [PASS] L5b: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+  [PASS] L5b: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+  [PASS] L5b: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L5b: sequence_id echoed                    got=0x00000130 exp=0x00000130
+  [PASS] L5b: command_type echoed, u = 0            got=0x00000029 exp=0x00000029
+  [PASS] L5b: unicast back to the requester         got=0x02112233 exp=0x02112233
+  [PASS] L5b: source address is the station MAC     got=0x02000000 exp=0x02000000
+  [PASS] L5b: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+  [PASS] L5b: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+  [PASS] L5b: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+  [PASS] L5b: descriptor_type echoed @0             got=0x00000005 exp=0x00000005
+  [PASS] L5b: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+  [PASS] L5b: counters_valid @4 is the twelve we keep (0xFFF) got=0x00000FFF exp=0x00000FFF
+  [PASS] L5b: the unclaimed quadlets 12..31 are zero got=0x00000000 exp=0x00000000
+  [PASS] L5b: the block is a full 32 quadlets       the frame ends at 174
+  [PASS] L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED an AECPDU egressed
+  [PASS] L5c: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+  [PASS] L5c: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+  [PASS] L5c: status NO_SUCH_DESCRIPTOR(2) - the image rules got=0x00000002 exp=0x00000002
+  [PASS] L5c: descriptor_index 9 echoed, not clamped to 0 got=0x00000009 exp=0x00000009
+  [PASS] L5c: counters_valid is EMPTY - no such sink here got=0x00000000 exp=0x00000000
+  [PASS] L5c: ...and the block is all zeros, not sink 0's numbers got=0x00000000 exp=0x00000000
+  [PASS] L5e a PADDED GET_COUNTERS was ANSWERED     an AECPDU egressed
+  [PASS] L5e: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+  [PASS] L5e: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+  [PASS] L5e: the type is @24's, NOT the padding at @28 got=0x00000005 exp=0x00000005
+  [PASS] L5e: the index is @26's, NOT the padding at @30 got=0x00000000 exp=0x00000000
+  [PASS] L5e: ...so the mask is still Stream Input 0's got=0x00000FFF exp=0x00000FFF
+  [PASS] L5d GET_COUNTERS(ENTITY) was ANSWERED      an AECPDU egressed
+  [PASS] L5d: control_data_length = 12 + payload    got=0x00000094 exp=0x00000094
+  [PASS] L5d: frame length matches (60-octet min)   got=0x000000AE exp=0x000000AE
+  [PASS] L5d: status NOT_SUPPORTED(11) - no ENTITY counters here got=0x0000000B exp=0x0000000B
+  [PASS] L5d: descriptor_type ENTITY echoed         got=0x00000000 exp=0x00000000
+  [PASS] L5d: counters_valid ZERO in the full body  got=0x00000000 exp=0x00000000
+  [PASS] L5d: ...and the block is all zeros         got=0x00000000 exp=0x00000000
+  [PASS] L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1} got=0x00000081 exp=0x00000081
+  [PASS] L5e0: CHMAP_LOOP reads cluster 1 back as {en, reserved src 2} got=0x000000C2 exp=0x000000C2
+  [PASS] L5e GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED an AECPDU egressed
+  [PASS] L5e: message_type = command + 1            got=0x00000001 exp=0x00000001
+  [PASS] L5e: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+  [PASS] L5e: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+  [PASS] L5e: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L5e: sequence_id echoed                    got=0x00000140 exp=0x00000140
+  [PASS] L5e: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+  [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+  [PASS] L5e: source address is the station MAC     got=0x02000000 exp=0x02000000
+  [PASS] L5e: control_data_length = 12 + payload    got=0x00000020 exp=0x00000020
+  [PASS] L5e: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+  [PASS] L5e: status SUCCESS(0), not NOT_IMPLEMENTED got=0x00000000 exp=0x00000000
+  [PASS] L5e: descriptor_type echoed @0             got=0x0000000E exp=0x0000000E
+  [PASS] L5e: descriptor_index echoed @2            got=0x00000000 exp=0x00000000
+  [PASS] L5e: map_index echoed @4                   got=0x00000000 exp=0x00000000
+  [PASS] L5e: number_of_maps @6 is the fixed partition count got=0x00000001 exp=0x00000001
+  [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
+  [PASS] L5e: reserved @10 is zero                  got=0x00000000 exp=0x00000000
+  [PASS] L5e: record 0 = {stream 0, ch 1, cluster 0, chan 0} got=0x00000001 exp=0x00000001
+  [PASS] L5e: record 0 offset half                  got=0x00000000 exp=0x00000000
+  [PASS] L5e2 the re-read was ANSWERED              an AECPDU egressed
+  [PASS] L5e2: control_data_length = 12 + payload   got=0x00000028 exp=0x00000028
+  [PASS] L5e2: frame length matches (60-octet min)  got=0x00000042 exp=0x00000042
+  [PASS] L5e2: number_of_mappings rose to 2         got=0x00000002 exp=0x00000002
+  [PASS] L5e2: record 1 is cluster 1's {stream 0, ch 0} got=0x00000000 exp=0x00000000
+  [PASS] L5e2: record 1 offset half                 got=0x00010000 exp=0x00010000
+  [PASS] L5f GET_AUDIO_MAP(page 1 of 1) was ANSWERED an AECPDU egressed
+  [PASS] L5f: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+  [PASS] L5f: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+  [PASS] L5f: status BAD_ARGUMENTS(7) - 7.4.44.1's page rule got=0x00000007 exp=0x00000007
+  [PASS] L5f: number_of_maps still tells the real N got=0x00000001 exp=0x00000001
+  [PASS] L5f: number_of_mappings 0 - an empty page, no records got=0x00000000 exp=0x00000000
+  [PASS] L5g GET_AUDIO_MAP(SPI 1) was ANSWERED      an AECPDU egressed
+  [PASS] L5g: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+  [PASS] L5g: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+  [PASS] L5g: status NO_SUCH_DESCRIPTOR(2)          got=0x00000002 exp=0x00000002
+  [PASS] L5g: descriptor_index 1 echoed, not clamped got=0x00000001 exp=0x00000001
+  [PASS] L5h GET_AUDIO_MAP(STREAM_PORT_OUTPUT) was ANSWERED an AECPDU egressed
+  [PASS] L5h: message_type = command + 1            got=0x00000001 exp=0x00000001
+  [PASS] L5h: sv/version nibble is zero             got=0x00000000 exp=0x00000000
+  [PASS] L5h: target_entity_id is OURS              got=0x001BC50C exp=0x001BC50C
+  [PASS] L5h: controller_entity_id echoed           got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L5h: sequence_id echoed                    got=0x00000144 exp=0x00000144
+  [PASS] L5h: command_type echoed, u = 0            got=0x0000002B exp=0x0000002B
+  [PASS] L5h: unicast back to the requester         got=0x02112233 exp=0x02112233
+  [PASS] L5h: source address is the station MAC     got=0x02000000 exp=0x02000000
+  [PASS] L5h: control_data_length = 12 + payload    got=0x00000018 exp=0x00000018
+  [PASS] L5h: frame length matches (60-octet min)   got=0x0000003C exp=0x0000003C
+  [PASS] L5h: status NO_SUCH_DESCRIPTOR(2) - the image rules the served OUTPUT side too got=0x00000002 exp=0x00000002
+  [PASS] L5h: the addressed type is in the fixed part got=0x0000000F exp=0x0000000F
+  [PASS] L6 IDENTIFY_NOTIFICATION-as-command was ANSWERED an AECPDU egressed
+  [PASS] L6: message_type = command + 1             got=0x00000001 exp=0x00000001
+  [PASS] L6: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+  [PASS] L6: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+  [PASS] L6: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L6: sequence_id echoed                     got=0x00000106 exp=0x00000106
+  [PASS] L6: command_type echoed, u = 0             got=0x00000026 exp=0x00000026
+  [PASS] L6: unicast back to the requester          got=0x02112233 exp=0x02112233
+  [PASS] L6: source address is the station MAC      got=0x02000000 exp=0x02000000
+  [PASS] L6: control_data_length = 12 + payload     got=0x00000010 exp=0x00000010
+  [PASS] L6: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+  [PASS] L6: status BAD_ARGUMENTS(7) — 7.4.39.2 beats 9.3.5.3.3 got=0x00000007 exp=0x00000007
+  [PASS] L7a: a command for ANOTHER entity gets no reply got=0x00000000 exp=0x00000000
+  [PASS] L7b: an AECP RESPONSE arriving as input gets no reply got=0x00000000 exp=0x00000000
+  [PASS] L7c: ...and the AECP plane is still SERVING after both a following command answered SUCCESS
+  [PASS] L8 ACQUIRE_ENTITY was ANSWERED             an AECPDU egressed
+  [PASS] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+  [PASS] L8: sv/version nibble is zero              got=0x00000000 exp=0x00000000
+  [PASS] L8: target_entity_id is OURS               got=0x001BC50C exp=0x001BC50C
+  [PASS] L8: controller_entity_id echoed            got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] L8: sequence_id echoed                     got=0x0000010A exp=0x0000010A
+  [PASS] L8: command_type echoed, u = 0             got=0x00000000 exp=0x00000000
+  [PASS] L8: unicast back to the requester          got=0x02112233 exp=0x02112233
+  [PASS] L8: source address is the station MAC      got=0x02000000 exp=0x02000000
+  [PASS] L8: control_data_length = 12 + payload     got=0x0000001C exp=0x0000001C
+  [PASS] L8: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+  [PASS] L8: status NOT_SUPPORTED(11), never SUCCESS got=0x0000000B exp=0x0000000B
+  [PASS] L8: flags remain zero                      got=0x00000000 exp=0x00000000
+  [PASS] L8: owner_id high remains zero             got=0x00000000 exp=0x00000000
+  [PASS] L8: owner_id low remains zero              got=0x00000000 exp=0x00000000
+  [PASS] L8: ENTITY descriptor target remains zero  got=0x00000000 exp=0x00000000
+[M] descriptor memory withdrawn: degrade, never wedge
+  [PASS] M: with no memory, READ_DESCRIPTOR still gets an ANSWER the watchdog degraded cleanly
+  [PASS] M: status NO_SUCH_DESCRIPTOR(2)            got=0x00000002 exp=0x00000002
+  [PASS] M: control_data_length = 12 + the 8-byte stub payload got=0x00000014 exp=0x00000014
+  [PASS] M: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+  [PASS] M: the image HEALS when memory returns (no reset) SUCCESS again
+[N] response-buffer memory: exercised, then withdrawn
+  [i]    resp-buffer traffic so far: 113 lane write(s), 17 read burst(s)
+  [PASS] N: the buffer WROTE its lanes to main memory lane writes committed
+  [PASS] N: ...and READ them back to build the frame read bursts served
+  [PASS] N: with no memory, the command still gets an ANSWER the watchdog voided the response cleanly
+  [PASS] N: status ENTITY_MISBEHAVING(10)           got=0x0000000A exp=0x0000000A
+  [PASS] N: the response carries NO payload it could not build got=0x0000000C exp=0x0000000C
+  [PASS] N: the frame is still padded to the Ethernet minimum got=0x0000003C exp=0x0000003C
+  [PASS] N: ...and it is still addressed back to the requester got=0x02112233 exp=0x02112233
+  [PASS] N: the buffer HEALS when memory returns (no reset) SUCCESS again
+[K] ctl_tx_mux — the processor and MAAP share one lane, cleanly
+  [i]    MAC TX census: 67 frames / 518 beats — ADP 2, AECP 22, ACMP 3, MAAP 5, MSRP 25, MVRP 10, alien 0, short 0
+  [PASS] the PROCESSOR leg transmitted              processor PDUs on the wire
+  [PASS] the AECP leg was represented on the shared lane AECP responses on the wire
+  [PASS] the MAAP leg transmitted                   MAAP PDUs on the wire
+  [PASS] no frame on the wire was too short to classify got=0x00000000 exp=0x00000000
+  [PASS] no frame carried an unknown EtherType      got=0x00000000 exp=0x00000000
+  [PASS] every AVTP PDU's length matches the length it declares got=0x00000000 exp=0x00000000
+  [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+  [PASS] every MAAP PDU carried KL_maap's own DA    got=0x00000000 exp=0x00000000
+  [i]    TXARB 0x784 = 0xA7000000 (stall 00 abort 00 locked 00)
+  [PASS] ctl_tx_mux (lane 0) never aborted a frame  got=0x00000000 exp=0x00000000
+  [PASS] the MAC-boundary mux (lane 3) never aborted a frame got=0x00000000 exp=0x00000000
+  [PASS] no TX-trunk arbiter ever stalled           got=0x00000000 exp=0x00000000
+[J] global invariant: no accepted maap request was ever dropped
+  [PASS] accepted == answered across the entire run balanced
+  [PASS] no RELEASE_DA is reachable while every source is pinned enabled got=0x00000000 exp=0x00000000
+[T] a registered Listener, as a controller reads it
+  [PASS] T: source 0's DA gate is open (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+  [PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+  [PASS] T: no Listener is registered yet (word 13 [1:0]) got=0x00000000 exp=0x00000000
+  [PASS] T Asking Failed: the engine publishes lstn_reg_state 1 got=0x00000001 exp=0x00000001
+  [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+  [PASS] T Asking Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+  [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+  [PASS] T Asking Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+  [i]    T Asking Failed: LWSRP_STATUS 0x694 = 0x00000315
+  [PASS] T Asking Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000001 exp=0x00000001
+  [PASS] T Asking Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+  [PASS] T Asking Failed: LWSRP_STATUS[3] listener ready got=0x00000000 exp=0x00000000
+  [PASS] T Ready Failed: the engine publishes lstn_reg_state 3 got=0x00000003 exp=0x00000003
+  [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready Failed: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+  [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T Ready Failed: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+  [i]    T Ready Failed: LWSRP_STATUS 0x694 = 0x0000035F
+  [PASS] T Ready Failed: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000003 exp=0x00000003
+  [PASS] T Ready Failed: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+  [PASS] T Ready Failed: LWSRP_STATUS[3] listener ready got=0x00000001 exp=0x00000001
+  [PASS] T Ready: the engine publishes lstn_reg_state 2 got=0x00000002 exp=0x00000002
+  [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+  [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T Ready: GET_STREAM_INFO flags_ex REGISTERING got=0x00000001 exp=0x00000001
+  [i]    T Ready: LWSRP_STATUS 0x694 = 0x0000035E
+  [PASS] T Ready: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000002 exp=0x00000002
+  [PASS] T Ready: LWSRP_STATUS[2] listener registered got=0x00000001 exp=0x00000001
+  [PASS] T Ready: LWSRP_STATUS[3] listener ready    got=0x00000001 exp=0x00000001
+  [PASS] T left: the engine publishes lstn_reg_state 0 got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_STREAM_INFO(STREAM_OUTPUT 0) SUCCESS answered
+  [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+  [PASS] T left: GET_STREAM_INFO flags_ex REGISTERING got=0x00000000 exp=0x00000000
+  [i]    T left: LWSRP_STATUS 0x694 = 0x00000310
+  [PASS] T left: LWSRP_STATUS[1:0] = the registered four-pack got=0x00000000 exp=0x00000000
+  [PASS] T left: LWSRP_STATUS[2] listener registered got=0x00000000 exp=0x00000000
+  [PASS] T left: LWSRP_STATUS[3] listener ready     got=0x00000000 exp=0x00000000
+[R] SET_SAMPLING_RATE against the shipping AUDIO_UNIT list
+  [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x0000BB80
+  [i]    R: media_lrclk_o toggles per 200000 cycles before any SET = 96
+  [PASS] R2: SET_SAMPLING_RATE(44100), not on the list, is BAD_ARGUMENTS got=0x00000007 exp=0x00000007
+  [PASS] R2b: ...and the refusal carries the CURRENT 48000 got=0x0000BB80 exp=0x0000BB80
+  [PASS] R3: GET_SAMPLING_RATE still reads 48000    got=0x0000BB80 exp=0x0000BB80
+  [PASS] R4: nothing was announced to the second controller got=0x00000000 exp=0x00000000
+  [i]    R: media_lrclk_o toggles after SET(44100) = 96
+  [PASS] R5: the media grid did not move            counted over the same window
+  [PASS] R6: SET_SAMPLING_RATE(96000), listed, is SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] R6b: ...carrying the 96000 it stored       got=0x00017700 exp=0x00017700
+  [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+  [PASS] R8: exactly one unsolicited SET_SAMPLING_RATE reached the second controller got=0x00000001 exp=0x00000001
+  [PASS] R8b: ...announcing 96000                   got=0x00017700 exp=0x00017700
+  [i]    R: media_lrclk_o toggles after SET(96000) = 96
+  [PASS] R9: the media grid did not move for an accepted rate either the fabric runs 48 kHz by elaboration
+[U] a registered Talker attribute, as a bound sink reads it
+  [PASS] U: the listener launched a probe at the named talker CONNECT_TX_COMMAND seen
+  [PASS] U: the sink is BOUND (0x6A4[3], the class-D record) got=0x00000001 exp=0x00000001
+  [PASS] U: ...and settled on the VLAN this harness named (0x6A4[27:16]) got=0x00000002 exp=0x00000002
+  [i]    U armed, nothing registered: ACMPL_STATE 0x6A4 = 0x00020018
+  [PASS] U armed, nothing registered: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+  [PASS] U armed, nothing registered: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+  [PASS] U armed, nothing registered: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+  [i]    U Advertise: ACMPL_STATE 0x6A4 = 0x00020058
+  [PASS] U Advertise: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+  [PASS] U Advertise: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+  [PASS] U Advertise: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+  [i]    U Failed: ACMPL_STATE 0x6A4 = 0x00020098
+  [PASS] U Failed: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000000 exp=0x00000000
+  [PASS] U Failed: ACMPL_STATE[7] TalkerFailed registered got=0x00000001 exp=0x00000001
+  [PASS] U Failed: ACMPL_TUID[23:16] MSRP failure code got=0x00000001 exp=0x00000001
+  [i]    U Advertise again: ACMPL_STATE 0x6A4 = 0x00020058
+  [PASS] U Advertise again: ACMPL_STATE[6] TalkerAdvertise registered got=0x00000001 exp=0x00000001
+  [PASS] U Advertise again: ACMPL_STATE[7] TalkerFailed registered got=0x00000000 exp=0x00000000
+  [PASS] U Advertise again: ACMPL_TUID[23:16] MSRP failure code got=0x00000000 exp=0x00000000
+[M2] heal-before-answer: park, hand over, first command serves
+  [PASS] M2: the FIRST post-handover command was answered an AECPDU egressed
+  [PASS] M2: ...and SERVED, not sacrificed to the re-arm (status) got=0x00000000 exp=0x00000000
+  [PASS] M2: the ENTITY descriptor's cdl (12 + 4 + 40) got=0x00000038 exp=0x00000038
+  [PASS] M2: the served bytes are the image's (seed body @4..7) got=0xA4A5A6A7 exp=0xA4A5A6A7
+  [PASS] M2: the second command (GET_COUNTERS) answered an AECPDU egressed
+  [PASS] M2: GET_COUNTERS STREAM_INPUT 0 is SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] M2: ...with the twelve-counter mask, not a raced zero got=0x00000FFF exp=0x00000FFF
+[P3] saved state: a real backend refusal must reach the processor
+  [PASS] PP_NVM_SEL reads back the IMG_LEN index    got=0x00000001 exp=0x00000001
+  [PASS] PP_NVM_DATA reads back the one-byte image length got=0x00000001 exp=0x00000001
+  [PASS] P3: the reset retired [M2]'s walk, so this result is a NEW one got=0x00000000 exp=0x00000000
+  [i]    PP_STAT 0x924 = 0x5B00088C after a refused image (backed 0 blank 1 alarm 0 fail 1 done 1)
+  [PASS] P3: the backend refusal reaches the processor and retires the walk restore_done set
+  [PASS] P3: a refused image is NOT reported as a successful restore got=0x00000001 exp=0x00000001
+  [PASS] P3: ...and no record was validated (the #20 blank/refusal collapse) got=0x00000001 exp=0x00000001
+  [PASS] P3: nothing was committed, so nothing is dirty got=0x00000000 exp=0x00000000
+  [PASS] P3: the shared reset retires the terminal result got=0x00000000 exp=0x00000000
+  [PASS] P3: a legitimate blank READ still completes after the reset restore_done set
+  [PASS] P3: ...and that walk is blank, not a restore got=0x00000001 exp=0x00000001
+----------------------------------------------------------------
+pp_shadow: 371 checks, 0 failures
+RESULT: PASS
+make: Leaving directory '$LANES/pp104-parent-consumer/tb/verilator/pp_shadow'
