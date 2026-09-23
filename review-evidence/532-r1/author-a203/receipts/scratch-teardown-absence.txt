@@ -1,0 +1,39 @@
+[A203] scratch teardown absence proof, 2026-09-23T17:15:02+02:00
+units matching a203: 0
+unit files/drop-ins under /run/systemd matching a203: 0
+network namespaces: []
+nft tables matching a203: 0
+nft ruleset lines naming a203/10.203/10.231/10.232: 0
+host routes to 10.203/10.231/10.232: 0
+/run entries matching a203: 0
+cgroups matching a203: 0
+processes of scratch daemons/uplinks: 0
+mounts naming the scratch tree: 0
+scratch directory present: no
+default daemon networks/volumes/containers naming a203: 0/0/0
+default daemon volumes now:
+act-rtl-full-Verilator-shard-0-5-1-3f3945d073d400421d895772b37d4040db21a0956ffb7d86c5daa5e92a12dd57
+act-rtl-full-Verilator-shard-0-5-1-3f3945d073d400421d895772b37d4040db21a0956ffb7d86c5daa5e92a12dd57-env
+act-rtl-full-Verilator-shard-1-5-2-8bd2cb2a548576f634f88a8db88d1ec440c5a1d0e4def32b4ec2f96a8d4724ea
+act-rtl-full-Verilator-shard-1-5-2-8bd2cb2a548576f634f88a8db88d1ec440c5a1d0e4def32b4ec2f96a8d4724ea-env
+act-rtl-full-Verilator-shard-2-5-3-650d2d3ec36edb293e7094df12312889085ab929d79eb5fec90c51828562481d
+act-rtl-full-Verilator-shard-2-5-3-650d2d3ec36edb293e7094df12312889085ab929d79eb5fec90c51828562481d-env
+act-rtl-full-Verilator-shard-3-5-4-699be2ec99ef699b597055ba0452dde17bd412122447d7af33c77e5cf6447c83
+act-rtl-full-Verilator-shard-3-5-4-699be2ec99ef699b597055ba0452dde17bd412122447d7af33c77e5cf6447c83-env
+act-toolcache
+host links now vs before:
+1a2
+> br-1c47bc167175
+3d3
+< br-8b7f57c913c8
+10c10,13
+< vethabb879b
+---
+> veth298c06d
+> veth2bcdab9
+> veth7dd29a3
+> vethd755b54
+
+Note: the host link differences above are the manager's replay on the default daemon (a new
+runner-created bridge and container veths); every slot bridge this lane created lived inside
+its own network namespace and never appeared among host links.
