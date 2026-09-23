@@ -8,6 +8,7 @@ logs are preserved in Git history, not in the checked-out product tree (#259).
 
 | Document | Scope | State |
 |---|---|---|
+| [117_GPTP_SILICON_EVIDENCE.md](117_GPTP_SILICON_EVIDENCE.md) | One AX7101 against the reference peer on dev `ede8d48e`: asCapable, cadence, turnaround, publication and `tu` against the wire, controller enumeration (#117) | Current; GM loss and return blocked on the owner |
 | [ADP shape (historical)](../history/v1/findings/ADP_SHAPE_STATIC_0727.md) | Generated ADP/AEM shape must match the instantiated stream geometry | Fixed; guarded by `scripts/check_entity_shape.py` |
 | [CBS_DATAPATH_BUG.md](CBS_DATAPATH_BUG.md) | Per-frame classifier sideband timing at the CBS boundary | Fixed; covered by the controller-rate bench |
 | [Media-clock lock (historical)](../history/v1/findings/MEDIA_CLOCK_LOCK_0810.md) | Media-clock lock observations and the then-open CRF consumption boundary (closed by #74) | Current design input; physical revalidation belongs to #117 |
