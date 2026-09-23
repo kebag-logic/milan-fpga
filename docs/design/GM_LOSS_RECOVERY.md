@@ -17,12 +17,13 @@ No parallel state mirror participates.
 
 ## Contents
 
-- **[Detection](#detection)** — Identify each independent health transition.
-- **[Ordering](#ordering)** — Publish state without one-frame health leaks.
-- **[Recovery timeline](#recovery-timeline)** — Follow loss through renewed synchronization.
-- **[Media behavior](#media-behavior)** — Continue transport while reporting uncertainty.
-- **[Option-off behavior](#option-off-behavior)** — Preserve honest ownerless failure values.
-- **[Verification](#verification)** — Exercise timeouts, ordering, and recovery.
+- **[Detection](#detection)** -- Identify each independent health transition.
+- **[Ordering](#ordering)** -- Publish state without one-frame health leaks.
+- **[Recovery timeline](#recovery-timeline)** -- Follow loss through renewed synchronization.
+- **[Recovery bound](#recovery-bound)** -- State the 5 s bound and derive it.
+- **[Media behavior](#media-behavior)** -- Continue transport while reporting uncertainty.
+- **[Option-off behavior](#option-off-behavior)** -- Preserve honest ownerless failure values.
+- **[Verification](#verification)** -- Exercise timeouts, ordering, and recovery.
 
 ## Detection
 
@@ -84,6 +85,38 @@ Recovery requires protocol qualification.
 
 Software writes cannot manufacture it.
 
+## Recovery bound
+
+The owner fixed this bound on 2026-09-23.
+
+The decision is on [#117](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5795898094).
+
+| Quantity | Value |
+|---|---|
+| Starts | The grandmaster's return: its first Announce or Sync on the link |
+| Ends | The port reports `asCapable` and synchronized state |
+| Bound | 5 s |
+| Media | Recovers within one further stream restart |
+
+The derivation sums three terms.
+
+| Term | Value | Derivation |
+|---|---|---|
+| Announce receipt timeout | 3 s | 3 announce intervals of 1 s |
+| Sync receipt timeout | 0.375 s | 3 sync intervals of 125 ms |
+| Margin | 1.625 s | the remainder to the stated bound |
+| **Total** | **5 s** | 3 + 0.375 + 1.625 |
+
+Both timeouts use the Milan intervals.
+
+The margin is not assigned to one mechanism.
+
+Silicon evidence waits for `tu` to clear as well.
+
+That includes the holdover of at least 0.25 s.
+
+The [#117 findings](../findings/117_GPTP_SILICON_EVIDENCE.md#step-3-gm-loss-and-return) record six measured cycles.
+
 ## Media behavior
 
 Licensed streams continue during transitions.
@@ -134,6 +167,8 @@ Legacy writes remain acknowledged and ineffective.
 | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
 
 Physical acceptance against the reference peer remains issue #117.
+
+Its switch-cycle measurements are in the [findings](../findings/117_GPTP_SILICON_EVIDENCE.md).
 
 Silicon grid comparison remains issue #74.
 
