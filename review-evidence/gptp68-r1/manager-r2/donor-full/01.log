@@ -1,0 +1,149 @@
+python3 tb/check_phc_contract.py
+make -C tb/verilator/ucpu
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+python3 scripts/generate_diagrams.py --check
+make[1]: Entering directory '$LANES/gptp68-validation/tb/verilator/ucpu'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_ucpu -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -CFLAGS "-std=c++17 -O2 -I$LANES/gptp68-validation/tb/verilator/ucpu -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv sim_main.cpp -o Vucpu_sim
+PHC interface contract: PASS
+make[2]: Entering directory '$LANES/gptp68-validation/tb/verilator/ucpu/obj_dir'
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/gptp68-validation/tb/verilator/ucpu/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.018 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vucpu_sim
+python3 scripts/generate_diagrams.py --selftest
+768 checks: 768 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/gptp68-validation/tb/verilator/ucpu'
+make -C tb/verilator/parser
+make[1]: Entering directory '$LANES/gptp68-validation/tb/verilator/parser'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_rx_parser -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/gptp68-validation/tb/verilator/parser -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/wire/KL_gptp_rx_parser.sv sim_main.cpp -o Vparser_sim
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.403 MB sources in 7 modules, into 0.289 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.058 s (elab=0.007, cvt=0.035, bld=0.000); cpu 0.058 s on 1 threads; allocated 23.523 MB
+make -C bench/arty lint
+make[1]: Entering directory '$LANES/gptp68-validation/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+make[2]: Entering directory '$LANES/gptp68-validation/tb/verilator/parser/obj_dir'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/gptp68-validation/tb/verilator/parser/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vparser_sim
+diagram selftest: PASS (10 arms)
+268 checks: 268 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/gptp68-validation/tb/verilator/parser'
+make -C tb/verilator/engine
+make[1]: Entering directory '$LANES/gptp68-validation/tb/verilator/engine'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$LANES/gptp68-validation/tb/verilator/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+python3 mutants.py
+python3 scripts/check_docs.py
+make[2]: Entering directory '$LANES/gptp68-validation/tb/verilator/engine/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/gptp68-validation/tb/verilator/engine -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.092 MB sources in 13 modules, into 0.404 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.078 s (elab=0.010, cvt=0.046, bld=0.000); cpu 0.077 s on 1 threads; allocated 25.473 MB
+make[1]: Leaving directory '$LANES/gptp68-validation/bench/arty'
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+g++    sim_main.o verilated.o verilated_threads.o VKL_gptp_engine__ALL.a    -pthread -lpthread -latomic   -o Vengine_sim
+make[2]: Leaving directory '$LANES/gptp68-validation/tb/verilator/engine/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 2.544 s (elab=0.000, cvt=0.000, bld=2.544); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vengine_sim
+1207 checks: 1207 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+1207 checks: 1207 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+1207 checks: 1207 PASS, 0 FAIL
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+[PASS] mutant caught: a receipt timeout keeps the lock - breaks "the first pair after a Sync receipt timeout is a link-up"
+[PASS] mutant caught: becoming grandmaster keeps the lock - breaks "the first pair after this plane was grandmaster is a link-up"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after a warm reset is a link-up"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+
+27 checks: 27 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/gptp68-validation/tb/verilator/engine'
+make -C tb/verilator/gaskets
+make[1]: Entering directory '$LANES/gptp68-validation/tb/verilator/gaskets'
+verilator --cc --exe --build -j 0 --top-module gasket_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$LANES/gptp68-validation/tb/verilator/gaskets" ../../../bench/arty/bench_afifo.sv ../../../bench/arty/bench_mii_tx.sv ../../../bench/arty/bench_mii_rx.sv gasket_tb_top.sv sim_main.cpp -o Vgasket_sim
+python3 mutants.py
+make[2]: Entering directory '$LANES/gptp68-validation/tb/verilator/gaskets/obj_dir'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/gptp68-validation/tb/verilator/gaskets/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vgasket_sim
+81 checks: 81 PASS, 0 FAIL
+[PASS] the unmutated bench RTL still passes the harness
+[PASS] mutant caught: tx fifo level truncated - breaks "a FIFO holding exactly 64 words reports a level the gasket can see, instead of reading 0 and wedging S_IDLE"
+[PASS] mutant caught: tx sfd toggle frozen - breaks "the egress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx sfd toggle frozen - breaks "the ingress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx end of frame never raised - breaks "a delivered frame is terminated, so the receiver can count its bytes"
+
+5 checks: 5 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/gptp68-validation/tb/verilator/gaskets'
+make -C tb/tsngen
+make[1]: Entering directory '$LANES/gptp68-validation/tb/tsngen'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$LANES/gptp68-validation/tb/tsngen" ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv tsngen_main.cpp -o Vtsngen
+python3 mutants.py
+make[2]: Entering directory '$LANES/gptp68-validation/tb/tsngen/obj_dir'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/gptp68-validation/tb/tsngen/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+python3 run_tsngen.py
+288 checks: 288 PASS, 0 FAIL
+[PASS] the unmutated engine RTL still passes the harness
+[PASS] mutant caught: received sequenceId zeroed - breaks "a Follow_Up is paired with its Sync by the sequenceId that arrived, not by a constant"
+[PASS] mutant caught: announce grandmasterIdentity discarded - breaks "the grandmasterIdentity an Announce carries is the identity BMCA compares, so a better master is recognised as one"
+[PASS] mutant caught: transmit end of frame one byte early - breaks "a transmitted frame carries every byte the slot holds"
+
+4 checks: 4 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/gptp68-validation/tb/tsngen'
+make -C bench/arty test
+make[1]: Entering directory '$LANES/gptp68-validation/bench/arty'
+verilator --cc --exe --build -j 0 --top-module bench_mii_tx -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC bench_mii_tx.sv bench_mii_tx_tag_test.cpp \
+  -o Vbench_mii_tx_tag_test
+make[2]: Entering directory '$LANES/gptp68-validation/bench/arty/obj_dir'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '$LANES/gptp68-validation/bench/arty/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.018 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vbench_mii_tx_tag_test
+PASS: two MII done toggles carried tags {3,1234}, {a,beef}
+make[1]: Leaving directory '$LANES/gptp68-validation/bench/arty'
