@@ -1,0 +1,286 @@
+[
+  {
+    "mutant": "no-subreaper",
+    "file": "scripts/owned_process.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 14.3,
+        "tail": [
+          "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+          "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "AssertionError: ('4130135', ('17652508', 'S'), ('17652508', 'S'))"
+        ]
+      },
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 3.6,
+        "tail": [
+          "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+          "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "AssertionError: ('4132245', ('17652880', 'S'), ('17652880', 'S'))"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "hardlink-copy",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 16.3,
+        "tail": [
+          "    assert private != root and snapshot(root) == before",
+          "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "AssertionError"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-byte-hash",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 9.6,
+        "tail": [
+          "[note] cancellation_frees_the_entry: not separately observable here",
+          "controls: 9   failures: 8",
+          "RESULT: FAIL"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-mode-check",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 11.1,
+        "tail": [
+          "[note] cancellation_frees_the_entry: not separately observable here",
+          "controls: 9   failures: 0",
+          "RESULT: PASS"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-untracked-check",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 11.5,
+        "tail": [
+          "[note] cancellation_frees_the_entry: not separately observable here",
+          "controls: 9   failures: 0",
+          "RESULT: PASS"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-link-directory-check",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 0,
+        "red": false,
+        "seconds": 35.3,
+        "tail": [
+          "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 4154357, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-hu7g7av_/nested-SIGINT-control/gptp-shadow-mutants-fl_no5rx/tb/verilator/gptp_shadow\", \"identities\": {\"4154356\": [\"17660716\", \"S\"], \"4154357\": [\"17660719\", \"S\"]",
+          "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 4154952, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-hu7g7av_/nested-SIGTERM-control/gptp-shadow-mutants-h_c4romv/tb/verilator/gptp_shadow\", \"identities\": {\"4154932\": [\"17661093\", \"S\"], \"4154952\": [\"17661096\", \"S",
+          "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-git-env-check",
+    "file": "tb/verilator/gptp_shadow/private_inputs.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 0,
+        "red": false,
+        "seconds": 35.6,
+        "tail": [
+          "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 4161267, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-3op3wikt/nested-SIGINT-control/gptp-shadow-mutants-rx8r340h/tb/verilator/gptp_shadow\", \"identities\": {\"4161245\": [\"17664287\", \"S\"], \"4161267\": [\"17664290\", \"S\"]",
+          "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 4163087, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-3op3wikt/nested-SIGTERM-control/gptp-shadow-mutants-2zuipjbj/tb/verilator/gptp_shadow\", \"identities\": {\"4163086\": [\"17664656\", \"S\"], \"4163087\": [\"17664659\", \"S",
+          "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-private-restore",
+    "file": "tb/verilator/gptp_shadow/mutants.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 2.1,
+        "tail": [
+          "[note] cancellation_frees_the_entry: not separately observable here",
+          "controls: 9   failures: 7",
+          "RESULT: FAIL"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-kill-escalation",
+    "file": "scripts/owned_process.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 26.1,
+        "tail": [
+          "  File \"<copy>/scripts/owned_process.py\", line 156, in _cleanup",
+          "    raise RuntimeError(f\"CLEANUP FAILED: owned descendants remain: {owned}\")",
+          "RuntimeError: CLEANUP FAILED: owned descendants remain: {4168573: (4165502, '17666496')}"
+        ]
+      },
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 11.5,
+        "tail": [
+          "  File \"<copy>/scripts/owned_process.py\", line 156, in _cleanup",
+          "    raise RuntimeError(f\"CLEANUP FAILED: owned descendants remain: {owned}\")",
+          "RuntimeError: CLEANUP FAILED: owned descendants remain: {4171230: (4170772, '17668038')}"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-identity-recheck",
+    "file": "scripts/owned_process.py",
+    "runs": [
+      {
+        "test": "tb/verilator/gptp_shadow/test_mutant_lifecycle.py",
+        "exit": 0,
+        "red": false,
+        "seconds": 35.0,
+        "tail": [
+          "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 4176628, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-amh0fhnq/nested-SIGINT-control/gptp-shadow-mutants-56l3_p_8/tb/verilator/gptp_shadow\", \"identities\": {\"4176627\": [\"17671753\", \"S\"], \"4176628\": [\"17671756\", \"S\"]",
+          "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 4177059, \"cwd\": \"<packet>/scratch/tmp-mut/mutant-lifecycle-amh0fhnq/nested-SIGTERM-control/gptp-shadow-mutants-bfq8n0a8/tb/verilator/gptp_shadow\", \"identities\": {\"4177057\": [\"17672128\", \"S\"], \"4177059\": [\"17672131\", \"S",
+          "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+        ]
+      },
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 0,
+        "red": false,
+        "seconds": 28.6,
+        "tail": [
+          "cancel-transition-SIGTERM: {\"exit\": 143, \"foreign_untouched\": true, \"handshake\": {\"child\": 4180782, \"cwd\": \"<packet>/scratch/tmp-mut/suite-cancellation-mouyt5mq/cancel-transition-SIGTERM input [523]\", \"identities\": {\"4180781\": [\"17674737\", \"S\"], \"4180782\": [\"17674739\", \"",
+          "unsafe-command-SIGTERM: {\"exit\": 1, \"foreign_untouched\": true, \"handshake\": {\"child\": 4181735, \"cwd\": \"<packet>/scratch/tmp-mut/suite-cancellation-mouyt5mq/unsafe-command-SIGTERM input [523]\", \"identities\": {\"4181646\": [\"17674992\", \"S\"], \"4181735\": [\"17674995\", \"S\"]}, \"p",
+          "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-root-stop",
+    "file": "scripts/owned_process.py",
+    "runs": [
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 0,
+        "red": false,
+        "seconds": 28.4,
+        "tail": [
+          "cancel-transition-SIGTERM: {\"exit\": 143, \"foreign_untouched\": true, \"handshake\": {\"child\": 4190559, \"cwd\": \"<packet>/scratch/tmp-mut/suite-cancellation-8n1giocc/cancel-transition-SIGTERM input [523]\", \"identities\": {\"4190557\": [\"17677579\", \"S\"], \"4190559\": [\"17677582\", \"",
+          "unsafe-command-SIGTERM: {\"exit\": 1, \"foreign_untouched\": true, \"handshake\": {\"child\": 4191024, \"cwd\": \"<packet>/scratch/tmp-mut/suite-cancellation-8n1giocc/unsafe-command-SIGTERM input [523]\", \"identities\": {\"4191015\": [\"17677825\", \"S\"], \"4191024\": [\"17677828\", \"S\"]}, \"p",
+          "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-shell-cancel-traps",
+    "file": "scripts/run_all_suites.sh",
+    "runs": [
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 18.4,
+        "tail": [
+          "failing suites: alpha",
+          "logs: <packet>/scratch/tmp-mut/suite-cancellation-9q9k_k4h/cancel-command-SIGINT input [523]/logs",
+          "CANCELLED: signal 2; partial logs retained; no completed sweep result"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "no-sweep-owner",
+    "file": "scripts/run_all_suites.sh",
+    "runs": [
+      {
+        "test": "scripts/test_suite_cancellation.py",
+        "exit": 1,
+        "red": true,
+        "seconds": 5.1,
+        "tail": [
+          "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+          "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "AssertionError: ('3893', ('17680177', 'S'), ('17680177', 'S'))"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "mask-any-proc",
+    "file": "scripts/check_baremetal_only.py",
+    "runs": [
+      {
+        "test": "scripts/check_baremetal_only.py --selftest",
+        "exit": 2,
+        "red": true,
+        "seconds": 3.2,
+        "tail": [
+          "- [owned_process-wrong-context] planted defect not caught"
+        ]
+      }
+    ]
+  },
+  {
+    "mutant": "mask-unanchored-start",
+    "file": "scripts/check_baremetal_only.py",
+    "runs": [
+      {
+        "test": "scripts/check_baremetal_only.py --selftest",
+        "exit": 0,
+        "red": false,
+        "seconds": 3.3,
+        "tail": [
+          "baremetal-only selftest: PASS (354 arm(s))"
+        ]
+      }
+    ]
+  }
+]

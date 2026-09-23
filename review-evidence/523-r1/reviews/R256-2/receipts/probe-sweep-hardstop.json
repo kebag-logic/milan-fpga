@@ -1,0 +1,64 @@
+[
+  {
+    "case": "head-SIGKILL",
+    "entry_process": "python3",
+    "entry_exit": -9,
+    "next_suite_started": true,
+    "completed_summary": true,
+    "pass_omega": true,
+    "lock_owner_file_left": false,
+    "transcript_tail": [
+      "  A suite that measured nothing is an UNKNOWN, not agreement.",
+      "  If it printed no tally: make it print one of the shapes in",
+      "  scripts/suite_tally.py. If it tallied zero: make it assert",
+      "  something, or say why it ran nothing with a SUITE-SKIP: line",
+      "  AND still report the checks it did run.",
+      "",
+      "The check total above is INCOMPLETE and must not be quoted.",
+      "logs: <packet>/scratch/tmp-hard/hardstop-c4g9dm36/head-SIGKILL input [523]/logs"
+    ]
+  },
+  {
+    "case": "head-SIGHUP",
+    "entry_process": "python3",
+    "entry_exit": -1,
+    "next_suite_started": true,
+    "completed_summary": true,
+    "pass_omega": true,
+    "lock_owner_file_left": false,
+    "transcript_tail": [
+      "  A suite that measured nothing is an UNKNOWN, not agreement.",
+      "  If it printed no tally: make it print one of the shapes in",
+      "  scripts/suite_tally.py. If it tallied zero: make it assert",
+      "  something, or say why it ran nothing with a SUITE-SKIP: line",
+      "  AND still report the checks it did run.",
+      "",
+      "The check total above is INCOMPLETE and must not be quoted.",
+      "logs: <packet>/scratch/tmp-hard/hardstop-c4g9dm36/head-SIGHUP input [523]/logs"
+    ]
+  },
+  {
+    "case": "base-SIGKILL",
+    "entry_process": "bash",
+    "entry_exit": -9,
+    "next_suite_started": false,
+    "completed_summary": false,
+    "pass_omega": false,
+    "lock_owner_file_left": true,
+    "transcript_tail": [
+      "shard: 0/1   selected suites: 2"
+    ]
+  },
+  {
+    "case": "base-SIGHUP",
+    "entry_process": "bash",
+    "entry_exit": -1,
+    "next_suite_started": false,
+    "completed_summary": false,
+    "pass_omega": false,
+    "lock_owner_file_left": false,
+    "transcript_tail": [
+      "shard: 0/1   selected suites: 2"
+    ]
+  }
+]
