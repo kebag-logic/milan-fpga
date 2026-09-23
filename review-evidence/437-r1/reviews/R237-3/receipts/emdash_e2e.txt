@@ -1,0 +1,18 @@
+walk=base findings=1 exempt=0 | E1 inline PI carrying > then <!--
+walk=base findings=1 exempt=0 | E2 inline CDATA carrying > then <!--
+walk=base findings=1 exempt=0 | E5 type 4 block exposed by an empty comment
+walk=base findings=1 exempt=0 | E6 open quoted value after a prose comment
+walk=base findings=0 exempt=1 | E3 image alt carries the closer
+walk=base findings=0 exempt=1 | E4 link reference title carries the closer
+walk=base findings=0 exempt=1 | E7 reference-only item ends at the second blank
+walk=base findings=0 exempt=1 | C2 control: closer in inline HTML
+walk=base findings=1 exempt=0 | C3 control: prose comment then heading
+walk=head findings=0 exempt=1 | E1 inline PI carrying > then <!--
+walk=head findings=0 exempt=1 | E2 inline CDATA carrying > then <!--
+walk=head findings=0 exempt=1 | E5 type 4 block exposed by an empty comment
+walk=head findings=0 exempt=1 | E6 open quoted value after a prose comment
+walk=head findings=0 exempt=1 | E3 image alt carries the closer
+walk=head findings=0 exempt=1 | E4 link reference title carries the closer
+walk=head findings=1 exempt=0 | E7 reference-only item ends at the second blank
+walk=head findings=0 exempt=1 | C2 control: closer in inline HTML
+walk=head findings=0 exempt=1 | C3 control: prose comment then heading

@@ -1,0 +1,10 @@
+{
+ "Q1 blank line ends a quote and its fence": "> ```\n\n> <!--\n\n## Old\n",
+ "Q2 blank line ends a quote and its fence (heading control)": "> ```\n\n> text\n\n## Old\n",
+ "E8 inline PI in a heading": "## A <?p > <!-- ?>\n\n## Old\n",
+ "E9 inline PI in a table cell": "| a | b |\n|---|---|\n| x <?p > <!-- ?> | y |\n\n## Old\n",
+ "E10 inline PI opens a quoted value": "Text <?p > <b title=\" ?> more.\n\n## Old\n",
+ "E11 inline PI across lines": "Text <?p\n> <!-- ?> more.\n\n## Old\n",
+ "E12 comment closed early by --!>": "Text <!-- a --!> <b title=\"-->\"> more.\n\n## Old\n",
+ "C4 control: inline PI without >": "Text <?p <!-- ?> more.\n\n## Old\n"
+}
