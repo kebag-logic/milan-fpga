@@ -1,0 +1,37 @@
+file: bench/final/tap-final.pcap
+tapped records: 597  host-generated records excluded: 18  tap span: 21.921 s  ports: [2, 3]
+
+== per (tap port, source, kind): count, interval statistics (ms)
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 ADP                        n=3 median=6780.504 min=5397.851 max=6886.632 mean=6354.996
+      entity 3cc0c60102030000 model 3cc0c60000010101 gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 2 (far->DUT) 3c:c0:c6:01:02:03 MAAP                       n=1 median=6886.257 min=6886.257 max=6886.257 mean=6886.257
+  port 2 (far->DUT) 3c:c0:c6:fe:02:10 ethertype 0x0800           n=1 median=15000.109 min=15000.109 max=15000.109 mean=15000.109
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MSRP                       n=5 median=102.223 min=97.719 max=9897.864 mean=2360.001
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 MVRP                       n=24 median=999.828 min=110.026 max=1000.230 mean=875.000
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 ethertype 0x0027           n=10 median=2000.014 min=2000.005 max=2000.023 mean=2000.014
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Announce              n=21 median=1000.011 min=999.883 max=1000.099 mean=1000.007
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      GM 3cc0c6fffefe0210 prio1 246 class 248 accuracy 0x20 variance 0x436a prio2 248 stepsRemoved 0 timeSource 0xa0 tlvs [["PathTrace", ["3cc0c6fffefe0210"]]]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Follow_Up             n=175 median=120.094 min=119.374 max=130.753 mean=124.969
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+      gmTimeBaseIndicator [0]
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Req            n=21 median=1000.011 min=999.964 max=1010.062 mean=1000.971
+      logMessageInterval [0] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp           n=21 median=999.998 min=999.907 max=1000.095 mean=999.999
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Pdelay_Resp_Follow_Up n=21 median=1000.000 min=999.898 max=1000.104 mean=999.999
+      logMessageInterval [127] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 3c:c0:c6:fe:02:11 gPTP Sync                  n=175 median=120.093 min=119.228 max=130.874 mean=124.969
+      logMessageInterval [-3] domain [0] sourcePortIdentity ['3cc0c6fffefe02100001']
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x0800           n=2 median=6359.500 min=4583.617 max=8135.382 mean=6359.500
+  port 2 (far->DUT) 68:05:ca:95:b2:ed ethertype 0x86dd           n=1 median=8589.314 min=8589.314 max=8589.314 mean=8589.314
+  port 3 (DUT->far) 02:00:00:00:00:01 ADP                        n=2 median=8163.019 min=7775.018 max=8551.020 mean=8163.019
+      entity 020000fffe000001 model 001bc5c40236ba0e gptp_gm 3cc0c6fffefe0210 domain 0 interface 0
+  port 3 (DUT->far) 02:00:00:00:00:01 MAAP                       n=5 median=3951.009 min=3027.007 max=4792.011 mean=3843.609
+  port 3 (DUT->far) 02:00:00:00:00:01 MSRP                       n=26 median=1000.002 min=200.000 max=1000.002 mean=807.694
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Req            n=21 median=1000.002 min=1000.002 max=1000.002 mean=1000.002
+      logMessageInterval [0] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp           n=21 median=1000.011 min=999.964 max=1010.062 mean=1000.971
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
+  port 3 (DUT->far) 02:00:00:00:00:01 gPTP Pdelay_Resp_Follow_Up n=21 median=1000.011 min=999.964 max=1010.062 mean=1000.971
+      logMessageInterval [127] domain [0] sourcePortIdentity ['020000fffe0000010001']
