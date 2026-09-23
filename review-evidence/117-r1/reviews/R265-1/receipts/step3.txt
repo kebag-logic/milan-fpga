@@ -1,0 +1,115 @@
+===== cycle 1
+  offsets (remote minus build box, before/after): {'server': [1.081037, 1.081463], 'ctl': [1.081379, 1.081729], 'ps': [1.082365, 1.082809]}
+  t0(build-box) 1790171618.040; on at 20.292; off_for 20.29
+  console samples 1600 (pre-off 205 all-good 205); max gap 0.106; RST_EPOCH [1]
+  sync0/tu1 1.16 (tu1 first 1.16); gm=self 3.56; asc0 5.66; asc1 39.66; gm=switch 39.96; all-good 40.46 (prev good? False)
+  holdover samples at loss: 3 span [1.16, 1.36]; at return: 5 [39.96, 40.36]; sync back 40.06; tu clear 40.46 (0.50 after adoption sample)
+  path (gen,count) seen [(3, 1), (4, 1), (5, 1)]; parent==gm in all samples True
+  tap: tapped 4487 host-only 38 bins 29 fit resid max 12.56 ms
+  tap: switch last Sync 0.73 last Announce 0.55 last Pdelay_Resp 0.57 last frame 0.73; dark 1.03 -> 38.24 (first any 38.24)
+  tap: switch first frame 38.24 first Announce 39.95 first Sync 39.97; announces after return [39.953, 40.96, 41.96]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 6 (Sync 3, FU 3), Announce []
+  adopted Announce at 39.953; GM=switch sample 39.960 (delta 0.008)
+  loss edges vs wire: sync0-lastSync 0.43; gmself-lastAnn 3.01; asc0-lastPdResp 5.09
+  RECOVERY all-good - first Announce = 0.508; vs first of Announce/Sync = 0.508; on->all-good 20.17; swfirst->all-good 2.22
+  LINKG_STAT 0x03 at 3.5065245628356934, back 0x83 at 38.3065505027771; CLKV_TUCNT delta 40
+  carrier (controller host): [(-23.29, 1), (1.12, 0), (33.93, 1)]
+===== cycle 2
+  offsets (remote minus build box, before/after): {'server': [1.081962, 1.082337], 'ctl': [1.082094, 1.082378], 'ps': [1.083253, 1.083589]}
+  t0(build-box) 1790171973.862; on at 20.401; off_for 20.4
+  console samples 1200 (pre-off 206 all-good 206); max gap 0.100; RST_EPOCH [1]
+  sync0/tu1 1.08 (tu1 first 1.08); gm=self 3.48; asc0 4.78; asc1 38.78; gm=switch 39.08; all-good 39.58 (prev good? False)
+  holdover samples at loss: 3 span [1.08, 1.28]; at return: 5 [39.08, 39.48]; sync back 39.08; tu clear 39.58 (0.50 after adoption sample)
+  path (gen,count) seen [(5, 1), (6, 1), (7, 1)]; parent==gm in all samples True
+  tap: tapped 3173 host-only 0 bins 22 fit resid max 9.86 ms
+  tap: switch last Sync 0.63 last Announce 0.46 last Pdelay_Resp -0.25 last frame 0.65; dark 1.75 -> 37.55 (first any 37.55)
+  tap: switch first frame 37.75 first Announce 39.06 first Sync 39.08; announces after return [39.064, 40.072, 41.072]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 4 (Sync 2, FU 2), Announce []
+  adopted Announce at 39.064; GM=switch sample 39.078 (delta 0.014)
+  loss edges vs wire: sync0-lastSync 0.45; gmself-lastAnn 3.02; asc0-lastPdResp 5.02
+  RECOVERY all-good - first Announce = 0.514; vs first of Announce/Sync = 0.514; on->all-good 19.18; swfirst->all-good 1.82
+  LINKG_STAT 0x03 at 3.4240896701812744, back 0x83 at 37.82407069206238; CLKV_TUCNT delta 39
+  carrier (controller host): [(-23.36, 1), (1.15, 0), (34.05, 1)]
+===== cycle 3
+  offsets (remote minus build box, before/after): {'server': [1.082409, 1.082772], 'ctl': [1.082432, 1.082715], 'ps': [1.083641, 1.083982]}
+  t0(build-box) 1790172137.153; on at 20.393; off_for 20.39
+  console samples 1200 (pre-off 206 all-good 206); max gap 0.101; RST_EPOCH [1]
+  sync0/tu1 1.08 (tu1 first 1.08); gm=self 2.88; asc0 5.48; asc1 39.48; gm=switch 40.08; all-good 40.58 (prev good? False)
+  holdover samples at loss: 5 span [1.08, 1.48]; at return: 5 [40.08, 40.48]; sync back 40.28; tu clear 40.58 (0.50 after adoption sample)
+  path (gen,count) seen [(7, 1), (8, 1), (9, 1)]; parent==gm in all samples True
+  tap: tapped 3180 host-only 38 bins 22 fit resid max 18.03 ms
+  tap: switch last Sync 0.64 last Announce -0.17 last Pdelay_Resp 0.47 last frame 0.66; dark 1.46 -> 38.07 (first any 38.07)
+  tap: switch first frame 38.07 first Announce 39.07 first Sync 39.09; announces after return [39.072, 40.079, 41.079]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 9 (Sync 4, FU 4), Announce [(39.83, '020000fffe000001', 248)]
+  adopted Announce at 40.079; GM=switch sample 40.079 (delta 0.000)
+  loss edges vs wire: sync0-lastSync 0.44; gmself-lastAnn 3.05; asc0-lastPdResp 5.01
+  RECOVERY all-good - first Announce = 1.507; vs first of Announce/Sync = 1.507; on->all-good 20.19; swfirst->all-good 2.51
+  LINKG_STAT 0x03 at 3.425128221511841, back 0x83 at 38.12507724761963; CLKV_TUCNT delta 41
+  carrier (controller host): [(-23.37, 1), (1.14, 0), (34.05, 1)]
+===== cycle 4
+  offsets (remote minus build box, before/after): {'server': [1.082822, 1.083215], 'ctl': [1.08275, 1.083035], 'ps': [1.084019, 1.084351]}
+  t0(build-box) 1790172291.762; on at 20.290; off_for 20.29
+  console samples 1207 (pre-off 246 all-good 246); max gap 0.113; RST_EPOCH [1]
+  sync0/tu1 1.17 (tu1 first 1.17); gm=self 3.66; asc0 4.90; asc1 39.90; gm=switch 40.01; all-good 40.42 (prev good? False)
+  holdover samples at loss: 3 span [1.17, 1.37]; at return: 4 [40.01, 40.32]; sync back 40.11; tu clear 40.42 (0.41 after adoption sample)
+  path (gen,count) seen [(9, 1), (10, 1), (11, 1)]; parent==gm in all samples True
+  tap: tapped 51453 host-only 45 bins 23 fit resid max 19.52 ms
+  tap: switch last Sync 0.70 last Announce 0.65 last Pdelay_Resp -0.15 last frame 0.70; dark 1.71 -> 38.57 (first any 38.57)
+  tap: switch first frame 38.57 first Announce 40.00 first Sync 40.01; announces after return [39.997, 41.004, 42.004]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 2 (Sync 1, FU 1), Announce []
+  adopted Announce at 39.997; GM=switch sample 40.008 (delta 0.011)
+  loss edges vs wire: sync0-lastSync 0.46; gmself-lastAnn 3.01; asc0-lastPdResp 5.06
+  RECOVERY all-good - first Announce = 0.425; vs first of Announce/Sync = 0.425; on->all-good 20.13; swfirst->all-good 1.85
+  LINKG_STAT 0x03 at 3.39762020111084, back 0x83 at 38.599860191345215; CLKV_TUCNT delta 40
+  carrier (controller host): [(-28.23, 1), (1.29, 0), (34.09, 1)]
+  CRF: {'first_tu1': 1.081, 'n_tu1': 316, 'last_pre': 1.711, 'first_post': 41.284, 'post_tu1': 0, 'post_n': 32579, 'pre_tu0_before_loss': 14448}; CRFT_CTRL changes [(-13.15, '0x3'), (-12.74, '0x3002e3'), (2.28, '0x3'), (41.33, '0x3002e3'), (56.34, '0x3'), (57.17, '0x3002e3'), (73.45, '0x3'), (74.38, '0x3002e3'), (89.4, '0x3'), (89.82, '0x3002e3')]
+===== cycle 5
+  offsets (remote minus build box, before/after): {'server': [1.083324, 1.083713], 'ctl': [1.083123, 1.083416], 'ps': [1.084438, 1.084763]}
+  t0(build-box) 1790172471.944; on at 20.396; off_for 20.4
+  console samples 1208 (pre-off 247 all-good 247); max gap 0.112; RST_EPOCH [1]
+  sync0/tu1 1.09 (tu1 first 1.09); gm=self 2.96; asc0 5.75; asc1 39.71; gm=switch 40.12; all-good 40.54 (prev good? False)
+  holdover samples at loss: 4 span [1.09, 1.4]; at return: 4 [40.12, 40.43]; sync back 40.23; tu clear 40.54 (0.41 after adoption sample)
+  path (gen,count) seen [(11, 1), (12, 1), (13, 1)]; parent==gm in all samples True
+  tap: tapped 50699 host-only 0 bins 23 fit resid max 26.88 ms
+  tap: switch last Sync 0.69 last Announce -0.12 last Pdelay_Resp 0.67 last frame 0.69; dark 1.65 -> 38.07 (first any 38.07)
+  tap: switch first frame 38.07 first Announce 39.08 first Sync 39.08; announces after return [39.075, 40.082, 41.082]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 7 (Sync 3, FU 3), Announce [(39.88, '020000fffe000001', 248)]
+  adopted Announce at 40.082; GM=switch sample 40.123 (delta 0.041)
+  loss edges vs wire: sync0-lastSync 0.40; gmself-lastAnn 3.07; asc0-lastPdResp 5.09
+  RECOVERY all-good - first Announce = 1.462; vs first of Announce/Sync = 1.462; on->all-good 20.14; swfirst->all-good 2.46
+  LINKG_STAT 0x03 at 3.417773723602295, back 0x83 at 38.0956826210022; CLKV_TUCNT delta 40
+  carrier (controller host): [(-28.37, 1), (1.14, 0), (34.05, 1)]
+  CRF: {'first_tu1': 1.069, 'n_tu1': 293, 'last_pre': 1.653, 'first_post': 42.961, 'post_tu1': 0, 'post_n': 32033, 'pre_tu0_before_loss': 14219}; CRFT_CTRL changes [(-13.32, '0x3'), (-12.29, '0x3002e3'), (5.31, '0x3'), (42.99, '0x3002e3'), (58.01, '0x3'), (58.53, '0x3002e3'), (73.54, '0x3'), (74.36, '0x3002e3'), (89.37, '0x3'), (89.69, '0x3002e3')]
+===== cycle 6
+  offsets (remote minus build box, before/after): {'server': [1.083745, 1.084134], 'ctl': [1.083451, 1.083741], 'ps': [1.084799, 1.085128]}
+  t0(build-box) 1790172626.020; on at 20.398; off_for 20.4
+  console samples 1208 (pre-off 247 all-good 247); max gap 0.110; RST_EPOCH [1]
+  sync0/tu1 1.06 (tu1 first 1.06); gm=self 3.24; asc0 5.62; asc1 39.68; gm=switch 40.20; all-good 40.72 (prev good? False)
+  holdover samples at loss: 4 span [1.06, 1.37]; at return: 5 [40.2, 40.61]; sync back 40.30; tu clear 40.72 (0.52 after adoption sample)
+  path (gen,count) seen [(13, 1), (14, 1), (15, 1)]; parent==gm in all samples True
+  tap: tapped 51799 host-only 37 bins 22 fit resid max 0.14 ms
+  tap: switch last Sync 0.63 last Announce 0.20 last Pdelay_Resp 0.59 last frame 0.63; dark 1.48 -> 38.12 (first any 38.12)
+  tap: switch first frame 38.12 first Announce 39.12 first Sync 39.14; announces after return [39.12, 40.127, 41.127]
+  tap: switch Announce fields {('3cc0c6fffefe0210', 246, ('3cc0c6fffefe0210',))}
+  DUT master msgs after return: 8 (Sync 4, FU 4), Announce []
+  adopted Announce at 40.127; GM=switch sample 40.201 (delta 0.074)
+  loss edges vs wire: sync0-lastSync 0.44; gmself-lastAnn 3.04; asc0-lastPdResp 5.03
+  RECOVERY all-good - first Announce = 1.601; vs first of Announce/Sync = 1.601; on->all-good 20.32; swfirst->all-good 2.60
+  LINKG_STAT 0x03 at 3.3864383697509766, back 0x83 at 38.17602229118347; CLKV_TUCNT delta 41
+  carrier (controller host): [(-28.39, 1), (1.12, 0), (34.03, 1)]
+  CRF: {'first_tu1': 1.001, 'n_tu1': 243, 'last_pre': 1.485, 'first_post': 41.459, 'post_tu1': 0, 'post_n': 32899, 'pre_tu0_before_loss': 14536}; CRFT_CTRL changes [(-13.35, '0x3'), (-13.04, '0x3002e3'), (1.97, '0x3'), (41.52, '0x3002e3'), (57.88, '0x3'), (58.71, '0x3002e3'), (73.72, '0x3'), (74.44, '0x3002e3'), (92.04, '0x3'), (92.25, '0x3002e3')]
+
+===== table (seconds after the off command)
+cycle | off_for | sync0 | gmself | asc0 | sw_first | sw_ann1 | sw_sync1 | asc1 | gmsw | allgood | rec | rec_first
+1 | 20.29 | 1.16 | 3.56 | 5.66 | 38.24 | 39.95 | 39.97 | 39.66 | 39.96 | 40.46 | 0.508 | 0.508
+2 | 20.4 | 1.08 | 3.48 | 4.78 | 37.75 | 39.06 | 39.08 | 38.78 | 39.08 | 39.58 | 0.514 | 0.514
+3 | 20.39 | 1.08 | 2.88 | 5.48 | 38.07 | 39.07 | 39.09 | 39.48 | 40.08 | 40.58 | 1.507 | 1.507
+4 | 20.29 | 1.17 | 3.66 | 4.9 | 38.57 | 40.0 | 40.01 | 39.9 | 40.01 | 40.42 | 0.425 | 0.425
+5 | 20.4 | 1.09 | 2.96 | 5.75 | 38.07 | 39.08 | 39.08 | 39.71 | 40.12 | 40.54 | 1.462 | 1.462
+6 | 20.4 | 1.06 | 3.24 | 5.62 | 38.12 | 39.12 | 39.14 | 39.68 | 40.2 | 40.72 | 1.601 | 1.601
+recovery range 0.425 .. 1.601; bound 5 s: ALL PASS

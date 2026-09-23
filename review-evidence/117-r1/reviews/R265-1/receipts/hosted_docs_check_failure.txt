@@ -1,0 +1,9 @@
+run 35874614091 job 107227198488 (workflow docs, event pull_request, head 0abf147f726721f4a323ee6a32095a02363fe2dc)
+2026-09-23T14:31:15.3068851Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+2026-09-23T14:31:15.3069511Z ^[[36;1mpython3 scripts/check_baremetal_only.py --check^[[0m
+2026-09-23T14:31:15.3070098Z ^[[36;1mpython3 scripts/check_baremetal_only.py --selftest^[[0m
+2026-09-23T14:31:28.7965556Z   - docs/findings/117_GPTP_SILICON_EVIDENCE.md:125: [R] prohibited target runtime/service surface 'kernel': '- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both direction' (#259: no target OS or retired helper-service plane)
+2026-09-23T14:31:28.7968355Z   - docs/findings/117_GPTP_SILICON_EVIDENCE.md:149: [S] retired target-audio surface 'host capture': '| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host capture and watcher, 0.1' (#259: no dormant host capture/playback lane)
+2026-09-23T14:31:28.7970296Z   - docs/findings/117_GPTP_SILICON_EVIDENCE.md:401: [R] prohibited target runtime/service surface 'software gPTP owner': '- No software gPTP owner exists on the image.' (#259: no target OS or retired helper-service plane)
+2026-09-23T14:31:28.7971459Z baremetal-only: FAIL (3 finding(s) across 839 scanned file(s))
+2026-09-23T14:31:28.8060580Z ##[error]Process completed with exit code 1.

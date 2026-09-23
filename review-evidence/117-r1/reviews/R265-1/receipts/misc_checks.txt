@@ -1,0 +1,41 @@
+RunB peer STREAM_INPUT poll t=1790168679.240 LOCKED 0 UNLOCKED 0 TSU 0 TS_VALID 0 FRAMES_RX 0
+RunB peer STREAM_INPUT poll t=1790168689.250 LOCKED 0 UNLOCKED 0 TSU 0 TS_VALID 0 FRAMES_RX 0
+RunB peer STREAM_INPUT poll t=1790168704.251 LOCKED 1 UNLOCKED 0 TSU 0 TS_VALID 5161 FRAMES_RX 5161
+RunB peer STREAM_INPUT poll t=1790168719.253 LOCKED 1 UNLOCKED 0 TSU 0 TS_VALID 12076 FRAMES_RX 12076
+RunB peer STREAM_INPUT poll t=1790168734.254 LOCKED 1 UNLOCKED 0 TSU 0 TS_VALID 19269 FRAMES_RX 19269
+RunB peer STREAM_INPUT poll t=1790168749.259 LOCKED 1 UNLOCKED 1 TSU 0 TS_VALID 26646 FRAMES_RX 26646
+RunB unbind at [1790168749.249959]
+final-2 tap: tapped 597 host-only 18 AVTP stream PDUs 0
+bench-a202/bench/final/console-final.txt 2026-09-23T14:13:19.318234Z {'VERSION': '00020060', 'GPTP_GM': '3cc0c6fffefe0210', 'CLKV_STAT': '00010002', 'PDELAY_NS': '377'}
+bench-a202/bench/final/console-final.txt 0x90000780 0x116
+bench-a202/bench/final/console-final.txt 0x90000774 0x83
+bench-a202/bench/final/console-final.txt 0x90000720 0x1
+bench-a202/bench/final/console-final.txt 0x90000750 0x3
+bench-a202/bench/final/console-final.txt 0x90000764 0x30322
+bench-a202/bench/final/console-final.txt 0x900007e8 0x0
+bench-a202/bench/final/console-final.txt 0x900007ec 0x0
+bench-a202/bench/final/console-final.txt 0x900006f4 0x0
+bench-a202/identity/console-identity.txt 2026-09-23T13:44:58.056245Z {'VERSION': '00020060', 'GPTP_GM': '3cc0c6fffefe0210', 'CLKV_STAT': '00010002', 'PDELAY_NS': '381'}
+bench-a202/identity/console-identity.txt crc 0x00000000 52200 f6afa4ec
+bench-a202/identity/console-identity.txt crc 0x01000000 3825788 02036e95
+bench-a202/identity/console-identity.txt crc 0x01400000 7352 93742dd2
+bench-a202/identity/console-identity.txt 2026-09-23T13:45:21.666625Z {'VERSION': '00020060', 'GPTP_GM': '3cc0c6fffefe0210', 'CLKV_STAT': '00010002', 'PDELAY_NS': '385'}
+bench-a202/identity/console-identity.txt 0x90000720 0x1
+bench-a202/identity/console-identity.txt 0x90000774 0x83
+bench-a202/identity/console-identity.txt 0x90000780 0xb
+bench-a200/identity/uart-smoke-identity.log ['BAREMETAL UART SMOKE: PASS (10/10)']
+bench-a200/bench/final/uart-smoke-final.log ['BAREMETAL UART SMOKE: PASS (10/10)']
+bench-a202/identity/uart-smoke-identity.log ['BAREMETAL UART SMOKE: PASS (10/10)']
+bench-a202/bench/final/uart-smoke-final.log ['BAREMETAL UART SMOKE: PASS (10/10)']
+status-start.txt OUT0  ON OUT1  ON OUT2  ON OUT3  OFF OUT4  ON OUT5  ON OUT6  ON
+status-end.txt OUT0  ON OUT1  ON OUT2  ON OUT3  OFF OUT4  ON OUT5  ON OUT6  ON
+counters probe DUT vs peer identical modulo entity id: True lines 14
+['PROBE: verdict CLEAN (rc=0, complaints=0)']
+COMPLAINT [Compatibility] [0x020000fffe000001] [Milan 1.3 - 5.3.8.10] Milan mandatory counters missing for STREAM_INPUT descriptor
+COMPLAINT [Compatibility] [0x020000fffe000001] Entity not fully Milan compliant
+ENTITY 0x020000fffe000001 model=0x001bc5c40236ba0e flags=IEEE17221 milanRedundant=0 cacheable=1
+ENTITY 0x020000fffe000001 milanInfo protocolVersion=1 certificationVersion=0.0.0.0 specificationVersion=1.2.0.0
+ENTITY 0x020000fffe000001 compat-change IEEE17221|Milan -> IEEE17221 clause="Milan 1.3 - 5.3.8.10" message="Milan mandatory counters missing for STREAM_INPUT descriptor"
+ENTITY 0x3cc0c60102030000 model=0x3cc0c60000010101 flags=IEEE17221|Milan milanRedundant=1 cacheable=0
+ENTITY 0x3cc0c60102030000 milanInfo protocolVersion=1 certificationVersion=1.1.0.0 specificationVersion=1.2.0.0
+SUMMARY online=2 complaints=2
