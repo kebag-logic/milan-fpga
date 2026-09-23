@@ -1,0 +1,64 @@
+make: Entering directory '$REVIEW_CLONE/tb/verilator/gptp_shadow'
+python3 test_mutant_lifecycle.py
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "mode"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "untracked"}
+extra: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "extra"}
+symlink: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "symlink"}
+parent-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "parent-link"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency"}
+off-pin: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "off-pin"}
+pin-index: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "pin-index"}
+dependency-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency-link"}
+git-env: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "git-env"}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 4104416, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGINT-control/gptp-shadow-mutants-a7wmzq_3/tb/verilator/gptp_shadow", "identities": {"4104412": ["17646131", "S"], "4104416": ["17646134", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4104412, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGINT-control/gptp-shadow-mutants-a7wmzq_3"}, "signal": "SIGINT", "unsafe_control_detected": false}
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 4105194, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGTERM-control/gptp-shadow-mutants-xoi86a93/tb/verilator/gptp_shadow", "identities": {"4105190": ["17646480", "S"], "4105194": ["17646483", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4105190, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGTERM-control/gptp-shadow-mutants-xoi86a93"}, "signal": "SIGTERM", "unsafe_control_detected": false}
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 4107354, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGKILL-control/gptp-shadow-mutants-yyou9phr/tb/verilator/gptp_shadow", "identities": {"4107319": ["17646817", "S"], "4107354": ["17646819", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4107319, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/isolated-SIGKILL-control/gptp-shadow-mutants-yyou9phr"}, "signal": "SIGKILL", "unsafe_control_detected": false}
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 4109322, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"4109321": ["17647048", "S"], "4109322": ["17647051", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4109321, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 4109723, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"4109722": ["17647286", "S"], "4109723": ["17647289", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4109722, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 4111180, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/nested-SIGINT-control/gptp-shadow-mutants-xcwfw11y/tb/verilator/gptp_shadow", "identities": {"4111179": ["17647644", "S"], "4111180": ["17647647", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4111179, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/nested-SIGINT-control/gptp-shadow-mutants-xcwfw11y"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 4111773, "cwd": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/nested-SIGTERM-control/gptp-shadow-mutants-k5hk_zoj/tb/verilator/gptp_shadow", "identities": {"4111754": ["17648022", "S"], "4111773": ["17648024", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 4111754, "private": "$PACKET/scratch/tmp-real/mutant-lifecycle-w20wwbwp/nested-SIGTERM-control/gptp-shadow-mutants-k5hk_zoj"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)
+$PINNED_TOOLS/verilator --cc --exe --build -j 8 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$REVIEW_CLONE/tb/verilator/gptp_shadow -Wall -Wextra" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim
+make[1]: Entering directory '$REVIEW_CLONE/tb/verilator/gptp_shadow/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEW_CLONE/tb/verilator/gptp_shadow/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vgptp_shadow_sim
+TX flags Sync: 28 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+309 checks: 309 PASS, 0 FAIL
+python3 mutants.py
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['aged head: a record is held back', 'aged head: an expiry is not a barrier', 'aged head: the late record still delivers its own frame']
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 0
+RESULT: PASS
+make: Leaving directory '$REVIEW_CLONE/tb/verilator/gptp_shadow'
+wall=260.65 exit=0
+exit 0

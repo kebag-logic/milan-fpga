@@ -1,0 +1,31 @@
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M14-build-failure-counts/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 288, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M14-build-failure-counts/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 265, in main
+    normal(parent, "build")
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/M14-build-failure-counts/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 93, in normal
+    assert status == (0 if mode == "detect" else 1), output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [ ok ] abort_counts_as_completion: caught, though not by "aborted episode: the demand survives it"; broke []
+[ ok ] no_generation_check: caught, though not by "generation zero: the ledger refused it and raised a barrier"; broke []
+[ ok ] no_tag_check: caught, though not by "foreign tag: the ledger refused it and raised a barrier"; broke []
+[ ok ] age_never_expires: caught, though not by "aged head: the age expired and was counted"; broke []
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke []
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke []
+[ ok ] no_fence: caught, though not by "torn frame: a frame was mid-egress when the fence closed"; broke []
+[ ok ] unseal_without_echo: caught, though not by "echo: the seal outlasts it"; broke []
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke []
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 0
+RESULT: PASS
+

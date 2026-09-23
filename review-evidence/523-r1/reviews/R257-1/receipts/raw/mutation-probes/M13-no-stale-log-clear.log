@@ -1,0 +1,20 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 19084, "cwd": "/tmp/suite-cancellation-324gmlty/normal-orphan input [523]", "identities": {"19083": ["17684365", "S"], "19084": ["17684368", "S"]}, "pid": 19083}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 19477, "cwd": "/tmp/suite-cancellation-324gmlty/cancel-selection-SIGINT input [523]", "identities": {"19476": ["17684662", "S"], "19477": ["17684665", "S"]}, "pid": 19476}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 20182, "cwd": "/tmp/suite-cancellation-324gmlty/cancel-selection-SIGTERM input [523]", "identities": {"20172": ["17684893", "S"], "20182": ["17684895", "S"]}, "pid": 20172}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M13-no-stale-log-clear/scripts/test_suite_cancellation.py", line 243, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M13-no-stale-log-clear/scripts/test_suite_cancellation.py", line 234, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/M13-no-stale-log-clear/scripts/test_suite_cancellation.py", line 176, in cancellation
+    assert not (root / "logs/omega.log").exists(), "stale suite log survived"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: stale suite log survived

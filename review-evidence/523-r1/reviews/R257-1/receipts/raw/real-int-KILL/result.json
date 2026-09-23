@@ -1,0 +1,46 @@
+{
+ "signal": "KILL",
+ "exit": -9,
+ "boundary": {
+  "private": "$PACKET/scratch/tmp-int/gptp-shadow-mutants-qzr7or10",
+  "mutation": "abort_counts_as_completion",
+  "descendants": {
+   "4182067": [
+    "17675169",
+    "$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin --cc --exe --buil"
+   ],
+   "4182059": [
+    "17675159",
+    "make -s run "
+   ],
+   "4182061": [
+    "17675165",
+    "perl $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator --cc --exe --bui"
+   ]
+  }
+ },
+ "private_exists_after": true,
+ "descendants_alive_after_exit": {
+  "4182067": [
+   "17675169",
+   "$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin --cc --exe --buil"
+  ],
+  "4182059": [
+   "17675159",
+   "make -s run "
+  ],
+  "4182061": [
+   "17675165",
+   "perl $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator --cc --exe --bui"
+  ]
+ },
+ "output_tail": [],
+ "completed_verdict_printed": false,
+ "caller_integrity_exit": 0,
+ "caller_integrity_problems": [],
+ "probe_terminated_survivors": [
+  "4182067",
+  "4182059",
+  "4182061"
+ ]
+}

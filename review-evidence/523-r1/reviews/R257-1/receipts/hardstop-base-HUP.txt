@@ -1,0 +1,15 @@
+hardstop-HUP: {"caller_status": -1, "later_suite_started": false}
+{
+ "signal": "HUP",
+ "caller_status": -1,
+ "survivors_after_caller_death": {
+  "4071403": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP input [523]/tb/",
+  "4071404": "python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/bin/make -C /data/mi",
+  "4071405": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py",
+  "4071406": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py c"
+ },
+ "later_suite_started": false,
+ "completed_summary_after_death": false
+}
+output after caller death:
+
