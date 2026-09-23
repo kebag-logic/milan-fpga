@@ -765,10 +765,33 @@ is exactly these twelve things:
     recorded-list item, its must-exist item or its comparison removed each
     fail named `--selftest` arms with `--check` still green.
 
-    The seven RTL jobs still have scripts without specialized pins.
-    The sibling `full-ci-gate` SHA-pin script also remains unpinned:
+    Every recognized run script in those seven jobs is pinned (#439).
+    `RTL_STEP_LISTS` records canonical normalized scripts beside their step identities.
+    The sibling `full-ci-gate` SHA-pin script is also pinned:
     "Print the event and pin the one SHA this run validates".
-    Both remaining content gaps are future work under #439.
+    Its canonical record belongs to `RTL_SIBLING_STEP_LISTS`.
+    Both use item 11's comparison and item 7's unchanged normalization.
+    Refusals name the job, step, and first differing normalized line.
+    Missing, empty, malformed, and stale records fail closed.
+    Existing specialized checks and step-list membership authority remain independent.
+    Action steps retain their recorded keys and `with` bindings.
+
+    Maintain each canonical entry alongside its matching workflow script.
+    Both edits belong in the same commit, as for carriers.
+    Shared canonical constants avoid duplicating identical scripts.
+    Separately specialized pins must still agree with any maintained body.
+    Never derive expected scripts from candidate workflows during checking.
+
+    The new controls derive their population from live RTL steps.
+    Every normalized line faces swallowing, deletion, and replacement controls.
+    Syntax and comment lines additionally participate in the textual comparison.
+    The SHA controls delete its mismatch block and neutralize `exit 1`.
+    Each requires the content comparison's own named first-line diagnostic.
+    An earlier specialized refusal cannot satisfy that expectation.
+    Record controls exercise the actual sequence-to-content comparison wiring independently.
+    Removing the content comparison or either RTL condition fails controls.
+    Matching script/record maintenance and existing whitespace reformatting remain accepted.
+
     The four non-RTL carriers now pin every recognized script (#407).
     Their maintenance remedy is recorded in item 11.
     The second runner checks these pins independently through `ci_events --check`.
@@ -901,6 +924,11 @@ multi-command bodies stripped of their last command and distinct lines swapped;
 an existing proof/check flag removed wherever present;
 each missing canonical script record refused by name;
 a script and its canonical record updated together, accepted;
+every recognized seven-job RTL body and the sibling SHA-pin body (#439)
+given the same per-line swallowing controls, then each line deleted and replaced;
+the SHA-pin mismatch assertion removed and its `exit 1` replaced by `true`;
+each new content record missing, empty, blank, malformed, or stale;
+each matching script/record maintenance edit accepted by the sequence comparison;
 the imported gPTP gate removed, replaced by
 `true`, stripped of either command, given `|| true` on either command, and
 moved under another recorded step name; a whitespace-only
