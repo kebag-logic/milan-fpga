@@ -1,0 +1,33 @@
+{
+ "signal": "TERM",
+ "trigger": "proc:check_merge_containment.py --selftest",
+ "matched": "3853289: python3 <candidate-clone>/scripts/check_merge_containment.py --selftest",
+ "exit": 143,
+ "expected_exit": 143,
+ "shell_cancel_line": true,
+ "partial_logs_line": true,
+ "owner_cancel_line": true,
+ "next_step_ran": false,
+ "census_size": 3,
+ "census": {
+  "3853288": [
+   "21117664",
+   "S",
+   "bash <packet>/scratch/cancel-1/body.sh"
+  ],
+  "3853289": [
+   "21117664",
+   "R",
+   "python3 <candidate-clone>/scripts/check_merge_containment.py --selftest"
+  ],
+  "3853285": [
+   "21117663",
+   "S",
+   "bash <packet>/scratch/cancel-1/body.sh"
+  ]
+ },
+ "survivors": {},
+ "stdout": "",
+ "stderr": "CANCELLED: TERM; no completed sweep result\npartial logs: <packet>/scratch/cancel-1/out\nCANCELLED: signal 15; no completed sweep result\n",
+ "result": "PASS"
+}

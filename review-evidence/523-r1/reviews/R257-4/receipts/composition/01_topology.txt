@@ -1,0 +1,23 @@
+## topology
+candidate=18271bebbd1a4abf2e32e7783477573114e2a5fa tree=d03abd707732064cbfb513ad180d6043ef8c4f1f
+P1(dev)=ede8d48ecd7c7f589a14b957951f040d92c99c70 P2(pr)=015edd9ab2248289ff000f6ef14890be1812ba7b
+merge-base(P1,P2)=776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d
+all merge-bases:
+776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d
+## dev commits not in PR (first-parent)
+ede8d48e Merge PR #522: bind Yosys cache evidence to generated ROM bytes
+016ce423 Merge PR #519: prove retained replay across one exact redundant merge
+574c29fa Merge PR #525: pin remaining RTL workflow scripts and the full-ci-gate SHA assertion
+## PR commits not in dev
+015edd9a Assert the sweep shell's cancellation report and log attribution at every boundary
+26353960 Use the lifecycle test, not the suite README, as the unread suite-directory file
+6674c278 Claim only the controlled hard-stop signals in the sweep contract
+88b17a3e Control the copied-dependency refusal and make's death with a killed campaign
+4095fc36 Initialise pinned submodules in a lane instead of copying them
+64a6c373 Verify only the shadow build's inputs and accept non-redirecting Git settings
+29329cea Tie owned commands to their owner and refuse missing process facilities
+86149f2b Merge live dev 776bc77d into the #523 correction lane
+b5ce20ec Keep cancelled preflight logs attributable to the current invocation
+37e43cdc Accept presentation-only Git settings and keep cleanup bounded
+b6508147 Copy only the shadow build dependency source populations
+1bf7230b Isolate gPTP shadow mutations and stop cancelled sweeps

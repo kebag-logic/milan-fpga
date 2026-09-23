@@ -1,0 +1,33 @@
+{
+ "signal": "TERM",
+ "trigger": "proc:check_merge_containment.py --selftest",
+ "matched": "3894342: python3 <packet>/scratch/p2clone/scripts/check_merge_containment.py --selftest",
+ "exit": 143,
+ "expected_exit": 143,
+ "shell_cancel_line": true,
+ "partial_logs_line": true,
+ "owner_cancel_line": true,
+ "next_step_ran": false,
+ "census_size": 3,
+ "census": {
+  "3894338": [
+   "21126393",
+   "S",
+   "bash <packet>/scratch/p2cancel-TERM-proc_check_merge_containment_py_--selftest_/body.sh"
+  ],
+  "3894341": [
+   "21126393",
+   "S",
+   "bash <packet>/scratch/p2cancel-TERM-proc_check_merge_containment_py_--selftest_/body.sh"
+  ],
+  "3894342": [
+   "21126393",
+   "S",
+   "python3 <packet>/scratch/p2clone/scripts/check_merge_containment.py --selftest"
+  ]
+ },
+ "survivors": {},
+ "stdout": "",
+ "stderr": "CANCELLED: TERM; no completed sweep result\npartial logs: <packet>/scratch/p2cancel-TERM-proc_check_merge_containment_py_--selftest_/out\nCANCELLED: signal 15; no completed sweep result\n",
+ "result": "PASS"
+}

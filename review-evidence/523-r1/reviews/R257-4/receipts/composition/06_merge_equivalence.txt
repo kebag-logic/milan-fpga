@@ -1,0 +1,68 @@
+## patch-id per side for CONTRIBUTING.md (equal pairs = each side's change applied intact)
+MB->P2   acf0ed1b1b01e4763b116b25a837dab07c76b8bc
+P1->cand acf0ed1b1b01e4763b116b25a837dab07c76b8bc
+MB->P1   ee33e2a92c7f7cc5964a3981347db6f3e44685b6
+P2->cand ee33e2a92c7f7cc5964a3981347db6f3e44685b6
+## every other path equals its only changing side
+OK PR-side docs/testing/TESTING.md
+OK PR-side scripts/check_baremetal_only.py
+OK PR-side scripts/measure_test_evidence.py
+OK PR-side scripts/owned_process.py
+OK PR-side scripts/process_test_support.py
+OK PR-side scripts/run_all_suites.sh
+OK PR-side scripts/test_suite_cancellation.py
+OK PR-side tb/verilator/gptp_shadow/Makefile
+OK PR-side tb/verilator/gptp_shadow/README.md
+OK PR-side tb/verilator/gptp_shadow/mutants.py
+OK PR-side tb/verilator/gptp_shadow/private_inputs.py
+OK PR-side tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+OK dev-side .github/workflows/rtl.yml
+OK dev-side docs/testing/CI_WORKFLOWS.md
+OK dev-side scripts/check_merge_containment.py
+OK dev-side scripts/ci_events.py
+OK dev-side scripts/merge_containment_git.py
+OK dev-side scripts/merge_containment_replay.py
+OK dev-side scripts/merge_containment_selftest.py
+OK dev-side scripts/merge_containment_selftest_content.py
+OK dev-side scripts/merge_containment_selftest_locale.py
+OK dev-side scripts/merge_containment_selftest_mutations.py
+OK dev-side scripts/merge_containment_selftest_replay.py
+OK dev-side scripts/merge_containment_selftest_retention.py
+OK dev-side syn/yosys/README.md
+OK dev-side syn/yosys/cache_selftest.py
+OK dev-side syn/yosys/result_cache.py
+OK dev-side syn/yosys/rom_cache_selftest.py
+OK dev-side syn/yosys/run.sh
+## candidate vs P1 paths
+CONTRIBUTING.md
+docs/testing/TESTING.md
+scripts/check_baremetal_only.py
+scripts/measure_test_evidence.py
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/run_all_suites.sh
+scripts/test_suite_cancellation.py
+tb/verilator/gptp_shadow/Makefile
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/private_inputs.py
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+## candidate vs P2 paths
+.github/workflows/rtl.yml
+CONTRIBUTING.md
+docs/testing/CI_WORKFLOWS.md
+scripts/check_merge_containment.py
+scripts/ci_events.py
+scripts/merge_containment_git.py
+scripts/merge_containment_replay.py
+scripts/merge_containment_selftest.py
+scripts/merge_containment_selftest_content.py
+scripts/merge_containment_selftest_locale.py
+scripts/merge_containment_selftest_mutations.py
+scripts/merge_containment_selftest_replay.py
+scripts/merge_containment_selftest_retention.py
+syn/yosys/README.md
+syn/yosys/cache_selftest.py
+syn/yosys/result_cache.py
+syn/yosys/rom_cache_selftest.py
+syn/yosys/run.sh

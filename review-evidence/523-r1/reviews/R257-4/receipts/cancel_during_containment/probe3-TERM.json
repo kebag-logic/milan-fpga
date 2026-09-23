@@ -1,0 +1,48 @@
+{
+ "signal": "TERM",
+ "trigger": "proc:merge_containment_selftest_locale.py",
+ "matched": "3883741: /usr/bin/python3 -B <candidate-clone>/scripts/merge_containment_selftest_locale.py --child utf-8 utf-8 surrogateescape",
+ "exit": 143,
+ "expected_exit": 143,
+ "shell_cancel_line": true,
+ "partial_logs_line": true,
+ "owner_cancel_line": true,
+ "next_step_ran": false,
+ "census_size": 6,
+ "census": {
+  "3865408": [
+   "21119551",
+   "S",
+   "python3 <candidate-clone>/scripts/check_merge_containment.py --selftest"
+  ],
+  "3883647": [
+   "21121276",
+   "Z",
+   ""
+  ],
+  "3865404": [
+   "21119550",
+   "S",
+   "bash <packet>/scratch/cancel-3/body.sh"
+  ],
+  "3883741": [
+   "21121329",
+   "S",
+   "/usr/bin/python3 -B <candidate-clone>/scripts/merge_containment_selftest_locale.py --child utf-8 utf-8 surrogateescape"
+  ],
+  "3883694": [
+   "21121302",
+   "Z",
+   ""
+  ],
+  "3865407": [
+   "21119551",
+   "S",
+   "bash <packet>/scratch/cancel-3/body.sh"
+  ]
+ },
+ "survivors": {},
+ "stdout": "",
+ "stderr": "CANCELLED: TERM; no completed sweep result\npartial logs: <packet>/scratch/cancel-3/out\nCANCELLED: signal 15; no completed sweep result\n",
+ "result": "PASS"
+}
