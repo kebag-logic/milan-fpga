@@ -1,7 +1,7 @@
 """Bounded real-history controls for the #423 raw-retention boundary.
 
 All successes traverse the shipped CLI with real distinct replay commits.
-Fault injection targets only plumbing failures, never supplies a proof.
+Injection replaces only plumbing answers; every proof is measured for real.
 Repeated-block probes exercise selected alignments, not all possible merges.
 """
 
@@ -45,21 +45,28 @@ def _commit(history, tree, parents, label):
 
 def _history(history, path, entries):
     """One real redundant merge; two replay commits; a later tip edit."""
-    original, source, current = entries
+    return _paths_history(history, {path: entries})
+
+
+def _paths_history(history, paths):
+    """_history over several paths, each (original, source, current)."""
+    def tree(stage: int, control: bytes) -> str:
+        """Every path at one stage, beside the control file."""
+        return _tree({**{path: entries[stage] for path, entries in paths.items()},
+                      "control": ("100644", control)})
+
     control = MOD.encode()
     changed = control.replace(b"line 05", b"source 05")
     extended = changed.replace(b"line 35", b"later 35")
-    initial_tree = _tree({path: original, "control": ("100644", control)})
-    initial = _commit(history, initial_tree, [], "initial")
-    a_tree = _tree({path: source, "control": ("100644", control)})
+    initial = _commit(history, tree(0, control), [], "initial")
+    a_tree = tree(1, control)
     a = _commit(history, a_tree, [initial], "source A")
     merge = _commit(history, a_tree, [initial, a], "redundant merge")
-    source_tree = _tree({path: source, "control": ("100644", changed)})
+    source_tree = tree(1, changed)
     branch = _commit(history, source_tree, [merge], "source C")
     replay_a = _commit(history, a_tree, [initial], "replay A")
     replay_c = _commit(history, source_tree, [replay_a], "replay C")
-    tip_tree = _tree({path: current, "control": ("100644", extended)})
-    tip = _commit(history, tip_tree, [replay_c], "later extension")
+    tip = _commit(history, tree(2, extended), [replay_c], "later extension")
     history._git("update-ref", "refs/heads/pr", branch)
     history._git("update-ref", "refs/heads/main", tip)
     return initial, branch, tip
@@ -99,6 +106,9 @@ def _entry_cases(history):
         ("symlink-identical", (("120000", b"old"), ("120000", b"new"), ("120000", b"new")), True),
         ("symlink-changed", (("120000", b"old"), ("120000", b"new"), ("120000", b"later")), False),
         ("symlink-to-file", (("120000", b"old"), ("120000", source), regular), False),
+        # A symlink target is a blob too: these bytes merge cleanly to the
+        # tip, so only the ancestor's type refuses the proof.
+        ("symlink-ancestor-clean-merge", (("120000", old), regular, ("100644", extended)), False),
         ("file-to-symlink", (("100644", old), regular, ("120000", source)), False),
         ("file-to-tree", (("100644", old), regular, ("040000", child_tree)), False),
         ("gitlink-identical", (("160000", oid1), ("160000", oid2), ("160000", oid2)), True),
@@ -163,6 +173,11 @@ def _hostile_cases(fx, history):
     history._git("config", "core.autocrlf", "true")
     history._git("config", "core.filemode", "false")
     history._git("config", "diff.algorithm", "patience")
+    history._git("config", "diff.external", "touch external-ran; true")
+    # The retention diff must not fold renames or hide gitlinks, whatever
+    # the configuration says.
+    history._git("config", "diff.renames", "copies")
+    history._git("config", "diff.ignoreSubmodules", "all")
     Path(".gitattributes").write_text("* merge=ours diff=quiet filter=quiet text eol=lf\n")
     old = MOD.encode()
     source = old.replace(b"line 05", b"source 05")
@@ -170,8 +185,10 @@ def _hostile_cases(fx, history):
                               (old + b"extension\n", False)):
         _history(history, "hostile", _text_entries(old, source, current))
         _check(fx, f"hostile-{accepted}", (0, "contained") if accepted else (1, "UNKNOWN"))
+    _hostile_shape_cases(fx, history, old)
     fx.case("retention-hostile-no-drivers",
-            any(Path(name).exists() for name in ("driver-ran", "textconv-ran", "filter-ran")),
+            any(Path(name).exists()
+                for name in ("driver-ran", "textconv-ran", "filter-ran", "external-ran")),
             False, "raw measurements never invoked configured drivers or filters")
     # Git validates each configured style before applying the final override.
     # An invalid value is therefore an unmeasurable command, even for retained
@@ -182,11 +199,50 @@ def _hostile_cases(fx, history):
     Path(".gitattributes").unlink()
 
 
+def _hostile_shape_cases(fx, history, old):
+    """A later tip undoes one side of a rename, then a gitlink move."""
+    regular = ("100644", old)
+    _paths_history(history, {"hostile-from": (regular, None, regular),
+                             "hostile-to": (None, regular, regular)})
+    _check(fx, "hostile-rename-undone", (1, "UNKNOWN"), "hostile-from")
+    empty_tree = _tree({})
+    first = _commit(history, empty_tree, [], "gitlink first")
+    second = _commit(history, empty_tree, [first], "gitlink second")
+    _history(history, "hostile-sub",
+             (("160000", first), ("160000", second), ("160000", first)))
+    _check(fx, "hostile-gitlink-reset", (1, "UNKNOWN"), "hostile-sub")
+
+
+def _distinct_cases(fx, history):
+    """Each branch commit needs its own replay, whatever the branch shape."""
+    old = MOD.encode()
+    added = old + b"re-added\n"
+    removed_tree = _tree({"dup": ("100644", old)})
+    added_tree = _tree({"dup": ("100644", added)})
+    initial = _commit(history, removed_tree, [], "initial")
+    first = _commit(history, added_tree, [initial], "add")
+    replay_first = _commit(history, added_tree, [initial], "replay add")
+    replay_tip = _commit(history, removed_tree, [replay_first], "replay remove")
+    history._git("update-ref", "refs/heads/main", replay_tip)
+    # Add, remove, add again: the second add equals the first add's patch
+    # and postimage, but only one replay exists for the two of them.
+    linear_tip = _commit(history, removed_tree, [first], "remove")
+    linear_tip = _commit(history, added_tree, [linear_tip], "add again")
+    history._git("update-ref", "refs/heads/pr", linear_tip)
+    _check(fx, "distinct-linear", (1, "STRANDED"), "dup")
+    merge = _commit(history, added_tree, [initial, first], "redundant merge")
+    merge_tip = _commit(history, removed_tree, [merge], "remove")
+    merge_tip = _commit(history, added_tree, [merge_tip], "add again")
+    history._git("update-ref", "refs/heads/pr", merge_tip)
+    _check(fx, "distinct-merge", (1, "STRANDED"), "dup")
+
+
 def _fault_cases(fx, history):
     """Real missing objects plus injected malformed/failed Git measurements."""
     old = MOD.encode()
     source = old.replace(b"line 05", b"source 05")
-    _history(history, "fault", _text_entries(old, source, source.replace(b"line 35", b"later 35")))
+    initial, branch, _tip = _history(history, "fault", _text_entries(
+        old, source, source.replace(b"line 35", b"later 35")))
     raw_git = proof._git_bytes
     failures = (("ls-tree", (128, b"")), ("ls-tree", (0, b"malformed\0")),
                 ("diff", (128, b"")), ("diff", (0, b"")),
@@ -203,6 +259,7 @@ def _fault_cases(fx, history):
     with patch.object(proof.tempfile, "TemporaryDirectory", side_effect=OSError("planted storage error")):
         _check(fx, "temporary-storage-error", (1, "UNKNOWN"), "fault")
     _graph_fault_cases(fx)
+    _merge_base_cases(fx, initial, branch)
     oid = history._git("rev-parse", "main:fault")
     object_path = Path(".git/objects") / oid[:2] / oid[2:]
     raw = object_path.read_bytes()
@@ -212,6 +269,22 @@ def _fault_cases(fx, history):
     finally:
         object_path.write_bytes(raw)
     _check(fx, "restored-blob", (0, "contained"))
+
+
+def _merge_base_cases(fx, initial, branch):
+    """Real object IDs keep every later measurement working.
+
+    One redundant merge leaves the branch at most one entry into base history,
+    so no real repository yields two merge bases here; only an injection can.
+    """
+    git = fx.mc._git
+    for name, bases, expected in (("one-real-base", initial, (0, "contained")),
+                                  ("two-real-bases", f"{initial}\n{branch}", (1, "UNKNOWN"))):
+        def answer(*args: str) -> tuple[int, str]:
+            """Report these merge bases, measure everything else for real."""
+            return (0, bases) if args[:2] == ("merge-base", "--all") else git(*args)
+        with patch.object(fx.mc, "_git", answer):
+            _check(fx, "merge-base-" + name, expected)
 
 
 def _graph_fault_cases(fx):
@@ -254,6 +327,7 @@ def retention_cases(fx: object) -> None:
                     _check(fx, name, expected, None if accepted else "entry")
                 _path_and_format_cases(fx, history)
                 _alignment_cases(fx, history)
+                _distinct_cases(fx, history)
                 _fault_cases(fx, history)
                 _hostile_cases(fx, history)
             finally:
