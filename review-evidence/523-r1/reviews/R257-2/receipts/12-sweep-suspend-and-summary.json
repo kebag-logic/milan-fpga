@@ -1,0 +1,48 @@
+[
+ {
+  "label": "suspend-SIGTSTP",
+  "entry_stopped": false,
+  "entry_still_stopped_when_checked": false,
+  "later_suites_ran_while_entry_stopped": true,
+  "summary_printed_while_entry_stopped": false,
+  "final_status": 0,
+  "transcript": "shard: 0/1   selected suites: 3\nPASS     alpha\nPASS     beta\nPASS     omega\n----------------------------------------------------------------\nsuites: 3   passed: 3   failed: 0   timed out: 0\nchecks: 3   in-suite failures: 0\nlogs: <packet>/scratch/sweep-extra/suspend-SIGTSTP/root/logs\n"
+ },
+ {
+  "label": "suspend-SIGSTOP",
+  "entry_stopped": true,
+  "entry_still_stopped_when_checked": true,
+  "later_suites_ran_while_entry_stopped": true,
+  "summary_printed_while_entry_stopped": false,
+  "final_status": 0,
+  "transcript": "shard: 0/1   selected suites: 3\nPASS     alpha\nPASS     beta\nPASS     omega\n----------------------------------------------------------------\nsuites: 3   passed: 3   failed: 0   timed out: 0\nchecks: 3   in-suite failures: 0\nlogs: <packet>/scratch/sweep-extra/suspend-SIGSTOP/root/logs\n"
+ },
+ {
+  "label": "summary-SIGTERM",
+  "status": 143,
+  "held_tally_running_at_status": false,
+  "suites_line_printed": true,
+  "checks_line_printed": false,
+  "logs_line_printed": false,
+  "cancelled_lines": [
+   "CANCELLED: TERM; no completed sweep result",
+   "partial logs: <packet>/scratch/sweep-extra/summary-SIGTERM/root/logs",
+   "CANCELLED: signal 15; no completed sweep result"
+  ],
+  "transcript": "shard: 0/1   selected suites: 3\nPASS     alpha\nPASS     beta\nPASS     omega\n----------------------------------------------------------------\nsuites: 3   passed: 3   failed: 0   timed out: 0\nTerminated                 python3 \"$ROOT/scripts/suite_tally.py\" \"$OUT\" --quiet\nCANCELLED: TERM; no completed sweep result\npartial logs: <packet>/scratch/sweep-extra/summary-SIGTERM/root/logs\nCANCELLED: signal 15; no completed sweep result\n"
+ },
+ {
+  "label": "summary-SIGINT",
+  "status": 130,
+  "held_tally_running_at_status": false,
+  "suites_line_printed": true,
+  "checks_line_printed": false,
+  "logs_line_printed": false,
+  "cancelled_lines": [
+   "CANCELLED: INT; no completed sweep result",
+   "partial logs: <packet>/scratch/sweep-extra/summary-SIGINT/root/logs",
+   "CANCELLED: signal 2; no completed sweep result"
+  ],
+  "transcript": "shard: 0/1   selected suites: 3\nPASS     alpha\nPASS     beta\nPASS     omega\n----------------------------------------------------------------\nsuites: 3   passed: 3   failed: 0   timed out: 0\nCANCELLED: INT; no completed sweep result\npartial logs: <packet>/scratch/sweep-extra/summary-SIGINT/root/logs\nCANCELLED: signal 2; no completed sweep result\n"
+ }
+]

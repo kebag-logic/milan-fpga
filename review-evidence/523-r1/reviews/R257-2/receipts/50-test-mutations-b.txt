@@ -1,0 +1,8 @@
+no-int-trap                DETECTED    exit=1 18.7s  sweep shell has no INT trap
+no-partial-logs-message    SURVIVED    exit=0 39.1s  cancellation no longer names the partial log directory
+logs-ready-never-set       SURVIVED    exit=0 39.4s  cancellation after log preparation claims logs were not prepared
+no-stale-preflight-clear   DETECTED    exit=1 13.4s  stale prerequisite logs survive into a new invocation
+no-relative-out-fix        DETECTED    exit=1 6.0s  relative outdir is resolved against a prerequisite's directory
+git-env-passthrough        DETECTED    exit=1 11.7s  caller Git variables reach the identity commands
+drop-index-file-refusal    DETECTED    exit=1 26.0s  one redirect variable no longer refused
+no-mode-check              DETECTED    exit=1 18.9s  executable-mode drift accepted

@@ -1,0 +1,6 @@
+sweep    pidfd-open-enosys  exit=2 refused=True traceback=False started=False :: REFUSED: process ownership: [Errno 38] Function not implemented
+campaign pidfd-open-enosys  exit=2 refused=True traceback=False started=False :: REFUSED: [Errno 38] Function not implemented
+sweep    subreaper-eperm    exit=2 refused=True traceback=False started=False :: REFUSED: process ownership: [Errno 1] cannot enable descendant adoption
+campaign subreaper-eperm    exit=2 refused=True traceback=False started=False :: REFUSED: [Errno 1] cannot enable descendant adoption
+sweep    pdeathsig-eperm    exit=2 refused=True traceback=False started=False :: REFUSED: process ownership: cannot bind the command to its owner: Exception occurred in preexec_fn.
+campaign pdeathsig-eperm    exit=2 refused=True traceback=False started=False :: REFUSED: cannot bind the command to its owner: Exception occurred in preexec_fn.

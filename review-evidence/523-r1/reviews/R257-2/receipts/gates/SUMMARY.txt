@@ -1,0 +1,17 @@
+docs_check rc=0 secs=4  :: python3 scripts/docs_check.py
+em_dash rc=0 secs=1  :: python3 scripts/check_em_dash.py --base 776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d
+em_dash_selftest rc=0 secs=1  :: python3 scripts/check_em_dash.py --selftest
+doc_style rc=0 secs=0  :: python3 scripts/check_doc_style.py
+doc_paths rc=0 secs=0  :: python3 scripts/check_doc_paths.py
+toc_check rc=0 secs=0  :: python3 scripts/gen_toc.py --check
+toc_anchors rc=0 secs=0  :: python3 scripts/gen_toc.py --verify-anchors
+baremetal_check rc=0 secs=14  :: python3 scripts/check_baremetal_only.py --check
+baremetal_selftest rc=0 secs=3  :: python3 scripts/check_baremetal_only.py --selftest
+fail_fast rc=0 secs=1  :: python3 scripts/measure_fail_fast.py --check
+test_evidence rc=0 secs=5  :: python3 scripts/measure_test_evidence.py --check
+test_evidence_selftest rc=0 secs=4  :: python3 scripts/measure_test_evidence.py --selftest
+py_idiom rc=0 secs=3  :: python3 scripts/check_py_idiom.py
+sh_idiom rc=0 secs=0  :: python3 scripts/check_sh_idiom.py
+ci_scope_selftest rc=0 secs=2  :: python3 scripts/ci_scope.py --selftest
+bash_n rc=0 secs=0  :: bash -n scripts/run_all_suites.sh
+make_n rc=0 secs=0  :: make -n -C tb/verilator/gptp_shadow

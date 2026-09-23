@@ -1,0 +1,30 @@
+{"label": "campaign-KILL-real", "signal": "SIGKILL", "descendants_at_signal": 12, "comms_at_signal": ["cc1plus", "g++", "make", "perl", "verilator_bin"], "private_roots": ["<packet>/scratch/real-nested/campaign-KILL-real-tmp/gptp-shadow-mutants-f4qo1dxi"], "status": -9, "seconds_to_status": 0.01, "alive_at_status": ["cc1plus", "g++", "make", "perl", "verilator_bin"], "alive_count_at_status": 11, "private_exists_at_status": [true], "alive_after_wait": [], "summary_line": false, "result_line": false, "sentinel_ran": false, "caller_unchanged": true, "private_exists_after": [true], "tmp_left": ["gptp-shadow-mutants-f4qo1dxi"], "foreign_preserved": true}
+{"label": "campaign-TERM-real", "signal": "SIGTERM", "descendants_at_signal": 12, "comms_at_signal": ["cc1plus", "g++", "make", "perl", "verilator_bin"], "private_roots": ["<packet>/scratch/real-nested/campaign-TERM-real-tmp/gptp-shadow-mutants-dzttr0f6"], "status": 143, "seconds_to_status": 0.21, "alive_at_status": [], "alive_count_at_status": 0, "private_exists_at_status": [false], "alive_after_wait": [], "summary_line": false, "result_line": false, "sentinel_ran": false, "caller_unchanged": true, "private_exists_after": [false], "tmp_left": [], "foreign_preserved": true}
+Traceback (most recent call last):
+  File "<packet>/scripts/probe_real_nested.py", line 240, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scripts/probe_real_nested.py", line 232, in main
+    r = one(caller, scratch, label, argv, signame, finish)
+  File "<packet>/scripts/probe_real_nested.py", line 167, in one
+    assert found and found[0] != "exit", (scratch / (label + ".log")).read_text()[-3000:]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+FAIL     gptp_shadow
+PASS     zz_sentinel
+----------------------------------------------------------------
+suites: 2   passed: 1   failed: 1   timed out: 0
+checks: 1   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  gptp_shadow: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: gptp_shadow
+logs: <packet>/scratch/real-nested/sweep-TERM-nested-real-caller/logs
+

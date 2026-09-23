@@ -1,0 +1,8 @@
+no-new-session             SURVIVED    exit=0 39.5s  owned command shares the owner's process group
+no-root-notify             SURVIVED    exit=0 38.7s  handled signal is not forwarded to the sweep shell
+no-sigkill-escalation      DETECTED    exit=1 11.7s  stubborn descendants are never killed
+no-subreaper               DETECTED    exit=1 3.7s  detached descendants escape adoption
+direct-children-only       DETECTED    exit=1 12.6s  census covers only direct children
+no-pdeathsig               DETECTED    exit=1 36.4s  owned command outlives a hard-stopped owner (the R256-2/R257-1 MAJOR)
+pdeathsig-term-not-kill    DETECTED    exit=1 36.4s  parent-death signal is TERM, which the shell traps as a cancellation
+no-term-trap               SURVIVED    exit=0 39.3s  sweep shell has no TERM trap

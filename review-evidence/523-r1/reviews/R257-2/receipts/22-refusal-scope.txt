@@ -1,0 +1,17 @@
+clean                        ACCEPTED 22 
+rewritten-test-results       ACCEPTED 22 
+untracked-unrelated-hdl      ACCEPTED 22 
+dirty-unrelated-tb-common    ACCEPTED 22 
+dirty-suite-readme           ACCEPTED 22 
+dirty-unrelated-axis         ACCEPTED 22 
+dirty-mutation-target        REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-mutation-target/hdl/ieee802
+dirty-build-input            REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-build-input/hdl/common/cdc_
+dirty-local-header           REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-local-header/tb/common/gptp
+dirty-axis-input             REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-axis-input/third_party/veri
+dirty-gptp-input             REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-gptp-input/gptp-processor/h
+dirty-ucode-generator        REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-ucode-generator/gptp-proces
+dirty-suite-makefile         REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-suite-makefile/tb/verilator
+copied-dependency-no-git     REFUSED   required dependency is not at its pin: third_party/verilog-axis
+uninitialised-dependency     REFUSED   required dependency is not at its pin: gptp-processor
+off-pin-dependency           REFUSED   required dependency is not at its pin: third_party/verilog-axis
+assume-unchanged-target      REFUSED   modified input bytes/mode: <packet>/scratch/refusal-scope/assume-unchanged-target/hdl/ieee8
