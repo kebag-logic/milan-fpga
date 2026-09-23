@@ -1,0 +1,6 @@
+pristine-sdk-argv.jsonl: 242 records; 239 with argv[0] mapped; mapped targets ['$REVIEWS/504-a191-packet/scratch/sdk/host/bin/riscv32-linux-gcc']; argument tails preserved: True; firmware compiles 235; return codes {0: 241, 1: 1}; census assembly arch {'rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0': 120}; deliberately absent candidates {}
+  non-zero: 1 $REVIEWS/504-a191-packet/scratch/sdk/host/bin/riscv32-linux-gcc -S -o /tmp/milan-cc-1tnjdfsc/p.s /tmp/milan-cc-1tnjdfsc/probe.c
+pristine-absent-argv.jsonl: 9 records; 0 with argv[0] mapped; mapped targets []; argument tails preserved: True; firmware compiles 0; return codes {0: 2, 1: 4}; census assembly arch {}; deliberately absent candidates {'$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc': 1, 'riscv64-elf-gcc': 1, 'riscv32-unknown-elf-gcc': 1}
+  non-zero: 1 cc -S -o /tmp/milan-cc-tib9k5nu/p.s /tmp/milan-cc-tib9k5nu/probe.c
+  non-zero: 1 cc -march=rv32i -mabi=ilp32 -S -o /tmp/milan-cc-u16_7yk5/p.s /tmp/milan-cc-u16_7yk5/probe.c
+  non-zero: 1 gcc -S -o /tmp/milan-cc-wdl8cyio/p.s /tmp/milan-cc-wdl8cyio/probe.c

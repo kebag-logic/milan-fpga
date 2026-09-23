@@ -1,0 +1,33 @@
+# change boundary of this round
+reviewed head 5081a25a451b4ac1c00f286ec59ab041c22fdde9; dev merge 4914eea5 (parents 5081a25a, 574c29fa); head 97aa1ec943ac740a27b942210a248f6512ae3ff6
+## this round's own commits (4914eea5..HEAD)
+97aa1ec943ac740a27b942210a248f6512ae3ff6 docs: state exactly which stores the RV32 store census observes | trailers=[]
+3f7f083e63b048817bf10199ab60035abc424728 builder: forget rewritten frame slots in the store census and control each correction | trailers=[]
+ docs/integration/BAREMETAL_FIRMWARE.md | 100 +++++++++---
+ docs/testing/CI_WORKFLOWS.md           |   5 +-
+ sw/builder/test_builder.py             | 278 ++++++++++++++++++++++++++++-----
+ 3 files changed, 321 insertions(+), 62 deletions(-)
+## everything since the reviewed head, less what dev brought
+files changed 5081a25a..HEAD: 16
+files changed by dev 483a133e..574c29fa: 14
+branch-side files outside dev's set:
+docs/integration/BAREMETAL_FIRMWARE.md
+sw/builder/test_builder.py
+## blob identity against the reviewed head 5081a25a
+scripts/ci_rv32_sdk.py IDENTICAL b6ac4138972d2dd321edc523ab9c65ec1ad69fe3
+scripts/ci_rv32_sdk_selftest.py IDENTICAL 89ac5d445718229f2ecc53f1d1e0910c2c90c152
+.github/workflows/docs.yml IDENTICAL 7b629a8c2837a927d54ba4ead7935e9da1a2c9f0
+.github/workflows/elaborate.yml IDENTICAL af8f3700266d344f6de2f281cd4a7598b6a7639a
+sw/builder/test_firmware_compiler.py IDENTICAL 2bde32ce1bca5562a1a08a064b277ad9eab6efce
+scripts/check_baremetal_only.py IDENTICAL 99cc432ddd669ce29da7b3fccb77ab99e196b9c3
+scripts/ci_events.py: HEAD blob 39b72110ae2f475ba84a19735f6d036a4285320a = merge-tree result blob 39b72110ae2f475ba84a19735f6d036a4285320a
+installer sha256 ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4
+## product/RTL/firmware/pin paths changed by this round (4914eea5..HEAD)
+(end; empty means none)
+## ratchet and budget files changed by this round
+(end; empty means none)
+## gitlinks at HEAD, 5081a25a and 574c29fa
+third_party/verilog-axis HEAD=48ff7a7e2ef782cf778d47910cf85835c64b1bce reviewed=48ff7a7e2ef782cf778d47910cf85835c64b1bce dev=48ff7a7e2ef782cf778d47910cf85835c64b1bce
+protocol-processor HEAD=424c688fa2205b934a7689a58f2aa766420f2326 reviewed=424c688fa2205b934a7689a58f2aa766420f2326 dev=424c688fa2205b934a7689a58f2aa766420f2326
+gptp-processor HEAD=c1b617435824929a790739ea8585c3fe1a328cc0 reviewed=c1b617435824929a790739ea8585c3fe1a328cc0 dev=c1b617435824929a790739ea8585c3fe1a328cc0
+external HEAD=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 reviewed=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 dev=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5

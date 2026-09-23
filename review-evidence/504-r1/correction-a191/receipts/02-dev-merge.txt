@@ -1,0 +1,33 @@
+Auto-merging docs/testing/CI_WORKFLOWS.md
+Auto-merging scripts/ci_events.py
+Merge made by the 'ort' strategy.
+ docs/README.md                             |    1 +
+ docs/guides/VERIFICATION_DEVELOPER.md      |    1 +
+ docs/testing/ASSERTIONS.md                 |  301 +++++++++
+ docs/testing/CI_WORKFLOWS.md               |   34 +-
+ docs/testing/TESTING.md                    |    2 +-
+ scripts/ci_events.py                       |  383 +++++++++--
+ scripts/measure_test_evidence.py           |    4 +
+ tb/common/sva/axis_mux_rr_2in_1out_bind.sv |   60 ++
+ tb/common/sva/axis_mux_rr_2in_1out_sva.sv  |  191 ++++++
+ tb/common/sva/axis_stream_source_sva.sv    |   93 +++
+ tb/verilator/README.md                     |    3 +-
+ tb/verilator/ptp_ts/Makefile               |   61 +-
+ tb/verilator/ptp_ts/mux_sva_main.cpp       | 1006 ++++++++++++++++++++++++++++
+ tb/verilator/ptp_ts/sva_campaign.py        |  554 +++++++++++++++
+ 14 files changed, 2638 insertions(+), 56 deletions(-)
+ create mode 100644 docs/testing/ASSERTIONS.md
+ create mode 100644 tb/common/sva/axis_mux_rr_2in_1out_bind.sv
+ create mode 100644 tb/common/sva/axis_mux_rr_2in_1out_sva.sv
+ create mode 100644 tb/common/sva/axis_stream_source_sva.sv
+ create mode 100644 tb/verilator/ptp_ts/mux_sva_main.cpp
+ create mode 100644 tb/verilator/ptp_ts/sva_campaign.py
+merge exit 0
+merge commit 4914eea5faac2e4816c38455584f259263ad8c20
+merge tree fdf07c8588f8a242c2be626c51ed8072c863c191
+merge-tree expected fdf07c8588f8a242c2be626c51ed8072c863c191
+TREE EQUAL: yes
+parents: 4914eea5faac2e4816c38455584f259263ad8c20 5081a25a451b4ac1c00f286ec59ab041c22fdde9 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+subject=Merge dev 574c29fa into 504-hosted-rv32-compiler
+body=[]
+status-exit 0

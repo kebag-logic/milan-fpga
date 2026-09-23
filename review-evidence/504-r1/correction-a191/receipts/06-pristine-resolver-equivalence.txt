@@ -1,0 +1,41 @@
+old = sw/builder/test_builder.py at 4914eea5 (blob c1ba135afa3e866eb6f96dd1c877e7fc183a542b, same as 5081a25a: c1ba135afa3e866eb6f96dd1c877e7fc183a542b)
+new = sw/builder/test_builder.py at 97aa1ec943ac740a27b942210a248f6512ae3ff6 (blob c82300514ffa243ef4e6a4cc25dcd86a303da2d4)
+assembly = pristine firmware census compile, GCC 14.3.0 SDK, 2285fcd6c9bca36a060e499151288f9adfb11be4d6f6d3b1dad1b7ccbf250ebf, firmware blob 763f5b899bab419917906515cac3b0eee5635db8
+census-0.s: DIFFERS in load_aem_image, nvm_capture, nvm_fill_window, nvm_flash_status, nvm_frame, nvm_prefill_stage, nvm_rec_after, nvm_rec_lookup, nvm_seal, nvm_stage_blank_image, nvm_write_header
+  load_aem_image stores:
+    old ['.L300:[0x7f700000..0x7f700fff]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L300:[0x7f700000..0x7f700fff]=None']
+  nvm_capture stores:
+    old ['.L202#12:[0x7f7df028..0x7f7dfa81]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L202#12:[0x7f7df028..0x7f7dfa81]=None']
+  nvm_fill_window stores:
+    old ['.L258:[0x7f7ef000..0x7f7efa87]=bits(set=0x0,clear=0xffffff00)', '.L261:[0x7f7ef000..0x7f7efa87]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L258:[0x7f7ef000..0x7f7efa87]=None', '.L261:[0x7f7ef000..0x7f7efa87]=None']
+  nvm_flash_status rets:
+    old ['.LFB37:<call:nvm_spi_xfer>']
+    new ['.LFB37:None']
+  nvm_frame stores:
+    old ['.L72:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L72:stack(-)=None', '.L72:stack(-)=0', '.L73#8:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L73#8:stack(-)=None', '.L73#8:stack(-)=0', '.L77:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L77:stack(-)=None', '.L77:stack(-)=None']
+    new ['.L72:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L72:stack(-)=None', '.L72:stack(-)=None', '.L73#8:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L73#8:stack(-)=None', '.L73#8:stack(-)=None', '.L77:stack(-)=bits(set=0x0,clear=0xffffff00)', '.L77:stack(-)=None', '.L77:stack(-)=None']
+  nvm_frame rets:
+    old ['.L79:<stack>']
+    new ['.L79:None']
+  nvm_prefill_stage stores:
+    old ['.L193:[0x7f7df000..0x7f7dfa87]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L193:[0x7f7df000..0x7f7dfa87]=None']
+  nvm_rec_after rets:
+    old ['.L57:<stack>']
+    new ['.L57:None']
+  nvm_rec_lookup rets:
+    old ['.L60#8:<stack>']
+    new ['.L60#8:None']
+  nvm_seal stores:
+    old ['.L117:[0x7f7dfa84..0x7f7dfa87]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L117:[0x7f7dfa84..0x7f7dfa87]=None']
+  nvm_stage_blank_image stores:
+    old ['.L120:[0x7f7df000..0x7f7dfa87]=4294967295', '.L122:[0x7f7dfa82..0x7f7dfa83]=0']
+    new ['.L120:[0x7f7df000..0x7f7dfa87]=None', '.L122:[0x7f7dfa82..0x7f7dfa83]=None']
+  nvm_write_header stores:
+    old ['.L114:[0x7f7df000..0x7f7df027]=bits(set=0x0,clear=0xffffff00)']
+    new ['.L114:[0x7f7df000..0x7f7df027]=None']
+compare exit 1

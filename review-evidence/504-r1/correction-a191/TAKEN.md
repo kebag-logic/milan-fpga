@@ -1,0 +1,12 @@
+[A191] TAKEN
+Branch: 504-hosted-rv32-compiler, from reviewed head `5081a25a451b4ac1c00f286ec59ab041c22fdde9`. First edit: merge live dev `574c29fa111c74e5e5ed63e4670aff1f492e28e2`; conflict check and merge-tree equality are recorded.
+Authoritative references: #504 acceptance and decisions (5771915061, 5778746031, 5790944031); R227-2 (PR #521 comment 5790092293) and R228-2 (5790687675); AGENTS.md sections 6-8; docs/integration/BAREMETAL_FIRMWARE.md; docs/testing/CI_WORKFLOWS.md.
+
+Interpreted scope: resolve R227-2-F1, R227-2-F2, R228-F4 and R228-F5 at the root, in the resolver's controls, the resolver's frame-slot model and the firmware page only.
+- R227-2-F1, route 1 (model fix): a frame slot keeps a value only after a full-word integer store (`sw`, `amoswap.w`), the same rule the static-symbol branch already applies, so a byte, half-word, FP, other AMO or SC store leaves it unknown. A store through a stack-class base makes every frame slot unknown, since it may alias any of them. Controls fail when either is reverted, and compiled byte, half-word and stack-alias mutants are refused through the whole gate. If the stack-alias rule cannot keep the pristine firmware green, I publish a decision here before changing route.
+- R227-2-F2 and R228-F4: literal-assembly controls, run on every machine, for the ranged-store footprint width, the slot-mirror stop on every store class, the "cannot say" value of non-swap AMO/SC, and the symbol-overlap width on a static whose parked word is not the first. Each is shown to fail when its change is reverted.
+- R228-F5: the page claims only what is proved. It says RV32A AMO/SC classes, not "atomic stores". It says a store made inside a called function is not observed, including C-library and libatomic calls and a caller's local changed through a pointer handed to a callee. It states what the frame and static models do and do not invalidate.
+
+Unchanged: the Bootlin stable 2025.08-1 riscv32-ilp32d glibc selection, the installer and cache key, both workflows, text refusals, the declared residual, product, RTL and firmware, pins and ratchets. Changes only add refusals.
+Validation plan: a fresh SDK from the verified archive into disposable scratch; gate 1b mapped and absent with the scoped 5.050 elaborator; fix-removal mutants for every new control; the published reviewer probes and plants re-run at the new head; installer and `test_firmware_compiler.py` self-tests; `check_baremetal_only.py`; docs, em-dash and style gates.
+Blockers: none.
