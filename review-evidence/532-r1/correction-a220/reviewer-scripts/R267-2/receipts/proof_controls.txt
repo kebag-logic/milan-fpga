@@ -1,0 +1,30 @@
+== head-checks-with-new-controls: selftest rc 0
+   ok   a run passes every workflow and is then refused: exit 1 with 'FAIL serial-a did not complete'
+   ok   a run fails a workflow and is then refused: exit 1 with 'FAIL serial-b did not complete'
+   ok   a slot whose uplink is dead: exit 1 with 'FAIL isolation slot 1'
+   ok   the slot-0 rival is refused for another reason: exit 1 with 'FAIL collision slot 0'
+   act_slot_proof selftest: PASS (18 cases)
+== P01-with-new-controls: selftest rc 1
+   ok   a run passes every workflow and is then refused: exit 1 with 'FAIL serial-a did not complete'
+   ok   a run fails a workflow and is then refused: exit 1 with 'FAIL serial-b did not complete'
+   FAIL a slot whose uplink is dead: exit 0, wanted 1 with 'FAIL isolation slot 1'
+   ok   the slot-0 rival is refused for another reason: exit 1 with 'FAIL collision slot 0'
+   act_slot_proof selftest: 1 FAILURE(S)
+== P02-with-new-controls: selftest rc 1
+   ok   a run passes every workflow and is then refused: exit 1 with 'FAIL serial-a did not complete'
+   ok   a run fails a workflow and is then refused: exit 1 with 'FAIL serial-b did not complete'
+   ok   a slot whose uplink is dead: exit 1 with 'FAIL isolation slot 1'
+   FAIL the slot-0 rival is refused for another reason: exit 0, wanted 1 with 'FAIL collision slot 0'
+   act_slot_proof selftest: 1 FAILURE(S)
+== P03-with-new-controls: selftest rc 1
+   FAIL a run passes every workflow and is then refused: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+   ok   a run fails a workflow and is then refused: exit 1 with 'FAIL serial-b did not complete'
+   ok   a slot whose uplink is dead: exit 1 with 'FAIL isolation slot 1'
+   ok   the slot-0 rival is refused for another reason: exit 1 with 'FAIL collision slot 0'
+   act_slot_proof selftest: 1 FAILURE(S)
+== P04-with-new-controls: selftest rc 1
+   ok   a run passes every workflow and is then refused: exit 1 with 'FAIL serial-a did not complete'
+   FAIL a run fails a workflow and is then refused: exit 0, wanted 1 with 'FAIL serial-b did not complete'
+   ok   a slot whose uplink is dead: exit 1 with 'FAIL isolation slot 1'
+   ok   the slot-0 rival is refused for another reason: exit 1 with 'FAIL collision slot 0'
+   act_slot_proof selftest: 1 FAILURE(S)

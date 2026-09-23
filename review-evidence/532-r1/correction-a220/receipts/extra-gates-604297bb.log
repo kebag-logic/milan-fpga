@@ -1,0 +1,16 @@
+== rc=0 :: python3 scripts/check_hygiene.py
+   |   tab in SystemVerilog                     0                   0                   0
+== rc=0 :: python3 scripts/ci_events.py --check
+   | ci_events: OK (1631 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+== rc=0 :: python3 scripts/ci_events.py --selftest
+   | selftest: PASS (1631 contract items, 2183 arms)
+== rc=0 :: python3 scripts/check_feature_status.py
+   | feature_status: 0 finding(s)
+== rc=0 :: python3 scripts/gen_toc.py --verify-anchors
+   | anchor check: 147 existing cross-page fragment links reproduced
+== rc=0 :: python3 scripts/check_todo_ownership.py
+   | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 777 first-party file(s) read)
+== rc=0 :: python3 scripts/check_py_idiom.py --selftest
+   | 54 checks: 54 PASS, 0 FAIL
+== rc=0 :: python3 scripts/check_sh_idiom.py --selftest
+   | 48 checks: 48 PASS, 0 FAIL

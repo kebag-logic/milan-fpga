@@ -1,0 +1,35 @@
+head 604297bb41d6c8005d07539289b10bfa99273cdd tree 1a8cfc31dedc8eef7929a5a7529568503fa580d4 dirty=0
+== rc=0 :: python3 scripts/check_baremetal_only.py --check
+   | baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+== rc=0 :: python3 scripts/check_baremetal_only.py --selftest
+   | baremetal-only selftest: PASS (441 arm(s))
+== rc=0 :: python3 scripts/docs_check.py
+   | docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== rc=0 :: python3 scripts/check_em_dash.py --base 759da623
+   | check_em_dash: 0 finding(s) over 338 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+== rc=0 :: python3 scripts/check_py_idiom.py
+   |   too many parameters: 7 <= 7
+   |   global statement: 0 <= 0
+   |   over-long line: 0 <= 0
+== rc=0 :: python3 scripts/check_sh_idiom.py
+   |   no strict mode: 5 <= 5
+   |   unquoted expansion: 3 <= 3
+   |   top-heavy long script: 0 <= 0
+== rc=0 :: python3 scripts/gen_toc.py --check
+   | TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+== rc=0 :: python3 scripts/check_doc_paths.py
+   | doc path gate: OK (835 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+== rc=0 :: python3 scripts/check_doc_style.py
+   | documentation style: OK (22 current documents)
+== rc=0 :: bash -n scripts/act_slot_proof.sh
+   | 
+== rc=0 :: git diff --check 759da623 HEAD
+   | 
+== rc=0 :: git diff --check f5497170 HEAD
+   | 
+commits since f5497170 (subject lines; body lines beyond the subject):
+  604297bb body-lines=0 Pin that a FAILED slot run whose slice sat at its memory cap without an OOM keeps its FAILED (#532)
+  d47dc360 body-lines=0 Say why no self-test case reaches the live proof's ten-PASS backstop (#532)
+  317a158d body-lines=0 Document that the slot cap check detects only an OOM at the cap, that DOCKER-USER egress policy misses slots, and every case of the proof's self-test (#532)
+  9145a06c body-lines=0 Print how often a slot hit its memory cap beside its peak, refuse events without that count, and say only an OOM at the cap is refused (#532)
+  3a768c4f body-lines=0 Give the live slot proof's self-test a failing case for every check it grades, including the slot's probe-name reach, the host's published-port reach and the slot-0 rival's refusal reason (#532)
