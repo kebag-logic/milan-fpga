@@ -1,0 +1,102 @@
+{
+ "head": "e4906bfca65c61e7e109e3532ac1b2dd5b4c0096",
+ "tree": "f5d2e8c022d39684f458f7d2d0ee97b350533353",
+ "branch": "437-container-paragraph-scopes",
+ "origin_dev": "574c29fa111c74e5e5ed63e4670aff1f492e28e2",
+ "merge_base": "574c29fa111c74e5e5ed63e4670aff1f492e28e2",
+ "base_is_dev_tip": true,
+ "clean": true,
+ "commits_since_start": [
+  {
+   "sha": "e4906bfca65c61e7e109e3532ac1b2dd5b4c0096",
+   "parents": [
+    "ef39ecc4e7ccdaee8f64559350041d1e96044dc1"
+   ],
+   "message": "Read containers with a container walk and raw HTML comments as the page parser does",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "ef39ecc4e7ccdaee8f64559350041d1e96044dc1",
+   "parents": [
+    "4741498f3b2b4f67f431037d327c96cf65691278",
+    "574c29fa111c74e5e5ed63e4670aff1f492e28e2"
+   ],
+   "message": "Integrate disjoint live dev 574c29fa before the issue 437 container walk",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "574c29fa111c74e5e5ed63e4670aff1f492e28e2",
+   "parents": [
+    "776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d",
+    "f01f237d4b48c7b1ed59c80aca51430901791624"
+   ],
+   "message": "Merge PR #525: pin remaining RTL workflow scripts and the full-ci-gate SHA assertion",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d",
+   "parents": [
+    "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "059c3a60b8290873ed9fd14673f9981e8af754ce"
+   ],
+   "message": "Merge PR #518: bind AXI stream assertions to the round-robin mux",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "f01f237d4b48c7b1ed59c80aca51430901791624",
+   "parents": [
+    "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+   ],
+   "message": "Pin remaining RTL workflow scripts and the gate SHA assertion",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "059c3a60b8290873ed9fd14673f9981e8af754ce",
+   "parents": [
+    "60c5225fe5f93209bf313c51b7a722f25f9aaa7d"
+   ],
+   "message": "docs: correct pinned assertion semantics and witness grading",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "60c5225fe5f93209bf313c51b7a722f25f9aaa7d",
+   "parents": [
+    "52711029f374650dc93830d5ea28e81cb5c8f410",
+    "5bbf2953ea747403217aeeda020df6a6e5ff27f9"
+   ],
+   "message": "Validate issue372 candidate against merged PR513",
+   "one_line": true,
+   "trailers": ""
+  },
+  {
+   "sha": "5bbf2953ea747403217aeeda020df6a6e5ff27f9",
+   "parents": [
+    "88e9276b2a220c716f64a843f7e1eb8f9265e896"
+   ],
+   "message": "Bind SVA checkers to axis_mux_rr_2in_1out with witnessed positives and a detection campaign (#372)",
+   "one_line": true,
+   "trailers": ""
+  }
+ ],
+ "paths_vs_merge_base": [
+  "M\tCONTRIBUTING.md",
+  "M\tdocs/DOC_GENERATION.md",
+  "M\tscripts/check_em_dash.py",
+  "M\tscripts/gen_toc.py",
+  "M\tscripts/gen_toc_cases.py",
+  "A\tscripts/gen_toc_comment_shapes.json",
+  "A\tscripts/gen_toc_container_cases.py",
+  "A\tscripts/gen_toc_container_walk.json",
+  "A\tscripts/gen_toc_containers.py",
+  "A\tscripts/gen_toc_family_one.json",
+  "A\tscripts/gen_toc_html.py"
+ ],
+ "gitlinks_equal_dev": true,
+ "gitlinks_equal_start": true
+}

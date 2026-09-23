@@ -1,0 +1,34 @@
+M01 KILLED toc=1(58 arms, 4 named) emdash=2(100 arms, 6 named) :: type-7 gate read from the container layer
+M02 KILLED toc=1(7 arms, 2 named) emdash=0(0 arms, 0 named) :: a tag under a nested block opens raw HTML (no gate from item liveness)
+M03 KILLED toc=1(9 arms, 4 named) emdash=2(14 arms, 8 named) :: a block opened in a container ends with it
+M04 KILLED toc=1(8 arms, 4 named) emdash=2(4 arms, 4 named) :: lazy continuation keeps containers open
+M05 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: an indented lazy line continues the paragraph
+M06 KILLED toc=1(3 arms, 2 named) emdash=2(3 arms, 2 named) :: an empty item ends at a blank line
+M07 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: a blank line of the item's column keeps an empty item
+M08 KILLED toc=1(1 arms, 1 named) emdash=0(0 arms, 0 named) :: an empty item's first line meets no paragraph (R237-2 F3)
+M09 KILLED toc=1(2 arms, 2 named) emdash=2(4 arms, 4 named) :: a quote consumes one optional space
+M10 KILLED toc=1(7 arms, 5 named) emdash=2(8 arms, 5 named) :: a footnote definition continues at four columns
+M11 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: padding over four columns makes the content column marker plus one
+M12 KILLED toc=1(3 arms, 2 named) emdash=2(1 arms, 1 named) :: a list item interrupts a paragraph only with content and ordinal 1
+M13 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: a thematic break is no list item
+M14 KILLED toc=1(3 arms, 3 named) emdash=2(6 arms, 6 named) :: raw HTML blocks of types 3 to 5 are raw
+M15 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: footnote content is not read in place
+M16 KILLED toc=1(8 arms, 8 named) emdash=2(7 arms, 7 named) :: tab stops of four
+M17 KILLED toc=1(6 arms, 2 named) emdash=2(5 arms, 2 named) :: a comment opens only in HTML's data state (not on any substring)
+M18 KILLED toc=1(4 arms, 2 named) emdash=2(4 arms, 2 named) :: --!> closes a comment
+M19 KILLED toc=1(3 arms, 3 named) emdash=2(3 arms, 3 named) :: <!--> and <!---> close at once
+M20 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: GFM's tag filter escapes the tag
+M21 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: a bogus comment ends at the next >
+M22 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: a quoted attribute value hides an opener
+M23 KILLED toc=1(13 arms, 2 named) emdash=2(13 arms, 2 named) :: inline raw HTML in Markdown text closes a comment
+M24 KILLED toc=1(7 arms, 2 named) emdash=2(14 arms, 4 named) :: a closer in plain prose or a code span closes nothing
+M25 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: a code span hides inline HTML
+M26 KILLED toc=1(1 arms, 1 named) emdash=2(2 arms, 2 named) :: an inline declaration takes an uppercase name
+M27 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: a paragraph's text is read whole
+M28 KILLED toc=1(9 arms, 2 named) emdash=2(9 arms, 2 named) :: a comment opened in prose ends with its paragraph
+M29 KILLED toc=1(1 arms, 1 named) emdash=2(1 arms, 1 named) :: an opener indented into a paragraph is prose
+M30 KILLED toc=1(5 arms, 2 named) emdash=2(7 arms, 2 named) :: an inline comment starts no block in the container layer
+M31 KILLED toc=1(60 arms, 13 named) emdash=2(82 arms, 26 named) :: a hidden line is labelled commented
+M32 KILLED toc=1(52 arms, 4 named) emdash=2(27 arms, 4 named) :: a marker inside a fence, comment or raw HTML block opens nothing (R237-r1 F3)
+M33 KILLED toc=1(8 arms, 8 named) emdash=2(10 arms, 10 named) :: a dedented quote or footnote definition ends the item (R238-r1 F2)
+control: toc=0 emdash=0

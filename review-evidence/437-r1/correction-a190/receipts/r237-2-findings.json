@@ -1,0 +1,69 @@
+{
+ "F1": {
+  "source": "combinatorial-render.json",
+  "regression_rows": 252,
+  "agree_at_head": 252,
+  "disagree_at_head": []
+ },
+ "F2": {
+  "source": "comment-rule-render.json",
+  "regression_rows": 10,
+  "agree_at_head": 10,
+  "disagree_at_head": []
+ },
+ "F3": [
+  {
+   "page": "-\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ]
+  },
+  {
+   "page": "-\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ]
+  }
+ ],
+ "S1": [
+  {
+   "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+   "head": []
+  },
+  {
+   "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+   "head": []
+  }
+ ],
+ "emdash_escapes": [
+  {
+   "page": "- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "findings": [
+    "p0.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+   ],
+   "exempt": 0
+  },
+  {
+   "page": "- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "findings": [],
+   "exempt": 1
+  },
+  {
+   "page": "- item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "findings": [
+    "p2.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block"
+   ],
+   "exempt": 0
+  }
+ ]
+}
