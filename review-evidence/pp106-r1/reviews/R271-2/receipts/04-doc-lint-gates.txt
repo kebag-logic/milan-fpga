@@ -1,0 +1,26 @@
+## export of 27763677 at $PACKET/scratch/head
+## check-links.py
+links: 810 checked, OK
+exit=0
+## check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+exit=0
+## lint_hdl.sh (pinned 5.050)
+Verilator 5.050 2026-07-01 rev v5.050
+LINT OK  KL_srp_domain
+LINT OK  KL_srp_encoder
+LINT OK  KL_srp_listener_fsm
+LINT OK  KL_srp_talker_fsm
+LINT OK  KL_srp_top
+LINT OK  KL_srp_vlan
+LINT OK  KL_mrp_strip
+LINT OK  protocol_processor_top
+exit=0
+## lint_hdl.sh summary: 37 modules LINT OK, exit 0 (see above tail)
+## gen_matrix.py --check (export)
+matrix: OK (86 rows, 0 untested)
+exit=0
+## make stale (clone, read-only git)
+exit=0
+## git diff --check fbc1f715..27763677 (clone)
+exit=0
