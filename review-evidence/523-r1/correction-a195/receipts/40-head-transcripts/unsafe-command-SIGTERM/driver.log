@@ -1,0 +1,18 @@
+shard: 0/1   selected suites: 2
+FAIL     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 1   failed: 1   timed out: 0
+checks: 1   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  alpha: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: alpha
+logs: /tmp/suite-cancellation-n2h_s3vi/unsafe-command-SIGTERM input [523]/logs

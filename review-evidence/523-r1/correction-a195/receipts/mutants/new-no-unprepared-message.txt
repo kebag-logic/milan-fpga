@@ -1,0 +1,27 @@
+$ python3 scripts/test_suite_cancellation.py  (copy new-no-unprepared-message)
+--- stdout ---
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1721431, "cwd": "/tmp/suite-cancellation-1o8l3dut/normal-orphan input [523]", "identities": {"1721416": ["19763775", "S"], "1721431": ["19763778", "S"]}, "pid": 1721416}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+--- stderr ---
+Traceback (most recent call last):
+  File "/tmp/523-a195-mutants/new-no-unprepared-message/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/523-a195-mutants/new-no-unprepared-message/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-no-unprepared-message/scripts/test_suite_cancellation.py", line 190, in cancellation
+    cancel_report(output, root, signum, prepared=phase != "selection")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/new-no-unprepared-message/scripts/test_suite_cancellation.py", line 125, in cancel_report
+    assert partial == [] and unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+CANCELLED: signal 2; no completed sweep result
+
+exit 1

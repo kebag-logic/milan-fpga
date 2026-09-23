@@ -1,0 +1,46 @@
+$ python3 scripts/test_suite_cancellation.py  (copy base1-no-int-trap)
+--- stdout ---
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 1760026, "cwd": "/tmp/suite-cancellation-vh5h070u/normal-orphan input [523]", "identities": {"1760025": ["19791025", "S"], "1760026": ["19791028", "S"]}, "pid": 1760025}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1761069, "cwd": "/tmp/suite-cancellation-vh5h070u/cancel-selection-SIGINT input [523]", "identities": {"1761062": ["19791327", "S"], "1761069": ["19791330", "S"]}, "pid": 1761062}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1761905, "cwd": "/tmp/suite-cancellation-vh5h070u/cancel-selection-SIGTERM input [523]", "identities": {"1761894": ["19791563", "S"], "1761905": ["19791566", "S"]}, "pid": 1761894}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 1762777, "cwd": "/tmp/suite-cancellation-vh5h070u/cancel-preflight-SIGINT input [523]", "identities": {"1762761": ["19791802", "S"], "1762777": ["19791805", "S"]}, "pid": 1762761}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 1763608, "cwd": "/tmp/suite-cancellation-vh5h070u/cancel-preflight-SIGTERM input [523]", "identities": {"1763601": ["19792047", "S"], "1763608": ["19792049", "S"]}, "pid": 1763601}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+--- stderr ---
+Traceback (most recent call last):
+  File "/tmp/523-a195-mutants/base1-no-int-trap/scripts/test_suite_cancellation.py", line 339, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/523-a195-mutants/base1-no-int-trap/scripts/test_suite_cancellation.py", line 324, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/523-a195-mutants/base1-no-int-trap/scripts/test_suite_cancellation.py", line 167, in cancellation
+    assert next_suite == unsafe, output
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+FAIL     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 1   failed: 1   timed out: 0
+checks: 1   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+  NOCOUNT  alpha: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+failing suites: alpha
+logs: /tmp/suite-cancellation-vh5h070u/cancel-command-SIGINT input [523]/logs
+CANCELLED: signal 2; no completed sweep result
+
+exit 1

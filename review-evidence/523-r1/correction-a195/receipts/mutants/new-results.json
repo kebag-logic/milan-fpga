@@ -1,0 +1,237 @@
+[
+  {
+    "mutant": "none",
+    "defect": null,
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 39.8,
+    "arms_passed": 26,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "b8524387d088a8a946d9a3ae2c39a930bc8a7d0cd7953b79fef8462bca43c685",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "logs-ready-early",
+    "defect": [
+      "LOGS_READY=0\ncancelled() {",
+      "LOGS_READY=1\ncancelled() {"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 8.4,
+    "arms_passed": 7,
+    "last_passed_arm": "relative-output",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:125 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "166918a316db72163756366781da84a9c79b6f81df796a34b818d97fd790a371",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "logs-ready-never-set",
+    "defect": [
+      "*.log || exit 2\n  LOGS_READY=1\n",
+      "*.log || exit 2\n"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 13.3,
+    "arms_passed": 9,
+    "last_passed_arm": "cancel-selection-SIGTERM",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:123 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "8a96a139ce676c9a8c06c352ac4deda8cf393d11aa3b62f7ea4afa34262f5bfd",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "no-partial-logs-message",
+    "defect": [
+      "    echo \"partial logs: $OUT\" >&2\n",
+      "    :\n"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 13.2,
+    "arms_passed": 9,
+    "last_passed_arm": "cancel-selection-SIGTERM",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:123 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "49675ef6f058ef89d29de28685d52ce13c129cb339437857c0421b2763977329",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "no-term-trap",
+    "defect": [
+      "trap 'cancelled TERM 143' TERM\n",
+      ""
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 10.7,
+    "arms_passed": 8,
+    "last_passed_arm": "cancel-selection-SIGINT",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:119 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: signal 15; no completed sweep result",
+    "driver_sha256": "e220683a213ff5c6139d5a2427b19dec5ed6c809a7b7e093d8c794e6abd0cafa",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "no-int-trap",
+    "defect": [
+      "trap 'cancelled INT 130' INT\n",
+      ""
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 8.6,
+    "arms_passed": 7,
+    "last_passed_arm": "relative-output",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:119 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: signal 2; no completed sweep result",
+    "driver_sha256": "eb12908d6a006bbcec2ca7b7738014ba7bde2973a76d4ca73a41d5db97143b16",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "no-unprepared-message",
+    "defect": [
+      "    echo \"logs were not prepared for this invocation\" >&2\n",
+      "    :\n"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 8.5,
+    "arms_passed": 7,
+    "last_passed_arm": "relative-output",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:125 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "295bf0d95a401b29d5fc92c0c84526cd11ac9e42b35c7bd7d4fc5e27c532bae8",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "report-inverted",
+    "defect": [
+      "if [ \"$LOGS_READY\" = 1 ]; then",
+      "if [ \"$LOGS_READY\" != 1 ]; then"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 8.5,
+    "arms_passed": 7,
+    "last_passed_arm": "relative-output",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:125 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "7371f1a03b9942e36f114e9f349ce6bac9077e0a00d248846a7526ab84368b2b",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "partial-logs-wrong-dir",
+    "defect": [
+      "echo \"partial logs: $OUT\" >&2",
+      "echo \"partial logs: $ROOT/.suite-logs\" >&2"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 13.3,
+    "arms_passed": 9,
+    "last_passed_arm": "cancel-selection-SIGTERM",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:123 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "e848cd88eca8dcb1d5fc7a66416513b71ab9af6749dbc77f4f4fd11883379efe",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "int-reported-as-term",
+    "defect": [
+      "trap 'cancelled INT 130' INT",
+      "trap 'cancelled TERM 130' INT"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 8.5,
+    "arms_passed": 7,
+    "last_passed_arm": "relative-output",
+    "failing_frames": [
+      "test_suite_cancellation.py:377 main",
+      "test_suite_cancellation.py:190 cancellation",
+      "test_suite_cancellation.py:119 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: TERM; no completed sweep result",
+    "driver_sha256": "de87f1f09c8b17e69c0836d4ae2fab84b82b204534ca44f1e9a9c4f62ec79cca",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  },
+  {
+    "mutant": "prepare-before-lock",
+    "defect": [
+      "  select_suites\n  acquire_lock\n  prepare_logs\n",
+      "  select_suites\n  prepare_logs\n  acquire_lock\n"
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 26.4,
+    "arms_passed": 15,
+    "last_passed_arm": "cancel-transition-SIGTERM",
+    "failing_frames": [
+      "test_suite_cancellation.py:379 main",
+      "test_suite_cancellation.py:240 lock_wait",
+      "test_suite_cancellation.py:125 cancel_report"
+    ],
+    "assertion_first_line": "AssertionError: CANCELLED: INT; no completed sweep result",
+    "driver_sha256": "f1d0a43c3075d6524806a14d65cc3dd5a0993baf2bc0abea787d3a1aa9eae735",
+    "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b"
+  }
+]

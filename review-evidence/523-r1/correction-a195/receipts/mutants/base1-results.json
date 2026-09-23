@@ -1,0 +1,110 @@
+[
+  {
+    "mutant": "none",
+    "defect": null,
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 39.0,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "b8524387d088a8a946d9a3ae2c39a930bc8a7d0cd7953b79fef8462bca43c685",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "logs-ready-early",
+    "defect": [
+      "LOGS_READY=0\ncancelled() {",
+      "LOGS_READY=1\ncancelled() {"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.9,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "166918a316db72163756366781da84a9c79b6f81df796a34b818d97fd790a371",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "logs-ready-never-set",
+    "defect": [
+      "*.log || exit 2\n  LOGS_READY=1\n",
+      "*.log || exit 2\n"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.9,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "8a96a139ce676c9a8c06c352ac4deda8cf393d11aa3b62f7ea4afa34262f5bfd",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "no-partial-logs-message",
+    "defect": [
+      "    echo \"partial logs: $OUT\" >&2\n",
+      "    :\n"
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 39.0,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "49675ef6f058ef89d29de28685d52ce13c129cb339437857c0421b2763977329",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "no-term-trap",
+    "defect": [
+      "trap 'cancelled TERM 143' TERM\n",
+      ""
+    ],
+    "exit": 0,
+    "verdict": "PASS",
+    "seconds": 38.9,
+    "arms_passed": 24,
+    "last_passed_arm": "facility-no-pidfd-signal",
+    "failing_frames": [],
+    "assertion_first_line": "",
+    "driver_sha256": "e220683a213ff5c6139d5a2427b19dec5ed6c809a7b7e093d8c794e6abd0cafa",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  },
+  {
+    "mutant": "no-int-trap",
+    "defect": [
+      "trap 'cancelled INT 130' INT\n",
+      ""
+    ],
+    "exit": 1,
+    "verdict": "RED",
+    "seconds": 18.5,
+    "arms_passed": 11,
+    "last_passed_arm": "cancel-preflight-SIGTERM",
+    "failing_frames": [
+      "test_suite_cancellation.py:324 main",
+      "test_suite_cancellation.py:167 cancellation"
+    ],
+    "assertion_first_line": "AssertionError: shard: 0/1   selected suites: 2",
+    "driver_sha256": "eb12908d6a006bbcec2ca7b7738014ba7bde2973a76d4ca73a41d5db97143b16",
+    "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+    "source_rev": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+    "test_rev": "26353960ae2763cc09741d0f7bcc720621bd5148"
+  }
+]
