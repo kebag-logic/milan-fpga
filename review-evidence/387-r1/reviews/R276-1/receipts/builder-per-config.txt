@@ -1,0 +1,11 @@
+# tracked gPTP ROM images in the parent (expect none):
+(none)
+# builder derivations from the pinned generator
+gptp_engine_pins: {'priority2': 248, 'clock_class': 248, 'clock_accuracy': 254, 'offset_scaled_log_variance': 17258, 'log_sync_interval': -3, 'log_announce_interval': 0, 'log_pdelay_interval': 0}
+gptp_engine_port_number: 1
+# builder per tracked config, each into a scratch output directory
+endstation_arty_4x4: builder exit 0, gptp_ucode.hex 8cb5fa1663bd450e07e7277c408fa525c26290679d3e96cf9f1c2479f4a21a64
+endstation_arty_8ch: builder exit 0, gptp_ucode.hex 8cb5fa1663bd450e07e7277c408fa525c26290679d3e96cf9f1c2479f4a21a64
+endstation_arty_current: builder exit 0, gptp_ucode.hex 8cb5fa1663bd450e07e7277c408fa525c26290679d3e96cf9f1c2479f4a21a64
+endstation_ax7101_1x1_tdm8: builder exit 0, gptp_ucode.hex 547dd211ba4b374c54f5c57f127602a697ddbc1547469a0f0a893a64080cb505
+endstation_ax7101_8x8: builder exit 0, gptp_ucode.hex d1243add16adc044d68f5d379bafca63c0e5aa92d9928ad815dd66a26552886a

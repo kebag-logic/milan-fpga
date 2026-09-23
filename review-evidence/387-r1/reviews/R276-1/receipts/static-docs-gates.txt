@@ -1,0 +1,26 @@
+# focused static/docs gates at 44bf089108fec666d50873445720b51090ceede0 tree 48f1348f589dd7e75873df22dde4ab2f4eaf6f97
+[0] python3 -B scripts/docs_check.py :: docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+[0] python3 -B scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9 :: check_em_dash: 0 finding(s) over 117 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+[0] python3 -B scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+[0] python3 -B scripts/check_gptp_docs.py :: gPTP documentation: OK (8 current pages)
+[0] python3 -B scripts/check_gptp_docs.py --with-submodule :: gPTP documentation: OK (8 current pages, donor checkout verified)
+[0] python3 -B docs/DOC_MAP.gen.py --check :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+[0] python3 -B docs/diagrams/timesync_chain.gen.py --check :: time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+[0] python3 -B docs/diagrams/submodule_boundaries.gen.py --check :: submodule diagram: OK (4 exact gitlinks, decoded PNG)
+[0] python3 -B scripts/check_submodule_docs.py :: submodule documentation: OK (4 exact gitlinks)
+[0] python3 -B scripts/check_diagram_pngs.py :: diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+[0] python3 -B docs/traceability/gen_module_matrix.py --check :: traceability generator controls: 5/5 traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+[0] python3 -B scripts/check_rtl_source_lists.py :: protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_process
+[0] python3 -B scripts/measure_naming.py --check ::  NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+[0] python3 -B scripts/measure_fail_fast.py --check :: FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)   the ratchets can be lowered to 82, 4 and 0
+[0] python3 -B scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 777 first-party file(s) read)
+[0] python3 -B scripts/measure_test_evidence.py --check :: TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))   the mutation ratchet can be lowered to 74
+[0] python3 -B scripts/check_hygiene.py --check ::   gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0 HYGIENE RATCHET: PASS (3 population(s), 727 file(s))
+[0] python3 -B scripts/check_cpp_idiom.py ::   long function: 0 <= 0   build without warnings: 0 <= 0
+[0] python3 -B scripts/check_py_idiom.py ::   global statement: 0 <= 0   over-long line: 0 <= 0
+[0] python3 -B scripts/check_doc_paths.py :: doc path gate: OK (832 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+[0] python3 -B scripts/gen_toc.py --verify-anchors :: anchor check: 149 existing cross-page fragment links reproduced
+[0] python3 -B scripts/gen_toc.py --check :: TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+[0] python3 -B scripts/check_feature_status.py :: feature_status: 0 finding(s)
+[0] python3 -B scripts/check_solution_docs.py :: solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+git status after:

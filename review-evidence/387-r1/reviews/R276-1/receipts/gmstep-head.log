@@ -1,0 +1,59 @@
+# make -C tb/verilator/milan_dp gmstep VERILATOR=<pinned 5.050 wrapper> VERILATOR_JOBS=8, at exact head 44bf089108fec666d50873445720b51090ceede0 (Verilator report and the leg's full output)
+452:- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+453:- Verilator: Built from 130.268 MB sources in 113 modules, into 12.685 MB in 21 C++ files needing 0.005 MB
+454:- Verilator: Walltime 12.899 s (elab=0.458, cvt=2.798, bld=9.214); cpu 3.814 s on 8 threads; allocated 868.074 MB
+./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin
+gmstep: 2 MHz fabric, 8 ns PHC, quarter tick 131072 cycles
+  [ ok ] acquisition: CLKV healthy (asCapable, sync, tu clear) got=0x10002 exp=0x10002
+  [ ok ] acquisition: the link-up pair stepped the PHC once got=1 exp=1
+  [ ok ] acquisition: the counter saw exactly that step got=1 exp=1
+  [ ok ] acquisition: that step exceeds the 20 us link-up threshold
+  [ ok ] acquisition: the published grandmaster is GM A got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] media: SET_CLOCK_SOURCE to the CRF answers SUCCESS got=0 exp=0
+  [ ok ] media: the root resolves the CRF selection got=1 exp=1
+  [ ok ] media: the CRF sink is locked            got=1 exp=1
+  [ ok ] media: the talker gate is open           got=0x8 exp=0x8
+  [ ok ] baseline: the listener accepted PDUs
+RENDER: fill at accept 9 events (setpoint 8)
+  [ ok ] baseline: the fill at accept is inside the #386 law band
+  [ ok ] baseline: the fill at accept is one constant got=0 exp=0
+  [ ok ] baseline: the talker streams
+TALKER: baseline interval 642.0 cycles
+  [ ok ] baseline: no talker PDU carries tu       got=0 exp=0
+  [ ok ] baseline: no render recentre             got=0 exp=0
+  [ ok ] event: tu is clear before the change     got=0 exp=0
+EVENT: GM B announced at cycle 7216711
+EVENT: identity 7217167, step 7377301 (1500000020 ns), tu rise 7217166 fall 7602192
+  [ ok ] event: the published grandmaster became GM B
+  [ ok ] event: the plane stepped the PHC exactly once got=1 exp=1
+  [ ok ] event: the counter saw exactly that step got=1 exp=1
+  [ ok ] event: the step is the 1.5 s between the grandmasters, within 1 us
+  [ ok ] event: the step follows the commit
+  [ ok ] tu: set in the first cycle the bank names GM B got=1 exp=1
+  [ ok ] tu: cleared after the step
+TU: held 224891 cycles after the step (quarter tick 131072)
+  [ ok ] tu: held at least the 0.25 s holdover after the step
+  [ ok ] tu: cleared within the holdover's bound
+  [ ok ] tu: clear at the end of the window       got=0 exp=0
+  [ ok ] tu: talker PDUs graded across the event
+  [ ok ] tu: every talker PDU carries the verdict of its instant got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 1286 PDUs over 825612 cycles (baseline rate: 1286), longest pause 712
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+LISTENER: EARLY_TIMESTAMP +2, LATE_TIMESTAMP +0, FRAMES_RX +3304
+RENDER: 2 counted recentres from 2 trigger pulses
+  [FAIL] render: the GM change is one counted re-base event got=2 exp=1
+  [ ok ] render: no reset rail across the event   got=0 exp=0
+  [ ok ] render: PDUs accepted across the event
+  [ ok ] render: the fill at accept holds its constant across the event got=0 exp=0
+  [FAIL] restart: the outgoing mr toggles exactly once got=0 exp=1
+  [ ok ] restart: the Stream Output counters are valid got=0x1f exp=0x1f
+  [FAIL] restart: the talker's MEDIA_RESET counts exactly one got=0 exp=1
+simulated_cycles=8042842
+== gmstep: checks: 40   failures: 3 ==
+RESULT: FAIL
+make: *** [Makefile:288: gmstep] Error 1
+make exit 2
