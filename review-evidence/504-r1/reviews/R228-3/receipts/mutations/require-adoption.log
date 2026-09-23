@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 160, in selftest
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m4/sw/builder/test_builder.py", line 5552, in test_baremetal_profile_contract
+    assert not census_probe(census_used["compiler"],
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            census_used["flags"], xlen=64), \
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the census probe accepts a 64-bit target under the flags it selected for riscv32-unknown-elf-gcc, so it is not deciding the register width and the census it authorises could be a 64-bit census printed as the RV32 one
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 181, in main
+    selftest()
+    ~~~~~~~~^^
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 162, in selftest
+    assert "the provisioned absolute SDK selector must be adopted" in str(exc), exc
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the census probe accepts a 64-bit target under the flags it selected for riscv32-unknown-elf-gcc, so it is not deciding the register width and the census it authorises could be a 64-bit census printed as the RV32 one

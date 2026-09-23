@@ -1,0 +1,14 @@
+{
+ "id": "mirror-no-memop",
+ "kind": "literal",
+ "file": "sw/builder/test_builder.py",
+ "reverts": "mirror ignores unclassified memory writers",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "AssertionError: with an amocas.w through a pointer to the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a word the slot no longer holds"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644"
+}

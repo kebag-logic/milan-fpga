@@ -1,0 +1,16 @@
+{
+ "id": "provenance-drop-destination",
+ "kind": "installer",
+ "file": "scripts/ci_rv32_sdk.py",
+ "reverts": "receipt no longer binds the destination (R228-1 F3 root)",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "ERROR: test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)",
+  "KeyError: 'destination'",
+  "ERROR: test_provenance_values (__main__.InstallerTests.test_provenance_values)"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+}

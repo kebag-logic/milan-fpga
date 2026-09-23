@@ -1,0 +1,16 @@
+{
+ "id": "inventory-no-links",
+ "kind": "installer",
+ "file": "scripts/ci_rv32_sdk.py",
+ "reverts": "inventory ignores symlinks",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "FAIL: test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)",
+  "ValueError: SDK GCC version mismatch",
+  "AssertionError: \"inventory mismatch\" does not match \"SDK GCC version mismatch\""
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+}

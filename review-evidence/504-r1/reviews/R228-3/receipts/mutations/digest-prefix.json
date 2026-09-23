@@ -1,0 +1,16 @@
+{
+ "id": "digest-prefix",
+ "kind": "installer",
+ "file": "scripts/ci_rv32_sdk.py",
+ "reverts": "digest compared on a prefix only",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "FAIL: test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes) (payload='pinned one hex digit away')",
+  "AssertionError: ValueError not raised",
+  "FAILED (failures=1)"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+}

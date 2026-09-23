@@ -1,0 +1,76 @@
+SDK archive verified: /tmp/rv32-installer-test-fpqc78ht/wrong-root.tar.xz sha256=50f021868454e1ae9d9ce6651502a6c6ca5893f3c7ec1d2e483900c652682cea
+SDK argv: ["/tmp/rv32-installer-test-jsgngeej/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-jsgngeej/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-jsgngeej/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-jsgngeej/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-it5g0wby/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-w2y4m38c/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-w2y4m38c/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-w2y4m38c/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-w2y4m38c/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+test_archive_root (__main__.InstallerTests.test_archive_root)
+An authenticated archive with another root is still not extracted. ... ok
+test_bad_archive (__main__.InstallerTests.test_bad_archive)
+A wrong offline --archive never reaches tar or creates an installation. ... ok
+test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache. ... ok
+test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run. ... ok
+test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names. ... ok
+test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+A wrong download is refused before tar reads it or anything runs. ... ok
+test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed. ... ok
+test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed. ... ok
+test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit. ... ok
+test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse. ... ok
+test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance. ... ok
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... ok
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... ok
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... ok
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... ok
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... ok
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... ok
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... ok
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... ok
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... ok
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.813s
+
+OK

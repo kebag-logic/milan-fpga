@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$CLONE/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$CLONE/scripts/ci_rv32_sdk.py", line 185, in main
+    install(args.destination, args.archive)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$CLONE/scripts/ci_rv32_sdk.py", line 155, in install
+    verify(destination)
+    ~~~~~~^^^^^^^^^^^^^
+  File "$CLONE/scripts/ci_rv32_sdk.py", line 115, in verify
+    raise ValueError("SDK inventory mismatch; incomplete or corrupt install")
+ValueError: SDK inventory mismatch; incomplete or corrupt install
