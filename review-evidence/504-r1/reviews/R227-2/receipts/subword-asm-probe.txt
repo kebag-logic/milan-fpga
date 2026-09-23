@@ -1,0 +1,23 @@
+emitted configure_fabric():
+	addi	sp,sp,-32
+	sw	ra,28(sp)
+	sw	s0,24(sp)
+	addi	s0,sp,32
+	lla	a5,probe_r227_page
+	lw	a5,0(a5)
+	slli	a5,a5,16
+	ori	a5,a5,1536
+	sw	a5,-20(s0)
+	sb	zero,-20(s0)
+	lw	a5,-20(s0)
+	mv	a4,a5
+	li	a5,1
+	sw	a5,0(a4)
+	nop	
+	lw	ra,28(sp)
+	lw	s0,24(sp)
+	addi	sp,sp,32
+	jr	ra
+resolver-reported store addresses: ['0x0']
+real target of the last store: 0x90000600 (ADP_CTRL; the byte write keeps low byte 0x00)
+exit=0

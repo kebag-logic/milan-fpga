@@ -1,0 +1,23 @@
+Whole-gate resolver fix-removal mutants (PR's own compiled gate 1b, scoped Verilator 5.050, verified SDK prefix)
+R1/R3 ran in a first batch whose probe clones lacked submodule git metadata; both failed at the PR's literal store-class control (see gate-R1/R3 logs), before any submodule-dependent stage, so their kill reason is valid.
+R5/R6/R10 first-batch results were infrastructure failures and were discarded; the rerun below initialises the submodules and includes the R0 setup control.
+SURVIVED R0-pristine exit=0
+SURVIVED R10-amo-value-rs2 exit=0
+KILLED R1-fp-classes-dropped exit=1
+KILLED R3-unclassified-default-dropped exit=1
+SURVIVED R5-range-footprint-width exit=0
+SURVIVED R6-mirror-integer-stores-only exit=0
+
+Firmware plants (PR's compiled gate 1b on a planted firmware; PASSED = the whole gate accepted it)
+PASSED byte-overwrite exit=0
+REFUSED call-escape exit=1
+PASSED half-overwrite exit=0
+REFUSED memcpy-alias exit=1
+REFUSED no-overwrite exit=1
+REFUSED pointer-alias exit=1
+byte-overwrite: GATE 1b PASS; 0 NOT RUN
+half-overwrite: GATE 1b PASS; 0 NOT RUN
+no-overwrite: AssertionError: the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go thr
+pointer-alias: AssertionError: the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned 
+memcpy-alias: AssertionError: the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go thr
+call-escape: AssertionError: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) r

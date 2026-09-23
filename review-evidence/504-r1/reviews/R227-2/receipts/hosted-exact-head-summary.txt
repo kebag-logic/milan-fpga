@@ -1,0 +1,50 @@
+Hosted job logs read with read-only 'gh run view --job <id> --log' (not republished; job URLs below).
+
+Exact head 5081a25a: docs-check job 107056964016 (run 35822437489), elaborate job 107056964304 (run 35822437301)
+docs-check	Cache the pinned RV32 SDK	2026-09-23T05:28:14.1892443Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+docs-check	Install and verify the pinned RV32 SDK	2026-09-23T05:28:14.9526542Z Ran 25 tests in 0.653s
+docs-check	Install and verify the pinned RV32 SDK	2026-09-23T05:28:15.9916563Z SDK cache hit: verified
+docs-check	Compiler-absent firmware controls	2026-09-23T05:28:17.8213296Z compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+docs-check	Compiler-absent firmware controls	2026-09-23T05:31:24.0130725Z GATE 1b PASS; 3 NOT RUN; 0 actual firmware compiler invocations
+docs-check	End-station builder gates	2026-09-23T05:35:45.0320760Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+elaborate	Cache the pinned RV32 SDK	2026-09-23T05:27:46.4368828Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+elaborate	Install and verify the pinned RV32 SDK	2026-09-23T05:27:47.8652816Z Ran 25 tests in 0.691s
+elaborate	Install and verify the pinned RV32 SDK	2026-09-23T05:27:48.9874016Z SDK cache hit: verified
+elaborate	Elaboration gates	2026-09-23T05:32:38.9993937Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0, and the compiled store-class mutants reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused on the resolved store address
+census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0, and the compiled store-class mutants reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused on the resolved store address
+
+Reviewed head 3d90958f: docs-check job 106851428580 (run 35758843423), elaborate job 106851429374 (run 35758843483)
+docs-check	UNKNOWN STEP	2026-09-22T17:10:58.9295985Z Cache not found for input keys: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+docs-check	UNKNOWN STEP	2026-09-22T17:10:59.5198579Z SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+docs-check	UNKNOWN STEP	2026-09-22T17:11:06.7518905Z SDK archive verified: /tmp/milan-rv32-download-_hd90kqz/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+docs-check	UNKNOWN STEP	2026-09-22T17:11:25.7932658Z SDK fresh installation: verified
+elaborate	UNKNOWN STEP	2026-09-22T17:10:24.9670544Z Cache not found for input keys: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+elaborate	UNKNOWN STEP	2026-09-22T17:10:25.9775986Z SDK download: https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+elaborate	UNKNOWN STEP	2026-09-22T17:10:30.8098431Z SDK archive verified: /tmp/milan-rv32-download-2cxgtpal/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz sha256=d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+elaborate	UNKNOWN STEP	2026-09-22T17:10:50.0225948Z SDK fresh installation: verified
+elaborate	UNKNOWN STEP	2026-09-22T17:19:51.6940059Z Cache saved with key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+
+Exact-head check-run list (gh api commits/5081a25a/check-runs), captured 2026-09-23T06:13:36Z:
+bdd-conformance	completed	success
+changes	completed	success
+docs-check	completed	success
+docs-check-no-git	completed	success
+elaborate	completed	success
+full-ci-gate	completed	success
+Physical gPTP (nightly and manual)	completed	skipped
+rtl-fast	completed	success
+verilator-lint	completed	success
+Verilator shard 0/5	completed	success
+Verilator shard 1/5	completed	success
+Verilator shard 2/5	completed	success
+Verilator shard 3/5	completed	success
+Verilator shard 4/5	completed	success
+verilator-suites	completed	success
+wire-accountability	completed	success
+yosys-elaboration	completed	success
+yosys-portability	completed	success
+Yosys shard 0/4	completed	success
+Yosys shard 1/4	completed	success
+Yosys shard 2/4	completed	success
+Yosys shard 3/4	completed	success
