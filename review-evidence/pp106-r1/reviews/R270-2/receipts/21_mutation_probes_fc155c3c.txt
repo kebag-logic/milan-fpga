@@ -1,0 +1,5 @@
+fc155c3c A1 [X1-class] any VectorHeader of the type closes the gate: srp_decoder=0/150 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/252 -> SURVIVES
+fc155c3c A2 [X1-class] an MSRP lane fires only at the first VectorHeader of its message (list octet count 1 at VectorHeader byte 2): srp_decoder=0/150 -> SURVIVES
+fc155c3c A3 [X7-class] gate re-armed only by a clean dual EndMark: srp_decoder=0/150 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/252 -> SURVIVES
+fc155c3c A9 [X7-class] gate re-armed at a new MRPDU only when it is MSRP: srp_decoder=0/150 -> SURVIVES
+fc155c3c B1 [Domain routing] Domain participant takes every MSRP lane: srp_decoder=0/150 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/252 -> SURVIVES
