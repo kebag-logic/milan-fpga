@@ -1,0 +1,6527 @@
+[
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet at column, inline tag outside",
+  "page": "- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet at column, inline tag inside",
+  "page": "- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet at column, unknown tag outside",
+  "page": "- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet at column, unknown tag inside",
+  "page": "- item\n\n  text\n  <custom-tag>\n## Old\n  </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet past column, inline tag outside",
+  "page": "- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet past column, inline tag inside",
+  "page": "- item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet past column, unknown tag outside",
+  "page": "- item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet past column, unknown tag inside",
+  "page": "- item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star at column, inline tag outside",
+  "page": "* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star at column, inline tag inside",
+  "page": "* item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star at column, unknown tag outside",
+  "page": "* item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star at column, unknown tag inside",
+  "page": "* item\n\n  text\n  <custom-tag>\n## Old\n  </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star past column, inline tag outside",
+  "page": "* item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star past column, inline tag inside",
+  "page": "* item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star past column, unknown tag outside",
+  "page": "* item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "star past column, unknown tag inside",
+  "page": "* item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered at column, inline tag outside",
+  "page": "1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered at column, inline tag inside",
+  "page": "1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered at column, unknown tag outside",
+  "page": "1. item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered at column, unknown tag inside",
+  "page": "1. item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered past column, inline tag outside",
+  "page": "1. item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered past column, inline tag inside",
+  "page": "1. item\n\n    text\n    <span>\n## Old\n    </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered past column, unknown tag outside",
+  "page": "1. item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "ordered past column, unknown tag inside",
+  "page": "1. item\n\n    text\n    <custom-tag>\n## Old\n    </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered at column, inline tag outside",
+  "page": "10. item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered at column, inline tag inside",
+  "page": "10. item\n\n    text\n    <span>\n## Old\n    </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered at column, unknown tag outside",
+  "page": "10. item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered at column, unknown tag inside",
+  "page": "10. item\n\n    text\n    <custom-tag>\n## Old\n    </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered past column, inline tag outside",
+  "page": "10. item\n\n     text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered past column, inline tag inside",
+  "page": "10. item\n\n     text\n     <span>\n## Old\n     </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered past column, unknown tag outside",
+  "page": "10. item\n\n     text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered past column, unknown tag inside",
+  "page": "10. item\n\n     text\n     <custom-tag>\n## Old\n     </custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered below column, inline tag outside",
+  "page": "10. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "two-digit ordered below column, unknown tag outside",
+  "page": "10. item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet two paragraphs, inline tag outside",
+  "page": "- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "task at column, inline tag outside",
+  "page": "- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "interrupting bullet at column, inline tag outside",
+  "page": "text\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet at column, b tag outside",
+  "page": "- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "bullet after two blanks, inline tag outside",
+  "page": "- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary one space, inline tag",
+  "page": "- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary one space, unknown tag",
+  "page": "- item\n\n text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary four spaces, inline tag",
+  "page": "- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary four spaces, unknown tag",
+  "page": "- item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary block quote, inline tag",
+  "page": "> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary block quote, unknown tag",
+  "page": "> item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary footnote definition two spaces, inline tag",
+  "page": "[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary footnote definition two spaces, unknown tag",
+  "page": "[^1]: note\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary footnote definition four spaces, inline tag",
+  "page": "[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary footnote definition four spaces, unknown tag",
+  "page": "[^1]: note\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary tab, inline tag",
+  "page": "- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_family_one.json",
+  "name": "boundary tab, unknown tag",
+  "page": "- item\n\n\ttext\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 0 open",
+  "page": "- item\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 0 close",
+  "page": "- item\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 0 attribute",
+  "page": "- item\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 1 open",
+  "page": "- item\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 1 close",
+  "page": "- item\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 first tag column 1 attribute",
+  "page": "- item\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 0 open",
+  "page": "- item\n\n  text\n<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 0 close",
+  "page": "- item\n\n  text\n</span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 0 attribute",
+  "page": "- item\n\n  text\n<span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 1 open",
+  "page": "- item\n\n  text\n <span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 1 close",
+  "page": "- item\n\n  text\n </span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "#516 resumed tag column 1 attribute",
+  "page": "- item\n\n  text\n <span title=\"x\">\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "top-level tag leaves comment open",
+  "page": "<span>\n<!--\n\n## Old\n</span>\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "type-6 block leaves comment open",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "comment opened on the type-6 line",
+  "page": "<div><!--\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed then reopened in a block",
+  "page": "<div>\n<!-- a --> <!--\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "type-1 pre leaves comment open",
+  "page": "<pre>\n<!--\n</pre>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "type-1 script leaves comment open",
+  "page": "<script>\n<!--\n</script>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed inside the block",
+  "page": "<div>\n<!-- a -->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed on a later block line",
+  "page": "<div>\n<!--\n-->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt empty comment in a block",
+  "page": "<div>\n<!-->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt dash comment in a block",
+  "page": "<div>\n<!--->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt empty comment line",
+  "page": "<!-->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt empty comment inline",
+  "page": "text <!--> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a later type-6 block",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<div>\n-->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a later type-7 block",
+  "page": "<span>\n<!--\n\n## Hidden\n\n<span>\n-->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a later type-1 block",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<pre>\n-->\n</pre>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a type-2 block",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<!-- b -->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a multi-line type-2 block",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<!--\nnote\n-->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by an abrupt comment in a block",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n<div>\n<!-->\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by an inline comment",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!-- x --> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "closed by a comment in a heading",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden <!-- x -->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden <!-- x -->"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden <!-- x -->"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "prose arrow closes nothing",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n-->\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "heading arrow closes nothing",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden -->\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden -->"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden -->"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "code span arrow closes nothing",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n`-->`\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "fenced arrow closes nothing",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n```\n-->\n```\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "indented arrow closes nothing",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n    -->\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "fenced opener opens nothing",
+  "page": "```\n<!--\n```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "indented opener opens nothing",
+  "page": "    <!--\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "type-7 arrow line opens nothing",
+  "page": "<span>\n-->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested quote, tag opens HTML",
+  "page": "- item\n  > quote\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested quote, in-item fence would escape",
+  "page": "- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested bullet, tag opens HTML",
+  "page": "- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested bullet, in-item fence would escape",
+  "page": "- item\n  - nested\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested ordered, pre inside the HTML block",
+  "page": "- item\n  1. nested\n  <span>\n  <pre>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "nested footnote, tag opens HTML",
+  "page": "- item\n  [^1]: note\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "table in item, tag opens HTML",
+  "page": "- item\n\n  | a |\n  | - |\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "quote-first item, tag opens HTML",
+  "page": "- > quote\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lazy line after nested quote, tag opens HTML",
+  "page": "- item\n  > quote\nlazy\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "thematic break in item, tag opens HTML",
+  "page": "- item\n  ***\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "live bullet paragraph, in-item fence",
+  "page": "- item\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "live bullet paragraph, in-item fence would escape",
+  "page": "- item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "live ordered paragraph, in-item pre",
+  "page": "1. item\n   <span>\n   <pre>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "task item, in-item fence would escape",
+  "page": "- [ ] item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "resumed paragraph, in-item fence would escape",
+  "page": "- item\n\n  text\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "R238 P02 tag after a blank in the item, then fence",
+  "page": "- item\n\n  <span>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "R238 P03 div after a blank in the item, then fence",
+  "page": "- item\n\n  <div>\n```\n\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "R238 F09 tag after a blank in the item, heading after",
+  "page": "- item\n\n  text\n\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "empty item, tag opens HTML",
+  "page": "-\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "empty item, in-item fence would escape",
+  "page": "-\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "empty item kept by a blank of its column",
+  "page": "-\n  \n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "empty item ended by a shorter blank",
+  "page": "-\n \n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lazy indented line continues a nested quote",
+  "page": "- item\n  > quote\n      code\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lazy indented comment opener is prose",
+  "page": "> quote\n    <!-- x\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "indented comment opener continues a paragraph",
+  "page": "text\n    <!-- x\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "a quote's optional space leaves a raw opener",
+  "page": ">    <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "a continued quote's optional space leaves a raw opener",
+  "page": "> quote\n>    <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "double-quoted attribute",
+  "page": "<div title=\"<!--\">\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "inline tag attribute",
+  "page": "<span title=\"<!--\">\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "a quoted value hides a greater-than",
+  "page": "<div title=\"a > <!--\">\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "attribute inside a block",
+  "page": "<div>\n<img alt=\"<!-- x\">\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "CDATA is a bogus comment",
+  "page": "<div>\n<![CDATA[<!--]]>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "--!> closes on its line",
+  "page": "<div>\n<!-- a --!>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "--!> closes on a later line",
+  "page": "<div>\n<!--\n--!>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "inline tag closes after the block",
+  "page": "<div>\n<!--\n</div>\n\ntext <a title=\"-->\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "item block ends before a code span",
+  "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "item block ends before an escape",
+  "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "item block ends before an inline attribute",
+  "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "tag filter leaves the attribute as text",
+  "page": "<div>\n<textarea title=\"<!--\">\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "a greater-than ends the bogus comment",
+  "page": "<div>\n<![CDATA[ a > <!-- ]]>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "type-5 block",
+  "page": "<![CDATA[ a > <!-- ]]>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "type-3 block",
+  "page": "<? a > <!-- ?>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "type-4 block",
+  "page": "<!X a > <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lowercase declaration is no block",
+  "page": "<!x a > <!--\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "spaced dashes close nothing",
+  "page": "<div>\n<!-- a -- >\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "a bang right after the opener closes nothing",
+  "page": "<div>\n<!--!>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "raw HTML in an item",
+  "page": "- <div>\n  <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "raw HTML in a quote",
+  "page": "> <div>\n> <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [],
+  "prev": [],
+  "work": [],
+  "base_ok": true,
+  "prev_ok": true,
+  "work_ok": true,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "R237-2 S1 opener four columns into an item",
+  "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "R237-2 S1 opener after a tag four columns in",
+  "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "single-quoted attribute closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title='-->'> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "unquoted attribute closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=--> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "comment with dashes closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!-- a -- b --> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "processing instruction closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <?-->?>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "uppercase declaration closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!X -->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lowercase declaration is text",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!x -->\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "CDATA closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <![CDATA[-->]]>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "tag across lines closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a\ntitle=\"-->\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "code span hides the tag",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext `` <a title=\"-->\"> `` more\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "escape hides the tag",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext \\<a title=\"-->\"> more\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "prose bang closer is text",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext --!> more\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "attribute bang closer closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=\"--!>\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "footnote content is read at the page end",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n[^1]: n <!-- x -->\n\n## Old\n\n## Real\n",
+  "github": [],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "table cell comment closes",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n| a <!-- x --> |\n| - |\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "tag filter keeps the attribute's closer",
+  "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <textarea title=\"-->\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "raw closer after a type-7 opener",
+  "page": "<span>\n<!--\n\n## Hidden\n\n<div>\n--!>\n</div>\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [
+   [
+    2,
+    "Hidden"
+   ],
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a prose opener",
+  "page": "text <!--\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a code-span opener",
+  "page": "text `<!--` more\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a table-cell opener",
+  "page": "| a <!-- |\n| - |\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "list item after a prose opener",
+  "page": "text <!--\n- item\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "blank after an opener in an item",
+  "page": "- item <!--\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "prev": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "work": [],
+  "base_ok": false,
+  "prev_ok": true,
+  "work_ok": false,
+  "limitation": null
+ }
+]

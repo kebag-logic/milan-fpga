@@ -1,0 +1,426 @@
+[
+ {
+  "id": "M01",
+  "property": "R237-3 F2: a link reference definition fills its item",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1266/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R237-3 F2 definition-only item ends at a second blank",
+    "I437 rendered R237-3 F2 titled definition leaves the item empty",
+    "I437 rendered R237-3 F2 two definitions leave the item empty"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 3 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R237-3 F2 definition-only item ends at a second blank",
+    "I437 recorded R237-3 F2 titled definition leaves the item empty",
+    "I437 recorded R237-3 F2 two definitions leave the item empty"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M02",
+  "property": "R237-3 F2: an open paragraph of definitions does not hold its item",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R237-3 F2 definition-only item survives one blank"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 2 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R237-3 F2 definition-only item survives one blank"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M03",
+  "property": "R237-3 F2: a lazy line does not fill its item",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R237-3 F2 lazy text keeps a definition's item"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 2 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R237-3 F2 lazy text keeps a definition's item"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M04",
+  "property": "a nested container does not fill its parent",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1267/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered nested empty item holds the item",
+    "I437 rendered nested quote holds an empty item"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 4 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded nested empty item holds the item",
+    "I437 recorded nested quote holds an empty item"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M05",
+  "property": "R237-3 F4: a blank line continues a block quote",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R237-3 F4 a blank line ends a quote"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 2 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R237-3 F4 a blank line ends a quote"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M06",
+  "property": "R238-2 F2 C17: a type 3-5 block never ends",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R238-2 F2 C17 a type-3 block ends at its marker"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 2 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R238-2 F2 C17 a type-3 block ends at its marker"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M07",
+  "property": "a type 3-5 opener counts as a lazy line",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered type-3 opener is no lazy line"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 2 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded type-3 opener is no lazy line"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M08",
+  "property": "R238-2 F1(d): inside types 3 to 5 the gate is NO_PARAGRAPH",
+  "file": "gen_toc_containers.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1266/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered type-3 block leaves the gate to the walk",
+    "I437 rendered type-4 block leaves the gate to the walk",
+    "I437 rendered type-5 block leaves the gate to the walk"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 3 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded type-3 block leaves the gate to the walk",
+    "I437 recorded type-4 block leaves the gate to the walk",
+    "I437 recorded type-5 block leaves the gate to the walk"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M09",
+  "property": "a comment ends with the container it opened in",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1263/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered a continued quote's optional space leaves a raw opener",
+    "I437 rendered a quote's optional space leaves a raw opener",
+    "I437 rendered comment block outlives its item",
+    "I437 rendered comment block outlives its quote",
+    "I437 rendered raw HTML in a quote",
+    "I437 rendered raw HTML in an item"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 12 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded a continued quote's optional space leaves a raw opener",
+    "I437 recorded a quote's optional space leaves a raw opener",
+    "I437 recorded comment block outlives its item",
+    "I437 recorded comment block outlives its quote",
+    "I437 recorded raw HTML in a quote",
+    "I437 recorded raw HTML in an item"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M10",
+  "property": "a comment opened in prose ends at a blank line",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1234/1269 arm(s))",
+   "failed_arms": [
+    "I437 R238 C05",
+    "I437 first tag column 2 attribute then comment",
+    "I437 first tag column 2 close then comment",
+    "I437 first tag column 2 open then comment",
+    "I437 first tag column 3 attribute then comment",
+    "I437 first tag column 3 close then comment",
+    "I437 first tag column 3 open then comment",
+    "I437 first tag column 4 attribute then comment",
+    "I437 first tag column 4 close then comment",
+    "I437 first tag column 4 open then comment",
+    "I437 limitation #516 item block ends before a code span",
+    "I437 limitation #516 item block ends before an escape",
+    "I437 limitation #516 item block ends before an inline attribute",
+    "I437 rendered R237-3 E1 prose comment after an inline PI",
+    "I437 rendered R237-3 E2 prose comment after inline CDATA",
+    "I437 rendered R238-2 F1c empty comment after a type-3 opener",
+    "I437 rendered a continued quote's optional space leaves a raw opener",
+    "I437 rendered a quote's optional space leaves a raw opener",
+    "I437 rendered comment block outlives its item",
+    "I437 rendered comment block outlives its quote",
+    "I437 rendered raw HTML in a quote",
+    "I437 rendered raw HTML in an item",
+    "I437 rendered type-3 block",
+    "I437 rendered type-4 block",
+    "I437 rendered type-5 block",
+    "I437 resumed tag column 2 attribute then comment",
+    "I437 resumed tag column 2 close then comment",
+    "I437 resumed tag column 2 open then comment",
+    "I437 resumed tag column 3 attribute then comment",
+    "I437 resumed tag column 3 close then comment",
+    "I437 resumed tag column 3 open then comment",
+    "I437 resumed tag column 4 attribute then comment",
+    "I437 resumed tag column 4 close then comment",
+    "I437 resumed tag column 4 open then comment",
+    "the walk carries the number of decision sites recorded here"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 68 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 R238 C05",
+    "I437 first tag column 2 attribute then comment",
+    "I437 first tag column 2 close then comment",
+    "I437 first tag column 2 open then comment",
+    "I437 first tag column 3 attribute then comment",
+    "I437 first tag column 3 close then comment",
+    "I437 first tag column 3 open then comment",
+    "I437 first tag column 4 attribute then comment",
+    "I437 first tag column 4 close then comment",
+    "I437 first tag column 4 open then comment",
+    "I437 limitation #516 item block ends before a code span",
+    "I437 limitation #516 item block ends before an escape",
+    "I437 limitation #516 item block ends before an inline attribute",
+    "I437 recorded R237-3 E1 prose comment after an inline PI",
+    "I437 recorded R237-3 E2 prose comment after inline CDATA",
+    "I437 recorded a continued quote's optional space leaves a raw opener",
+    "I437 recorded a quote's optional space leaves a raw opener",
+    "I437 recorded comment block outlives its item",
+    "I437 recorded comment block outlives its quote",
+    "I437 recorded raw HTML in a quote",
+    "I437 recorded raw HTML in an item",
+    "I437 recorded type-3 block",
+    "I437 recorded type-4 block",
+    "I437 recorded type-5 block",
+    "I437 resumed tag column 2 attribute then comment",
+    "I437 resumed tag column 2 close then comment",
+    "I437 resumed tag column 2 open then comment",
+    "I437 resumed tag column 3 attribute then comment",
+    "I437 resumed tag column 3 close then comment",
+    "I437 resumed tag column 3 open then comment",
+    "I437 resumed tag column 4 attribute then comment",
+    "I437 resumed tag column 4 close then comment",
+    "I437 resumed tag column 4 open then comment",
+    "a second comment on a closing line still hides the block",
+    "commented-out copy of a mirrored label is refused"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M11",
+  "property": "`<!-->` closes the comment it opens",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1267/1269 arm(s))",
+   "failed_arms": [
+    "I437 limitation #516 item end uncovers a comment over a fence",
+    "I437 rendered R238-2 F1c empty comment after a type-3 opener"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 3 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 limitation #516 item end uncovers a comment over a fence",
+    "I437 recorded R238-2 F1c empty comment after a type-3 opener"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M12",
+  "property": "a fence or raw HTML block outlives its container",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1254/1269 arm(s))",
+   "failed_arms": [
+    "I437 limitation #516 item block ends before a code span",
+    "I437 limitation #516 item block ends before an escape",
+    "I437 limitation #516 item block ends before an inline attribute",
+    "I437 limitation #516 item end uncovers a comment over a fence",
+    "I437 limitation #516 item end uncovers a type-3 block",
+    "I437 limitation #516 item end uncovers an open quoted value",
+    "I437 rendered R238 F09 tag after a blank in the item, heading after",
+    "I437 rendered R238 P02 tag after a blank in the item, then fence",
+    "I437 rendered R238 P03 div after a blank in the item, then fence",
+    "I437 rendered lazy indented line continues a nested quote",
+    "I437 rendered live bullet paragraph, in-item fence",
+    "I437 rendered live bullet paragraph, in-item fence would escape",
+    "I437 rendered live ordered paragraph, in-item pre",
+    "I437 rendered resumed paragraph, in-item fence would escape",
+    "I437 rendered task item, in-item fence would escape"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 23 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 limitation #516 item block ends before a code span",
+    "I437 limitation #516 item block ends before an escape",
+    "I437 limitation #516 item block ends before an inline attribute",
+    "I437 limitation #516 item end uncovers a comment over a fence",
+    "I437 limitation #516 item end uncovers a type-3 block",
+    "I437 limitation #516 item end uncovers an open quoted value",
+    "I437 recorded R238 F09 tag after a blank in the item, heading after",
+    "I437 recorded R238 P02 tag after a blank in the item, then fence",
+    "I437 recorded R238 P03 div after a blank in the item, then fence",
+    "I437 recorded lazy indented line continues a nested quote",
+    "I437 recorded live bullet paragraph, in-item fence",
+    "I437 recorded live bullet paragraph, in-item fence would escape",
+    "I437 recorded live ordered paragraph, in-item pre",
+    "I437 recorded resumed paragraph, in-item fence would escape",
+    "I437 recorded task item, in-item fence would escape"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M13",
+  "property": "a titled link reference definition is not one",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "I437 rendered R237-3 F2 titled definition leaves the item empty"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 2,
+   "summary": "check_em_dash: FATAL: 1 of 429 arm(s) did not hold",
+   "failed_arms": [
+    "I437 recorded R237-3 F2 titled definition leaves the item empty"
+   ],
+   "guards": []
+  },
+  "killed": true
+ },
+ {
+  "id": "M14",
+  "property": "the title stop class loses the backslash",
+  "file": "gen_toc.py",
+  "gen_toc.py": {
+   "exit": 1,
+   "summary": "TOC selftest: FAIL (1268/1269 arm(s))",
+   "failed_arms": [
+    "the renderer's classes are the ones spelled here, and not read from the table the walk reads"
+   ],
+   "guards": []
+  },
+  "check_em_dash.py": {
+   "exit": 0,
+   "summary": "check_em_dash selftest: PASS (429 arm(s))",
+   "failed_arms": [],
+   "guards": []
+  },
+  "killed": true
+ }
+]

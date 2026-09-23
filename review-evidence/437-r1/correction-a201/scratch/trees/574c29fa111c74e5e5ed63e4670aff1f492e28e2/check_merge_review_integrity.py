@@ -1,0 +1,793 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""Report a merged PR that landed against a NEGATIVE review, or left its Issue open.
+
+WHY THIS EXISTS (issue #180). Two things this repository's process allows, and
+nothing detected either:
+
+  1. A PR merged while its last review verdict was NEGATIVE. PR #161 carried an
+     `[R0] NEGATIVE` verdict (and an author note that it must stay unmerged as
+     historical evidence), and it merged anyway. A maintainer overriding a
+     NEGATIVE is a legitimate act - so this does NOT block a merge - but after
+     the fact nobody could tell it happened.
+  2. A PR whose body says `Closes #N` merged and left #N open. Until
+     2026-08-22 that was the ordinary outcome: GitHub auto-closes a linked
+     Issue only when the PR merges into the DEFAULT branch, the default was
+     `main`, and every PR merged into `dev`, so `Closes #N` never fired and
+     the Issue sat open with its work already shipped (#159 did exactly
+     this). Since 2026-08-22 `dev` IS the default branch (#174, decision 3)
+     and the keyword fires on merge. The check stays, for three reasons: a
+     body in the template's former `Closes/relates to: #N` form, or any other
+     form GitHub does not read as a keyword, still leaves the Issue open; the
+     merged-PR window reaches back into the history where the keyword never
+     fired; and an Issue reopened after its PR merged should not sit unnoticed
+     either. What it reports is the same fact in every case: shipped work
+     whose Issue is open.
+
+WHAT IT READS. The verdict is not GitHub's formal review decision - this repo's
+reviews are COMMENT-type, so `reviewDecision` is always blank. The `[R<n>]
+POSITIVE`/`NEGATIVE` verdict (AGENTS.md section 6) lives in free text, and in
+EITHER the formal `reviews[].body` (newer PRs) OR the issue `comments[].body`
+(PR #161's verdicts were comments). Both are scanned, ordered by time, and the
+last verdict BEFORE the merge decides. An unanswered `BLOCKER` finding - one no
+later POSITIVE verdict cleared - counts the same as a NEGATIVE.
+
+The verdict LEXICON is wider than the bare word and case-folded: `REQUEST
+CHANGES`, `DO NOT MERGE` (PR #123, #128) and "not [yet] a positive review" are
+rejections too, and PR #128 merged over exactly those while an
+uppercase-`NEGATIVE`-only reader saw nothing. Clean-lens and finding lines
+(`[R<n>] PASS/BLOCKER/MAJOR/...`) are NOT verdicts and are skipped for verdict
+purposes, and `NEGATIVE` excludes the compound "negative control", so a PASS
+line reading "PASS ... negative-control" is not mistaken for a rejection, and
+"not validated (for merge)" / "cannot validate" are rejections while
+"VALIDATED" is the positive pole of that axis (#111, #112). See _line_verdict.
+
+SCOPE. This is a NAMED-DIALECT parser, not an NLP one: it reads the AGENTS.md
+section 6 convention (`[R<n>] POSITIVE`/`NEGATIVE`, `[R<n>] BLOCKER`, and the
+suffixed multi-lens identities `[R<n>-a]`/`[R<n>-b]` - the #316 decision) plus
+the handful of rejection phrasings this corpus actually uses. THE CANONICAL
+OVERALL VERDICT (the #311 decision) is the `POSITIVE`/`NEGATIVE` token on the
+reviewer's own `[R<n>]`-led line; a bare `Verdict: PASS across all five
+review lenses` line under an `[R<n>] EXACT-HEAD RE-REVIEW` header - the PR
+#302 shape - is NOT machine-read, deliberately: the verdict word rides the
+identity line or it does not count, and #302's open-blocker record stands as
+the lesson (cases 23/24 pin both directions). A round-status
+line that carries no verdict word (`[R0] MERGE-ROUND COMPLETE`) is NOT a
+verdict and never clears a standing NEGATIVE - publishing the verdict word is
+the round's job, which is exactly what #316's record of PR #310 is about. It deliberately does
+NOT try to understand arbitrary prose - a reviewer who states a rejection only
+as free text ("this needs more work", an unprefixed `**Verdict: ...**` line)
+is off-convention and can be missed; the fix for that is to publish the verdict
+as `[R<n>] NEGATIVE`, not to grow this regex without bound. That boundary is
+the honest one after three rounds of dialect-chasing ([R]/[R1]/[R2]).
+
+COMPLETE HISTORIES, OR UNKNOWN (issue #426). The verdict that decides a PR can
+be published at any ordinal, so a classification over a PREFIX of the history
+is not a weaker answer, it is a different one. `gh pr list --json
+...reviews,comments` returns each connection's first 100 nodes and its JSON
+export drops the `totalCount`/`pageInfo` that would say so: PR #425 merged
+carrying 266 comments, the canonical run saw 1-100, and the two clearing
+POSITIVE reports published pre-merge at ordinals 215 and 232 were simply not in
+the input. So the nested projections are no longer requested. Each selected PR
+is hydrated by `merge_review_acquire`, which acquires BOTH complete streams and
+proves each one complete before `assess_pr` sees it; an acquisition that cannot
+be proved complete is cannot-run (exit 2), never a finding and never a pass.
+The assessment core below is unchanged by that work.
+
+TOOL ABSENCE IS UNKNOWN, NEVER A PASS. With no `gh`, or a `gh` that errors, the
+gate exits 2 (cannot run), never 0. The `--selftest` needs no network: it drives
+the pure `assess_pr` core over fixtures, including the mandated negative control
+(a positive verdict + a closed Issue must NOT be reported) and a vacuity arm
+that fails if the core is stubbed to find nothing, and it drives the acquisition
+layer over mocked `gh` pages into that same unchanged core.
+
+    scripts/check_merge_review_integrity.py            # scan the merged-PR window
+    scripts/check_merge_review_integrity.py --limit 40 # a wider window
+    scripts/check_merge_review_integrity.py --selftest # drive the core over fixtures
+
+Exit 0 = clean, 1 = a finding, 2 = cannot run / usage.
+"""
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+
+RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+
+DEFAULT_BASE = "dev"
+DEFAULT_LIMIT = 20
+
+#: A reviewer line. `[A<n>]` (author) lines are deliberately not matched - only
+#: a reviewer publishes a verdict. A leading markdown header (`##`/`###`) or
+#: bold (`**`) is allowed, because reviews write findings as `### [R1] BLOCKER`
+#: and verdicts as `## [R1] POSITIVE` headers ([R2] on this PR).
+#: SUFFIXED identities (`[R0-a]`, `[R0-b]`) are part of the supported dialect
+#: since #316: multi-lens rounds split one review session into lettered
+#: reviewer halves and the corpus has published verdicts under them (PR #294,
+#: PR #310). The suffix is exactly one lowercase letter; anything else is
+#: still the free-prose boundary the docstring draws.
+_LEAD = r"^\s*#*\s*\**\s*"
+_RID = r"\[R\d+(?:-[a-z])?\]"
+_RLINE_RE = re.compile(_LEAD + _RID)
+#: A findings / clean-lens line: `[R<n>]` then one of the section-6 severity
+#: or PASS tokens. These are NOT the top verdict, and their PROSE routinely
+#: contains verdict words that are not verdicts - a `PASS` lens line says
+#: "PASS ... negative-control", a finding says "the blockers remain". Reading
+#: those as a verdict flips a POSITIVE-reviewed clean merge to negative-merge
+#: (PR #199 did exactly that under the first cut of this parser, [R1]).
+_FINDING_LEAD_RE = re.compile(
+    _LEAD + _RID + r"\s*(?:\*\*\s*)?(PASS|BLOCKER|MAJOR|MINOR|SUGGESTION)\b",
+    re.I)
+#: A rejection, in the dialects this corpus actually uses: `NEGATIVE` (but not
+#: the compound "negative control", this repo's own test vocabulary),
+#: `DO NOT MERGE`, `REQUEST CHANGES`, and "not validated (for merge)" /
+#: "cannot validate" ([R2]: PR #111 merged over "still not validated for merge").
+#: This is a NAMED-DIALECT parser, not a prose NLP one - see the WHAT IT READS /
+#: SCOPE note in the module docstring.
+_NEG_RE = re.compile(
+    r"\bNEGATIVE\b(?![-\s]control)|\bDO\s+NOT\s+MERGE\b|\bREQUEST[-\s]CHANGES\b"
+    r"|\bnot\s+validated\b|\bcannot\s+validate\b",
+    re.I)
+#: "not [yet] a positive [review]" - a rejection (PR #128). The `a` keeps it
+#: off praise like "not only positive but excellent".
+_NOT_A_POSITIVE_RE = re.compile(r"\bnot\b(?:\s+yet)?\s+a\s+positive\b", re.I)
+#: An acceptance: `POSITIVE`, or `VALIDATED` (the positive pole of the same
+#: axis as "not validated"; #112 clears its blockers with "... VALIDATED"). The
+#: `not validated` rejection is checked FIRST in _line_verdict, so it wins over
+#: the `VALIDATED` substring it contains.
+_POSITIVE_RE = re.compile(r"\bPOSITIVE\b|\bVALIDATED\b", re.I)
+#: `Closes/Fixes/Resolves` (optional `:`) then one or more `#N`, comma- or
+#: `and`-separated. A digit is required, so the template's bare
+#: "Closes/relates to: #" placeholder names nothing. `\b` before the keyword
+#: keeps `discloses`/`prefixes` from matching.
+_CLOSES_RE = re.compile(
+    r"\b(?:clos(?:e|es|ed)|fix(?:e|es|ed)?|resolv(?:e|es|ed))\b\s*:?\s*"
+    r"(#\d+(?:\s*(?:,|and)\s*#\d+)*)", re.I)
+
+
+def _line_verdict(line):
+    """(verdict, is_blocker) for one `[R<n>]` line.
+
+    A FINDINGS or CLEAN-LENS line (`[R<n>] PASS/BLOCKER/MAJOR/MINOR/SUGGESTION
+    ...`) is never a top verdict: its prose carries verdict words that are not
+    verdicts, so it is skipped for verdict purposes - a `BLOCKER` finding line
+    is still recorded as an (uncleared) blocker, but a `PASS ... negative-
+    control` line is neither. Otherwise the rejection lexicon is wider than the
+    bare word and case-folded: `REQUEST CHANGES`, `DO NOT MERGE` (PR #123,
+    #128) and "not [yet] a positive review" are rejections too, and #128
+    MERGED over exactly those while an uppercase-`NEGATIVE`-only parser saw
+    nothing. `NEGATIVE` is word-anchored and excludes the compound "negative
+    control", which is this repo's own test vocabulary ([R1] re-review: reading
+    it as a verdict flipped the clean, POSITIVE-reviewed PR #199 to
+    negative-merge).
+    """
+    lead = _FINDING_LEAD_RE.match(line)
+    if lead:
+        return None, lead.group(1).upper() == "BLOCKER"
+    if _NEG_RE.search(line) or _NOT_A_POSITIVE_RE.search(line):
+        return "NEGATIVE", False
+    if _POSITIVE_RE.search(line):
+        return "POSITIVE", False
+    return None, False
+
+
+class Finding:
+    def __init__(self, number: int, reason: str, detail: str) -> None:
+        self.number = number
+        self.reason = reason        # "negative-merge" | "open-blocker" | "open-issue"
+        self.detail = detail
+
+    def line(self) -> str:
+        """The one printed line: which PR, which reason, and the evidence.
+
+        Every finding reaches the reader through here, so the report cannot
+        acquire a second layout for one of its three reasons.
+        """
+        return "PR #%d: %s - %s" % (self.number, self.reason, self.detail)
+
+
+def _verdict_events(pr):
+    """[(timestamp, 'POSITIVE'|'NEGATIVE', is_blocker)] from reviews and comments.
+
+    Reviews stamp `submittedAt`, comments `createdAt`; both are ISO-8601 UTC,
+    so a string sort is chronological. A body can carry a verdict and a BLOCKER
+    both; each is recorded so a later POSITIVE can be seen to clear an earlier
+    BLOCKER.
+    """
+    events = []
+    for r in pr.get("reviews") or []:
+        _scan_body(r.get("body") or "", r.get("submittedAt") or "", events)
+    for c in pr.get("comments") or []:
+        _scan_body(c.get("body") or "", c.get("createdAt") or "", events)
+    events.sort(key=lambda e: e[0])
+    return events
+
+
+def _scan_body(body, when, events):
+    for line in body.splitlines():
+        if not _RLINE_RE.match(line):
+            continue
+        verdict, blocker = _line_verdict(line)
+        if verdict:
+            events.append((when, verdict, False))
+        if blocker:
+            events.append((when, "BLOCKER", True))
+
+
+def _closed_issue_numbers(body):
+    """Every issue number a `Closes/Fixes #a, #b` names, comma/`and` lists too."""
+    nums = set()
+    for m in _CLOSES_RE.finditer(body or ""):
+        nums.update(int(x) for x in re.findall(r"#(\d+)", m.group(1)))
+    return nums
+
+
+def assess_pr(pr: dict[str, Any],
+              issue_is_open: Callable[[int], bool]) -> list["Finding"]:
+    """Every review-integrity finding for one merged PR. Pure.
+
+    `pr` is the gh JSON dict (number, mergedAt, body, reviews[], comments[]);
+    `issue_is_open(n)` answers whether Issue #n is open. No I/O here, so the
+    self-test drives it directly.
+    """
+    findings = []
+    merged_at = pr.get("mergedAt") or ""
+    # Only activity BEFORE the merge decision bears on whether the merge was
+    # against a standing objection; a later review is post-merge commentary.
+    events = [e for e in _verdict_events(pr) if not merged_at or e[0] <= merged_at]
+
+    verdicts = [e for e in events if not e[2]]
+    if verdicts and verdicts[-1][1] == "NEGATIVE":
+        findings.append(Finding(
+            pr["number"], "negative-merge",
+            "merged %s with its last pre-merge review verdict NEGATIVE (%s)"
+            % (merged_at or "?", verdicts[-1][0])))
+    else:
+        # No standing NEGATIVE, but a BLOCKER no later POSITIVE cleared is the
+        # same unmet objection wearing a severity instead of a verdict word.
+        last_positive = max((e[0] for e in events
+                             if not e[2] and e[1] == "POSITIVE"), default="")
+        open_blockers = [e for e in events if e[2] and e[0] > last_positive]
+        if open_blockers:
+            findings.append(Finding(
+                pr["number"], "open-blocker",
+                "merged %s carrying a BLOCKER no later POSITIVE verdict cleared"
+                % (merged_at or "?")))
+
+    for n in sorted(_closed_issue_numbers(pr.get("body") or "")):
+        if issue_is_open(n):
+            findings.append(Finding(
+                pr["number"], "open-issue",
+                "body says it closes #%d, which is still OPEN (the merge did "
+                "not close it: not a keyword form GitHub reads, merged before "
+                "2026-08-22 when `dev` was not the default branch, or "
+                "reopened since)" % n))
+    return findings
+
+
+# ---------------------------------------------------------------- live I/O
+
+class CannotRun(Exception):
+    """gh is absent or answered in a way that is not a finding but not a pass."""
+
+
+def _gh_json(args):
+    try:
+        p = subprocess.run(["gh"] + args, capture_output=True, text=True)
+    except FileNotFoundError:
+        raise CannotRun("gh is not installed")
+    if p.returncode != 0:
+        raise CannotRun("gh %s failed: %s" % (" ".join(args), p.stderr.strip()))
+    try:
+        return json.loads(p.stdout)
+    except json.JSONDecodeError as exc:
+        raise CannotRun("gh %s returned non-JSON: %s" % (" ".join(args), exc))
+
+
+def _sibling_module(name: str) -> Any:
+    """Import a module that ships beside this script, without a package.
+
+    Same reason check_merge_containment.py imports its self-test this way: the
+    entry point stays a script that runs from anywhere, and the import is the
+    one this file resolves, not a second copy under another name.
+    """
+    here = str(Path(__file__).resolve().parent)
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    return __import__(name)
+
+
+def _new_acquirer() -> Any:
+    """The history acquirer `fetch_merged_prs` hydrates through.
+
+    A single named seam. The self-test replaces this with an acquirer driven by
+    mocked `gh` pages, so the real selection, the real hydration, the real
+    completeness proof and the real assessment all run in its arms.
+    """
+    return _sibling_module("merge_review_acquire").Acquirer()
+
+
+def fetch_merged_prs(limit: int, base: str) -> list[dict[str, Any]]:
+    """The `limit` most-recently-merged PRs into `base`, newest first, hydrated.
+
+    gh cannot sort by mergedAt, so over-fetch and sort here - the same reason
+    check_merge_containment.py over-fetches its window. That candidate window
+    is CREATION-ordered: `max(limit * 3, 60)` PRs are fetched newest-created
+    first and then sorted by merge time, so the result is the latest merges
+    among a finite candidate set, not a proof of the globally latest merges.
+    A PR created long ago and merged yesterday can sit outside it. #426 keeps
+    that selection deliberately and states the limitation rather than
+    redesigning it here.
+
+    `reviews`/`comments` are NOT requested from the list call: those nested
+    projections stop at 100 nodes and carry no evidence that they did (#426).
+    Each selected PR's two histories are acquired complete instead, and an
+    acquisition that cannot be proved complete raises CannotRun, so an
+    incomplete window is unknown rather than clean.
+    """
+    rows = _gh_json(["pr", "list", "--state", "merged", "--base", base,
+                     "--limit", str(max(limit * 3, 60)),
+                     "--json", "number,mergedAt,body"])
+    rows.sort(key=lambda r: r.get("mergedAt") or "", reverse=True)
+    selected = rows[:limit]
+    acquire = _sibling_module("merge_review_acquire")
+    try:
+        return _new_acquirer().hydrate(selected)
+    except acquire.AcquisitionError as exc:
+        raise CannotRun("incomplete acquisition: %s" % exc) from exc
+
+
+def issue_is_open(number: int) -> bool:
+    """Whether Issue #number is still OPEN, asked of GitHub one issue at a time.
+
+    Anything gh cannot answer raises CannotRun rather than defaulting, because
+    "assume closed" would turn the open-issue finding into a silent pass.
+    """
+    state = _gh_json(["issue", "view", str(number), "--json", "state"])
+    return (state.get("state") or "").upper() == "OPEN"
+
+
+# ------------------------------------------------------------------ selftest
+
+#: The PR #161 shape, hoisted out of the arms that read it: the last verdict
+#: before the merge is a NEGATIVE published in a COMMENT rather than in a
+#: formal review. Three arms need exactly this PR - case 1 reports it, case 3
+#: layers an open Issue on top of it, case 10 uses it as the vacuity fixture -
+#: so it is one fixture here rather than three copies that can drift apart.
+_PR161 = {"number": 161, "mergedAt": "2026-08-20T18:31:33Z", "body": "no closes",
+          "reviews": [], "comments": [
+              {"body": "[R1] **POSITIVE**", "createdAt": "2026-08-20T16:00:00Z"},
+              {"body": "[R0] **NEGATIVE** - cleared-context review of 3cfc04ce",
+               "createdAt": "2026-08-20T17:13:59Z"}]}
+
+
+def _verdict_source_problems(openf):
+    """Problems from cases 1-5: where a verdict may be published, and what an
+    open linked Issue costs. `openf` builds the is-this-Issue-open probe."""
+    problems = []
+
+    # 1. NEGATIVE last verdict, in COMMENTS (the PR #161 shape).
+    f1 = assess_pr(_PR161, openf(set()))
+    if [x.reason for x in f1] != ["negative-merge"]:
+        problems.append("case1 negative-in-comments: %s" % [x.line() for x in f1])
+
+    # 2. Closes an open Issue.
+    p2 = {"number": 159, "mergedAt": "2026-08-20T10:00:00Z",
+          "body": "[A1]\n\nCloses #159. Restores the docs gates.",
+          "reviews": [{"body": "[R0] POSITIVE",
+                       "submittedAt": "2026-08-20T09:00:00Z"}], "comments": []}
+    f2 = assess_pr(p2, openf({159}))
+    if [x.reason for x in f2] != ["open-issue"]:
+        problems.append("case2 closes-open-issue: %s" % [x.line() for x in f2])
+
+    # 3. Both reasons at once (PR #161 as filed).
+    p3 = dict(_PR161, number=1161, body="Closes #777.")
+    f3 = assess_pr(p3, openf({777}))
+    if sorted(x.reason for x in f3) != ["negative-merge", "open-issue"]:
+        problems.append("case3 both reasons: %s" % [x.line() for x in f3])
+
+    # 4. THE NEGATIVE CONTROL: positive final verdict + closed Issue -> nothing.
+    p4 = {"number": 200, "mergedAt": "2026-08-20T12:00:00Z",
+          "body": "Closes #201.",
+          "reviews": [{"body": "[R0] NEGATIVE",
+                       "submittedAt": "2026-08-20T10:00:00Z"},
+                      {"body": "[R0] POSITIVE re-review",
+                       "submittedAt": "2026-08-20T11:00:00Z"}],
+          "comments": []}
+    f4 = assess_pr(p4, openf(set()))          # #201 is closed
+    if f4:
+        problems.append("case4 negative-control must be clean: %s"
+                        % [x.line() for x in f4])
+
+    # 5. NEGATIVE in a formal review body (the PR #189 shape).
+    p5 = {"number": 189, "mergedAt": "2026-08-21T16:00:00Z", "body": "x",
+          "reviews": [{"body": "[R0] NEGATIVE - exact head a8d3f50c",
+                       "submittedAt": "2026-08-21T13:10:00Z"}], "comments": []}
+    f5 = assess_pr(p5, openf(set()))
+    if [x.reason for x in f5] != ["negative-merge"]:
+        problems.append("case5 negative-in-review: %s" % [x.line() for x in f5])
+    return problems
+
+def _blocker_and_scope_problems(openf):
+    """Problems from cases 6-12: a BLOCKER's life, what a post-merge verdict
+    may not do, and the vacuity arm that a stubbed core would fail."""
+    problems = []
+
+    # 6. Unanswered BLOCKER after the last POSITIVE -> reported.
+    p6 = {"number": 300, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+          "reviews": [{"body": "[R1] POSITIVE",
+                       "submittedAt": "2026-08-20T12:00:00Z"},
+                      {"body": "[R0] BLOCKER Tests - foo.py:1 - it lies",
+                       "submittedAt": "2026-08-20T13:00:00Z"}], "comments": []}
+    f6 = assess_pr(p6, openf(set()))
+    if [x.reason for x in f6] != ["open-blocker"]:
+        problems.append("case6 open-blocker: %s" % [x.line() for x in f6])
+
+    # 7. BLOCKER later cleared by a POSITIVE -> nothing.
+    p7 = {"number": 301, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+          "reviews": [{"body": "[R0] BLOCKER - fix it",
+                       "submittedAt": "2026-08-20T12:00:00Z"},
+                      {"body": "[R0] POSITIVE re-review, fixed",
+                       "submittedAt": "2026-08-20T13:00:00Z"}], "comments": []}
+    f7 = assess_pr(p7, openf(set()))
+    if f7:
+        problems.append("case7 cleared-blocker must be clean: %s"
+                        % [x.line() for x in f7])
+
+    # 8. A post-merge NEGATIVE does not retroactively condemn the merge.
+    p8 = {"number": 302, "mergedAt": "2026-08-20T12:00:00Z", "body": "x",
+          "reviews": [{"body": "[R0] POSITIVE",
+                       "submittedAt": "2026-08-20T11:00:00Z"},
+                      {"body": "[R0] NEGATIVE - found later",
+                       "submittedAt": "2026-08-20T13:00:00Z"}], "comments": []}
+    if assess_pr(p8, openf(set())):
+        problems.append("case8 post-merge verdict must not count")
+
+    # 9. Bare `#` with no number (the template default) names nothing.
+    p9 = {"number": 303, "mergedAt": "2026-08-20T12:00:00Z",
+          "body": "Closes/relates to: #\n[R0] POSITIVE",
+          "reviews": [], "comments": []}
+    if assess_pr(p9, lambda n: True):
+        problems.append("case9 bare-hash must match no issue")
+
+    # 10. VACUITY: cases 1/2/3/5/6 each assert a SPECIFIC finding, so a core
+    # stubbed to return nothing makes them red - the suite cannot pass on a
+    # no-op. Stated directly here too: the real core is non-empty on the
+    # positive fixture, which is exactly what a stub would break.
+    if not assess_pr(_PR161, openf(set())):
+        problems.append("case10 vacuity: the core found nothing on the "
+                        "positive fixture, so a stub would pass the suite")
+
+    # 11. THE #128 CORPUS CASE: merged over `REQUEST CHANGES / DO NOT MERGE`
+    # then a `not yet a positive review`, with no bare-word NEGATIVE anywhere.
+    # This is verbatim what merged over the old parser (it saw zero verdicts).
+    p11 = {"number": 128, "mergedAt": "2026-08-19T20:06:28Z", "body": "x",
+           "comments": [
+               {"body": "[R0] REQUEST CHANGES / DO NOT MERGE at head `b1e0b37`.",
+                "createdAt": "2026-08-19T18:55:40Z"},
+               {"body": "[R0] ROUND 2: the leak is RESOLVED, but this is not "
+                        "yet a positive review.",
+                "createdAt": "2026-08-19T19:07:32Z"}], "reviews": []}
+    f11 = assess_pr(p11, openf(set()))
+    if [x.reason for x in f11] != ["negative-merge"]:
+        problems.append("case11 request-changes/not-positive: %s"
+                        % [x.line() for x in f11])
+
+    # 12. A lowercase verdict is still a verdict.
+    p12 = {"number": 129, "mergedAt": "2026-08-20T10:00:00Z", "body": "x",
+           "reviews": [{"body": "[R0] negative - the boot order is wrong",
+                        "submittedAt": "2026-08-20T09:00:00Z"}], "comments": []}
+    if [x.reason for x in assess_pr(p12, openf(set()))] != ["negative-merge"]:
+        problems.append("case12 lowercase-negative")
+    return problems
+
+def _issue_link_and_lexicon_problems(openf):
+    """Problems from cases 13-18: the `Closes #a, #b` grammar, and the widened
+    verdict lexicon that must not read this repo's own test vocabulary."""
+    problems = []
+
+    # 13. A comma-separated `Closes #a, #b`: the TRAILING one, still open, must
+    # be reported - the old `\s+#` form dropped everything after the first.
+    p13 = {"number": 130, "mergedAt": "2026-08-20T10:00:00Z",
+           "body": "Closes #12, #13.\n[R0] POSITIVE",
+           "reviews": [], "comments": []}
+    f13 = assess_pr(p13, openf({13}))          # #12 closed, #13 open
+    if [x.reason for x in f13] != ["open-issue"] or "#13" not in f13[0].detail:
+        problems.append("case13 comma-list-closes: %s" % [x.line() for x in f13])
+
+    # 14. `Closes: #14` (colon) and `discloses #99` (must NOT match).
+    p14 = {"number": 131, "mergedAt": "2026-08-20T10:00:00Z",
+           "body": "Fixes: #14. This discloses #99 as related.\n[R0] POSITIVE",
+           "reviews": [], "comments": []}
+    f14 = assess_pr(p14, lambda n: True)       # both would be open if matched
+    if [x.reason for x in f14] != ["open-issue"] or "#14" not in f14[0].detail:
+        problems.append("case14 colon-closes / discloses false-match: %s"
+                        % [x.line() for x in f14])
+
+    # 15. THE #199 REGRESSION: a POSITIVE review whose PASS-lens line mentions
+    # "negative-control" (this repo's own test vocabulary) must NOT be read as a
+    # merge against a NEGATIVE. The first cut of the widened lexicon flipped
+    # exactly this clean, POSITIVE-reviewed PR to negative-merge ([R1]).
+    p15 = {"number": 199, "mergedAt": "2026-08-21T19:28:18Z", "body": "x",
+           "reviews": [], "comments": [
+               {"body": "[R0] Cleared-context review. **POSITIVE.** All met.\n"
+                        "[R0] PASS Conformance - prints PASS positive + PASS "
+                        "negative-control + OK, exit 0.\n"
+                        "[R0] MINOR Robustness - the grep is looser than needed.",
+                "createdAt": "2026-08-21T19:19:54Z"}]}
+    if assess_pr(p15, openf(set())):
+        problems.append("case15 negative-control-in-a-PASS-line must not flag: "
+                        "%s" % [x.line() for x in assess_pr(p15, openf(set()))])
+
+    # 16. THE #111 MISS: merged over a standing "still not validated for merge
+    # / the blockers remain" with only author [A1] follow-ups after ([R2]).
+    p16 = {"number": 111, "mergedAt": "2026-08-18T19:15:59Z", "body": "x",
+           "reviews": [], "comments": [
+               {"body": "[R0] this PR is not validated for merge yet. "
+                        "Blocking: 1.",
+                "createdAt": "2026-08-18T16:28:07Z"},
+               {"body": "[R0] Status recheck: still not validated for merge. "
+                        "The blockers remain.",
+                "createdAt": "2026-08-18T17:33:45Z"},
+               {"body": "[A1] Every blocker is answered at de4b319.",
+                "createdAt": "2026-08-18T18:53:59Z"}]}
+    if [x.reason for x in assess_pr(p16, openf(set()))] != ["negative-merge"]:
+        problems.append("case16 not-validated: %s"
+                        % [x.line() for x in assess_pr(p16, openf(set()))])
+
+    # 17. ...and the positive pole clears: #112 iterates "cannot validate" then
+    # ends "[R1] VALIDATED" before merge, so it must NOT be flagged.
+    p17 = {"number": 112, "mergedAt": "2026-08-18T18:31:48Z", "body": "x",
+           "reviews": [{"body": "[R0] cannot validate: a store leaks.",
+                        "submittedAt": "2026-08-18T15:49:43Z"},
+                       {"body": "[R1] VALIDATED. Every outstanding item "
+                                "verified.",
+                        "submittedAt": "2026-08-18T18:31:45Z"}], "comments": []}
+    if assess_pr(p17, openf(set())):
+        problems.append("case17 validated-clears must be clean: %s"
+                        % [x.line() for x in assess_pr(p17, openf(set()))])
+
+    # 18. A `### [R1] BLOCKER` markdown-header finding line is still a finding
+    # (not a verdict), and a `## [R1] POSITIVE` header is still the verdict.
+    p18 = {"number": 900, "mergedAt": "2026-08-21T00:00:03Z", "body": "x",
+           "reviews": [{"body": "## [R1] POSITIVE\n### [R1] MINOR Docs - a nit",
+                        "submittedAt": "2026-08-21T00:00:00Z"}], "comments": []}
+    if assess_pr(p18, openf(set())):
+        problems.append("case18 header-formatted POSITIVE must be clean: %s"
+                        % [x.line() for x in assess_pr(p18, openf(set()))])
+    return problems
+
+def _suffixed_dialect_problems(openf):
+    """Problems from cases 19-24: the suffixed multi-lens identity, round-status
+    lines, and the bare verdict line that deliberately does not clear."""
+    problems = []
+
+    # 19. THE #310 SHAPE (#316's grammar decision): a SUFFIXED multi-lens
+    # identity publishes the clearing POSITIVE after a canonical NEGATIVE.
+    # Under the pre-#316 parser the suffixed line was invisible and the merge
+    # read negative; the suffixed dialect is supported now, so this is clean.
+    p19 = {"number": 310, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers at head 74b9",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "## [R0-a] POSITIVE - conformance lens at head baff9ae7",
+                "createdAt": "2026-09-01T20:30:00Z"}], "reviews": []}
+    if assess_pr(p19, openf(set())):
+        problems.append("case19 suffixed-positive must clear: %s"
+                        % [x.line() for x in assess_pr(p19, openf(set()))])
+
+    # 20. A round-STATUS line is not a verdict: `MERGE-ROUND COMPLETE` after a
+    # NEGATIVE clears nothing (the other half of the #310 record).
+    p20 = {"number": 311, "mergedAt": "2026-09-01T21:05:25Z", "body": "x",
+           "comments": [
+               {"body": "[R8] NEGATIVE - blockers stand",
+                "createdAt": "2026-09-01T08:42:50Z"},
+               {"body": "[R0] MERGE-ROUND COMPLETE - both tracks summarized",
+                "createdAt": "2026-09-01T21:05:22Z"}], "reviews": []}
+    if [x.reason for x in assess_pr(p20, openf(set()))] != ["negative-merge"]:
+        problems.append("case20 status-line-is-not-a-verdict")
+
+    # 21. A suffixed CLEAN-LENS lead is skipped for verdicts - and this arm
+    # has SINGLE-FAULT teeth ([R1] on PR #327 caught the first cut failing
+    # only under a double fault): the PASS prose deliberately carries the
+    # `not validated` REJECTION phrase, so a parser that stops recognizing
+    # the suffixed finding-lead reads the line as a verdict, sees a
+    # rejection, and flips this clean merge to negative-merge - red.
+    p21 = {"number": 312, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+           "reviews": [{"body": "[R0] POSITIVE",
+                        "submittedAt": "2026-08-20T12:00:00Z"},
+                       {"body": "[R0-b] PASS Tests - tb/foo:1 - the gate "
+                                "refuses a not validated image as required",
+                        "submittedAt": "2026-08-20T13:00:00Z"}],
+           "comments": []}
+    if assess_pr(p21, openf(set())):
+        problems.append("case21 suffixed-pass-lens must be skipped: %s"
+                        % [x.line() for x in assess_pr(p21, openf(set()))])
+
+    # 22. A suffixed BLOCKER is still a BLOCKER: with no later POSITIVE it
+    # must be reported open ([R1] on PR #327: the first cut left the
+    # suffixed-BLOCKER path with zero coverage, so a half-applied regression
+    # silently dropped the open-blocker finding).
+    p22 = {"number": 313, "mergedAt": "2026-08-20T15:00:00Z", "body": "x",
+           "reviews": [{"body": "[R1] POSITIVE",
+                        "submittedAt": "2026-08-20T12:00:00Z"},
+                       {"body": "[R0-b] BLOCKER Tests - tb/foo:2 - it lies",
+                        "submittedAt": "2026-08-20T13:00:00Z"}],
+           "comments": []}
+    if [x.reason for x in assess_pr(p22, openf(set()))] != ["open-blocker"]:
+        problems.append("case22 suffixed-blocker must stay open: %s"
+                        % [x.line() for x in assess_pr(p22, openf(set()))])
+    return problems
+
+
+def _canonical_verdict_line_problems(openf):
+    """Problems from cases 23-24: the #302 ordering written canonically, and
+    the same shape with a BARE verdict line, which deliberately does not
+    clear the standing BLOCKER."""
+    problems = []
+
+    # 23. THE #302 ORDERING, WRITTEN CANONICALLY (#311): an earlier BLOCKER,
+    # then an exact-head re-review whose CANONICAL verdict token rides the
+    # [R<n>]-led line, followed by five per-lens PASS lines. The verdict
+    # clears the blocker and the PASS lines confuse nothing.
+    p23 = {"number": 302, "mergedAt": "2026-09-01T11:18:52Z", "body": "x",
+           "comments": [
+               {"body": "[R1] BLOCKER Tests - scripts/gen_teroshdl.py:1 - x",
+                "createdAt": "2026-08-30T10:00:00Z"},
+               {"body": "[R1] POSITIVE - exact head ea59a3e2\n"
+                        "[R1] PASS Conformance - a.py:1 - held\n"
+                        "[R1] PASS Tests - b.py:1 - held\n"
+                        "[R1] PASS Docs - c.md:1 - held\n"
+                        "[R1] PASS Robustness - d.sv:1 - held\n"
+                        "[R1] PASS Process - e.md:1 - held",
+                "createdAt": "2026-08-31T10:00:00Z"}], "reviews": []}
+    if assess_pr(p23, openf(set())):
+        problems.append("case23 canonical-five-lens must clear the blocker: %s"
+                        % [x.line() for x in assess_pr(p23, openf(set()))])
+
+    # 24. THE #302 SHAPE VERBATIM, AS A NEGATIVE CONTROL: the verdict on a
+    # BARE line under an [R<n>]-led header does NOT machine-read, so the
+    # earlier BLOCKER stays open - the recorded reason PR #302 reports
+    # open-blocker, kept deliberate rather than accidental.
+    p24 = {"number": 1302, "mergedAt": "2026-09-01T11:18:52Z", "body": "x",
+           "comments": [
+               {"body": "[R1] BLOCKER Tests - scripts/gen_teroshdl.py:1 - x",
+                "createdAt": "2026-08-30T10:00:00Z"},
+               {"body": "[R1] EXACT-HEAD RE-REVIEW\n\n"
+                        "Verdict: **PASS across all five review lenses.**\n\n"
+                        "[R1] PASS Conformance - a.py:1 - held",
+                "createdAt": "2026-08-31T10:00:00Z"}], "reviews": []}
+    if [x.reason for x in assess_pr(p24, openf(set()))] != ["open-blocker"]:
+        problems.append("case24 bare-verdict-line must NOT clear: %s"
+                        % [x.line() for x in assess_pr(p24, openf(set()))])
+    return problems
+
+def _acquisition_problems() -> tuple[list[str], int]:
+    """The acquisition-layer cases, which live in a module beside this one.
+
+    They are handed BOTH modules rather than importing either, so the arms
+    patch and drive the very namespaces `run()` and `fetch_merged_prs()`
+    resolve from. Returns (problems, how many cases actually ran).
+    """
+    selftest_module = _sibling_module("merge_review_selftest")
+    return selftest_module.selftest(_sibling_module("merge_review_acquire"),
+                                    sys.modules[__name__])
+
+
+def selftest() -> int:
+    """Run every numbered case, and prove the banner's count is the real one.
+
+    The meta-arm counts the numbered case markers in the source of each
+    arm-bearing function: the first cut of this banner claimed 18 while 21
+    ran, in a lane whose subject was a miscounted evidence figure.
+    """
+    def openf(open_set: set[int]) -> Callable[[int], bool]:
+        """An is-this-Issue-open probe answering OPEN for exactly `open_set`."""
+        return lambda n: n in open_set
+
+    problems = (_verdict_source_problems(openf)
+                + _blocker_and_scope_problems(openf)
+                + _issue_link_and_lexicon_problems(openf)
+                + _suffixed_dialect_problems(openf)
+                + _canonical_verdict_line_problems(openf))
+
+    # META-ARM ([R1] on PR #327): the banner count is pinned against the
+    # numbered case markers in the source of every function that holds one, so
+    # a new case cannot silently run uncounted - the first cut said "18" while
+    # 21 ran, in a lane whose SUBJECT was a miscounted evidence figure. Every
+    # arm-bearing function is named here, `selftest` included, so a case added
+    # inline or in a new group is counted wherever it is written.
+    core = 24
+    import inspect
+    counted = (_verdict_source_problems, _blocker_and_scope_problems,
+               _issue_link_and_lexicon_problems, _suffixed_dialect_problems,
+               _canonical_verdict_line_problems, selftest)
+    markers = sum(len(re.findall(r"(?m)^\s*# \d+\.\s", inspect.getsource(f)))
+                  for f in counted)
+    if markers != core:
+        problems.append("case-count drift: banner claims %d, source carries "
+                        "%d numbered cases" % (core, markers))
+
+    # The acquisition layer (#426) carries its own arms and its own count of
+    # the cases that RAN, so an arm lost to an early return is a drift finding
+    # there exactly as a miscounted marker is one here.
+    acquisition_problems, acquisition_cases = _acquisition_problems()
+    problems += acquisition_problems
+    n = core + acquisition_cases
+
+    for p in problems:
+        print("  SELFTEST FAILED: %s" % p)
+    print("check_merge_review_integrity self-test: %d checks: %d PASS, %d FAIL"
+          % (n, n - len(problems), len(problems)))
+    return 1 if problems else 0
+
+
+# ---------------------------------------------------------------------- main
+
+def run(limit: int, base: str) -> int:
+    """Assess the merged-PR window and print what a reader could not otherwise see.
+
+    A finding is exit 1 but not an accusation: the report says so, because a
+    NEGATIVE merge can be a legitimate maintainer override and the point is
+    that it be visible after the fact, not that it be prevented.
+    """
+    prs = fetch_merged_prs(limit, base)
+    findings = []
+    # One issue-state lookup is cached, so a window that closes the same Issue
+    # twice does not ask GitHub twice.
+    cache = {}
+
+    def open_cached(n: int) -> bool:
+        """`issue_is_open`, asked of GitHub at most once per issue number."""
+        if n not in cache:
+            cache[n] = issue_is_open(n)
+        return cache[n]
+
+    for pr in prs:
+        findings += assess_pr(pr, open_cached)
+    if findings:
+        print("merge review-integrity: %d finding(s) over the last %d merged "
+              "PR(s) into %s:" % (len(findings), len(prs), base))
+        for f in findings:
+            print("  %s" % f.line())
+        print("A NEGATIVE merge can be a legitimate maintainer override; this "
+              "names it so a reader can tell, and an open linked Issue should "
+              "be closed or its divergence recorded (CONTRIBUTING 2.1).")
+        return RC_FINDING
+    print("merge review-integrity: clean over the last %d merged PR(s) into %s"
+          % (len(prs), base))
+    return RC_OK
+
+
+def main(argv: list[str]) -> int:
+    """The gate, or its self-test; a missing gh is exit 2, never a pass.
+
+    The three exit codes are kept apart on purpose: a caller must be able to
+    tell "no findings" from "the window was never read".
+    """
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--base", default=DEFAULT_BASE)
+    ap.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
+    args = ap.parse_args(argv[1:])
+    if args.selftest:
+        return selftest()
+    try:
+        return run(args.limit, args.base)
+    except CannotRun as exc:
+        print("CANNOT VERIFY merge review-integrity: %s" % exc, file=sys.stderr)
+        print("  gh is required to read the merged-PR window; a missing tool is",
+              file=sys.stderr)
+        print("  not a pass.", file=sys.stderr)
+        return RC_CANNOT_RUN
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

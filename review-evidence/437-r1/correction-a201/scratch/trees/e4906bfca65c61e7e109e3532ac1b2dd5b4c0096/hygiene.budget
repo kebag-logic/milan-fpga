@@ -1,0 +1,37 @@
+# Rule 9 ratchets: one number per adopted check, per POPULATION. See
+# scripts/check_hygiene.py for the measurement that selected these five and
+# the recorded reason the line-length check was REJECTED. EVERY NUMBER MAY
+# ONLY GO DOWN; lowering one is a normal commit.
+#
+# THREE SECTIONS, one per population, and `--check` compares each against its
+# own (the R2 review of #283 found the single number it replaced let a new
+# superproject finding ride in the processor's slot). A finding inside a
+# pinned processor is that repository's debt: it is held in its own section
+# until it is fixed upstream and the pin moves, and it never frees a slot for
+# a finding in this repository's own files, which stay at ZERO. A section is
+# named by the path prefix the finding lives under, so a number cannot move
+# between sections.
+#
+# `python3 scripts/check_hygiene.py --fix` repairs the first four in this
+# repository only; a processor finding is reported for its upstream fix.
+#
+# --- section superproject ---
+trailing whitespace  = 0
+missing EOF newline  = 0
+CRLF line ending     = 0
+UTF-8 BOM            = 0
+tab in SystemVerilog = 0
+#
+# --- section protocol-processor ---
+trailing whitespace  = 1   # tb/nvm_port/measure_figures.py:206 at pin 3770ae02
+missing EOF newline  = 0
+CRLF line ending     = 0
+UTF-8 BOM            = 0
+tab in SystemVerilog = 0
+#
+# --- section gptp-processor ---
+trailing whitespace  = 0
+missing EOF newline  = 0
+CRLF line ending     = 0
+UTF-8 BOM            = 0
+tab in SystemVerilog = 0
