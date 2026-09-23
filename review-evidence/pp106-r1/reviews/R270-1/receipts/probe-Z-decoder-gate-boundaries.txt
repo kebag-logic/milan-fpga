@@ -1,0 +1,14 @@
+== tree: head
+srp_decoder rc=0 156 checks: 156 PASS, 0 FAIL
+== tree: X1
+srp_decoder rc=2 156 checks: 153 PASS, 3 FAIL
+FAIL: PROBE-Z1 Listener lane once got 0
+FAIL: PROBE-Z1 DLSDU order strobe order
+FAIL: PROBE-Z2 second Listener message strobe order
+  got : E3 E3
+  want: E3 L3 E3
+  got : E3 L4 E4 E4
+  want: E3 L4 E4 E4 L3
+== tree: X7
+srp_decoder rc=2 156 checks: 155 PASS, 1 FAIL
+FAIL: PROBE-Z3 the next MRPDU's Listener LeaveAll fires again got 0
