@@ -1,0 +1,42 @@
+fixture-at-head	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:44:18Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/verify_fixture_at_head.py $MANAGEMENT/2026-09-23/437-a184/receipts/fixture-at-head.json
+toc-sites	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/gen_toc.py --sites
+toc-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/gen_toc.py --selftest
+docs-check-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/docs_check.py --selftest
+doc-style-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_doc_style.py --selftest
+doc-style	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_doc_style.py
+doc-paths	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_doc_paths.py
+toc-check	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/gen_toc.py --check
+toc-anchors	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/gen_toc.py --verify-anchors
+hygiene	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_hygiene.py --check
+hygiene-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_hygiene.py --selftest
+naming	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/measure_naming.py --check
+naming-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/measure_naming.py --selftest
+fail-fast	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:01Z	python3 -B scripts/measure_fail_fast.py --check
+fail-fast-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:01Z	python3 -B scripts/measure_fail_fast.py --selftest
+py-idiom	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_py_idiom.py
+py-idiom-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_py_idiom.py --selftest
+emdash-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_em_dash.py --selftest
+control-flow-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/measure_control_flow.py --selftest
+emdash-base-mergebase	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+cohesion-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/measure_cohesion.py --selftest
+emdash-base-original	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/check_em_dash.py --base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+ci-events	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/ci_events.py --check
+solution-docs	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_solution_docs.py
+docs-check	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:00Z	python3 -B scripts/docs_check.py
+feature-status	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_feature_status.py
+gptp-docs	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_gptp_docs.py
+submodule-docs	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_submodule_docs.py
+archive	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_archive.py
+todo-ownership	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_todo_ownership.py
+todo-ownership-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/check_todo_ownership.py --selftest
+test-evidence	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:02Z	python3 -B scripts/measure_test_evidence.py --check
+test-evidence-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:02Z	python3 -B scripts/measure_test_evidence.py --selftest
+ci-events-selftest	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:45:03Z	python3 -B scripts/ci_events.py --selftest
+named-regressions	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:00Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/named_regressions.py $MANAGEMENT/2026-09-23/437-a184/receipts/named-render.json $MANAGEMENT/2026-09-23/437-a184/receipts/named-regressions.json
+three-way	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:22Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/three_way.py $MANAGEMENT/2026-09-23/437-a184/receipts/three-way.json $MANAGEMENT/2026-09-23/437-a184/receipts/contract-probes-1.json $MANAGEMENT/2026-09-23/437-a184/receipts/contract-probes-2.json $MANAGEMENT/2026-09-23/437-a184/receipts/family-one-render.json $MANAGEMENT/2026-09-23/437-a184/receipts/comment-render.json
+prior-arms	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:22Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/prior_arms.py $MANAGEMENT/2026-09-23/437-a184/receipts/prior-arms.json
+corpus-compare	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:22Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/corpus_compare.py $MANAGEMENT/2026-09-23/437-a184/receipts/corpus-compare.json
+mutations	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:31Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/mutate.py $MANAGEMENT/2026-09-23/437-a184/receipts/mutations.json
+a172-mutants	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:46:47Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/replay_a172_mutants.py $MANAGEMENT/2026-09-23/437-a184/receipts/a172-mutants.json
+integrity	1	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:47:28Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/integrity.py $MANAGEMENT/2026-09-23/437-a184/receipts/integrity.json
+integrity	0	4741498f3b2b4f67f431037d327c96cf65691278	2026-09-23T04:47:34Z	python3 -B $MANAGEMENT/2026-09-23/437-a184/scripts/integrity.py $MANAGEMENT/2026-09-23/437-a184/receipts/integrity.json
