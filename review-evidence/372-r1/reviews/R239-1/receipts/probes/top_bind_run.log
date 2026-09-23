@@ -1,0 +1,82 @@
+PASS baseline slow+fast: 2 record(s)
+PASS baseline rec0: dir=0 mt=2 seq=0x0102 ns=120
+PASS baseline rec1: dir=0 mt=2 seq=0x0203 ns=6060
+PASS baseline delta rec0->rec1: got 5940 ns want 5940 ns
+PASS flood sandwich: 2 record(s)
+PASS flood sandwich rec1: dir=0 mt=2 seq=0x2222 ns=9220
+PASS flood sandwich delta rec0->rec1: got 1780 ns want 1780 ns
+PASS resp+fup pair: 1 record(s)
+PASS resp+fup pair rec0: dir=0 mt=3 seq=0x0777 ns=11800
+PASS sync+sync b2b: 2 record(s)
+PASS sync+sync b2b rec0: dir=0 mt=0 seq=0x0501 ns=13360
+PASS sync+sync b2b rec1: dir=0 mt=0 seq=0x0502 ns=13540
+PASS sync+sync b2b delta rec0->rec1: got 180 ns want 180 ns
+PASS announce storm: 0 record(s)
+PASS backpressured burst: 3 record(s)
+PASS backpressured burst rec0: dir=0 mt=2 seq=0x0601 ns=18320
+PASS backpressured burst rec1: dir=0 mt=2 seq=0x0602 ns=18500
+PASS backpressured burst rec2: dir=0 mt=2 seq=0x0603 ns=18680
+PASS backpressured burst delta rec0->rec2: got 360 ns want 360 ns
+PASS tx sync x2: 2 record(s)
+PASS tx sync x2 rec0: dir=1 mt=0 seq=0x1122 ns=23660
+PASS tx sync x2 rec1: dir=1 mt=0 seq=0x1123 ns=23840
+PASS tx: 2 o_tx_ts_ready pulses
+PASS tx+rx storm: 2 record(s)
+PASS tx+rx storm: both records correct
+PASS runts then good: 1 record(s)
+PASS runts then good rec0: dir=0 mt=2 seq=0x0901 ns=30000
+PASS ptp09 tagged events: 2 record(s)
+PASS ptp09 tagged rec0: dir=0 mt=2 seq=0x0c01 ns=31780
+PASS ptp09 tagged rec1: dir=0 mt=0 seq=0x0c02 ns=31960
+PASS ptp09 tagged delta rec0->rec1: got 180 ns want 180 ns
+PASS ptp09 tagged/untagged interleave: 3 record(s)
+PASS ptp09 mix rec0: dir=0 mt=3 seq=0x0c11 ns=34540
+PASS ptp09 mix rec1: dir=0 mt=3 seq=0x0c12 ns=34720
+PASS ptp09 mix rec2: dir=0 mt=1 seq=0x0c13 ns=34900
+PASS ptp09 mix delta rec0->rec1: got 180 ns want 180 ns
+PASS ptp09 mix delta rec1->rec2: got 180 ns want 180 ns
+PASS ptp09 tagged non-PTP (negative): 0 record(s)
+PASS ptp09 tagged general msgs (negative): 0 record(s)
+PASS ptp09 truncated tagged then good: 1 record(s)
+PASS ptp09 truncated rec0: dir=0 mt=2 seq=0x0c42 ns=44860
+PASS ptp05 event types 0-3: 4 record(s)
+PASS ptp05 event rec0: dir=0 mt=0 seq=0x0a00 ns=47440
+PASS ptp05 event rec1: dir=0 mt=1 seq=0x0a01 ns=47620
+PASS ptp05 event rec2: dir=0 mt=2 seq=0x0a02 ns=47800
+PASS ptp05 event rec3: dir=0 mt=3 seq=0x0a03 ns=47980
+PASS ptp05 non-event types 4-15 (negative): 0 record(s)
+PASS ptp05 alive after non-event storm: 2 record(s)
+PASS ptp05: RX+TX events survive the non-event storm
+PASS ptp06 rx pair: 2 record(s)
+PASS ptp06 rx: ingress 3511 ns subtracted (delta 2669, want 2669)
+PASS ptp06 tx pair: 2 record(s)
+PASS ptp06 tx: egress 1490 ns added (delta 2870, want 2870)
+PASS ptp06 cross-talk pair: 2 record(s)
+PASS ptp06 egress does NOT touch RX delta rec0->rec1: got 1380 ns want 1380 ns
+PASS ptp06 corrections cleared: 2 record(s)
+PASS ptp06 cleared delta rec0->rec1: got 180 ns want 180 ns
+======================================================================
+PTP-TS METADATA (interference suite): ALL PASS
+ptp_ts: 92 checks, 0 failures
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ai_grants_mutually_exclusive calls=3917 nonvacuous=70
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ai_payload_forwarded_on_transfer calls=70 nonvacuous=70
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ai_ready_only_for_owner_and_ready_sink calls=3917 nonvacuous=70
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ai_tvalid_forwarded calls=3917 nonvacuous=186
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ap_grant_only_to_requester calls=3908 nonvacuous=35
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ap_owner_held_until_tlast_handshake calls=3908 nonvacuous=151
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ap_owner_released_after_tlast calls=3908 nonvacuous=35
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ap_reset_releases_owner calls=3916 nonvacuous=8
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.ap_state_legal calls=3908 nonvacuous=3908
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_m_dut.ap_tdata_stable_until_handshake calls=3908 nonvacuous=116
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_m_dut.ap_tkeep_stable_until_handshake calls=3908 nonvacuous=116
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_m_dut.ap_tlast_stable_until_handshake calls=3908 nonvacuous=116
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_m_dut.ap_tvalid_held_until_handshake calls=3908 nonvacuous=116
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s0_stimulus.ap_tdata_stable_until_handshake calls=3908 nonvacuous=145
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake calls=3908 nonvacuous=145
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s0_stimulus.ap_tlast_stable_until_handshake calls=3908 nonvacuous=145
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s0_stimulus.ap_tvalid_held_until_handshake calls=3908 nonvacuous=145
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s1_stimulus.ap_tdata_stable_until_handshake calls=3908 nonvacuous=9
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s1_stimulus.ap_tkeep_stable_until_handshake calls=3908 nonvacuous=9
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s1_stimulus.ap_tlast_stable_until_handshake calls=3908 nonvacuous=9
+probe-witness TOP.ptp_ts_top.axis_tx_rx_ts_switch_rr.u_sva.u_s1_stimulus.ap_tvalid_held_until_handshake calls=3908 nonvacuous=9
+probe-witness pairs=21

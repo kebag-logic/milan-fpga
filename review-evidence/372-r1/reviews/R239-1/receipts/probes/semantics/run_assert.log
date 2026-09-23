@@ -1,0 +1,47 @@
+-- edge  0: reset
+edge  0 ap_past_one    FAIL-action flag=0
+edge  0 ap_stable_one  FAIL-action flag=0
+-- edge  1: reset
+edge  1 ap_past_one    PASS-action flag=1
+edge  1 ap_stable_one  PASS-action flag=1
+-- edge  2: run, a=1 (attempt starts)
+edge  2 ap_past_one    PASS-action flag=1
+edge  2 ap_stable_one  PASS-action flag=1
+edge  2 as_a           PASS-action flag=1
+edge  2 ap_a           PASS-action flag=0
+-- edge  3: RESET edge completes the edge-2 attempt, b=0
+edge  3 ap_past_one    PASS-action flag=1
+edge  3 ap_stable_one  PASS-action flag=1
+-- edge  4: RESET edge, a=1 (attempt starts in reset)
+edge  4 ap_past_one    PASS-action flag=1
+edge  4 ap_stable_one  PASS-action flag=1
+-- edge  5: run, b=0: completes the edge-4 attempt
+edge  5 ap_past_one    PASS-action flag=1
+edge  5 ap_stable_one  PASS-action flag=1
+edge  5 as_a           PASS-action flag=1
+edge  5 ap_a           PASS-action flag=0
+-- edge  6: run, a=1
+edge  6 ap_past_one    PASS-action flag=1
+edge  6 ap_stable_one  PASS-action flag=1
+edge  6 as_a           PASS-action flag=1
+edge  6 ap_a           PASS-action flag=0
+-- edge  7: run, b=0: completes edge-6 attempt (must FAIL)
+edge  7 ap_past_one    PASS-action flag=1
+edge  7 ap_stable_one  PASS-action flag=1
+edge  7 as_a           FAIL-action flag=0
+edge  7 ap_a           FAIL-action flag=0
+-- edge  8: run, a=1
+edge  8 ap_past_one    PASS-action flag=1
+edge  8 ap_stable_one  PASS-action flag=1
+edge  8 as_a           PASS-action flag=1
+edge  8 ap_a           PASS-action flag=0
+-- edge  9: run, b=1: completes edge-8 attempt (non-vacuous pass)
+edge  9 ap_past_one    PASS-action flag=1
+edge  9 ap_stable_one  PASS-action flag=1
+edge  9 as_a           PASS-action flag=1
+edge  9 ap_a           PASS-action flag=1
+-- edge 10: run, idle
+edge 10 ap_past_one    PASS-action flag=1
+edge 10 ap_stable_one  PASS-action flag=1
+edge 10 as_a           PASS-action flag=1
+edge 10 ap_a           PASS-action flag=0

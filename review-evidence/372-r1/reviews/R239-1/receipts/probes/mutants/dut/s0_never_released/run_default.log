@@ -1,0 +1,5 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=all stimulus_fault=none
+scenario single_beats from cycle 4
+[7000] %Error: axis_mux_rr_2in_1out_sva.sv:147: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.ap_owner_released_after_tlast: the owner kept the output after its TLAST beat was taken
+%Error: ../../common/sva/axis_mux_rr_2in_1out_sva.sv:147: Verilog $stop
+Aborting...

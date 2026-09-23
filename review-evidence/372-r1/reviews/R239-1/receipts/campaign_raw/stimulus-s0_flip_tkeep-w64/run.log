@@ -1,0 +1,6 @@
+axis_mux_rr_2in_1out with its bound checker: TDATA_WIDTH=64 seed=3784 (+seed=<n> replays random_mix) scenario=single_beats stimulus_fault=s0_flip_tkeep
+scenario single_beats from cycle 4
+stimulus fault injected: s0, after the stall sampled at cycle 5
+[6000] %Error: axis_stream_source_sva.sv:83: Assertion failed in TOP.axis_mux_rr_2in_1out.u_sva.u_s0_stimulus.ap_tkeep_stable_until_handshake: TKEEP changed while the beat was stalled (IHI0051A 2.2)
+-Info: ../../common/sva/axis_stream_source_sva.sv:83: Verilog $stop, ignored due to +verilator+error+limit
+SVA-STOP: an assertion failed at the edge ending cycle 6 (the %Error lines above name it); the run stops at that edge
