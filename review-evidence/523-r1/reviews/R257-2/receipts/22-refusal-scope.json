@@ -1,0 +1,87 @@
+{
+ "clean": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "rewritten-test-results": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "untracked-unrelated-hdl": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "dirty-unrelated-tb-common": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "dirty-suite-readme": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "dirty-unrelated-axis": {
+  "verdict": "ACCEPTED",
+  "files": 22,
+  "exit": 0
+ },
+ "dirty-mutation-target": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-mutation-target/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "exit": 0
+ },
+ "dirty-build-input": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-build-input/hdl/common/cdc_pulse.sv",
+  "exit": 0
+ },
+ "dirty-local-header": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-local-header/tb/common/gptp_tx_flags.hpp",
+  "exit": 0
+ },
+ "dirty-axis-input": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-axis-input/third_party/verilog-axis/rtl/axis_fifo.v",
+  "exit": 0
+ },
+ "dirty-gptp-input": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-gptp-input/gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "exit": 0
+ },
+ "dirty-ucode-generator": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-ucode-generator/gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "exit": 0
+ },
+ "dirty-suite-makefile": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/dirty-suite-makefile/tb/verilator/gptp_shadow/Makefile",
+  "exit": 0
+ },
+ "copied-dependency-no-git": {
+  "verdict": "REFUSED",
+  "reason": "required dependency is not at its pin: third_party/verilog-axis",
+  "exit": 0
+ },
+ "uninitialised-dependency": {
+  "verdict": "REFUSED",
+  "reason": "required dependency is not at its pin: gptp-processor",
+  "exit": 0
+ },
+ "off-pin-dependency": {
+  "verdict": "REFUSED",
+  "reason": "required dependency is not at its pin: third_party/verilog-axis",
+  "exit": 0
+ },
+ "assume-unchanged-target": {
+  "verdict": "REFUSED",
+  "reason": "modified input bytes/mode: <packet>/scratch/refusal-scope/assume-unchanged-target/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+  "exit": 0
+ }
+}

@@ -1,0 +1,56 @@
+[
+ {
+  "entry": "sweep",
+  "mode": "pidfd-open-enosys",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: process ownership: [Errno 38] Function not implemented\n"
+ },
+ {
+  "entry": "campaign",
+  "mode": "pidfd-open-enosys",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: [Errno 38] Function not implemented\n"
+ },
+ {
+  "entry": "sweep",
+  "mode": "subreaper-eperm",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: process ownership: [Errno 1] cannot enable descendant adoption\n"
+ },
+ {
+  "entry": "campaign",
+  "mode": "subreaper-eperm",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: [Errno 1] cannot enable descendant adoption\n"
+ },
+ {
+  "entry": "sweep",
+  "mode": "pdeathsig-eperm",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: process ownership: cannot bind the command to its owner: Exception occurred in preexec_fn.\n"
+ },
+ {
+  "entry": "campaign",
+  "mode": "pdeathsig-eperm",
+  "exit": 2,
+  "refused": true,
+  "traceback": false,
+  "listed_or_started": false,
+  "text": "REFUSED: cannot bind the command to its owner: Exception occurred in preexec_fn.\n"
+ }
+]

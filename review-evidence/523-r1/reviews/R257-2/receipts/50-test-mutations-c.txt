@@ -1,0 +1,7 @@
+no-index-check             DETECTED    exit=1 16.1s  staged/untracked index state accepted
+hardlink-copies            DETECTED    exit=1 29.8s  private copies are hardlinks into caller inputs
+no-include-closure         DETECTED    exit=1 19.7s  local C++ headers are not copied
+garbage-records-skipped    DETECTED    exit=1 25.2s  an unreadable identity record is ignored
+no-directory-link-check    DETECTED    exit=1 22.2s  linked input directories are followed
+no-toplevel-check          SURVIVED    exit=0 47.1s  dependency toplevel identity not checked (defence in depth)
+no-pin-check               DETECTED    exit=1 20.6s  dependency checkout revision not compared with its gitlink

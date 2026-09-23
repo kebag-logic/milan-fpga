@@ -1,0 +1,921 @@
+{
+ "primary/alias-context": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/commit-hook-context": {
+  "env": [
+   "GIT_AUTHOR_NAME",
+   "GIT_EDITOR",
+   "GIT_EXEC_PATH",
+   "GIT_INDEX_FILE",
+   "GIT_PREFIX"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_INDEX_FILE",
+  "verdict": "REFUSED"
+ },
+ "primary/config-count-zero": {
+  "env": [
+   "GIT_CONFIG_COUNT"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_CONFIG_COUNT",
+  "verdict": "REFUSED"
+ },
+ "primary/config-nosystem": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_CONFIG_NOSYSTEM"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/discovery": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_CEILING_DIRECTORIES",
+   "GIT_DISCOVERY_ACROSS_FILESYSTEM"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/exec-path-bogus": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_EXEC_PATH"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/foreign-gitdir": {
+  "env": [
+   "GIT_DIR"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR",
+  "verdict": "REFUSED"
+ },
+ "primary/git-c-alias-context": {
+  "env": [
+   "GIT_CONFIG_PARAMETERS",
+   "GIT_EXEC_PATH"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_CONFIG_PARAMETERS",
+  "verdict": "REFUSED"
+ },
+ "primary/namespace": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_NAMESPACE"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/noglob-pathspecs": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_NOGLOB_PATHSPECS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/none": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/optional-locks": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_OPTIONAL_LOCKS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/pathspec-flags": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_GLOB_PATHSPECS",
+   "GIT_ICASE_PATHSPECS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/presentation": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_AUTHOR_NAME",
+   "GIT_EDITOR",
+   "GIT_PAGER",
+   "GIT_SSH_COMMAND",
+   "GIT_TERMINAL_PROMPT"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/rebase-exec-context": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX",
+   "GIT_SEQUENCE_EDITOR"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/same-gitdir": {
+  "env": [
+   "GIT_DIR"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR",
+  "verdict": "REFUSED"
+ },
+ "primary/same-index": {
+  "env": [
+   "GIT_INDEX_FILE"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_INDEX_FILE",
+  "verdict": "REFUSED"
+ },
+ "primary/trace-stderr": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_TRACE",
+   "GIT_TRACE_SETUP"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "primary/trace2-file": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_TRACE2_EVENT"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/alias-context": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/commit-hook-context": {
+  "env": [
+   "GIT_AUTHOR_NAME",
+   "GIT_DIR",
+   "GIT_EDITOR",
+   "GIT_EXEC_PATH",
+   "GIT_INDEX_FILE",
+   "GIT_PREFIX"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR, GIT_INDEX_FILE",
+  "verdict": "REFUSED"
+ },
+ "worktree/config-count-zero": {
+  "env": [
+   "GIT_CONFIG_COUNT"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_CONFIG_COUNT",
+  "verdict": "REFUSED"
+ },
+ "worktree/config-nosystem": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_CONFIG_NOSYSTEM"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/discovery": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_CEILING_DIRECTORIES",
+   "GIT_DISCOVERY_ACROSS_FILESYSTEM"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/exec-path-bogus": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_EXEC_PATH"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/foreign-gitdir": {
+  "env": [
+   "GIT_DIR"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR",
+  "verdict": "REFUSED"
+ },
+ "worktree/git-c-alias-context": {
+  "env": [
+   "GIT_CONFIG_PARAMETERS",
+   "GIT_EXEC_PATH"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_CONFIG_PARAMETERS",
+  "verdict": "REFUSED"
+ },
+ "worktree/namespace": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_NAMESPACE"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/noglob-pathspecs": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_NOGLOB_PATHSPECS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/none": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/optional-locks": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_OPTIONAL_LOCKS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/pathspec-flags": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_GLOB_PATHSPECS",
+   "GIT_ICASE_PATHSPECS"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/presentation": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_AUTHOR_NAME",
+   "GIT_EDITOR",
+   "GIT_PAGER",
+   "GIT_SSH_COMMAND",
+   "GIT_TERMINAL_PROMPT"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/rebase-exec-context": {
+  "env": [
+   "GIT_DIR",
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX",
+   "GIT_SEQUENCE_EDITOR"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR",
+  "verdict": "REFUSED"
+ },
+ "worktree/same-gitdir": {
+  "env": [
+   "GIT_DIR"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_DIR",
+  "verdict": "REFUSED"
+ },
+ "worktree/same-index": {
+  "env": [
+   "GIT_INDEX_FILE"
+  ],
+  "reason": "Git environment redirects the checkout: GIT_INDEX_FILE",
+  "verdict": "REFUSED"
+ },
+ "worktree/trace-stderr": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_TRACE",
+   "GIT_TRACE_SETUP"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ },
+ "worktree/trace2-file": {
+  "all_bytes_equal_committed_blobs": true,
+  "copied_names": [
+   "gptp-processor/hdl/common/KL_gptp_timer.sv",
+   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+   "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+   "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+   "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
+   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+   "hdl/common/KL_link_guard.sv",
+   "hdl/common/cdc_handshake.sv",
+   "hdl/common/cdc_pulse.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+   "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+   "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp",
+   "tb/verilator/gptp_shadow/Makefile",
+   "tb/verilator/gptp_shadow/gptp_shadow_wrap.sv",
+   "tb/verilator/gptp_shadow/sim_main.cpp",
+   "third_party/verilog-axis/rtl/axis_fifo.v"
+  ],
+  "env": [
+   "GIT_TRACE2_EVENT"
+  ],
+  "files": 22,
+  "verdict": "ACCEPTED"
+ }
+}

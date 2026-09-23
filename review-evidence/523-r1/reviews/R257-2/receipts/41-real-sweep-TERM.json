@@ -1,0 +1,39 @@
+[
+ {
+  "label": "sweep-TERM-nested-real",
+  "signal": "SIGTERM",
+  "descendants_at_signal": 16,
+  "comms_at_signal": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "private_roots": [
+   "<packet>/scratch/real-nested/sweep-TERM-nested-real-tmp/gptp-shadow-mutants-5hgk7aw8"
+  ],
+  "status": 143,
+  "seconds_to_status": 0.37,
+  "alive_at_status": [],
+  "alive_count_at_status": 0,
+  "private_exists_at_status": [
+   false
+  ],
+  "alive_after_wait": [],
+  "summary_line": false,
+  "result_line": false,
+  "sentinel_ran": false,
+  "caller_unchanged": true,
+  "private_exists_after": [
+   false
+  ],
+  "tmp_left": [],
+  "foreign_preserved": true,
+  "transcript_tail": "shard: 0/1   selected suites: 2\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: <packet>/scratch/real-nested/sweep-TERM-nested-real-caller/logs\nCANCELLED: signal 15; no completed sweep result\n",
+  "suite_log_tail": "ion -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<packet>/scratch/real-nested/sweep-TERM-nested-real-caller/tb/verilator/gptp_shadow -Wall -Wextra   -c -o Vgptp_shadow_wrap__ALL.o Vgptp_shadow_wrap__ALL.cpp\ng++    sim_main.o verilated.o verilated_threads.o Vgptp_shadow_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_shadow_sim\nrm Vgptp_shadow_wrap__ALL.verilator_deplist.tmp\nmake[1]: Leaving directory '<packet>/scratch/real-nested/sweep-TERM-nested-real-caller/tb/verilator/gptp_shadow/obj_dir'\n- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050\n- Verilator: Built from 2.812 MB sources in 18 modules, into 0.810 MB in 6 C++ files needing 0.002 MB\n- Verilator: Walltime 5.321 s (elab=0.023, cvt=0.093, bld=5.160); cpu 0.171 s on 4 threads; allocated 358.445 MB\n./obj_dir/Vgptp_shadow_sim\nTX flags Sync: 28 frames, 0 wrong, expected 0x0200\nTX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200\nTX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000\n309 checks: 309 PASS, 0 FAIL\npython3 mutants.py\nCANCELLED: signal 15; no mutation verdict\nmake: *** [Makefile:56: mutants] Error 143\n"
+ }
+]

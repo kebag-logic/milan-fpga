@@ -1,0 +1,48 @@
+[
+ {
+  "label": "sweep-KILL-nested-real",
+  "signal": "SIGKILL",
+  "descendants_at_signal": 16,
+  "comms_at_signal": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "private_roots": [
+   "<packet>/scratch/real-nested/sweep-KILL-nested-real-tmp/gptp-shadow-mutants-vwap6wrs"
+  ],
+  "status": -9,
+  "seconds_to_status": 0.0,
+  "alive_at_status": [
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "alive_count_at_status": 15,
+  "private_exists_at_status": [
+   true
+  ],
+  "orphans_finished": true,
+  "alive_after_wait": [],
+  "summary_line": false,
+  "result_line": false,
+  "sentinel_ran": false,
+  "caller_unchanged": true,
+  "private_exists_after": [
+   false
+  ],
+  "tmp_left": [],
+  "foreign_preserved": true,
+  "transcript_tail": "shard: 0/1   selected suites: 2\n",
+  "suite_log_tail": "efused it and raised a barrier\"\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\n[ ok ] observer_latency_off_by_one: caught, though not by \"launch: the reconstruction is the launch instant\"; broke ['every measured result reconstructs its own launch']\n[ ok ] crossing_latency_off_by_one: caught, though not by \"launch: the reconstruction is the launch instant\"; broke ['every measured result reconstructs its own launch']\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\n[ ok ] credit_never_withheld: caught, though not by \"credit: the engine is held off at the reserve\"; broke ['aged head: a record is held back', 'aged head: an expiry is not a barrier', 'aged head: the late record still delivers its own frame']\n[note] abort_outranks_completion: not separately observable here\n[note] no_departure_predicate: not separately observable here\n[note] no_position_check: not separately observable here\n[note] delta_forced_not_measured: not separately observable here\n[note] eof_acceptance_unqualified: not separately observable here\n[note] cancellation_frees_the_entry: not separately observable here\ncontrols: 9   failures: 0\nRESULT: PASS\nmake: Leaving directory '<packet>/scratch/real-nested/sweep-KILL-nested-real-caller/tb/verilator/gptp_shadow'\n"
+ }
+]
