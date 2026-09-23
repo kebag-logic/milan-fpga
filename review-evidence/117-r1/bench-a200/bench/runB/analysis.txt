@@ -1,0 +1,40 @@
+
+== console samples: 53
+   first 2026-09-23T13:04:38.009820+00:00  last 2026-09-23T13:06:22.009858+00:00
+   gm       values {'3cc0c6fffefe0210': 53}
+   parent   values {'3cc0c6fffefe0210': 53}
+   pc       values {'1': 53}
+   pg       values {'1': 53}
+   clkv     values {'00010002': 53}
+   sync     values {'1': 53}
+   asc      values {'1': 53}
+   tu       values {'0': 53}
+   lat      values {'029000db': 53}
+   PDELAY_NS n=53 median=385 min=380 max=391
+   CLKV_TUCNT                   values ['0xb']
+   GPTP_DROPW                   values ['0x0']
+   GPTP_DROPE                   values ['0x0']
+   CRFT_CTRL                    values ['0x3', '0x3002e3']
+   CRFT_COUNT                   first 0x00000000 last 0x0000850d distinct 37
+   ACMP_TALKER                  values ['0x0']
+   PHC seconds per build-box second: median 0.999997 min 0.999953 max 1.000031
+
+== wire: 37350 tapped records, host-generated excluded 0
+   Pdelay far end (bridge port 1) as requester, DUT responds: requests 114, complete exchanges 114, incomplete 0
+      tap turnaround ns   n=114 median=10992.0 min=10984.0 p99=11008.0 max=11009.0
+      Resp->Resp_FU lag ns n=114 median=7560.0 min=7552.0 p99=7561.0 max=7568.0
+      claimed t3-t2 ns    n=114 median=10609.0 min=10608.0 p99=10609.0 max=10629.0
+      tap - claimed ns    n=114 median=384.0 min=371.0 p99=399.0 max=400.0
+   Pdelay DUT as requester, bridge responds: requests 115, complete exchanges 115, incomplete 0
+      tap turnaround ns   n=115 median=804057.0 min=702657.0 p99=862698.0 max=879890.0
+      Resp->Resp_FU lag ns n=115 median=544001.0 min=533825.0 p99=1036811.0 max=1059627.0
+      claimed t3-t2 ns    n=115 median=803664.0 min=702264.0 p99=862312.0 max=879496.0
+      tap - claimed ns    n=115 median=394.0 min=385.0 p99=402.0 max=402.0
+   gPTP Sync port 2: intervals n=919 median=121.656 min=100.745 max=149.245 mean=124.995; within +/-30% of 125.0 ms: 919/919
+   gPTP Announce port 2: intervals n=114 median=1000.015 min=999.885 max=1010.612 mean=1002.192; within +/-30% of 1000.0 ms: 114/114
+   gPTP Pdelay_Req port 2: intervals n=113 median=1009.980 min=999.886 max=1029.584 mean=1006.731; within +/-30% of 1000.0 ms: 113/113
+   gPTP Pdelay_Req port 3: intervals n=114 median=1000.002 min=1000.002 max=1000.002 mean=1000.002; within +/-30% of 1000.0 ms: 114/114
+   Announce GM identities {'3cc0c6fffefe0210': 115} stepsRemoved {0: 115} PathTrace {'[["PathTrace", ["3cc0c6fffefe0210"]]]': 115}
+   DUT ADP gptp_grandmaster_id {'3cc0c6fffefe0210': 17}
+   gPTP message kinds the DUT sent: {'gPTP Pdelay_Req': 115, 'gPTP Pdelay_Resp': 114, 'gPTP Pdelay_Resp_Follow_Up': 114}
+   AVTP stream frames: 34061; by (port, kind, stream, tu): {(3, 'CRF', '0200000000010001', 0): 34061}

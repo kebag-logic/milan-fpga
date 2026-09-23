@@ -1,0 +1,22 @@
+
+== console samples: 0
+
+== wire: 1062 tapped records, host-generated excluded 0
+   Pdelay far end (bridge port 1) as requester, DUT responds: requests 39, complete exchanges 39, incomplete 0
+      tap turnaround ns   n=39 median=11000.0 min=10984.0 p99=11008.0 max=11008.0
+      Resp->Resp_FU lag ns n=39 median=7560.0 min=7552.0 p99=7568.0 max=7568.0
+      claimed t3-t2 ns    n=39 median=10609.0 min=10608.0 p99=10609.0 max=10609.0
+      tap - claimed ns    n=39 median=391.0 min=375.0 p99=399.0 max=399.0
+   Pdelay DUT as requester, bridge responds: requests 40, complete exchanges 40, incomplete 0
+      tap turnaround ns   n=40 median=750730.0 min=729617.0 p99=809490.0 max=809490.0
+      Resp->Resp_FU lag ns n=40 median=538817.0 min=535009.0 p99=542793.0 max=542793.0
+      claimed t3-t2 ns    n=40 median=750336.0 min=729224.0 p99=809096.0 max=809096.0
+      tap - claimed ns    n=40 median=394.0 min=385.0 p99=402.0 max=402.0
+   gPTP Sync port 2: intervals n=319 median=128.416 min=100.722 max=149.181 mean=125.017; within +/-30% of 125.0 ms: 319/319
+   gPTP Announce port 2: intervals n=38 median=1009.416 min=999.710 max=1010.394 mean=1006.041; within +/-30% of 1000.0 ms: 38/38
+   gPTP Pdelay_Req port 2: intervals n=38 median=1009.964 min=999.937 max=1019.141 mean=1006.849; within +/-30% of 1000.0 ms: 38/38
+   gPTP Pdelay_Req port 3: intervals n=39 median=1000.002 min=1000.002 max=1000.002 mean=1000.002; within +/-30% of 1000.0 ms: 39/39
+   Announce GM identities {'3cc0c6fffefe0210': 39} stepsRemoved {0: 39} PathTrace {'[["PathTrace", ["3cc0c6fffefe0210"]]]': 39}
+   DUT ADP gptp_grandmaster_id {'3cc0c6fffefe0210': 6}
+   gPTP message kinds the DUT sent: {'gPTP Pdelay_Req': 40, 'gPTP Pdelay_Resp': 39, 'gPTP Pdelay_Resp_Follow_Up': 39}
+   AVTP stream frames: 0; by (port, kind, stream, tu): {}
