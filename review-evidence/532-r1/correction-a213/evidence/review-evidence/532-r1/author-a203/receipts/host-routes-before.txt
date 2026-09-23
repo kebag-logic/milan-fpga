@@ -1,0 +1,8 @@
+default via <bench-address>.1 dev enp1s0 proto dhcp src <bench-address>.98 metric 100 
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+172.18.0.0/16 dev br-0d380d6522cf proto kernel scope link src 172.18.0.1 linkdown 
+172.19.0.0/16 dev br-f00319c9e54a proto kernel scope link src 172.19.0.1 linkdown 
+172.20.0.0/16 dev br-7bda8c7b23b1 proto kernel scope link src 172.20.0.1 linkdown 
+172.21.0.0/16 dev br-8b7f57c913c8 proto kernel scope link src 172.21.0.1 
+<bench-address>.0/24 dev enp2s0u6i3 proto kernel scope link src <bench-address>.1 metric 102 
+<bench-address>.0/24 dev enp1s0 proto kernel scope link src <bench-address>.98 metric 100 
