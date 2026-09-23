@@ -1,0 +1,8 @@
+reference CRC table byte-identical in both packets: True
+asl row: [('rom', '52200', 'f6afa4ec'), ('bitpay', '3825788', '02036e95'), ('aem', '7352', '93742dd2'), ('bitfile', '3825992', 'ce3e3fbb')]
+bench-a200 on-board CRC32 ['02036e95', '93742dd2', 'f6afa4ec'] VERSION ['00020060']
+bench-a200 grader: BAREMETAL UART SMOKE: PASS (10/10)
+bench-a202 on-board CRC32 ['02036e95', '93742dd2', 'f6afa4ec'] VERSION ['00020060']
+bench-a202 grader: BAREMETAL UART SMOKE: PASS (10/10)
+grader sha256 at ede8d48e: bc41ab03e64198b10a517124f960b9b59b77d7143661f728fe5666314e433886
+peer ENTITY firmware_version field: sha256 33f0e7f9e86fe4829a2de6f6d04d1edf1463b7d6653c2865ad985f183b0ddfbc, 7 non-zero octets

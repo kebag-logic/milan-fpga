@@ -1,0 +1,67 @@
+distinct redacted tokens recovered: 9
+  class bench-host-prefix 1
+  class binary-run:pcap 5
+  class device-serial 2
+  class peer-product-name 1
+  T1 class bench-host-prefix length 4
+  T2 class binary-run:pcap length 3
+  T3 class binary-run:pcap length 3
+  T4 class binary-run:pcap length 12
+  T5 class binary-run:pcap length 13
+  T6 class binary-run:pcap length 25
+  T7 class device-serial length 11
+  T8 class device-serial length 13
+  T9 class peer-product-name length 4
+== published ev32/review-evidence/117-r1
+  HIT T3 binary-run:pcap hex-lower files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T3 binary-run:pcap hex-upper files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T4 binary-run:pcap hex-lower files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T4 binary-run:pcap hex-upper files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T7 device-serial hex-lower files 4
+      bench-a200/bench/census-start.jsonl
+      bench-a200/bench/final/census-final.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T7 device-serial hex-upper files 4
+      bench-a200/bench/census-start.jsonl
+      bench-a200/bench/final/census-final.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T7 device-serial raw files 1
+      bench-a200/bench/runC/tap-runC.pcap
+  HIT T8 device-serial hex-lower files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T8 device-serial hex-upper files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T9 peer-product-name hex-lower files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl
+  HIT T9 peer-product-name hex-upper files 4
+      bench-a200/bench/final/census-final.jsonl
+      bench-a200/bench/peer-aem-1.jsonl
+      bench-a202/bench/census-start.jsonl
+      bench-a202/bench/final/census-end.jsonl

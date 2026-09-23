@@ -1,0 +1,44 @@
+distinct redacted tokens recovered: 9
+  class bench-host-prefix 1
+  class binary-run:pcap 5
+  class device-serial 2
+  class peer-product-name 1
+  T1 class bench-host-prefix length 4
+  T2 class binary-run:pcap length 3
+  T3 class binary-run:pcap length 3
+  T4 class binary-run:pcap length 12
+  T5 class binary-run:pcap length 13
+  T6 class binary-run:pcap length 25
+  T7 class device-serial length 11
+  T8 class device-serial length 13
+  T9 class peer-product-name length 4
+token bench-host-prefix len 4 id T1 printable
+token binary-run:pcap len 25 id T6 printable
+token binary-run:pcap len 3 id T3 printable
+token binary-run:pcap len 12 id T4 printable
+token binary-run:pcap len 3 id T2 printable
+token binary-run:pcap len 13 id T5 printable
+token device-serial len 11 id T7 printable
+token device-serial len 13 id T8 printable
+token peer-product-name len 4 id T9 printable
+HEX binary-run:pcap bench-a202/bench/census-start.jsonl line 59 key /payload hex_offset 184
+HEX binary-run:pcap bench-a202/bench/census-start.jsonl line 59 key /payload hex_offset 188
+HEX device-serial bench-a202/bench/census-start.jsonl line 49 key /payload hex_offset 248
+HEX peer-product-name bench-a202/bench/census-start.jsonl line 59 key /payload hex_offset 52
+HEX device-serial bench-a202/bench/census-start.jsonl line 59 key /payload hex_offset 248
+HEX binary-run:pcap bench-a202/bench/final/census-end.jsonl line 59 key /payload hex_offset 184
+HEX binary-run:pcap bench-a202/bench/final/census-end.jsonl line 59 key /payload hex_offset 188
+HEX device-serial bench-a202/bench/final/census-end.jsonl line 49 key /payload hex_offset 248
+HEX peer-product-name bench-a202/bench/final/census-end.jsonl line 59 key /payload hex_offset 52
+HEX device-serial bench-a202/bench/final/census-end.jsonl line 59 key /payload hex_offset 248
+HEX binary-run:pcap bench-a200/bench/peer-aem-1.jsonl line 2 key /payload hex_offset 184
+HEX binary-run:pcap bench-a200/bench/peer-aem-1.jsonl line 2 key /payload hex_offset 188
+HEX peer-product-name bench-a200/bench/peer-aem-1.jsonl line 2 key /payload hex_offset 52
+HEX device-serial bench-a200/bench/peer-aem-1.jsonl line 2 key /payload hex_offset 248
+HEX device-serial bench-a200/bench/census-start.jsonl line 49 key /payload hex_offset 248
+HEX binary-run:pcap bench-a200/bench/final/census-final.jsonl line 59 key /payload hex_offset 184
+HEX binary-run:pcap bench-a200/bench/final/census-final.jsonl line 59 key /payload hex_offset 188
+HEX device-serial bench-a200/bench/final/census-final.jsonl line 49 key /payload hex_offset 248
+HEX peer-product-name bench-a200/bench/final/census-final.jsonl line 59 key /payload hex_offset 52
+HEX device-serial bench-a200/bench/final/census-final.jsonl line 59 key /payload hex_offset 248
+RAW device-serial bench-a200/bench/runC/tap-runC.pcap record 214 ethertype 43f5 frame_offset 314 frame_len 386

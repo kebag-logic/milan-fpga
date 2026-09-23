@@ -1,0 +1,20 @@
+PR #531 head f547a49bee5966a901d1e11981eb4dc94d038711
+template section Contents                             present=False
+template section Status                               present=False
+template section Linked Issue / roles                 present=False
+template section Description                          present=False
+template section Authoritative references             present=False
+template section How to get into the same state       present=False
+template section How to validate                      present=False
+template section Known limitations / out of scope     present=False
+template section Definition of Done                   present=False
+--- body ---
+[A200] Record the #117 gPTP silicon evidence on the dev `ede8d48e` image
+
+Adds `docs/findings/117_GPTP_SILICON_EVIDENCE.md` (and its index row) and the owner-approved recovery bound in `docs/design/GM_LOSS_RECOVERY.md`: identity gate, topology and capture points, methodology, tool revisions, hashes and a per-acceptance result table for the AX7101 DUT flashed with build `build_ax7101_asl_tdm8devede8d48e`.
+
+Results: step 2 PASS on retaining asCapable, cadence, turnaround (max 11.0 us) and no software daemon; step 4 PASS in steady state (publication words and `tu` against the wire and AVDECC); step 5 counters probe PASS by parity, full la_avdecc enumeration FAIL (Milan downgraded over the CRF Stream Input counters, #529); step 3 PASS over six power cycles of the bench switch (the grandmaster), recovery 0.43-1.60 s against the 5 s bound recorded in docs/design/GM_LOSS_RECOVERY.md, one stream restart per return with tu=0 after it; step 4's GM-change half PASS. Observations outside the boxes: #529 and #530 are the defects this run found; items 4 to 6 are on the #495 checklist; items 8 and 10 are not shown to be defects by this evidence and have no issue.
+
+Relates to #117. Docs only: no product, RTL, firmware or pin change. Audio continuity stays deferred to 2026-12-31 (owner, instruments).
+
+
