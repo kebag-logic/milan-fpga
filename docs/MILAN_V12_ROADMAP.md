@@ -434,8 +434,9 @@ second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
 leg (`obj_notify`, the processor timebase compressed to 100 cycles per
 millisecond) measuring the one-second limit.
 
-What stays open: the declared CRF Stream Input has no served counters, so it
-has no counter push either (audit B4).
+The declared CRF Stream Input, the last descriptor without served counters,
+has served and pushed its Table 5.16 ten since #529 (audit B4, closed); the
+timed leg's `[NOTIFY-CRF]` measures its push under the same limit.
 
 For AS_PATH, COMMIT is deliberately not a publish operation: it changes a
 staging slot that neither solicited reads nor notifications observe. PUBLISH

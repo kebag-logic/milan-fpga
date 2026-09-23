@@ -135,11 +135,10 @@ they are not discovered by surprise:
    solicited reads and notifications.** `KL_talker_diag_ctx` is instantiated
    per declared output, GET_COUNTERS serves the compact five-counter layout,
    and each dirty pulse reaches the rate-limited Table 5.22 scheduler through
-   the root's lossless descriptor arbiter. Supported regular STREAM_INPUT
-   banks remain live; the CRF Media Clock Input's complete Table 5.16 bank is
-   not connected to the current solicited gather face. Issue #97 also tracks
-   the stopped-state gate that currently hides CRF receives from observation
-   before the media-consumption boundary.
+   the root's lossless descriptor arbiter. Every declared STREAM_INPUT bank
+   is live the same way, the CRF Media Clock Input's complete Table 5.16 bank
+   included since #529 (see the `0x738` group), and a stopped CRF sink keeps
+   observing and counting (#97).
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the bare-metal
@@ -179,7 +178,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [Link guard / MAC recovery (VERSION minor ≥ 0x0006)](#link-guard--mac-recovery-version-minor--0x0006) -- The link-bounce supervisor, added here after `0x774` was misread as a TCAM register. The chronogram is the payload: the two resets do **not** release together -- `eth_rst` drops half-way through SETTLE so both CDC pointer sets restart matched, which means reading the guard bit alone mid-episode gives you the wrong answer.
   - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. The product owner supplies sync/asCapable directly from the engine; option OFF is ownerless and keeps `tu` asserted.
   - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Board name and playback controls plus the fabric-owned parent identity. Option OFF reads zero and ignores writes.
-  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. The declared CRF Stream Input returns an empty AECP counter mask because the complete bank and dirty source are not connected at the root.
+  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. Since #529 the declared CRF Stream Input serves all ten Table 5.16 counters over GET_COUNTERS (mask `0xF3F`) and pushes them through Table 5.22.
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
   - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three legacy words read a structural zero. The processor implements `GET_DYNAMIC_INFO` internally, but its batch scanner has no connection to this deleted fabric engine's BDBG ABI.
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
@@ -838,27 +837,62 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
 | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
-Those three are the only CRF input counters exported into the local CSR plane.
-The other Table 5.16 outputs from `KL_crf_rx`, including lock transitions,
-interruptions, media reset, timestamp uncertainty, and early or late arrival,
-are currently left open in `milan_datapath.sv`.
+Those three are the only CRF input counters exported into the local CSR plane,
+and only as the documented truncated slices. AECP carries all ten Table 5.16
+counters `KL_crf_rx` keeps. `milan_datapath.sv` serves them full width, each
+wrapping at 32 bits, on the solicited GET_COUNTERS gather face for the declared
+CRF Media Clock Input at STREAM_INPUT index `N_STREAMS`. It also delivers the
+engine's dirty pulse to the rate-limited Table 5.22 scheduler as that same
+descriptor (#529).
 
-The same root integration gap affects AECP. The solicited gather face accepts
-AAF Stream Input indices below `N_STREAMS`; the declared CRF Media Clock Input
-at index `N_STREAMS` returns an empty `counters_valid` mask. The CRF dirty pulse
-is also unconnected, so it cannot feed the Table 5.22 notification path. Do not
-use a successful standalone `tb/verilator/crf_rx` run as evidence that the root
-serves these counters.
+| Quadlet (block offset) | Counter | `KL_crf_rx` output |
+|---|---|---|
+| 0 (`@0`) | MEDIA_LOCKED | `cnt_locked_o` |
+| 1 (`@4`) | MEDIA_UNLOCKED | `cnt_unlocked_o` |
+| 2 (`@8`) | STREAM_INTERRUPTED | `cnt_intr_o` |
+| 3 (`@12`) | SEQ_NUM_MISMATCH | `seq_err_o` |
+| 4 (`@16`) | MEDIA_RESET | `mr_cnt_o` |
+| 5 (`@20`) | TIMESTAMP_UNCERTAIN | `tu_cnt_o` |
+| 8 (`@32`) | UNSUPPORTED_FORMAT | `fmt_err_o` |
+| 9 (`@36`) | LATE_TIMESTAMP | `late_cnt_o` |
+| 10 (`@40`) | EARLY_TIMESTAMP | `early_cnt_o` |
+| 11 (`@44`) | FRAMES_RX | `pdu_count_o` |
+
+`counters_valid` is `0x00000F3F`: the ten at their IEEE 1722.1-2021 Table
+7-157 offsets. Milan keeps the IEEE Stream Input layout; only the Stream
+Output layout (Table 5.17) is compacted. TIMESTAMP_VALID and
+TIMESTAMP_NOT_VALID (quadlets 6 and 7) stay unclaimed because `KL_crf_rx`
+keeps no tally for them, while the AAF inputs claim all twelve
+(`0x00000FFF`). A shape that declares no CRF sink serves no such row, and an
+undeclared index still answers NO_SUCH_DESCRIPTOR with the empty body.
 
 #### Closure criteria for the CRF Stream Input counter gap
 
-1. Connect the complete `KL_crf_rx` Table 5.16 bank to the root solicited
-   gather face for STREAM_INPUT index `N_STREAMS`.
-2. Return the correct compact valid mask and counter words for that declared
-   descriptor while preserving the empty response for undeclared indices.
-3. Connect the CRF dirty source to the rate-limited Table 5.22 scheduler.
-4. Add root-wire tests for reset, wrap, descriptor isolation, and controller
-   decoding before treating the CRF input counter duty as closed.
+Closed by #529. Each criterion, with the evidence that closes it:
+
+1. **The complete `KL_crf_rx` Table 5.16 bank on the root solicited gather
+   face for STREAM_INPUT index `N_STREAMS`.** All ten outputs are connected.
+   `tb/verilator/milan_dp` `[CTRS-CRF]` seeds a distinct full-width signature
+   into each tally and reads every quadlet back through the processor's
+   response, on the 4x4, divergent 4x4, 8x8 and shipping Arty 4x4 legs.
+2. **The correct valid mask and counter words, and the empty response kept
+   for undeclared indices.** `[CTRS-CRF]` grades the SUCCESS response (cdl
+   148, mask `0xF3F`, every unclaimed quadlet zero) from reset and after the
+   not-bound to bound wipe. It drives the 32-bit wrap of FRAMES_RX (interval
+   law) and STREAM_INTERRUPTED (per-event law) with real PDUs, and requires
+   NO_SUCH_DESCRIPTOR with an empty body at `N_STREAMS + 1`.
+3. **The CRF dirty source on the rate-limited Table 5.22 scheduler.**
+   `[CTRS-CRF]` sees the bind edge reach the descriptor arbiter as
+   {STREAM_INPUT, `N_STREAMS`} and as nothing else. On the timed `obj_notify`
+   leg, `[NOTIFY-CRF]` sees the push reach both registered controllers,
+   byte-identical from the body on to the solicited answer, and a second
+   change withheld until the one-second limit releases it.
+4. **Root-wire tests for reset, wrap, descriptor isolation and controller
+   decoding.** The checks above fail under each recorded wiring mutation:
+   the row removed, two quadlets permuted, a 16-bit slice, a claimed tv pair,
+   the dirty source removed, the CRF row answering for the AAF inputs, the
+   AAF guard answering for the CRF input, and one tally unwired. Confirmation
+   by a Milan controller on silicon follows the merge (#117).
 
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 

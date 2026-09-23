@@ -1068,7 +1068,7 @@ processor-owned ADP, ACMP, and SRP plane, while the media engines remain in
 this fabric. Runtime gaps recorded in
 [`MILAN_V12_AUDIT_2026-08-16.md`](testing/MILAN_V12_AUDIT_2026-08-16.md)
 mostly stand, though CRF clock selection is consumed since #74 (its bench
-probe stays open); CRF Stream Input counter coverage remains as recorded.
+probe stays open), and CRF Stream Input counter coverage is closed by #529.
 Physical area, timing, and interoperability evidence also remain separate
 release obligations in that audit.
 
