@@ -449,6 +449,46 @@ the resolver cannot even read -- is measured on a hand-written `sw rd, sym, rt`,
 because GCC never emits that pseudo-instruction here and an unexercised
 fail-closed branch is a claim rather than a measurement.
 
+**Every store CLASS, not only the integer ones** (R228-F1 on PR #521). The
+census compiles at the adopted compiler's default ISA. For the #504 SDK that
+is `rv32imafd` with the ILP32D ABI, and the overlay above with a `float`
+member is stored with `fsw`, with a `double` member with `fsd`. The
+classifier used to know only `sw`, `sh` and `sb`, so those two stores left no
+observation at all and passed the whole gate, while the `uint32_t` one was
+refused. Stores are now classified by instruction class:
+
+- integer: `sb`, `sh`, `sw`;
+- floating-point: `fsh`, `fsw`, `fsd`, `fsq`, whose stored value the
+  lattice does not hold;
+- atomic: every `amo*.w` and `sc.w`, whose memory operand is the third.
+
+A store is judged at EVERY 32-bit word it writes, so an `fsd`, or a
+misaligned `sw`, whose first byte lies just below the window is refused on the
+window word it reaches. Any other instruction that addresses memory and is not
+a recognised load (`lb` to `lw`, `flh` to `flq`, `lr.w`) is reported as
+UNCLASSIFIED and refused by rule 1b, so a class missing from the table fails
+closed. A store also makes every modelled word it overlaps unknown, so an FP,
+byte or AMO overwrite of a parked address leaves nothing stale for a later
+store to be placed by. Literal-assembly controls for all of this run on every
+machine, compiler or none. Five compiled mutants through the paged base --
+`float`, `double`, and the atomic exchange, fetch-or and compare-exchange
+builtins -- must each be refused on the resolved address, and each must
+actually emit its class where the census ISA declares that extension. The
+atomic three are registered only where the census ISA carries `a`, because
+without it GCC compiles them to library calls; elsewhere that is a registered
+`NOT RUN`.
+
+**The boundary of that classification.** It reads the instructions the
+compiler prints as mnemonics. A raw encoding -- `.insn`, or a data word
+emitted inside a function -- is not an instruction to this reader; only an
+inline-`asm` template can produce one here, and the inline-`asm` set pins
+those templates on every machine. GCC's `lr.w`/`sc.w` retry loop branches to
+numeric local labels (`1:`, `1b`), which this reader does not bind: the SC
+store is still reached in order and judged, but the loop's back edge is not
+modelled. The census ISA is not the shipping CPU's: the shipping hart is
+RV32I, so FP and atomic stores exist only in the census compile, and
+classifying them makes the census stricter, never looser.
+
 **The residual that was a hole, and why it is gone.** An earlier revision
 DECLARED the copy loop's store rather than placing it, as the residual entry
 `("load_aem_image", "unplaced", None): 1`, asserted by exact count. That key
@@ -1170,7 +1210,7 @@ verdict and PASSED the complete gate on the hosted runners.
 |---|---|---|
 | the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 and 2, with what a conditional may select inside one of those bodies bounded to names this file does not define | the text the compiler is actually handed, so a splice or a paste that changes a call name, a conditional arm this gate reads and the compiler drops, and an arm whose selection differs between the census stub tree and the product, are each a measured disagreement rather than a construct someone had to anticipate | the conditional-reach ban, the token-joining splice ban and the `##`/`%:`/`??` ban |
 | the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may reach one beside the firmware | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
-| the resolver's store census: every store the compiler emits, classified by the address it RESOLVES to, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, and a store behind a brace-less `if` that the text store set cannot see at all (#495) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
+| the resolver's store census: every store the compiler emits, of every instruction class, classified by the address it RESOLVES to at every word it writes, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, a store behind a brace-less `if` that the text store set cannot see at all (#495), and a float, double or atomic store through a paged base (R228-F1 on PR #521) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison that makes a reorder a cost |
 
 **The two preconditions of retirement** remain separate acceptance obligations:
 
@@ -1263,6 +1303,9 @@ need the same compile and are simply not measured there.
 Both hosted builder calls require the RV32 instruments to execute.
 The pinned Bootlin glibc SDK retains the existing `__errno_location` residual.
 No additional C-library residual is accepted.
+Its default ISA, `rv32imafd` with ILP32D, is the census ISA.
+That ISA emits floating-point and atomic stores the shipping hart never runs.
+The store census classifies them; see the [editing contract](#editing-contract-for-this-firmware).
 Local mapped-prefix trials establish compatibility only.
 Fresh hosted installation and trusted act need their own evidence.
 Text-rule retirement remains the separate scope of #408 and #409.

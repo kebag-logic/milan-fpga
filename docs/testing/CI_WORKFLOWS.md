@@ -1047,7 +1047,11 @@ Verification precedes extraction and execution of `relocate-sdk.sh`.
 The destination is `$HOME/br-milan-rv32/host`, the existing selector location.
 Prepending `PATH` alone cannot override that absolute selector.
 This SDK supplies verification tools, not product build settings.
-Its ILP32D default does not change the shipping CPU contract.
+Its default ISA, `rv32imafd` with ILP32D, is the census ISA.
+The shipping hart is RV32I, so the census sees stores the product lacks.
+Floating-point and atomic stores are ordinary census output here.
+The resolver classifies every store class and fails closed on unknown ones.
+See [the store classes](../integration/BAREMETAL_FIRMWARE.md#editing-contract-for-this-firmware).
 The bare-metal scope gate masks exact SDK identity literals.
 Masks apply only within the installer and its fixture.
 Wrong-file, appended-term, and product-document controls remain refusals.
