@@ -1,0 +1,464 @@
+[
+ {
+  "id": "M01-no-parent-death-binding",
+  "file": "scripts/owned_process.py",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 36.1,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M01-no-parent-death-binding/repo/scripts/process_test_support.py\", line 140, in eventually",
+     "    assert time.monotonic() < deadline, what",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: sweep shell outlived its owner"
+    ],
+    "error_lines": [
+     "    assert time.monotonic() < deadline, what",
+     "AssertionError: sweep shell outlived its owner"
+    ]
+   },
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 39.9,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M01-no-parent-death-binding/repo/scripts/process_test_support.py\", line 140, in eventually",
+     "    assert time.monotonic() < deadline, what",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: make outlived the killed driver"
+    ],
+    "error_lines": [
+     "    assert time.monotonic() < deadline, what",
+     "AssertionError: make outlived the killed driver"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M02-no-owner-reexec",
+  "file": "scripts/run_all_suites.sh",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 5.1,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M02-no-owner-reexec/repo/scripts/process_test_support.py\", line 244, in assert_reaped",
+     "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('1285602', ('19077046', 'S'), ('19077046', 'S'))"
+    ],
+    "error_lines": [
+     "  File \"$PACKET/scratch/mut/M02-no-owner-reexec/repo/scripts/process_test_support.py\", line 244, in assert_reaped",
+     "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+     "AssertionError: ('1285602', ('19077046', 'S'), ('19077046', 'S'))"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M03-cancel-trap-continues",
+  "file": "scripts/run_all_suites.sh",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 18.4,
+    "red": true,
+    "last_lines": [
+     "The check total above is INCOMPLETE and must not be quoted.",
+     "failing suites: alpha",
+     "logs: $PACKET/scratch/mut/M03-cancel-trap-continues/tmp/suite-cancellation-bs0dlzke/cancel-command-SIGINT input [523]/logs",
+     "CANCELLED: signal 2; no completed sweep result"
+    ],
+    "error_lines": [
+     "    assert next_suite == unsafe, output",
+     "AssertionError: shard: 0/1   selected suites: 2",
+     "  scripts/suite_tally.py. If it tallied zero: make it assert"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M04-no-kill-escalation",
+  "file": "scripts/owned_process.py",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 11.6,
+    "red": true,
+    "last_lines": [
+     "    ~~~~~~~~~~~~~^^",
+     "  File \"$PACKET/scratch/mut/M04-no-kill-escalation/repo/scripts/owned_process.py\", line 201, in _cleanup",
+     "    raise RuntimeError(f\"CLEANUP FAILED: owned descendants remain: {owned}\")",
+     "RuntimeError: CLEANUP FAILED: owned descendants remain: {1285781: (1284712, '19077101')}"
+    ],
+    "error_lines": [
+     "AssertionError: shard: 0/1   selected suites: 2",
+     "    raise RuntimeError(f\"CLEANUP FAILED: owned descendants remain: {owned}\")",
+     "RuntimeError: CLEANUP FAILED: owned descendants remain: {1285781: (1284712, '19077101')}"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M05-no-root-stop",
+  "file": "scripts/owned_process.py",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 0,
+    "seconds": 38.6,
+    "red": false,
+    "last_lines": [
+     "facility-prctl-fails: {\"exit\": 2, \"facility\": \"prctl-fails\", \"refused\": true, \"sweep_started\": false}",
+     "facility-no-pidfd-open: {\"exit\": 2, \"facility\": \"no-pidfd-open\", \"refused\": true, \"sweep_started\": false}",
+     "facility-no-pidfd-signal: {\"exit\": 2, \"facility\": \"no-pidfd-signal\", \"refused\": true, \"sweep_started\": false}",
+     "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)"
+    ],
+    "error_lines": []
+   }
+  }
+ },
+ {
+  "id": "M06-mutate-caller-path",
+  "file": "tb/verilator/gptp_shadow/mutants.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 2.1,
+    "red": true,
+    "last_lines": [
+     "[note] eof_acceptance_unqualified: not separately observable here",
+     "[note] cancellation_frees_the_entry: not separately observable here",
+     "controls: 9   failures: 9",
+     "RESULT: FAIL"
+    ],
+    "error_lines": [
+     "    assert status == (0 if mode == \"detect\" else 1), output",
+     "AssertionError: [FAIL] abort_counts_as_completion: no completed suite tally (make exit 1)"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M07-no-mode-check",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 18.3,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M07-no-mode-check/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 318, in refusal",
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('modified input bytes/mode', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ],
+    "error_lines": [
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "AssertionError: ('modified input bytes/mode', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M08-no-index-vs-head",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 15.8,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M08-no-index-vs-head/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 318, in refusal",
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('index differs from HEAD', 'REFUSED: modified input bytes/mode: $PACKET/scratch/mut/M08-no-index-vs-head/tmp/mutant-lifecycle-ppe3450c/staged input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv\\n')"
+    ],
+    "error_lines": [
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "AssertionError: ('index differs from HEAD', 'REFUSED: modified input bytes/mode: $PACKET/scratch/mut/M08-no-index-vs-head/tmp/mutant-lifecycle-ppe3450c/staged input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv\\n')"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M09-hardlink-copy",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 28.9,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M09-hardlink-copy/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 214, in interrupted",
+     "    assert private != root and snapshot(root) == before",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError"
+    ],
+    "error_lines": [
+     "    assert private != root and snapshot(root) == before",
+     "AssertionError"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M10-no-git-env-scrub",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 11.6,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M10-no-git-env-scrub/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 188, in accepted",
+     "    assert status == 0 and \"controls: 9   failures: 0\\nRESULT: PASS\" in output, output",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: REFUSED: git ls-tree -rz HEAD -- hdl/common/KL_link_guard.sv hdl/common/cdc_handshake.sv hdl/common/cdc_pulse.sv hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv tb/common/gptp_tx_flags.hpp tb/common/verilator_harness.hpp tb/verilator/gptp_shadow/Makefile tb/verilator/gptp_shadow/gptp_shadow_wrap.sv tb/verilator/gptp_shadow/sim_main.cpp: exit 128: fatal: global 'literal' pathspec setting is incompatible with all other global pathspec settings"
+    ],
+    "error_lines": [
+     "    assert status == 0 and \"controls: 9   failures: 0\\nRESULT: PASS\" in output, output",
+     "AssertionError: REFUSED: git ls-tree -rz HEAD -- hdl/common/KL_link_guard.sv hdl/common/cdc_handshake.sv hdl/common/cdc_pulse.sv hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv tb/common/gptp_tx_flags.hpp tb/common/verilator_harness.hpp tb/verilator/gptp_shadow/Makefile tb/verilator/gptp_shadow/gptp_shadow_wrap.sv tb/verilator/gptp_shadow/sim_main.cpp: exit 128: fatal: global 'literal' pathspec setting is incompatible with all other global pathspec settings"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M12-build-failure-counts-as-caught",
+  "file": "tb/verilator/gptp_shadow/mutants.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 7.4,
+    "red": true,
+    "last_lines": [
+     "[note] eof_acceptance_unqualified: not separately observable here",
+     "[note] cancellation_frees_the_entry: not separately observable here",
+     "controls: 9   failures: 0",
+     "RESULT: PASS"
+    ],
+    "error_lines": [
+     "    assert status == (0 if mode == \"detect\" else 1), output",
+     "AssertionError: [ ok ] abort_counts_as_completion: caught, though not by \"aborted episode: the demand survives it\"; broke []"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M13-lifecycle-not-default",
+  "file": "tb/verilator/gptp_shadow/Makefile",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 15.0,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M13-lifecycle-not-default/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 344, in ownership",
+     "    assert status.returncode == 0 and \"python3 test_mutant_lifecycle.py\" in status.stdout, status",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: CompletedProcess(args=['make', '-n', '-C', '$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow'], returncode=0, stdout='make: Entering directory \\'$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow\\'\\npython3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex\\nverilator --cc --exe --build -j 0 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P=\\'\"gptp_ucode.hex\"\\' -GCLK_HZ_P=2000000 -CFLAGS \"-std=c++17 -O2 -I$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow -Wall -Wextra\" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim\\n./obj_dir/Vgptp_shadow_sim\\npython3 mutants.py\\nmake: Leaving directory \\'$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow\\'\\n', stderr='')"
+    ],
+    "error_lines": [
+     "    assert status.returncode == 0 and \"python3 test_mutant_lifecycle.py\" in status.stdout, status",
+     "AssertionError: CompletedProcess(args=['make', '-n', '-C', '$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow'], returncode=0, stdout='make: Entering directory \\'$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow\\'\\npython3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex\\nverilator --cc --exe --build -j 0 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P=\\'\"gptp_ucode.hex\"\\' -GCLK_HZ_P=2000000 -CFLAGS \"-std=c++17 -O2 -I$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow -Wall -Wextra\" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim\\n./obj_dir/Vgptp_shadow_sim\\npython3 mutants.py\\nmake: Leaving directory \\'$PACKET/scratch/mut/M13-lifecycle-not-default/tmp/mutant-lifecycle-lonbqhfz/make-owner input [523]/tb/verilator/gptp_shadow\\'\\n', stderr='')"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M14-no-cancellation-preflight",
+  "file": "scripts/run_all_suites.sh",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 0.6,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M14-no-cancellation-preflight/repo/scripts/test_suite_cancellation.py\", line 122, in ordinary",
+     "    assert (probe.control / \"owner-ran\").exists(), \"normal sweep did not own cancellation tests\"",
+     "           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^",
+     "AssertionError: normal sweep did not own cancellation tests"
+    ],
+    "error_lines": [
+     "    assert (probe.control / \"owner-ran\").exists(), \"normal sweep did not own cancellation tests\"",
+     "AssertionError: normal sweep did not own cancellation tests"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M15-no-linked-directory-check",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 21.1,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M15-no-linked-directory-check/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 318, in refusal",
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('input directory is missing or linked', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ],
+    "error_lines": [
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "AssertionError: ('input directory is missing or linked', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M16-logs-cleared-after-preflight",
+  "file": "scripts/run_all_suites.sh",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 13.3,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M16-logs-cleared-after-preflight/repo/scripts/test_suite_cancellation.py\", line 180, in cancellation",
+     "    assert not (root / \"logs/omega.log\").exists(), \"stale suite log survived\"",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: stale suite log survived"
+    ],
+    "error_lines": [
+     "    assert not (root / \"logs/omega.log\").exists(), \"stale suite log survived\"",
+     "AssertionError: stale suite log survived"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M17-no-identity-recheck",
+  "file": "scripts/owned_process.py",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 0,
+    "seconds": 39.2,
+    "red": false,
+    "last_lines": [
+     "facility-prctl-fails: {\"exit\": 2, \"facility\": \"prctl-fails\", \"refused\": true, \"sweep_started\": false}",
+     "facility-no-pidfd-open: {\"exit\": 2, \"facility\": \"no-pidfd-open\", \"refused\": true, \"sweep_started\": false}",
+     "facility-no-pidfd-signal: {\"exit\": 2, \"facility\": \"no-pidfd-signal\", \"refused\": true, \"sweep_started\": false}",
+     "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)"
+    ],
+    "error_lines": []
+   }
+  }
+ },
+ {
+  "id": "M18-no-pin-revision-check",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 20.0,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M18-no-pin-revision-check/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 318, in refusal",
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('required dependency is not at its pin: gptp-processor', 'REFUSED: index differs from 4dc89628aace08a7a629cec3575d735a2133f8f4: $PACKET/scratch/mut/M18-no-pin-revision-check/tmp/mutant-lifecycle-d2qfnxve/off-pin input [523]/gptp-processor\\n')"
+    ],
+    "error_lines": [
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "AssertionError: ('required dependency is not at its pin: gptp-processor', 'REFUSED: index differs from 4dc89628aace08a7a629cec3575d735a2133f8f4: $PACKET/scratch/mut/M18-no-pin-revision-check/tmp/mutant-lifecycle-d2qfnxve/off-pin input [523]/gptp-processor\\n')"
+    ]
+   }
+  }
+ },
+ {
+  "id": "M19-no-toplevel-check",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 0,
+    "seconds": 46.1,
+    "red": false,
+    "last_lines": [
+     "unsafe-SIGKILL: {\"caller_changed\": true, \"cleanup_required\": false, \"exit\": -9, \"handshake\": {\"child\": 1303519, \"cwd\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow\", \"identities\": {\"1303518\": [\"19091449\", \"S\"], \"1303519\": [\"19091452\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1303518, \"private\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/unsafe-SIGKILL input [523]\"}, \"signal\": \"SIGKILL\", \"unsafe_control_detected\": true}",
+     "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 1303654, \"cwd\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/nested-SIGINT-control/gptp-shadow-mutants-wcjrme5d/tb/verilator/gptp_shadow\", \"identities\": {\"1303653\": [\"19091790\", \"S\"], \"1303654\": [\"19091793\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1303653, \"private\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/nested-SIGINT-control/gptp-shadow-mutants-wcjrme5d\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+     "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 1303855, \"cwd\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/nested-SIGTERM-control/gptp-shadow-mutants-sad_nsx1/tb/verilator/gptp_shadow\", \"identities\": {\"1303854\": [\"19092150\", \"S\"], \"1303855\": [\"19092153\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1303854, \"private\": \"$PACKET/scratch/mut/M19-no-toplevel-check/tmp/mutant-lifecycle-7jse2jhs/nested-SIGTERM-control/gptp-shadow-mutants-sad_nsx1\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+     "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)"
+    ],
+    "error_lines": []
+   }
+  }
+ },
+ {
+  "id": "M20-no-cleanup-on-normal-exit",
+  "file": "scripts/owned_process.py",
+  "anchor_count": 1,
+  "tests": {
+   "scripts/test_suite_cancellation.py": {
+    "exit": 1,
+    "seconds": 27.0,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/repo/scripts/process_test_support.py\", line 244, in assert_reaped",
+     "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('1303967', ('19092416', 'S'), ('19092416', 'S'))"
+    ],
+    "error_lines": [
+     "  File \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/repo/scripts/process_test_support.py\", line 244, in assert_reaped",
+     "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+     "AssertionError: ('1303967', ('19092416', 'S'), ('19092416', 'S'))"
+    ]
+   },
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 0,
+    "seconds": 42.8,
+    "red": false,
+    "last_lines": [
+     "unsafe-SIGKILL: {\"caller_changed\": true, \"cleanup_required\": false, \"exit\": -9, \"handshake\": {\"child\": 1305772, \"cwd\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow\", \"identities\": {\"1305771\": [\"19095909\", \"S\"], \"1305772\": [\"19095911\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1305771, \"private\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/unsafe-SIGKILL input [523]\"}, \"signal\": \"SIGKILL\", \"unsafe_control_detected\": true}",
+     "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 1305861, \"cwd\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/nested-SIGINT-control/gptp-shadow-mutants-ks4lsd37/tb/verilator/gptp_shadow\", \"identities\": {\"1305860\": [\"19096062\", \"S\"], \"1305861\": [\"19096065\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1305860, \"private\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/nested-SIGINT-control/gptp-shadow-mutants-ks4lsd37\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+     "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 1306073, \"cwd\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/nested-SIGTERM-control/gptp-shadow-mutants-xa_gsd9w/tb/verilator/gptp_shadow\", \"identities\": {\"1306072\": [\"19096435\", \"S\"], \"1306073\": [\"19096438\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 1306072, \"private\": \"$PACKET/scratch/mut/M20-no-cleanup-on-normal-exit/tmp/mutant-lifecycle-nw4hkdo4/nested-SIGTERM-control/gptp-shadow-mutants-xa_gsd9w\"}, \"nested_driver\": true, \"next_suite\": false, \"scratch_removed\": true, \"source_unchanged\": true}",
+     "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)"
+    ],
+    "error_lines": []
+   }
+  }
+ },
+ {
+  "id": "M11-accept-GIT_INDEX_FILE",
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "anchor_count": 1,
+  "tests": {
+   "tb/verilator/gptp_shadow/test_mutant_lifecycle.py": {
+    "exit": 1,
+    "seconds": 25.2,
+    "red": true,
+    "last_lines": [
+     "  File \"$PACKET/scratch/mut/M11-accept-GIT_INDEX_FILE/repo/tb/verilator/gptp_shadow/test_mutant_lifecycle.py\", line 318, in refusal",
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+     "AssertionError: ('Git environment redirects the checkout: GIT_INDEX_FILE', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ],
+    "error_lines": [
+     "    assert status == 2 and \"REFUSED:\" in output and reason in output, (reason, output)",
+     "AssertionError: ('Git environment redirects the checkout: GIT_INDEX_FILE', '[ ok ] abort_counts_as_completion: caught by \"aborted episode: the demand survives it\"\\n[ ok ] no_generation_check: caught by \"generation zero: the ledger refused it and raised a barrier\"\\n[ ok ] no_tag_check: caught by \"foreign tag: the ledger refused it and raised a barrier\"\\n[ ok ] age_never_expires: caught by \"aged head: the age expired and was counted\"\\n[ ok ] observer_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] crossing_latency_off_by_one: caught by \"launch: the reconstruction is the launch instant\"\\n[ ok ] no_fence: caught by \"torn frame: a frame was mid-egress when the fence closed\"\\n[ ok ] unseal_without_echo: caught by \"echo: the seal outlasts it\"\\n[ ok ] credit_never_withheld: caught by \"credit: the engine is held off at the reserve\"\\n[note] abort_outranks_completion: not separately observable here\\n[note] no_departure_predicate: not separately observable here\\n[note] no_position_check: not separately observable here\\n[note] delta_forced_not_measured: not separately observable here\\n[note] eof_acceptance_unqualified: not separately observable here\\n[note] cancellation_frees_the_entry: not separately observable here\\ncontrols: 9   failures: 0\\nRESULT: PASS\\n')"
+    ]
+   }
+  }
+ }
+]

@@ -1,0 +1,76 @@
+=== python3 scripts/docs_check.py
+exit=0
+docs_check: 0 finding(s) across 164 md files + 838 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== python3 scripts/check_em_dash.py --base 776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d
+exit=0
+check_em_dash: 0 finding(s) over 109 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [776bc77d..HEAD]
+=== python3 scripts/check_doc_style.py
+exit=0
+documentation style: OK (22 current documents)
+=== python3 scripts/gen_toc.py --check
+exit=0
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+=== python3 scripts/gen_toc.py --verify-anchors
+exit=0
+anchor check: 145 existing cross-page fragment links reproduced
+=== python3 scripts/check_py_idiom.py
+exit=0
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+=== python3 scripts/check_sh_idiom.py
+exit=0
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+=== python3 scripts/check_baremetal_only.py --check
+exit=0
+baremetal-only: OK (0 findings across 836 tracked first-party file(s))
+=== python3 scripts/check_baremetal_only.py --selftest
+exit=0
+baremetal-only selftest: PASS (354 arm(s))
+=== python3 scripts/measure_test_evidence.py --check
+exit=0
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+=== python3 scripts/measure_fail_fast.py --check
+exit=0
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+=== python3 scripts/measure_naming.py --check
+exit=0
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 586 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+=== python3 scripts/check_hygiene.py --check
+exit=0
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 716 file(s))
+=== python3 scripts/check_todo_ownership.py
+exit=0
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 766 first-party file(s) read)
+=== python3 scripts/ci_scope.py --selftest
+exit=0
+  ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+=== python3 scripts/check_sweep_shape.py --self-test
+exit=0
+  [self-test] sweep.sh without the seed export - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+  [self-test] build.sh exporting the seed after exec - expecting REJECT:
+  [self-test] OK: 1 drift(s) reported
+=== python3 scripts/ci_events.py --check
+exit=0
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1513 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)

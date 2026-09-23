@@ -1,0 +1,107 @@
+[
+ {
+  "arm": "unrelated-state-proceeds",
+  "exit": 0,
+  "controls_line": [
+   "controls: 9   failures: 0"
+  ],
+  "refused": [],
+  "caller_unchanged": true,
+  "declared_count": 20,
+  "copied_count": 22,
+  "copied_minus_declared": [
+   "tb/common/gptp_tx_flags.hpp",
+   "tb/common/verilator_harness.hpp"
+  ],
+  "declared_minus_copied": [],
+  "unrelated_copied": []
+ },
+ {
+  "arm": "dirty-input-refuses:hdl/common/cdc_pulse.sv",
+  "exit": 2,
+  "refused": [
+   "REFUSED: modified input bytes/mode: $PACKET/scratch/scope/dirty-cdc_pulse.sv/repo/hdl/common/cdc_pulse.sv"
+  ],
+  "ran": false,
+  "tmp_left": []
+ },
+ {
+  "arm": "dirty-input-refuses:tb/verilator/gptp_shadow/sim_main.cpp",
+  "exit": 2,
+  "refused": [
+   "REFUSED: modified input bytes/mode: $PACKET/scratch/scope/dirty-sim_main.cpp/repo/tb/verilator/gptp_shadow/sim_main.cpp"
+  ],
+  "ran": false,
+  "tmp_left": []
+ },
+ {
+  "arm": "dirty-input-refuses:gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+  "exit": 2,
+  "refused": [
+   "REFUSED: modified input bytes/mode: $PACKET/scratch/scope/dirty-KL_gptp_ucpu.sv/repo/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv"
+  ],
+  "ran": false,
+  "tmp_left": []
+ },
+ {
+  "arm": "copied-dependency-refuses",
+  "exit": 2,
+  "refused": [
+   "REFUSED: required dependency is not at its pin: third_party/verilog-axis"
+  ]
+ },
+ {
+  "arm": "facility:campaign:no-prctl",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: unsupported process facilities: prctl"
+  ],
+  "started": false
+ },
+ {
+  "arm": "facility:sweep:no-prctl",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: process ownership: unsupported process facilities: prctl"
+  ],
+  "started": false
+ },
+ {
+  "arm": "facility:campaign:no-pidfd-open",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: unsupported process facilities: os.pidfd_open"
+  ],
+  "started": false
+ },
+ {
+  "arm": "facility:sweep:no-pidfd-open",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: process ownership: unsupported process facilities: os.pidfd_open"
+  ],
+  "started": false
+ },
+ {
+  "arm": "facility:campaign:no-pidfd-send",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: unsupported process facilities: signal.pidfd_send_signal"
+  ],
+  "started": false
+ },
+ {
+  "arm": "facility:sweep:no-pidfd-send",
+  "exit": 2,
+  "traceback": false,
+  "refused": [
+   "REFUSED: process ownership: unsupported process facilities: signal.pidfd_send_signal"
+  ],
+  "started": false
+ }
+]

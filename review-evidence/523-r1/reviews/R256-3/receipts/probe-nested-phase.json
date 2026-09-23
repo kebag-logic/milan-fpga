@@ -1,0 +1,78 @@
+[
+ {
+  "phase": "preflight",
+  "signal": "SIGTERM",
+  "exit": 143,
+  "exit_seconds": 0.41,
+  "tmp_at_signal": [
+   "suite-cancellation-u_upo582"
+  ],
+  "tmp_left_after": [],
+  "tmp_left_file_count": {},
+  "census_size": 4,
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "processes_referencing_tmp_after": {},
+  "sentinel_ran": false,
+  "summary_printed": false,
+  "output_tail": "CANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/phase/preflight-SIGTERM/logs\nCANCELLED: signal 15; no completed sweep result\n",
+  "caller_tracked_state_unchanged": true
+ },
+ {
+  "phase": "lifecycle",
+  "signal": "SIGTERM",
+  "exit": 143,
+  "exit_seconds": 0.36,
+  "tmp_at_signal": [
+   "mutant-lifecycle-j1y01mdx"
+  ],
+  "tmp_left_after": [],
+  "tmp_left_file_count": {},
+  "census_size": 14,
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "processes_referencing_tmp_after": {},
+  "sentinel_ran": false,
+  "summary_printed": false,
+  "output_tail": "shard: 0/1   selected suites: 2\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/phase/lifecycle-SIGTERM/logs\nCANCELLED: signal 15; no completed sweep result\n",
+  "caller_tracked_state_unchanged": true
+ },
+ {
+  "phase": "preflight",
+  "signal": "SIGINT",
+  "exit": 130,
+  "exit_seconds": 0.41,
+  "tmp_at_signal": [
+   "suite-cancellation-73znrvns"
+  ],
+  "tmp_left_after": [],
+  "tmp_left_file_count": {},
+  "census_size": 4,
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "processes_referencing_tmp_after": {},
+  "sentinel_ran": false,
+  "summary_printed": false,
+  "output_tail": "CANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/phase/preflight-SIGINT/logs\nCANCELLED: signal 2; no completed sweep result\n",
+  "caller_tracked_state_unchanged": true
+ },
+ {
+  "phase": "lifecycle",
+  "signal": "SIGINT",
+  "exit": 130,
+  "exit_seconds": 0.36,
+  "tmp_at_signal": [
+   "mutant-lifecycle-ey1127oh"
+  ],
+  "tmp_left_after": [],
+  "tmp_left_file_count": {},
+  "census_size": 14,
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "processes_referencing_tmp_after": {},
+  "sentinel_ran": false,
+  "summary_printed": false,
+  "output_tail": "shard: 0/1   selected suites: 2\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/phase/lifecycle-SIGINT/logs\nCANCELLED: signal 2; no completed sweep result\n",
+  "caller_tracked_state_unchanged": true
+ }
+]
