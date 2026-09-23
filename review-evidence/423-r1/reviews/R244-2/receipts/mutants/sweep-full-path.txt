@@ -1,0 +1,59 @@
+control-unmodified           CONTROL-PASS  rc=0 ok=678 FAIL=0 notrun=0 
+single-merge-base            KILLED        rc=1 ok=677 FAIL=1 notrun=0 
+      FAIL retention-merge-base-two-real-bases real Git history: exit AND verdict
+t-ignore-submodules          KILLED        rc=1 ok=676 FAIL=2 notrun=0 
+      FAIL retention-hostile-gitlink-reset real Git history: exit AND verdict
+      FAIL retention-hostile-gitlink-reset-path the unproved literal path is named without decoding loss
+t-no-renames                 KILLED        rc=1 ok=676 FAIL=2 notrun=0 
+      FAIL retention-hostile-rename-undone real Git history: exit AND verdict
+      FAIL retention-hostile-rename-undone-path the unproved literal path is named without decoding loss
+ancestor-type-rule           KILLED        rc=1 ok=676 FAIL=2 notrun=0 
+      FAIL retention-symlink-ancestor-clean-merge real Git history: exit AND verdict
+      FAIL retention-symlink-ancestor-clean-merge-path the unproved literal path is named without decoding loss
+replay-distinctness          KILLED        rc=1 ok=675 FAIL=3 notrun=0 
+      FAIL retention-distinct-linear  real Git history: exit AND verdict
+      FAIL retention-distinct-linear-path the unproved literal path is named without decoding loss
+      FAIL retention-distinct-merge   real Git history: exit AND verdict
+tree-entry-name-check        SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+tree-entry-full-tree         SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+merge-file-style-override    SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+t-no-ext-diff-textconv       SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+merge-file-argument-order    KILLED        rc=1 ok=530 FAIL=148 notrun=0 
+      FAIL replay-01-positive-replay-far-extension settled public matrix: exit AND verdict
+      FAIL replay-01-proof            the new arm proves retention after real historical replay
+      FAIL replay-02-positive-replay-two-later-commits settled public matrix: exit AND verdict
+absence-asymmetry            KILLED        rc=1 ok=164 FAIL=0 notrun=0 
+      tail:             ~~~^^^
+      tail: TypeError: 'NoneType' object is not subscriptable
+historical-error-to-decline  KILLED        rc=1 ok=677 FAIL=1 notrun=0 
+      FAIL retention-missing-blob     real Git history: exit AND verdict
+merge-error-range            KILLED        rc=1 ok=677 FAIL=1 notrun=0 
+      FAIL mutation-merge-error-11    weakened production guard changes the verdict, including its words
+g1-parent-read-check         SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+lossy-guard-removed          KILLED        rc=1 ok=676 FAIL=2 notrun=0 
+      FAIL locale-big5-in-process-git-lossy-output Big5 filesystem codec in this process
+      FAIL locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process
+lossy-status-zero            SURVIVED      rc=0 ok=678 FAIL=0 notrun=0 
+labels-decoded               KILLED        rc=1 ok=393 FAIL=5 notrun=0 
+      FAIL locale-utf-8-process       fresh Python: b'Traceback (most recent call last):\n  File "<packet>/scratch/mut/labels-d
+      FAIL locale-ascii-process       fresh Python: b'Traceback (most recent call last):\n  File "<packet>/scratch/mut/labels-d
+      FAIL locale-utf-8-strict-process fresh Python: b'Traceback (most recent call last):\n  File "<packet>/scratch/mut/labels-
+argv-bytes-lossy             KILLED        rc=1 ok=602 FAIL=5 notrun=0 
+      FAIL locale-big5-process        fresh Python: b'Traceback (most recent call last):\n  File "<packet>/scratch/mut/argv-byt
+      FAIL locale-big5-in-process-a1fe2e747874-linear-missing Big5 filesystem codec in this process
+      FAIL locale-big5-in-process-a1fe2e747874-merge-retained Big5 filesystem codec in this process
+t-lookup-lossy               KILLED        rc=1 ok=674 FAIL=4 notrun=0 
+      FAIL locale-big5-a1fe2e747874-merge-reverted actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-a1fe2e747874-unproved-path actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-in-process-a1fe2e747874-merge-reverted Big5 filesystem codec in this process
+patch-transport-lossy        KILLED        rc=1 ok=668 FAIL=10 notrun=0 
+      FAIL locale-big5-c3a92e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-7261772dff-patch-bytes actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-e282ac2e747874-patch-bytes actual filesystem encoding and literal Git filename bytes
+path-arm-lossy               KILLED        rc=1 ok=676 FAIL=2 notrun=0 
+      FAIL locale-big5-a1fe2e747874-linear-missing actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-in-process-a1fe2e747874-linear-missing Big5 filesystem codec in this process
+postimage-paths-lossy        KILLED        rc=1 ok=674 FAIL=4 notrun=0 
+      FAIL locale-big5-a1fe2e747874-enumerated-bytes actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-a1fe2e747874-postimage actual filesystem encoding and literal Git filename bytes
+      FAIL locale-big5-in-process-a1fe2e747874-enumerated-bytes Big5 filesystem codec in this process

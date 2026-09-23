@@ -1,0 +1,4 @@
+restore+adjacent-end             merge-file rc=1 output==tip=False -> T refuses
+restore+distant-edit             merge-file rc=0 output==tip=False -> T refuses
+restore+adjacent-blank           merge-file rc=1 output==tip=False -> T refuses
+restore-shifted-past-identical   merge-file rc=0 output==tip=True -> T ACCEPTS

@@ -1,0 +1,53 @@
+== checker=head target=f0f1c055 branch=pr (PR62)
+  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+== checker=prev target=f0f1c055 branch=pr (PR62)
+  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+== checker=base target=f0f1c055 branch=pr (PR62)
+  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/MANAGER.md, docs/SOURCE_EVIDENCE.md, docs/TEST_DEVELOPER.md]
+
+1 branch tip(s) have work that refs/heads/main does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.
+rc=1
+== checker=head target=f0f1c055 branch=pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+rc=0
+== checker=head target=c1b61743 branch=pr (PR62)
+  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+== checker=prev target=c1b61743 branch=pr (PR62)
+  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+== checker=base target=c1b61743 branch=pr (PR62)
+  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: README.md, bench/arty/bench_arty_top.sv, bench/arty/bench_mii_tx_tag_test.cpp, bench/arty/build.sh, bench/pcap_verdict.py, docs/HDL_DEVELOPER.md]
+
+1 branch tip(s) have work that refs/heads/main does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.
+rc=1
+== checker=head target=c1b61743 branch=pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+rc=0
+== patch hashes (documented command)
+3db86812096830fada2f5f276fa5f4d9f37d1d14 fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f
+5602e70bb4cf70c2e0e39e846e26925e27659e32 fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f
+9790ac736e6d10301ad814ffdf73dbe37b59768b d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3
+20927af74752620b2ad0f973e8be3203994b5547 d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3

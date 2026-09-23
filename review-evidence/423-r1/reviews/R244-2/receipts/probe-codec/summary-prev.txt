@@ -1,0 +1,149 @@
+prev       utf-8-locale  rows= 57 mismatches=20
+    MISMATCH a1fe2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH report-verdicts: got=[1, ['contained'], 'Traceback (most recent call last):\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 993, in main\n    return _report(targets, base)\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 902, in _report\n    print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f"  [{note}]" if note else ""))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: \'utf-8\' codec can\'t encode character \'\\udcff\' in position 91: surrogates not allowed\n'] want=[1, ['contained', 'STRANDED', 'contained'], '']
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       utf-8-mode    rows= 57 mismatches=12
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH report-ascii: got=False want=True
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       ascii         rows= 57 mismatches=12
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH report-ascii: got=False want=True
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       latin-1       rows= 57 mismatches=10
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH report-ascii: got=False want=True
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       big5          rows= 57 mismatches=23
+    MISMATCH a1fe2e747874-linear-missing: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-merge-reverted: got=[0, 'contained'] want=[1, 'UNKNOWN']
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH a1fe-patch-id-60d7565d: got=['a014d185c473fa4eb77b1a525526a120a40ee68f', None] want=['e5495a515aa11d7a71c19c6c4996f584af7c7b92', None]
+    MISMATCH a1fe-patch-ids-distinct: got=False want=True
+    MISMATCH report-verdicts: got=[1, ['contained'], 'Traceback (most recent call last):\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 993, in main\n    return _report(targets, base)\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 902, in _report\n    print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f"  [{note}]" if note else ""))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: \'big5\' codec can\'t encode character \'\\udcff\' in position 91: illegal multibyte sequence\n'] want=[1, ['contained', 'STRANDED', 'contained'], '']
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       big5hkscs     rows= 57 mismatches=23
+    MISMATCH a1fe2e747874-linear-missing: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-merge-reverted: got=[0, 'contained'] want=[1, 'UNKNOWN']
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH a1fe-patch-id-8375ab52: got=['a014d185c473fa4eb77b1a525526a120a40ee68f', None] want=['e5495a515aa11d7a71c19c6c4996f584af7c7b92', None]
+    MISMATCH a1fe-patch-ids-distinct: got=False want=True
+    MISMATCH report-verdicts: got=[1, ['contained'], 'Traceback (most recent call last):\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 993, in main\n    return _report(targets, base)\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 902, in _report\n    print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f"  [{note}]" if note else ""))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: \'big5hkscs\' codec can\'t encode character \'\\udcff\' in position 91: illegal multibyte sequence\n'] want=[1, ['contained', 'STRANDED', 'contained'], '']
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       johab         rows= 57 mismatches=23
+    MISMATCH a1fe2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-linear-missing: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-merge-reverted: got=[0, 'contained'] want=[1, 'UNKNOWN']
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-linear-missing: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block: got=[1, 'none'] want=[1, 'STRANDED']
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH 8441-patch-id-223c2ba2: got=['536b2372ce1a461f25997a00dc639112190220df', None] want=['0e66fa1e26739b33af884443e9b5cb8f4ee63a2a', None]
+    MISMATCH 8441-patch-ids-distinct: got=False want=True
+    MISMATCH report-verdicts: got=[1, ['contained'], 'Traceback (most recent call last):\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 993, in main\n    return _report(targets, base)\n  File "<packet>/scratch/src/prev/scripts/check_merge_containment.py", line 902, in _report\n    print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f"  [{note}]" if note else ""))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: \'johab\' codec can\'t encode character \'\\udcff\' in position 91: illegal multibyte sequence\n'] want=[1, ['contained', 'STRANDED', 'contained'], '']
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+prev       cp932         rows= 57 mismatches=17
+    MISMATCH a1fe2e747874-merge-reverted-label: got=False want=True
+    MISMATCH a1fe2e747874-repeated-block-label: got=False want=True
+    MISMATCH 84412e747874-merge-reverted-label: got=False want=True
+    MISMATCH 84412e747874-repeated-block-label: got=False want=True
+    MISMATCH 87902e747874-linear-missing: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-merge-reverted: got=[0, 'contained'] want=[1, 'UNKNOWN']
+    MISMATCH 87902e747874-merge-reverted-label: got=False want=True
+    MISMATCH 87902e747874-repeated-block: got=[0, 'contained'] want=[1, 'STRANDED']
+    MISMATCH 87902e747874-repeated-block-label: got=False want=True
+    MISMATCH c3a92e747874-merge-reverted-label: got=False want=True
+    MISMATCH c3a92e747874-repeated-block-label: got=False want=True
+    MISMATCH 7261772dff2e747874-merge-reverted-label: got=False want=True
+    MISMATCH 7261772dff2e747874-repeated-block-label: got=False want=True
+    MISMATCH 8790-patch-id-6c024a82: got=['31963615e959ecd413c5219bd1d05eb2fa46405d', None] want=['a704ade659e24b80154b1bb141175ffef70f4d65', None]
+    MISMATCH 8790-patch-ids-distinct: got=False want=True
+    MISMATCH report-ascii: got=False want=True
+    MISMATCH report-labels: got=[False, False, False, False, False] want=[True, True, True, True, True]
+driver rc=0
