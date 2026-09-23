@@ -7,7 +7,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 ## Contents
 
 - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** -- The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
-- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: never symlink or copy a submodule into a worktree (initialise it at its pin), and rebuild `LAYOUTS` merges semantically rather than by marker-union.
 - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Three rules paid for on hardware: ≥ 8 min AX boot probes, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
 - **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
@@ -285,9 +285,11 @@ Two board rules that go with it:
 ### 2.2 Lanes and traps
 
 - **One lane = one worktree = one branch = one PR** (`~/milan-avb-multiwork`
-  pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —
-  a symlink escapes to the main repo and builds silently stale RTL; then
-  delete the copied submodule's `.git` file.
+  pattern). Never symlink `third_party/` or a processor into a worktree: a
+  symlink escapes to the main repo and builds silently stale RTL. Never copy
+  one in either: a copied tree without its submodule `.git` has no pin anyone
+  can verify, and the gates that prove pins refuse it. Initialise the pinned
+  submodules instead, as the next rule says.
 - **A fresh worktree inherits no submodules, and the honest local bar needs
   three of them.** `git worktree add` does not initialise submodules, so before
   any local gate run, in one command:
@@ -299,7 +301,9 @@ Two board rules that go with it:
   same way -- but against the **gitlink** and then against the pinned **bytes**,
   so a standalone clone dropped at the path, a checkout moved off the pin, and a
   local edit the index has been told to keep quiet about are all refused, not
-  counted. Lint now REFUSES (exit 2, not the
+  counted. The gPTP shadow mutation campaign proves its gPTP processor and
+  axis inputs against their gitlinks and pinned blobs too, and refuses a copied
+  or off-pin tree. Lint now REFUSES (exit 2, not the
   ratchet-tighten exit 1) rather
   than under-count when one is absent (#186): a count over an incomplete
   resolution set drops findings and would invite a tighten to a number the real
