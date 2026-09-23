@@ -14,11 +14,14 @@ from pathlib import Path
 
 from owned_process import OwnedProcesses
 from process_test_support import (
-    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, eventually, identity, install,
+    FACILITY_MODES, FACILITY_SITE, PROC, Probe, assert_reaped, eventually, identity, install,
     parent as parent_of, running, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
+
+#: A previous invocation's completed evidence, present in OUT before the run.
+PREVIOUS = {"omega.log": "OLD COMPLETED RUN\n", "preflight/old.log": "OLD PREFLIGHT\n"}
 
 MAKE = r'''#!/usr/bin/env python3
 import os, subprocess, sys
@@ -103,9 +106,25 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     return root, probe
 
 
-def start(probe: Probe) -> None:
+def start(probe: Probe, *options: str) -> None:
     """Start the normal production entry point with attributable log paths."""
-    probe.start(["bash", str(probe.root / DRIVER), str(probe.root / "logs")])
+    probe.start(["bash", str(probe.root / DRIVER), str(probe.root / "logs"), *options])
+
+
+def cancel_report(output: str, root: Path, signum: int, prepared: bool) -> None:
+    """The sweep shell names the signal and whether OUT holds this run's logs."""
+    lines = output.splitlines()
+    name = signal.Signals(signum).name.removeprefix("SIG")
+    # The owner's own line reads "signal N"; only the shell's trap names it.
+    assert f"CANCELLED: {name}; no completed sweep result" in lines, output
+    partial = [line for line in lines if line.startswith("partial logs:")]
+    unprepared = "logs were not prepared for this invocation" in lines
+    if prepared:
+        assert partial == [f"partial logs: {root / 'logs'}"] and not unprepared, output
+    else:
+        assert partial == [] and unprepared, output
+        for relative, text in PREVIOUS.items():
+            assert (root / "logs" / relative).read_text() == text, "previous evidence changed"
 
 
 def ordinary(parent: Path, mode: str) -> None:
@@ -137,8 +156,8 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
     label = ("unsafe-" if unsafe else "cancel-") + phase + "-" + signal.Signals(signum).name
     root, probe = fixture(parent, label)
     probe.env["PROBE_MODE"] = phase
-    write(root / "logs/omega.log", "OLD COMPLETED RUN\n")
-    write(root / "logs/preflight/old.log", "OLD PREFLIGHT\n")
+    for relative, text in PREVIOUS.items():
+        write(root / "logs" / relative, text)
     if unsafe:
         path = root / DRIVER
         text = path.read_text()
@@ -168,7 +187,7 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
         if not unsafe:
             assert status == 128 + signum, output
             assert "\nsuites:" not in output and "PASS     omega" not in output, output
-            assert "CANCELLED:" in output, output
+            cancel_report(output, root, signum, prepared=phase != "selection")
             assert_reaped(data)
             assert not (root / ".run_all_suites.lock.owner").exists(), "lock owner survived"
         else:
@@ -187,6 +206,40 @@ def cancellation(parent: Path, phase: str, signum: int, unsafe: bool = False) ->
     finally:
         foreign.terminate()
         foreign.wait(timeout=3)
+
+
+def queued(entry: int) -> bool:
+    """Has the sweep shell under this launched entry started its real lock wait?"""
+    for comm in PROC.glob("[0-9]*/comm"):
+        try:
+            if comm.read_text() != "flock\n":
+                continue
+        except OSError:
+            continue
+        shell = parent_of(int(comm.parent.name))
+        if shell is not None and parent_of(shell) == entry:
+            return True
+    return False
+
+
+def lock_wait(parent: Path, signum: int) -> None:
+    """Queued behind a holder, OUT still holds only the previous run's logs."""
+    root, probe = fixture(parent, "cancel-lock-wait-" + signal.Signals(signum).name)
+    for relative, text in PREVIOUS.items():
+        write(root / "logs" / relative, text)
+    # This test is the holder; the sweep's own flock call is the boundary.
+    with (root / ".run_all_suites.lock").open("a") as held:
+        fcntl.flock(held, fcntl.LOCK_EX)
+        start(probe, "--wait")
+        eventually(lambda: queued(probe.process.pid) or probe.process.poll() is not None, 15,
+                   "sweep never waited for the lock")
+        assert probe.process.poll() is None, probe.log()
+        probe.signal(signum)
+        status, output = probe.finish()
+    assert status == 128 + signum and "\nsuites:" not in output, output
+    cancel_report(output, root, signum, prepared=False)
+    assert not (probe.control / "owner-ran").exists() and not (root / "logs/alpha.log").exists(), output
+    probe.save(dict(exit=status, phase="lock-wait", previous_logs_kept=True, unprepared_reported=True))
 
 
 def ownership_refusal(parent: Path) -> None:
@@ -322,6 +375,8 @@ def main() -> int:
             for phase in ("selection", "preflight", "command", "transition"):
                 for signum in (signal.SIGINT, signal.SIGTERM):
                     cancellation(parent, phase, signum)
+            for signum in (signal.SIGINT, signal.SIGTERM):
+                lock_wait(parent, signum)
             with OwnedProcesses():
                 cancellation(parent, "command", signal.SIGTERM, unsafe=True)
             for how in ("KILL", "HUP", "HUP-group"):
@@ -330,7 +385,8 @@ def main() -> int:
             for mode in FACILITY_MODES:
                 unsupported(parent, mode)
     print("suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, "
-          "partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, "
+          "partial logs, attributed cancellation reports, lock wait, next-suite sentinel, "
+          "ordinary/masked/timeout, hard KILL/HUP stops, "
           "facility refusals, unsafe negative controls)")
     return 0
 
