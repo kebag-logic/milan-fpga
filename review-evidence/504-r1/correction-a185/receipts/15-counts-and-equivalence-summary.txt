@@ -1,0 +1,15 @@
+reviewed-head 3d90958f (R228-1 receipt) absent: 182/182 mutations rejected | 17/17 legitimate firmware edits | 4/4 legitimate Makefile edits | 46/46 RTL mutation variants elaborated | GATE 1b PASS; 1 NOT RUN; 0 actual firmware compiler invocations | (26 entries are SKIPPED
+reviewed-head 3d90958f (R228-1 receipt) sdk: 208/208 mutations rejected | 17/17 legitimate firmware edits | 4/4 legitimate Makefile edits | 46/46 RTL mutation variants elaborated | 7/7 hostile shapes | GATE 1b PASS; 0 NOT RUN; 212 actual firmware compiler invocations | classifying all 66 store(s)
+corrected head absent: 182/182 mutations rejected | 17/17 legitimate firmware edits | 4/4 legitimate Makefile edits | 46/46 RTL mutation variants elaborated | GATE 1b PASS; 1 NOT RUN; 0 actual firmware compiler invocations | (31 entries are SKIPPED
+corrected head sdk: 213/213 mutations rejected | 17/17 legitimate firmware edits | 4/4 legitimate Makefile edits | 46/46 RTL mutation variants elaborated | 7/7 hostile shapes | GATE 1b PASS; 0 NOT RUN; 227 actual firmware compiler invocations | classifying all 66 store(s)
+resolver equivalence pre f6a55e4c vs post HEAD over 116 captured census assemblies: 106 identical, 10 differ: census-9,10,11,12,13,111,112,113,114,115
+  census-9.s store classes beyond sb/sh/sw: ['fsw']
+  census-10.s store classes beyond sb/sh/sw: ['fsd']
+  census-11.s store classes beyond sb/sh/sw: ['amoswap.w.aqrl']
+  census-12.s store classes beyond sb/sh/sw: ['amoor.w']
+  census-13.s store classes beyond sb/sh/sw: ['sc.w.rl']
+  census-111.s store classes beyond sb/sh/sw: ['fsw']
+  census-112.s store classes beyond sb/sh/sw: ['fsd']
+  census-113.s store classes beyond sb/sh/sw: ['amoswap.w.aqrl']
+  census-114.s store classes beyond sb/sh/sw: ['amoor.w']
+  census-115.s store classes beyond sb/sh/sw: ['sc.w.rl']

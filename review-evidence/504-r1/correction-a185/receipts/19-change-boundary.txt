@@ -1,0 +1,19 @@
+correction commits f6a55e4c..HEAD:
+ docs/integration/BAREMETAL_FIRMWARE.md |  45 +++-
+ docs/testing/CI_WORKFLOWS.md           |  13 +-
+ scripts/ci_rv32_sdk_selftest.py        | 195 ++++++++++++++---
+ sw/builder/test_builder.py             | 369 +++++++++++++++++++++++++++++++--
+ 4 files changed, 572 insertions(+), 50 deletions(-)
+
+blob identity reviewed head 3d90958f vs HEAD for the PR's other files:
+  .github/workflows/docs.yml 7b629a8c2837a927d54ba4ead7935e9da1a2c9f0 7b629a8c2837a927d54ba4ead7935e9da1a2c9f0 IDENTICAL
+  .github/workflows/elaborate.yml af8f3700266d344f6de2f281cd4a7598b6a7639a af8f3700266d344f6de2f281cd4a7598b6a7639a IDENTICAL
+  scripts/ci_rv32_sdk.py b6ac4138972d2dd321edc523ab9c65ec1ad69fe3 b6ac4138972d2dd321edc523ab9c65ec1ad69fe3 IDENTICAL
+  scripts/ci_events.py 41b6616cd0c587e3c3e5730d45c4a22c8df213a7 41b6616cd0c587e3c3e5730d45c4a22c8df213a7 IDENTICAL
+  scripts/check_baremetal_only.py 99cc432ddd669ce29da7b3fccb77ab99e196b9c3 99cc432ddd669ce29da7b3fccb77ab99e196b9c3 IDENTICAL
+  sw/builder/test_firmware_compiler.py 2bde32ce1bca5562a1a08a064b277ad9eab6efce 2bde32ce1bca5562a1a08a064b277ad9eab6efce IDENTICAL
+
+paths touched by the correction commits outside tests/docs/builder:
+  none
+hdl/ tb/ syn/ sw/firmware/ sw/litex/ configs/ changes since reviewed head (vs dev merge): 0
+budget/ratchet files changed: 0

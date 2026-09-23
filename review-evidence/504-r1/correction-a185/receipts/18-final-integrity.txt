@@ -1,0 +1,50 @@
+head=5081a25a451b4ac1c00f286ec59ab041c22fdde9 tree=68a0628be2b55c1180a0e5751d2355cb8f987268 checked={'file': 854, 'symlink': 0, 'gitlink': 4} required=['third_party/verilog-axis', 'protocol-processor', 'gptp-processor']
+gitlink third_party/verilog-axis = 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+gitlink protocol-processor = 424c688fa2205b934a7689a58f2aa766420f2326
+gitlink gptp-processor = c1b617435824929a790739ea8585c3fe1a328cc0
+INTEGRITY PASS
+exit=0
+
+head=5081a25a451b4ac1c00f286ec59ab041c22fdde9
+tree=68a0628be2b55c1180a0e5751d2355cb8f987268
+reviewed head=3d90958f3a82ca2a9617112c107a22f332117e17
+source base=52711029f374650dc93830d5ea28e81cb5c8f410 (merge-base with 3d90958f: 52711029f374650dc93830d5ea28e81cb5c8f410)
+live dev=483a133ed08867ea0d300d2b4a027b5b48a4282f is-ancestor-of-head=yes
+commits since reviewed head:
+  5081a25a451b4ac1c00f286ec59ab041c22fdde9 48226b2f7f56e4d6eef782ba384ff1ca76ec1e92 ci: fail the SDK installer self-test on download and receipt faults
+  48226b2f7f56e4d6eef782ba384ff1ca76ec1e92 f6a55e4c85b6bdcdaeab6caa6b6e575c51cf97df builder: classify every RV32 store class in the resolved store census
+  f6a55e4c85b6bdcdaeab6caa6b6e575c51cf97df 3d90958f3a82ca2a9617112c107a22f332117e17 483a133ed08867ea0d300d2b4a027b5b48a4282f Merge dev 483a133e into 504-hosted-rv32-compiler
+  483a133ed08867ea0d300d2b4a027b5b48a4282f 52711029f374650dc93830d5ea28e81cb5c8f410 1496558d82cf35fc98dda0e781b2a1be643c301a Merge PR #512: bound AUDIO_UNIT rates to the PP contract
+  1496558d82cf35fc98dda0e781b2a1be643c301a 2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 88e9276b2a220c716f64a843f7e1eb8f9265e896 Merge dev after Markdown closer validation
+  2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 d81a302760b84f32d2aa019643f57682bb6e052c docs: pin AUDIO_UNIT memory-map reference to processor commit
+  d81a302760b84f32d2aa019643f57682bb6e052c 099e191137dd2797407fb8345a452bcc7a965608 ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 Merge dev for AUDIO_UNIT rate-list validation
+  099e191137dd2797407fb8345a452bcc7a965608 b17580b91deb11f3441dfc5d7f9fafe539d929b8 fix(builder): enforce AUDIO_UNIT rate-list contract
+trailers in those commits: 0
+gitlinks at head / reviewed head / dev:
+  HEAD: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+  3d90958f3a82ca2a9617112c107a22f332117e17: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+  origin/dev: external=efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 gptp-processor=c1b617435824929a790739ea8585c3fe1a328cc0 protocol-processor=424c688fa2205b934a7689a58f2aa766420f2326 third_party/verilog-axis=48ff7a7e2ef782cf778d47910cf85835c64b1bce 
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+index flags (non-H):
+0
+status:
+# branch.oid 5081a25a451b4ac1c00f286ec59ab041c22fdde9
+# branch.head 504-hosted-rv32-compiler
+# branch.upstream origin/504-hosted-rv32-compiler
+# branch.ab +10 -0
+diff vs dev (files):
+ .github/workflows/docs.yml             |  17 +-
+ .github/workflows/elaborate.yml        |  15 +-
+ docs/integration/BAREMETAL_FIRMWARE.md |  80 +++++--
+ docs/testing/CI_WORKFLOWS.md           |  72 ++++++
+ scripts/check_baremetal_only.py        |  45 +++-
+ scripts/ci_events.py                   |  85 ++++++--
+ scripts/ci_rv32_sdk.py                 | 189 ++++++++++++++++
+ scripts/ci_rv32_sdk_selftest.py        | 376 ++++++++++++++++++++++++++++++++
+ sw/builder/test_builder.py             | 388 ++++++++++++++++++++++++++++++---
+ sw/builder/test_firmware_compiler.py   | 189 ++++++++++++++++
+ 10 files changed, 1395 insertions(+), 61 deletions(-)

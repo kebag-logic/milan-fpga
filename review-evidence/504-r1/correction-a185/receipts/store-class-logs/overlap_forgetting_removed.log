@@ -1,0 +1,31 @@
+IN-MEMORY MUTATION: overlap forgetting removed
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/toolchain-wrapper", "sysroot": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+Compiler mode: mapped disposable SDK
+Compiler audit: $REVIEWS/504-a185-packet/scratch/mut-f1-final/overlap_forgetting_removed-argv.jsonl
+argv[0] mapping: $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc -> $REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "$REVIEWS/504-a185-packet/scripts/mutate_store_classes.py", line 178, in <module>
+    worker(Path(sys.argv[2]).resolve(), sys.argv[3], sys.argv[4:])
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/504-a185-packet/scripts/mutate_store_classes.py", line 132, in worker
+    tfc.main()
+    ~~~~~~~~^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_builder.py", line 5253, in test_baremetal_profile_contract
+    for label, body in stale_probes:
+               ^^^^^^^^^^^^^^^^^^^^^
+        reported = rv32_probe(body + "\tli a2,1\n\tsw a2,0(a4)\n")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: after an fsd over a frame slot the RV32 resolver still placed the next store ([2147487744]): a word the store overwrote was read back as 0x80001000, which is a placed address the census accepts

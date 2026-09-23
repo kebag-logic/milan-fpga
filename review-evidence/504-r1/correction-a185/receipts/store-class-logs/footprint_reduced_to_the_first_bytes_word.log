@@ -1,0 +1,29 @@
+IN-MEMORY MUTATION: footprint reduced to the first byte's word
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/toolchain-wrapper", "sysroot": "$REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+Compiler mode: mapped disposable SDK
+Compiler audit: $REVIEWS/504-a185-packet/scratch/mut-f1-final/footprint_reduced_to_the_first_bytes_word-argv.jsonl
+argv[0] mapping: $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc -> $REVIEWS/504-a185-packet/scratch/r228run/sdk-fresh/host/bin/riscv32-linux-gcc
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+Traceback (most recent call last):
+  File "$REVIEWS/504-a185-packet/scripts/mutate_store_classes.py", line 178, in <module>
+    worker(Path(sys.argv[2]).resolve(), sys.argv[3], sys.argv[4:])
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/504-a185-packet/scripts/mutate_store_classes.py", line 132, in worker
+    tfc.main()
+    ~~~~~~~~^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$LANES/504-hosted-rv32-compiler/sw/builder/test_builder.py", line 5208, in test_baremetal_profile_contract
+    assert reported == words, \
+           ^^^^^^^^^^^^^^^^^
+AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every other store, or a store into the Milan CSR window leaves the census unasked
