@@ -1,0 +1,31 @@
+diff --git a/docs/findings/117_GPTP_SILICON_EVIDENCE.md b/docs/findings/117_GPTP_SILICON_EVIDENCE.md
+index efec1bb3..a2fc10c6 100644
+--- a/docs/findings/117_GPTP_SILICON_EVIDENCE.md
++++ b/docs/findings/117_GPTP_SILICON_EVIDENCE.md
+@@ -122,7 +122,7 @@ cycle.
+ - **Controller host.** It sits on switch port 8. It runs no gPTP daemon, so the switch sends it Pdelay_Req only.
+ - **Power.** The bench power strip feeds the switch from outlet OUT4, the DUT from OUT0 and the reference peer from OUT2, per the 2026-08-15 outlet map. Step 3 switched OUT4 only, and its first cycle proved that OUT4 is the switch; see [Step 3](#step-3-gm-loss-and-return). The strip read OUT0, OUT1, OUT2, OUT4, OUT5 and OUT6 on and OUT3 off before and after step 3.
+ - **Second observation point (step 3).** The controller host's own AVB port on switch port 8. Its carrier is the switch's link edge, and a capture of that port is in the packet. It is inside the partition while the switch is off.
+-- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both directions on one clock: tap port 3 carries frames the DUT sent, tap port 2 carries frames the switch sent. Each record carries a 28-octet envelope whose nanosecond word wraps every 2^32 ns. The decoder unwraps it against the capture host time. Records without a valid envelope are the capture host's own traffic and are excluded (76 in Run A, none elsewhere). Every capture reports 0 kernel drops.
++- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both directions on one clock: tap port 3 carries frames the DUT sent, tap port 2 carries frames the switch sent. Each record carries a 28-octet envelope whose nanosecond word wraps every 2^32 ns. The decoder unwraps it against the capture host time. Records without a valid envelope are the capture host's own traffic and are excluded (76 in Run A, none elsewhere). Every capture reports 0 dropped records.
+ 
+ ## Methodology
+ 
+@@ -146,7 +146,7 @@ from the tap clock, and the controller-host times are NTP times.
+ | Census, start | 13:50:59 | binding and settings census, both AVB_INTERFACE counter blocks | no lock (no console) |
+ | Attempt 1 (aborted) | 13:51:23 to 13:52:04 | a cycle whose console poller failed to start; the guard turned OUT4 back on after 6 s; not counted, see [Step 3](#step-3-gm-loss-and-return) | lock held 41 s |
+ | Poll check | 13:52:59 to 13:53:04 | 5 s console poll at 0.1 s, liveness check; no power action | lock held 5 s |
+-| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host capture and watcher, 0.1 s console poll, OUT4 off for 20 s then on; cycles 4 to 6 hold a CRF binding | lock held 160 s (cycle 1), 120 s (2, 3), 125 s (4 to 6), released between cycles |
++| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host port recording and watcher, 0.1 s console poll, OUT4 off for 20 s then on; cycles 4 to 6 hold a CRF binding | lock held 160 s (cycle 1), 120 s (2, 3), 125 s (4 to 6), released between cycles |
+ | Outlets, end | 14:12:29 | power-strip status read | lock held 0.5 s |
+ | Census, end | 14:12:30 | binding and settings census | no lock (no console) |
+ | Final 2 | 14:13:19 | 22 s tap capture; console read; UART grader | lock held 0.5 s |
+@@ -398,7 +398,7 @@ in the [register map](../reference/REGISTER_MAP.md).
+ - **The `tu` bit on the wire.** The DUT emits AVTP only for a licensed stream, so Run B bound the reference peer's primary CRF input (its clock source stayed INTERNAL) to the DUT's CRF output for 60 s. The DUT sent 34,061 CRF PDUs between 13:04:49.297 and 13:05:59.198 UTC, every one with `tu=0`, while `CLKV_STAT[0]` read 0 in all 53 samples. The peer, as listener, counted MEDIA_LOCKED 1, FRAMES_RX 26,646, TIMESTAMP_VALID 26,646 and TIMESTAMP_UNCERTAIN 0.
+ - **Why "fabric-owned".**
+   - The firmware only reads these words. The register map declares them read-only live with inert writes.
+-  - No software gPTP owner exists on the image.
++  - The image carries no gPTP protocol code outside the fabric plane.
+   - Each word tracks the wire it summarizes.
+ - **Timescale.** A coarse check put the DUT PHC minus grandmaster time at -0.072 s at each Run A console read. It was constant within 2 ms over 5 minutes, which is inside the 0.3 s host-clock uncertainty: the PHC runs on the grandmaster's timescale and rate.
+ - **Transition.** The steady state above is one half. The grandmaster-change half, `tu` asserting on sync loss and the publication following each new grandmaster, is below.

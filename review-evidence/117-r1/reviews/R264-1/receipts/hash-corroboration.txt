@@ -1,0 +1,20 @@
+Reviewer R264-1: corroboration of hashes the findings page quotes that are not
+files of the published archive (review-evidence/117-r1 at 160debeb).
+
+hash (page)        object                              corroboration
+f0725eef...        gateware/alinx_ax7101.bit           issue #117 build record (comment 5794859125) and bench-a200/identity/expected-crc.txt (bitfile sha256)
+aaece32f...        bitstream payload                   bench-a200/identity/expected-crc.txt (bitpay sha256, crc32 02036e95 = on-board)
+9b077636...        aem_desc.bin                        issue #117 build record and expected-crc.txt (aem sha256, crc32 93742dd2 = on-board)
+71e798fc...        flashboot_layout.json               issue #117 build record only
+69322600...        software/bios/bios.bin              NONE PUBLIC (expected-crc.txt carries e84e579c..., the hash of bios.bin less its 4-byte CRC, a different object)
+4db0e6da...        csr.csv                             NONE PUBLIC
+bc41ab03...        scripts/baremetal_uart_smoke.py     re-derived: git show ede8d48e:scripts/baremetal_uart_smoke.py | sha256sum
+33f0e7f9...        peer ENTITY firmware_version field  re-derived from bench-a200/bench/peer-aem-1.jsonl (READ_DESCRIPTOR ENTITY payload octets 120..183; 7 octets used); prefix matches the 2026-09-14 survey on issue #117
+95d64fd5...        la_avdecc library                   issue #117 comment of 2026-09-08 (full hash)
+ad579e18...        counters probe binary               issue #117 comment of 2026-09-08 (full hash)
+0e9faf30...        counters probe source               issue #117 comment of 2026-09-08 (full hash)
+8ef4b008...        la_avdecc controller library        NONE PUBLIC (no full hash in the archive or on the issue)
+
+The page states "Full hashes are in the packet manifests listed under Raw
+artifacts"; for the last four rows above and for bios.bin / csr.csv that is
+not so.
