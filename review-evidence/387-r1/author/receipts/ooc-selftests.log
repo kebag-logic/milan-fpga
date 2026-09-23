@@ -1,0 +1,15 @@
+== python3 syn/yosys/ooc_selftest.py
+ooc.sh refusal self-test: 75 arm(s) passed
+rc=0
+== python3 syn/yosys/cache_selftest.py
+ROM cache controls: OK (3 images, 2 modes, 2 selected tops, head/seed, generation and schema refusals)
+cache selftest: OK (unit self-test + 5 original live arms on cdc_pulse + ROM controls)
+rc=0
+== python3 syn/yosys/rom_cache_selftest.py
+rc=0
+== python3 syn/ooc/dp_srcs.py --selftest
+dp_srcs self-test: 35 arm(s) passed
+rc=0
+== python3 syn/ooc/ooc_tcl_selftest.py
+OOC .tcl refusal self-test: 58 arm(s) passed
+rc=0

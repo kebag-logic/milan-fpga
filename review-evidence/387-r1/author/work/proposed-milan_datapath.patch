@@ -1,0 +1,48 @@
+--- a/hdl/milan/milan_datapath.sv	2026-09-23 20:36:26.910000000 +0200
++++ b/hdl/milan/milan_datapath.sv	2026-09-23 21:21:52.328772699 +0200
+@@ -3088,8 +3088,17 @@
+   //! 4.4.4.3's "disruption of the CRF stream" is not a disruption of OUR
+   //! clock and must not toggle mr on our streams; with the CRF source
+   //! selected, it is exactly the mandatory trigger, now reachable.
+-  wire mcr_restart_p_w = crf_clk_selected_r
+-                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
++  //! #387: a PHC step is ONE counted media event (decision 5606198212 part
++  //! b, restated by the owner in 5794731090): the plane's phase write, or a
++  //! CLKV settime/adjtime when the plane is off, moves every presentation
++  //! time this talker stamps, so it restarts the media clock on the wire once
++  //! (4.4.4.3) - whichever clock source is selected - and Milan Table 5.4
++  //! MEDIA_RESET counts that toggle. The same pulse re-centres the render
++  //! stage below.
++  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
++  wire mcr_restart_p_w = (crf_clk_selected_r
++                          & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++                       | media_rebase_p_w;
+ 
+   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+   //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
+@@ -5955,16 +5964,16 @@
+       end
+     end
+   end : g_src_recentre
+-  //! #386: the render stage re-centres on a GM identity change, a PHC
+-  //! adjtime (the plane's step, or CLKV software's when the plane is off),
+-  //! a PHC settime and a settled clock-source change. The first three are
+-  //! the PHC discontinuities KL_ptp_clock_validity also raises tu on; that
+-  //! module additionally takes the plane's pre-commit publication events
+-  //! and counts the first 0-to-id publication, which this set leaves out
+-  //! (prefill owns boot). public: the milan_dp render-law leg counts it.
++  //! #386: the render stage re-centres on a PHC step (the #387 media
++  //! re-base above: the plane's step, or CLKV software's adjtime or settime
++  //! when the plane is off) and on a settled clock-source change. A GM
++  //! identity change is no longer a trigger (#387): one that steps is the
++  //! step's one event, and one that slews moves no presentation time past
++  //! the slew bound. KL_ptp_clock_validity still raises tu on the identity
++  //! change and the plane's pre-commit publication events. public: the
++  //! milan_dp render-law and gmstep legs count it.
+   wire render_recentre_p_w /* verilator public_flat_rd */ =
+-       gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load
+-       | src_recentre_p_r;
++       media_rebase_p_w | src_recentre_p_r;
+ 
+   generate if (I2SPB_P != 0) begin : g_i2s_player
+   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),

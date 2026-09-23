@@ -1,0 +1,14 @@
+[ok] clean leg passes (make exit 0)
+[ok] tu reaches the talkers four cycles late: caught by "tu: set in the first cycle the bank names GM B"; broke ['tu: set in the first cycle the bank names GM B']
+[ok] the plane's step does not re-arm the holdover: caught by "tu: held at least the 0.25 s holdover after the step"; broke ['tu: held at least the 0.25 s holdover after the step']
+[ok] tu stops the talker: caught by "licence: the talker never pauses beyond four of its intervals"; broke ['licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', "restart: the talker's MEDIA_RESET counts exactly one"]
+[ok] the step does not re-centre the render stage: caught by "render: the GM change is one counted re-base event"; broke ['render: the GM change is one counted re-base event']
+[ok] the identity change re-centres as well as the step: caught by "render: the GM change is one counted re-base event"; broke ['render: the GM change is one counted re-base event']
+[ok] the step's recentre snaps one event off the setpoint: caught by "render: the fill at accept holds its constant across the event"; broke ['render: the fill at accept holds its constant across the event']
+[ok] the step does not restart the media clock: caught by "restart: the outgoing mr toggles exactly once"; broke ['restart: the outgoing mr toggles exactly once', "restart: the talker's MEDIA_RESET counts exactly one"]
+controls: 7   escapes: 0
+RESULT: PASS
+
+real	4m49.324s
+user	9m32.324s
+sys	0m27.669s

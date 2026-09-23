@@ -1,0 +1,47 @@
+== python3 scripts/lint_rtl.py --check
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0
+== python3 scripts/xvlog_gate.py --check
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:364  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+    protocol-processor:hdl/top/protocol_processor_top.sv:784  [VRFC 10-3380] 'srp_class_a_prio_w'  identifier 'srp_class_a_prio_w' is used before its declaration
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+rc=0
+== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+rc=0
+== python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+rc=0
+== python3 scripts/check_rtl_source_lists.py --selftest
+[PASS] a new declared processor module is refused by the live comparison
+
+49 checks: 49 PASS, 0 FAIL
+rc=0
+== python3 scripts/pp_srcs.py --check
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+rc=0
+== python3 scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+== python3 scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+== python3 scripts/check_cpp_idiom.py --selftest
+[PASS] the harness header copies agree
+
+75 checks: 75 PASS, 0 FAIL
+rc=0
+== python3 scripts/check_py_idiom.py --selftest
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL
+rc=0

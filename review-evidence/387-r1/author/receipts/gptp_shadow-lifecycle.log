@@ -1,0 +1,57 @@
+make: Entering directory '$LANES/387-gm-step-rebase/tb/verilator/gptp_shadow'
+python3 test_mutant_lifecycle.py
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+accept-unrelated: {"accepted": "unrelated", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-presentation: {"accepted": "presentation", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-scrubbed: {"accepted": "scrubbed", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-git-stderr: {"accepted": "git-stderr", "controls": 9, "exit": 0, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "index differs from HEAD", "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "mode"}
+dirty-input: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-ktxwbkzp/dirty-input input [523]/hdl/common/cdc_pulse.sv", "refusal": "dirty-input"}
+dirty-header: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-ktxwbkzp/dirty-header input [523]/tb/common/gptp_tx_flags.hpp", "refusal": "dirty-header"}
+dirty-anchor: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-ktxwbkzp/dirty-anchor input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv", "refusal": "dirty-anchor"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "index differs from HEAD", "refusal": "untracked"}
+undeclared-target: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "mutation target or anchor is not a build input: hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv", "refusal": "undeclared-target"}
+symlink: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input is not a regular file", "refusal": "symlink"}
+parent-link: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input directory is missing or linked", "refusal": "parent-link"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-ktxwbkzp/dependency input [523]/gptp-processor/hdl/common/KL_gptp_timer.sv", "refusal": "dependency"}
+off-pin: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency is not at its pin: gptp-processor", "refusal": "off-pin"}
+pin-index: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency gitlinks differ from HEAD", "refusal": "pin-index"}
+copied-dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency is not at its pin: gptp-processor", "refusal": "copied-dependency"}
+dependency-link: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input directory is missing or linked", "refusal": "dependency-link"}
+git-garbage: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "unreadable Git identity record", "refusal": "git-garbage"}
+git-env-GIT_DIR: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_DIR", "refusal": "git-env-GIT_DIR"}
+git-env-GIT_WORK_TREE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_WORK_TREE", "refusal": "git-env-GIT_WORK_TREE"}
+git-env-GIT_COMMON_DIR: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_COMMON_DIR", "refusal": "git-env-GIT_COMMON_DIR"}
+git-env-GIT_INDEX_FILE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_INDEX_FILE", "refusal": "git-env-GIT_INDEX_FILE"}
+git-env-GIT_OBJECT_DIRECTORY: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_OBJECT_DIRECTORY", "refusal": "git-env-GIT_OBJECT_DIRECTORY"}
+git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_ALTERNATE_OBJECT_DIRECTORIES", "refusal": "git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES"}
+git-env-GIT_REPLACE_REF_BASE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_REPLACE_REF_BASE", "refusal": "git-env-GIT_REPLACE_REF_BASE"}
+git-env-GIT_CONFIG_PARAMETERS: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_PARAMETERS", "refusal": "git-env-GIT_CONFIG_PARAMETERS"}
+git-env-GIT_CONFIG_COUNT: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_COUNT", "refusal": "git-env-GIT_CONFIG_COUNT"}
+git-env-GIT_CONFIG_GLOBAL: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_GLOBAL", "refusal": "git-env-GIT_CONFIG_GLOBAL"}
+git-env-GIT_CONFIG_SYSTEM: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_SYSTEM", "refusal": "git-env-GIT_CONFIG_SYSTEM"}
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "make_started": false, "refused": true}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "make_started": false, "refused": true}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "make_started": false, "refused": true}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "make_started": false, "refused": true}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 1482187, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGINT-control/gptp-shadow-mutants-6lf2vrfz/tb/verilator/gptp_shadow", "identities": {"1482185": ["22407158", "S"], "1482187": ["22407161", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1482185, "private": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGINT-control/gptp-shadow-mutants-6lf2vrfz"}, "signal": "SIGINT", "unsafe_control_detected": false}
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 1482525, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGTERM-control/gptp-shadow-mutants-enza__ej/tb/verilator/gptp_shadow", "identities": {"1482524": ["22407501", "S"], "1482525": ["22407504", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1482524, "private": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGTERM-control/gptp-shadow-mutants-enza__ej"}, "signal": "SIGTERM", "unsafe_control_detected": false}
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 1482836, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGKILL-control/gptp-shadow-mutants-cpaw75iq/tb/verilator/gptp_shadow", "identities": {"1482835": ["22407833", "S"], "1482836": ["22407836", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1482835, "private": "/tmp/mutant-lifecycle-ktxwbkzp/isolated-SIGKILL-control/gptp-shadow-mutants-cpaw75iq"}, "signal": "SIGKILL", "unsafe_control_detected": false}
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 1483456, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"1483445": ["22408066", "S"], "1483456": ["22408069", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1483445, "private": "/tmp/mutant-lifecycle-ktxwbkzp/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 1483675, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"1483674": ["22408304", "S"], "1483675": ["22408307", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1483674, "private": "/tmp/mutant-lifecycle-ktxwbkzp/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 1484028, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/nested-SIGINT-control/gptp-shadow-mutants-ztk0ci0a/tb/verilator/gptp_shadow", "identities": {"1484027": ["22408663", "S"], "1484028": ["22408666", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1484027, "private": "/tmp/mutant-lifecycle-ktxwbkzp/nested-SIGINT-control/gptp-shadow-mutants-ztk0ci0a"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 1484444, "cwd": "/tmp/mutant-lifecycle-ktxwbkzp/nested-SIGTERM-control/gptp-shadow-mutants-cooyzd0i/tb/verilator/gptp_shadow", "identities": {"1484443": ["22409042", "S"], "1484444": ["22409045", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 1484443, "private": "/tmp/mutant-lifecycle-ktxwbkzp/nested-SIGTERM-control/gptp-shadow-mutants-cooyzd0i"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+make: Leaving directory '$LANES/387-gm-step-rebase/tb/verilator/gptp_shadow'
+
+real	0m48.112s
+user	0m23.267s
+sys	0m17.645s

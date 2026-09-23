@@ -1,0 +1,47 @@
+== python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+rc=0
+== python3 scripts/check_gptp_docs.py --selftest
+gPTP documentation selftest: OK (30 controls)
+rc=0
+== python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+== python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+== python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0
+== python3 docs/diagrams/timesync_chain.gen.py --selftest
+time-sync diagram selftest: OK (source, status, XML, raster)
+rc=0
+== python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+rc=0
+== python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+rc=0
+== python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+== python3 scripts/check_submodule_docs.py --selftest
+submodule documentation selftest: OK (table and diagram controls)
+rc=0
+== python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+== python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+== python3 scripts/check_diagram_pngs.py --selftest
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+rc=0
+== python3 scripts/check_feature_status.py --self-test
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+== python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
