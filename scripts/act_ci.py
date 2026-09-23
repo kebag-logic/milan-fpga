@@ -147,16 +147,16 @@ SLOT_LIMIT = 63
 DEFAULT_SLOT_ROOT = pathlib.Path("/var/lib/milan-act-ci")
 SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: What one isolated slot - its daemon, containerd and job containers
-#: together - may hold in memory, with no swap beyond it (systemd size
+#: together - may hold in memory, with no swap beyond it (unit-property size
 #: syntax). Four matrix legs at CONTAINER_MEMORY each could reach 64 GB, so a
 #: slot that overruns is killed inside its own slice rather than starving the
 #: host or a sibling slot. Slot 0 keeps only the per-container bound it had.
 SLOT_MEMORY_MAX = "24G"
 SLOT_COMMAND_TIMEOUT_SECONDS = 60
 #: A slot daemon's start job (until dockerd reports ready) and its stop job
-#: (dockerd stops its containers first), bounded by systemd itself.
+#: (dockerd stops its containers first), bounded by the service manager itself.
 SLOT_DAEMON_TIMEOUT_SECONDS = 5 * 60
-#: How long a stopped slot unit may take to leave systemd's unit table.
+#: How long a stopped slot unit may take to leave the service manager's unit table.
 SLOT_SETTLE_SECONDS = 10
 #: The Docker CLI's endpoint selectors. Only ``--slot`` chooses a daemon, so
 #: an invoking environment that carries one is refused: never obeyed, and no
@@ -604,7 +604,7 @@ class ReplaySlot:
 
     @property
     def runtime_directory(self) -> pathlib.Path:
-        """The daemon unit's RuntimeDirectory: socket, pidfile and exec-root; systemd removes it on stop."""
+        """The daemon unit's RuntimeDirectory: socket, pidfile and exec-root; the service manager removes it on stop."""
         return pathlib.Path("/run") / self.name
 
     @property
@@ -619,12 +619,12 @@ class ReplaySlot:
 
     @property
     def uplink_unit(self) -> str:
-        """The transient unit running the slot namespace's userspace uplink."""
+        """The transient unit running the slot namespace's NAT uplink."""
         return f"{self.name}-net.service"
 
     @property
     def uplink_pidfile(self) -> pathlib.Path:
-        """The uplink's PID file; systemd removes it when the unit stops."""
+        """The uplink's PID file; the service manager removes it when the unit stops."""
         return pathlib.Path("/run") / f"{self.name}-net.pid"
 
     @property
@@ -3957,7 +3957,7 @@ class SlotLease:
 
 
 def slot_uplink_command(slot: ReplaySlot) -> list[str]:
-    """The transient unit giving the slot namespace outbound connectivity through userspace NAT.
+    """The transient unit giving the slot namespace outbound connectivity through socket-level NAT.
 
     No inbound port is forwarded, and the gateway is not mapped to the host's
     loopback, so nothing in the slot reaches a host loopback service.
@@ -4078,8 +4078,8 @@ def slot_recovery_commands(slot: ReplaySlot) -> str:
     )
 
 
-def systemd_property(unit: str, name: str, host: SlotHost) -> str:
-    """One systemd property of `unit`; an unanswerable query is a Refusal."""
+def unit_property(unit: str, name: str, host: SlotHost) -> str:
+    """One unit property of `unit`; an unanswerable query is a Refusal."""
     result = host.run(
         [require_tool("systemctl"), "show", f"--property={name}", "--value", unit],
         description=f"{unit} {name} query",
@@ -4110,10 +4110,10 @@ def slot_residue(slot: ReplaySlot, host: SlotHost) -> list[str]:
         if host.exists(path)
     ]
     for unit in (slot.daemon_unit, slot.uplink_unit):
-        state = systemd_property(unit, "LoadState", host)
+        state = unit_property(unit, "LoadState", host)
         if state != "not-found":
             found.append(f"{unit} ({state})")
-    slice_state = systemd_property(slot.slice_unit, "ActiveState", host)
+    slice_state = unit_property(slot.slice_unit, "ActiveState", host)
     if slice_state != "inactive":
         found.append(f"{slot.slice_unit} ({slice_state})")
     if nft_table_present(slot, host):
@@ -4205,7 +4205,7 @@ def acquire_replay_slot(
         require_host_success(
             host.run(command, description=description, timeout=timeout), description
         )
-    cgroup = systemd_property(slot.slice_unit, "ControlGroup", host)
+    cgroup = unit_property(slot.slice_unit, "ControlGroup", host)
     if cgroup != f"/{slot.slice_unit}":
         raise Refusal(
             f"replay slot {slot.number} slice is not a top-level cgroup: {cgroup!r}"
@@ -4246,7 +4246,7 @@ def await_slot_state(
     deadline = host.monotonic() + SLOT_SETTLE_SECONDS
     while True:
         try:
-            state = systemd_property(unit, name, host)
+            state = unit_property(unit, name, host)
         except Refusal as exc:
             return [str(exc)]
         if state == accepted:
@@ -4257,7 +4257,7 @@ def await_slot_state(
 
 
 def stop_slot_unit(unit: str, host: SlotHost, *, timeout: float) -> list[str]:
-    """Stop one transient slot unit and prove systemd unloaded it; the problems found."""
+    """Stop one transient slot unit and prove the service manager unloaded it; the problems found."""
     errors: list[str] = []
     try:
         host.run(
@@ -4294,7 +4294,7 @@ def release_slot_slice(slot: ReplaySlot, host: SlotHost) -> list[str]:
     errors += await_slot_state(slot.slice_unit, "ActiveState", "inactive", host)
     errors += require_slot_path_absent(CGROUP_ROOT / slot.slice_unit, host)
     try:
-        if systemd_property(slot.slice_unit, "DropInPaths", host):
+        if unit_property(slot.slice_unit, "DropInPaths", host):
             errors.append(f"{slot.slice_unit} kept its runtime memory cap")
     except Refusal as exc:
         errors.append(str(exc))
@@ -10717,7 +10717,7 @@ class FakeSlotHost:
         self.clock = 0.0
 
     def unit_kind(self, unit: str) -> str:
-        """Which slot resource a systemd unit name is."""
+        """Which slot resource a unit name is."""
         return {
             self.slot.daemon_unit: "daemon",
             self.slot.uplink_unit: "uplink",
@@ -10795,7 +10795,7 @@ class FakeSlotHost:
             "show-LoadState-uplink": "loaded" if "uplink" in self.state else "not-found",
             "show-ActiveState-slice": "active" if "slice" in self.state else "inactive",
             "show-ControlGroup-slice": self.cgroup,
-            "show-DropInPaths-slice": "/run/systemd/system.control/cap.conf"
+            "show-DropInPaths-slice": "/run/drop-ins/50-MemoryMax.conf"
             if "dropins" in self.state
             else "",
         }
@@ -11231,7 +11231,7 @@ def selftest_slot_commands(tally: SelftestTally) -> None:
         uplink = slot_uplink_command(slot)
         daemon = slot_daemon_command(slot, "c" * 32)
     check(
-        "the uplink is userspace NAT in the slot namespace: no inbound or outbound "
+        "the uplink is socket-level NAT in the slot namespace: no inbound or outbound "
         "port forward and no gateway mapped to host loopback",
         uplink
         == [
