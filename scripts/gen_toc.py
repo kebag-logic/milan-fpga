@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440", "I437")
-MIN_ARMS = 1244
+MIN_ARMS = 1269
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -74,11 +74,7 @@ SKIP = {
 #: COLUMNS (`_indent_columns`); `delimiter blank` is the wider padding
 #: GFM's delimiter-row scanner takes; `tag blank` is also what may follow
 #: a type-1 or type-6 NAME, where the renderer reads widest ([R85] F1(b)).
-#: The HTML stage (`gen_toc_html`) reads three more: `html space` is HTML's
-#: tokenizer whitespace less the refused form feed, with the line feed that
-#: joins a raw run; `declaration name` is the uppercase letter GitHub's
-#: inline declarations take (`<!x -->` measured as text, #437); `escapable`
-#: is CommonMark 2.4's ASCII punctuation.
+#: `declaration name` follows `<!` in a type-4 block; three stops bound `LINK_DEFINITION_RE` (#437).
 _BLANK = " \t"
 CLASSES = {
     "blank": _BLANK,
@@ -99,9 +95,10 @@ CLASSES = {
     "ordinal": "0-9",
     "bullet": "-+*",
     "cell stop": "|",
-    "html space": _BLANK + "\n",
     "declaration name": "A-Z",
-    "escapable": "!-/:-@\\[-`{-~",
+    "link label stop": "\\[\\]\\\\",
+    "destination stop": _BLANK + "\\x00-\\x1f\\x7f()\\\\",
+    "title stop": '"\\\\',
 }
 #: The characters at which PYTHON'S notion of whitespace and the
 #: renderer's disagree: everything `str.isspace()` accepts but the space,
@@ -117,11 +114,9 @@ REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
 #: pair again, so renaming one fails an arm instead of emptying the
 #: enumeration.
 WALK_ROOTS = ("blocks", "line_kinds")
-#: The walk's three modules: this one (every expression and class, the leaf
-#: machine and `blocks()`), its container layer and its HTML stage (#437).
-#: The class guard reads their union (`walk_source()`); `_owner_guards`
-#: still binds the four modules beside the walk, none of which holds a rule.
-WALK_MODULES = ("gen_toc.py", "gen_toc_containers.py", "gen_toc_html.py")
+#: The walk's two modules (#437): this one, with every expression, class and `blocks()`, and its
+#: container layer. The class guard reads both (`walk_source()`); none beside them holds a rule.
+WALK_MODULES = ("gen_toc.py", "gen_toc_containers.py")
 #: The renderer folds a tag NAME in ASCII, where `re.IGNORECASE` folds
 #: Unicode and matched U+017F to `s` and U+0131 and U+0130 to `i`, opening
 #: and closing type-1 blocks on names the renderer reads as no tag at all
@@ -228,9 +223,8 @@ HTML_TAG_LINE_RE = re.compile(
     % (_cc("indent"), _HTML_TAG_NAME, _HTML_ATTRIBUTE, _cc("tag blank"),
        _HTML_TAG_NAME, _cc("tag blank"), _cc("tag tail")))
 #: CommonMark's raw HTML blocks of types 3 to 5: `<?`, `<![CDATA[`, and `<!`
-#: then an uppercase letter (GitHub's, measured: `<!x` opens none). Their
-#: lines stay text in `blocks()` (#413); the container layer marks them raw,
-#: so a `<!--` after one's bogus comment opens the rendered comment (#437).
+#: then an uppercase letter (GitHub's, measured: `<!x` opens none). Their lines stay text in
+#: `blocks()` (#413); the container layer opens no container inside one and ends it at its marker.
 RAW_3_5_RE = re.compile(r"^%s{0,3}<(?:(\?)|(!\[CDATA\[)|!%s)"
                         % (_cc("indent"), _cc("declaration name")))
 #: Whether a paragraph is open, for the one block that may not interrupt
@@ -240,6 +234,14 @@ RAW_3_5_RE = re.compile(r"^%s{0,3}<(?:(\?)|(!\[CDATA\[)|!%s)"
 #: continuation, GFM's rows without a pipe), so none is open and a plain
 #: line starts none; a blank line or an interrupting block ends the hold.
 NO_PARAGRAPH, PARAGRAPH, HELD = "no paragraph", "paragraph", "held"
+#: A link reference definition on one line (CommonMark 4.7): a label with no backslash and no
+#: `^` first, a bare destination with one level of parentheses at most, an optional
+#: double-quoted title. The renderer drops a paragraph made only of these when it closes,
+#: emptying a list item (R237-3 F2); any other definition, one spanning lines too, keeps it.
+LINK_DEFINITION_RE = re.compile(
+    r"^%(i)s{0,3}\[(?!\^)(?!%(b)s*\])%(l)s{1,999}\]:%(b)s*(?!<)(?:%(d)s|\\%(d)s|\((?:%(d)s|\\%(d)s)*\))+"
+    r"(?:%(b)s+\"(?:%(t)s|\\.)*\")?%(b)s*$" % {"i": _cc("indent"), "b": _cc("blank"), "l": _cc(
+        "link label stop", True), "d": _cc("destination stop", True), "t": _cc("title stop", True)})
 #: CommonMark's ATX opener, not `HEAD_RE`: an indented or empty heading
 #: ends a paragraph even though `headings()` lists neither.
 ATX_HEADING_RE = re.compile(r"^%s{0,3}#{1,6}(?:%s|$)"
@@ -382,39 +384,44 @@ def blocks(text: str) -> list[str]:
 
     CONTAINERS (#437). Block quotes, list items and footnote definitions
     are read by the container layer (`gen_toc_containers`, CommonMark 5.1
-    and 5.2), which changes no label itself and answers three questions:
-    whether a lone type-7 tag meets an open paragraph (only when the
-    deepest block the line matches is one), whether the container a fence,
-    raw HTML block or comment opened in has ended (the block ends with it),
-    and which lines GitHub emits as raw HTML. Indentation still labels
-    blocks from column 0, with tab stops of four, so a block opened four or
-    more columns into an item is labelled indented code or text; types 3 to
-    5 stay text (#413). A comment the layer reads as inline (opened after
-    visible text, or indented into a paragraph) ends at the first line that
-    is not paragraph text. RENDERED COMMENTS: a `<!--` that HTML's tokenizer
-    meets in the raw HTML GitHub emits hides the rest of the page until a
-    closer (`gen_toc_html`, the #516 shapes), so prose there is COMMENT.
-    Both modules import this one, so they are imported below, after this
-    module is registered under its own NAME, as `selftest()` does.
+    and 5.2). It changes no label and answers two questions: whether a lone
+    type-7 tag meets an open paragraph (only when the deepest block its line
+    matches is one), and whether the container a fence or raw HTML block
+    opened in has ended (the block ends with it). Labels still count
+    indentation from column 0, so a block four or more columns into an item
+    is labelled code or text; types 3 to 5 stay text (#413). The layer
+    imports this module, which is registered under its NAME first.
+
+    COMMENTS are read as at the base: a `<!--` outside a fence, raw HTML
+    block or code opens one wherever it sits and whatever holds it, until
+    the next `-->`. That WITHHOLDS where GitHub shows text: an opener in a
+    code span, after an escape, in an attribute or with no closer in its
+    paragraph, and `<!-->`, `<!--->`, `--!>`; a `-->` inside a fence such a
+    comment hid ends it there and lists that fence's headings. UNCLOSED
+    RAW-HTML COMMENTS, a directed limitation #516 owns: a `<!--` GitHub
+    emits in raw HTML and leaves open hides the rest of its page. Reading
+    Markdown and not that HTML, this walk LISTS those headings (ESCAPE)
+    after an opener in a raw HTML block (the #516 shapes) or four columns
+    into an item, or after a `-->` GitHub prints as text. A comment closed
+    in its own block agrees. Other measured escapes of that HTML, shared
+    with the base: raw HTML ending in an open tag, bogus comment or quoted
+    value hides the next heading or every later one, and `<select>` those
+    inside it. Where the base left a block open past its list item, a
+    residue it hid by accident now shows, in its own direction.
 
     HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
     omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
     over a single `-`, `> ## Q`, and `## Inner` indented into a list item.
-    GitHub renders each as a heading. This walk WITHHOLDS their sections
-    and refuses copied-label exemptions; it does not add their anchors.
-    Setext and container headings remain outside its listing domain.
+    GitHub renders each as a heading. This walk WITHHOLDS their sections,
+    refuses copied-label exemptions and adds no anchor for them.
     """
     sys.modules.setdefault("gen_toc", sys.modules[__name__])
     from gen_toc_containers import container_lines
-    from gen_toc_html import hidden_lines
     lines = text.split("\n")
-    scopes = container_lines(lines)
-    out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
-    owner, prose = 0, False
-    for line, scope, hidden in zip(lines, scopes, hidden_lines(scopes)):
-        if state in (FENCE, COMMENT, HTML) and (
-                owner not in scope.held_by or (prose and not scope.plain)):
-            state = TEXT                # its container or paragraph ended
+    out, state, delim, tag, prev, para, owner = [], TEXT, "", "", "", NO_PARAGRAPH, 0
+    for line, scope in zip(lines, container_lines(lines)):
+        if state in (FENCE, HTML) and owner not in scope.held_by:
+            state = TEXT                # the container it opened in ended
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
@@ -422,9 +429,7 @@ def blocks(text: str) -> list[str]:
             label, state, delim, tag = _opens(line, para, state, scope.gate)
             out.append(label)
             owner = scope.held_by[-1]
-            prose = state == COMMENT and (label == TEXT or scope.plain)
         para, prev = _paragraph_after(line, out[-1], para, prev), line
-        out[-1] = COMMENT if hidden and out[-1] == TEXT else out[-1]
     return out
 
 
@@ -487,9 +492,7 @@ def _comment_after(line: str, inside: bool) -> bool:
     closes one and opens another, and reading only the first delimiter
     left the second span classified as text, which handed a block inside
     it the exemption ([R0] round 6 on PR #384). A comment is also the only
-    block that can open after visible text. The opener's own dashes may
-    close it: `<!-->` and `<!--->` are empty comments (CommonMark 0.31.2
-    section 6.6, and the renderer, #437).
+    block that can open after visible text.
     """
     scan = line
     while scan:
@@ -502,7 +505,7 @@ def _comment_after(line: str, inside: bool) -> bool:
             at = scan.find(COMMENT_OPEN)
             if at < 0:
                 return False
-            scan, inside = scan[at + len("<!"):], True
+            scan, inside = scan[at + len(COMMENT_OPEN):], True
     return inside
 
 

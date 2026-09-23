@@ -692,9 +692,10 @@ _CLASSES_SPELLED = {
     "ordinal": "0-9",
     "bullet": "-+*",
     "cell stop": "|",
-    "html space": " \t\n",
     "declaration name": "A-Z",
-    "escapable": "!-/:-@\\[-`{-~",
+    "link label stop": "\\[\\]\\\\",
+    "destination stop": " \t\\x00-\\x1f\\x7f()\\\\",
+    "title stop": '"\\\\',
 }
 
 
@@ -888,7 +889,7 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
         # a spelling it does not read and say nothing, no arm having pinned
         # how many there are. This one does.
         ("the walk carries the number of decision sites recorded here", "",
-         lambda t: len(_class_guards(walk_source())[0]) == 34),
+         lambda t: len(_class_guards(walk_source())[0]) == 29),
         ("the site enumerator beside the walk holds no rule of its own", "",
          lambda t: _beside_the_walk() == []),
     ]

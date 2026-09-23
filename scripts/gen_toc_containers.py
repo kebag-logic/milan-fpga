@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The walk's CONTAINER LAYER: block quotes, list items and footnote definitions.
 
-WHICH MODULE IS WHICH. The walk is three modules (`gen_toc.WALK_MODULES`).
+WHICH MODULE IS WHICH. The walk is two modules (`gen_toc.WALK_MODULES`).
 `gen_toc.py` holds every expression and character class, the leaf machine
 and `blocks()`, which labels each line. THIS module holds no expression and
 no class: it applies CommonMark 0.31.2 sections 5.1 and 5.2, and GFM's
 footnote definitions, to decide which container each line belongs to, and
 runs the leaf machine of `gen_toc` on the line's content INSIDE those
-containers. `gen_toc_html.py` reads what this layer marks raw. The class
-guard enumerates all three; the tables beside the walk hold no rule.
+containers. The class guard enumerates both; the tables beside the walk
+hold no rule.
 
 Why it exists (#437). A flat walk read a container's own paragraph as a
 top-level one, and every targeted fix exposed another base error that the
@@ -20,19 +20,24 @@ rules are structural, so this layer is too:
 
 - A container continues on a line that carries its prefix: `>` (then one
   optional column) for a quote; the item's content column for an item, or a
-  blank line once the item holds anything; four columns, or an empty line,
-  for a footnote definition. Columns are counted with tab stops of four.
+  blank line while the item holds a block; four columns, or an empty line,
+  for a footnote definition. Columns are counted with tab stops of four. A
+  nested container is a block its parent holds. A paragraph made only of
+  link reference definitions is one only while it is open: the renderer
+  drops it when it closes (CommonMark 4.7, R237-3 F2).
 - A line that leaves containers unmatched still continues them LAZILY when
   the deepest open block is a paragraph and the line starts no block.
 - A lone type-7 tag meets `Scope.gate`: the paragraph state of the deepest
   block the line matches, so it continues a paragraph only when that block
-  is the open paragraph (`_opens`, CommonMark 4.6).
+  is the open paragraph (`_opens`, CommonMark 4.6). A raw HTML block of
+  types 3 to 5 holds no container and ends at its end marker, but
+  `blocks()` labels its lines text (#413), so inside one the gate is None
+  and `blocks()` answers with its own paragraph state, as the base did.
 - `Scope.held_by` names the containers open after each line, so `blocks()`
-  ends a fence, raw HTML block or comment when the container it opened in
-  ends.
+  ends a fence or raw HTML block when the container it opened in ends.
 
 It changes no label on its own: `blocks()` keeps the column-0 labels and
-asks this layer only the three questions above. Setext headings and headings
+asks this layer only the two questions above. Setext headings and headings
 inside containers stay outside the listing domain (#437 family two).
 """
 from dataclasses import dataclass
@@ -40,8 +45,8 @@ from re import Match
 from typing import NamedTuple
 
 from gen_toc import (ATX_HEADING_RE, BLOCK_QUOTE_RE, CLASSES, COMMENT, FENCE,
-                     FOOTNOTE_DEFINITION_RE, HELD, HTML, LIST_ITEM_RE,
-                     NO_PARAGRAPH, PARAGRAPH, RAW_3_5_RE, TEXT,
+                     FOOTNOTE_DEFINITION_RE, HELD, HTML, LINK_DEFINITION_RE,
+                     LIST_ITEM_RE, NO_PARAGRAPH, PARAGRAPH, RAW_3_5_RE, TEXT,
                      THEMATIC_BREAK_RE, _opens, _paragraph_after, _still_open)
 
 QUOTE, ITEM, NOTE = "block quote", "list item", "footnote definition"
@@ -57,18 +62,14 @@ _FRESH = (TEXT, "", "", NO_PARAGRAPH, "")
 class Scope(NamedTuple):
     """What the container layer answers for one line."""
 
-    gate: str               # the paragraph state a lone type-7 tag meets
+    gate: str | None        # the paragraph state a lone type-7 tag meets
     held_by: tuple          # serials of the containers open after it; 0 is the page
-    plain: bool             # paragraph text, with no container opened or closed
-    cont: bool              # it continues the paragraph open before it
-    raw: str | None         # its content, when GitHub emits it as raw HTML
-    text: str | None        # its content, when GitHub parses it as inline text
 
 
 @dataclass
 class _Box:
     """One open container: its kind, the columns its content starts after,
-    whether it holds anything yet, and a serial no other container reuses."""
+    whether it holds a block yet, and a serial no other container reuses."""
 
     kind: str
     need: int
@@ -93,9 +94,10 @@ def _quote_content(text: str, at: int) -> int:
     return at + 1 if text[at:at + 1] == " " else at
 
 
-def _continues(box: _Box, text: str, at: int) -> int | None:
+def _continues(box: _Box, text: str, at: int, holds: bool) -> int | None:
     """Where this container's content starts on the line, or None when the
-    line does not carry its prefix (CommonMark 5.1 and 5.2; GFM footnotes)."""
+    line does not carry its prefix (CommonMark 5.1 and 5.2; GFM footnotes).
+    `holds`: whether the container holds a block, an open paragraph too."""
     rest = text[at:]
     lead = _lead(rest)
     if box.kind == QUOTE:
@@ -105,7 +107,7 @@ def _continues(box: _Box, text: str, at: int) -> int | None:
     if box.kind == ITEM:
         if lead >= box.need:
             return at + box.need
-        return len(text) if box.filled and _blank(rest) else None
+        return len(text) if holds and _blank(rest) else None
     if lead >= TAB_STOP:
         return at + TAB_STOP
     return at if not text else None
@@ -148,37 +150,40 @@ def _step(walk: _Walk, line: str) -> Scope:
     the unmatched ones, open new ones and read the leaf."""
     text = line.expandtabs(TAB_STOP)
     at, matched = 0, 0
+    state, _, _, para, _ = walk.leaf
     for box in walk.stack:
-        start = _continues(box, text, at)
+        holds = box.filled or (box is walk.stack[-1] and para == PARAGRAPH)
+        start = _continues(box, text, at, holds)
         if start is None:
             break
         at, matched = start, matched + 1
     rem, closed = text[at:], matched < len(walk.stack)
-    state, _, _, para, _ = walk.leaf
     if not closed and state in (FENCE, COMMENT, HTML):
         return _inside(walk, rem)
     if closed:
         if state == TEXT and para == PARAGRAPH and _lazy(rem):
-            return _scope(walk, HELD, (True, True), rem, TEXT)
+            walk.stack[-1].filled = True
+            return _scope(walk, HELD)
         del walk.stack[matched:]
         walk.leaf = _FRESH
-    rem, opened = _open(walk, rem)
-    return _leaf_line(walk, rem, closed or opened)
+    return _leaf_line(walk, _open(walk, rem))
 
 
 def _inside(walk: _Walk, rem: str) -> Scope:
-    """A line inside an open fence, comment or raw HTML block."""
+    """A line inside an open fence, comment or raw HTML block. `blocks()`
+    labels the lines of types 3 to 5 text (#413), so there the gate is its
+    own paragraph state, as at the base."""
     state, delim, tag, _, _ = walk.leaf
-    label = state
-    if tag in RAW_ENDS:
+    raw_3_5 = tag in RAW_ENDS
+    if raw_3_5:
         state, tag = (TEXT, "") if tag in rem else (HTML, tag)
     else:
         state, delim, tag = _still_open(rem, state, delim, tag)
     walk.leaf = (state, delim, tag, NO_PARAGRAPH, rem)
-    return _scope(walk, NO_PARAGRAPH, (False, False), rem, label)
+    return _scope(walk, None if raw_3_5 else NO_PARAGRAPH)
 
 
-def _open(walk: _Walk, rem: str) -> tuple[str, bool]:
+def _open(walk: _Walk, rem: str) -> str:
     """Open every container this line starts, outermost first. A list item
     interrupts an open paragraph only with content and, when ordered, the
     ordinal 1, so a setext underline is none; a thematic break is no item."""
@@ -188,39 +193,39 @@ def _open(walk: _Walk, rem: str) -> tuple[str, bool]:
         interrupting = para == PARAGRAPH and not opened
         if BLOCK_QUOTE_RE.match(rem):
             rem = rem[_quote_content(rem, lead):]
-            _push(walk, QUOTE, 0, True)
+            _push(walk, QUOTE, 0)
         elif THEMATIC_BREAK_RE.match(rem):
             break
         elif FOOTNOTE_DEFINITION_RE.match(rem):
             rem = rem[FOOTNOTE_DEFINITION_RE.match(rem).end():]
-            _push(walk, NOTE, TAB_STOP, True)
+            _push(walk, NOTE, TAB_STOP)
         elif item and not (interrupting and not (
                 item.group(2) and int(item.group(1) or 1) == 1)):
             need = _content_column(rem, item)
             rem = rem[need:] if item.group(2) else ""
-            _push(walk, ITEM, need, bool(item.group(2)))
+            _push(walk, ITEM, need)
         else:
             break
         opened = True
     if opened:
         walk.leaf = _FRESH
-    return rem, opened
+    return rem
 
 
-def _push(walk: _Walk, kind: str, need: int, filled: bool) -> None:
-    """Open one container inside the innermost one."""
+def _push(walk: _Walk, kind: str, need: int) -> None:
+    """Open one container inside the innermost one, which then holds it."""
+    if walk.stack:
+        walk.stack[-1].filled = True
     walk.serial += 1
-    walk.stack.append(_Box(kind, need, filled, walk.serial))
+    walk.stack.append(_Box(kind, need, False, walk.serial))
 
 
-def _leaf_line(walk: _Walk, rem: str, changed: bool) -> Scope:
-    """The leaf machine on the line's content inside its containers, after
-    a container opened or closed on it or not. An inline comment starts no
-    block; types 3 to 5 are raw until their end."""
+def _leaf_line(walk: _Walk, rem: str) -> Scope:
+    """The leaf machine on the line's content inside its containers. An
+    inline comment starts no block; types 3 to 5 are raw until their end. A
+    line fills its container unless it is blank, or a link reference
+    definition while the container holds only such a paragraph."""
     state, delim, tag, para, prev = walk.leaf
-    if not _blank(rem):
-        for box in walk.stack:
-            box.filled = True
     label, state, delim, tag = _opens(rem, para, state)
     if state == COMMENT and (label == TEXT or _lead(rem) > 3):
         label, state = TEXT, TEXT
@@ -228,21 +233,17 @@ def _leaf_line(walk: _Walk, rem: str, changed: bool) -> Scope:
     if raw:
         end = RAW_ENDS[0 if raw.group(1) else 1 if raw.group(2) else 2]
         label, state, tag = HTML, TEXT if end in rem[_lead(rem):] else HTML, end
-    after = _paragraph_after(rem, label, para, prev)
-    walk.leaf = (state, delim, tag, after, rem)
-    plain = label == TEXT and after == PARAGRAPH and not changed
-    return _scope(walk, para, (plain, plain and para == PARAGRAPH), rem, label)
+    if walk.stack and not _blank(rem) and (
+            walk.stack[-1].filled or label != TEXT
+            or not LINK_DEFINITION_RE.match(rem)):
+        walk.stack[-1].filled = True
+    walk.leaf = (state, delim, tag, _paragraph_after(rem, label, para, prev), rem)
+    return _scope(walk, para)
 
 
-def _scope(walk: _Walk, gate: str, flags: tuple[bool, bool], rem: str,
-           label: str) -> Scope:
-    """The answer for this line. Footnote content is neither raw nor inline
-    here: GitHub renders it at the end of the page."""
-    noted = any(box.kind == NOTE for box in walk.stack)
-    raw = rem if label in (HTML, COMMENT) and not noted else None
-    text = rem if label == TEXT and not _blank(rem) and not noted else None
-    held = (0,) + tuple(box.serial for box in walk.stack)
-    return Scope(gate, held, flags[0], flags[1], raw, text)
+def _scope(walk: _Walk, gate: str | None) -> Scope:
+    """The answer for this line: the gate, and the containers open after it."""
+    return Scope(gate, (0,) + tuple(box.serial for box in walk.stack))
 
 
 def container_lines(lines: list[str]) -> list[Scope]:

@@ -579,19 +579,30 @@ Block quotes, list items and footnote definitions are read as containers.
 The rules are CommonMark's (sections 5.1 and 5.2), lazy lines included.
 A lone tag continues a paragraph only when its line reaches that paragraph.
 Otherwise it opens raw HTML, inside a list item too.
-A fence, raw HTML block or comment ends with the container it opened in.
+A fence or raw HTML block ends with the container it opened in.
+An item holding only link reference definitions is empty once they close.
+That holds for one-line definitions with a bare destination and an optional double-quoted title.
+Any other definition keeps the item open, which can list or withhold a heading.
 Labels still count indentation from column 0, and no heading or anchor is added.
-Raw HTML that leaves an HTML comment open hides the rest of GitHub's page.
-The walk reads that raw HTML as the page's HTML parser does (#516 shapes).
-An opener inside an attribute value, a bogus comment or CDATA opens nothing.
-`-->` or `--!>` closes it, in raw HTML or in inline HTML within prose.
-In a code span, after an escape or in plain prose, neither closes it.
-Footnote content is not read, because GitHub renders it at the page end.
-Two escapes remain, both already in the base walk.
-A raw HTML block of types 3 to 5 is labelled prose, so a heading in one is listed.
-Raw HTML that ends inside an unclosed tag or bogus comment hides GitHub's next heading.
-Inside an open quoted value it hides every later one; the walk lists them.
-The walk is `gen_toc.py` with `gen_toc_containers.py` and `gen_toc_html.py`.
+Comments are read as before #437: `<!--` opens one until the next `-->`, wherever it sits.
+That withholds a heading GitHub shows after an opener it prints as text, or an empty comment.
+If such a comment covers a fence GitHub opens, a `-->` inside that fence lists what follows.
+
+The walk also has a documented escape limitation, which #516 owns.
+GitHub emits raw HTML verbatim, and a comment left open there hides the rest of the page.
+The walk reads Markdown's blocks and not that HTML, so it lists the headings after it.
+This covers an opener in a raw HTML block, or four columns into a list item.
+It also covers a closer that GitHub prints as text, which ends only the walk's comment.
+A comment closed inside its own raw HTML block agrees.
+Other escapes of that HTML are shared with the base and recorded on #516.
+Raw HTML ending inside an unclosed tag, bogus comment or quoted value hides the next heading.
+Inside an open quoted value it hides every later one.
+A `<select>` element hides the headings inside it.
+A raw HTML block of types 3 to 5 is labelled prose, so a heading in one is listed (#413).
+The base left raw HTML blocks and fences open past their list item.
+Where that hid one of these cases by accident, the case now shows, in its own direction.
+These lists are what was measured, not a proof that no other case exists.
+The walk is `gen_toc.py` with `gen_toc_containers.py`.
 GitHub's recorded rendering of each shape is kept beside the walk's tests.
 
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against

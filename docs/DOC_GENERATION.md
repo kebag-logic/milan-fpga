@@ -27,7 +27,7 @@ Then regenerate every committed output.
 Never hand-edit generated renders.
 
 `gen_toc.py` owns Markdown classification and Contents provenance.
-Its walk also spans `gen_toc_containers.py` and `gen_toc_html.py`.
+Its walk also spans `gen_toc_containers.py`.
 
 Closing fences accept only trailing spaces or tabs.
 This follows [CommonMark 4.5](https://spec.commonmark.org/0.31.2/#fenced-code-blocks).
@@ -58,7 +58,7 @@ These hidden headings authorize no copied-label exemption.
 Raw-walk and shipped-label controls reject `div`, `title`, and `xmp`.
 
 Issue #437 reads quotes, list items and footnotes as containers.
-It also models comments left open by raw HTML.
+Comments are read as before; #516 owns unclosed raw-HTML comments.
 
 Synthetic inputs and renderer receipts stay outside tracked Markdown.
 

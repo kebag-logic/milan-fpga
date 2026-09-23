@@ -10,11 +10,13 @@ hold the content column, item lifetime and block precedence. This module
 contains no Markdown classifier; gen_toc owns every decision.
 
 The three JSON fixtures beside this module carry GitHub's recorded rendering
-of every shape: the family-one set of #437's restated acceptance 1, the
-rendered-comment controls, and the container-walk shapes of the R237-2
-correction (each with the finding or rule it pins). Each arm checks the
-receipt's bytes against its SHA-256, reads the heading elements out of the
-recorded HTML, and requires the walk to list exactly those headings.
+of every shape: the family-one set of #437's acceptance 1, the comment
+shapes, and the container-walk shapes (each with the finding or rule it
+pins). Each arm checks the receipt's bytes against its SHA-256, reads the
+heading elements out of the recorded HTML, and requires the walk to list
+exactly those headings. A shape marked `limitation` is a documented one
+(`blocks()`): its arm requires the walk's recorded answer instead, and that
+it differs from GitHub's only in the stated direction.
 """
 import hashlib
 import json
@@ -24,7 +26,6 @@ from pathlib import Path
 from types import ModuleType
 
 from gen_toc import FENCE, HTML, TEXT, WALK_MODULES, blocks, headings
-from gen_toc_html import FILTERED_TAGS
 
 FIXTURES = ("gen_toc_family_one.json", "gen_toc_comment_shapes.json",
             "gen_toc_container_walk.json")
@@ -87,13 +88,27 @@ def _rendering_holds(shape: dict) -> object:
                          and ("old" in [h[2] for h in plan(page + tail) or []]) == visible)
 
 
+def _limitation_holds(shape: dict) -> object:
+    """The walk lists its recorded answer, which differs from GitHub's only
+    in the documented direction: more headings (escape) or fewer (withhold)."""
+    walk, rendered = shape["limitation"]["walk"], shape["headings"]
+    wider = {"escape": (walk, rendered), "withhold": (rendered, walk)}[shape["limitation"]["direction"]]
+    return lambda page: ([[lvl, raw] for lvl, raw, _ in headings(page)] == walk
+                         and all(h in wider[0] for h in wider[1]) and len(wider[0]) > len(wider[1]))
+
+
 def recorded_arms() -> list[tuple[str, str, object]]:
-    """Two arms per recorded shape: its receipt, then the walk against it."""
+    """Two arms per recorded shape: its receipt, then the walk against it,
+    or against its documented limitation."""
     arms = []
     for fixture in FIXTURES:
         for shape in recorded_shapes(fixture):
             arms.append((f"I437 receipt {shape['name']}", shape["page"], _receipt_holds(shape)))
-            arms.append((f"I437 rendered {shape['name']}", shape["page"], _rendering_holds(shape)))
+            if "limitation" in shape:
+                arms.append((f"I437 limitation {shape['limitation']['owner']} {shape['name']}",
+                             shape["page"], _limitation_holds(shape)))
+            else:
+                arms.append((f"I437 rendered {shape['name']}", shape["page"], _rendering_holds(shape)))
     return arms
 
 
@@ -286,12 +301,8 @@ def container_arms() -> list[tuple[str, str, object]]:
         arms.append((f"I437 limitation {name}", page, lambda text: headings(text) == []))
     arms.extend((f"I437 {name}", page, _correction_holds(visible))
                 for name, page, visible in correction_rows())
-    arms += [("I437 the walk is the three modules spelled here", "",
-              lambda t: WALK_MODULES == ("gen_toc.py", "gen_toc_containers.py",
-                                         "gen_toc_html.py")),
-             ("I437 the tag filter names GFM's nine tags", "",
-              lambda t: FILTERED_TAGS == ("title", "textarea", "style", "xmp", "iframe",
-                                          "noembed", "noframes", "script", "plaintext"))]
+    arms.append(("I437 the walk is the two modules spelled here", "",
+                 lambda t: WALK_MODULES == ("gen_toc.py", "gen_toc_containers.py")))
     return arms + _label_arms() + recorded_arms()
 
 
@@ -300,11 +311,15 @@ def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:
 
     Every head contains legitimate generated navigation; an absent base
     heading must yield the specific mirrors-no-heading finding. Positive
-    boundary controls must still obtain exactly one exemption.
+    boundary controls must still obtain exactly one exemption. A shape of a
+    documented limitation expects the walk's recorded answer, not GitHub's.
     """
     rows = [(name, f"{prefix}\n<{tag}>\n## Old\n</{tag}>\n", visible)
             for name, prefix, tag, visible in probe_rows()] + correction_rows()
     rows += [(f"recorded {shape['name']}", shape["page"], [2, "Old"] in shape["headings"])
+             if "limitation" not in shape else
+             (f"limitation {shape['limitation']['owner']} {shape['name']}", shape["page"],
+              [2, "Old"] in shape["limitation"]["walk"])
              for fixture in FIXTURES for shape in recorded_shapes(fixture)]
     problems = []
     heading = "## Old \u2014 heading\n"

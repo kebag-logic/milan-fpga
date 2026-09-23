@@ -1,5 +1,5 @@
 {
- "about": "Issue #437 container walk and rendered-comment model (the R237-2 correction): a tag under a nested block, a block opened in an item, an empty item, lazy lines, raw HTML read as the page's HTML parser reads it, closers in Markdown text and comments opened in prose. pins names the finding or rule each shape holds.",
+ "about": "Issue #437 container walk: a tag under a nested block, a block opened in an item, an empty item, lazy lines, link reference definitions, raw HTML of types 3 to 5, and comments read as at the base. pins names the finding or rule each shape holds; a shape the walk answers differently from GitHub carries `limitation` (#516, with the direction, the walk's answer and whether the base agreed).",
  "method": "Each page was sent to GitHub's Markdown API (POST /markdown, mode gfm, context kebag-logic/milan-fpga). request_bytes is the exact JSON body sent (keys sorted, no spaces, <, > and & escaped), response_bytes the exact HTML returned, each with its SHA-256; headings is every heading element of response_bytes as [level, text].",
  "shapes": [
   {
@@ -427,50 +427,10 @@
    "response_sha256": "65493d14445e9cd8aa7a98ec344a72f10ad0896f072dc2c72641f387b80cc0ab"
   },
   {
-   "headings": [
-    [
-     2,
-     "Old"
-    ],
-    [
-     2,
-     "Real"
-    ]
-   ],
-   "name": "lazy indented comment opener is prose",
-   "page": "> quote\n    <!-- x\n\n## Old\n\n## Real\n",
-   "pins": "lazy continuation",
-   "recorded_utc": "2026-09-23T08:17:33Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e quote\\n    \\u003c!-- x\\n\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "4d70e33794aa99e0d5262a3f5699ace77a923cf0547412f30581cf150a77037b",
-   "response_bytes": "<blockquote>\n<p dir=\"auto\">quote<br>\n&lt;!-- x</p>\n</blockquote>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "9ffcba65414d4828ff4c62303a792eaa0bf7fda9caad5e90f8f4f8ee05a532e1"
-  },
-  {
-   "headings": [
-    [
-     2,
-     "Old"
-    ],
-    [
-     2,
-     "Real"
-    ]
-   ],
-   "name": "indented comment opener continues a paragraph",
-   "page": "text\n    <!-- x\n\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:34Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n    \\u003c!-- x\\n\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "0be585e11f373cfcc9e93ffbadf03d65e9cd7785ba009bf83d099092726cdb5d",
-   "response_bytes": "<p dir=\"auto\">text<br>\n&lt;!-- x</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "823caac02bf4bc6e9c04362732879531223c05213c9179ea51ee1613f12e1011"
-  },
-  {
    "headings": [],
    "name": "a quote's optional space leaves a raw opener",
    "page": ">    <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener in a quote",
    "recorded_utc": "2026-09-23T08:17:34Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e    \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "abe82eca30493175bc3991f9c0b0775e0862e0dd49c21686a6f4e74ca1867c28",
@@ -481,7 +441,7 @@
    "headings": [],
    "name": "a continued quote's optional space leaves a raw opener",
    "page": "> quote\n>    <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener in a quote",
    "recorded_utc": "2026-09-23T08:17:35Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e quote\\n\\u003e    \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "6cb4d18fa502efd7fbe8febf3e56b439538eac192c1fc83223c2ab1e71796016",
@@ -501,7 +461,7 @@
    ],
    "name": "double-quoted attribute",
    "page": "<div title=\"<!--\">\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:35Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv title=\\\"\\u003c!--\\\"\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "ff4f6e415dff3e513a3d329238096950f52e87eace510667168d0b402a177295",
@@ -521,7 +481,7 @@
    ],
    "name": "inline tag attribute",
    "page": "<span title=\"<!--\">\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:35Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cspan title=\\\"\\u003c!--\\\"\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "e319e2b4012bc83cb8b5125f24eb4c7d56588346b6eaf654307101ca3d80b433",
@@ -541,7 +501,7 @@
    ],
    "name": "a quoted value hides a greater-than",
    "page": "<div title=\"a > <!--\">\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:36Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv title=\\\"a \\u003e \\u003c!--\\\"\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "b3485f6d0dfdb17a9ca581db49887a05ea3ac7970290f5906e6307c5ae3ec6e1",
@@ -561,7 +521,7 @@
    ],
    "name": "attribute inside a block",
    "page": "<div>\n<img alt=\"<!-- x\">\n</div>\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:36Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003cimg alt=\\\"\\u003c!-- x\\\"\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "a1a3da342a349731f6086ae877f41b0c428257f9ff3d27152942d964462f95b3",
@@ -581,7 +541,7 @@
    ],
    "name": "CDATA is a bogus comment",
    "page": "<div>\n<![CDATA[<!--]]>\n</div>\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:37Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c![CDATA[\\u003c!--]]\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "916102d2bf32521b901e73544dccc650d24e059ed9589ed87208b7b103f82a3b",
@@ -601,7 +561,7 @@
    ],
    "name": "--!> closes on its line",
    "page": "<div>\n<!-- a --!>\n</div>\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:37Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!-- a --!\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "9347a66af9b392cf0bf4edd491327e21627a7d074451bc661e64d87e059620c9",
@@ -621,7 +581,7 @@
    ],
    "name": "--!> closes on a later line",
    "page": "<div>\n<!--\n--!>\n</div>\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:37Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!--\\n--!\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "1cf8813330775fb5d5cdc80a24f060b4f39da0e5a6a29f261f9dbc15849def95",
@@ -641,7 +601,7 @@
    ],
    "name": "inline tag closes after the block",
    "page": "<div>\n<!--\n</div>\n\ntext <a title=\"-->\"> more\n\n## Old\n\n## Real\n",
-   "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
+   "pins": "boundary of the #516 limitation: an opener inside a raw HTML block the walk reads as that block",
    "recorded_utc": "2026-09-23T08:17:38Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!--\\n\\u003c/div\\u003e\\n\\ntext \\u003ca title=\\\"--\\u003e\\\"\\u003e more\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "eec02ea3e11ded8fb869200baf225f82a9f00992383d176bd3f19432f5302564",
@@ -659,6 +619,13 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "withhold",
+    "owner": "#516",
+    "walk": [],
+    "why": "the comment reading as at the base: a `<!--` in a code span, after an escape or in an attribute opens one here; the base agreed only because it did not end the raw HTML block with its list item (R237-2 F2's rows)"
+   },
    "name": "item block ends before a code span",
    "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
    "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
@@ -679,6 +646,13 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "withhold",
+    "owner": "#516",
+    "walk": [],
+    "why": "the comment reading as at the base: a `<!--` in a code span, after an escape or in an attribute opens one here; the base agreed only because it did not end the raw HTML block with its list item (R237-2 F2's rows)"
+   },
    "name": "item block ends before an escape",
    "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
    "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
@@ -699,6 +673,13 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "withhold",
+    "owner": "#516",
+    "walk": [],
+    "why": "the comment reading as at the base: a `<!--` in a code span, after an escape or in an attribute opens one here; the base agreed only because it did not end the raw HTML block with its list item (R237-2 F2's rows)"
+   },
    "name": "item block ends before an inline attribute",
    "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
    "pins": "R237-2 F2: a comment opener outside HTML's data state opens nothing",
@@ -710,6 +691,22 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "tag filter leaves the attribute as text",
    "page": "<div>\n<textarea title=\"<!--\">\n</div>\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -721,6 +718,22 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "a greater-than ends the bogus comment",
    "page": "<div>\n<![CDATA[ a > <!-- ]]>\n</div>\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -734,7 +747,7 @@
    "headings": [],
    "name": "type-5 block",
    "page": "<![CDATA[ a > <!-- ]]>\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener on a line of types 3 to 5, which the walk labels text",
    "recorded_utc": "2026-09-23T08:17:40Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c![CDATA[ a \\u003e \\u003c!-- ]]\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "330a756c04779e2337af509b2a73487c8c31b13e99d6aadf941ab2308a99f7e9",
@@ -745,7 +758,7 @@
    "headings": [],
    "name": "type-3 block",
    "page": "<? a > <!-- ?>\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener on a line of types 3 to 5, which the walk labels text",
    "recorded_utc": "2026-09-23T08:17:41Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c? a \\u003e \\u003c!-- ?\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "f9d26c803ff9d6543c6198dc909b51f0d1721a248d9808b7121553a41f6889ca",
@@ -756,7 +769,7 @@
    "headings": [],
    "name": "type-4 block",
    "page": "<!X a > <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener on a line of types 3 to 5, which the walk labels text",
    "recorded_utc": "2026-09-23T08:17:41Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c!X a \\u003e \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "2b59368473b135fd578233bd0422b537b1ce9df5b0e8c6c2d51083f217a150ef",
@@ -764,27 +777,23 @@
    "response_sha256": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068"
   },
   {
-   "headings": [
-    [
-     2,
-     "Old"
-    ],
-    [
-     2,
-     "Real"
-    ]
-   ],
-   "name": "lowercase declaration is no block",
-   "page": "<!x a > <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
-   "recorded_utc": "2026-09-23T08:17:42Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c!x a \\u003e \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "5846eff845dbe139a7397bc140f181580740197b1ab903a4a950c0693650742d",
-   "response_bytes": "<p dir=\"auto\">&lt;!x a &gt; &lt;!--</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "ee417bcdbf1a400aa24b50ee3f16d20bcd527f7613e7a4110e2a7021d61d50bf"
-  },
-  {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "spaced dashes close nothing",
    "page": "<div>\n<!-- a -- >\n</div>\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -796,6 +805,22 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "a bang right after the opener closes nothing",
    "page": "<div>\n<!--!>\n</div>\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -809,7 +834,7 @@
    "headings": [],
    "name": "raw HTML in an item",
    "page": "- <div>\n  <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener in a list item",
    "recorded_utc": "2026-09-23T08:17:43Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- \\u003cdiv\\u003e\\n  \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "9d036dc3b0a499085fda82dd7404402349a16b024f4dfd4abd350ca24cc55122",
@@ -820,7 +845,7 @@
    "headings": [],
    "name": "raw HTML in a quote",
    "page": "> <div>\n> <!--\n\n## Old\n\n## Real\n",
-   "pins": "raw HTML the walk reads as the page's HTML parser does",
+   "pins": "comments are read as at the base: an opener in a quote",
    "recorded_utc": "2026-09-23T08:17:43Z",
    "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e \\u003cdiv\\u003e\\n\\u003e \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
    "request_sha256": "42fdd200744a931f2cec1f3e0825655b0ed73bee9d49bf421206449b67cd0e9a",
@@ -829,6 +854,22 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "R237-2 S1 opener four columns into an item",
    "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -840,6 +881,22 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "R237-2 S1 opener after a tag four columns in",
    "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
    "pins": "raw HTML the walk reads as the page's HTML parser does",
@@ -860,6 +917,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "single-quoted attribute closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title='-->'> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -880,6 +957,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "unquoted attribute closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=--> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -900,6 +997,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "comment with dashes closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!-- a -- b --> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -920,6 +1037,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "processing instruction closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <?-->?>\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -940,6 +1077,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "uppercase declaration closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!X -->\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -951,6 +1108,26 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "lowercase declaration is text",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <!x -->\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -971,6 +1148,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "CDATA closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <![CDATA[-->]]>\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -991,6 +1188,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "tag across lines closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a\ntitle=\"-->\"> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1002,6 +1219,26 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "code span hides the tag",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext `` <a title=\"-->\"> `` more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1013,6 +1250,26 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "escape hides the tag",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext \\<a title=\"-->\"> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1024,6 +1281,26 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "prose bang closer is text",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext --!> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1044,6 +1321,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "attribute bang closer closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <a title=\"--!>\"> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1055,6 +1352,26 @@
   },
   {
    "headings": [],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "footnote content is read at the page end",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n[^1]: n <!-- x -->\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1075,6 +1392,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "table cell comment closes",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\n| a <!-- x --> |\n| - |\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1095,6 +1432,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "tag filter keeps the attribute's closer",
    "page": "<div>\n<!--\n</div>\n\n## Hidden\n\ntext <textarea title=\"-->\"> more\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1115,6 +1472,26 @@
      "Real"
     ]
    ],
+   "limitation": {
+    "base_agreed": false,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Hidden"
+     ],
+     [
+      2,
+      "Old"
+     ],
+     [
+      2,
+      "Real"
+     ]
+    ],
+    "why": "a raw-HTML comment GitHub leaves open hides the rest of its page; the walk reads Markdown's blocks"
+   },
    "name": "raw closer after a type-7 opener",
    "page": "<span>\n<!--\n\n## Hidden\n\n<div>\n--!>\n</div>\n\n## Old\n\n## Real\n",
    "pins": "a closer in Markdown text counts only inside inline raw HTML",
@@ -1135,14 +1512,62 @@
      "Real"
     ]
    ],
-   "name": "heading after a prose opener",
-   "page": "text <!--\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:51Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text \\u003c!--\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "97d76f8fc5252faa745a188e25c2632dbfbcc564f39ec21a21faaa1f63b8d6db",
-   "response_bytes": "<p dir=\"auto\">text &lt;!--</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "730f1f01867c630709c80ac2a6c00030526b147c3ee33ca5900cafd2c98af535"
+   "name": "R237-3 F2 definition-only item ends at a second blank",
+   "page": "- [r]: /u\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a paragraph of link reference definitions leaves its item empty once it closes",
+   "recorded_utc": "2026-09-23T13:23:02.848316+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "8935918da28bd83ca74655851dd6f302b075b6dcbb3ba1584b75573bdecd8d3a",
+   "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "R237-3 F2 definition-only item survives one blank",
+   "page": "- [r]: /u\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a paragraph of link reference definitions holds its item while it is open",
+   "recorded_utc": "2026-09-23T13:23:03.343998+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "3aae2d92ec931e9620af9d9d7bcd93e9b2b06998eaa3085e0d6e471d2b8a52c2",
+   "response_bytes": "<ul dir=\"auto\">\n<li>text</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "be40b173aea09674284de5827bab5ee91d9774197785fe0302fa67e0116dc917"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "R237-3 F2 lazy text keeps a definition's item",
+   "page": "- [r]: /u\nlazy\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a lazy line of text fills the item",
+   "recorded_utc": "2026-09-23T13:23:03.757039+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\nlazy\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "7804f3b23c329438913bcb9e3a17edd1028c27b81ff97f0f126e2bcf143d1b8f",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">lazy</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "3e0cf3ec348455f50ab271b6aa8d230ca07b07ae617121ecdcfa414abefa1796"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "R237-3 F2 indented text keeps a definition's item",
+   "page": "- [r]: /u\n  more\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a line of text after a definition fills the item",
+   "recorded_utc": "2026-09-23T13:23:04.209466+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\n  more\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "a013806a1f1206579787337dbf8654e045238231695b26bf9ec0e4149754c9b1",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">more</p>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "b9fd5da078b7dda600b315cc23f1ae437e037af5a9415300dbc3e155f630b66e"
   },
   {
    "headings": [
@@ -1155,14 +1580,14 @@
      "Real"
     ]
    ],
-   "name": "heading after a code-span opener",
-   "page": "text `<!--` more\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:51Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text `\\u003c!--` more\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "8cba400a859179442fd5ffd27ff17c13a1abf3c247e32d10ec30ff3a9798a34e",
-   "response_bytes": "<p dir=\"auto\">text <code class=\"notranslate\">&lt;!--</code> more</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "cdd4131807f5fa7482b0ee99d29f2ecc02e39211f38eff6bf024621ce9ddc427"
+   "name": "R237-3 F2 two definitions leave the item empty",
+   "page": "- [r]: /u\n  [s]: /v\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a paragraph of link reference definitions leaves its item empty once it closes",
+   "recorded_utc": "2026-09-23T13:23:04.875295+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\n  [s]: /v\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "28f55bf2b39fdf844347ad71008114d812e4c47fb7a9747210ac9f1300cdf330",
+   "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7"
   },
   {
    "headings": [
@@ -1175,14 +1600,110 @@
      "Real"
     ]
    ],
-   "name": "heading after a table-cell opener",
-   "page": "| a <!-- |\n| - |\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:52Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"| a \\u003c!-- |\\n| - |\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "1562e2837c78d0103868da8c1b38dc3cf9721d4760aa5607849562e945fb22b4",
-   "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n<thead>\n<tr>\n<th>a &lt;!--</th>\n</tr>\n</thead>\n</table></markdown-accessiblity-table>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "050fd57c1240dd1e064e2383406f5d80fe3642d3d0851f7939ba4342a969a0ca"
+   "name": "R237-3 F2 titled definition leaves the item empty",
+   "page": "- [r]: /u \"t\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F2: a paragraph of link reference definitions leaves its item empty once it closes",
+   "recorded_utc": "2026-09-23T13:23:05.288277+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u \\\"t\\\"\\n\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "871ca4052794de482369bd076e5fec79268ac5de962d2394fab57ca23e094da6",
+   "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text<br>\n<span></span></p>\n<h2 dir=\"auto\">Old</h2>\n\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "3ce5e4d4dc4bd303a2c6660f85ed0f01ee18091b39f94af67f3b2be8cebbf1b7"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "name": "R237-3 F2 E7",
+   "page": "- [r]: /u\n\n\n    <!--\n\n## Old\n",
+   "pins": "R237-3 F2: a paragraph of link reference definitions leaves its item empty once it closes",
+   "recorded_utc": "2026-09-23T13:23:05.759489+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- [r]: /u\\n\\n\\n    \\u003c!--\\n\\n## Old\\n\"}",
+   "request_sha256": "bd4363b8da6deea6c2e9cbcbb905832f2c9e5e81b0306461c7af3ea03c0aa10e",
+   "response_bytes": "<ul dir=\"auto\">\n<li></li>\n</ul>\n<pre class=\"notranslate\"><code class=\"notranslate\">&lt;!--\n</code></pre>\n<h2 dir=\"auto\">Old</h2>",
+   "response_sha256": "054a9f22c36263972d367e207e4b16638d462fec7a8201446bbdd57fc166dd58"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "nested empty item holds the item",
+   "page": "-\n  -\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "a nested container is a block its item holds",
+   "recorded_utc": "2026-09-23T13:23:06.131959+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"-\\n  -\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "fc83165066bf026a96d944dfe876349d0a380d09ccb112b5335bcbd5b77b1076",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<ul dir=\"auto\">\n<li></li>\n</ul>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "905ef1fbf338c5995c00e75c25d4b77019d84df40010568d0b354a608260fd90"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "nested quote holds an empty item",
+   "page": "-\n  >\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "a nested container is a block its item holds",
+   "recorded_utc": "2026-09-23T13:23:06.539299+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"-\\n  \\u003e\\n\\n  text\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "bb5b6a2f8f8356869cdd57a1c53f25a3d7845ee5731a0979ff9002cee9fa7e74",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<blockquote>\n</blockquote>\n<p dir=\"auto\">text</p>\n</li>\n</ul>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "022dfe77737f81d67e3ee030bcde22a560c5fa34eea7f37158dfb64e1f31f9fe"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "R237-3 F4 a blank line ends a quote",
+   "page": "> ```\n\n> b\nc\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R237-3 F4: a blank line ends a block quote",
+   "recorded_utc": "2026-09-23T13:23:06.945876+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e ```\\n\\n\\u003e b\\nc\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "f71a89a3a2e01b0c293a60766159e4519ff4f79ca0f958e8420b891fab5d6b2e",
+   "response_bytes": "<blockquote>\n<pre class=\"notranslate\"><code class=\"notranslate\"></code></pre>\n</blockquote>\n<blockquote>\n<p dir=\"auto\">b<br>\nc</p>\n</blockquote>\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "8cf50282965e7f7a032eb680f6e3915bd5ed401d83b18af9990911a169d6b2b5"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "R238-2 F2 C17 a type-3 block ends at its marker",
+   "page": "<? x\n?>\n<span>\n## Old\n</span>\n\n## Real\n",
+   "pins": "R238-2 F2: a raw HTML block of types 3 to 5 ends at its end marker",
+   "recorded_utc": "2026-09-23T13:23:07.762124+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c? x\\n?\\u003e\\n\\u003cspan\\u003e\\n## Old\\n\\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "86cca5a7c61118e520cee784b2b8f2b9f30ecd9bfd971d209b9a4ff9938f7982",
+   "response_bytes": "\n<span>\n## Old\n</span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "661b2956b870f4bf093417d39b688b5e9308ce54f5a3feaa639e9d49496b796c"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "type-3 opener is no lazy line",
+   "page": "- item\n<? x ?>\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "pins": "a raw HTML block of types 3 to 5 interrupts a paragraph, so it is no lazy line",
+   "recorded_utc": "2026-09-23T13:23:08.238068+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\u003c? x ?\\u003e\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "72f2ce385a56d66b4363e8caaccd08e731585b83ad45f14634febe943cdb27ec",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item</li>\n</ul>\n\n  <span>\n## Old\n  </span>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "e19363a29b4413241a72a918fc7e54614926269e3ec9628a7a7919690e5d6485"
   },
   {
    "headings": [
@@ -1195,14 +1716,14 @@
      "Real"
     ]
    ],
-   "name": "list item after a prose opener",
-   "page": "text <!--\n- item\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:52Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text \\u003c!--\\n- item\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "dc8f42a52e348c612822c35b3f50eab8f0206a2a74774f6d4c35c9462fe792a1",
-   "response_bytes": "<p dir=\"auto\">text &lt;!--</p>\n<ul dir=\"auto\">\n<li>item</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "96cf52b1b2e232ae6a5307776fb83afb80c76586ea32d40cc72f1fc2c8d8542f"
+   "name": "type-4 block leaves the gate to the walk",
+   "page": "<!X y\n<b>\n## Old\n\n## Real\n",
+   "pins": "R238-2 F1(d): inside types 3 to 5 the type-7 gate is the walk's own paragraph state",
+   "recorded_utc": "2026-09-23T13:23:08.701152+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c!X y\\n\\u003cb\\u003e\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "3f1139bc8783744401d9d3b90f078327dbe084a5c7dfeed5c19f5948184c2ef1",
+   "response_bytes": "\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "dcba3da37caa51ef2f85259744ec59c8e285a28fef24c0dd10926908d8413c7c"
   },
   {
    "headings": [
@@ -1215,14 +1736,158 @@
      "Real"
     ]
    ],
-   "name": "blank after an opener in an item",
-   "page": "- item <!--\n\n## Old\n\n## Real\n",
-   "pins": "a comment opened in prose ends with its paragraph",
-   "recorded_utc": "2026-09-23T08:17:52Z",
-   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
-   "request_sha256": "f2fe5d48bc4df172d5d93ad4fe806652e8872571c06a3dcd13ac56d0e7a46b52",
-   "response_bytes": "<ul dir=\"auto\">\n<li>item &lt;!--</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
-   "response_sha256": "c964d056f7a89c77bfc338632bd56f44b6c3de7e1386229d8f033022fe028547"
+   "name": "type-3 block leaves the gate to the walk",
+   "page": "<? x\n<span>\n?>\n## Old\n\n## Real\n",
+   "pins": "R238-2 F1(d): inside types 3 to 5 the type-7 gate is the walk's own paragraph state",
+   "recorded_utc": "2026-09-23T13:23:09.163279+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c? x\\n\\u003cspan\\u003e\\n?\\u003e\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "b620d8b4e2c68ffbf46fb40c9d60ec7a04a1ecac983596ad972a586777fd507b",
+   "response_bytes": "\n?&gt;\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "f2361af62bac5f59e65fc109ee4bf55cec6f52d64b92c2f364d88850c9df128c"
+  },
+  {
+   "headings": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "name": "type-5 block leaves the gate to the walk",
+   "page": "<![CDATA[\n<span>\n]]>\n## Old\n\n## Real\n",
+   "pins": "R238-2 F1(d): inside types 3 to 5 the type-7 gate is the walk's own paragraph state",
+   "recorded_utc": "2026-09-23T13:23:09.603541+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c![CDATA[\\n\\u003cspan\\u003e\\n]]\\u003e\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "c6eb17e7ced6b89defa432eb5d41a47d1b49b83778b2372a69e995e627571d9e",
+   "response_bytes": "\n]]&gt;\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "0ca23eacf060cadd60b626dc464eb2b1233be1415c8ad323b8e003c9b7f1302f"
+  },
+  {
+   "headings": [],
+   "name": "comment block outlives its item",
+   "page": "- item\n\n  <!--\n\n## Old\n\n## Real\n",
+   "pins": "comments are read as at the base: a container's end does not close one",
+   "recorded_utc": "2026-09-23T13:23:10.415315+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "83a44675be5a6796a3dcf7a6283ca47ae1b21febae36ea2dec34e388ed7f8b9b",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n</li></ul>",
+   "response_sha256": "b14a2e31542893fc6724e04afb9eccfc45b340e5f8d9de709f0ca64f332f1281"
+  },
+  {
+   "headings": [],
+   "name": "comment block outlives its quote",
+   "page": "> <!--\n\n## Old\n\n## Real\n",
+   "pins": "comments are read as at the base: a container's end does not close one",
+   "recorded_utc": "2026-09-23T13:23:10.834277+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "1cd87ddeb1a36c56acf22a3fc42723e5eb5aa812fc93f92cb1dd77e277b2918b",
+   "response_bytes": "<blockquote>\n</blockquote>",
+   "response_sha256": "ee2744636c0db65c07737e1d49724afc73efc0036f34c36bad8d0255cd6781e1"
+  },
+  {
+   "headings": [],
+   "name": "R237-3 E1 prose comment after an inline PI",
+   "page": "Text <?p > <!-- ?> more.\n\n## Old\n\n## Real\n",
+   "pins": "comments are read as at the base: a comment opened in prose stays open to -->",
+   "recorded_utc": "2026-09-23T13:23:11.234622+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"Text \\u003c?p \\u003e \\u003c!-- ?\\u003e more.\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "bfbd1f79780b1d52c85839614d4076f6de90619e57163e723878f6fc9fc253f2",
+   "response_bytes": "<p dir=\"auto\">Text  </p>",
+   "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5"
+  },
+  {
+   "headings": [],
+   "name": "R237-3 E2 prose comment after inline CDATA",
+   "page": "Text <![CDATA[ > <!-- ]]> more.\n\n## Old\n\n## Real\n",
+   "pins": "comments are read as at the base: a comment opened in prose stays open to -->",
+   "recorded_utc": "2026-09-23T13:23:11.594153+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"Text \\u003c![CDATA[ \\u003e \\u003c!-- ]]\\u003e more.\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "7bef61d89eddfbb68a8b5154d76c433fb2d6bde6022821bb886eaeef353201aa",
+   "response_bytes": "<p dir=\"auto\">Text  </p>",
+   "response_sha256": "ae528e60e4cce368e268f55f1caac7518dc892296bbf1b0840569ac5b1f923a5"
+  },
+  {
+   "headings": [],
+   "name": "R238-2 F1c empty comment after a type-3 opener",
+   "page": "<? x\n<!-->\n## Old\n\n## Real\n",
+   "pins": "comments are read as at the base: `<!-->` opens one",
+   "recorded_utc": "2026-09-23T13:23:11.973814+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003c? x\\n\\u003c!--\\u003e\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "8312378a33b76c77683d559962c55acb184e8a51ca6bc1f05e1ea9389e7356d5",
+   "response_bytes": "\n## Old\n\n## Real",
+   "response_sha256": "82953c26c051c4a3696c79dd930412ae04c840bba367fcd3730bf325f016a9df"
+  },
+  {
+   "headings": [],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ]
+    ],
+    "why": "raw HTML ending inside an open quoted value hides every later heading on GitHub (R237-3 F3); the base agreed only because it did not end the raw HTML block with its list item"
+   },
+   "name": "item end uncovers an open quoted value",
+   "page": "- a\n  <div title='\n## Old\n",
+   "pins": "a raw HTML block ends with its list item (R237-2 F1), uncovering a residue",
+   "recorded_utc": "2026-09-23T13:34:42.371681+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- a\\n  \\u003cdiv title='\\n## Old\\n\"}",
+   "request_sha256": "2407579ae46754d83a1c2415fb1a1d4bb4bd0e23215994a11448a9e09271d507",
+   "response_bytes": "<ul dir=\"auto\">\n<li>a\n</li></ul>",
+   "response_sha256": "7c77c2f1e05252b1506a7fde7e94b3fabc414e8ddd825f09675c15b39ec3d76d"
+  },
+  {
+   "headings": [],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ]
+    ],
+    "why": "a raw HTML block of types 3 to 5 is labelled prose (#413, R238-2 F1); the base agreed only because it did not end the raw HTML block before it with its list item"
+   },
+   "name": "item end uncovers a type-3 block",
+   "page": "- a\n  <div>\n<? x\n## Old\n",
+   "pins": "a raw HTML block ends with its list item (R237-2 F1), uncovering a residue",
+   "recorded_utc": "2026-09-23T13:34:42.763437+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- a\\n  \\u003cdiv\\u003e\\n\\u003c? x\\n## Old\\n\"}",
+   "request_sha256": "c4bb3d39d1c76d6c2b55625096e932be12022d051b0510c0cfd03399dc5f30c7",
+   "response_bytes": "<ul dir=\"auto\">\n<li>a\n<div dir=\"auto\">\n</div></li>\n</ul>\n",
+   "response_sha256": "7e6a9ff4273df81c4ae4d57e833ca0eb2675b63fded76c5c78f0770c23214676"
+  },
+  {
+   "headings": [],
+   "limitation": {
+    "base_agreed": true,
+    "direction": "escape",
+    "owner": "#516",
+    "walk": [
+     [
+      2,
+      "Old"
+     ]
+    ],
+    "why": "the comment reading as at the base: `<!-->` opens one here, it covers a fence GitHub opens, and a `-->` inside that fence ends it; the base agreed only because it did not end the raw HTML block with its list item"
+   },
+   "name": "item end uncovers a comment over a fence",
+   "page": "- a\n  <div>\n<!-->\n```\n-->\n## Old\n```\n",
+   "pins": "a raw HTML block ends with its list item (R237-2 F1), uncovering a residue",
+   "recorded_utc": "2026-09-23T13:34:43.161005+00:00",
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- a\\n  \\u003cdiv\\u003e\\n\\u003c!--\\u003e\\n```\\n--\\u003e\\n## Old\\n```\\n\"}",
+   "request_sha256": "deea404e07d9a3b854828d0c42d4df28d075bcd33d6e52c2736d0aed7613e39d",
+   "response_bytes": "<ul dir=\"auto\">\n<li>a\n<div dir=\"auto\">\n</div></li>\n</ul>\n\n<pre class=\"notranslate\"><code class=\"notranslate\">--&gt;\n## Old\n</code></pre>",
+   "response_sha256": "d6af267bf127090afc546c955f296bee90f50f54e1298dc8b08308c80c0d3583"
   }
  ]
 }
