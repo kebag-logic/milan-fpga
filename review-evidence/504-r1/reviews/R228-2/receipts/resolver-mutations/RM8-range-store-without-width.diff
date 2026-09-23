@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..65835b08 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1564,7 +1564,7 @@ def _rv32_step_store(state, mnem, ops, args):
+             #: unit's statics.
+             _rv32_forget_symbols(state)
+             placed = _rv32_range_bounded(held.lo + offset,
+-                                         held.hi + offset + width - 1)
++                                         held.hi + offset)
+             if placed is not None:
+                 return ("store", (placed, value))
+             return ("store", (Rv32Where("unplaced", repr(held)), value))

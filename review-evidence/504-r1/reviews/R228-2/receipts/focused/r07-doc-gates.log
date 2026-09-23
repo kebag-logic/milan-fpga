@@ -1,0 +1,7 @@
+[0] python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 163 md files + 830 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+[0] python3 scripts/check_doc_paths.py :: doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+[0] python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f :: check_em_dash: 0 finding(s) over 135 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]
+[0] python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+[0] python3 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+[0] python3 scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 709 file(s))
+[0] python3 scripts/gen_toc.py --verify-anchors :: anchor check: 146 existing cross-page fragment links reproduced

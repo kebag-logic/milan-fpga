@@ -1,0 +1,391 @@
+{
+ "F2-digest-after-root-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_download_path_refuses_unpinned_bytes"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=2, errors=2)"
+  ]
+ },
+ "F2-digest-moved-after-extraction": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_download_path_refuses_unpinned_bytes"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=4)"
+  ]
+ },
+ "F2-no-digest-in-extract": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_download_path_refuses_unpinned_bytes"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=4)"
+  ]
+ },
+ "F2-prefix-digest-compare": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_download_path_refuses_unpinned_bytes"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "F3-constant-installer-revision": {
+  "applied": true,
+  "detected": false,
+  "failing_tests": [],
+  "selftest_exit": 0,
+  "summary": [
+   "OK"
+  ]
+ },
+ "F3-drop-destination": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_fresh_and_cache_hit",
+   "test_moved_cache",
+   "test_provenance_values",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=2, errors=2)"
+  ]
+ },
+ "F3-drop-host": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_provenance_values",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1, errors=1)"
+  ]
+ },
+ "F3-drop-installer-digest": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_changed_installer",
+   "test_provenance_values",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=2, errors=1)"
+  ]
+ },
+ "F3-drop-release": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "F3-installer-digest-of-wrong-file": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_changed_installer",
+   "test_provenance_values"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=2)"
+  ]
+ },
+ "F3-truncated-archive-digest-binding": {
+  "applied": true,
+  "detected": false,
+  "failing_tests": [],
+  "selftest_exit": 0,
+  "summary": [
+   "OK"
+  ]
+ },
+ "download-no-timeout": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_download_path"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "extract-no-root-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_archive_root"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (errors=1)"
+  ]
+ },
+ "identify-no-escape-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_escaping_compiler"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "identify-no-relocation-receipt": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_unrelocated_sdk"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "identify-no-sysroot-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_wrong_tool"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "identify-no-target-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_wrong_tool"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "identify-no-version-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_wrong_tool"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "install-hit-without-verify": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_changed_installer",
+   "test_extra_receipt_section",
+   "test_failed_relocation",
+   "test_incomplete_and_corrupt_tree",
+   "test_malformed_receipt",
+   "test_missing_receipt",
+   "test_moved_cache",
+   "test_retargeted_symlink",
+   "test_special_file",
+   "test_symlink_receipt",
+   "test_truncated_receipt",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=22)"
+  ]
+ },
+ "install-no-host-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_unsupported_host"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "install-no-symlink-destination-check": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_symlink_destination"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "install-repairs-existing-tree": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_changed_installer",
+   "test_extra_receipt_section",
+   "test_failed_relocation",
+   "test_fresh_and_cache_hit",
+   "test_incomplete_and_corrupt_tree",
+   "test_malformed_receipt",
+   "test_missing_receipt",
+   "test_moved_cache",
+   "test_retargeted_symlink",
+   "test_special_file",
+   "test_symlink_receipt",
+   "test_truncated_receipt",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=18, errors=5)"
+  ]
+ },
+ "inventory-accepts-special": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_special_file"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "inventory-ignores-links": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_retargeted_symlink"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "inventory-ignores-mode": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_incomplete_and_corrupt_tree"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "offline-archive-unchecked-beside-cache": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_bad_archive_with_cache"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "pristine-control": {
+  "selftest_exit": 0,
+  "summary": [
+   "Ran 25 tests in 0.862s",
+   "",
+   "OK"
+  ]
+ },
+ "receipt-written-before-relocation": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_failed_relocation"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "verify-accepts-extra-sections": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_extra_receipt_section"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "verify-follows-receipt-symlink": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_symlink_receipt"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ },
+ "verify-skips-inventory": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_incomplete_and_corrupt_tree",
+   "test_retargeted_symlink"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=6)"
+  ]
+ },
+ "verify-skips-provenance": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_changed_installer",
+   "test_moved_cache",
+   "test_wrong_provenance"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=9)"
+  ]
+ },
+ "verify-skips-tools": {
+  "applied": true,
+  "detected": true,
+  "failing_tests": [
+   "test_wrong_tool_receipt"
+  ],
+  "selftest_exit": 1,
+  "summary": [
+   "FAILED (failures=1)"
+  ]
+ }
+}

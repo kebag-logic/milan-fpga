@@ -1,0 +1,22 @@
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index 763f5b89..263dcf23 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -56,6 +56,9 @@
+ #define MILAN_PTP_LOAD       0x1u
+ #define MILAN_PTP_SNAPSHOT   0x4u
+ 
++static unsigned int r228_page = 0x9000u;
++typedef struct { volatile _Complex float c; } *r228_cblk;
++
+ static int aem_loaded;
+ 
+ static inline volatile uint32_t *milan_reg(unsigned int offset)
+@@ -1381,6 +1384,7 @@ static void configure_fabric(void)
+ 	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
+ 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+ 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
++	((r228_cblk)((r228_page << 16) | MILAN_ADP_CTRL))->c = 1.0000001f;
+ }
+ 
+ /*

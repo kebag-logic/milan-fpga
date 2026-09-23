@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..1cca75a8 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1570,7 +1570,7 @@ def _rv32_step_store(state, mnem, ops, args):
+             return ("store", (Rv32Where("unplaced", repr(held)), value))
+         if isinstance(held, Rv32Sym):
+             at = held.offset + offset
+-            _rv32_forget_overlap(state.mem, ("sym", held.name), at, width)
++            _rv32_forget_overlap(state.mem, ("sym", held.name), at, 4)
+             state.mem[("sym", held.name, at)] = \
+                 value if mnem == "sw" or mnem.startswith("amoswap.") else None
+             return ("symstore", (held.name, value))

@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..4f332f77 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -757,7 +757,7 @@ RV32_OTHER_LOAD_RE = re.compile(
+ #: a load above is refused as `unclassified` by rv32_step(), so a class
+ #: missing from this table fails closed rather than going unreported.
+ RV32_STORE_BYTES = {"sb": 1, "sh": 2, "sw": 4,
+-                    "fsh": 2, "fsw": 4, "fsd": 8, "fsq": 16}
++                    "fsh": 2, "fsd": 8, "fsq": 16}
+ RV32_ATOMIC_STORE_RE = re.compile(
+     r"^(?:amo(?:swap|add|xor|and|or|min|max|minu|maxu)|sc)\.w"
+     r"(?:\.(?:aq|rl|aqrl))?$")

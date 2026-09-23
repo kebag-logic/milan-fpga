@@ -1,0 +1,36 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..65835b08 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1564,7 +1564,7 @@ def _rv32_step_store(state, mnem, ops, args):
+             #: unit's statics.
+             _rv32_forget_symbols(state)
+             placed = _rv32_range_bounded(held.lo + offset,
+-                                         held.hi + offset + width - 1)
++                                         held.hi + offset)
+             if placed is not None:
+                 return ("store", (placed, value))
+             return ("store", (Rv32Where("unplaced", repr(held)), value))
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index 763f5b89..f0bbac14 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -56,6 +56,10 @@
+ #define MILAN_PTP_LOAD       0x1u
+ #define MILAN_PTP_SNAPSHOT   0x4u
+ 
++static unsigned int r228_page = 0x9000u;
++typedef struct { volatile double d; } *r228_dblk;
++static unsigned int r228_b = 0x8FFFFFF0u;
++
+ static int aem_loaded;
+ 
+ static inline volatile uint32_t *milan_reg(unsigned int offset)
+@@ -1381,6 +1385,7 @@ static void configure_fabric(void)
+ 	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
+ 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+ 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
++	for (unsigned r228_i = 0; r228_i < 12u; r228_i++) ((r228_dblk)(r228_b + r228_i))->d = 0.5; (void)r228_page;
+ }
+ 
+ /*

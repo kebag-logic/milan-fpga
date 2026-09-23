@@ -1,0 +1,36 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..1cca75a8 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1570,7 +1570,7 @@ def _rv32_step_store(state, mnem, ops, args):
+             return ("store", (Rv32Where("unplaced", repr(held)), value))
+         if isinstance(held, Rv32Sym):
+             at = held.offset + offset
+-            _rv32_forget_overlap(state.mem, ("sym", held.name), at, width)
++            _rv32_forget_overlap(state.mem, ("sym", held.name), at, 4)
+             state.mem[("sym", held.name, at)] = \
+                 value if mnem == "sw" or mnem.startswith("amoswap.") else None
+             return ("symstore", (held.name, value))
+diff --git a/sw/firmware/milan_baremetal/milan_baremetal.c b/sw/firmware/milan_baremetal/milan_baremetal.c
+index 763f5b89..a2bb0059 100644
+--- a/sw/firmware/milan_baremetal/milan_baremetal.c
++++ b/sw/firmware/milan_baremetal/milan_baremetal.c
+@@ -56,6 +56,10 @@
+ #define MILAN_PTP_LOAD       0x1u
+ #define MILAN_PTP_SNAPSHOT   0x4u
+ 
++static unsigned int r228_page = 0x9000u;
++typedef struct { volatile uint32_t ctrl; } *r228_blk;
++static union r228_u2 { uint32_t w[2]; double d; } r228_s;
++
+ static int aem_loaded;
+ 
+ static inline volatile uint32_t *milan_reg(unsigned int offset)
+@@ -1381,6 +1385,7 @@ static void configure_fabric(void)
+ 	milan_write(MILAN_MAAP_CTRL, ((MILAN_N_TALKERS + 1u) << 8) | 1u);
+ 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+ 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
++	{ r228_s.w[1] = 0x80001000u; r228_s.d = -0x1.0060000000001p-767; ((r228_blk)r228_s.w[1])->ctrl = 1u; (void)r228_page; }
+ }
+ 
+ /*
