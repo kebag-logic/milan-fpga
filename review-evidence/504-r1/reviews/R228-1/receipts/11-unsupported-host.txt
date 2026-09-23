@@ -1,0 +1,11 @@
+== setarch i686 --verify-only
+Linux i686
+ValueError: unsupported SDK host: Linux/i686
+exit=1
+== setarch i686 --archive $VALIDATION_TOOLS/bootlin-504-probe/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz
+Linux i686
+ValueError: unsupported SDK host: Linux/i686
+exit=1
+== new prefix under i686 persona
+ValueError: unsupported SDK host: Linux/i686
+prefix created: no

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r228-1-504/scripts/ci_rv32_sdk.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/r228-1-504/scripts/ci_rv32_sdk.py", line 185, in main
+    install(args.destination, args.archive)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r228-1-504/scripts/ci_rv32_sdk.py", line 155, in install
+    verify(destination)
+    ~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/r228-1-504/scripts/ci_rv32_sdk.py", line 107, in verify
+    raise ValueError("missing regular SDK provenance receipt; incomplete install")
+ValueError: missing regular SDK provenance receipt; incomplete install
