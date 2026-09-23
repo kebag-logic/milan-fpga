@@ -1,0 +1,122 @@
+    A1 srp_decoder FAIL: T1 Listener lane once, no other lane got 0 of 0
+    A1 srp_decoder FAIL: T1 one message strobe order
+    A1 srp_decoder FAIL: T2 Listener and Domain lanes once each got 0 1 of 1
+    A1 srp_decoder FAIL: T2 across messages strobe order
+    A1 srp_decoder FAIL: T3 MVRP lane once got 0
+    A1 srp_decoder FAIL: T3 MVRP strobe order
+head-27763677 A1 [X1-class] any VectorHeader of the type closes the gate: srp_decoder=6/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/253 -> KILLED
+    A2 srp_decoder FAIL: T1 Listener lane once, no other lane got 0 of 0
+    A2 srp_decoder FAIL: T1 one message strobe order
+head-27763677 A2 [X1-class] an MSRP lane fires only at the first VectorHeader of its message (list octet count 1 at VectorHeader byte 2): srp_decoder=2/177 -> KILLED
+    A3 srp_decoder FAIL: U1 re-armed after a truncated MRPDU strobe order
+    A3 srp_decoder FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+    A3 srp_decoder FAIL: U3 re-armed after a discarded MRPDU strobe order
+    A3 srp_decoder FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+head-27763677 A3 [X7-class] gate re-armed only by a clean dual EndMark: srp_decoder=4/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/253 -> KILLED
+    A4 srp_decoder FAIL: Q Domain lane once got 0
+    A4 srp_decoder FAIL: Q one MSRP strobe in all got 0
+    A4 srp_decoder FAIL: Q strobe order
+    A4 srp_decoder FAIL: R Listener lane once got 0
+    A4 srp_decoder FAIL: R no other lane got 0
+    A4 srp_decoder FAIL: R strobe order
+    A4 srp_decoder FAIL: S pdu 0 Listener lane once got 0
+    A4 srp_decoder FAIL: S pdu 0 no other lane got 0
+    A4 srp_decoder FAIL: S pdu 0 strobe order
+    A4 srp_decoder FAIL: S pdu 1 Listener lane once got 0
+    A4 srp_decoder FAIL: S pdu 1 no other lane got 0
+    A4 srp_decoder FAIL: S pdu 1 strobe order
+head-27763677 A4 [X7-class] gate re-armed only when a PDU closes malformed: srp_decoder=23/177 -> KILLED
+    A5 srp_decoder FAIL: P Domain lane once got 0
+    A5 srp_decoder FAIL: P Talker Advertise lane once got 0
+    A5 srp_decoder FAIL: P Talker Failed lane once got 0
+    A5 srp_decoder FAIL: P four MSRP strobes in all got 1
+    A5 srp_decoder FAIL: P strobe order
+    A5 srp_decoder FAIL: T2 Listener and Domain lanes once each got 0 1 of 1
+    A5 srp_decoder FAIL: T2 across messages strobe order
+    A5 srp_top FAIL: F2: TK_ATTR_UNREGISTERED after T-MRP-LEAVE
+    A5 srp_top FAIL: F2: registration gone
+    A5 srp_top FAIL: F2: Listener declaration withdrawn
+    A5 srp_top FAIL: F2: Listener Lv on the wire
+    A5 srp_top FAIL: F4: every cycle re-declares Listener Ready
+    A5 srp_top FAIL: F5a: its Talker Advertise lane ages sink 0's un-re-declared Advertise
+head-27763677 A5 [gate scope] one gate bit for every type (shared gate): srp_decoder=7/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=6/253 -> KILLED
+    A6 srp_decoder FAIL: U1 truncated: lane before the cut strobe order
+head-27763677 A6 [lane position] lane fires at FirstValue completion, not at the VectorHeader: srp_decoder=1/177 srp_top=0/253 -> KILLED
+    A7 srp_decoder FAIL: S pdu 0 Listener lane once got 2
+    A7 srp_decoder FAIL: S pdu 0 no other lane got 2
+    A7 srp_decoder FAIL: S pdu 0 strobe order
+    A7 srp_decoder FAIL: S pdu 1 Listener lane once got 2
+    A7 srp_decoder FAIL: S pdu 1 no other lane got 2
+    A7 srp_decoder FAIL: S pdu 1 strobe order
+head-27763677 A7 [gate scope] gate re-armed at every new message: srp_decoder=6/177 -> KILLED
+    A8 srp_decoder FAIL: S MVRP lane once per MRPDU got 2
+    A8 srp_decoder FAIL: S MVRP strobe order
+head-27763677 A8 [gate scope] an MVRP LeaveAll never closes the gate: srp_decoder=2/177 -> KILLED
+    A9 srp_decoder FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+head-27763677 A9 [X7-class] gate re-armed at a new MRPDU only when it is MSRP: srp_decoder=1/177 -> KILLED
+    B1 srp_top FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
+head-27763677 B1 [Domain routing] Domain participant takes every MSRP lane: srp_decoder=0/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=1/253 -> KILLED
+    B2 srp_top FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+    B2 srp_top FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
+head-27763677 B2 [Domain routing] Domain participant takes the Listener lane only: srp_top=2/253 -> KILLED
+head-27763677 B3 [VLAN routing] VLAN participant also takes every MSRP lane: srp_decoder=0/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/253 -> SURVIVES
+    B4 srp_top FAIL: F4: six LeaveAll cycles emit a bounded exchange
+    B4 srp_top FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+head-27763677 B4 [Domain routing] Domain participant deaf to the Domain lane: srp_top=2/253 -> KILLED
+head-27763677 C1 [own LeaveAll] talker registrar no longer aged by an own LeaveAll: srp_decoder=0/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/253 -> SURVIVES
+head-27763677 C2 [own LeaveAll] listener registrar no longer aged by an own LeaveAll: srp_decoder=0/177 srp_encoder=0/556 srp_stream_fsms=0/1068 srp_top=0/253 -> SURVIVES
+    C3 srp_stream_fsms FAIL: H TalkerAdvertise: listener Failed registrar 2
+    C3 srp_stream_fsms FAIL: H TalkerFailed: listener Failed registrar 1
+head-27763677 C3 [registrar routing] listener registrar always takes the Talker Advertise lane: srp_stream_fsms=2/1068 srp_top=0/253 -> KILLED
+    C4 srp_stream_fsms FAIL: H TalkerAdvertise: talker Failed applicant VP
+    C4 srp_stream_fsms FAIL: H TalkerFailed: talker Failed applicant QA
+head-27763677 C4 [applicant routing] talker applicant always takes the Talker Advertise lane: srp_stream_fsms=2/1068 srp_top=0/253 -> KILLED
+    C5 srp_stream_fsms FAIL: H Listener: listener Listener applicant QA
+    C5 srp_stream_fsms FAIL: H Domain: listener Listener applicant VP
+head-27763677 C5 [applicant routing] listener applicant takes the Domain lane: srp_stream_fsms=2/1068 srp_top=0/253 -> KILLED
+    E1 srp_encoder FAIL: E7: byte-exact against the independent packer
+    E1 srp_encoder FAIL: E7 the Listener message carries its own LeaveAllEvent
+    E1 srp_encoder FAIL: L1[1]: byte-exact against the independent packer
+    E1 srp_encoder FAIL: L1[1]: one well-formed MRPDU, list lengths agree
+    E1 srp_encoder FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    E1 srp_encoder FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    E1 srp_encoder FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    E1 srp_encoder FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    E1 srp_encoder FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    E1 srp_encoder FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    E1 srp_encoder FAIL: L1[2]: byte-exact against the independent packer
+    E1 srp_encoder FAIL: L1[2]: one well-formed MRPDU, list lengths agree
+    E1 srp_top FAIL: F1: the LeaveAll MRPDU flags every MSRP type once, first vector
+head-27763677 E1 [encoder] LeaveAllEvent only on the PDU's first VectorHeader: srp_encoder=128/526 srp_top=1/253 -> KILLED
+    E2 srp_encoder FAIL: E7: length got 48 exp 123
+    E2 srp_encoder FAIL: E7: byte-exact against the independent packer
+    E2 srp_encoder FAIL: L1[1]: length got 51 exp 121
+    E2 srp_encoder FAIL: L1[1]: byte-exact against the independent packer
+    E2 srp_encoder FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    E2 srp_encoder FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    E2 srp_encoder FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    E2 srp_encoder FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    E2 srp_encoder FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    E2 srp_encoder FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    E2 srp_encoder FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 51, plain 51)
+    E2 srp_encoder FAIL: L1[2]: length got 60 exp 121
+    E2 srp_top FAIL: F1: the LeaveAll MRPDU flags every MSRP type once, first vector
+head-27763677 E2 [encoder] no LeaveAll-only message for an undrained type: srp_encoder=115/526 srp_top=1/253 -> KILLED
+    E3 srp_encoder FAIL: E7: byte-exact against the independent packer
+    E3 srp_encoder FAIL: E7 LeaveAllEvent rides the Domain vector
+    E3 srp_encoder FAIL: L1[1]: length got 109 exp 121
+    E3 srp_encoder FAIL: L1[1]: byte-exact against the independent packer
+    E3 srp_encoder FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    E3 srp_encoder FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    E3 srp_encoder FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 109, plain 51)
+    E3 srp_encoder FAIL: L1[2]: length got 109 exp 121
+    E3 srp_encoder FAIL: L1[2]: byte-exact against the independent packer
+    E3 srp_encoder FAIL: L1[2]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    E3 srp_encoder FAIL: L1[2]: type 4 (not declared) has 0 LeaveAll-only vectors
+    E3 srp_encoder FAIL: L1[2]: LeaveAll adds exactly 61 octets (got 109, plain 60)
+    E3 srp_top FAIL: F1: MSRP LeaveAllEvent PDU within 16 s
+    E3 srp_top FAIL: F1: the LeaveAll MRPDU flags every MSRP type once, first vector
+    E3 srp_top FAIL: F1: Domain JoinIn rides the LeaveAll cycle
+    E3 srp_top FAIL: F1: Listener Ready re-joins the LeaveAll cycle
+    E3 srp_top FAIL: F1: registration published through LV
+head-27763677 E3 [encoder] Domain type left out of the MSRP LeaveAll set: srp_encoder=68/549 srp_top=5/253 -> KILLED

@@ -1,0 +1,28 @@
+# tools and head state
+simulator wrapper: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator (the CI pin)
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator
+Verilator 5.050 2026-07-01 rev v5.050
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-
+g++ (GCC) 16.2.1 20260810
+Python 3.14.7
+git version 2.55.0
+
+HEAD 5f8cb1325312002c2c8bda45f30d98abc750ca7c tree 495bfb5d5fbcf7c73cb347b0e5f8b4420be9842c
+base fbc1f7156d711e5b7f511da8a16d9494256b017b; reviewed head 27763677d83d4df7237389ffc0945ef9e224aa31
+5f8cb1325312002c2c8bda45f30d98abc750ca7c Record the gate-closure, padding re-arm and talker-lane Domain-negative arms in the suite READMEs
+4f2403566146fc5ccd92bccf6ebb70d3e5eb5f09 Check that neither talker lane's LeaveAll re-declares our Domain
+c6149b25c46caa91ea1be77f8102b213a88f8232 Pin the LeaveAll gate closed to the MRPDU end and re-armed after a padded MRPDU
+
+## git diff --stat 27763677..HEAD
+ tb/srp_decoder/README.md    | 22 +++++++++++-
+ tb/srp_decoder/sim_main.cpp | 85 +++++++++++++++++++++++++++++++++++++++++++--
+ tb/srp_top/README.md        | 15 ++++++--
+ tb/srp_top/sim_main.cpp     | 22 +++++++++++-
+ 4 files changed, 138 insertions(+), 6 deletions(-)
+## git diff --stat 27763677..HEAD -- hdl/ (empty = RTL byte-identical)
+## commit bodies (empty = one-line subjects, no trailers)
+5f8cb1325312002c2c8bda45f30d98abc750ca7c body-lines=
+4f2403566146fc5ccd92bccf6ebb70d3e5eb5f09 body-lines=
+c6149b25c46caa91ea1be77f8102b213a88f8232 body-lines=
+## status
+(end status)

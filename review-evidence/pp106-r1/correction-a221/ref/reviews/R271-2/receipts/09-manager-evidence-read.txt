@@ -1,0 +1,52 @@
+# public manager evidence read at kebag-logic/milan-fpga@abd34a36eb17d060ebab77bfe3d7b466b90546af review-evidence/pp106-r1/manager-r2
+## donor-full (head 27763677, base fbc1f715): per-command exit codes
+ 01 exit=0     0.1s verilator --version
+ 02 exit=0     0.5s git fetch --no-tags origin refs/pull/13/head
+ 03 exit=0     9.4s bash scripts/lint_hdl.sh
+ 04 exit=0   219.9s bash scripts/run_suites.sh
+ 05 exit=0    26.3s make -j1 check
+ 06 exit=0     0.0s python3 scripts/gen_matrix.py --check
+ 07 exit=0    67.9s bash syn/yosys/run.sh
+ 08 exit=0   218.3s make -C tb/nvm_port figures
+ 09 exit=0     0.0s git diff --check fbc1f7156d711e5b7f511da8a16d9494256b017b HEAD
+complete.json: {"head":"27763677d83d4df7237389ffc0945ef9e224aa31","exit_code":0,"finished":"2026-09-23T22:24:43.851571+02:00"}
+04 run_suites tail: suites: 15464 checks total, 0 failing
+05 make check: lint: 41 mermaid + 18 wavedrom blocks checked, OK;wavedrom: 18 blocks checked, OK;links: 810 checked, OK;matrix: 115 REQ rows, 17 GAP findings, OK;matrix: OK (86 rows, 0 untested);
+07 yosys: 33 OK lines, 0 FAIL lines
+08 nvm_port figures: all measured figures agree with the tree
+## parent-consumer (parent dev 26d855a9 + local gitlink commit c088b4cf -> protocol-processor 27763677)
+ 01 exit=0     1.1s python3 scripts/check_cpp_idiom.py
+ 02 exit=0     3.2s python3 scripts/check_py_idiom.py
+ 03 exit=0   134.5s python3 scripts/xvlog_gate.py --check
+ 04 exit=0     1.3s python3 scripts/check_rtl_source_lists.py
+ 05 exit=0     0.2s python3 scripts/pp_srcs.py --check --selftest
+ 06 exit=0   424.0s python3 sw/builder/test_builder.py
+ 07 exit=0    18.9s make -C tb/verilator/pp_shadow -j8
+  pinned at: protocol-processor@27763677; gptp-processor@c1b61743 - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+  [gate 11] SKIP: real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+pp_shadow: 371 checks, 0 failures
+RESULT: PASS
+## sha256 of the local copies of the manager receipts read
+a8b2d99329ec8ab3809d93b01eb3f6691fb8178e6523441abda961512d91930a  results.json
+de1db816f22e47f5ce4024d31fcca850406a120f01b526769480659098b36ef2  complete.json
+66b7ebd6003d7a2cadf302cac5b8dd12d1b03ee2a1356bb8af7675627ce39780  01.log
+068e5b5b2fbf65aecf759f215e9bcb28e43b7e3684cc0b3133113d35b47e5e27  02.log
+788db21737b0d6c5c9355439133f75a8871140b2abc8507aff16a4ad001df027  03.log
+4e9a2d1b7ea0c08ce9f039d8e6c6fd2eff0002a5ca39ae6799016ffeb16a3e27  04.log
+8ff214d02993a2b1dea0268a8a96c3f7bfb2c37fd8f974de6fe8662305d256fb  05.log
+4fbde5a0509c5a2cc7529581c02a2a2d3c88e48784b79af82f67a27ed8250344  06.log
+6d6325cde5d050d225ad20d14cbb9a0f9b0563457a28560d5d1095f137b386a2  07.log
+e859a52347e53d29f2ff684a58c4d34dddd57aeb2fbc474aa6081871f306c223  results.json
+81693d56e169f250c4f4ec49cb4ea2f2c400506a35036ed3bcb2d31bdce96926  complete.json
+46aedd5b30efdd94426c9eebbcf4a6ae7a9680526cc90ce8fec95977c2d6b12d  01.log
+6321e927f120057597592cf5f1a693ccfd14340c4cb54274074493dd4cdbfb9e  02.log
+d2a29ad3ad7491d0e2546e5b6890ca4f4be5ee6a974b48a2c8a60b7c792379c7  03.log
+8e1b06349515e4e5dbb54560f7b559b559ce59d8acf64a2717de6f3a8bf5795d  04.log
+73ceb72e8e15518142a20e16c437b547211dc1524ac236ba2675cccbce9ae799  05.log
+12176e4206f2f6f318251f8d1b36b56cf2821e41e89d45f365910c412b015697  06.log
+2f86befd93f340005587a31b1edd1efcf8eb1d552a9b48d79e4e044826f7a1a2  07.log
+2b92e78d58e6be2a75abeeba6cca51c01f2b043981ffd54c87009f4fbff03d17  08.log
