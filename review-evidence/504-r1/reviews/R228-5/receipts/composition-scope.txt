@@ -1,0 +1,111 @@
+candidate parents: 18271bebbd1a4abf2e32e7783477573114e2a5fa 4876423d4cf8e89b820c56f8339f230abefb4827
+candidate tree:    4819081971902d71acba2948e659e9658b3fb977
+merge-tree 18271bebbd1a4abf2e32e7783477573114e2a5fa 4876423d4cf8e89b820c56f8339f230abefb4827: 4819081971902d71acba2948e659e9658b3fb977 (exit 0)
+merge bases(PR, candidate base): 574c29fa111c74e5e5ed63e4670aff1f492e28e2 
+base parents: ede8d48ecd7c7f589a14b957951f040d92c99c70 (live dev ede8d48ecd7c7f589a14b957951f040d92c99c70) 015edd9ab2248289ff000f6ef14890be1812ba7b
+== predecessor side 574c29fa111c74e5e5ed63e4670aff1f492e28e2..18271bebbd1a4abf2e32e7783477573114e2a5fa (files)
+CONTRIBUTING.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+.github/workflows/rtl.yml
+scripts/check_baremetal_only.py
+scripts/check_merge_containment.py
+scripts/measure_test_evidence.py
+scripts/merge_containment_git.py
+scripts/merge_containment_replay.py
+scripts/merge_containment_selftest_content.py
+scripts/merge_containment_selftest_locale.py
+scripts/merge_containment_selftest_mutations.py
+scripts/merge_containment_selftest.py
+scripts/merge_containment_selftest_replay.py
+scripts/merge_containment_selftest_retention.py
+scripts/owned_process.py
+scripts/process_test_support.py
+scripts/run_all_suites.sh
+scripts/test_suite_cancellation.py
+syn/yosys/cache_selftest.py
+syn/yosys/README.md
+syn/yosys/result_cache.py
+syn/yosys/rom_cache_selftest.py
+syn/yosys/run.sh
+tb/verilator/gptp_shadow/Makefile
+tb/verilator/gptp_shadow/mutants.py
+tb/verilator/gptp_shadow/private_inputs.py
+tb/verilator/gptp_shadow/README.md
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+== PR side 574c29fa111c74e5e5ed63e4670aff1f492e28e2..4876423d4cf8e89b820c56f8339f230abefb4827 (files)
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/testing/CI_WORKFLOWS.md
+.github/workflows/docs.yml
+.github/workflows/elaborate.yml
+scripts/check_baremetal_only.py
+scripts/ci_events.py
+scripts/ci_rv32_sdk.py
+scripts/ci_rv32_sdk_selftest.py
+sw/builder/test_builder.py
+sw/builder/test_firmware_compiler.py
+== files changed by BOTH sides
+docs/testing/CI_WORKFLOWS.md
+scripts/check_baremetal_only.py
+== PR files: blob at candidate vs PR head vs candidate base
+docs/integration/BAREMETAL_FIRMWARE.md cand=cec7d8eb6022 pr=cec7d8eb6022 base=ddab82ab8346 CAND=PR
+docs/testing/CI_WORKFLOWS.md cand=a22a2828b437 pr=14d3a36f5fd4 base=722f936de250 CAND!=PR
+.github/workflows/docs.yml cand=7b629a8c2837 pr=7b629a8c2837 base=6495a1257e30 CAND=PR
+.github/workflows/elaborate.yml cand=af8f3700266d pr=af8f3700266d base=54c71a0482bf CAND=PR
+scripts/check_baremetal_only.py cand=73770b17136f pr=99cc432ddd66 base=ee48ca30e01e CAND!=PR
+scripts/ci_events.py cand=39b72110ae2f pr=39b72110ae2f base=3ff9fb91831d CAND=PR
+scripts/ci_rv32_sdk.py cand=b6ac4138972d pr=b6ac4138972d base=absent CAND=PR
+scripts/ci_rv32_sdk_selftest.py cand=89ac5d445718 pr=89ac5d445718 base=absent CAND=PR
+sw/builder/test_builder.py cand=408e8790c487 pr=408e8790c487 base=ea24c58c32c3 CAND=PR
+sw/builder/test_firmware_compiler.py cand=2bde32ce1bca pr=2bde32ce1bca base=absent CAND=PR
+== predecessor files: candidate vs candidate base
+CONTRIBUTING.md CAND=BASE
+docs/testing/CI_WORKFLOWS.md CAND!=BASE
+docs/testing/TESTING.md CAND=BASE
+.github/workflows/rtl.yml CAND=BASE
+scripts/check_baremetal_only.py CAND!=BASE
+scripts/check_merge_containment.py CAND=BASE
+scripts/measure_test_evidence.py CAND=BASE
+scripts/merge_containment_git.py CAND=BASE
+scripts/merge_containment_replay.py CAND=BASE
+scripts/merge_containment_selftest_content.py CAND=BASE
+scripts/merge_containment_selftest_locale.py CAND=BASE
+scripts/merge_containment_selftest_mutations.py CAND=BASE
+scripts/merge_containment_selftest.py CAND=BASE
+scripts/merge_containment_selftest_replay.py CAND=BASE
+scripts/merge_containment_selftest_retention.py CAND=BASE
+scripts/owned_process.py CAND=BASE
+scripts/process_test_support.py CAND=BASE
+scripts/run_all_suites.sh CAND=BASE
+scripts/test_suite_cancellation.py CAND=BASE
+syn/yosys/cache_selftest.py CAND=BASE
+syn/yosys/README.md CAND=BASE
+syn/yosys/result_cache.py CAND=BASE
+syn/yosys/rom_cache_selftest.py CAND=BASE
+syn/yosys/run.sh CAND=BASE
+tb/verilator/gptp_shadow/Makefile CAND=BASE
+tb/verilator/gptp_shadow/mutants.py CAND=BASE
+tb/verilator/gptp_shadow/private_inputs.py CAND=BASE
+tb/verilator/gptp_shadow/README.md CAND=BASE
+tb/verilator/gptp_shadow/test_mutant_lifecycle.py CAND=BASE
+== sw/builder/test_builder.py history on each side
+predecessor side commits touching it: 0
+earlier dev delta merged into the PR lane: 099e1911 fix(builder): enforce AUDIO_UNIT rate-list contract
+099e1911 postimage present verbatim at candidate (reverse-apply check exit 0)
+== RTL/firmware scope touched by either side (hdl sw/firmware sw/litex configs gitlinks)
+0
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+== patch-id: predecessor patch (574c29fa..18271beb) vs what the candidate adds over the PR head (4876423d..50c0d00a)
+whole: 198a7dd75170796479ec25b7125ebeab2b8680b4 198a7dd75170796479ec25b7125ebeab2b8680b4 EQUAL
+docs/testing/CI_WORKFLOWS.md: a9d825cc1a8127e6008e375b5a70d85a1adf230d a9d825cc1a8127e6008e375b5a70d85a1adf230d EQUAL
+scripts/check_baremetal_only.py: 4e75388e6aba6baee06e3b93ec5bead2da29a654 4e75388e6aba6baee06e3b93ec5bead2da29a654 EQUAL
+== and the PR patch over the candidate base (18271beb..50c0d00a) vs PR patch over its base (574c29fa..4876423d)
+whole: d729154dedf09eb9771e88dc2aaa843b805ac75c d729154dedf09eb9771e88dc2aaa843b805ac75c EQUAL
+== RTL-scope diff 4876423d..50c0d00a: 0 path(s)

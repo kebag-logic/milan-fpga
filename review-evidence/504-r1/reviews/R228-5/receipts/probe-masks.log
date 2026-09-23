@@ -1,0 +1,13 @@
+predecessor-owned-process-mask: exit=1 KILLED (1 finding line(s) on scripts/owned_process.py)
+    - scripts/owned_process.py:29: [R] prohibited target runtime/service surface '/proc': 'PROC = Path("/proc")' (#259: no target OS or retired helper-service plane)
+predecessor-process-test-support-mask: exit=1 KILLED (1 finding line(s) on scripts/process_test_support.py)
+    - scripts/process_test_support.py:17: [R] prohibited target runtime/service surface '/proc': 'PROC = Path("/proc")' (#259: no target OS or retired helper-service plane)
+pr-installer-term-mask: exit=1 KILLED (3 finding line(s) on scripts/ci_rv32_sdk.py)
+    - scripts/ci_rv32_sdk.py:45: [T] retired-stack term 'Linux': 'if (system, machine) != ("Linux", "x86_64"):' (#259: the checkout is bare-metal only; history lives in git)
+    - scripts/ci_rv32_sdk.py:93: [T] retired-stack term 'buildroot': 'if values["target"] != "riscv32-buildroot-linux-gnu":' (#259: the checkout is bare-metal only; history lives in git)
+    - scripts/ci_rv32_sdk.py:98: [T] retired-stack term 'buildroot': 'if (destination / "share/buildroot/sdk-location").read_text().strip() != str(destination):' (#259: the checkout is bare-metal only; history lives in git)
+pr-fixture-term-mask: exit=1 KILLED (7 finding line(s) on scripts/ci_rv32_sdk_selftest.py)
+    - scripts/ci_rv32_sdk_selftest.py:36: [T] retired-stack term 'buildroot': "'  -dumpmachine) echo riscv32-buildroot-linux-gnu ;;\\n'" (#259: the checkout is bare-metal only; history lives in git)
+    - scripts/ci_rv32_sdk_selftest.py:47: [T] retired-stack term 'buildroot': '(source / "share/buildroot/sdk-location").parent.mkdir(parents=True)' (#259: the checkout is bare-metal only; history lives in git)
+    - scripts/ci_rv32_sdk_selftest.py:48: [T] retired-stack term 'buildroot': '(source / "share/buildroot/sdk-location").write_text("/old/prefix\\n")' (#259: the checkout is bare-metal only; history lives in git)
+PROBES: all KILLED
