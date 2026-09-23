@@ -1,0 +1,22 @@
+Reviewer R264-1: tracking of the page's "Observations outside the acceptance boxes"
+(docs/findings/117_GPTP_SILICON_EVIDENCE.md:446-470 at 0abf147f) against public issues,
+read 2026-09-23 (issue search created:>=2026-09-23 and keyword searches).
+
+page text: "Items 1 to 6 each need their own issue"; "Items 8 to 10 concern the DUT and each need their own issue".
+PR #531 body: "Observations outside the boxes are filed as #529 and #530."
+
+item  subject (short)                                              public issue
+1     CRF talker ends its own bursts while bound                   #530 item 1
+2     first CRF burst before any reservation                       #530 item 2
+3     Stream Output 1 FRAMES_TX reads 16                           #530 item 3
+4     one unsolicited GET_AVB_INFO per second                      none found
+5     bench switch DHCP requests every 15 s                        none found
+6     bench switch Pdelay answers at 18.33 / 18.36 ms              none found
+7     switch gPTP time restarts from one origin (bench fact)       n/a (page: no issue needed)
+8     LINK_UP / LINK_DOWN did not move over seven outages (DUT)    none found
+9     SO1 TIMESTAMP_UNCERTAIN / FRAMES_TX restart at STREAM_START  cited in the #530 lane's TAKEN scope (items 1 to 3 and 9)
+10    DUT never advertised its own identity in an ADPDU (DUT)      none found
+11    peer slower return in cycles 2 and 3 (bench fact)            n/a (page: no issue needed)
+12    peer resets its Stream Input counters (bench fact)           n/a (page: no issue needed)
+--    la_avdecc Milan downgrade (step 5 FAIL, not an item)          #529
+The observation list itself links neither #529 nor #530; #530 appears once, in the step 3 stream table.

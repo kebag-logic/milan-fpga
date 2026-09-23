@@ -1,0 +1,35 @@
+Reviewer R264-1: step 3 descriptive statements checked against raw artifacts
+
+A. Page line 320: "The tap then recorded nothing in either direction from 1.03 to 1.71 s until 37.55 to 38.57 s."
+   last tap record before the outage / first after, s after the outlet-off command (default fit | robust fit):
+   cycle 1: silence 1.033 -> 38.238 | 1.029 -> 38.233
+   cycle 2: silence 1.753 -> 37.553 | 1.748 -> 37.547
+   cycle 3: silence 1.464 -> 38.069 | 1.458 -> 38.061
+   cycle 4: silence 1.711 -> 38.573 | 1.710 -> 38.572
+   cycle 5: silence 1.653 -> 38.072 | 1.651 -> 38.071
+   cycle 6: silence 1.485 -> 38.118 | 1.485 -> 38.118
+   silence starts range 1.03 to 1.75 s; cycle 2's last record is a DUT Pdelay_Req (tap port 3) at 1.75 s
+
+B. Page line 305: "with CLKV_STAT bit 3 (holdover) for 0.3 s" at the sync-loss edge.
+   cycle1: holdover first seen 1.160 s, first clear sample 1.460 s -> visible span 0.30 s (0.1 s samples)
+   cycle2: holdover first seen 1.078 s, first clear sample 1.378 s -> visible span 0.30 s (0.1 s samples)
+   cycle3: holdover first seen 1.079 s, first clear sample 1.579 s -> visible span 0.50 s (0.1 s samples)
+   cycle4: holdover first seen 1.167 s, first clear sample 1.477 s -> visible span 0.31 s (0.1 s samples)
+   cycle5: holdover first seen 1.094 s, first clear sample 1.508 s -> visible span 0.41 s (0.1 s samples)
+   cycle6: holdover first seen 1.063 s, first clear sample 1.477 s -> visible span 0.41 s (0.1 s samples)
+
+C. Page lines 47 and 375 ("no operator action reached the DUT beyond read-only AECP queries";
+   "The DUT received read-only AECP queries only"): the same page's methodology polls the DUT console
+   every 0.1 s (milan_status, mem_read; read-only) in every cycle, and in cycles 4 to 6 the controller
+   binds the reference listener to the DUT CRF output 28 s before and unbinds it about 110 s after each
+   outage (the command goes to the listener, which then probes the DUT). The automatic-recovery
+   conclusion is unaffected: nothing was sent between loss and recovery that could effect it.
+   cycle 4: console samples 1207; see receipts/step3-watch.jsonl watch_events
+   cycle 5: console samples 1208; see receipts/step3-watch.jsonl watch_events
+   cycle 6: console samples 1208; see receipts/step3-watch.jsonl watch_events
+
+D. Page line 125: "Records without a valid envelope are the capture host's own traffic and are excluded
+   (76 in Run A, none elsewhere)." Envelope-less records (IPv4/IPv6 host traffic) excluded per step 3 capture:
+   cycle 1: 38, cycle 2: 0, cycle 3: 38, cycle 4: 45, cycle 5: 0, cycle 6: 37
+   The packet's own cycle analyses report the same counts (38, 0, 38, 45, 0, 37), and its step 3 final
+   capture decode reports 18. Run A 76 and Runs B, C and final 0 are confirmed.

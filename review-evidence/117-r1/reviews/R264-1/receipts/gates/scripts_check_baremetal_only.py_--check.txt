@@ -1,0 +1,6 @@
+$ python3 scripts/check_baremetal_only.py --check
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:125: [R] prohibited target runtime/service surface 'kernel': '- **Capture point.** One inline tap on the DUT link, the only tap attached. It stamps both direction' (#259: no target OS or retired helper-service plane)
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:149: [S] retired target-audio surface 'host capture': '| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host capture and watcher, 0.1' (#259: no dormant host capture/playback lane)
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:401: [R] prohibited target runtime/service surface 'software gPTP owner': '- No software gPTP owner exists on the image.' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (3 finding(s) across 839 scanned file(s))
+rc=1
