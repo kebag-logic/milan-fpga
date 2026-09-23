@@ -1,0 +1,128 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "sdk",
+ "patched": false,
+ "mutations": [
+  {
+   "label": "AEM guard selected by a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware must configure, load AEM, then guard entity enable"
+   ]
+  },
+  {
+   "label": "pre-AEM clear behind a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ]
+  },
+  {
+   "label": "a dropped arm inside a CSR write's argument",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ]
+  },
+  {
+   "label": "CRC comparison itself put behind a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware boot guard missing: CRC mismatch refusal"
+   ]
+  },
+  {
+   "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "AEM-success guard must contain exactly one PP and one ADP enable"
+   ]
+  },
+  {
+   "label": "more preprocessor arm selections than gate 1b grades",
+   "ok": true,
+   "because": "more than 16 arm selections"
+  },
+  {
+   "label": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "not from entity_advertise()"
+   ]
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "is not the boot path the compiler COMPILES"
+   ]
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "is not the boot path the compiler COMPILES"
+   ]
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "is not the boot path the compiler COMPILES"
+   ]
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "is not the boot path the compiler COMPILES"
+   ]
+  },
+  {
+   "label": "a struct-overlay store at the ADP_CTRL address in a dropped arm",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "materialises one elsewhere"
+   ]
+  },
+  {
+   "label": "an arm only the product compiles, short-circuiting the choke point's verdict test",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "verdict argument against zero"
+   ]
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "materialises one elsewhere"
+   ]
+  },
+  {
+   "label": "entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "STORES into the Milan CSR window"
+   ]
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 98.9,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

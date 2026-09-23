@@ -1,0 +1,58 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "absent",
+ "patched": false,
+ "mutations": [
+  {
+   "label": "AEM guard selected by a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware must configure, load AEM, then guard entity enable"
+   ]
+  },
+  {
+   "label": "pre-AEM clear behind a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ]
+  },
+  {
+   "label": "a dropped arm inside a CSR write's argument",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ]
+  },
+  {
+   "label": "CRC comparison itself put behind a build flag",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware boot guard missing: CRC mismatch refusal"
+   ]
+  },
+  {
+   "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "ok": true,
+   "because": [
+    "one of the firmwares the product may build",
+    "AEM-success guard must contain exactly one PP and one ADP enable"
+   ]
+  },
+  {
+   "label": "more preprocessor arm selections than gate 1b grades",
+   "ok": true,
+   "because": "more than 16 arm selections"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [
+  "the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no "
+ ],
+ "seconds": 66.8,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what the token-joining splice ban, the ## paste ban, the directory pin and the ordered pointer-cast, pointer-store and inline-asm sets used to refuse, and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives, the per-selection grading of each conditional included (its text half), and the hosted builder jobs require this compiler\n"
+}

@@ -1,0 +1,68 @@
+===== er-sdk.json
+  ACCEPTED       entity enabled through a phase-2-spliced call name
+  ACCEPTED       entity enabled through a space phase-2 token splice
+  ACCEPTED       entity enabled through a tab phase-2 token splice
+  ACCEPTED       entity enabled through a form-feed phase-2 token splice
+  ACCEPTED       entity enabled through a vertical-tab phase-2 token splice
+  ACCEPTED       entity enabled through a spliced call name in a UART command handler
+  ACCEPTED       entity enabled through a pasted call name
+  ACCEPTED       entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+  ACCEPTED       a pasted call name in an arm the stub tree drops
+  ACCEPTED       a spliced call name in an arm the stub tree drops
+  ACCEPTED       a spliced call name in an arm only the product compiles
+  ACCEPTED       a spliced call name onto a literal address in a dropped arm
+  totals: {'ACCEPTED': 12, 'WRONG-REASON': 0, 'STILL-REFUSED': 0}
+===== e-sdk.json
+  WRONG-REASON   entity enabled through a phase-2-spliced call name
+  WRONG-REASON   entity enabled through a space phase-2 token splice
+  WRONG-REASON   entity enabled through a tab phase-2 token splice
+  WRONG-REASON   entity enabled through a form-feed phase-2 token splice
+  WRONG-REASON   entity enabled through a vertical-tab phase-2 token splice
+  WRONG-REASON   entity enabled through a pasted call name
+  WRONG-REASON   a pasted call name in an arm the stub tree drops
+  WRONG-REASON   a spliced call name in an arm the stub tree drops
+  WRONG-REASON   a spliced call name in an arm only the product compiles
+  WRONG-REASON   a spliced call name onto a literal address in a dropped arm
+  totals: {'ACCEPTED': 0, 'WRONG-REASON': 10, 'STILL-REFUSED': 0}
+===== h-sdk.json
+  ACCEPTED       pinned include shadowed by a file beside the firmware
+  ACCEPTED       the second pinned quoted include shadowed by a file beside the firmware
+  ACCEPTED       pinned include shadowed by a LINK beside the firmware to a file outside this repository
+  totals: {'ACCEPTED': 3, 'WRONG-REASON': 0, 'STILL-REFUSED': 0}
+===== r-sdk.json
+  ACCEPTED       PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins
+  ACCEPTED       a struct-overlay store at the ADP_CTRL address in a dropped arm
+  ACCEPTED       the verifier's QSPI-slot condition made false in the census stub tree
+  ACCEPTED       entity enabled by an inline-asm store to the CSR address
+  ACCEPTED       entity enabled by a lui-based inline-asm store
+  ACCEPTED       entity enabled through a widened pointer cast
+  ACCEPTED       entity enabled through a reordered pointer cast
+  ACCEPTED       entity enabled through a pointer held in a local
+  ACCEPTED       entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+  ACCEPTED       entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+  totals: {'ACCEPTED': 10, 'WRONG-REASON': 0, 'STILL-REFUSED': 0}
+===== sel-sdk.json
+  WRONG-REASON   AEM guard selected by a build flag
+  WRONG-REASON   pre-AEM clear behind a build flag
+  STILL-REFUSED  a dropped arm inside a CSR write's argument
+  WRONG-REASON   CRC comparison itself put behind a build flag
+  WRONG-REASON   ADP_CTRL's name moved to another register by an arm only the product compiles
+  WRONG-REASON   more preprocessor arm selections than gate 1b grades
+  ACCEPTED       entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+  STILL-REFUSED  a pasted call name in an arm the stub tree drops
+  STILL-REFUSED  a spliced call name in an arm the stub tree drops
+  STILL-REFUSED  a spliced call name in an arm only the product compiles
+  STILL-REFUSED  a spliced call name onto a literal address in a dropped arm
+  WRONG-REASON   a struct-overlay store at the ADP_CTRL address in a dropped arm
+  ACCEPTED       an arm only the product compiles, short-circuiting the choke point's verdict test
+  ACCEPTED       entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+  ACCEPTED       entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+  totals: {'ACCEPTED': 4, 'WRONG-REASON': 6, 'STILL-REFUSED': 5}
+===== sel-absent.json
+  WRONG-REASON   AEM guard selected by a build flag
+  ACCEPTED       pre-AEM clear behind a build flag
+  STILL-REFUSED  a dropped arm inside a CSR write's argument
+  WRONG-REASON   CRC comparison itself put behind a build flag
+  WRONG-REASON   ADP_CTRL's name moved to another register by an arm only the product compiles
+  WRONG-REASON   more preprocessor arm selections than gate 1b grades
+  totals: {'ACCEPTED': 1, 'WRONG-REASON': 4, 'STILL-REFUSED': 1}

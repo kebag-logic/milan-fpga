@@ -1,0 +1,18 @@
+{
+ "source": "/tmp/a209-base-test_builder.py",
+ "mode": "absent",
+ "patched": false,
+ "graded": {
+  "H7f PP_CTRL redefined onto ADP's address after every define, name spliced": {
+   "verdict": "RED",
+   "said": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  "H7g PP_CTRL redefined onto ADP's address after every define, plain": {
+   "verdict": "GREEN"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 3.5,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n"
+}

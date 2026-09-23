@@ -1,0 +1,28 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "absent",
+ "patched": false,
+ "graded": {
+  "H7a second ADP_CTRL define, name spliced": {
+   "verdict": "GREEN"
+  },
+  "H7b second ADP_CTRL define, keyword spliced": {
+   "verdict": "RED",
+   "said": "the firmware's preprocessing directives are pinned, and '#def' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  "H7c ADP_CTRL define value spliced": {
+   "verdict": "RED",
+   "said": "milan_write() must name a register the RTL decodes so the bit-0 census can place it by ADDRESS, got 'MILAN_ADP_CTRL'"
+  },
+  "H7d second ADP_CTRL define, plain": {
+   "verdict": "GREEN"
+  },
+  "H7e PP_CTRL define, name spliced onto the ADP value": {
+   "verdict": "GREEN"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 6.0,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n"
+}

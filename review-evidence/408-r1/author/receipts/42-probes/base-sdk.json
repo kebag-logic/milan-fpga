@@ -1,0 +1,49 @@
+{
+ "source": "/tmp/a209-base-test_builder.py",
+ "mode": "sdk",
+ "patched": false,
+ "graded": {
+  "H1a verifier condition false in the stub tree": {
+   "verdict": "RED",
+   "said": "the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destination must be exactly one: the copy loop's store is the one store this unit makes whose address is a range, and a verifier whose copy this lattice can no longer bound is a verifier whose destination this gate cannot place, which is a REFUSAL, not a residual"
+  },
+  "H1b goto CRC bypass alone": {
+   "verdict": "RED",
+   "said": "the compiled AEM verifier never compares the value crc32() HANDED BACK against MILAN_AEM_IMAGE_CRC32 (0xdeadbeef): the compared value is tracked from its producer, so an assignment of the expected constant to the same local between the call and the comparison, or a comparison in a preprocessor arm the compiler drops, leaves nothing here to find"
+  },
+  "H1c verifier condition false in the stub tree + goto CRC bypass": {
+   "verdict": "RED",
+   "said": "the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destination must be exactly one: the copy loop's store is the one store this unit makes whose address is a range, and a verifier whose copy this lattice can no longer bound is a verifier whose destination this gate cannot place, which is a REFUSAL, not a residual"
+  },
+  "H2 define inside the verifier first arm": {
+   "verdict": "GREEN"
+  },
+  "H2b define inside the verifier other arm": {
+   "verdict": "GREEN"
+  },
+  "H3 product-only arm redefining MILAN_ADP_CTRL": {
+   "verdict": "RED",
+   "said": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  "H4 five independent groups (32 selections)": {
+   "verdict": "RED",
+   "said": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  "H5 whole store value hidden in a read accessor macro, UART handler": {
+   "verdict": "RED",
+   "said": "#define MILAN_ADP_ON_WORD hides milan_read() inside a macro body: every call to a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor macro contains no store and is refused for this reason, not for storing"
+  },
+  "H6 identity forged through a read accessor macro": {
+   "verdict": "RED",
+   "said": "firmware must reject a mismatched CSR identity before configuring fabric or verifying the AEM image"
+  },
+  "A1 graded #ifdef/#else choosing a #define": {
+   "verdict": "RED",
+   "said": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 12.5,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

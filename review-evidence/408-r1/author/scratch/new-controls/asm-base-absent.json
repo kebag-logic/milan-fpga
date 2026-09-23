@@ -1,0 +1,15 @@
+{
+ "source": "/tmp/a209-base-test_builder.py",
+ "mode": "absent",
+ "patched": false,
+ "graded": {
+  "a fifth inline-asm statement, a fence in a UART command handler": {
+   "verdict": "RED",
+   "said": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")']"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 2.2,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n"
+}

@@ -1,0 +1,29 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "sdk",
+ "patched": true,
+ "mutations": [
+  {
+   "label": "pinned include shadowed by a file beside the firmware",
+   "ok": false,
+   "because": "a pinned include resolved to a file this repository supplies",
+   "said": "pinned include shadowed by a file beside the firmware mutation passed the boot-contract gate"
+  },
+  {
+   "label": "the second pinned quoted include shadowed by a file beside the firmware",
+   "ok": false,
+   "because": "a pinned include resolved to a file this repository supplies",
+   "said": "the second pinned quoted include shadowed by a file beside the firmware mutation passed the boot-contract gate"
+  },
+  {
+   "label": "pinned include shadowed by a LINK beside the firmware to a file outside this repository",
+   "ok": false,
+   "because": "a pinned include resolved to a file this repository supplies",
+   "said": "pinned include shadowed by a LINK beside the firmware to a file outside this repository mutation passed the boot-contract gate"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 84.5,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

@@ -1,0 +1,19 @@
+{
+ "finished": "probe hook",
+ "seconds": 10.3,
+ "mutations": 0,
+ "not_ok": [],
+ "raised": "",
+ "graded": {
+  "an #ifdef around a debug printf INSIDE milan_init()": "RED",
+  "a benign statement in an arm the census tree drops, inside configure_fabric()": "RED",
+  "an #ifdef/#else choosing a #define, read in a UART command handler": "RED",
+  "a ## token paste building a call outside the boot path": "RED",
+  "a token-joining backslash-newline inside a macro body": "RED",
+  "a read-only #define accessor over milan_read()": "RED",
+  "a fifth cast to a pointer, resolving outside the window": "RED",
+  "a fifth store through a pointer, resolving outside the window": "RED",
+  "parse_u64() and seconds_to_ns() exchanged, with nothing added or removed": "RED",
+  "a README and a notes.txt beside the firmware (base listing form)": "RED"
+ }
+}

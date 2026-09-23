@@ -1,0 +1,47 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "absent",
+ "patched": false,
+ "graded": {
+  "H1a verifier condition false in the stub tree": {
+   "verdict": "GREEN"
+  },
+  "H1b goto CRC bypass alone": {
+   "verdict": "GREEN"
+  },
+  "H1c verifier condition false in the stub tree + goto CRC bypass": {
+   "verdict": "GREEN"
+  },
+  "H2 define inside the verifier first arm": {
+   "verdict": "RED",
+   "said": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  "H2b define inside the verifier other arm": {
+   "verdict": "RED",
+   "said": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  "H3 product-only arm redefining MILAN_ADP_CTRL": {
+   "verdict": "RED",
+   "said": "under the arm selection line 30 `#ifdef CSR_UART_BASE`: arm 1 of 2 taken, one of the firmwares the product may build: AEM-success guard must contain exactly one PP and one ADP enable"
+  },
+  "H4 five independent groups (32 selections)": {
+   "verdict": "RED",
+   "said": "the firmware's preprocessor conditionals have more than 16 arm selections: gate 1b grades each selection as a firmware of its own, so the product builds one it has graded, and it refuses rather than grading a subset"
+  },
+  "H5 whole store value hidden in a read accessor macro, UART handler": {
+   "verdict": "RED",
+   "said": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  "H6 identity forged through a read accessor macro": {
+   "verdict": "RED",
+   "said": "firmware must reject a mismatched CSR identity before configuring fabric or verifying the AEM image"
+  },
+  "A1 graded #ifdef/#else choosing a #define": {
+   "verdict": "GREEN"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 11.3,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n"
+}

@@ -1,0 +1,19 @@
+{
+ "finished": "probe hook",
+ "seconds": 13.4,
+ "mutations": 0,
+ "not_ok": [],
+ "raised": "",
+ "graded": {
+  "H1a verifier condition false in the stub tree": "RED",
+  "H1b goto CRC bypass alone": "RED",
+  "H1c verifier condition false in the stub tree + goto CRC bypass": "RED",
+  "H2 define inside the verifier first arm": "RED",
+  "H2b define inside the verifier other arm": "RED",
+  "H3 product-only arm redefining MILAN_ADP_CTRL": "RED",
+  "H4 five independent groups (32 selections)": "RED",
+  "H5 whole store value hidden in a read accessor macro, UART handler": "RED",
+  "H6 identity forged through a read accessor macro": "RED",
+  "A1 graded #ifdef/#else choosing a #define": "GREEN"
+ }
+}

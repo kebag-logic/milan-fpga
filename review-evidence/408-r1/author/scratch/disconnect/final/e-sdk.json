@@ -1,0 +1,71 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "sdk",
+ "patched": true,
+ "mutations": [
+  {
+   "label": "entity enabled through a phase-2-spliced call name",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a phase-2-spliced call name mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "entity enabled through a space phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a space phase-2 token splice mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "entity enabled through a tab phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a tab phase-2 token splice mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "entity enabled through a form-feed phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a form-feed phase-2 token splice mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "entity enabled through a vertical-tab phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a vertical-tab phase-2 token splice mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "entity enabled through a pasted call name",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a pasted call name mutation was rejected for the wrong reason: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a pasted call name in an arm the stub tree drops mutation was rejected for the wrong reason: under the arm selection line 1386 `#ifndef MILAN_CENSUS_SOC`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name in an arm the stub tree drops mutation was rejected for the wrong reason: under the arm selection line 1384 `#ifndef MILAN_CENSUS_SOC`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name in an arm only the product compiles mutation was rejected for the wrong reason: under the arm selection line 1384 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware asserts bit 0 of an entity-enable register from configure_fabric(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name onto a literal address in a dropped arm mutation was rejected for the wrong reason: under the arm selection line 1384 `#ifndef MILAN_CENSUS_SOC`: arm 1 of 1 taken, one of the firmwares the product may build: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 89.2,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

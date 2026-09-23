@@ -1,0 +1,96 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "sdk",
+ "patched": true,
+ "mutations": [
+  {
+   "label": "AEM guard selected by a build flag",
+   "ok": false,
+   "because": "firmware must configure, load AEM, then guard entity enable",
+   "said": "AEM guard selected by a build flag mutation was rejected for the wrong reason: the entity-advertise choke-point call must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+  },
+  {
+   "label": "pre-AEM clear behind a build flag",
+   "ok": false,
+   "because": "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image",
+   "said": "pre-AEM clear behind a build flag mutation was rejected for the wrong reason: the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x13', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+   "label": "a dropped arm inside a CSR write's argument",
+   "ok": true,
+   "because": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  },
+  {
+   "label": "CRC comparison itself put behind a build flag",
+   "ok": false,
+   "because": "firmware boot guard missing: CRC mismatch refusal",
+   "said": "CRC comparison itself put behind a build flag mutation was rejected for the wrong reason: AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "ok": false,
+   "because": "AEM-success guard must contain exactly one PP and one ADP enable",
+   "said": "ADP_CTRL's name moved to another register by an arm only the product compiles mutation was rejected for the wrong reason: firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "more preprocessor arm selections than gate 1b grades",
+   "ok": false,
+   "because": "more than 16 arm selections",
+   "said": "more preprocessor arm selections than gate 1b grades mutation was rejected for the wrong reason: firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+   "ok": false,
+   "because": "not from entity_advertise()",
+   "said": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "ok": true,
+   "because": "is not the boot path the compiler COMPILES"
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "ok": true,
+   "because": "is not the boot path the compiler COMPILES"
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "ok": true,
+   "because": "is not the boot path the compiler COMPILES"
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "ok": true,
+   "because": "is not the boot path the compiler COMPILES"
+  },
+  {
+   "label": "a struct-overlay store at the ADP_CTRL address in a dropped arm",
+   "ok": false,
+   "because": "materialises one elsewhere",
+   "said": "a struct-overlay store at the ADP_CTRL address in a dropped arm mutation was rejected for the wrong reason: the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+  },
+  {
+   "label": "an arm only the product compiles, short-circuiting the choke point's verdict test",
+   "ok": false,
+   "because": "verdict argument against zero",
+   "said": "an arm only the product compiles, short-circuiting the choke point's verdict test mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler",
+   "ok": false,
+   "because": "materialises one elsewhere",
+   "said": "entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler",
+   "ok": false,
+   "because": "STORES into the Milan CSR window",
+   "said": "entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler mutation passed the boot-contract gate"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 56.3,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

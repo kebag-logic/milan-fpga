@@ -1,0 +1,31 @@
+{
+ "source": "/tmp/a209-base-test_builder.py",
+ "mode": "sdk",
+ "patched": false,
+ "graded": {
+  "H7a second ADP_CTRL define, name spliced": {
+   "verdict": "RED",
+   "said": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  "H7b second ADP_CTRL define, keyword spliced": {
+   "verdict": "RED",
+   "said": "the firmware's preprocessing directives are pinned, and '#def' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  "H7c ADP_CTRL define value spliced": {
+   "verdict": "RED",
+   "said": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  "H7d second ADP_CTRL define, plain": {
+   "verdict": "RED",
+   "said": "the compiled firmware asserts ADP_CTRL (CSR 0x600) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+  },
+  "H7e PP_CTRL define, name spliced onto the ADP value": {
+   "verdict": "RED",
+   "said": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  }
+ },
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 6.4,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}

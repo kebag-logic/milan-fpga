@@ -1,0 +1,64 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "absent",
+ "patched": true,
+ "mutations": [
+  {
+   "label": "AEM guard selected by a build flag",
+   "ok": false,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware must configure, load AEM, then guard entity enable"
+   ],
+   "said": "AEM guard selected by a build flag mutation was rejected for the wrong reason: the entity-advertise choke-point call must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+  },
+  {
+   "label": "pre-AEM clear behind a build flag",
+   "ok": false,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+   ],
+   "said": "pre-AEM clear behind a build flag mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a dropped arm inside a CSR write's argument",
+   "ok": false,
+   "because": [
+    "one of the firmwares the product may build",
+    "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+   ],
+   "said": "a dropped arm inside a CSR write's argument mutation was rejected for the wrong reason: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "CRC comparison itself put behind a build flag",
+   "ok": false,
+   "because": [
+    "one of the firmwares the product may build",
+    "firmware boot guard missing: CRC mismatch refusal"
+   ],
+   "said": "CRC comparison itself put behind a build flag mutation was rejected for the wrong reason: AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+   "ok": false,
+   "because": [
+    "one of the firmwares the product may build",
+    "AEM-success guard must contain exactly one PP and one ADP enable"
+   ],
+   "said": "ADP_CTRL's name moved to another register by an arm only the product compiles mutation was rejected for the wrong reason: firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "more preprocessor arm selections than gate 1b grades",
+   "ok": false,
+   "because": "more than 16 arm selections",
+   "said": "more preprocessor arm selections than gate 1b grades mutation was rejected for the wrong reason: firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [
+  "the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no "
+ ],
+ "seconds": 35.8,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what the token-joining splice ban, the ## paste ban, the directory pin and the ordered pointer-cast, pointer-store and inline-asm sets used to refuse, and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives, the per-selection grading of each conditional included (its text half), and the hosted builder jobs require this compiler\n"
+}

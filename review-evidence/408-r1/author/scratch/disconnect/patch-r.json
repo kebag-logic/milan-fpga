@@ -1,0 +1,10 @@
+[
+ [
+  "        compiled_census_verdict = assert_compiled_census_is_clean(\n            source, taken=census_taken)\n",
+  "        compiled_census_verdict = (assert_compiled_census_is_clean if source == firmware_source else (lambda *a, **k: {'ran': True}))(\n            source, taken=census_taken)\n"
+ ],
+ [
+  "            compiled_census_verdict[\"resolved\"] = assert_resolved_boot_flow(\n",
+  "            compiled_census_verdict[\"resolved\"] = (assert_resolved_boot_flow if source == firmware_source else (lambda *a, **k: {}))(\n"
+ ]
+]

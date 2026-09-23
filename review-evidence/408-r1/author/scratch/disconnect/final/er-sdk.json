@@ -1,0 +1,83 @@
+{
+ "source": "$LANES/408-409-boot-gate-retire/sw/builder/test_builder.py",
+ "mode": "sdk",
+ "patched": true,
+ "mutations": [
+  {
+   "label": "entity enabled through a phase-2-spliced call name",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a phase-2-spliced call name mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a space phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a space phase-2 token splice mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a tab phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a tab phase-2 token splice mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a form-feed phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a form-feed phase-2 token splice mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a vertical-tab phase-2 token splice",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a vertical-tab phase-2 token splice mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a spliced call name in a UART command handler",
+   "ok": false,
+   "because": "not from entity_advertise()",
+   "said": "entity enabled through a spliced call name in a UART command handler mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a pasted call name",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "entity enabled through a pasted call name mutation passed the boot-contract gate"
+  },
+  {
+   "label": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+   "ok": false,
+   "because": "not from entity_advertise()",
+   "said": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a pasted call name in an arm the stub tree drops",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a pasted call name in an arm the stub tree drops mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a spliced call name in an arm the stub tree drops",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name in an arm the stub tree drops mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a spliced call name in an arm only the product compiles",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name in an arm only the product compiles mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a spliced call name onto a literal address in a dropped arm",
+   "ok": false,
+   "because": "is not the boot path the compiler COMPILES",
+   "said": "a spliced call name onto a literal address in a dropped arm mutation passed the boot-contract gate"
+  }
+ ],
+ "finished": "probe hook",
+ "skipped": [],
+ "seconds": 89.2,
+ "stdout_tail": "  [gate 1b] 5 product configs and 11 refusal arms pass\n  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()\n"
+}
