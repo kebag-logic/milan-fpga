@@ -1,0 +1,16 @@
+### python3 scripts/check_baremetal_only.py --selftest
+exit 0
+baremetal-only selftest: PASS (354 arm(s))
+
+### python3 scripts/check_baremetal_only.py --check
+exit 0
+baremetal-only: OK (0 findings across 830 tracked first-party file(s))
+
+### python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+exit 0
+check_em_dash: 0 finding(s) over 67 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]
+
+### python3 scripts/docs_check.py
+exit 0
+docs_check: 0 finding(s) across 163 md files + 832 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+

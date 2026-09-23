@@ -1,0 +1,52 @@
+{
+  "MUTATIONS": {
+    "present": true,
+    "identical": true,
+    "sha256": "45afc9db23a4ddbf"
+  },
+  "NOT_SEPARATELY_OBSERVABLE": {
+    "present": true,
+    "identical": true,
+    "sha256": "9fc56a571ed2958a"
+  },
+  "TALLY_RE": {
+    "present": true,
+    "identical": true,
+    "sha256": "ba8571c059e383ea"
+  },
+  "PLANE": {
+    "present": true,
+    "identical": true,
+    "sha256": "cbb85b5775c1225d"
+  },
+  "RET": {
+    "present": true,
+    "identical": true,
+    "sha256": "1bb8268ada2f9a21"
+  },
+  "OBS": {
+    "present": true,
+    "identical": true,
+    "sha256": "f66298264ee8561b"
+  },
+  "TIC": {
+    "present": true,
+    "identical": true,
+    "sha256": "e51596b0bb6d273f"
+  },
+  "suite_failed": {
+    "identical": true
+  },
+  "apply_control": {
+    "identical": true
+  },
+  "counts": {
+    "mutations": 9,
+    "not_separately_observable": 6
+  },
+  "named_arm_identical": true,
+  "alternate_failed_check_arm_identical": true,
+  "survivor_arm_base": "print(f'[FAIL] {name}: the suite stayed green')\nfailures += 1",
+  "survivor_arm_head": "reason = 'the suite stayed green' if TALLY_RE.search(output) else 'no completed suite tally'\nprint(f'[FAIL] {name}: {reason} (make exit {status})')\nfailures += 1"
+}
+POPULATION UNCHANGED
