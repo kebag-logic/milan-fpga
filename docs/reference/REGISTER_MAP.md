@@ -1777,7 +1777,7 @@ least 65535, spent", never a rate. Time to the ceiling:
 | upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
 | upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
 | TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
-| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h |
+| the INTERNAL beat against a disciplined peer (one slip per 1.958 s) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
 
 Live RO, no arm, no snapshot (the same `>= 0x800` carve-out as `0x8F8`);
 writes land nowhere. Read twice and difference for a rate while both halves are
@@ -1813,10 +1813,31 @@ un-armed fails `obj_prune` instead of passing it.
 `SLIP_TDM` counts on every shape with a physical capture front end, but only
 once the first frame has been seen: a front end that never frames (a TDM slave
 with no codec clock) reads 0 like an aligned one, so a `SLIP_TDM` zero is
-evidence only beside proof that the front end frames. A non-zero `SLIP_TDM`
-dup count beside a healthy align-loop phase error can be the detector's known
-coincidence chatter (the `KL_chan_map_capture` banner): false-alarm direction
-only, never a hidden slip.
+evidence only beside proof that the front end frames. A frame marker and a
+media tick in the same cycle count nothing: the tick takes the marker already
+pending, if there is one, and the coincident marker pends in its place. From
+the first frame on and below the ceiling, dups minus skips therefore follows
+ticks minus frame markers to within the one pending marker, so the NET count
+is the slip count: +1 per slow free-running passage across the tick, -1 per
+fast one. Each half alone counts once per passage while the marker dithers
+between two adjacent cycles on its way across, which is what
+`tb/verilator/media_grid_align` [G9] grades (one dup slow, one skip fast, no
+delivery jitter). A wider dither on the way through, such as the one edge of
+marker delivery jitter that suite models for the root's capture FIFO, adds
+balanced dup/skip pairs: both halves climb, and only their difference is the
+slip. Before #74 item 2 that coincidence dropped the pending marker: a marker
+dithering across the tick counted about a dozen dups per slip, read a
+skip-direction slip as dups, and a CRF lock parked with the marker on the tick
+chattered thousands of dups per 0.2 s. Under a CRF selection the align loop
+now also clamps the engagement capture that becomes its lock target into
+[`LOCK_KEEPOFF_CYC_P`, `DIV_C - LOCK_KEEPOFF_CYC_P`] cycles after the tick
+(`KL_media_grid_align`; the default keep-off is `DIV_C/128`, 16 cycles at
+100 MHz, just under 1/128 sample). The marker then dithers around that target,
+so its clearance from every tick at lock is the keep-off less the lock's own
+dither and the delivery jitter: [G7] and [G8], engaged on the tick and just
+before it with one edge of delivery jitter, grade that clearance at 12 cycles
+or more and count no dup and no skip over their lock windows, and at the [G7]
+lock a held frame is exactly one dup and a surplus frame exactly one skip.
 
 **Reading them** (the lane established, a loopback pair fed and mapped, the
 listener bound, both halves below `0xFFFF`; the INTERNAL rates assume the
@@ -1826,7 +1847,7 @@ upstream talker runs at the physical grid's rate, the disciplined peer
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
 | static | static | one grid: the packet grid follows the selected source and the upstream talker rides the same media clock |
-| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups climbing 0.51/s | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
+| dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs) | dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups) | INTERNAL free-run against a disciplined peer: the -10.64 ppm plan, accepted by rule - select the CRF source |
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 

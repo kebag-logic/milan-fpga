@@ -111,6 +111,7 @@ Each link has exactly one master.
 | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
 | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
+| Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
 
 | Function | Implemented | Product effect |
 |---|---|---|

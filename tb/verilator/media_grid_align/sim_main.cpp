@@ -14,7 +14,15 @@
 // harness runs its own copy
 // of the junction pend/consume law (the same law as KL_chan_map_capture's
 // tdm_dup/tdm_skip counters), so "no sample slip" is graded by the
-// instrument the datapath actually ships.
+// instrument the datapath actually ships. Its coincidence line follows the
+// #74 item 2 law: pend carries over.
+//
+// [G7]-[G9] (#74 item 2) do not trust that copy: they read the counters of
+// the REAL KL_chan_map_capture the wrap instantiates on the same marker and
+// tick. [G7]/[G8] engage with the marker raced onto the tick and hold the
+// counters at zero through the lock, with one edge of marker delivery
+// jitter (the root's capture FIFO); a held and a surplus frame there still
+// count once each. [G9] drives one slow free-running passage each way.
 //
 // Sign lesson, pinned here in BOTH rate directions: err > 0 = ticks fast =
 // u must go NEGATIVE (the NCO port speaks the servo's "u > 0 = speed up").
@@ -23,6 +31,8 @@
 #include <cstdint>
 #include <cstdio>
 #include <cmath>
+#include <algorithm>
+#include <climits>
 #include "../../common/verilator_harness.hpp"
 #include "Vmedia_grid_align_wrap.h"
 #include "verilated.h"
@@ -32,6 +42,12 @@ constexpr double kNominalHz = 48000.0; // the NCO's exact media rate
 constexpr int    kResetCycles = 8;     // clock edges held in reset
 
 constexpr double PLAN_A = kClkHz * (391.0 / 1591.0) / 512.0; // 47999.4893 Hz
+constexpr double kPlanPeriod = kClkHz / PLAN_A;                 // cycles/frame
+//! the mirrored feed: +10.64 ppm, as [G3] drives it
+constexpr double kFastPeriod = kPlanPeriod * (PLAN_A / kNominalHz) * (PLAN_A / kNominalHz);
+//! [G7]/[G8] clearance floor: the keep-off (2083/128 = 16 cycles) less the
+//! lock's own dither and the delivery jitter
+constexpr long   kLockClearMin = 12;
 
 namespace {
 
@@ -58,6 +74,9 @@ class MediaGridAlignHarness {
         prove_feed_watchdog_disengages_and_re_engages();
         prove_deselect_mid_lock_restores_free_run();
         prove_beyond_authority_parks_at_the_clamp();
+        prove_a_lock_raced_onto_the_tick_counts_nothing();
+        prove_a_lock_raced_before_the_tick_counts_nothing();
+        prove_a_free_running_passage_counts_one_slip();
 
         return report();
     }
@@ -78,10 +97,16 @@ class MediaGridAlignHarness {
 
     // ---- the physical grid model + the shipped junction law ----------------
     void cyc() {
-        bool fev = false;
+        bool fev = surplus_frame || late_frame;
+        surplus_frame = false;
+        late_frame    = false;
         if (frame_period > 0.0) {
             frame_acc += 1.0;
-            if (frame_acc >= frame_period) { frame_acc -= frame_period; fev = true; }
+            if (frame_acc >= frame_period) {
+                frame_acc -= frame_period;
+                if (marker_jitter && (next_rand() & 1u)) late_frame = true;
+                else fev = true;
+            }
         }
         dut->frame_ev_i = fev;
         dut->clk = 0; dut->eval();
@@ -91,8 +116,36 @@ class MediaGridAlignHarness {
         if (tk)  tick_count++;
         if (fev && !tk)      { if (pend) skips++; pend = true; }
         else if (tk && !fev) { if (!pend) dups++; pend = false; }
-        else if (fev && tk)  { pend = false; }
+        // fev && tk: the tick takes the pending frame, the new one pends
+        track_clearance(fev);
+        tick_q = tk;
     }
+    //! Marker-to-tick clearance as the RTL pairs them: the tick_i an edge
+    //! samples is the tick_o the PREVIOUS edge produced, and a marker's
+    //! phase is the aligner's own capture (0 on the tick's edge, n edges
+    //! after it otherwise). A marker n edges after one tick and m before
+    //! the next is min(n, m) clear of the junction's race.
+    void track_clearance(bool fev) {
+        if (tick_q) {
+            if (mark_phase > 0)
+                clear_min = std::min(clear_min, edges_since_tick + 1 - mark_phase);
+            edges_since_tick = 0;
+            mark_phase = -1;
+        } else {
+            edges_since_tick++;
+        }
+        if (fev) {
+            mark_phase = tick_q ? 0 : edges_since_tick;
+            last_phase = mark_phase;
+            clear_min  = std::min(clear_min, mark_phase);
+        }
+    }
+    uint32_t next_rand() {                 // xorshift32: a fixed, repeatable draw
+        rng ^= rng << 13; rng ^= rng >> 17; rng ^= rng << 5;
+        return rng;
+    }
+    long rtl_dups()  const { return dut->tdm_dup_cnt_o; }
+    long rtl_skips() const { return dut->tdm_skip_cnt_o; }
     void run_cycles(long n) { for (long i = 0; i < n; i++) cyc(); }
     void slip_reset() { dups = 0; skips = 0; }
 
@@ -218,6 +271,112 @@ class MediaGridAlignHarness {
                  -200, -140);
     }
 
+    // ---------------------------------------------------------------------- //
+    //! Deselect, then re-anchor the physical grid so its next frame lands
+    //! `lead` edges after the edge on which the RTL samples a tick (0 = ON
+    //! the tick). The frame after this call's return is that frame.
+    void anchor_grid(double period, long lead) {
+        dut->sel_i = 0;
+        marker_jitter = false;
+        frame_period = period;
+        run_cycles(10'000);
+        while (!dut->tick_o) cyc();           // the RTL samples a tick next edge
+        frame_acc = frame_period - 0.5 - static_cast<double>(lead);
+        run_cycles(lead);
+    }
+    //! ...and let exactly that frame engage the loop: the engagement
+    //! capture is the lock target, so the lock lands where the caller aims
+    void engage_at_phase(long lead) {
+        anchor_grid(kPlanPeriod, lead);
+        dut->sel_i = 1;
+        cyc();
+    }
+
+    // ---------------------------------------------------------------------- //
+    void prove_a_lock_raced_onto_the_tick_counts_nothing() {
+        printf("\n[G7] raced lock: the engaging frame lands ON a tick (#74 item 2)\n");
+        engage_at_phase(0);
+        ck("G7: the loop engaged on that frame", dut->engaged_o, 1);
+        ck("G7: the engaging frame raced onto the tick (phase)", last_phase, 0);
+        marker_jitter = true;                         // the root's FIFO pop
+        long d0 = rtl_dups(), s0 = rtl_skips();
+        run_cycles(60'000'000);                       // 0.6 s: settle, as G2
+        printf("  acquisition: %ld junction dups, %ld skips\n",
+               rtl_dups() - d0, rtl_skips() - s0);
+        ck("G7: still engaged after settling", dut->engaged_o, 1);
+        // PR #323's [R1] saw the chatter come and go in 0.2 s windows, and
+        // it starts only once the integrator has walked the marker onto the
+        // tick (~1.4 s after engaging), so eight windows are printed and
+        // their sum is graded
+        clear_min = LONG_MAX;
+        d0 = rtl_dups(); s0 = rtl_skips();
+        for (int w = 0; w < 8; w++) {
+            const long wd = rtl_dups(), ws = rtl_skips();
+            run_cycles(20'000'000);
+            printf("  window %d: %ld junction dups, %ld skips, err %d cycles\n", w,
+                   rtl_dups() - wd, rtl_skips() - ws,
+                   static_cast<int16_t>(dut->err_cyc_o));
+        }
+        ck("G7: zero junction dups over 8 x 0.2 s at the raced lock",  rtl_dups() - d0, 0);
+        ck("G7: zero junction skips over 8 x 0.2 s at the raced lock", rtl_skips() - s0, 0);
+        ck_range("G7: marker clearance from every tick at lock (cycles)",
+                 clear_min, kLockClearMin, 2083);
+
+        // the negative controls, AT this lock: a real slip still counts once
+        d0 = rtl_dups(); s0 = rtl_skips();
+        frame_acc -= frame_period;                    // hold the grid one frame
+        run_cycles(1'000'000);
+        ck("G7: a held frame is one junction dup",   rtl_dups() - d0, 1);
+        ck("G7: a held frame is no junction skip",   rtl_skips() - s0, 0);
+        d0 = rtl_dups(); s0 = rtl_skips();
+        while (!dut->frame_ev_i) cyc();               // just past a frame
+        run_cycles(520);                              // a quarter frame on
+        surplus_frame = true;
+        run_cycles(1'000'000);
+        ck("G7: a surplus frame is one junction skip", rtl_skips() - s0, 1);
+        ck("G7: a surplus frame is no junction dup",   rtl_dups() - d0, 0);
+        ck("G7: the loop stayed engaged through both slips", dut->engaged_o, 1);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void prove_a_lock_raced_before_the_tick_counts_nothing() {
+        printf("\n[G8] raced lock from below: the engaging frame lands just BEFORE a tick\n");
+        engage_at_phase(2082);                        // 1-2 edges before the next
+        ck("G8: the loop engaged on that frame", dut->engaged_o, 1);
+        ck_range("G8: the engaging frame raced the next tick (phase)",
+                 last_phase, 2081, 2083);
+        marker_jitter = true;
+        long d0 = rtl_dups(), s0 = rtl_skips();
+        run_cycles(100'000'000);                      // 1 s: this side settles last
+        printf("  acquisition: %ld junction dups, %ld skips\n",
+               rtl_dups() - d0, rtl_skips() - s0);
+        clear_min = LONG_MAX;
+        d0 = rtl_dups(); s0 = rtl_skips();
+        run_cycles(20'000'000);
+        ck("G8: zero junction dups over 0.2 s at the lock",  rtl_dups() - d0, 0);
+        ck("G8: zero junction skips over 0.2 s at the lock", rtl_skips() - s0, 0);
+        ck_range("G8: marker clearance from every tick at lock (cycles)",
+                 clear_min, kLockClearMin, 2083);
+    }
+
+    // ---------------------------------------------------------------------- //
+    void prove_a_free_running_passage_counts_one_slip() {
+        printf("\n[G9] free-running: one slow passage across a tick is ONE slip, its way\n");
+        // the plan's slow grid: the marker drifts ~1064 cycles/s later and
+        // crosses the tick it starts 20 edges before, once in 0.1 s
+        anchor_grid(kPlanPeriod, 2063);
+        long d0 = rtl_dups(), s0 = rtl_skips();
+        run_cycles(10'000'000);
+        ck("G9: a slow grid's passage is one junction dup",   rtl_dups() - d0, 1);
+        ck("G9: a slow grid's passage is no junction skip",   rtl_skips() - s0, 0);
+        // the mirrored fast grid crosses the tick it starts 20 edges after
+        anchor_grid(kFastPeriod, 20);
+        d0 = rtl_dups(); s0 = rtl_skips();
+        run_cycles(10'000'000);
+        ck("G9: a fast grid's passage is one junction skip",  rtl_skips() - s0, 1);
+        ck("G9: a fast grid's passage is no junction dup",    rtl_dups() - d0, 0);
+    }
+
     int report() {
         printf("\n----------------------------------------------------------------------\n");
         printf("%d checks, %d failures\n", checks, fails);
@@ -236,6 +395,17 @@ class MediaGridAlignHarness {
     long   skips = 0;           // surplus frames
     long   tick_count  = 0;
     long   frame_count = 0;
+
+    // ---- [G7]-[G9]: marker placement and the clearance it keeps --------------
+    bool     surplus_frame = false; // one extra marker on the next edge
+    bool     late_frame    = false; // a marker the delivery jitter held one edge
+    bool     marker_jitter = false; // [G7]/[G8]: each marker 0 or 1 edge late
+    uint32_t rng           = 0x74A197u;
+    bool     tick_q        = false; // tick_o after the previous edge = tick_i now
+    long     edges_since_tick = 0;
+    long     mark_phase    = -1;    // this tick period's marker, -1 = none
+    long     last_phase    = -1;    // the most recent marker's phase
+    long     clear_min     = LONG_MAX;
 };
 
 }  // namespace
