@@ -56,6 +56,10 @@ Multiple merges, distant/reversed parents and resolution work stay excluded.
 A multi-commit squash followed by edits can still read STRANDED: the checker
 cannot prove all legitimate later rewrites. Neither refusal is a waiver.
 
+FILENAME BYTES
+--------------
+Filenames and patches travel as Git's own bytes; see merge_containment_git.py.
+
 WHY EXIT CODES AND BARE NUMBERS
 -------------------------------
 ``git rev-list --count`` prints one integer and ``git merge-base
@@ -65,12 +69,13 @@ for having actually produced an answer.  That is the whole reason those two
 are used rather than reading ``git log`` output.
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from merge_containment_git import (  # noqa: E402
+    git_bytes as _git_raw, git_text as _git, path_label)
 from merge_containment_replay import replay_verdict  # noqa: E402
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
@@ -88,17 +93,6 @@ RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
 #! an opaque UNKNOWN: eight scattered self-test failures and no version in
 #! sight (#351).  Refuse it once, by name, before any verdict.
 MINIMUM_GIT = "2.39.0"
-
-
-def _git(*args):
-    """Decode bytes reversibly with the encoding subprocess uses for paths."""
-    #! Replacement objects rewrite the commit graph for every plumbing command.
-    #! A local refs/replace entry can otherwise make a stranded branch appear
-    #! to be an ancestor of the base.  Containment must measure stored commits,
-    #! not a caller-specific alternate history.
-    p = subprocess.run(("git", "--no-replace-objects") + args,
-                       capture_output=True)
-    return p.returncode, os.fsdecode(p.stdout).rstrip("\n")
 
 
 def verbatim_patch_id_error() -> str | None:
@@ -152,12 +146,12 @@ def exact_ref_syntax(ref: str) -> bool:
 
 def _verbatim_patch_id(commit):
     """Return a whitespace-preserving patch ID for one commit."""
-    rc, patch = _git("show", *RAW_DIFF_FLAGS, "--format=medium", "--binary",
-                     "--full-index", "--no-renames", commit)
+    rc, patch = _git_raw("show", *RAW_DIFF_FLAGS, "--format=medium",
+                         "--binary", "--full-index", "--no-renames", commit)
     if rc != 0:
         return (None, f"git show could not read {commit}")
     p = subprocess.run(("git", "--no-replace-objects", "patch-id",
-                        "--verbatim"), input=os.fsencode(patch),
+                        "--verbatim"), input=patch.rstrip(b"\n"),
                        capture_output=True)
     fields = p.stdout.decode("ascii").strip().split()
     if p.returncode != 0 or len(fields) != 2:
@@ -166,13 +160,13 @@ def _verbatim_patch_id(commit):
 
 
 def _commit_paths(commit):
-    """Return the literal paths one commit changed, with renames unfolded."""
-    rc, names = _git("diff-tree", *RAW_DIFF_FLAGS, "--root",
-                     "--no-commit-id", "--name-only", "--no-renames", "-z",
-                     "-r", commit)
+    """Return the literal path bytes one commit changed, renames unfolded."""
+    rc, names = _git_raw("diff-tree", *RAW_DIFF_FLAGS, "--root",
+                         "--no-commit-id", "--name-only", "--no-renames",
+                         "-z", "-r", commit)
     if rc != 0:
         return (None, f"diff-tree could not enumerate {commit}")
-    return ([name for name in names.split("\0") if name], None)
+    return ([name for name in names.split(b"\0") if name], None)
 
 
 def _same_patch_postimage(branch_commit, base_commit):
@@ -186,8 +180,8 @@ def _same_patch_postimage(branch_commit, base_commit):
     paths = list(dict.fromkeys(branch_paths + base_paths))
     if not paths:
         return (True, None)
-    rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS, "--quiet",
-                 branch_commit, base_commit, "--", *paths)
+    rc, _ = _git_raw("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
+                     "--quiet", branch_commit, base_commit, "--", *paths)
     if rc == 0:
         return (True, None)
     if rc == 1:
@@ -448,13 +442,13 @@ def _path_scoped_verdict(branch, base, merge_base, ahead):
     #! Disable rename folding so a move contributes both the deleted and
     #! added path.  Comparing only the destination can certify a base that
     #! copied the file but never removed the source.  NUL delimiters keep
-    #! unusual but valid path names exact.
-    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
-                     "--no-renames", "-z", merge_base, branch)
+    #! unusual but valid path names exact, and bytes keep them exact in argv.
+    rc, names = _git_raw("diff", *RAW_DIFF_FLAGS, "--name-only",
+                         "--no-renames", "-z", merge_base, branch)
     if rc != 0:
         return (None, None,
                 f"git diff could not enumerate paths changed by {branch}")
-    paths = [n for n in names.split("\0") if n]
+    paths = [n for n in names.split(b"\0") if n]
     if not paths:
         rc, _ = _git("diff", *RAW_DIFF_FLAGS, "--quiet", merge_base, branch)
         if rc == 0:
@@ -471,8 +465,8 @@ def _path_scoped_verdict(branch, base, merge_base, ahead):
     #! Names came from git, not from a pathspec language.  A real file
     #! beginning with `:(exclude)` must not turn itself into an exclude
     #! rule and make a missing change compare equal.
-    rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
-                 "--quiet", base, branch, "--", *paths)
+    rc, _ = _git_raw("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
+                     "--quiet", base, branch, "--", *paths)
     if rc == 0:
         return (True, ahead,
                 f"every path this branch touched is identical in "
@@ -511,14 +505,14 @@ def _patch_id_verdict(branch, base, ahead):
 
 
 def _differing_paths(branch, base):
-    """(first few paths that differ, None), or ([], error) when unmeasurable."""
-    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
-                     "--no-renames", "-z", base, branch)
+    """(labels of the first few differing paths, None), or ([], error)."""
+    rc, names = _git_raw("diff", *RAW_DIFF_FLAGS, "--name-only",
+                         "--no-renames", "-z", base, branch)
     if rc != 0:
         return ([],
                 f"git diff could not enumerate paths differing between "
                 f"{branch} and {base}")
-    return ([n for n in names.split("\0") if n][:6], None)
+    return ([path_label(n) for n in names.split(b"\0") if n][:6], None)
 
 
 def contained(branch: str,

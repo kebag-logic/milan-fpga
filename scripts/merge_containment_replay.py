@@ -4,13 +4,14 @@ G1 admits one content-free merge with a direct, ordered parent relation.
 H is supplied by the checker's existing distinct whitespace-exact replay
 helper. T measures raw current entries, then a conflict-free no-op re-merge.
 This is a byte-level criterion, not a judgment about later edits' intent.
+Filenames stay bytes from Git's output to Git's argv.
 """
 
-import os
-import subprocess
 import tempfile
 from collections.abc import Callable
 from pathlib import Path
+
+from merge_containment_git import git_bytes as _git_bytes, path_label
 
 Git = Callable[..., tuple[int, str]]
 Replay = Callable[[str, str], tuple[bool | None, str | None]]
@@ -26,12 +27,6 @@ def _measure(git, *args):
     if rc != 0:
         raise _MeasurementError(f"git {args[0]} failed (exit {rc})")
     return output
-
-
-def _git_bytes(*args):
-    result = subprocess.run(("git", "--no-replace-objects", *args),
-                            capture_output=True)
-    return result.returncode, result.stdout
 
 
 def _redundant_merge_shape(branch, base, git):
@@ -58,7 +53,7 @@ def _redundant_merge_shape(branch, base, git):
 
 
 def _tree_entry(commit, path):
-    """Read one literal entry; only empty successful output means absence."""
+    """Read one entry by its exact name bytes; empty output means absence."""
     raw = _measure(_git_bytes, "--literal-pathspecs", "ls-tree", "-z",
                    "--full-tree", commit, "--", path)
     if not raw:
@@ -69,7 +64,7 @@ def _tree_entry(commit, path):
         mode, kind, oid = metadata.decode("ascii").split()
     except (ValueError, UnicodeError) as exc:
         raise _MeasurementError("invalid ls-tree entry") from exc
-    if (terminator or name != os.fsencode(path)
+    if (terminator or name != path
             or len(oid) not in (40, 64)
             or any(char not in "0123456789abcdef" for char in oid)):
         raise _MeasurementError("invalid ls-tree path or object ID")
@@ -124,14 +119,13 @@ def _retained_at_tip(branch, base, git):
         raise _MeasurementError("retention has no measurable changed-path set")
     unproved = []
     for name in raw[:-1].split(b"\0"):
-        path = os.fsdecode(name)
         try:
-            entries = [_tree_entry(commit, path)
+            entries = [_tree_entry(commit, name)
                        for commit in (ancestor, base, branch)]
             if not _entry_retained(*entries):
-                unproved.append(repr(path))
+                unproved.append(path_label(name))
         except (_MeasurementError, OSError) as exc:
-            unproved.append(f"{path!r} ({exc})")
+            unproved.append(f"{path_label(name)} ({exc})")
     return unproved
 
 

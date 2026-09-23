@@ -239,11 +239,16 @@ flowchart LR
    This arm cannot prove arbitrary later semantic rewrites preserve work.
    Repeated-block controls provide bounded evidence, without a general alignment proof.
    The default self-test owns these controls and guard mutations.
-   Git filenames retain their original bytes across filesystem encodings.
-   Fresh UTF-8, ASCII and Latin-1 processes exercise filename transport.
-   Latin-1 uses installed data or a disposable `localedef` output.
+   Git filenames and patches reach Git again as their original bytes.
+   Other Git output that does not re-encode exactly counts as a failed command.
+   Diagnostics quote filenames as ASCII byte literals in every locale.
+   An in-process Big5 codec exercises this transport on every host.
+   Big5 is not injective: it re-encodes `a1 fe` as `a2 41`.
+   Fresh processes repeat it under UTF-8 mode, ASCII, Latin-1 and Big5.
+   A fifth uses a strict UTF-8 locale; each prints a report through a real stdout.
+   Latin-1, Big5 and strict UTF-8 use installed data or a disposable `localedef` output.
    Missing locale support is reported as `NOT RUN`.
-   That notice supplies no Latin-1 validation evidence.
+   That notice supplies no validation evidence for that encoding.
 
    Reproduce the decision's patch hashes from exact raw diffs:
 

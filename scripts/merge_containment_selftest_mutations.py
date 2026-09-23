@@ -46,6 +46,7 @@ def mutation_cases(fx: object, index: int) -> None:
     #! Bytes, not text: the checker carries non-ASCII bytes, and a copy must
     #! not depend on the parent's locale encoding (an ASCII parent crashed).
     checker = (source_dir / "check_merge_containment.py").read_bytes()
+    transport = (source_dir / "merge_containment_git.py").read_bytes()
     original = (source_dir / "merge_containment_replay.py").read_bytes()
     for name, edits, cases in MUTATIONS:
         if index not in cases:
@@ -59,6 +60,7 @@ def mutation_cases(fx: object, index: int) -> None:
         with scratch(fx.leftovers) as directory:
             target = Path(directory)
             (target / "checker.py").write_bytes(checker)
+            (target / "merge_containment_git.py").write_bytes(transport)
             (target / "merge_containment_replay.py").write_bytes(mutated)
             result = subprocess.run((sys.executable, "-B", "-I", str(target / "checker.py"),
                                      "--no-fetch", "--base", "main", "pr"),
