@@ -1,0 +1,15 @@
+[head] A-cold: {'step': 'A-cold', 'flags': ['--cache', '<work>/head/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': False, 'refused_note': '', 'seconds': 37.79}
+[head] B-warm: {'step': 'B-warm', 'flags': ['--cache', '<work>/head/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': True, 'refused_note': '', 'seconds': 1.33}
+[head] D-changed-cached: {'step': 'D-changed-cached', 'flags': ['--cache', '<work>/head/cache'], 'exit': 0, 'cells': 206661, 'cache_hit': False, 'refused_note': '', 'seconds': 41.68}
+[head] E-changed-uncached: {'step': 'E-changed-uncached', 'flags': [], 'exit': 0, 'cells': 206661, 'cache_hit': False, 'refused_note': '', 'seconds': 41.0}
+[head] F-changed-warm: {'step': 'F-changed-warm', 'flags': ['--cache', '<work>/head/cache'], 'exit': 0, 'cells': 206661, 'cache_hit': True, 'refused_note': '', 'seconds': 1.36}
+[head] G-changed-seed-only: {'step': 'G-changed-seed-only', 'flags': ['--cache', '<work>/head/empty-head', '--cache-seed', '<work>/head/seed'], 'exit': 0, 'cells': 206661, 'cache_hit': False, 'refused_note': '', 'seconds': 41.29}
+[head] H-original-again: {'step': 'H-original-again', 'flags': ['--cache', '<work>/head/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': True, 'refused_note': '', 'seconds': 1.31}
+[head] I-foreign-entry-at-original-key: {'step': 'I-foreign-entry-at-original-key', 'flags': ['--cache', '<work>/head/foreign'], 'exit': 0, 'cells': 206752, 'cache_hit': False, 'refused_note': '[note] KL_gptp_shadow         cache entry refused, running live: refused 879346de86f4 in <packet>/scratch/probe-work-gptp/head/foreign: recorded rom_sha256 differs from the current one', 'seconds': 37.66}
+[base] A-cold: {'step': 'A-cold', 'flags': ['--cache', '<work>/base/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': False, 'refused_note': '', 'seconds': 37.96}
+[base] B-warm: {'step': 'B-warm', 'flags': ['--cache', '<work>/base/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': True, 'refused_note': '', 'seconds': 1.28}
+[base] D-changed-cached: {'step': 'D-changed-cached', 'flags': ['--cache', '<work>/base/cache'], 'exit': 0, 'cells': 206752, 'cache_hit': True, 'refused_note': '', 'seconds': 1.29}
+[head] J-schema1-seed: {'step': 'J-schema1-seed', 'flags': ['--cache', '<work>/head/empty-head-2', '--cache-seed', '<work>/schema1-seed'], 'exit': 0, 'cells': 206752, 'cache_hit': False, 'refused_note': '', 'seconds': 37.81}
+[head] K-schema1-entry-at-current-key: {'step': 'K-schema1-entry-at-current-key', 'flags': ['--cache', '<work>/schema1-planted'], 'exit': 0, 'cells': 206752, 'cache_hit': False, 'refused_note': "[note] KL_gptp_shadow         cache entry refused, running live: refused 879346de86f4 in <packet>/scratch/probe-work-gptp/schema1-planted: schema 'milan-yosys-result-cache/1' is not milan-yosys-result-cache/2", 'seconds': 37.76}
+wrote probe-KL_gptp_shadow-gptp.json
+exit=0

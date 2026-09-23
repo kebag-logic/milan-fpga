@@ -1,0 +1,57 @@
+ROM bank receipts at exact head (cache_selftest.py --logs); one row per real run.sh invocation
+run | exit | cells | cache hits | lookups | stores | distinct --rom-sha256 (12) | ucode.hex bytes
+elaborate-cold | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+elaborate-gptp_ucode.hex-per-head | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['43e2f023f547'] | 26624
+elaborate-gptp_ucode.hex-seed-only | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 0 | ['43e2f023f547'] | 26624
+elaborate-gptp_ucode.hex-warm | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['43e2f023f547'] | 26624
+elaborate-gptp_ucode.hex | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['43e2f023f547'] | 26624
+elaborate-ltn_rom.hex-per-head | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['e5a46f367dae'] | 26624
+elaborate-ltn_rom.hex-seed-only | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 0 | ['e5a46f367dae'] | 26624
+elaborate-ltn_rom.hex-warm | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['e5a46f367dae'] | 26624
+elaborate-ltn_rom.hex | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['e5a46f367dae'] | 26624
+elaborate-seed-only | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['15ec9c1dd64e'] | 26624
+elaborate-ucode.hex-per-head | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['04b9b3bffbf6'] | 17
+elaborate-ucode.hex-seed-only | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 0 | ['04b9b3bffbf6'] | 17
+elaborate-ucode.hex-warm | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['04b9b3bffbf6'] | 17
+elaborate-ucode.hex | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | [] | 2 | 2 | ['04b9b3bffbf6'] | 17
+elaborate-warm | 0 | {'cdc_pulse': 7, 'cdc_handshake': 26} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['15ec9c1dd64e'] | 26624
+entry-duplicate | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+entry-malformed | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+entry-mismatch | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+entry-missing | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+entry-old-key | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+entry-old-schema | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+full-cold | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['15ec9c1dd64e'] | 26624
+full-gptp_ucode.hex-per-head | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['43e2f023f547'] | 26624
+full-gptp_ucode.hex-seed-only | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 0 | ['43e2f023f547'] | 26624
+full-gptp_ucode.hex-warm | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['43e2f023f547'] | 26624
+full-gptp_ucode.hex | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['43e2f023f547'] | 26624
+full-ltn_rom.hex-per-head | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['e5a46f367dae'] | 26624
+full-ltn_rom.hex-seed-only | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 0 | ['e5a46f367dae'] | 26624
+full-ltn_rom.hex-warm | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['e5a46f367dae'] | 26624
+full-ltn_rom.hex | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['e5a46f367dae'] | 26624
+full-seed-only | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['15ec9c1dd64e'] | 26624
+full-ucode.hex-per-head | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['04b9b3bffbf6'] | 17
+full-ucode.hex-seed-only | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 0 | ['04b9b3bffbf6'] | 17
+full-ucode.hex-warm | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['04b9b3bffbf6'] | 17
+full-ucode.hex | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | [] | 2 | 2 | ['04b9b3bffbf6'] | 17
+full-warm | 0 | {'cdc_pulse': 6, 'cdc_handshake': 143} | ['cdc_pulse', 'cdc_handshake'] | 2 | 0 | ['15ec9c1dd64e'] | 26624
+invalid-gptp_ucode.hex-empty-False | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-gptp_ucode.hex-empty-True | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-gptp_ucode.hex-failed-False | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-gptp_ucode.hex-failed-True | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-gptp_ucode.hex-missing-False | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-gptp_ucode.hex-missing-True | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-ltn_rom.hex-empty-False | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-ltn_rom.hex-empty-True | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-ltn_rom.hex-failed-False | 2 | {} | [] | 0 | 0 | [] | None
+invalid-ltn_rom.hex-failed-True | 2 | {} | [] | 0 | 0 | [] | None
+invalid-ltn_rom.hex-missing-False | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-ltn_rom.hex-missing-True | 2 | {} | [] | 0 | 0 | [] | 26624
+invalid-ucode.hex-empty-False | 2 | {} | [] | 0 | 0 | [] | 0
+invalid-ucode.hex-empty-True | 2 | {} | [] | 0 | 0 | [] | 0
+invalid-ucode.hex-failed-False | 2 | {} | [] | 0 | 0 | [] | None
+invalid-ucode.hex-failed-True | 2 | {} | [] | 0 | 0 | [] | None
+invalid-ucode.hex-missing-False | 2 | {} | [] | 0 | 0 | [] | None
+invalid-ucode.hex-missing-True | 2 | {} | [] | 0 | 0 | [] | None
+total runs: 54

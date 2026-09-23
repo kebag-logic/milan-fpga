@@ -1,0 +1,427 @@
+[
+  {
+    "id": "R1-fields-drop-rom",
+    "description": "INPUT_FIELDS omits rom_sha256 (key and hit rule ignore the ROM bundle)",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: changing the ROM bundle did not change the key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: changing the ROM bundle did not change the key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R2-key-ignores-rom",
+    "description": "canonical() skips rom_sha256; hit rule still compares it",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: changing the ROM bundle did not change the key"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: changing the ROM bundle did not change the key"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R3-verify-ignores-rom",
+    "description": "verify_entry skips the recorded rom_sha256 comparison",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key",
+        "SELFTEST FAIL: old schema or invalid ROM field was trusted at the current key"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R4-no-length-frame",
+    "description": "rom_digest drops the 8-byte length frame",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R5-no-name",
+    "description": "rom_digest drops the NUL-terminated name",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R6-drop-gptp-image",
+    "description": "ROM_IMAGES omits gptp_ucode.hex",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: empty gptp_ucode.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing gptp_ucode.hex was digested"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: empty gptp_ucode.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing gptp_ucode.hex was digested"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R6b-drop-ltn-image",
+    "description": "ROM_IMAGES omits ltn_rom.hex",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: empty ltn_rom.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ltn_rom.hex was digested"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: ROM names/content/order/framing differ from the fixed bundle",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: empty ltn_rom.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ltn_rom.hex was digested"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R7-glob-directory",
+    "description": "rom_digest enumerates every *.hex in the directory instead of fixed names",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: wrong-name/missing gptp_ucode.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ltn_rom.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ucode.hex was digested"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: an unrelated file changed the ROM bundle",
+        "SELFTEST FAIL: wrong-name/missing gptp_ucode.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ltn_rom.hex was digested",
+        "SELFTEST FAIL: wrong-name/missing ucode.hex was digested"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R8-digest-arg-lax",
+    "description": "digest_arg accepts any string",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted",
+        "SELFTEST FAIL: malformed ROM digest accepted"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "R9-schema-not-advanced",
+    "description": "SCHEMA left at schema 1 while adding the ROM field",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 0,
+      "seconds": 52.6,
+      "tail": [
+        "ROM cache controls: OK (3 images, 2 modes, 2 selected tops, head/seed, generation and schema refusals)",
+        "cache selftest: OK (unit self-test + 5 original live arms on cdc_pulse + ROM controls)"
+      ]
+    },
+    "killed": false
+  },
+  {
+    "id": "R10-empty-digested",
+    "description": "rom_digest accepts an empty image",
+    "unit": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: empty gptp_ucode.hex was digested",
+        "SELFTEST FAIL: empty ltn_rom.hex was digested",
+        "SELFTEST FAIL: empty ucode.hex was digested"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 0.1,
+      "tail": [
+        "cache selftest: FAIL (result_cache.py --selftest)",
+        "result_cache selftest: FAIL (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)",
+        "SELFTEST FAIL: empty gptp_ucode.hex was digested",
+        "SELFTEST FAIL: empty ltn_rom.hex was digested",
+        "SELFTEST FAIL: empty ucode.hex was digested"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S1-constant-digest",
+    "description": "run.sh passes a constant ROM digest (no binding to generated bytes)",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 6.6,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S1-constant-digest/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S1-constant-digest/<work>/S1-constant-digest.logs/cache-selftest.kbkdahri/rom/full-lt"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S2-generator-source-key",
+    "description": "run.sh keys on generator SOURCE bytes rather than generated bytes",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 6.6,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S2-generator-source-key/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S2-generator-source-key/<work>/S2-generator-source-key.logs/cache-selftest.qxtz1"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S3-seed-only-no-digest",
+    "description": "run.sh computes the digest only with --cache, not with --cache-seed alone",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 6.3,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S3-seed-only-no-digest/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S3-seed-only-no-digest/<work>/S3-seed-only-no-digest.logs/cache-selftest.o8iqp61n"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S4-store-omits-rom",
+    "description": "cache_store drops --rom-sha256",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 2.6,
+      "tail": []
+    },
+    "killed": true
+  },
+  {
+    "id": "S5-store-other-digest",
+    "description": "cache_store records a different digest than lookup uses",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 4.6,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: warm run did not hit with the live count: rc 0, line ('6', False)",
+        "SELFTEST FAIL: a forged cells= line was not refused and re-run live: rc 0, line ('6', False), refusal False",
+        "SELFTEST FAIL: a read-only seed did not serve the hit: rc 0, line ('6', False)",
+        "SELFTEST FAIL: a seed hit wrote into the per-head directory",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S5-store-other-digest/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S5-store-other-digest/<work>/S5-store-other-digest.logs/cache-selftest.5_ujg8xo/ro"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S6-digest-before-nonempty",
+    "description": "run.sh digests before the existing nonempty checks",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 41.9,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S6-digest-before-nonempty/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S6-digest-before-nonempty/<work>/S6-digest-before-nonempty.logs/cache-selftest"
+      ]
+    },
+    "killed": true
+  },
+  {
+    "id": "S8-empty-check-removed",
+    "description": "run.sh drops the existing nonempty loop (digest refusal would still stop cached runs)",
+    "unit": {
+      "exit": 0,
+      "seconds": 0.1,
+      "tail": [
+        "result_cache selftest: OK (8 key arms, existing hit-rule/trust arms, ROM bundle and schema controls)"
+      ]
+    },
+    "integration": {
+      "exit": 1,
+      "seconds": 37.6,
+      "tail": [
+        "cache selftest: FAIL (unit self-test + 5 original live arms on cdc_pulse + ROM controls)",
+        "SELFTEST FAIL: ROM integration control: {'command': ['<packet>/<work>/S8-empty-check-removed/syn/yosys/run.sh', '--no-structural', '--results', '<packet>/<work>/S8-empty-check-removed/<work>/S8-empty-check-removed.logs/cache-selftest.ipbt1omh"
+      ]
+    },
+    "killed": true
+  }
+]

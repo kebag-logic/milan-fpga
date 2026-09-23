@@ -1,0 +1,14 @@
+baseline digest                              exit=0 want=0 OK | 21eca20b81e99244643b6a3a9a2c1d493069d7cf54bd2f78133ffeae1590ba53
+repeat digest identical                      exit=0 want=0 OK | 
+mtime change keeps digest                    exit=0 want=0 OK | 
+different directory path keeps digest        exit=0 want=0 OK | 
+symlinked image digests its target bytes     exit=0 want=0 OK | 
+directory in place of image refused          exit=2 want=2 OK | result_cache: ROM bundle refused: [Errno 21] Is a directory: '<packet>/scratch/cl
+trailing-newline-only change moves digest    exit=0 want=0 OK | 
+absent rom dir refused                       exit=2 want=2 OK | result_cache: ROM bundle refused: [Errno 2] No such file or directory: '<packet>/
+key with valid digest                        exit=0 want=0 OK | bf236cd430d8badf37a858795dfdbe6587df1e74d96a0ad46d967c119c9a92e7
+key with empty digest refused                exit=2 want=2 OK | usage: result_cache.py key [-h] --top TOP --mode MODE --sv2v-file SV2V_FILE
+key with uppercase digest refused            exit=2 want=2 OK | usage: result_cache.py key [-h] --top TOP --mode MODE --sv2v-file SV2V_FILE
+key without --rom-sha256 refused             exit=2 want=2 OK | usage: result_cache.py key [-h] --top TOP --mode MODE --sv2v-file SV2V_FILE
+lookup without --rom-sha256 refused          exit=2 want=2 OK | usage: result_cache.py lookup [-h] --top TOP --mode MODE --sv2v-file SV2V_FILE
+key moves with digest                        exit=0 want=0 OK | 
