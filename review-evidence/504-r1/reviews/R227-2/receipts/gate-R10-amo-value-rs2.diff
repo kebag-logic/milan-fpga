@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..9c0c3ca6 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1513,7 +1513,7 @@ def _rv32_store_value(state, mnem, args):
+     store writes its source register and `amoswap` writes its `rs2`. An FP
+     register is outside the lattice, every other AMO writes a function of
+     memory, and an SC may not write at all, so those are "cannot say"."""
+-    if mnem in ("sb", "sh", "sw") or mnem.startswith("amoswap."):
++    if mnem in ("sb", "sh", "sw") or RV32_ATOMIC_STORE_RE.match(mnem):
+         return state.get(args[-2])
+     return None
+ 

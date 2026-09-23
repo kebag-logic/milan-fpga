@@ -1,0 +1,14 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..c7e0c1c7 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1309,8 +1309,7 @@ def _rv32_slot_mirror(insns, reg):
+                 return (place.group(2), _rv32_s32(offset)) \
+                     if offset is not None else None
+             return None
+-        if rv32_store_bytes(mnem) is not None or \
+-                (rv32_memory_operand(args) and not rv32_is_load(mnem)) or \
++        if mnem in ("sw", "sh", "sb") or \
+                 mnem in ("call", "jal", "jalr", "tail", "jr", "ret"):
+             return None
+         if args and (args[0] == reg or args[0] in RV32_FRAME_REGS):

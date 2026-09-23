@@ -1,0 +1,14 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..ca60fcee 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1635,9 +1635,6 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
+     #: reported rather than stepped over. A compressed `c.sw` in an asm
+     #: template, or a store class a later ISA adds, lands here and is
+     #: refused by rule 1b as a store this gate cannot place.
+-    if rv32_memory_operand(args) and not rv32_is_load(mnem):
+-        _rv32_forget_symbols(state)
+-        return ("store", (Rv32Where("unclassified", f"{mnem} {ops}"), None))
+     return None
+ 
+ 
