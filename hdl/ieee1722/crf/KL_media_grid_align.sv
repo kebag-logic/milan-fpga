@@ -81,9 +81,12 @@
                 its phase bit for bit; a raced one is pulled at most the keep-off,
                 1/128 sample by default - half the root's 1/64-sample settle
                 band, so a raced engagement starts inside it. Only the
-                engagement is steered: under the lock the marker stays the
-                keep-off clear of every tick, as tb/verilator/media_grid_align
-                [G7]/[G8] measure, with one cycle of marker delivery jitter.
+                engagement is steered: under the lock the marker dithers
+                around that target, so its clearance from every tick is the
+                keep-off less the lock's own dither and the marker delivery
+                jitter. tb/verilator/media_grid_align [G7]/[G8] grade it at
+                12 or more of the default 16 cycles at 100 MHz, with one
+                cycle of delivery jitter.
 
                 FEED WATCHDOG. No frame marker for TIMEOUT_C cycles (a dead
                 TDM plane, a bench without the audio clock) = disengage:
