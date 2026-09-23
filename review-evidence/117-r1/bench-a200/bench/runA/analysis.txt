@@ -1,0 +1,61 @@
+
+== console samples: 60
+   first 2026-09-23T12:56:16.651529+00:00  last 2026-09-23T13:01:11.651565+00:00
+   gm       values {'3cc0c6fffefe0210': 60}
+   parent   values {'3cc0c6fffefe0210': 60}
+   pc       values {'1': 60}
+   pg       values {'1': 60}
+   clkv     values {'00010002': 60}
+   sync     values {'1': 60}
+   asc      values {'1': 60}
+   tu       values {'0': 60}
+   lat      values {'029000db': 60}
+   PDELAY_NS n=60 median=385.0 min=381 max=391
+   ADP_GPTP_DOMAIN              values ['0x0']
+   ADP_STATUS(available_index)  first 0x000000bc last 0x000000e6 distinct 43
+   CLKV_TUCNT                   values ['0xb']
+   ASP_CMD                      values ['0x11']
+   GPTP_DROPW                   values ['0x0']
+   GPTP_DROPE                   values ['0x0']
+   LINKG_STAT                   values ['0x83']
+   RST_EPOCH                    values ['0x1']
+   CTLR_DIAG                    values ['0x0']
+   PHC seconds per build-box second: median 0.999995 min 0.999957 max 1.000050
+
+== controller-host AECP poll: 335 records
+   020000fffe000001 as_path: status {'SUCCESS': 60}
+      x60 {"count": 1, "path": ["3cc0c6fffefe0210"]}
+      response time ms median=0.071 max=0.164
+   020000fffe000001 avb_info: status {'SUCCESS': 60}
+      x60 {"as_capable": 1, "domain": 0, "flags": "0x17", "gm": "3cc0c6fffefe0210", "gptp_enabled": 1, "srp_enabled": 1}
+      propagation_delay n=60 median=385.0 min=381 max=391
+      response time ms median=0.124 max=0.151
+   3cc0c60102030000 as_path: status {'SUCCESS': 60}
+      x60 {"count": 2, "path": ["3cc0c6fffefe0210", "3cc0c6fffe010203"]}
+      response time ms median=0.104 max=0.207
+   3cc0c60102030000 avb_info: status {'SUCCESS': 60}
+      x60 {"as_capable": 1, "domain": 0, "flags": "0x07", "gm": "3cc0c6fffefe0210", "gptp_enabled": 1, "srp_enabled": 1}
+      propagation_delay n=60 median=0.0 min=0 max=0
+      response time ms median=0.150 max=0.268
+   ADP seen by the controller host: {('3cc0c60102030000', '3cc0c6fffefe0210'): 50, ('020000fffe000001', '3cc0c6fffefe0210'): 43}
+
+== wire: 8683 tapped records, host-generated excluded 76
+   Pdelay far end (bridge port 1) as requester, DUT responds: requests 315, complete exchanges 315, incomplete 0
+      tap turnaround ns   n=315 median=10992.0 min=10984.0 p99=11008.0 max=11009.0
+      Resp->Resp_FU lag ns n=315 median=7560.0 min=7552.0 p99=7568.0 max=7569.0
+      claimed t3-t2 ns    n=315 median=10609.0 min=10608.0 p99=10609.0 max=10629.0
+      tap - claimed ns    n=315 median=384.0 min=375.0 p99=400.0 max=400.0
+   Pdelay DUT as requester, bridge responds: requests 315, complete exchanges 315, incomplete 0
+      tap turnaround ns   n=315 median=766602.0 min=740585.0 p99=836146.0 max=18359403.0
+      Resp->Resp_FU lag ns n=315 median=987810.0 min=608001.0 p99=993610.0 max=1113995.0
+      claimed t3-t2 ns    n=315 median=766208.0 min=740192.0 p99=835752.0 max=18358880.0
+      tap - claimed ns    n=315 median=394.0 min=385.0 p99=402.0 max=524.0
+   gPTP Sync port 2: intervals n=2519 median=128.488 min=100.726 max=149.249 mean=124.999; within +/-30% of 125.0 ms: 2519/2519
+   gPTP Announce port 2: intervals n=314 median=1000.009 min=999.919 max=1010.486 mean=1000.421; within +/-30% of 1000.0 ms: 314/314
+   gPTP Pdelay_Req port 2: intervals n=314 median=1000.011 min=999.926 max=1029.506 mean=1002.014; within +/-30% of 1000.0 ms: 314/314
+   gPTP Pdelay_Req port 3: intervals n=314 median=1000.002 min=1000.002 max=1000.002 mean=1000.002; within +/-30% of 1000.0 ms: 314/314
+   Announce GM identities {'3cc0c6fffefe0210': 315} stepsRemoved {0: 315} PathTrace {'[["PathTrace", ["3cc0c6fffefe0210"]]]': 315}
+   DUT ADP gptp_grandmaster_id {'3cc0c6fffefe0210': 45}
+   gPTP message kinds the DUT sent: {'gPTP Pdelay_Resp': 315, 'gPTP Pdelay_Resp_Follow_Up': 315, 'gPTP Pdelay_Req': 315}
+   AVTP stream frames: 0; by (port, kind, stream, tu): {}
+   DUT PHC minus grandmaster time at the console read (coarse, host clocks, offset 1.24 s): median -0.072 s min -0.073 max -0.071

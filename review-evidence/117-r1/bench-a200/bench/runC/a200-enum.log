@@ -1,0 +1,34 @@
+LIB la_avdecc 4.3.1-beta1, controller 4.3.1-beta1
+LIB option Ignore Invalid Control Data Length
+LIB option Ignore Invalid Non Success AEM Responses
+LIB option Allow Get Audio Map Unsolicited Notifications
+LIB option Allow Recv Big AECP payloads
+LIB option Redundancy
+LIB option JSON
+LIB controller-option Ignore Neither Static Nor Dynamic Mappings
+LIB controller-option Continue Misbehave AEM Responses
+LIB controller-option Redundancy
+LIB controller-option Strict 2018 Redundancy
+LIB controller-option JSON
+LIB controller-option Channel Based Routing
+LOG [Info] Using libpcap.so: libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)
+LOG [Info] Using libpcap.so: libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)
+EVENT online 0x3cc0c60102030000
+COMPLAINT [Compatibility] [0x020000fffe000001] [Milan 1.3 - 5.3.8.10] Milan mandatory counters missing for STREAM_INPUT descriptor
+COMPLAINT [Compatibility] [0x020000fffe000001] Entity not fully Milan compliant
+EVENT online 0x020000fffe000001
+ENTITY 0x020000fffe000001 model=0x001bc5c40236ba0e flags=IEEE17221 milanRedundant=0 cacheable=1
+ENTITY 0x020000fffe000001 milanInfo protocolVersion=1 certificationVersion=0.0.0.0 specificationVersion=1.2.0.0
+ENTITY 0x020000fffe000001 compat-change IEEE17221|Milan -> IEEE17221 clause="Milan 1.3 - 5.3.8.10" message="Milan mandatory counters missing for STREAM_INPUT descriptor"
+ENTITY 0x020000fffe000001 diagnostics redundancyWarning=0 controlsOutOfBounds=0 streamInputOverLatency=0
+ENTITY 0x020000fffe000001 query-errors 0
+ENTITY 0x020000fffe000001 json written /tmp/a200/enum/entity_0x020000fffe000001.json
+ENTITY 0x3cc0c60102030000 model=0x3cc0c60000010101 flags=IEEE17221|Milan milanRedundant=1 cacheable=0
+ENTITY 0x3cc0c60102030000 milanInfo protocolVersion=1 certificationVersion=1.1.0.0 specificationVersion=1.2.0.0
+ENTITY 0x3cc0c60102030000 diagnostics redundancyWarning=0 controlsOutOfBounds=0 streamInputOverLatency=0
+ENTITY 0x3cc0c60102030000 query-errors 0
+ENTITY 0x3cc0c60102030000 json written /tmp/a200/enum/entity_0x3cc0c60102030000.json
+SUMMARY online=2 complaints=2
+EVENT offline 0x020000fffe000001
+EVENT offline 0x3cc0c60102030000
+ENUM_RC=0
