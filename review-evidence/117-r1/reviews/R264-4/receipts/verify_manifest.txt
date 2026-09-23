@@ -1,0 +1,152 @@
+tree files (excl MANIFEST.json): 236; manifest entries: 236
+PASS tree == manifest file set
+published_sha256 matches bytes: 236/236
+redacted (original != published): 77
+manifest keys: ['file', 'identity_redacted', 'original_sha256', 'path_redacted', 'published_sha256']
+  redacted entries by identity_redacted: {'True': 71, 'None': 6}
+  redacted entries by path_redacted: {'True': 77}
+  redacted in bench-a200: 20
+  redacted in bench-a202: 57
+  bench-a200/MANIFEST.sha256: OK 61 FAILED 20 missing 0
+  bench-a202/MANIFEST.sha256: OK 96 FAILED 57 missing 0
+raw-artifact table hashes: 74 (unique 73)
+raw-artifact unique hashes naming redacted files: 29 (files 29)
+   redacted-named: bench-a200/bench/final/census-final.jsonl
+   redacted-named: bench-a200/bench/final/tap-final.pcap
+   redacted-named: bench-a200/bench/runA/tap-runA.pcap
+   redacted-named: bench-a200/bench/runB/tap-runB.pcap
+   redacted-named: bench-a200/bench/runC/entity_0x020000fffe000001.json
+   redacted-named: bench-a200/bench/runC/tap-runC.pcap
+   redacted-named: bench-a202/bench/attempt1-aborted/lock.txt
+   redacted-named: bench-a202/bench/attempt1-aborted/tap-c1.pcap
+   redacted-named: bench-a202/bench/census-start.jsonl
+   redacted-named: bench-a202/bench/cycle1/analysis.txt
+   redacted-named: bench-a202/bench/cycle1/pw1-c1.pcap
+   redacted-named: bench-a202/bench/cycle1/tap-c1.pcap
+   redacted-named: bench-a202/bench/cycle2/analysis.txt
+   redacted-named: bench-a202/bench/cycle2/pw1-c2.pcap
+   redacted-named: bench-a202/bench/cycle2/tap-c2.pcap
+   redacted-named: bench-a202/bench/cycle3/analysis.txt
+   redacted-named: bench-a202/bench/cycle3/pw1-c3.pcap
+   redacted-named: bench-a202/bench/cycle3/tap-c3.pcap
+   redacted-named: bench-a202/bench/cycle4/analysis.txt
+   redacted-named: bench-a202/bench/cycle4/pw1-c4.pcap
+   redacted-named: bench-a202/bench/cycle4/tap-c4.pcap
+   redacted-named: bench-a202/bench/cycle5/analysis.txt
+   redacted-named: bench-a202/bench/cycle5/pw1-c5.pcap
+   redacted-named: bench-a202/bench/cycle5/tap-c5.pcap
+   redacted-named: bench-a202/bench/cycle6/analysis.txt
+   redacted-named: bench-a202/bench/cycle6/pw1-c6.pcap
+   redacted-named: bench-a202/bench/cycle6/tap-c6.pcap
+   redacted-named: bench-a202/bench/final/census-end.jsonl
+   redacted-named: bench-a202/bench/final/tap-final.pcap
+all 64-hex tokens on page: 81
+   06b09ca46868 -> bench-a202/bench/cycle3/powerstrip.txt
+   070bf31964d5 -> bench-a202/bench/powerstrip/status-end.txt
+   0aad30446e7e -> bench-a200/identity/uart-smoke-identity.log
+   0bfdc6e8bfba -> bench-a202/bench/cycle4/analysis.txt
+   12448e4a7fc6 -> bench-a202/bench/cycle3/analysis.txt
+   12b8c263871d -> bench-a202/bench/cycle3/tap-c3.pcap
+   1576b4550b66 -> bench-a202/bench/cycle6/pw1-c6.pcap
+   1a0e025cc565 -> bench-a200/bench/final/census-final.jsonl
+   1e892cf350e6 -> bench-a202/bench/cycle2/tap-c2.pcap
+   209781f6cfd3 -> bench-a202/bench/cycle2/pw1-watch.jsonl
+   25bc03e190d4 -> bench-a200/bench/final/uart-smoke-final.log
+   26c4529a7d0d -> bench-a200/bench/runA/tap-runA.pcap
+   2ab825b61ac6 -> bench-a202/bench/cycle5/powerstrip.txt
+   2dfecb1baea1 -> bench-a202/bench/final/census-compare.txt
+   2e97281d5c93 -> bench-a202/bench/cycle1/powerstrip.txt
+   3212ffc4543e -> bench-a202/bench/cycle1/pw1-c1.pcap
+   33478b3a9cfb -> bench-a200/bench/runA/pw1-watch.jsonl
+   33f0e7f9e86f -> NOT IN ARCHIVE
+   353d222b6764 -> bench-a202/bench/cycle5/analysis.txt
+   392307147da1 -> bench-a200/bench/runB/pw1-bind.jsonl
+   3ab650224f32 -> bench-a200/bench/runC/counters-probe-3cc0c60102030000.log
+   4118f0fb3082 -> bench-a200/bench/runA/console.txt
+   42e0fb537a54 -> bench-a202/bench/cycle1/pw1-watch.jsonl
+   499588c787cf -> bench-a202/bench/cycle4/pw1-watch.jsonl
+   4c1d74f395c8 -> bench-a202/bench/powerstrip/status-start.txt
+   4db0e6da9c9c -> NOT IN ARCHIVE
+   4e750d619e90 -> bench-a202/bench/summary.txt
+   5082dcfadc74 -> bench-a200/bench/runA/pdelay-turnaround.txt
+   59d7dd4f0ed4 -> bench-a202/bench/cycle1/console.txt
+   5a16a9bf2d51 -> bench-a202/bench/cycle6/console.txt
+   60bdd7d3f54d -> bench-a200/identity/console-identity.txt
+   66a6b6a50bdb -> bench-a202/bench/cycle6/powerstrip.txt
+   66ad849afd8b -> bench-a200/bench/final/tap-final.pcap
+   69322600bc9d -> NOT IN ARCHIVE
+   6b4f090a04fe -> bench-a202/bench/cycle6/tap-c6.pcap
+   71c40df9af5a -> bench-a202/bench/cycle4/pw1-c4.pcap
+   71e798fc401e -> NOT IN ARCHIVE
+   7538e887a137 -> bench-a202/identity/uart-smoke-identity.log
+   7f4b2bd3cbad -> bench-a202/bench/attempt1-aborted/tap-c1.pcap
+   816249e43cbb -> bench-a202/bench/cycle3/pw1-c3.pcap
+   86b81a207ae6 -> bench-a202/bench/cycle5/pw1-watch.jsonl
+   8dadb45ccb33 -> bench-a202/bench/cycle5/pw1-c5.pcap
+   909699f5d1ae -> bench-a202/bench/attempt1-aborted/lock.txt
+   9847b8e1d55e -> bench-a200/bench/runC/dut-output-counters-raw.jsonl
+   9b077636b1d4 -> NOT IN ARCHIVE
+   9ca7e2707322 -> bench-a202/bench/cycle6/pw1-watch.jsonl
+   a3256a0b130f -> bench-a202/bench/cycle6/analysis.txt
+   a4dc7683b374 -> bench-a202/bench/cycle3/console.txt
+   a9ba578178a7 -> bench-a200/bench/final/console-final.txt
+   aaece32fc6c8 -> NOT IN ARCHIVE
+   acebedfdf38f -> bench-a202/bench/cycle5/tap-c5.pcap
+   b154802f6dbe -> bench-a202/bench/cycle1/tap-c1.pcap
+   b36027bcc88b -> bench-a202/bench/cycle2/analysis.txt
+   b4b110d0ff79 -> bench-a202/bench/cycle4/tap-c4.pcap
+   b913fc92e0d3 -> bench-a202/bench/cycle2/console.txt
+   bbb2e801a71d -> bench-a202/bench/final/console-final.txt
+   bc41ab03e641 -> NOT IN ARCHIVE
+   bdb4e3b253e5 -> bench-a200/bench/runC/a200-enum.log
+   be0725f74636 -> bench-a202/bench/cycle2/powerstrip.txt
+   be48dca9d507 -> bench-a200/bench/runC/entity_0x020000fffe000001.json
+   c09c026880d4 -> bench-a202/bench/final/hosts-cleanup.txt
+   c45572d9502d -> bench-a202/bench/final/census-end.jsonl
+   c8167b24aff2 -> bench-a202/bench/cycle5/console.txt
+   c8916b01af28 -> bench-a200/identity/expected-crc.txt,bench-a202/identity/expected-crc.txt
+   caa36a384cdf -> bench-a202/identity/console-identity.txt
+   cb185107bd2e -> bench-a202/bench/census-start.jsonl
+   cdbdc542aa48 -> bench-a202/bench/cycle1/analysis.txt
+   cea282b0bee6 -> bench-a202/bench/cycle3/pw1-watch.jsonl
+   d956745df61c -> bench-a200/bench/runB/console.txt
+   dec14c0b01b9 -> bench-a202/bench/attempt1-aborted/powerstrip.txt
+   df57bad1e4c1 -> bench-a202/bench/final/uart-smoke-final.log
+   e66a11f68532 -> bench-a202/bench/cycle4/console.txt
+   f0725eef7a36 -> NOT IN ARCHIVE
+   f07b7230a853 -> bench-a200/bench/runC/tap-runC.pcap
+   f1ffd611d356 -> bench-a200/bench/runC/counters-probe-020000fffe000001.log
+   f50837730932 -> bench-a202/bench/final/tap-final.pcap
+   f6f0ecf0f799 -> bench-a202/bench/attempt1-aborted/pw1-watch.jsonl
+   fa162ec8a3b6 -> bench-a202/bench/cycle4/powerstrip.txt
+   fdc55f2fee85 -> bench-a200/bench/census-start.jsonl
+   febe8a1643e8 -> bench-a200/bench/runB/tap-runB.pcap
+   ff9e16f2090c -> bench-a202/bench/cycle2/pw1-c2.pcap
+abbreviated 8-hex tokens: 26
+   04d128bb: original-in ['bench-a200/tools/expected_crc.py', 'bench-a202/tools/expected_crc.py'] published-only []
+   0e9faf30: original-in [] published-only []
+   17283696: original-in ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py'] published-only []
+   29b4ac46: original-in ['bench-a200/tools/crf_bind_window.py'] published-only []
+   2d8950f5: original-in ['bench-a200/tools/a200_enum.cpp'] published-only []
+   3a0de7d8: original-in ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py'] published-only []
+   40424c61: original-in ['bench-a202/tools/census_compare.py'] published-only []
+   45889a7d: original-in ['bench-a202/tools/run_cycle.sh'] published-only []
+   48c248b2: original-in ['bench-a202/tools/a202_watch.py'] published-only []
+   644bcfb8: original-in ['bench-a202/tools/console_alive.py'] published-only []
+   652d6f83: original-in ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py'] published-only []
+   6ac03a87: original-in ['bench-a200/tools/analyze_run.py'] published-only []
+   790e6b7c: original-in ['bench-a200/tools/pdelay_turnaround.py', 'bench-a202/tools/pdelay_turnaround.py'] published-only []
+   8c9f2885: original-in ['bench-a200/tools/a200_enum.bin'] published-only []
+   8ef4b008: original-in [] published-only []
+   950533ca: original-in ['bench-a202/tools/clock_offset.py'] published-only []
+   95d64fd5: original-in [] published-only []
+   9d2e8629: original-in ['bench-a200/tools/stream_timeline.py'] published-only []
+   ad579e18: original-in [] published-only []
+   b2f1593e: original-in ['bench-a202/tools/powerstrip_cycle.sh'] published-only []
+   bdd228a1: original-in ['bench-a202/tools/analyze_cycle.py'] published-only []
+   c4ef8c9a: original-in ['bench-a202/tools/cycle_locked.sh'] published-only []
+   c5039d95: original-in ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py'] published-only []
+   d6f53575: original-in ['bench-a202/tools/summarize.py'] published-only []
+   d7912881: original-in ['bench-a202/tools/census.sh'] published-only []
+   e84e579c: original-in [] published-only []
+RESULT PASS

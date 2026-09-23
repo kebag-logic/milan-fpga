@@ -1,0 +1,11 @@
+A200 console milan_status samples: 116; not SYNC=1/ASCAPABLE=1/TU=0: 0
+PDELAY_NS min 380 max 391 median 385.0
+distinct (GM, parent, CLKV_STAT, path count, GPTP_LAT): [('3cc0c6fffefe0210', '3cc0c6fffefe0210', '00010002', '1', '029000db')]
+mem_read words seen (address -> distinct values, hex): {'0x62c': ['0x0'], '0x644': ['0xbc', '0xbd', '0xbe', '0xbf', '0xc0', '0xc1'], '0x66c': ['0x0'], '0x6a4': ['0x0'], '0x6f4': ['0x0'], '0x720': ['0x1'], '0x750': ['0x3', '0x3002e3'], '0x764': ['0x0', '0x134f', '0x1737', '0x1b1f', '0x1f07', '0x22ef'], '0x774': ['0x83'], '0x780': ['0xb'], '0x7e4': ['0x11'], '0x7e8': ['0x0'], '0x7ec': ['0x0']}
+Run A controller GET_AVB_INFO polls on the DUT: 60; AS_CAPABLE set: 60; propagation_delay min/max/median 381/391/385.0; gm ['3cc0c6fffefe0210']
+Run A GET_AS_PATH on the DUT: 60; paths [('3cc0c6fffefe0210',)]
+enum log /5\.3\.8\.10[^\n]*/: 2 e.g. ['5.3.8.10] Milan mandatory counters missing for STREAM_INPUT descriptor', '5.3.8.10" message="Milan mandatory counters missing for STREAM_INPUT descriptor"']
+enum log /not fully Milan[^\n]*/: 1 e.g. ['not fully Milan compliant']
+enum log /[Ee]numeration[^\n]{0,80}ms[^\n]*/: 0 e.g. []
+enum log /IEEE17221[^\n]*/: 3 e.g. ['IEEE17221 milanRedundant=0 cacheable=1', 'IEEE17221|Milan -> IEEE17221 clause="Milan 1.3 - 5.3.8.10" message="Milan mandatory counters missing for STREAM_INPUT descriptor"']
+enum log /MILAN[^\n]*/: 0 e.g. []

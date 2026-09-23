@@ -1,0 +1,31 @@
+1. host (no-envelope) records per tap capture:
+   bench-a200/bench/final/tap-final.pcap: records 1062, host 0
+   bench-a200/bench/probe-tap-0.pcap: records 317, host 0
+   bench-a200/bench/pw1-link-all.pcap: records 65, host 65
+   bench-a200/bench/pw1-link-probe.pcap: records 14, host 14
+   bench-a200/bench/runA/tap-runA.pcap: records 8759, host 76
+   bench-a200/bench/runB/tap-runB.pcap: records 37350, host 0
+   bench-a200/bench/runC/tap-runC.pcap: records 2882, host 0
+   bench-a202/bench/attempt1-aborted/pw1-c1.pcap: records 519, host 519
+   bench-a202/bench/attempt1-aborted/tap-c1.pcap: records 1037, host 0
+   bench-a202/bench/cycle1/pw1-c1.pcap: records 2178, host 2178
+   bench-a202/bench/cycle1/tap-c1.pcap: records 4525, host 38
+   bench-a202/bench/cycle2/pw1-c2.pcap: records 1550, host 1550
+   bench-a202/bench/cycle2/tap-c2.pcap: records 3173, host 0
+   bench-a202/bench/cycle3/pw1-c3.pcap: records 1550, host 1550
+   bench-a202/bench/cycle3/tap-c3.pcap: records 3218, host 38
+   bench-a202/bench/cycle4/pw1-c4.pcap: records 2474, host 2474
+   bench-a202/bench/cycle4/tap-c4.pcap: records 51498, host 45
+   bench-a202/bench/cycle5/pw1-c5.pcap: records 2487, host 2487
+   bench-a202/bench/cycle5/tap-c5.pcap: records 50699, host 0
+   bench-a202/bench/cycle6/pw1-c6.pcap: records 2479, host 2479
+   bench-a202/bench/cycle6/tap-c6.pcap: records 51836, host 37
+   bench-a202/bench/final/tap-final.pcap: records 615, host 18
+2. tcpdump logs: 19; dropped-by-kernel values: ['0']; logs without a drop line: []
+3. asCapable return vs the DUT's completed Pdelay exchanges after the link returns, and ACMP CONNECT_TX to the DUT:
+   cycle 1: asCapable 0->1 between samples 39.56 and 39.66; completed exchanges after return at [38.58, 39.58, 40.58]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: None
+   cycle 2: asCapable 0->1 between samples 38.68 and 38.78; completed exchanges after return at [37.76, 38.76, 39.76]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: None
+   cycle 3: asCapable 0->1 between samples 39.38 and 39.48; completed exchanges after return at [38.46, 39.46, 40.46]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: None
+   cycle 4: asCapable 0->1 between samples 39.80 and 39.90; completed exchanges after return at [38.85, 39.85, 40.85]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: 41.29
+   cycle 5: asCapable 0->1 between samples 39.61 and 39.71; completed exchanges after return at [38.67, 39.67, 40.67]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: 42.96
+   cycle 6: asCapable 0->1 between samples 39.58 and 39.68; completed exchanges after return at [38.59, 39.59, 40.59]; CONNECT_TX to the DUT in 0.5..38 s: [], first after 38 s: 41.46
