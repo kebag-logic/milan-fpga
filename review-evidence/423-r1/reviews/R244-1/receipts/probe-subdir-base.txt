@@ -1,0 +1,12 @@
+== linear stranded, from root
+  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other.txt, top.txt]
+
+1 branch tip(s) have work that refs/heads/main does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.
+rc=1
+== linear stranded, from sub/
+  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]
+rc=0

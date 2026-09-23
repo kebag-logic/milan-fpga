@@ -1,0 +1,14 @@
+  contained  refs/heads/aa-ok
+Traceback (most recent call last):
+  File "$REVIEWS/r244-1-423/scripts/check_merge_containment.py", line 997, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "$REVIEWS/r244-1-423/scripts/check_merge_containment.py", line 993, in main
+    return _report(targets, base)
+  File "$REVIEWS/r244-1-423/scripts/check_merge_containment.py", line 902, in _report
+    print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          + (f"  [{note}]" if note else ""))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'utf-8' codec can't encode characters in position 89-90: surrogates not allowed
+rc=1
