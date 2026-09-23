@@ -1,0 +1,16 @@
+  ok   honest, where PR B fails its second workflow: exit 0 with 'PROVED every slot proof held'
+  ok   every run refuses after taking its slot: exit 1 with 'FAIL serial-a did not complete'
+  ok   a run stops before its last workflow: exit 1 with 'FAIL serial-a did not complete'
+  ok   the interrupt gate ignores its slot: exit 1 with 'FAIL interrupt self-test in slot 1'
+  ok   a slot changes a verdict: exit 1 with 'FAIL parallel-a != serial-a'
+  ok   the slot lock is missing: exit 1 with 'FAIL collision slot 1'
+  ok   the rival is refused only after the holder left: exit 1 with 'FAIL collision slot 1'
+  ok   the rival is refused for another reason: exit 1 with 'FAIL collision slot 1'
+  ok   the collision holder changes its verdict: exit 1 with 'FAIL collision slot 1'
+  ok   the shared daemon does not collide: exit 1 with 'FAIL collision slot 0'
+  ok   a slot reaches the default daemon's container: exit 1 with 'FAIL isolation slot 1'
+  ok   the isolation target is dead: exit 1 with 'FAIL isolation slot 1'
+  ok   the isolation target survives removal: exit 1 with 'FAIL isolation target'
+  ok   the parallel runs never overlap: exit 1 with 'FAIL overlap'
+act_slot_proof selftest: PASS (14 cases)
+rc=0

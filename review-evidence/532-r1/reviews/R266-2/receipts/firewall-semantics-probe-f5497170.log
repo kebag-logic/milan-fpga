@@ -1,0 +1,12 @@
+probe cgroup level 1: user.slice (control selector: system.slice)
+A no slot table                                            internet=reached container=reached published=reached loopback=reached gateway=reached 
+--- pinned rule text as loaded in B:
+create table inet milan_act_slot_2
+add chain inet milan_act_slot_2 output { type filter hook output priority filter; policy accept; }
+add rule inet milan_act_slot_2 output socket cgroupv2 level 1 "user.slice" fib daddr type local counter reject
+add rule inet milan_act_slot_2 output socket cgroupv2 level 1 "user.slice" oifname != { "up0" } counter reject---
+B head rules (host-local + non-uplink), selector matches   internet=reached container=refused(111) published=refused(111) loopback=refused(111) gateway=refused(111) 
+C previous head rule set (host-local only)                 internet=reached container=reached published=reached loopback=refused(111) gateway=refused(111) 
+D head rules, selector names another level-1 cgroup        internet=reached container=reached published=reached loopback=reached gateway=reached 
+		socket cgroupv2 level 1 "system.slice" fib daddr type local counter packets 0 bytes 0 reject
+		socket cgroupv2 level 1 "system.slice" oifname != "up0" counter packets 0 bytes 0 reject
