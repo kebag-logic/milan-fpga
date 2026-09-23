@@ -9,9 +9,9 @@ command, never to another caller. A missing process facility is refused
 before any command starts.
 
 A command never outlives its owner. When the owner dies without cleanup
-(KILL, or a fatal signal it does not handle such as HUP or QUIT), a
-parent-death signal kills the command it launched, so nothing that command
-would start next can start. Descendants it already started may finish.
+(KILL, or a fatal signal it does not handle such as HUP), a parent-death
+signal kills the command it launched, so nothing that command would start
+next can start. Descendants it already started may finish.
 """
 
 import ctypes

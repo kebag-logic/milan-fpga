@@ -226,7 +226,7 @@ A hard stop is not a cancellation.
 The launched process owns the sweep shell.
 That shell runs in its own session.
 A parent-death signal kills it when its owner dies.
-This covers KILL, and HUP or QUIT, to the owner or its group.
+KILL or HUP to the owner or its group are controlled cases.
 The caller then sees that signal as the exit status.
 No later suite starts and no summary is printed.
 No cleanup runs, so the lock record may remain.

@@ -28,10 +28,11 @@
 #   92       some suite was KILLED BY THE WALL CLOCK. Its result is UNKNOWN -
 #            it is not a failure and it is not a pass. Re-run it uncontended.
 #   130/143  cancelled by INT/TERM; partial logs, no completed summary.
-#   other    the launched process was stopped without cleanup (KILL, or HUP or
-#            QUIT to it or its group; the caller sees that signal). The sweep
-#            shell dies with it: no later suite, no summary, no cleanup. A
-#            suite already running may finish and holds the lock until then.
+#   other    the launched process was stopped without cleanup: KILL, or HUP
+#            or another fatal signal it does not handle, to it or its group.
+#            The caller sees that signal. The sweep shell dies with it: no
+#            later suite, no summary, no cleanup. A suite already running may
+#            finish and holds the lock until then.
 #
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
