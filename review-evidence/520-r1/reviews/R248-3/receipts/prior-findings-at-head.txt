@@ -1,0 +1,26 @@
+syn/yosys/README.md d253f86e=22d6966411c8e4331c27975bf92b71af954b6690 candidate=22d6966411c8e4331c27975bf92b71af954b6690 SAME
+.github/workflows/rtl.yml d253f86e=67766752e267c6c8f50528926e307f050a8ff518 candidate=67766752e267c6c8f50528926e307f050a8ff518 SAME
+.github/workflows/rtl-fast.yml d253f86e=f7c502c9cf577777bce35eecb31c4b6d52cd8ccc candidate=f7c502c9cf577777bce35eecb31c4b6d52cd8ccc SAME
+syn/yosys/result_cache.py d253f86e=416075cd38e3f94a7630aee44f17c751d9690568 candidate=416075cd38e3f94a7630aee44f17c751d9690568 SAME
+syn/yosys/rom_cache_selftest.py d253f86e=01b9462a68bb0ebdba2bbe0c7384e5c60b3550e7 candidate=01b9462a68bb0ebdba2bbe0c7384e5c60b3550e7 SAME
+syn/yosys/cache_selftest.py d253f86e=bc29a6ed75b67f63248b79351defb7f930905fb3 candidate=bc29a6ed75b67f63248b79351defb7f930905fb3 SAME
+-- README.md:27
+- **[The result cache](#the-result-cache)** -- `--cache DIR` skips a top only when every input its key binds matches a verified PASS entry (#350), the generated
+-- rtl.yml:538-541
+      # THE RESULT CACHE (#350): a top is skipped and reports the stored
+      # count only when every input its key binds, the generated ROM bundle
+      # (#520) included, matches a verified PASS entry; the key is defined
+      # in syn/yosys/README.md under "The result cache". Everything else
+-- result_cache.py:52
+SCHEMA = "milan-yosys-result-cache/2"
+-- rtl-fast.yml:219-224
+      # The result cache's hit rule (#350), driven against the real run.sh
+      # with this job's Yosys and sv2v: a cold run stores, a warm run hits
+      # with the same record, a planted forged entry is refused and the top
+      # runs live, and a read-only seed is read but never written.
+      - name: Prove the result cache refuses a planted entry
+        run: python3 syn/yosys/cache_selftest.py
+-- rom_cache_selftest.py:212-214
+                expected = (f"{labels[image]} generation failed" if action == "failed"
+                            else "generated ROM is empty:")
+                assert result["exit"] == 2 and expected in result["output"], result

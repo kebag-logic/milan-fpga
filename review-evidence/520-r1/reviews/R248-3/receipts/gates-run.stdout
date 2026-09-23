@@ -1,0 +1,44 @@
+01	0	0.0	git rev-parse HEAD HEAD^{tree}
+02	0	0.1	verilator --version
+03	0	3.8	python3 scripts/docs_check.py
+04	0	0.1	python3 scripts/docs_check.py --selftest
+05	0	0.2	python3 scripts/gen_toc.py --selftest
+06	0	0.4	python3 scripts/gen_toc.py --verify-anchors
+07	0	0.4	python3 scripts/gen_toc.py --check
+08	0	1.0	python3 scripts/check_em_dash.py --base 9912748d9c30f33a85056fcd1d836d3a4449cc69
+09	0	1.0	python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+10	0	1.0	python3 scripts/check_em_dash.py --base 776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d
+11	0	0.9	python3 scripts/check_em_dash.py --selftest
+12	0	0.0	python3 scripts/check_doc_style.py
+13	0	0.0	python3 scripts/check_doc_style.py --selftest
+14	0	0.2	python3 scripts/ci_events.py --check
+15	0	13.7	python3 scripts/ci_events.py --selftest
+16	0	1.7	python3 scripts/ci_scope.py --selftest
+17	0	1.4	python3 scripts/measure_fail_fast.py --check
+18	0	1.4	python3 scripts/measure_fail_fast.py --selftest
+19	0	0.3	python3 scripts/check_hygiene.py --check
+20	0	0.3	python3 scripts/check_hygiene.py --selftest
+21	0	2.8	python3 scripts/check_py_idiom.py
+22	0	2.9	python3 scripts/check_py_idiom.py --selftest
+23	0	0.2	python3 scripts/check_sh_idiom.py
+24	0	0.2	python3 scripts/check_sh_idiom.py --selftest
+25	0	1.2	python3 scripts/check_todo_ownership.py
+26	0	1.3	python3 scripts/check_todo_ownership.py --selftest
+27	0	4.6	python3 scripts/measure_test_evidence.py --check
+28	0	4.7	python3 scripts/measure_test_evidence.py --selftest
+29	0	0.1	python3 scripts/check_doc_paths.py
+30	0	13.1	python3 scripts/check_baremetal_only.py --check
+31	0	2.5	python3 scripts/check_baremetal_only.py --selftest
+32	0	0.4	python3 docs/DOC_MAP.gen.py --check
+33	0	0.2	python3 scripts/check_archive.py
+34	0	0.6	python3 scripts/check_feature_status.py
+35	0	0.6	python3 scripts/check_feature_status.py --self-test
+36	0	0.2	python3 scripts/pp_srcs.py --check
+37	0	0.2	python3 scripts/pp_srcs.py --selftest
+38	0	0.1	python3 scripts/measure_control_flow.py --selftest
+39	0	0.1	python3 scripts/measure_cohesion.py --selftest
+40	0	0.1	python3 syn/yosys/result_cache.py --selftest
+41	0	0.1	python3 syn/yosys/rom_cache_selftest.py
+42	0	53.1	python3 syn/yosys/cache_selftest.py
+43	0	0.0	git diff --check 9912748d9c30f33a85056fcd1d836d3a4449cc69 HEAD
+44	0	0.0	git diff --check 483a133ed08867ea0d300d2b4a027b5b48a4282f HEAD

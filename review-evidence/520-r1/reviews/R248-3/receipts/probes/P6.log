@@ -1,0 +1,7 @@
+$ bash -c python3 scripts/docs_check.py && python3 scripts/gen_toc.py --check && python3 scripts/check_doc_style.py
+[mutation] docs/testing/CI_WORKFLOWS.md | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
+docs_check: 0 finding(s) across 164 md files + 834 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+documentation style: OK (22 current documents)
+[exit 0]
