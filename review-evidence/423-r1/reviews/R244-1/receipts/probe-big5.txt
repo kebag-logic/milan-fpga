@@ -1,0 +1,52 @@
+### head, UTF-8 (PYTHONUTF8=1)
+  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\udca1\udcfe.txt'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1 fsenc=utf-8
+### head, Big5 locale
+  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]
+rc=0 fsenc=big5
+### base 52711029, UTF-8
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 996, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 992, in main
+    return _report(targets, base)
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 894, in _report
+    ok, ahead, note = contained(ref, base)
+                      ~~~~~~~~~^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 563, in contained
+    verdict = _path_scoped_verdict(branch, base, mb, ahead)
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 447, in _path_scoped_verdict
+    rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
+                ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "--no-renames", "-z", merge_base, branch)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/base-src/scripts/check_merge_containment.py", line 94, in _git
+    p = subprocess.run(("git", "--no-replace-objects") + args,
+                       capture_output=True, text=True)
+  File "/usr/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2194, in _communicate
+    stdout = self._translate_newlines(stdout,
+                                      self.stdout.encoding,
+                                      self.stdout.errors)
+  File "/usr/lib/python3.14/subprocess.py", line 1099, in _translate_newlines
+    data = data.decode(encoding, errors)
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xa1 in position 4: invalid start byte
+rc=1 fsenc=utf-8
+### base 52711029, Big5 locale
+  STRANDED   refs/heads/pr: 3 commit(s) not in refs/heads/main  [paths differing: ctl, ¢A.txt]
+
+1 branch tip(s) have work that refs/heads/main does not.
+  A merge that landed before the branch stopped moving leaves
+  the rest behind, and nothing else reports it. Open a
+  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1
+  step 7.
+rc=1 fsenc=big5
