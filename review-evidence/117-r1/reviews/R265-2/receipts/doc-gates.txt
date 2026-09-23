@@ -1,0 +1,211 @@
+### python3 -I scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### exit=0
+### python3 -I scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 665 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+### exit=0
+### python3 -I scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### exit=0
+### python3 -I scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+### exit=0
+### python3 -I scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+### exit=0
+### python3 -I scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+### exit=0
+### python3 -I scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+### exit=0
+### python3 -I scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 839 tracked first-party file(s))
+### exit=0
+### python3 -I scripts/check_doc_paths.py
+doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### exit=0
+### python3 -I scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+### exit=0
+### python3 -I scripts/gen_toc.py --verify-anchors
+anchor check: 148 existing cross-page fragment links reproduced
+### exit=0
+### python3 -I scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### exit=0
+### python3 -I scripts/check_feature_status.py
+feature_status: 0 finding(s)
+### exit=0
+### python3 -I scripts/check_hygiene.py --check
+
+718 first-party file(s) scanned: superproject 544, protocol-processor 131, gptp-processor 43
+14 generated file(s) skipped, their fix is in their generator:
+  configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh
+  configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
+  configs/generated/sweep_opts_arty.sh
+  configs/generated/sweep_opts_ax7101.sh
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh
+  hdl/common/gen/adp_shape_defaults.svh
+  tb/avtp_packet_gen_sv/examples/top.tcl
+  tb/itests/ptp_timestamp/tb_ptp_ts_top.tcl
+  tb/utests/1722/kl-avtp-common-parser/tb_top.tcl
+  tb/utests/ptp_timestamp/tb_ptp_ts_core.tcl
+  tb/utests/ptp_timestamp/tb_timestamp_counter.tcl
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 718 file(s))
+### exit=0
+### python3 -I scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 768 first-party file(s) read)
+### exit=0
+### python3 -I scripts/measure_test_evidence.py --check
+RTL suites with an executable mutation or negative arm: 17 of 91
+    56 under tb/verilator  (entry: scripts/run_all_suites.sh)
+    30 under protocol-processor/tb  (entry: protocol-processor/scripts/run_suites.sh, protocol-processor/.github/workflows/hdl.yml)
+     4 under gptp-processor/tb/verilator  (entry: gptp-processor/Makefile)
+
+armed suites, and the executed target that arms them (17):
+   gptp-processor/tb/tsngen: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/engine: `mutants` driver mutants.py
+   gptp-processor/tb/verilator/gaskets: `mutants` driver mutants.py
+   protocol-processor/tb/nvm_port: `figures` driver measure_figures.py
+   tb/verilator/gptp_shadow: `mutants` driver mutants.py
+   tb/verilator/gptp_txts: `mutants` driver mutants.py
+   tb/verilator/media_grid_align: `run` define +define+MGA_MUT_U_SIGN
+   tb/verilator/milan_dp: `run` driver render_mutants.py
+   tb/verilator/milan_dp_gptp: `all` driver verify_abort.py
+   tb/verilator/milan_dp_render: `run` driver tdm8_render_mutants.py
+   tb/verilator/nvm_backend: `run` table $(MUTANTS)
+   tb/verilator/nvm_cosim: `run` driver run_cases.py
+   tb/verilator/ptp_ts: `sva-campaign` driver sva_campaign.py
+   tb/verilator/render_setpoint: `mutants` driver mutants.py
+   tb/verilator/rx_filter: `binding-negative` driver binding_mutant.py
+   tb/verilator/tcam: `mutants` driver mutants.py
+   tb/verilator/tsn_fuzz: `graderself` driver test_grade_tx.py
+
+suites with none (74):
+   gptp-processor/tb/verilator/parser
+   gptp-processor/tb/verilator/ucpu
+   protocol-processor/tb/acmp_listener
+   protocol-processor/tb/acmp_nvm
+   protocol-processor/tb/acmp_talker
+   protocol-processor/tb/adp_engine
+   protocol-processor/tb/aecp_notify
+   protocol-processor/tb/ca_originator
+   protocol-processor/tb/desc_store
+   protocol-processor/tb/dispatch
+   protocol-processor/tb/dyn_state
+   protocol-processor/tb/event_router
+   protocol-processor/tb/maap
+   protocol-processor/tb/originator
+   protocol-processor/tb/pp_top
+   protocol-processor/tb/prng
+   protocol-processor/tb/release_merge
+   protocol-processor/tb/resp_buf
+   protocol-processor/tb/rx_slots
+   protocol-processor/tb/rx_validator
+   protocol-processor/tb/scoreboard
+   protocol-processor/tb/side_port
+   protocol-processor/tb/srp_decoder
+   protocol-processor/tb/srp_encoder
+   protocol-processor/tb/srp_stream_fsms
+   protocol-processor/tb/srp_top
+   protocol-processor/tb/timer_map
+   protocol-processor/tb/timer_service
+   protocol-processor/tb/tx_arbiter
+   protocol-processor/tb/tx_slots
+   protocol-processor/tb/ucpu
+   tb/verilator/aaf
+   tb/verilator/aaf_audio_loop
+   tb/verilator/aaf_latency_tap_bank
+   tb/verilator/aaf_latency_taps
+   tb/verilator/adp_tx
+   tb/verilator/aes3
+   tb/verilator/avtp_parser
+   tb/verilator/avtp_rxmon
+   tb/verilator/avtp_stream
+   tb/verilator/cbs
+   tb/verilator/cdc
+   tb/verilator/chmap_capture
+   tb/verilator/chmap_render
+   tb/verilator/classifier
+   tb/verilator/clkvalid
+   tb/verilator/cls
+   tb/verilator/controller_rate
+   tb/verilator/crf_rx
+   tb/verilator/crf_tx
+   tb/verilator/csr
+   tb/verilator/datapath
+   tb/verilator/eth_tx_reset
+   tb/verilator/gptp_plane
+   tb/verilator/i2spb
+   tb/verilator/ifg
+   tb/verilator/lat_history_ring
+   tb/verilator/link_guard
+   tb/verilator/maap
+   tb/verilator/mac_rmon
+   tb/verilator/media_nco
+   tb/verilator/mmcm_servo
+   tb/verilator/mmcm_servo_autorepair
+   tb/verilator/pair_fill
+   tb/verilator/pcmlpf
+   tb/verilator/pp_shadow
+   tb/verilator/ptp
+   tb/verilator/ptp_sync
+   tb/verilator/queues
+   tb/verilator/shaper_core
+   tb/verilator/tcam_csr
+   tb/verilator/tdm
+   tb/verilator/tdm_render
+   tb/verilator/tkdiag
+
+files that draw random values without recording a seed (10):
+   tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_alter_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_control_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_random_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/avtp_packet_gen_sv/tb_classes/avtp_stream_subtype.svh: $urandom/$random/randomize without srandom or a seed
+   tb/itests/802_1q_traffic_shaper/tb_traffic_controller_802_1q.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/1722/kl-avtp-common-parser/tb_top.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/802_1q_traffic_shaper/tb_traffic_classifier.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ethernet_events/tb_ethernet_events.sv: $urandom/$random/randomize without srandom or a seed
+   tb/utests/ptp_timestamp/tb_ptp_ts_core.sv: $urandom/$random/randomize without srandom or a seed
+
+test programs that read production HDL (11):
+   gptp-processor/tb/check_phc_contract.py: structural boundary check; it asserts required/forbidden tokens, not behavior
+   gptp-processor/tb/tsngen/mutants.py: mutation campaign; it stages three engine defects and requires failure
+   protocol-processor/tb/nvm_port/measure_figures.py: mutation campaign; it rewrites one RTL arm and requires the suite to fail
+   tb/verilator/milan_dp/render_mutants.py: mutation campaign; it plants one of four render-law defects into a copy and requires a named failure
+   tb/verilator/milan_dp_render/tdm8_render_mutants.py: mutation campaign; it plants one render-lane defect from its own table into a copy or runs a leg-side defect arm, and requires the named check to fail. The suite's default target runs its --leg-defects arms; the gateware and shape mutants are the explicit tdm8render-mutants target
+   tb/verilator/nvm_backend/mutate.py: mutation campaign; it plants one of four backend defects into a copy and requires failure
+   tb/verilator/nvm_cosim/run_cases.py: co-simulation driver; it reads the SHIPPING backend and the SHIPPING writer because they ARE the pair under test -- it compiles that writer for the host and Verilates that backend behind it, planting a named defect through mutate.py or taking a pre-contract copy for the non-vacuity control. It grades nothing from the text: every verdict is a named check in cosim_checks.py over a dumped journal
+   tb/verilator/ptp_ts/sva_campaign.py: mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a scratch copy and requires the named SVA property, or for one row the scoreboard, to fail; no expected value is read from the text
+   tb/verilator/render_setpoint/mutants.py: mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure
+   tb/verilator/rx_filter/binding_mutant.py: mutation campaign; it ties a real named binding low and requires failure
+   tb/verilator/tcam/mutants.py: mutation campaign; it injects three RTL defects and requires failure
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+### exit=0

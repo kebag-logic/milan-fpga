@@ -1,0 +1,32 @@
+## git diff --raw ede8d48e..f547a49b
+:100644 100644 ae622a29 c806c738 M	docs/design/GM_LOSS_RECOVERY.md
+:000000 100644 00000000 f1f50af5 A	docs/findings/117_GPTP_SILICON_EVIDENCE.md
+:100644 100644 2394fe78 9f13add8 M	docs/findings/README.md
+## gitlinks at head (4 entries; byte-identical to base ede8d48e ls-tree gitlinks: yes)
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## commits ede8d48e..f547a49b: parent, message line count, trailer lines
+c3eb95fa9ac86a3f20b45f94057d6c011127db08 parent=ede8d48ecd7c7f589a14b957951f040d92c99c70 lines=1 trailers=0
+0abf147f726721f4a323ee6a32095a02363fe2dc parent=c3eb95fa9ac86a3f20b45f94057d6c011127db08 lines=1 trailers=0
+67aa00e5c469ba45af6a74cb29cd5fdfc2789d42 parent=0abf147f726721f4a323ee6a32095a02363fe2dc lines=1 trailers=0
+f547a49bee5966a901d1e11981eb4dc94d038711 parent=67aa00e5c469ba45af6a74cb29cd5fdfc2789d42 lines=1 trailers=0
+## REGISTER_MAP rows used by the page's decodes
+225:| `0x750` | CRF media-clock talker (`KL_crf_tx`) |
+232:| `0x7F0` | applied gPTP timestamp latency corrections, RO live (#358) |
+730:| `0x720` | `RST_EPOCH` | RO | `0` | datapath reset-release count — the shadow-lie canary (a live tick proves a real reset happened, e.g. so a CSR-wipe is n
+731:| `0x774` | `LINKG_STAT` | RO | -- | `KL_link_guard` `stat_o`: `[31:16]` bounce_cnt (saturating), `[9]` freeze, `[8]` dis, `[7]` act_recent (RX activity wit
+770:| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` fabric sync_ok, `[3]` inside a discontinuity h
+771:| `0x780` | `CLKV_TUCNT` | RO live | `0` | Milan v1.2 Table 5.4 / Table 5.6 `TIMESTAMP_UNCERTAIN` for the talker side: one increment per **1 s observation i
+875:| `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* 
+880:| `0x764` | `CRFT_COUNT` | RO | `0` | CRF PDUs emitted |
+942:| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read 
+1161:| `0x6E4` | `GPTP_PDELAY` | RO live | reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_
+1347:| `0x7E4` | `ASP_CMD` | RO live / W inert | `0` | `[7:4]` fabric publication generation, `[3:0]` path count; option OFF reads zero and all writes are disca
+1392:| `0x7F0` | `GPTP_LAT` | RO live / W inert | `0` | `[31:16]` ingress correction, nanoseconds, SUBTRACTED from every arrival timestamp; `[15:0]` egress corr
+CLKV_STAT 0x00010002: tu[0]=0 sync[1]=1 holdover[3]=0 asCapable[16]=1
+CRFT_COUNT 0x850D = 34061
+GPTP_LAT 0x029000DB: [31:16]=656 ns, [15:0]=219 ns
+ASP_CMD 0x11: [7:4] generation=1, [3:0] path count=1
+LINKG_STAT 0x83 -> 0x03: bit [7] act_recent (RX activity) clears; low bits unchanged

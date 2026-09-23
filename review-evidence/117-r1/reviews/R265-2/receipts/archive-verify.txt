@@ -1,0 +1,14 @@
+files on disk: 237; MANIFEST.json entries: 236
+on disk but not in MANIFEST.json (excluding itself): []
+in MANIFEST.json but missing on disk: []
+entries whose published copy differs from the original: 73
+entries flagged identity_redacted: 67; path_redacted: 73
+flagged redacted but bytes unchanged: []
+bytes changed but not flagged: []
+bench-a200/MANIFEST.sha256: 81 entries, 81 equal MANIFEST.json original, 18 of those published redacted; files in packet not in its manifest: []
+bench-a202/MANIFEST.sha256: 153 entries, 153 equal MANIFEST.json original, 55 of those published redacted; files in packet not in its manifest: []
+files already path-redacted at the pre-redaction commit (same original recorded by both manifests): 11
+pre-redaction original hashes mismatching MANIFEST.json: 0
+redacted files with unchanged length: 26; changed length: 47
+redacted captures with unchanged length: 20 of 20
+RESULT: PASS
