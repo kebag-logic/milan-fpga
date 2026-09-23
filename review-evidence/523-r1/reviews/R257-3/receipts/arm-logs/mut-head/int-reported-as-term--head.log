@@ -1,0 +1,24 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2750692, "cwd": "<packet>/scratch/mut-head/int-reported-as-term--head/suite-cancellation-19514hja/normal-orphan input [523]", "identities": {"2750687": ["20410805", "S"], "2750692": ["20410808", "S"]}, "pid": 2750687}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-head/int-reported-as-term--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-head/int-reported-as-term--head/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/int-reported-as-term--head/scripts/test_suite_cancellation.py", line 190, in cancellation
+    cancel_report(output, root, signum, prepared=phase != "selection")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/int-reported-as-term--head/scripts/test_suite_cancellation.py", line 119, in cancel_report
+    assert f"CANCELLED: {name}; no completed sweep result" in lines, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: TERM; no completed sweep result
+logs were not prepared for this invocation
+CANCELLED: signal 2; no completed sweep result
+

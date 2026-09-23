@@ -1,0 +1,20 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2754625, "cwd": "<packet>/scratch/mut-head/no-stale-clear--head/suite-cancellation-l14rf2yu/normal-orphan input [523]", "identities": {"2754623": ["20412607", "S"], "2754625": ["20412610", "S"]}, "pid": 2754623}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2755130, "cwd": "<packet>/scratch/mut-head/no-stale-clear--head/suite-cancellation-l14rf2yu/cancel-selection-SIGINT input [523]", "identities": {"2755123": ["20412914", "S"], "2755130": ["20412917", "S"]}, "pid": 2755123}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2755609, "cwd": "<packet>/scratch/mut-head/no-stale-clear--head/suite-cancellation-l14rf2yu/cancel-selection-SIGTERM input [523]", "identities": {"2755608": ["20413145", "S"], "2755609": ["20413147", "S"]}, "pid": 2755608}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-head/no-stale-clear--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-head/no-stale-clear--head/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/no-stale-clear--head/scripts/test_suite_cancellation.py", line 199, in cancellation
+    assert not (root / "logs/omega.log").exists(), "stale suite log survived"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: stale suite log survived

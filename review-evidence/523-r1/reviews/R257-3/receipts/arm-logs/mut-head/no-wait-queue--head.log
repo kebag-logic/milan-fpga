@@ -1,0 +1,27 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2754497, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/normal-orphan input [523]", "identities": {"2754495": ["20412540", "S"], "2754497": ["20412543", "S"]}, "pid": 2754495}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2754961, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-selection-SIGINT input [523]", "identities": {"2754959": ["20412843", "S"], "2754961": ["20412848", "S"]}, "pid": 2754959}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2755505, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-selection-SIGTERM input [523]", "identities": {"2755500": ["20413081", "S"], "2755505": ["20413084", "S"]}, "pid": 2755500}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2756021, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-preflight-SIGINT input [523]", "identities": {"2756017": ["20413325", "S"], "2756021": ["20413328", "S"]}, "pid": 2756017}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2756469, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-preflight-SIGTERM input [523]", "identities": {"2756458": ["20413566", "S"], "2756469": ["20413569", "S"]}, "pid": 2756458}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2756966, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-command-SIGINT input [523]", "identities": {"2756953": ["20413828", "S"], "2756966": ["20413831", "S"]}, "pid": 2756953}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2757197, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-command-SIGTERM input [523]", "identities": {"2757194": ["20414089", "S"], "2757197": ["20414092", "S"]}, "pid": 2757194}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2757519, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-transition-SIGINT input [523]", "identities": {"2757510": ["20414361", "S"], "2757519": ["20414364", "S"]}, "pid": 2757510}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2757751, "cwd": "<packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-transition-SIGTERM input [523]", "identities": {"2757748": ["20414623", "S"], "2757751": ["20414626", "S"]}, "pid": 2757748}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-head/no-wait-queue--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-head/no-wait-queue--head/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/no-wait-queue--head/scripts/test_suite_cancellation.py", line 236, in lock_wait
+    assert probe.process.poll() is None, probe.log()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cannot lock <packet>/scratch/mut-head/no-wait-queue--head/suite-cancellation-gg1313mc/cancel-lock-wait-SIGINT input [523]/.run_all_suites.lock
+

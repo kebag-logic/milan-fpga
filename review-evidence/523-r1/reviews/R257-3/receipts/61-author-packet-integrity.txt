@@ -1,0 +1,14 @@
+# Evidence commit
+9eea4205403319e468c836137af79e501a262b8d
+# sha256sum -c correction-a195/MANIFEST.sha256 (non-OK lines, then counts)
+./receipts/30-gptp-shadow-lifecycle.txt: FAILED
+sha256sum: WARNING: 1 computed checksum did NOT match
+      1 FAILED
+    257 OK
+# outer MANIFEST.json rows under correction-a195/: 259
+# published_sha256 mismatches: []
+# path_redacted: ['correction-a195/receipts/30-gptp-shadow-lifecycle.txt']
+# rows also listed in nested MANIFEST.sha256: 258; nested digest != original_sha256: []
+# Author claim check: HANDOFF.md 'Limits' flock sentence
+23:   - The boundary is the sweep shell's own `flock` child, seen in `/proc` under the launched entry. No delay and no shim is involved.
+84:- The lock-wait arm needs `flock(1)`, as the existing `lock_free()` hard-stop check already does. The `mkdir` fallback lock is not exercised.

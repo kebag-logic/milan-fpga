@@ -1,0 +1,35 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2854129, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/normal-orphan input [523]", "identities": {"2854126": ["20468531", "S"], "2854129": ["20468533", "S"]}, "pid": 2854126}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2854458, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-selection-SIGINT input [523]", "identities": {"2854457": ["20468832", "S"], "2854458": ["20468835", "S"]}, "pid": 2854457}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2854570, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-selection-SIGTERM input [523]", "identities": {"2854569": ["20469062", "S"], "2854570": ["20469065", "S"]}, "pid": 2854569}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2854661, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-preflight-SIGINT input [523]", "identities": {"2854658": ["20469302", "S"], "2854661": ["20469305", "S"]}, "pid": 2854658}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2854810, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-preflight-SIGTERM input [523]", "identities": {"2854808": ["20469546", "S"], "2854810": ["20469549", "S"]}, "pid": 2854808}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2855007, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-command-SIGINT input [523]", "identities": {"2854993": ["20469801", "S"], "2855007": ["20469804", "S"]}, "pid": 2854993}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2855203, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-command-SIGTERM input [523]", "identities": {"2855196": ["20470061", "S"], "2855203": ["20470064", "S"]}, "pid": 2855196}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2855399, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-transition-SIGINT input [523]", "identities": {"2855395": ["20470320", "S"], "2855399": ["20470323", "S"]}, "pid": 2855395}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2855568, "cwd": "<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-transition-SIGTERM input [523]", "identities": {"2855566": ["20470584", "S"], "2855568": ["20470587", "S"]}, "pid": 2855566}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-extra/clear-before-lock--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-extra/clear-before-lock--head/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-extra/clear-before-lock--head/scripts/test_suite_cancellation.py", line 240, in lock_wait
+    cancel_report(output, root, signum, prepared=False)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-extra/clear-before-lock--head/scripts/test_suite_cancellation.py", line 127, in cancel_report
+    assert (root / "logs" / relative).read_text() == text, "previous evidence changed"
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<packet>/scratch/mut-extra/clear-before-lock--head/suite-cancellation-5h0s3s0j/cancel-lock-wait-SIGINT input [523]/logs/omega.log'

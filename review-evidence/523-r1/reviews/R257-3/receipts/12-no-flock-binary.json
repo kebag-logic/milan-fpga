@@ -1,0 +1,44 @@
+{
+ "head": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+ "base_test_from": "26353960ae2763cc09741d0f7bcc720621bd5148",
+ "jobs": 2,
+ "path_override": true,
+ "leftover_descendants_killed": {},
+ "results": [
+  {
+   "mutant": "none",
+   "test": "base",
+   "what": "unmodified head",
+   "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+   "sweep_sha256": "b8524387d088a8a946d9a3ae2c39a930bc8a7d0cd7953b79fef8462bca43c685",
+   "rc": 0,
+   "verdict": "GREEN",
+   "seconds": 39.5,
+   "test_frames": [],
+   "final_error": "",
+   "arms_completed": 24,
+   "last_arm_completed": "facility-no-pidfd-signal",
+   "pass_line": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)",
+   "log": "none--base.log"
+  },
+  {
+   "mutant": "none",
+   "test": "head",
+   "what": "unmodified head",
+   "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+   "sweep_sha256": "b8524387d088a8a946d9a3ae2c39a930bc8a7d0cd7953b79fef8462bca43c685",
+   "rc": 1,
+   "verdict": "RED",
+   "seconds": 26.9,
+   "test_frames": [
+    "main:379",
+    "lock_wait:236"
+   ],
+   "final_error": "AssertionError: shard: 0/1   selected suites: 2",
+   "arms_completed": 15,
+   "last_arm_completed": "cancel-transition-SIGTERM",
+   "pass_line": null,
+   "log": "none--head.log"
+  }
+ ]
+}

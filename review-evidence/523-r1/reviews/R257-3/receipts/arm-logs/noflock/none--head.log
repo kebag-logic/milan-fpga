@@ -1,0 +1,33 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2815262, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/normal-orphan input [523]", "identities": {"2815255": ["20436188", "S"], "2815262": ["20436191", "S"]}, "pid": 2815255}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2815655, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-selection-SIGINT input [523]", "identities": {"2815649": ["20436492", "S"], "2815655": ["20436494", "S"]}, "pid": 2815649}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2815979, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-selection-SIGTERM input [523]", "identities": {"2815952": ["20436727", "S"], "2815979": ["20436730", "S"]}, "pid": 2815952}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2816336, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-preflight-SIGINT input [523]", "identities": {"2816334": ["20436973", "S"], "2816336": ["20436976", "S"]}, "pid": 2816334}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2816777, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-preflight-SIGTERM input [523]", "identities": {"2816770": ["20437218", "S"], "2816777": ["20437221", "S"]}, "pid": 2816770}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2817057, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-command-SIGINT input [523]", "identities": {"2817035": ["20437473", "S"], "2817057": ["20437476", "S"]}, "pid": 2817035}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2818056, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-command-SIGTERM input [523]", "identities": {"2818036": ["20437742", "S"], "2818056": ["20437745", "S"]}, "pid": 2818036}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2818876, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-transition-SIGINT input [523]", "identities": {"2818867": ["20438001", "S"], "2818876": ["20438003", "S"]}, "pid": 2818867}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2819058, "cwd": "<packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-transition-SIGTERM input [523]", "identities": {"2819053": ["20438259", "S"], "2819058": ["20438261", "S"]}, "pid": 2819053}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/noflock/none--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/noflock/none--head/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/noflock/none--head/scripts/test_suite_cancellation.py", line 236, in lock_wait
+    assert probe.process.poll() is None, probe.log()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+PASS     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 2   failed: 0   timed out: 0
+checks: 2   in-suite failures: 0
+logs: <packet>/scratch/noflock/none--head/suite-cancellation-fe5qhtr0/cancel-lock-wait-SIGINT input [523]/logs
+

@@ -1,0 +1,26 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2749855, "cwd": "<packet>/scratch/mut-head/partial-logs-basename--head/suite-cancellation-731p5cof/normal-orphan input [523]", "identities": {"2749829": ["20410554", "S"], "2749855": ["20410556", "S"]}, "pid": 2749829}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2750765, "cwd": "<packet>/scratch/mut-head/partial-logs-basename--head/suite-cancellation-731p5cof/cancel-selection-SIGINT input [523]", "identities": {"2750763": ["20410856", "S"], "2750765": ["20410859", "S"]}, "pid": 2750763}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2751158, "cwd": "<packet>/scratch/mut-head/partial-logs-basename--head/suite-cancellation-731p5cof/cancel-selection-SIGTERM input [523]", "identities": {"2751152": ["20411092", "S"], "2751158": ["20411094", "S"]}, "pid": 2751152}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<packet>/scratch/mut-head/partial-logs-basename--head/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<packet>/scratch/mut-head/partial-logs-basename--head/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/partial-logs-basename--head/scripts/test_suite_cancellation.py", line 190, in cancellation
+    cancel_report(output, root, signum, prepared=phase != "selection")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut-head/partial-logs-basename--head/scripts/test_suite_cancellation.py", line 123, in cancel_report
+    assert partial == [f"partial logs: {root / 'logs'}"] and not unprepared, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CANCELLED: INT; no completed sweep result
+partial logs: logs
+CANCELLED: signal 2; no completed sweep result
+

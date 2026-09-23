@@ -1,0 +1,49 @@
+{
+ "head": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+ "base_test_from": "26353960ae2763cc09741d0f7bcc720621bd5148",
+ "jobs": 2,
+ "path_override": false,
+ "leftover_descendants_killed": {},
+ "results": [
+  {
+   "mutant": "clear-before-lock",
+   "test": "base",
+   "what": "a queued sweep deletes the holder's previous logs before locking, report unchanged",
+   "file": "scripts/run_all_suites.sh",
+   "diff": "--- a/scripts/run_all_suites.sh\n+++ b/scripts/run_all_suites.sh\n@@ -205,6 +205,7 @@\n \n #! serialise sweeps in this tree, and record who holds it\n acquire_lock() {\n+  rm -f \"$OUT\"/*.log \"$OUT/preflight\"/*.log\n   LOCK=\"${SUITE_SWEEP_LOCK:-$ROOT/.run_all_suites.lock}\"\n   LOCK_OWNER=\"$LOCK.owner\"\n \n",
+   "test_sha256": "0821f97a879db4854f08fd95b59fa25f6025a7d318152e695bf15f133f4218cf",
+   "sweep_sha256": "808cc1817018b758307da68fd53726ea778909be0a8a5d212e1cd286b829436b",
+   "rc": 0,
+   "verdict": "GREEN",
+   "seconds": 39.2,
+   "test_frames": [],
+   "final_error": "",
+   "arms_completed": 24,
+   "last_arm_completed": "facility-no-pidfd-signal",
+   "pass_line": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)",
+   "log": "clear-before-lock--base.log"
+  },
+  {
+   "mutant": "clear-before-lock",
+   "test": "head",
+   "what": "a queued sweep deletes the holder's previous logs before locking, report unchanged",
+   "file": "scripts/run_all_suites.sh",
+   "diff": "--- a/scripts/run_all_suites.sh\n+++ b/scripts/run_all_suites.sh\n@@ -205,6 +205,7 @@\n \n #! serialise sweeps in this tree, and record who holds it\n acquire_lock() {\n+  rm -f \"$OUT\"/*.log \"$OUT/preflight\"/*.log\n   LOCK=\"${SUITE_SWEEP_LOCK:-$ROOT/.run_all_suites.lock}\"\n   LOCK_OWNER=\"$LOCK.owner\"\n \n",
+   "test_sha256": "2a5de7dd5e07b4be00a9ee5cb5cc8b99e29cdd6189e6e4cb3c2be5cb6c1825d6",
+   "sweep_sha256": "808cc1817018b758307da68fd53726ea778909be0a8a5d212e1cd286b829436b",
+   "rc": 1,
+   "verdict": "RED",
+   "seconds": 26.6,
+   "test_frames": [
+    "main:379",
+    "lock_wait:240",
+    "cancel_report:127"
+   ],
+   "final_error": "Traceback (most recent call last):",
+   "arms_completed": 15,
+   "last_arm_completed": "cancel-transition-SIGTERM",
+   "pass_line": null,
+   "log": "clear-before-lock--head.log"
+  }
+ ]
+}

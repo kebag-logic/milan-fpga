@@ -1,0 +1,94 @@
+{
+ "head": "015edd9ab2248289ff000f6ef14890be1812ba7b",
+ "leftover_descendants_killed": {},
+ "results": [
+  {
+   "variant": "mutant:logs-ready-early",
+   "what": "report claims this run's logs before any preparation",
+   "exit": 2,
+   "seconds": 8.8,
+   "term_sent_at": null,
+   "transcript": [
+    "    cancellation(parent, phase, signum)",
+    "    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"<packet>/scratch/entry/mutant-logs-ready-early/tree/scripts/test_suite_cancellation.py\", line 190, in cancellation",
+    "    cancel_report(output, root, signum, prepared=phase != \"selection\")",
+    "    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"<packet>/scratch/entry/mutant-logs-ready-early/tree/scripts/test_suite_cancellation.py\", line 125, in cancel_report",
+    "    assert partial == [] and unprepared, output",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: CANCELLED: INT; no completed sweep result",
+    "partial logs: <packet>/scratch/entry/mutant-logs-ready-early/suite-cancellation-633ja1vc/cancel-selection-SIGINT input [523]/logs",
+    "CANCELLED: signal 2; no completed sweep result",
+    "ABORTING: sweep cancellation controls failed."
+   ],
+   "preflight_logs": [
+    "test_suite_cancellation.log"
+   ],
+   "cancellation_preflight_pass": null,
+   "lock_wait_arms": [],
+   "failing_frames": [
+    "main:377",
+    "cancellation:190",
+    "cancel_report:125"
+   ],
+   "make_guard_hits": [],
+   "suite_logs": []
+  },
+  {
+   "variant": "mutant:prepare-before-lock",
+   "what": "logs cleared and claimed before the lock wait",
+   "exit": 2,
+   "seconds": 26.9,
+   "term_sent_at": null,
+   "transcript": [
+    "    lock_wait(parent, signum)",
+    "    ~~~~~~~~~^^^^^^^^^^^^^^^^",
+    "  File \"<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py\", line 240, in lock_wait",
+    "    cancel_report(output, root, signum, prepared=False)",
+    "    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "  File \"<packet>/scratch/entry/mutant-prepare-before-lock/tree/scripts/test_suite_cancellation.py\", line 125, in cancel_report",
+    "    assert partial == [] and unprepared, output",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: CANCELLED: INT; no completed sweep result",
+    "partial logs: <packet>/scratch/entry/mutant-prepare-before-lock/suite-cancellation-lc0tl7qx/cancel-lock-wait-SIGINT input [523]/logs",
+    "CANCELLED: signal 2; no completed sweep result",
+    "ABORTING: sweep cancellation controls failed."
+   ],
+   "preflight_logs": [
+    "test_suite_cancellation.log"
+   ],
+   "cancellation_preflight_pass": null,
+   "lock_wait_arms": [],
+   "failing_frames": [
+    "main:379",
+    "lock_wait:240",
+    "cancel_report:125"
+   ],
+   "make_guard_hits": [],
+   "suite_logs": []
+  },
+  {
+   "variant": "unmodified",
+   "exit": 143,
+   "seconds": 40.4,
+   "term_sent_at": 40.2,
+   "transcript": [
+    "CANCELLED: TERM; no completed sweep result",
+    "partial logs: <packet>/scratch/entry/unmodified/OUT",
+    "CANCELLED: signal 15; no completed sweep result"
+   ],
+   "preflight_logs": [
+    "test_suite_cancellation.log"
+   ],
+   "cancellation_preflight_pass": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, unsafe negative controls)",
+   "lock_wait_arms": [
+    "cancel-lock-wait-SIGINT",
+    "cancel-lock-wait-SIGTERM"
+   ],
+   "failing_frames": [],
+   "make_guard_hits": [],
+   "suite_logs": []
+  }
+ ]
+}

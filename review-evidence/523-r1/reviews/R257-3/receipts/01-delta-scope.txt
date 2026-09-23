@@ -1,0 +1,36 @@
+# git diff --raw 26353960..015edd9a
+:100644 100644 abb73afb6b255c4fd46ea0f5964ab816b6fc5fed 839a870321c830c3107cb2d65bca8da0f42c6c85 M	scripts/test_suite_cancellation.py
+# git diff --raw --no-abbrev --submodule=short 26353960..015edd9a -- (gitlinks)
+# commit
+tree fc03d0313af978c147bf734f9905fdc427a2b758
+parent 26353960ae2763cc09741d0f7bcc720621bd5148
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1790162496 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1790162496 +0200
+
+Assert the sweep shell's cancellation report and log attribution at every boundary
+# parent tree vs head tree ls-tree diff count
+446c446
+< 100644 blob abb73afb6b255c4fd46ea0f5964ab816b6fc5fed	scripts/test_suite_cancellation.py
+---
+> 100644 blob 839a870321c830c3107cb2d65bca8da0f42c6c85	scripts/test_suite_cancellation.py
+# numstat
+63	7	scripts/test_suite_cancellation.py
+# base..head numstat
+9	5	CONTRIBUTING.md
+47	0	docs/testing/TESTING.md
+27	1	scripts/check_baremetal_only.py
+4	0	scripts/measure_test_evidence.py
+302	0	scripts/owned_process.py
+244	0	scripts/process_test_support.py
+66	11	scripts/run_all_suites.sh
+395	0	scripts/test_suite_cancellation.py
+17	5	tb/verilator/gptp_shadow/Makefile
+53	0	tb/verilator/gptp_shadow/README.md
+50	55	tb/verilator/gptp_shadow/mutants.py
+197	0	tb/verilator/gptp_shadow/private_inputs.py
+434	0	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+# scoped stat hdl/gitlinks
+(end scoped)
+# merge-base check
+776bc77d is ancestor
+26353960 is parent-ancestor
