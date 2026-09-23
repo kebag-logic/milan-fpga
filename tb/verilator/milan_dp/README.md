@@ -499,6 +499,28 @@ The timed option-OFF leg keeps the scheduler timebase compressed for the
 served counter geometry and lossless descriptor arbiter; their gPTP writes
 specifically prove that ownerless state cannot create a hidden counter edge.
 
+**`[CTRS-CRF]` is the CRF Media Clock Input's row (#529).** The shape appends
+that Stream Input at index `N_STREAMS`, and its ten Milan Table 5.16 counters
+are `KL_crf_rx`'s. On every broad `sim_nxn` leg, before the 5.3.8.7 section
+binds the sink, the section reads `GET_COUNTERS(STREAM_INPUT, N_STREAMS)`
+through the processor. It checks the full SUCCESS response from reset (cdl 148,
+mask `0xF3F`, ten zeros, every unclaimed quadlet zero). It seeds a distinct
+full-width signature into each tally and reads each quadlet back, with
+`CRF_STATUS` as the second reader of three of them. It proves that no AAF input
+carries a CRF quadlet or loses `0xFFF`, and that index `N_STREAMS + 1` is still
+NO_SUCH_DESCRIPTOR with the empty body. Raising the bench lever at `0x738` is
+the not-bound to bound edge. It must wipe the row and reach the descriptor
+arbiter as {STREAM_INPUT, `N_STREAMS`} alone. Real PDUs of the followed stream
+then carry FRAMES_RX (interval law) and STREAM_INTERRUPTED (per-event law)
+from `0xFFFFFFFF` through zero. The timed leg's `[NOTIFY-CRF]` raises the
+same edge with two controllers registered. The push must reach both
+controllers, byte-identical from the body on to the solicited answer, and a
+second edge inside the same processor second is withheld until the
+one-second limit releases it once. Each check fails under its wiring
+mutation: the row removed, two quadlets permuted, a 16-bit slice, a claimed tv
+pair, the dirty source removed, the CRF row answering for the AAF inputs, the
+AAF guard answering for the CRF input, and one tally unwired.
+
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
 `GET_AUDIO_MAP` succeeds on both Stream Port directions, and
 `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` use the processor's two-pass
