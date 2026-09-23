@@ -1,0 +1,22 @@
+# leg=notify tag=notify_ma3_dirty_removed dp_src_sha256=53f38c4608310f687abaa8188a85a906bb92b6d5fe3bf89995d32c2676e7073d
+# simulator: Verilator 5.050 2026-07-01 rev v5.050
+# build start 2026-09-23T18:48:12Z
+# build exit 0 2026-09-23T18:48:25Z
+# run exit 1 2026-09-23T18:48:43Z
+  [FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+  [FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2
+  [i]    CRF row pushes to B -1 ms apart
+  [FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1
+checks: 143   failures: 8
+RESULT: FAIL
+# FAIL lines: 9
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+--------------------------------------------------------------
+checks: 143   failures: 8
+RESULT: FAIL

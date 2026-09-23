@@ -1,0 +1,13 @@
+# leg=main tag=main_mx3_port_swap_late_early dp_src_sha256=d1256fdc6c94c10b1b819b75af6cdab098a16b0a14017c967d4615f34ab47afd
+# simulator: Verilator 5.050 2026-07-01 rev v5.050
+# build start 2026-09-23T18:51:52Z
+# build exit 0 2026-09-23T18:52:05Z
+# run exit 0 2026-09-23T18:52:10Z
+  [PASS] PROBE status TALKER_DEST_MAC_FAILED(3) - no DA held got=0x00000003 exp=0x00000003
+milan_datapath: 230 checks, 0 failures
+# FAIL lines: 1
+  [PASS] [RMON] RX_FIFO_OVERFLOW declared unsupported got=0x00000000 exp=0x00000000
+  [PASS] [RMON] cap is a live read (bits 31:9 reserved 0) got=0x00000000 exp=0x00000000
+======================================================================
+milan_datapath: 230 checks, 0 failures
+milan_datapath: guarded and NOT run in this shape: 1

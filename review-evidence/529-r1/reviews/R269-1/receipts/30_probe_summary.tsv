@@ -1,0 +1,26 @@
+leg	probe	build	run_exit	checks	failures	failing_checks
+main	exact-head	0	0	230	0	-
+notify	exact-head	0	0	143	0	-
+nxn	exact-head	0	0	1687	0	-
+nxn8	exact-head	0	0	3115	0	-
+main	mx1_port_swap_mr_tu	0	0	230	0	-
+main	mx2_port_swap_locked_unlocked	0	0	230	0	-
+main	mx3_port_swap_late_early	0	0	230	0	-
+notify	ma3_dirty_removed	0	1	143	8	[NOTIFY-CRF] ...and RELEASED exactly once after it | [NOTIFY-CRF] ...and to B | [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer | [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) | [NOTIFY-CRF] ...no earlier than one second after the first | [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body | [NOTIFY-CRF] a second change inside the second is WITHHELD | [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A
+notify	mx1_port_swap_mr_tu	0	0	143	0	-
+notify	mx2_port_swap_locked_unlocked	0	0	143	0	-
+notify	mx3_port_swap_late_early	0	0	143	0	-
+nxn8	mx1_port_swap_mr_tu	0	0	3115	0	-
+nxn8	mx2_port_swap_locked_unlocked	0	0	3115	0	-
+nxn8	mx3_port_swap_late_early	0	0	3115	0	-
+nxn	ma1_mask_fff	0	1	1687	3	[CTRS-CRF] after the bind edge: counters_valid still 0xF3F | [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) | [CTRS-CRF] signatures: counters_valid still 0xF3F
+nxn	ma2_mux_swap_q0_q1	0	1	1687	2	[CTRS-CRF] signatures: @0 MEDIA_LOCKED | [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED
+nxn	ma3_dirty_removed	0	1	1687	1	[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only
+nxn	ma4_crf_arm_no_index_first	0	1	1687	8	[CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet | [CTRS] @0 MEDIA_LOCKED == CSR CNT0 | [CTRS] @12 SEQ_NUM_MISMATCH == CSR CNT3 | [CTRS] @36 LATE_TIMESTAMP == CSR CNT7 | [CTRS] @44 FRAMES_RX == CSR CNT9 | [CTRS] @8 STREAM_INTERRUPTED == CSR CNT2 | [CTRS] counters_valid = 0xFFF (quadlets 0..11) | [CTRS] the graded counters are DISTINCT, not a flat block
+nxn	ma5_q11_16bit_slice	0	1	1687	2	[CTRS-CRF] signatures: @44 FRAMES_RX | [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF
+nxn	ma6_aaf_guard_le	0	1	1687	18	[CTRS-CRF] after the bind edge: counters_valid still 0xF3F | [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) | [CTRS-CRF] signatures: @0 MEDIA_LOCKED | [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH | [CTRS-CRF] signatures: @16 MEDIA_RESET | [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN | [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT | [CTRS-CRF] signatures: @36 LATE_TIMESTAMP | [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED | [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP | [CTRS-CRF] signatures: @44 FRAMES_RX | [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED | [CTRS-CRF] signatures: counters_valid s
+nxn	ma7_row_removed_public	0	1	1687	18	[CTRS-CRF] after the bind edge: counters_valid still 0xF3F | [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) | [CTRS-CRF] signatures: @0 MEDIA_LOCKED | [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH | [CTRS-CRF] signatures: @16 MEDIA_RESET | [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN | [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT | [CTRS-CRF] signatures: @36 LATE_TIMESTAMP | [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED | [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP | [CTRS-CRF] signatures: @44 FRAMES_RX | [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED | [CTRS-CRF] signatures: counters_valid s
+nxn	mx1_port_swap_mr_tu	0	0	1687	0	-
+nxn	mx2_port_swap_locked_unlocked	0	0	1687	0	-
+nxn	mx3_port_swap_late_early	0	0	1687	0	-
+nxn	mx4_port_swap_intr_locked	0	1	1687	1	[CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0

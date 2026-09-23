@@ -1,0 +1,15 @@
+# exact-head obj_nxn model: root symbols for the ten CRF tallies, and any KL_crf_rx port-local tally symbol
+# (the instance is flattened; its tally outputs exist only under the datapath's wire names)
+## root wires
+milan_datapath__DOT__crf_earlycnt_w
+milan_datapath__DOT__crf_fmterr_w
+milan_datapath__DOT__crf_intrcnt_w
+milan_datapath__DOT__crf_latecnt_w
+milan_datapath__DOT__crf_lockcnt_w
+milan_datapath__DOT__crf_mrcnt_w
+milan_datapath__DOT__crf_pducnt_w
+milan_datapath__DOT__crf_seqerr_w
+milan_datapath__DOT__crf_tucnt_w
+milan_datapath__DOT__crf_unlockcnt_w
+## KL_crf_rx port-local tally symbols (expected none)
+count: 0

@@ -1,0 +1,10 @@
+# python3 -B scripts/docs_check.py (reviewer run)
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit 0
+# python3 -B docs/traceability/gen_module_matrix.py --check (reviewer run)
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+exit 0
+# python3 -B scripts/gen_toc.py --check (reviewer run)
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+exit 0

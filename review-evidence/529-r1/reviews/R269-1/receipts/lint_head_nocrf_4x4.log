@@ -1,0 +1,19 @@
+# lint-only tag=head_nocrf_4x4 shape=configs/generated/probe_arty_4x4_nocrf dp_src_sha256=2b729369b5e705cf8f76713d59720e5017c7000fdc620e72bd4269021656bcd1 extra=-GN_STREAMS=4
+# simulator: Verilator 5.050 2026-07-01 rev v5.050
+# exit 0
+# %Error lines: 0
+# %Warning lines: 60
+# %Warning/%Error lines naming milan_datapath.sv:
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:1569:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:850:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:854:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:857:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:897:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:901:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:948:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:951:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:954:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:957:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+      1 %Warning-GENUNNAMED: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:963:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+      1 %Warning-SYNCASYNCNET: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+      1 %Warning-VARHIDDEN: <packet>/scratch/tree/hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'

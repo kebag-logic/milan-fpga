@@ -1,0 +1,96 @@
+# milan_datapath.sv code-only diff ede8d48e..f8155775 (comments and whitespace stripped)
+702a703,705
+> wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+> wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
+> wire crf_dirty_p_w;
+1694a1698,1718
+> localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
+> wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+> && (ctrq_type_r == DESC_STREAM_INPUT_C)
+> && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
+> logic [31:0] ctr_crf_blk_w;
+> always_comb begin : ctr_crf_block
+> unique case (ctrq_word_r)
+> 6'd0 : ctr_crf_blk_w = crf_lockcnt_w;
+> 6'd1 : ctr_crf_blk_w = crf_unlockcnt_w;
+> 6'd2 : ctr_crf_blk_w = crf_intrcnt_w;
+> 6'd3 : ctr_crf_blk_w = crf_seqerr_w;
+> 6'd4 : ctr_crf_blk_w = crf_mrcnt_w;
+> 6'd5 : ctr_crf_blk_w = crf_tucnt_w;
+> 6'd8 : ctr_crf_blk_w = crf_fmterr_w;
+> 6'd9 : ctr_crf_blk_w = crf_latecnt_w;
+> 6'd10 : ctr_crf_blk_w = crf_earlycnt_w;
+> 6'd11 : ctr_crf_blk_w = crf_pducnt_w;
+> 6'd32 : ctr_crf_blk_w = CTR_VALID_CRF_C;
+> default : ctr_crf_blk_w = 32'd0;
+> endcase
+> end : ctr_crf_block
+1695a1720
+> : ctr_crf_w ? ctr_crf_blk_w
+2924,2927c2949,2952
+< .mr_cnt_o (),
+< .tu_cnt_o (),
+< .late_cnt_o (),
+< .early_cnt_o (),
+---
+> .mr_cnt_o (crf_mrcnt_w),
+> .tu_cnt_o (crf_tucnt_w),
+> .late_cnt_o (crf_latecnt_w),
+> .early_cnt_o (crf_earlycnt_w),
+2929,2932c2954,2957
+< .cnt_locked_o (),
+< .cnt_unlocked_o (),
+< .cnt_intr_o (),
+< .dirty_p_o ()
+---
+> .cnt_locked_o (crf_lockcnt_w),
+> .cnt_unlocked_o (crf_unlockcnt_w),
+> .cnt_intr_o (crf_intrcnt_w),
+> .dirty_p_o (crf_dirty_p_w)
+3840c3865,3867
+< localparam int unsigned PP_CTR_EVT_N_C = N_STREAMS + ACMP_SRC_C + 2;
+---
+> localparam int unsigned PP_CTR_SIN_N_C = N_STREAMS
+> + ((ACMP_SINKS_C > N_STREAMS) ? 1 : 0);
+> localparam int unsigned PP_CTR_EVT_N_C = PP_CTR_SIN_N_C + ACMP_SRC_C + 2;
+3843c3870,3876
+< logic [N_STREAMS-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
+---
+> wire [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+> if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+> assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
+> end else begin : g_ctr_no_crf_dirty
+> assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+> end
+> logic [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
+3864c3897
+< if (pick < N_STREAMS) begin
+---
+> if (pick < PP_CTR_SIN_N_C) begin
+3867c3900
+< end else if (pick < (N_STREAMS + ACMP_SRC_C)) begin
+---
+> end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+3869,3870c3902,3903
+< pp_ctr_evt_index_w = 16'(pick - N_STREAMS);
+< end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+---
+> pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
+> end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+3879c3912
+< pp_ctr_sin_pend_n = pp_ctr_sin_pend_r | avtprx_dirty_p_w;
+---
+> pp_ctr_sin_pend_n = pp_ctr_sin_pend_r | pp_ctr_sin_dirty_w;
+3883c3916
+< for (int unsigned s = 0; s < N_STREAMS; s++) begin
+---
+> for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
+3916c3949
+< pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS
+---
+> pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C
+3919c3952
+< pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS + ACMP_SRC_C + 1);
+---
+> pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C + ACMP_SRC_C + 1);
+diff-exit 1
