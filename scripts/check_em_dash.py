@@ -78,9 +78,8 @@ from pathlib import Path
 # OWNED by gen_toc.py, which writes the entries this gate reads; lifting them
 # rather than restating them is what keeps the two from disagreeing.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from gen_toc import (TOC_ENTRY_RE, generated_block, headings, label,
-                     refusal_notes,
-                     line_kinds)
+from gen_toc import (TOC_ENTRY_RE, RendererError, generated_block, headings,
+                     label, refusal_notes, line_kinds)
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -934,7 +933,7 @@ def selftest() -> tuple[list[str], int]:
             # that means "findings".
             try:
                 problems += _run_control(repo, base, control)
-            except Refusal as exc:
+            except (Refusal, RendererError) as exc:
                 problems.append(f"[{control.name}] cannot judge: {exc}")
         # A base that is not a commit is refused, never judged as empty.
         arms += 1
@@ -946,8 +945,11 @@ def selftest() -> tuple[list[str], int]:
             pass
     found, more = _base_derivation_arms()
     from gen_toc_closer_cases import em_dash_arms
+    from gen_toc_shape_cases import em_dash_arms as shape_arms
     closer_problems, closer_arms = em_dash_arms(sys.modules[__name__])
-    return problems + found + closer_problems, arms + more + closer_arms
+    shape_problems, shape_rows = shape_arms(sys.modules[__name__])
+    return (problems + found + closer_problems + shape_problems,
+            arms + more + closer_arms + shape_rows)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -962,8 +964,13 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     # Before any verdict: the controls must still bite. An unproven rule is
-    # rc 2, never rc 0 - those are different answers.
-    problems, arms = selftest()
+    # rc 2, never rc 0 - those are different answers. Without the pinned
+    # renderer no heading can be read, so that is rc 2 too.
+    try:
+        problems, arms = selftest()
+    except RendererError as exc:
+        print(f"check_em_dash: cannot judge: {exc}", file=sys.stderr)
+        return 2
     for problem in problems:
         print("  -", problem, file=sys.stderr)
     if problems:
@@ -977,7 +984,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         base = require_commit(REPO, args.base)
         verdict = judge(REPO, base)
-    except Refusal as exc:
+    except (Refusal, RendererError) as exc:
         print(f"check_em_dash: cannot judge: {exc}", file=sys.stderr)
         return 2
     for finding in verdict.findings:

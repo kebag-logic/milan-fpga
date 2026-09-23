@@ -3,16 +3,27 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The self-test CASE TABLES of `gen_toc.py`: fixture pages and answers.
 
-WHICH MODULE IS WHICH. `gen_toc.py` owns block classification for this
-repository: the one walk, every rule that decides what a line is, and the
-runner that scores these tables. None of that may live anywhere else, and
-none of it moved here. THIS module owns no rule and no decision. It is
-data: each arm is a name, a fixture page, and the answer that page must
-produce, in six families - the block walk, the type-7 opener, the two
-guards that hold these tables, the ATX closing sequence, the lines a lone
-tag may follow, and provenance. An arm here says what the generator must
-answer; `gen_toc.py` says why. The guard family is the one that carries no
-page: its arms score the guards themselves and ignore theirs.
+WHICH MODULE IS WHICH. `gen_toc.py` owns what a line MEANS for navigation,
+reading what every line is from the pinned renderer (`gen_toc_renderer.py`),
+and holds the runner that scores these tables. None of that may live
+anywhere else, and none of it moved here. THIS module owns no rule and no
+decision. It is data: each arm is a name, a fixture page, and the answer
+that page must produce, in seven families - the block labels, the type-7
+opener, the guards that hold these tables and the renderer's pin, the ATX
+content rule, the lines a lone tag may follow, refusal and provenance. An
+arm here says what the generator must answer; `gen_toc.py` says why. The
+guard family is the one that carries no page: its arms score the guards
+themselves and ignore theirs.
+
+EVERY ARM IS JUDGED BY THE RENDERER (#437). These tables were written
+against a Markdown walk of this repository's own, measured against GitHub.
+The renderer that replaced it answers most of them as written. An arm it
+answers differently was one the old walk had wrong, and each of those now
+states the renderer's answer and carries the tag `(renderer)`; its page is
+in `gen_toc_shapes.json` with GitHub's recorded rendering, which is the
+evidence. One convention changed for every block arm: a raw HTML block's
+lines are the lines of its literal, so the blank line that ENDS a type-6 or
+type-7 block is no longer labelled with it.
 
 Split off in round 6 of PR #428 ([R86] suggestion, round 5): the tables had
 grown to where the two halves together ran past rule 12's long-module
@@ -25,11 +36,11 @@ round 6).
 """
 from pathlib import Path
 
-from gen_toc import (ARM_FAMILIES, CLASSES, CODE, COMMENT, FENCE,
-                     HTML_BLOCK_TAGS, HTML, MIN_ARMS, RAW_HTML_TAGS, REFUSED,
-                     TEXT, WALK_ROOTS, _owner_guards, _tally_guards,
+from gen_toc import (ARM_FAMILIES, CODE, COMMENT, FENCE, HTML, MIN_ARMS,
+                     REFUSED, TEXT, _owner_guards, _tally_guards,
                      generated_block, headings, refusal_notes, refusals)
-from gen_toc_guards import _class_guards
+from gen_toc_renderer_cases import (renderer_guard_arms, renderer_heading_arms,
+                                    renderer_walk_arms)
 
 
 #: A page whose Contents block the generator owns: three sections, one
@@ -106,7 +117,7 @@ def walk_arms() -> list[tuple[str, str, object]]:
         ("an indented code run carries the blank line inside it",
          "    code\n\n    more\n## Real\n",
          lambda k: k[:3] == [CODE] * 3 and k[3] == TEXT),
-    ] + _html_walk_arms()
+    ] + _html_walk_arms() + renderer_walk_arms()
 
 
 def _html_walk_arms() -> list[tuple[str, str, object]]:
@@ -125,7 +136,8 @@ def _html_walk_arms() -> list[tuple[str, str, object]]:
         ("a type-6 block INTERRUPTS a paragraph, where a type-7 block "
          "may not",
          "text\n<div>\n## Alpha\n</div>\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:5] == [HTML] * 4 and k[5] == TEXT),
+         lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3
+         and k[4:6] == [TEXT] * 2),
         ("a type-6 block ends at the blank line, so the heading renders",
          "<div>\n\n## Alpha\n\n</div>\n",
          lambda k: k[0] == HTML and k[2] == TEXT),
@@ -149,15 +161,6 @@ def _html_walk_arms() -> list[tuple[str, str, object]]:
          "text\n<span>\n## Real\n</span>\n", lambda k: k[:3] == [TEXT] * 3),
         ("a tag line carrying anything but the tag opens no type-7 block",
          "<span>x\n## Real\n", lambda k: k[:2] == [TEXT] * 2),
-        ("a comment opened after visible text leaves that line alone",
-         "## Head <!-- note\n-->\n## B\n",
-         lambda k: k[0] == TEXT and k[1] == COMMENT and k[2] == TEXT),
-        ("a second comment opened on a closing line stays open",
-         "<!-- first --> <!-- second\n## Contents\n-->\ntext\n",
-         lambda k: k[:3] == [COMMENT] * 3 and k[3] == TEXT),
-        ("a comment closed and reopened inside a span stays open",
-         "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n",
-         lambda k: k[:4] == [COMMENT] * 4 and k[4] == TEXT),
         ("a comment that really closes ends the span",
          "<!-- one --> two\n## Contents\n",
          lambda k: k[0] == COMMENT and k[1] == TEXT),
@@ -172,7 +175,7 @@ def _html_walk_arms() -> list[tuple[str, str, object]]:
          lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
         ("a line of spaces and tabs does end one",
          "<span>\n \t\n## Alpha\n",
-         lambda k: k[0] == HTML and k[1] == HTML and k[2] == TEXT),
+         lambda k: k[0] == HTML and k[1:3] == [TEXT] * 2),
         # Round 9: `<pre` at the end of its line opens a type-1 block and
         # `<pre/>` opens none, which is the renderer's start condition
         # ([R85] F1, the type-1 opener).
@@ -181,11 +184,12 @@ def _html_walk_arms() -> list[tuple[str, str, object]]:
          lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
         ("a self-closing type-1 name opens a type-7 block instead, which "
          "the blank line ends", "<pre/>\n## Alpha\n\n## Real\n",
-         lambda k: k[:3] == [HTML] * 3 and k[3] == TEXT),
+         lambda k: k[:2] == [HTML] * 2 and k[2:4] == [TEXT] * 2),
         # Round 9: the type-6 name list is the renderer's ([R86] F1 R9).
         ("a type-6 name the renderer carries interrupts a paragraph",
          "text\n<source>\n## Alpha\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3 and k[4] == TEXT),
+         lambda k: k[0] == TEXT and k[1:3] == [HTML] * 2
+         and k[3:5] == [TEXT] * 2),
         ("a name the renderer does not carry is type 7, so it may not",
          "text\n<search>\n## Alpha\n",
          lambda k: k[:3] == [TEXT] * 3),
@@ -194,11 +198,37 @@ def _html_walk_arms() -> list[tuple[str, str, object]]:
         # spells and none of which an arm held.
         ("a type-6 name that ends its line opens the block",
          "text\n<div\n>\n## Alpha\n</div>\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:6] == [HTML] * 5 and k[6] == TEXT),
+         lambda k: k[0] == TEXT and k[1:5] == [HTML] * 4
+         and k[5:7] == [TEXT] * 2),
         ("a self-closing type-6 tag opens it too",
          "text\n<div/>\n## Alpha\n</div>\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:5] == [HTML] * 4 and k[5] == TEXT),
-    ] + _round9_walk_arms()
+         lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3
+         and k[4:6] == [TEXT] * 2),
+    ] + _comment_walk_arms() + _round9_walk_arms()
+
+
+def _comment_walk_arms() -> list[tuple[str, str, object]]:
+    """The comment arms the renderer answers differently from the old walk,
+    split off so neither function runs past rule 12's length ratchet."""
+    return [
+        # (renderer) The old walk closed a comment at any later `-->`. The
+        # renderer prints an arrow that is Markdown text as `--&gt;`, which
+        # closes nothing: a comment inline in a heading that does not close
+        # on its line is heading text, and one reopened in raw HTML stays
+        # open to the end of the page.
+        ("(renderer) a comment opened after visible text that does not "
+         "close on its line is text, and so is the arrow line after it",
+         "## Head <!-- note\n-->\n## B\n",
+         lambda k: k[:3] == [TEXT] * 3),
+        ("(renderer) a second comment opened on a closing line stays open "
+         "past an arrow written as text",
+         "<!-- first --> <!-- second\n## Contents\n-->\ntext\n",
+         lambda k: k[:4] == [COMMENT] * 4),
+        ("(renderer) a comment closed and reopened inside a comment block "
+         "stays open past an arrow written as text",
+         "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n",
+         lambda k: k[:5] == [COMMENT] * 5),
+    ]
 
 
 def _round9_walk_arms() -> list[tuple[str, str, object]]:
@@ -238,7 +268,8 @@ def _round10_walk_arms() -> list[tuple[str, str, object]]:
     return [
         ("a type-6 name a form feed follows opens the block, interrupting a "
          "paragraph", "text\n<div\f>\n## Alpha\n</div>\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:5] == [HTML] * 4 and k[5] == TEXT),
+         lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3
+         and k[4:6] == [TEXT] * 2),
         ("a type-6 name a line tabulation follows opens it on a line that "
          "carries more", "<div\v>x</div>\n## Alpha\n\n## Real\n",
          lambda k: k[:2] == [HTML] * 2 and k[3] == TEXT),
@@ -250,7 +281,8 @@ def _round10_walk_arms() -> list[tuple[str, str, object]]:
          lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3 and k[4] == TEXT),
         ("a type-6 name in capitals opens the block",
          "text\n<DIV>\n## Alpha\n</DIV>\n\n## Real\n",
-         lambda k: k[0] == TEXT and k[1:5] == [HTML] * 4 and k[5] == TEXT),
+         lambda k: k[0] == TEXT and k[1:4] == [HTML] * 3
+         and k[4:6] == [TEXT] * 2),
         ("a type-1 name in capitals opens one that its lowercase closing "
          "tag ends", "<PRE>\n\n## Alpha\n</pre>\n\n## Real\n",
          lambda k: k[:4] == [HTML] * 4 and k[5] == TEXT),
@@ -272,10 +304,10 @@ def _tag_page(tag: str) -> str:
 
 
 def _opens(tag: str) -> tuple[str, object]:
-    """`tag` is a complete tag: it opens a type-7 block that runs to the
-    blank line, so the heading it wraps is text."""
+    """`tag` is a complete tag: it opens a type-7 block that the blank line
+    ends, so the heading it wraps is text and the one after it renders."""
     return (_tag_page(tag),
-            lambda k: k[1:4] == [HTML] * 3 and k[4] == TEXT)
+            lambda k: k[1:3] == [HTML] * 2 and k[3:5] == [TEXT] * 2)
 
 
 def _refuses(tag: str) -> tuple[str, object]:
@@ -285,13 +317,12 @@ def _refuses(tag: str) -> tuple[str, object]:
 
 #: One complete tag per bound of the grammar, and one line per bound that
 #: is a bound because the grammar REFUSES what lies past it. Derived from
-#: the expressions rather than from a report ([R86] F1, round 6 on PR
-#: #428, which named five of them): every alternative, every member of
-#: every character class and every repetition count `_HTML_TAG_NAME`,
-#: `_HTML_ATTRIBUTE` and `HTML_TAG_LINE_RE` state is exercised here, at
-#: EVERY position that states it, and each one removed fails an arm
-#: below. GitHub's renderer agrees with every line of it (the fixture
-#: oracle over all arms).
+#: the old walk's expressions rather than from a report ([R86] F1, round 6
+#: on PR #428, which named five of them): every alternative, every member
+#: of every character class and every repetition count its tag expressions
+#: stated is exercised here, at EVERY position that states it. #437 deleted
+#: those expressions; the rows now hold the renderer's own tag scanner to
+#: the same bounds, and GitHub's renderer agrees with every line of it.
 #:
 #: Two things the tables held at one point only, and the expressions state
 #: at several, cost round 7 a finding each: the closing-tag branch was armed
@@ -337,8 +368,8 @@ _TAGS_OPEN = [
     # both self-tests and reopened the escape for the commonest lone tag
     # of all, a quoted value carrying a space. Each row below carries
     # every character its class admits that the sweep names, so narrowing
-    # the class anywhere fails it; `CLASSES` is the one place any of the
-    # three is spelled and the guard family arms the table itself.
+    # the class anywhere fails it. The old walk spelled the three classes
+    # itself; the renderer's scanner owns them now (#437), held by these.
     ("a single-quoted value carrying everything but its own quote",
      "<x a='b c\t\v\f=<>`\"d\u00e9'>"),
     ("a double-quoted value carrying everything but its own quote",
@@ -388,10 +419,12 @@ def tag_arms() -> list[tuple[str, str, object]]:
     Round 7 stops taking that list from a report: `_TAGS_OPEN` and
     `_TAGS_REFUSED` above carry one line per bound the grammar states,
     enumerated from the expressions themselves, and each bound removed fails
-    one of them. Round 8 stops taking the CLASSES from the specification's
+    one of them. Round 8 stops taking the classes from the specification's
     prose: each is what the renderer was measured to apply at that position,
     and a sweep of every position against every character of every class the
-    specification names is the receipt ([R85] F1 and [R86] F1, round 7)."""
+    specification names is the receipt ([R85] F1 and [R86] F1, round 7).
+    #437 replaced the expressions with the renderer itself, and every row
+    now holds the renderer's scanner to the bound it names."""
     return [
         ("a type-1 tag is read before the type-7 grammar, so its block "
          "survives a blank line",
@@ -434,10 +467,11 @@ def _listed(pairs: list[tuple[str, str]]) -> object:
 
 
 def heading_arms() -> list[tuple[str, str, object]]:
-    """`HEAD_RE`'s own arms: the closing sequence of hashes CommonMark 4.2
-    drops is a RUN of hashes with a space or a tab before it and nothing
-    but blanks after it, and neither bound had an arm ([R86] F2, round 5
-    on PR #428). Admitting anything after the run lists `## Old ## bar` as
+    """The ATX content rule's own arms (`gen_toc._atx_text`, which reads an
+    ATX label off its line since #437): the closing sequence of hashes
+    CommonMark 4.2 drops is a RUN of hashes with a space or a tab before it
+    and nothing but blanks after it, and neither bound had an arm ([R86]
+    F2, round 5 on PR #428). Admitting anything after the run lists `## Old ## bar` as
     `Old` at `old`, where the page renders `Old ## bar` at `old--bar`;
     dropping the space before it lists `## Old#` as `Old`, a label the
     page does not carry at an anchor it does. Both are held whole, the
@@ -469,7 +503,7 @@ def heading_arms() -> list[tuple[str, str, object]]:
          "#\tOld\n", _listed([("Old", "old")])),
         ("a no-break space after a run of hashes is not a closing sequence",
          "## Old #\u00a0\n", _listed([("Old #\u00a0", "old-")])),
-    ]
+    ] + renderer_heading_arms()
 
 
 #: The lines a lone tag may follow, and what the page then answers. A
@@ -480,7 +514,10 @@ def heading_arms() -> list[tuple[str, str, object]]:
 #: continues it and the heading renders. Rounds 1 to 6 took these from
 #: findings; round 7 adds one per bound the enumeration of every
 #: expression in `gen_toc.py` found unheld, so the table is now as wide as
-#: the grammar rather than as wide as the last report.
+#: the grammar rather than as wide as the last report. The renderer lists
+#: the headings the old walk withheld (#437): a setext heading, an ATX
+#: heading indented up to three spaces and an empty one, so those rows now
+#: carry their own anchors, as GitHub renders them.
 _HIDES = [
     ("an ATX heading", "## Alpha", ["alpha"]),
     ("a closing fence", "```\ncode\n```", []),
@@ -489,7 +526,7 @@ _HIDES = [
     ("a list item", "- item", []),
     ("a block quote", "> quoted", []),
     ("a table row", "| a | b |\n|---|---|\n| c | d |", []),
-    ("a setext underline", "Alpha\n===", []),
+    ("a setext underline", "Alpha\n===", ["alpha"]),
     ("a type-1 block's closing tag", "<pre>\ncode\n</pre>", []),
     ("an indented code line", "    code", []),
     ("a plain line lazily continuing a list item", "- item\nlazy", []),
@@ -510,8 +547,8 @@ _HIDES = [
     ("a plain line lazily continuing an item that interrupted a paragraph",
      "text\n- item\nlazy", []),
     ("a closed ATX heading", "## Alpha ##", ["alpha"]),
-    ("an ATX heading indented three spaces", "text\n   # H", []),
-    ("an empty ATX heading", "text\n##", []),
+    ("an ATX heading indented three spaces", "text\n   # H", ["h"]),
+    ("an empty ATX heading", "text\n##", [""]),
     ("a block quote indented two spaces", "text\n  > quoted", []),
     ("a list item indented two spaces", "text\n  - item", []),
     ("a footnote definition indented two spaces", "text\n  [^1]: note", []),
@@ -538,11 +575,11 @@ _HIDES = [
     ("an item whose content is separated by tabs", "-\t\titem", []),
     # Round 7, the setext underline: its indentation and its trailing
     # blanks.
-    ("a setext underline indented one space", "text\n =", []),
-    ("a setext underline ending in a space", "text\n= ", []),
-    ("a setext underline ending in a tab", "text\n=\t", []),
+    ("a setext underline indented one space", "text\n =", ["text"]),
+    ("a setext underline ending in a space", "text\n= ", ["text"]),
+    ("a setext underline ending in a tab", "text\n=\t", ["text"]),
     # Round 7, the delimiter row: the blanks GFM allows around each cell,
-    # the colons that align it, and the cell count `_table_cells` reads.
+    # the colons that align it, and the cell count GFM's table scanner reads.
     ("a delimiter row whose only cell ends in a space", "text\n-| ", []),
     ("a delimiter row whose only cell ends in a tab", "text\n-|\t", []),
     ("a delimiter row whose leading pipe is followed by a space",
@@ -611,7 +648,8 @@ _KEEPS = [
     ("a pipeless delimiter row indented by a tab", "text\n\t:-:"),
     ("an empty item that cannot interrupt a paragraph", "text\n*"),
     ("a footnote definition indented four spaces", "text\n    [^1]: note"),
-    ("a plain line after a setext underline of one hyphen", "text\n-\nlazy"),
+    ("a plain line after a setext underline of one hyphen", "text\n-\nlazy",
+     ["text"]),
     # Round 7: the same bounds from the other side, each a line the
     # expression must REFUSE, and does.
     ("a run of seven hashes, which is no ATX opener", "####### x"),
@@ -654,8 +692,9 @@ def predecessor_arms() -> list[tuple[str, str, object]]:
               before + wrapped, _expects(own + ["beta"]))
              for what, before, own in _HIDES]
             + [(f"a lone tag under {what} continues it, so the heading "
-                "renders", before + wrapped, _expects(["old", "beta"]))
-               for what, before in _KEEPS])
+                "renders", before + wrapped,
+                _expects(sum(own, []) + ["old", "beta"]))
+               for what, before, *own in _KEEPS])
 
 
 #: The separator a Contents entry written before the em-dash rule carries.
@@ -666,78 +705,13 @@ def predecessor_arms() -> list[tuple[str, str, object]]:
 _OLD_SEPARATOR = chr(0x2014)
 
 
-#: THE RENDERER'S CLASSES AGAIN, spelled here as a literal and not read from
-#: the table the walk reads. That is the whole point of the row: the guard
-#: family below compares the two, so narrowing or widening any class in
-#: `gen_toc.CLASSES` - adding a space to a quoted value's stop class,
-#: dropping the form feed from the delimiter row's padding, taking the tab
-#: out of the blank line - fails one arm, whatever else agrees ([R86] F2 and
-#: [R85] F1, round 9 on PR #428; the shape of the fix is [R85]'s round-7
-#: suggestion on the family list, which the guard's own arms were reading).
-_CLASSES_SPELLED = {
-    "blank": " \t",
-    "indent": " ",
-    "tag blank": " \t\v\f",
-    "tag tail": " \t\f",
-    "delimiter blank": " \t\v\f",
-    "tag name": "A-Za-z",
-    "tag name rest": "A-Za-z0-9-",
-    "attribute name": "A-Za-z_:",
-    "attribute name rest": "A-Za-z0-9_.:-",
-    "unquoted value stop": " \t\v\f\"'=<>`",
-    "single-quoted value stop": "'",
-    "double-quoted value stop": '"',
-    "footnote label stop": " \t\\]\r\n",
-    "ordinal": "0-9",
-    "bullet": "-+*",
-    "cell stop": "|",
-}
-
-
-#: The renderer's type-6 name list, spelled here and not read from the
-#: constant the walk reads, in the order CommonMark 0.29 gives it.
-_TYPE_6_SPELLED = (
-    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
-    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
-    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html"
-    "|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup"
-    "|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead"
-    "|title|tr|track|ul")
-
-
-def _guard_source(body: str = "return X.match(line)",
-                  pattern: str = '"[A-Z]"') -> str:
-    """A one-decision module for `_class_guards` to read: both walk roots,
-    one compiled expression and one statement in the walk."""
-    return ("import re\n"
-            f"X = re.compile({pattern})\n"
-            "def line_kinds(line):\n"
-            "    return blocks(line)\n"
-            "def blocks(line):\n"
-            f"    {body}\n")
-
-
-def _notes(body: str = "return X.match(line)",
-           pattern: str = '"[A-Z]"') -> list[str]:
-    """What `_class_guards` refuses in such a module."""
-    return _class_guards(_guard_source(body, pattern))[1]
-
-
-def _kinds(body: str = "return X.match(line)",
-           pattern: str = '"[A-Z]"') -> str:
-    """How it classifies that module's sites, one word per site."""
-    return " ".join(sorted(site.split(": ")[1]
-                           for site in _class_guards(
-                               _guard_source(body, pattern))[0]))
-
-
 def guard_arms() -> list[tuple[str, str, object]]:
-    """The two table GUARDS' own arms, and the family list they read. They
-    are scored like a page family and ignore the page: what each states is
-    the answer a guard gives for a set of tables, which is the only way a
-    guard ADDED to hold the tables is itself held. Round 6 of PR #428 was
-    asked for the tally guard; round 7 adds it and this, because a guard
-    with no arm is the same gap one layer up.
+    """The table GUARDS' own arms, and the family list they read. They are
+    scored like a page family and ignore the page: what each states is the
+    answer a guard gives for a set of tables, which is the only way a guard
+    ADDED to hold the tables is itself held. Round 6 of PR #428 was asked
+    for the tally guard; round 7 adds it and this, because a guard with no
+    arm is the same gap one layer up.
 
     `_tally_guards` must pass a full set, and name a family that is missing,
     one that is present and empty, a total below the recorded floor, and a
@@ -753,17 +727,17 @@ def guard_arms() -> list[tuple[str, str, object]]:
     were made of and all six single edits that drop a name from it
     survived both self-tests ([R85] suggestion, round 7 on PR #428). Drop
     a name now and this arm fails, whatever the rest agree on."""
-    from gen_toc import HEAD_RE
+    from gen_toc import TOC_ENTRY_RE
     plenty = {name: [None] * MIN_ARMS for name in ARM_FAMILIES}
     whole = MIN_ARMS * len(ARM_FAMILIES)
     short = {name: arms for name, arms in plenty.items() if name != "tag"}
     here = Path(__file__)
     return [
-        ("the family names are the eight the runner scores, spelled here "
+        ("the family names are the nine the runner scores, spelled here "
          "and not read from the constant the guard reads", "",
          lambda t: ARM_FAMILIES == ("walk", "tag", "guard", "heading",
                                     "predecessor", "provenance",
-                                    "refusal", "I440")),
+                                    "refusal", "I440", "shape")),
         ("the tally guard passes a full set of families", "",
          lambda t: _tally_guards(plenty, whole) == []),
         ("it names a family dropped from the runner's import", "",
@@ -791,118 +765,13 @@ def guard_arms() -> list[tuple[str, str, object]]:
         ("nor is a relative import, which names no module at all", "",
          lambda t: _owner_guards("x.py", "from . import b\n", {}) == []),
         ("it names a module that holds a compiled expression", "",
-         lambda t: len(_owner_guards("x.py", "x = 1\n", {"P": HEAD_RE})) == 1),
-    ] + _class_guard_arms()
-
-
-def _class_guard_arms() -> list[tuple[str, str, object]]:
-    """The guard family's round-9 half: the class table, the refusal set,
-    the walk roots and the site enumerator itself. The first three are
-    spelled in this module rather than read from what they hold, for the
-    reason the family list was ([R85] suggestion, round 7): a table read
-    by its own arms holds nothing."""
-    return [
-        ("the renderer's classes are the ones spelled here, and not read "
-         "from the table the walk reads", "",
-         lambda t: CLASSES == _CLASSES_SPELLED),
+         lambda t: len(_owner_guards("x.py", "x = 1\n",
+                                     {"P": TOC_ENTRY_RE})) == 1),
         ("the refused characters are exactly Python's whitespace less the "
          "space, the tab and the line feed", "",
          lambda t: set(REFUSED) == {chr(c) for c in range(0x110000)
                                     if chr(c).isspace()} - set(" \t\n")),
-        ("the walk roots are the two functions the walk answers through",
-         "", lambda t: WALK_ROOTS == ("blocks", "line_kinds")),
-        # The renderer's two NAME lists, spelled here for the same reason
-        # the classes are: the enumeration derives one mutant per name and
-        # per character of every name, and no page family could ever carry
-        # a fixture for each. One arm holds all of them, in both
-        # directions, and it is the arm that fails when `search` is
-        # written for `source` ([R86] F1 R9, round 9 on PR #428).
-        ("the type-1 names are the renderer's four", "",
-         lambda t: RAW_HTML_TAGS == ("pre", "script", "style", "textarea")),
-        ("the type-6 names are the renderer's own list, which carries "
-         "`source` and not `search`", "",
-         lambda t: HTML_BLOCK_TAGS == _TYPE_6_SPELLED),
-        ("the shipped walk carries no decision site of its own", "",
-         lambda t: _class_guards(Path(gen_toc_file()).read_text())[1] == []),
-        ("the shipped walk carries only single-source decision sites", "",
-         lambda t: {site.split(": ")[1] for site in _class_guards(
-             Path(gen_toc_file()).read_text())[0]} == {"single source"}),
-        ("a class spelled inline in an expression is refused", "",
-         lambda t: len(_notes(pattern='"[ \\t]+"')) == 1),
-        ("so is a blank quantified in one", "",
-         lambda t: len(_notes(pattern='" +"')) == 1),
-        ("so is a refused character in one", "",
-         lambda t: len(_notes(pattern='"\u00a0"')) == 1),
-        ("so is Python's digit class", "",
-         lambda t: len(_notes(pattern=r'"\\d"')) == 1),
-        ("so is a class inline in a string the expression interpolates",
-         "", lambda t: len(_class_guards(
-             "import re\nA = \"[ ]\"\nX = re.compile(A)\n"
-             "def line_kinds(line):\n    return blocks(line)\n"
-             "def blocks(line):\n    return X.match(line)\n")[1]) == 1),
-        ("a class read from the table by name is not", "",
-         lambda t: _notes(pattern='_cc("blank") + "+"') == []),
-        ("a strip with a class of its own is refused", "",
-         lambda t: len(_notes(body='return line.strip(" ")')) == 1),
-        ("so is asking Python what a character is", "",
-         lambda t: len(_notes(body="return line.isspace()")) == 1),
-        ("a strip from the table is a single-sourced site", "",
-         lambda t: _kinds(body='return line.strip(CLASSES["blank"])')
-         == "single source single source"),
-        ("a bare strip is a refusal site, not a refused one", "",
-         lambda t: _kinds(body="return line.strip()")
-         == "refusal single source"),
-        ("and so is Python's whitespace class", "",
-         lambda t: _kinds(pattern=r'"\\s"') == "refusal"),
-        ("a decision the walk reaches through another function is in the "
-         "enumeration", "",
-         lambda t: _kinds(body="return helper(line)") .count("refusal") == 0
-         and len(_class_guards(_guard_source("return helper(line)")
-                               + "def helper(line):\n"
-                                 "    return line.strip()\n")[0]) == 2),
-        ("a decision the walk never calls is not", "",
-         lambda t: len(_class_guards(
-             _guard_source() + "def elsewhere(line):\n"
-                               "    return line.strip()\n")[0]) == 1),
-        ("a walk root that is no function of the module is named", "",
-         lambda t: len(_class_guards("x = 1\n")[1]) == len(WALK_ROOTS)),
-        # The guard's own two lists, held the way every other list here is:
-        # spelled in this module and exercised one member at a time, so
-        # dropping a name from either fails an arm rather than quietly
-        # narrowing what the guard refuses ([R85] suggestion, round 7).
-        ("every Python character test the guard names is refused", "",
-         lambda t: all(len(_notes(body=f"return line.{test}()")) == 1
-                       for test in ("isspace", "isalpha", "isdigit",
-                                    "isalnum", "isnumeric", "isdecimal",
-                                    "isupper", "islower", "istitle",
-                                    "isascii"))),
-        ("every strip the guard names is a site of its own", "",
-         lambda t: all(_kinds(body=f"return line.{strip}()")
-                       == "refusal single source"
-                       for strip in ("strip", "lstrip", "rstrip", "split"))),
-        # Round 10 ([R85] F3, [R86] F3): the enumeration can LOSE a site to
-        # a spelling it does not read and say nothing, no arm having pinned
-        # how many there are. This one does.
-        ("the walk carries the number of decision sites recorded here", "",
-         lambda t: len(_class_guards(
-             Path(gen_toc_file()).read_text())[0]) == 25),
-        ("the site enumerator beside the walk holds no rule of its own", "",
-         lambda t: _beside_the_walk() == []),
-    ]
-
-
-def _beside_the_walk() -> list[str]:
-    """`_owner_guards` over the site enumerator, beside the walk as these
-    tables are, and holding no classification either."""
-    import gen_toc_guards
-    src = Path(gen_toc_guards.__file__)
-    return _owner_guards(src.name, src.read_text(), vars(gen_toc_guards))
-
-
-def gen_toc_file() -> str:
-    """The generator's own path, for the arms that read its source."""
-    import gen_toc
-    return gen_toc.__file__
+    ] + renderer_guard_arms()
 
 
 def refusal_arms() -> list[tuple[str, str, object]]:

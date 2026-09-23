@@ -127,9 +127,11 @@ generic cell library. The source-list gate independently walks the
 for its real source expansion.
 
 Run the documentation and traceability checks after any path or architecture
-change:
+change. `gen_toc.py` reads Markdown through the hash-locked renderer, so
+install its lock once first:
 
 ```sh
+python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
 python3 scripts/docs_check.py
 python3 scripts/check_doc_paths.py
 python3 scripts/gen_toc.py --check

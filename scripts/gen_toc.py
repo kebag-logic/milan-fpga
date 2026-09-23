@@ -12,6 +12,14 @@ HUMAN owns the description, the part that carries judgement. Descriptions
 survive regeneration, keyed by anchor and copied forward, so a renamed
 heading gets a fresh one rather than a stale sentence.
 
+WHICH SECTIONS EXIST is the renderer's answer, not this script's. Every page
+is parsed by cmark-gfm, the renderer GitHub uses, and its HTML is parsed as a
+browser parses it (`gen_toc_renderer.py`, pinned with hashes in
+`tools/markdown/requirements.txt`). A section is a heading that survives both
+stages. This script reads that answer and keeps what it MEANS here: which
+headings a Contents block lists, their labels and anchors, and whether a line
+is generated navigation (#437 and #516, replacing a Markdown walk of its own).
+
 Anchors follow GitHub's algorithm (lowercase; drop everything that is not
 alphanumeric, space or hyphen; spaces to hyphens; `-1`, `-2` on collision).
 `--verify-anchors` checks it against every `file.md#fragment` link in the
@@ -22,14 +30,18 @@ Usage:
     python3 scripts/gen_toc.py --write           # insert/refresh every TOC
     python3 scripts/gen_toc.py --write PATH...   # just these pages
     python3 scripts/gen_toc.py --verify-anchors  # anchor algorithm vs real links
-    python3 scripts/gen_toc.py --sites           # the walk's decision sites
 """
 import ast
+import functools
 import re
 import subprocess
 import sys
 from collections.abc import Iterator
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gen_toc_renderer import (Node, RendererError,  # noqa: E402,F401
+                              render as render_markdown)
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -46,13 +58,13 @@ MIN_SECTIONS = 3
 NEST_WHEN_H2_BELOW = 5
 NEST_WHEN_H3_ATLEAST = 8
 
-#: The arm families `gen_toc_cases` carries, and a FLOOR under the total.
+#: The arm families the case tables carry, and a FLOOR under the total.
 #: Nothing pinned an arm count, so a family dropped from the runner's
 #: import printed a smaller total and exited 0 ([R86] suggestion, round 6
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
-                "provenance", "refusal", "I440")
-MIN_ARMS = 707
+                "provenance", "refusal", "I440", "shape")
+MIN_ARMS = 1433
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -60,71 +72,15 @@ SKIP = {
     "docs/README.md":  "documentation index - it IS a table of contents",
 }
 
-#: THE RENDERER'S CHARACTER CLASSES: every CLASS the walk tests is here and
-#: read BY NAME, and `_class_guards()` enumerates the walk's decision sites
-#: off this module's syntax tree and refuses one that spells a class of its
-#: own. What is NOT a class stays at its site, and that guard names those:
-#: the tab of `_indent_columns`, the backtick of `_opens`, the pipe of
-#: `line_kinds` and the `[.)]` closing an ordinal are single characters,
-#: not sets an edit can narrow ([R85] F3, round 10 on PR #428).
-#: Each body is what the RENDERER was measured to accept AT THE POSITION
-#: that reads it, and the case tables spell every body again, so narrowing
-#: or widening one fails an arm. `blank` is CommonMark 2.1's "spaces or
-#: tabs"; `indent` is the space alone, indentation being counted in
-#: COLUMNS (`_indent_columns`); `delimiter blank` is the wider padding
-#: GFM's delimiter-row scanner takes; `tag blank` is also what may follow
-#: a type-1 or type-6 NAME, where the renderer reads widest ([R85] F1(b)).
-_BLANK = " \t"
-CLASSES = {
-    "blank": _BLANK,
-    "indent": " ",
-    "tag blank": _BLANK + "\v\f",
-    "tag tail": _BLANK + "\f",
-    "delimiter blank": _BLANK + "\v\f",
-    "tag name": "A-Za-z",
-    "tag name rest": "A-Za-z0-9-",
-    "attribute name": "A-Za-z_:",
-    "attribute name rest": "A-Za-z0-9_.:-",
-    "unquoted value stop": _BLANK + "\v\f\"'=<>`",
-    "single-quoted value stop": "'",
-    "double-quoted value stop": '"',
-    # NUL is no stop: the renderer replaces it before any scanner reads a
-    # line, so a label carrying one is a label ([R85] F4, round 10)
-    "footnote label stop": _BLANK + "\\]\r\n",
-    "ordinal": "0-9",
-    "bullet": "-+*",
-    "cell stop": "|",
-}
+#: The blanks CommonMark 2.1 names, spaces and tabs, and no other character.
+BLANK = " \t"
 #: The characters at which PYTHON'S notion of whitespace and the
 #: renderer's disagree: everything `str.isspace()` accepts but the space,
-#: the tab and the line feed. A page carrying one is REFUSED rather than
-#: walked (`refusals()`), on EITHER side a decision is read from, which
-#: holds a position whose only divergence from the renderer is WHICH
-#: whitespace it takes. An arm derives the set from the Unicode database.
+#: the tab and the line feed. A page carrying one is REFUSED (`refusals()`),
+#: on EITHER side a decision is read from.
 REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
            "\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u2028"
            "\u2029\u202f\u205f\u3000")
-#: The two functions the walk answers through. `_class_guards()` follows
-#: the calls out of these to the decision sites; the case tables spell the
-#: pair again, so renaming one fails an arm instead of emptying the
-#: enumeration.
-WALK_ROOTS = ("blocks", "line_kinds")
-#: The renderer folds a tag NAME in ASCII, where `re.IGNORECASE` folds
-#: Unicode and matched U+017F to `s` and U+0131 and U+0130 to `i`, opening
-#: and closing type-1 blocks on names the renderer reads as no tag at all
-#: ([R85] F2 and S2, round 10). Every name match below reads it.
-ASCII_FOLD = re.IGNORECASE | re.ASCII
-#: `str` predicates that answer with Python's notion of a character rather
-#: than the renderer's. No decision of the walk may ask one.
-_PYTHON_CLASSES = ("isspace", "isalpha", "isdigit", "isalnum", "isnumeric",
-                   "isdecimal", "isupper", "islower", "istitle", "isascii")
-_STRIPS = ("strip", "lstrip", "rstrip")
-
-
-def _cc(name: str, negate: bool = False) -> str:
-    """One class of `CLASSES` as regular-expression text."""
-    return "[%s%s]" % ("^" if negate else "", CLASSES[name])
-
 
 #: A page written by a generator must not be hand-edited: the next run
 #: discards whatever was added. Both spellings this tree uses are matched,
@@ -135,187 +91,36 @@ GENERATED_RE = re.compile(
     r"|regenerate with|do not hand-?edit|do not edit|\*\*GENERATED\b", re.I)
 GENERATED_SCAN_LINES = 12
 
-#: A fence delimiter line: at most three columns of indentation, a run of
-#: three or more backticks or tildes, then the rest of the line. What the
-#: run and the rest MEAN depends on the block already open, which is why
-#: `blocks()` and not this expression decides it: a fence closes only on
-#: the SAME character, at least as long, with nothing but blanks after
-#: it, and a backtick opener's info string carries no backtick.
-FENCE_RE = re.compile(r"^%s{0,3}(`{3,}|~{3,})(.*)$" % _cc("indent"))
-#: An ATX heading and its text, the optional closing sequence of hashes
-#: dropped as CommonMark 4.2 drops it ([R86] suggestion, round 4 on PR
-#: #428): a RUN of hashes with a blank before it and nothing but blanks
-#: after it, so `## Old ## bar` is the text `Old ## bar` and `## Old#` is
-#: `Old#`, as the renderer shows both ([R86] F2, round 5). Every blank
-#: here is the renderer's, so a heading whose hashes a TAB follows is
-#: listed and a run of hashes closes one only when blanks alone follow
-#: ([R85] F1(c), round 9).
-HEAD_RE = re.compile(r"^(#{1,6})%s+(.*?)(?:%s+#+)?%s*$"
-                     % (_cc("blank"), _cc("blank"), _cc("blank")))
-#: Four COLUMNS of indentation start an indented code block, which renders
-#: as code. Such a run cannot interrupt a paragraph but follows any block
-#: that closed (CommonMark 4.4: `# Heading` then `    foo`), so it opens
-#: only while no paragraph is open and no container holds the line ([R85]
-#: F1, round 3 on PR #428, where it began only after a blank line).
-INDENT_CODE_COLUMNS = 4
-#: CommonMark's type-1 raw HTML block: its content is not parsed as
-#: Markdown and it survives blank lines, so a Contents block inside one
-#: renders as literal text ([R0] and [R10] round 5 on PR #384). It ends at
-#: any literal type-1 closing tag. The opening name takes `tag blank`, `>`
-#: or the END OF THE LINE: reading `/` there made `<pre/>` a type-1 block, and
-#: leaving the line end out made `<pre` ending a line none ([R85] round 9
-#: on PR #428); narrowing the follow set to space and tab exempted `<pre`
-#: + a form feed + `>`, which the renderer opens ([R85] F1(b), round 10).
-RAW_HTML_TAGS = ("pre", "script", "style", "textarea")
-RAW_HTML_OPEN_RE = re.compile(r"^%s{0,3}<(%s)(?:%s|>|$)"
-                              % (_cc("indent"), "|".join(RAW_HTML_TAGS),
-                                 _cc("tag blank")), ASCII_FOLD)
-#: CommonMark's type-6 raw HTML block: a block-level tag on its own line
-#: opens it and a BLANK LINE closes it, and nothing inside is parsed as
-#: Markdown, so a `## Head` between `<div>` and `</div>` with no blank
-#: line renders as text and its label is no evidence of an anchor ([R0]
-#: and [R10] round 7 on PR #384). The LIST is the RENDERER's, CommonMark
-#: 0.29's and not the latest edition's: it carries `source` and not
-#: `search`. The other way round, `<source>` was a type-7 block that may
-#: not interrupt a paragraph where the renderer interrupts it, and
-#: `<search>` a type-6 block that does where it does not ([R86] F1 R9,
-#: round 9 on PR #428). The follow set and the fold are the type-1
-#: opener's, for the same reasons.
-HTML_BLOCK_TAGS = (
-    "address|article|aside|base|basefont|blockquote|body|caption|center|col"
-    "|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure"
-    "|footer|form|frame|frameset|h1|h2|h3|h4|h5|h6|head|header|hr|html"
-    "|iframe|legend|li|link|main|menu|menuitem|nav|noframes|ol|optgroup"
-    "|option|p|param|section|source|summary|table|tbody|td|tfoot|th|thead"
-    "|title|tr|track|ul")
-HTML_BLOCK_OPEN_RE = re.compile(r"^%s{0,3}</?(?:%s)(?:%s|/?>|$)"
-                                % (_cc("indent"), HTML_BLOCK_TAGS,
-                                   _cc("tag blank")), ASCII_FOLD)
-#: CommonMark's type-7 raw HTML block: ONE complete open or closing tag of
-#: any other name (`<span>`, `<b>`, `<custom-tag>`, `</b>`), alone on its
-#: line, opens it, and a blank line closes it exactly as a type-6 block.
-#: The tag grammar is the specification's: a name is an ASCII letter then
-#: letters, digits or hyphens; an attribute has an XML name and an
-#: optional unquoted, single-quoted or double-quoted value. Unlike type 6
-#: it may not interrupt a paragraph, so `_opens()` reads it only while no
-#: paragraph is open ([R85] F1 and [R86] F1, round 1 on PR #428; the
-#: footnote definition from [R86] F1, round 2). A type-1 name is read
-#: first and never reaches here (#413). WHITESPACE is two classes here,
-#: `tag blank` inside the tag and `tag tail` after the closing angle
-#: bracket ([R86] F1 and [R85] F1, round 7).
-_HTML_TAG_NAME = r"%s%s*" % (_cc("tag name"), _cc("tag name rest"))
-_HTML_ATTRIBUTE = (r"(?:%s+%s%s*(?:%s*=%s*(?:%s+|'%s*'|\"%s*\"))?)"
-                   % (_cc("tag blank"), _cc("attribute name"),
-                      _cc("attribute name rest"), _cc("tag blank"),
-                      _cc("tag blank"), _cc("unquoted value stop", True),
-                      _cc("single-quoted value stop", True),
-                      _cc("double-quoted value stop", True)))
-HTML_TAG_LINE_RE = re.compile(
-    r"^%s{0,3}(?:<%s%s*%s*/?>|</%s%s*>)%s*$"
-    % (_cc("indent"), _HTML_TAG_NAME, _HTML_ATTRIBUTE, _cc("tag blank"),
-       _HTML_TAG_NAME, _cc("tag blank"), _cc("tag tail")))
-#: Whether a paragraph is open, for the one block that may not interrupt
-#: one. NO_PARAGRAPH: none is, and the next plain line starts one.
-#: PARAGRAPH: a top-level paragraph is open. HELD: a list item, a block
-#: quote or a table holds the plain lines that follow (CommonMark's lazy
-#: continuation, GFM's rows without a pipe), so none is open and a plain
-#: line starts none; a blank line or an interrupting block ends the hold.
-NO_PARAGRAPH, PARAGRAPH, HELD = "no paragraph", "paragraph", "held"
-#: CommonMark's ATX opener, not `HEAD_RE`: an indented or empty heading
-#: ends a paragraph even though `headings()` lists neither.
-ATX_HEADING_RE = re.compile(r"^%s{0,3}#{1,6}(?:%s|$)"
-                            % (_cc("indent"), _cc("blank")))
-THEMATIC_BREAK_RE = re.compile(
-    r"^%s{0,3}(?:(?:\*%s*){3,}|(?:-%s*){3,}|(?:_%s*){3,})$"
-    % (_cc("indent"), _cc("blank"), _cc("blank"), _cc("blank")))
-SETEXT_UNDERLINE_RE = re.compile(r"^%s{0,3}(?:=+|-+)%s*$"
-                                 % (_cc("indent"), _cc("blank")))
-BLOCK_QUOTE_RE = re.compile(r"^%s{0,3}>" % _cc("indent"))
-#: A list item: group 1 is the ordinal (None for a bullet), group 2 the
-#: first character of its content (None when the item is empty).
-#: Interrupting a paragraph takes content and, when ordered, the ordinal 1.
-LIST_ITEM_RE = re.compile(
-    r"^%s{0,3}(?:%s|(%s{1,9})[.)])(?:%s+(%s)|%s*$)"
-    % (_cc("indent"), _cc("bullet"), _cc("ordinal"), _cc("blank"),
-       _cc("blank", True), _cc("blank")))
-#: GFM's table delimiter row, which makes the paragraph line above it a
-#: header row: cells of hyphens with optional colons, separated by pipes,
-#: a leading and a trailing pipe optional (GFM 0.29 section 4.10), so
-#: `:-:`, `:---`, `---:` and `:-` are one-cell rows. A pipeless row of
-#: hyphens alone is a setext underline or a thematic break, both read
-#: before it. It makes a table only when its cells number the header row's
-#: (`_table_cells`, [R86] F1 round 2 on PR #428), and only at three
-#: columns of indentation or fewer ([R85] F2, round 3).
-TABLE_DELIMITER_RE = re.compile(
-    r"^%s{0,3}(?:\|%s*)?:?-+:?%s*(?:\|%s*:?-+:?%s*)*\|?%s*$"
-    % ((_cc("indent"),) + (_cc("delimiter blank"),) * 5))
-#: One cell of a GFM table row, anything up to a pipe with a backslash
-#: escaping the character after it; then the pipe that ends the cell and
-#: the blanks after it.
-TABLE_CELL_RE = re.compile(r"(?:\\\||%s)*" % _cc("cell stop", True))
-TABLE_CELL_END_RE = re.compile(r"\|%s*" % _cc("blank"))
-#: GFM's footnote definition (`[^1]: note`): `[^`, a label, then `]:`,
-#: indented at most three columns. It is outside the 0.29 specification
-#: text; the renderer reads it as a container like a list item, so it
-#: interrupts a paragraph, holds the plain lines after it, and a lone tag
-#: under it opens a type-7 block ([R86] F1, round 2 on PR #428). The
-#: label's own class is the renderer's ([R86] F1 R5, round 9).
-FOOTNOTE_DEFINITION_RE = re.compile(
-    r"^%s{0,3}\[\^%s+\]:"
-    % (_cc("indent"), _cc("footnote label stop", True)))
-COMMENT_OPEN, COMMENT_CLOSE = "<!--", "-->"
 #: What a line is, for every reader in this repository. The names are what a
 #: finding calls the line, so they read as English in a message.
 TEXT, FENCE, COMMENT, CODE, HTML = ("prose line", "fenced line",
                                     "commented line", "indented code line",
                                     "raw HTML line")
-
-
-def _indent_columns(line: str) -> int:
-    """How many COLUMNS of indentation a line carries, tab stops of four.
-
-    CommonMark 2.2 expands a tab to the next multiple of four - its own
-    second example of an indented code block is two spaces and a tab - so
-    one to three spaces then a tab is four columns and the line is code.
-    Counting CHARACTERS read ` \tcode` as paragraph text, and a lone tag
-    under it continued a paragraph the renderer had closed ([R85] F2(d),
-    [R86] F1 R8, round 9 on PR #428).
-    """
-    columns = 0
-    for char in line:
-        if char not in CLASSES["blank"]:
-            break
-        columns += 4 - columns % 4 if char == "\t" else 1
-    return columns
+#: What `line_kinds()` adds for a line of rendered Markdown text.
+HEADING_LINE, TABLE_ROW = "heading", "table row"
 
 
 def refusals(text: str) -> list[tuple[int, int, str]]:
-    """Every position this walk REFUSES to read: (line, column, character),
-    preserving the global policy even where a site now reads the exact
-    renderer class. Every character in `REFUSED` is named with its page,
-    line, column and code point. Such a page obtains no provenance and so
-    no exemption. The raw `blocks()` and `headings()` helpers do not apply
-    this policy themselves; their callers must check it.
+    """Every position this walk REFUSES to read: (line, column, character).
+    Every character in `REFUSED` is named with its page, line, column and
+    code point. Such a page obtains no provenance and so no exemption. The
+    raw `blocks()` and `headings()` helpers do not apply this policy
+    themselves; their callers must check it.
 
     IT BINDS EVERY PAGE A DECISION IS READ FROM, or it holds nothing: the
     branch page provenance comes from AND the base page whose headings
-    decide the label, which round 9 left unrefused and is the page a label
-    is copied FROM (`check_em_dash.base_labels`, [R85] F1, [R86] F2, round
-    10 on PR #428). #440 reads the exact fence trailer and type-1 closer
-    rules independently of this policy: spaces/tabs after a fence, and
-    no blanks inside a literal type-1 closing tag (`_type_1_end`).
+    decide the label (`check_em_dash.base_labels`, [R85] F1, [R86] F2, round
+    10 on PR #428).
 
-    There are 26 and no page in the corpus carries one. THE LINE MODEL puts
-    the carriage return among them: a line here is what `text.split("\n")`
-    gives, so a CR lands inside a line where the renderer ends one. Both
-    shipped readers translate line endings first - `Path.read_text()` in
-    the generator, git in text mode in the gate - which is the real reason
-    that residue could not reach the exemption, and not the one round 8
-    gave ([R85] and [R86] suggestion, round 9).
-    With #440's exact trailer, a raw closing fence followed by CR stays
-    open here but ends for the renderer: WITHHOLD, not an escape. The
-    reconstructed 205-row sweep leaves five raw CR withholdings, all in
-    this refused family; after reader normalization all 205 agree.
+    WHY IT OUTLIVES THE WALK IT WAS WRITTEN FOR. The renderer now decides
+    what every line is (#437), but this script still reads a page in
+    Python: a line is what `text.split("\\n")` gives, where the renderer
+    also ends a line at a lone carriage return, and a label, an anchor and
+    the Contents heading are compared after `str.strip()`, which drops every
+    character here where the renderer drops only spaces and tabs. The policy
+    is unchanged; only its reason moved. There are 26 and no page in the
+    corpus carries one. Both shipped readers translate line endings first,
+    `Path.read_text()` in the generator and git in text mode in the gate.
     """
     return [(n, col, char)
             for n, line in enumerate(text.split("\n"), 1)
@@ -329,226 +134,135 @@ def refusal_notes(name: str, text: str) -> list[str]:
             f"space or a tab)" for n, col, char in refusals(text)]
 
 
+def _renderer_lines(text: str) -> tuple[list[str], list[int]]:
+    """The lines the RENDERER reads, and the `text.split("\\n")` row each
+    starts on. The renderer ends a line at a line feed, a carriage return
+    and line feed, or a lone carriage return; that split keeps a lone
+    carriage return inside a row, so two renderer lines can share one."""
+    lines, rows, row, start = [], [], 0, 0
+    for at, char in enumerate(text):
+        if char == "\n" or (char == "\r" and text[at + 1:at + 2] != "\n"):
+            lines.append(text[start:at].removesuffix("\r"))
+            rows.append(row)
+            row, start = row + (char == "\n"), at + 1
+    lines.append(text[start:])
+    rows.append(row)
+    return lines, rows
+
+
+def _rows(node: Node, rows: list[int], count: int) -> range:
+    """The `text.split("\\n")` rows one block covers.
+
+    A raw HTML block and an indented code block cover exactly the lines of
+    their literal: the renderer reports a raw HTML block's end one line
+    short when its end condition closes it, and an indented code block's
+    trailing blank lines are not part of it. Every other block covers the
+    lines the renderer reports."""
+    last = node.last
+    if node.kind == "html_block" or (node.kind == "code_block"
+                                     and not node.fenced):
+        last = node.first + node.literal.count("\n") - 1 + (
+            not node.literal.endswith("\n"))
+    first = rows[min(node.first, len(rows)) - 1]
+    last = rows[min(max(last, node.first), len(rows)) - 1]
+    return range(first, min(last, count - 1) + 1)
+
+
+def _atx_text(line: str) -> str:
+    """The raw content of an ATX heading line read from its first hash:
+    CommonMark 4.2's rule. The opening run is dropped; a closing run is
+    dropped only when a space or a tab precedes it or nothing else is left,
+    so `## Old ## bar` is `Old ## bar` and `## Old#` is `Old#`; the blanks
+    around what remains are stripped, and only spaces and tabs are blanks
+    ([R86] F2, rounds 4 and 5 on PR #428). The RENDERER has already decided
+    that the line is a heading and that it renders; this reads its label."""
+    rest = line.lstrip("#").rstrip(BLANK)
+    body = rest.rstrip("#")
+    if body != rest and (not body or body[-1] in BLANK):
+        rest = body
+    return rest.strip(BLANK)
+
+
+@functools.lru_cache(maxsize=512)
+def _page(text: str) -> tuple[tuple[str, ...], tuple[str, ...],
+                              tuple[tuple[int, str, int, str], ...]]:
+    """(block labels, line kinds, headings) of one page, as rendered.
+
+    A code block's lines are FENCE or CODE and a raw HTML block's lines are
+    HTML, or COMMENT when the block is an HTML comment. The lines of a
+    block whose element the HTML parse swallowed (into a comment, an
+    attribute value or a `<select>`) are COMMENT: they render as nothing.
+    Every other line is TEXT, refined to a heading or a table row. A heading
+    is (level, raw text, row, rendered text) for each heading element that
+    survives, in the rendered document's order. Its raw text is read off its
+    own source line for an ATX heading, which keeps every label written
+    before the renderer byte-identical, and is the rendered text for a
+    setext one, whose line breaks the anchor drops as GitHub's does."""
+    rendered = render_markdown(text)
+    rows_of = text.split("\n")
+    lines, rows = _renderer_lines(text)
+    labels, kinds = [TEXT] * len(rows_of), [TEXT] * len(rows_of)
+    shown = {position for _, position, _ in rendered.shown if position}
+    heads = {}
+    for node in rendered.nodes:
+        block = {"code_block": FENCE if node.fenced else CODE,
+                 "html_block": COMMENT if node.literal.lstrip(" ").startswith(
+                     "<!--") else HTML}.get(node.kind)
+        kind = {"heading": HEADING_LINE, "table": TABLE_ROW}.get(node.kind)
+        for row in _rows(node, rows, len(rows_of)):
+            labels[row] = block or labels[row]
+            kinds[row] = kind or kinds[row]
+        if node.kind == "heading":
+            heads[node.position] = node
+    for node in rendered.nodes:
+        if node.element and node.position not in shown:
+            for row in _rows(node, rows, len(rows_of)):
+                labels[row] = COMMENT
+    found = []
+    for tag, position, rendered_text in rendered.shown:
+        node = heads.get(position)
+        if node is None or tag != f"h{node.level}":
+            continue
+        raw = rendered_text
+        if node.last == node.first:
+            line = lines[node.first - 1].encode("utf-8")
+            raw = _atx_text(line[node.column - 1:].decode("utf-8", "replace"))
+        found.append((node.level, raw, rows[node.first - 1], rendered_text))
+    return tuple(labels), tuple(kinds), tuple(found)
+
+
 def blocks(text: str) -> list[str]:
     """What every line of ``text`` is: TEXT, FENCE, COMMENT, CODE or HTML.
 
-    ONE walk, and the only one in this repository that decides which lines
-    are NAVIGATION: a gate that re-derived it disagreed with this
+    ONE answer, and the only one in this repository that decides which
+    lines are NAVIGATION: a gate that re-derived it disagreed with this
     generator about which lines are headings, five review rounds running
     on PR #384. THREE other gates carry a fence and comment toggle of
     their own for a different question (`docs_check.py` a wording
     deny-list, `check_feature_status.py` status tables, `check_doc_style.py`
     the sentence-length limits in its `prose_blocks()`); none decides what
-    a line IS ([R86] suggestion, round 6 on PR #428, which named two; the
-    third from [R85], round 7). It is a single state machine, so the block
-    already open decides what a delimiter means ([R0] round 5 F3). The
-    three kinds of raw HTML block are stated where each is spelled above:
-    type 1 ends at any literal type-1 closing tag and survives blank lines;
-    types 6 and 7 end at the first BLANK line, and type 7 alone may not interrupt a
-    paragraph. None parses its content as Markdown, so a heading inside
-    any of them is text.
+    a line IS.
 
-    WHAT THIS WALK ANSWERS FOR. Its domain is a page of ATX headings and
-    the blocks above, read FLAT and from column 0, and inside it every
-    rule is the one the RENDERER applies and not the one the
-    specification's prose reads: every character class tested here comes
-    from `CLASSES`, measured at the position that reads it, and
-    `_class_guards()` refuses a decision that spells a class of its own.
-    OUTSIDE that domain it does not answer at all: a page carrying a
-    character at which Python's notion of whitespace and the renderer's
-    disagree is REFUSED and named rather than walked (`refusals()`), and
-    obtains no provenance and so no exemption. A line mixing commented and
-    visible text is labelled by the block it STARTS in, which can withhold
-    a heading but never invent one.
-
-    CONTAINERS ARE FLAT, and indentation is counted in COLUMNS from column
-    0 (`_indent_columns`, CommonMark 2.2's tab stops of four). Three
-    residues follow, all carried by #437. Two WITHHOLD a heading the page
-    renders, which a contributor sees at once because the generated list
-    then omits the section: a block quote or list-item line holds the
-    plain lines after it as that container's paragraph whatever the
-    container held, and a line indented into a container's content column
-    is read as this walk's own indentation, so a tag at four columns
-    inside an item opens no block and a plain line at four columns is
-    code. The third runs the other way: after a BLANK line inside a list
-    item, a plain line at the item's content column (one to three columns)
-    is a fresh top-level paragraph here where the renderer holds it inside
-    the item, so a lone tag on the next line interrupts nothing the
-    renderer has open, the renderer opens a block and reads the heading
-    inside it as text, and this walk KEEPS it. That is the ESCAPE
-    direction, and a label mirroring such a heading would be exempt. The
-    test is the content column and not indentation as such, and telling a
-    container's own paragraph from a top-level one is a change to the
-    state model rather than a rule ([R86] F1, round 5 on PR #428; the
-    columns R8, round 9).
+    THE RENDERER DECIDES (`_page()`). A fenced or indented code block, a
+    raw HTML block and an HTML comment block are the blocks cmark-gfm parsed,
+    containers included: a fence in a list item or a block quote is a fence,
+    and a line indented into an item's content is that item's text. A block
+    the HTML parse swallows renders as nothing and is COMMENT, which is how
+    a heading after a raw `<!--` GitHub leaves open is hidden (#516). A
+    blank line that ends a raw HTML block is not part of it. Nothing here
+    reads Markdown syntax; `refusals()` names the pages this script will not
+    read, and a caller must apply it.
     """
-    out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
-    for line in text.split("\n"):
-        if state in (FENCE, COMMENT, HTML):
-            out.append(state)
-            state, delim, tag = _still_open(line, state, delim, tag)
-        else:
-            label, state, delim, tag = _opens(line, para, state)
-            out.append(label)
-        para, prev = _paragraph_after(line, out[-1], para, prev), line
-    return out
-
-
-def _table_cells(row: str) -> int:
-    """How many cells a GFM table row carries, counted as the renderer
-    counts them: one leading pipe is skipped, a pipe ends a cell unless a
-    backslash stands immediately before it, and a trailing pipe closes the
-    last cell, so `| a |`, `a` and `||` are one cell each and a lone `|`
-    is none. That scanner takes the LONGEST match, in which a backslash
-    before a pipe always escapes it, so `a\\|b` is one cell ([R86] F1 R7,
-    round 9). A HEADER ROW whose trailing pipe a line tabulation or a form
-    feed follows counts one cell MORE here than the renderer gives it, so
-    the heading under a tag below such a row is WITHHELD, never invented;
-    both characters are refused, so no such page is walked ([R85] S2)."""
-    rest = row.strip(CLASSES["blank"])
-    if rest.startswith("|"):
-        rest = rest[1:].lstrip(CLASSES["blank"])
-    cells = 0
-    while rest:
-        cell = TABLE_CELL_RE.match(rest).end()
-        end = TABLE_CELL_END_RE.match(rest, cell)
-        cells += 1
-        rest = rest[end.end() if end else cell:]
-    return cells
-
-
-def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
-    """The paragraph state after a line, from the line's own label, its
-    text, the state before it and the line before it.
-
-    Only a plain TEXT line starts or continues a paragraph. A heading, a
-    thematic break or a setext underline ends one and starts none; a list
-    item, a block quote, a footnote definition or a table delimiter row
-    starts a HOLD, which a plain line continues; an ordered item not
-    numbered 1, or an empty item, continues the paragraph instead ([R85]
-    F1 and [R86] F1, round 1 on PR #428). A delimiter row makes a table of
-    `prev` only when the two carry the same number of cells (round 2).
-    """
-    if label != TEXT or not line.strip(CLASSES["blank"]) \
-            or ATX_HEADING_RE.match(line) \
-            or THEMATIC_BREAK_RE.match(line) \
-            or (para == PARAGRAPH and SETEXT_UNDERLINE_RE.match(line)):
-        return NO_PARAGRAPH
-    item = LIST_ITEM_RE.match(line)
-    interrupts = bool(item and item.group(2) and int(item.group(1) or 1) == 1)
-    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line) \
-            or (item and (para != PARAGRAPH or interrupts)):
-        return HELD
-    if para == PARAGRAPH and TABLE_DELIMITER_RE.match(line) \
-            and _table_cells(line) == _table_cells(prev):
-        return HELD
-    return HELD if para == HELD else PARAGRAPH
-
-
-def _comment_after(line: str, inside: bool) -> bool:
-    """Whether a comment is open AFTER this line, reading EVERY delimiter on
-    it in order.
-
-    One `-->` is not the end of the story: `<!-- first --> <!-- second`
-    closes one and opens another, and reading only the first delimiter
-    left the second span classified as text, which handed a block inside
-    it the exemption ([R0] round 6 on PR #384). A comment is also the only
-    block that can open after visible text.
-    """
-    scan = line
-    while scan:
-        if inside:
-            at = scan.find(COMMENT_CLOSE)
-            if at < 0:
-                return True
-            scan, inside = scan[at + len(COMMENT_CLOSE):], False
-        else:
-            at = scan.find(COMMENT_OPEN)
-            if at < 0:
-                return False
-            scan, inside = scan[at + len(COMMENT_OPEN):], True
-    return inside
-
-
-def _type_1_end(line: str) -> bool:
-    """Whether a literal closer ends a type-1 block (CommonMark 4.6).
-
-    Any of the four names ends any type-1 block, including on its opening
-    line and inside longer text. ASCII folding admits capitals, not
-    Unicode lookalikes; no character is allowed inside the closing tag.
-    #440 removes the inner-blank escape and the cross-name withholding
-    measured on PR #428 ([R85] F2, [R86] F1)."""
-    return bool(re.search(r"</(?:%s)>" % "|".join(RAW_HTML_TAGS), line, ASCII_FOLD))
-
-
-def _still_open(line: str, state: str, delim: str,
-                tag: str) -> tuple[str, str, str]:
-    """The state after a line INSIDE a fence, comment or raw HTML block.
-    Only that block's own closer is read, which is the whole precedence
-    rule: nothing else on the line means anything while it is open."""
-    if state == COMMENT:
-        return (COMMENT if _comment_after(line, True) else TEXT), "", ""
-    if state == HTML:
-        if not tag:                     # type 6: a blank line ends it
-            return (TEXT if not line.strip(CLASSES["blank"])
-                    else HTML), "", tag
-        return (TEXT if _type_1_end(line) else HTML), "", tag
-    m = FENCE_RE.match(line)         # closes on the SAME character, a run
-    if m and m.group(1)[0] == delim[0] and len(m.group(1)) >= len(delim) \
-            and not m.group(2).strip(CLASSES["blank"]):  # CommonMark 4.5 trailer
-        return TEXT, "", ""
-    return FENCE, delim, ""
-
-
-def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
-    """(what this line is, the state after it, fence delimiter, HTML tag)
-    for a line that no block encloses. The order is CommonMark's: an
-    indented code run swallows the line before any delimiter is read; a
-    type-1 tag is read before the type-7 grammar; a comment opening after
-    visible text leaves THIS line ordinary. `para` gates the two blocks
-    that may not interrupt a paragraph."""
-    if state == CODE and (not line.strip(CLASSES["blank"])
-                          or _indent_columns(line) >= INDENT_CODE_COLUMNS):
-        return CODE, CODE, "", ""      # the run continues across blank lines
-    if _indent_columns(line) >= INDENT_CODE_COLUMNS and para == NO_PARAGRAPH:
-        return CODE, CODE, "", ""
-    m = FENCE_RE.match(line)
-    if m and not (m.group(1)[0] == "`" and "`" in m.group(2)):
-        return FENCE, FENCE, m.group(1), ""
-    html = RAW_HTML_OPEN_RE.match(line)
-    if html:
-        tag = html.group(1)
-        closed = _type_1_end(line)
-        return HTML, (TEXT if closed else HTML), "", tag
-    if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
-                                          and HTML_TAG_LINE_RE.match(line)):
-        # Types 6 and 7 carry no tag here: the blank line, not a closing
-        # tag, is what ends them. A lone `<span>` under paragraph text is
-        # that paragraph's continuation, not a block, so the line stays
-        # TEXT; under anything else it opens the block.
-        return HTML, HTML, "", ""
-    if COMMENT_OPEN in line:
-        after = COMMENT if _comment_after(line, False) else TEXT
-        starts = line.lstrip(CLASSES["blank"]).startswith(COMMENT_OPEN)
-        return (COMMENT if starts else TEXT), after, "", ""
-    return TEXT, TEXT, "", ""
+    return list(_page(text)[0])
 
 
 def line_kinds(text: str) -> list[str]:
-    """`blocks()`, refined for the lines that are ordinary Markdown text: a
-    heading, a table row, or prose. This is what a finding names, and it is
-    the owner's answer rather than a second reader's."""
-    out = []
-    for line, kind in zip(text.split("\n"), blocks(text)):
-        if kind != TEXT:
-            out.append(kind)
-        elif HEAD_RE.match(line):
-            out.append("heading")
-        elif line.lstrip(CLASSES["blank"]).startswith("|"):
-            out.append("table row")
-        else:
-            out.append(TEXT)
-    return out
+    """`blocks()`, refined for the lines that are rendered Markdown text: a
+    line of a heading, a line of a table, or prose. This is what a finding
+    names, and it is the owner's answer rather than a second reader's."""
+    labels, kinds, _ = _page(text)
+    return [kind if label == TEXT else label
+            for label, kind in zip(labels, kinds)]
 
 
 #: One Contents entry as this script writes it: the label, the anchor, the
@@ -558,9 +272,8 @@ def line_kinds(text: str) -> list[str]:
 #: disagree on what an entry is. Indentation is bounded at three, which
 #: still renders as a list item ([R0] round 4 on PR #384).
 TOC_ENTRY_RE = re.compile(
-    r"%s{0,3}-%s+(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?"
-    r"%s*(\u2014|--)%s*(.*)"
-    % ((_cc("indent"),) + (_cc("blank"),) * 3))
+    r"[ ]{0,3}-[ \t]+(?:\*\*)?\[([^\]]*)\]\(#([^)]*)\)(?:\*\*)?"
+    r"[ \t]*(\u2014|--)[ \t]*(.*)")
 
 
 def anchor(text: str, seen: dict[str, int]) -> str:
@@ -586,26 +299,33 @@ def label(text: str) -> str:
 
     A heading like ``## 2. Per-module HDL pages (`hdl/**/doc/*.md`)`` keeps
     a literal `**` once the backticks come off, closing the entry's bold
-    early, so any surviving asterisk is escaped."""
-    return strip_md(text).replace("*", r"\*")
+    early, so any surviving asterisk is escaped. A setext heading's text can
+    span lines; an entry is one line, so a line break reads as a space."""
+    return strip_md(text).replace("*", r"\*").replace("\n", " ")
 
 
 def headings(text: str) -> list[tuple[int, str, str]]:
     """(level, raw_text, anchor) for every heading that renders as one.
 
-    A heading inside a fence, an indented code block, an HTML comment or a
-    raw HTML block renders as text, so it is no heading and its label no
-    evidence of an anchor ([R0] round 5 F2 on PR #384). Anchors are
-    numbered over ALL headings, GitHub counting collisions page-wide."""
-    seen, out = {}, []
-    for line, kind in zip(text.split("\n"), blocks(text)):
-        if kind != TEXT:
-            continue
-        m = HEAD_RE.match(line)
-        if m:
-            lvl, raw = len(m.group(1)), m.group(2)
-            out.append((lvl, raw, anchor(strip_md(raw), seen)))
-    return out
+    A heading is what the renderer draws as one (`_page()`): ATX and
+    setext, at the top level or inside a list item, a block quote or a
+    referenced footnote. Anything it draws as text or hides is no heading
+    and its label no evidence of an anchor ([R0] round 5 F2 on PR #384): a
+    heading inside a fence, an indented code block, a raw HTML block, or
+    after a raw `<!--` the page leaves open (#516). A heading written as
+    raw HTML is not listed. Anchors are numbered over ALL headings in the
+    rendered order, GitHub counting collisions page-wide."""
+    seen = {}
+    return [(level, raw, anchor(strip_md(raw), seen))
+            for level, raw, _, _ in _page(text)[2]]
+
+
+def rendered_headings(text: str) -> list[tuple[int, str]]:
+    """(level, text) of every heading `headings()` lists, the text as the
+    renderer shows it with its blanks collapsed: what a recorded GitHub
+    rendering of the same page is compared with (`gen_toc_shape_cases`)."""
+    return [(level, " ".join(shown.split()))
+            for level, _, _, shown in _page(text)[2]]
 
 
 def plan(text: str) -> list[tuple[int, str, str]] | None:
@@ -783,11 +503,12 @@ def _tally_guards(families: dict[str, list], scored: int) -> list[str]:
 
 
 def _owner_guards(name: str, source: str, values: dict) -> list[str]:
-    """That a module beside the walk - the case tables, the site enumerator
-    - carries no classification of its OWN: it imports no expression engine
-    and holds no compiled expression, so a rule cannot migrate out of this
-    script, which #413 names as the one owner of block classification
-    ([R85] suggestion, round 6 on PR #428). The imports are read off its
+    """That a module beside the walk - the case tables, the renderer's
+    binding - carries no classification of its OWN: it imports no expression
+    engine and holds no compiled expression, so no rule for what a line is
+    can grow outside the renderer and this script, which #413 names as the
+    one owner of block classification ([R85] suggestion, round 6 on PR
+    #428; the renderer replaced the walk in #437). The imports are read off its
     syntax tree and the compiled expressions off its values, so prose
     naming the engine cannot trip it and an alias cannot slip past it.
     WHAT IT CANNOT SEE: those two and nothing else, so plain string
@@ -811,15 +532,6 @@ def _owner_guards(name: str, source: str, values: dict) -> list[str]:
     return bad
 
 
-def _sites() -> tuple[list[str], list[str]]:
-    """The walk's decision sites and the notes against them, from
-    `gen_toc_guards`. The import is deferred and this module registered
-    under its own NAME first, for the reason `selftest()` gives."""
-    sys.modules.setdefault("gen_toc", sys.modules[__name__])
-    import gen_toc_guards
-    return gen_toc_guards._class_guards(Path(__file__).read_text())
-
-
 def selftest() -> int:
     """Run every arm family. 0 when every one holds.
 
@@ -835,19 +547,23 @@ def selftest() -> int:
     sys.modules.setdefault("gen_toc", sys.modules[__name__])
     import gen_toc_cases as cases
     import gen_toc_closer_cases as closers
+    import gen_toc_renderer as renderer
+    import gen_toc_renderer_cases as renderer_cases
+    import gen_toc_shape_cases as shapes
     families = {"walk": cases.walk_arms(), "tag": cases.tag_arms(),
                 "guard": cases.guard_arms(), "heading": cases.heading_arms(),
                 "predecessor": cases.predecessor_arms(),
                 "provenance": cases.provenance_arms(),
-                "refusal": cases.refusal_arms(), "I440": closers.closer_arms()}
+                "refusal": cases.refusal_arms(), "I440": closers.closer_arms(),
+                "shape": shapes.shape_arms()}
     on_walk = families["walk"] + families["tag"] + families["I440"]
     on_page = (families["provenance"] + families["predecessor"]
                + families["heading"] + families["guard"]
-               + families["refusal"])
+               + families["refusal"] + families["shape"])
     arms = len(on_walk) + len(on_page)
-    import gen_toc_guards as guards
-    notes = _tally_guards(families, arms) + _sites()[1]
-    for beside in (cases, guards, closers):  # none may hold a rule
+    notes = _tally_guards(families, arms)
+    for beside in (cases, closers, shapes, renderer_cases,
+                   renderer):  # none may hold a rule
         src = Path(beside.__file__)
         notes += _owner_guards(src.name, src.read_text(), vars(beside))
     for note in notes:
@@ -867,7 +583,7 @@ def selftest() -> int:
 
 
 def main() -> int:
-    """Run one arm: `--sites`, `--verify-anchors`, `--write`, or the gate.
+    """Run one arm: `--selftest`, `--verify-anchors`, `--write`, or the gate.
 
     `--check` is the default and separates a page with no contents list
     from one whose list has drifted: the two need different work from
@@ -884,9 +600,6 @@ def main() -> int:
         return selftest()
     if "--verify-anchors" in flags:
         return verify_anchors()
-    if "--sites" in flags:
-        print("\n".join(_sites()[0]))
-        return 0
 
     targets = [Path(a).resolve() for a in args] if args else list(pages())
     changed, missing, stale, refused = [], [], [], []
@@ -945,4 +658,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except RendererError as exc:
+        # Not a verdict on any page: without the pinned renderer nothing
+        # here can say what a page renders, so the run is refused whole.
+        print(f"gen_toc: cannot read Markdown: {exc}", file=sys.stderr)
+        sys.exit(2)

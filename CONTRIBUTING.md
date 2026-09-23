@@ -570,6 +570,37 @@ copy of a Contents block written inside a fence, an indented code block, an
 HTML comment or a raw HTML block is judged whole: nothing renders it as
 navigation, and the generator did not write it. Existing pages are not
 rewritten for this rule.
+
+Which headings a page has, and which lines are navigation, is the answer of
+the renderer GitHub uses, not of a reader this repository keeps. `gen_toc.py`
+parses the page with cmark-gfm through the `cmarkgfm` binding and parses the
+HTML it emits with html5lib, both pinned with hashes in
+[`tools/markdown/requirements.txt`](tools/markdown/requirements.txt) (#437,
+#516). A heading is listed only when it survives both stages. So a heading
+inside a fence, a raw HTML block or a comment authorises no label, and neither
+does one that a raw `<!--`, an open attribute value or a `<select>` hides. A
+setext heading and a heading inside a list item, a block quote or a referenced
+footnote are listed, and their anchors follow the same rule as every other
+heading's. An ATX heading's label is still read off its own line, so every
+existing label is unchanged. A setext heading's label is its rendered text.
+Install the lock before running the gate or the generator
+(`python3 -m pip install --require-hashes -r tools/markdown/requirements.txt`).
+Both refuse to answer without it, and both refuse any other release.
+[`scripts/gen_toc_shapes.json`](scripts/gen_toc_shapes.json) records GitHub's
+rendering of every page #437 and #516 were judged on, and the self-test
+compares the renderer with each one.
+
+Three limits remain, and each one withholds a heading; none can grant an
+exemption:
+
+- A heading written as raw HTML (`<h2>`) is not listed, although GitHub
+  renders it.
+- A page whose text spells the attribute the renderer marks its own elements
+  with is read as rendering nothing: raw HTML could spell it too.
+- GitHub opens a referenced footnote's section with a visually hidden
+  `Footnotes` heading that the pinned cmark-gfm does not emit, so no such
+  heading is listed. This is the one recorded rendering the renderer does
+  not reproduce.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
