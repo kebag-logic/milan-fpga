@@ -140,7 +140,7 @@ These repeated claims are checked against the
 | **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
 | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
 | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
-| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`, including a zero redundancy feature flag. The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
+| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`. Its `features_flags` REDUNDANCY bit reads zero because this is a declared non-redundant end station ([decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)). The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
 | **FR-CONN-01/02** (ACMP connect/disconnect/state, program the datapath) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_acmp_talker` + the listener half; the bind record and the talker declaration reach the fabric as class-D wires, and the CBS/classifier programming follows the reservation |
 | **FR-CONN-03/04** (fast-connect, nonvolatile connection state) | **NOT MET** | The persistence journal and the bind-restore port are structural zeros: writes are accepted, nothing is restored, **no binding survives a power cycle**. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
 | **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
@@ -186,7 +186,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 |----|-------------|-----|-----|
 | FR-MVU-01 | The entity MUST implement the MVU protocol (`protocol_id 00-1B-C5-0A-C1-00`) and answer `GET_MILAN_INFO` with `protocol_version`, `features_flags`, `certification_version`. | M | T |
 | FR-MVU-02 | `GET/SET_SYSTEM_UNIQUE_ID` and `GET/SET_MEDIA_CLOCK_REFERENCE_INFO` MUST be supported. | M | T |
-| FR-MVU-03 | `features_flags.MILAN_REDUNDANCY` MUST report 0 (redundancy out of scope). | M | I |
+| FR-MVU-03 | `features_flags` bit 31 `REDUNDANCY` (Milan v1.2 Table 5.20) MUST report 0. Directed limitation: this is a declared non-redundant end station with one AVB_INTERFACE on one cabled port. Milan v1.2 Section 8 seamless network redundancy is optional (Sections 4.2.5 and 8.1) and out of scope for the October release ([owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478), 2026-09-23). Revisit with the P4/P5 PCB (#416/#417). | M | I |
 
 ### 2.4 Connection management  -  ACMP  *(1722.1-2021 Section 8; Milan v1.2 Section 5.5)*
 | ID | Requirement | Pri | Ver |
@@ -278,7 +278,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | NFR-SCOUT-02 | Protocol control, media movement, and time discipline MUST retain their explicit fabric owners as stream counts grow. | M | A |
 | NFR-SCOUT-03 | Packet and audio deadlines MUST depend only on bounded fabric handshakes, never on firmware service latency. | M | A,T |
 | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
-| NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. | S | A,D |
+| NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for v1.2 (#394, FR-MVU-03). | S | A,D |
 | NFR-SCOUT-06 | Increasing stream or endpoint instance counts MUST NOT change the CSR register definitions or end-station configuration schema. | M | I |
 | NFR-SCOUT-07 | Per-stream and per-port fabric resource costs MUST be documented so a target stream/channel/port shape can be checked against the device budget. | S | A |
 
@@ -373,8 +373,9 @@ the completed PS-to-fabric migration plan (#259, in git history).
 8. **MAAP + SRP/MVRP**  -  allocate multicast, reserve Class A bandwidth, program CBS.
    *(FR-MAAP/SRP, FR-CONN-02)*
 9. **ACMP**  -  connect/disconnect + Milan fast-connect/state-restore. *(FR-CONN-\*)*
-10. **Fault behavior**  -  stream-interruption/redundancy-off recovery, counters,
-    IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
+10. **Fault behavior**  -  stream-interruption and single-port link-loss
+    recovery (a non-redundant end station, #394), counters, IDENTIFY.
+    *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, fabric-gPTP capture/CSR oracles) and the `tsn-gen` AECP PDU
     checks. *(all Ver=T)*
@@ -382,9 +383,21 @@ the completed PS-to-fabric migration plan (#259, in git history).
     and any future replicated-port profile to prove Sections 3.3/3.4.
     *(NFR-SCUP/SCOUT)*
 
-> Milan features intentionally **out of scope for now** (documented, not required
-> here): seamless network **redundancy** (single interface), sample rates beyond
-> 48/96/192 kHz, and AEM authentication.
+> Features intentionally **out of scope for now** (documented, not required
+> here). Each is a directed limitation with its revisit trigger, not an
+> omission:
+>
+> - Seamless network **redundancy** (Milan v1.2 Section 8). This is a declared
+>   non-redundant end station: one AVB_INTERFACE on one cabled port, and
+>   `GET_MILAN_INFO` reports the REDUNDANCY flag as 0 (FR-MVU-03). Milan v1.2
+>   Sections 4.2.5 and 8.1 make redundancy optional. Section 8.3.1 requires at
+>   least two AVB-capable Ethernet ports, and the build elaborates one MAC on
+>   one selected port (`--eth-port e1|e2`). Out of scope for the October release by
+>   the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)
+>   (2026-09-23); revisited with the P4/P5 PCB (#416/#417). A future
+>   `P_PORTS ≥ 2` profile (NFR-SCOUT-05) is a separate entity per port, not
+>   Section 8 redundancy.
+> - Sample rates beyond 48/96/192 kHz, and AEM authentication.
 
 ---
 
@@ -402,6 +415,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
 | QoS | FR-QOS-\* | 802.1Q/Qav |  -  (HW) | M-A5 |
 | Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | Section A/Section B params |
 | Scale-out | NFR-SCOUT-\* |  -  | fabric contexts / replicated endpoint | Section 4 |
+| Redundancy | FR-MVU-03, NFR-SCOUT-05 | Sections 4.2.5 and 8 | one AVB_INTERFACE | out of scope for v1.2 by the #394 decision; revisited with the P4/P5 PCB (#416/#417); Section 5 out-of-scope list |
 
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP,

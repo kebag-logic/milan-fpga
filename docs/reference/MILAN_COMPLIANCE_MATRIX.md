@@ -31,7 +31,7 @@ from a later edition:
 
 | Standard | Edition | Scope here |
 |---|---|---|
-| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener |
+| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener (Section 8 out of scope for v1.2, [decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)) |
 | IEEE Std 1722.1 | **-2021** | ATDECC: ADP, ACMP, AECP/AEM |
 | IEEE Std 1722 | **-2016** | AVTP: common header, AAF audio, CRF |
 | IEEE Std 802.1AS | **-2011** (+Cor1-2013, +Cor2-2015) | gPTP as Milan Section 4.2.6 profiles it — the fabric plane's edition of record (decision #139; [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) keeps the 802.1AS-2020 hardware-assist cross-trace) |
@@ -180,7 +180,7 @@ connect and the started-state restore (audit B12).
 | 7.2.2 | media clock inputs — the CRF sink can drive the media clock | implemented — #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical fsync grid (sim proof at the true 391/1591 ratio, milan_dp obj_aclk `[CRF]`); the silicon probe (J11.8 vs J11.9) stays open on issue #74 |
 | 7.2.3 / 7.3.2–7.3.4 | CRF Media Clock Output, Pro Audio CRF format (48 kHz base, SR class A) | implemented — RTL crf_tx; format fields byte-verified |
 | 7.4 | media clock source quality ± 50 ppm | partial — board-oscillator property; the 10.6 ppm internal divider offset is closed under CRF selection by #74's align chain (sim), while the ± 50 ppm oscillator bound itself remains a bench measurement |
-| 8.x | seamless redundancy | n/a — single-AVB_INTERFACE PAAD |
+| 8.x | seamless redundancy | n/a: a declared non-redundant PAAD-AE with one AVB_INTERFACE on one cabled port. Sections 4.2.5 and 8.1 make redundancy optional; `GET_MILAN_INFO` reports `features_flags` REDUNDANCY as 0 (Table 5.20; PP pp_top M2). A directed limitation, not an omission: out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
 
 ## 2. IEEE 1722.1-2021 — ATDECC base
 

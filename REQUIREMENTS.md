@@ -45,7 +45,7 @@ kept in Git history rather than the tracked product tree (#259).
 | IEEE 802.3-2022 | MAC, MDIO, autonegotiation, counters, and PAUSE |
 | IEEE 1722-2016 | AVTP/AAF/CRF transport and timestamp-validity fields |
 | IEEE 1722.1-2021 | discovery, connection management, descriptors, commands, and counters |
-| Milan v1.2 | PAAD-AE product profile and validation obligations |
+| Milan v1.2 | non-redundant PAAD-AE product profile (Section 9) and validation obligations |
 
 The fabric gPTP transmitter follows the Milan-selected 802.1AS-2011 control
 field values. Receivers ignore that deprecated field as required by the later
@@ -238,3 +238,17 @@ and physical measurements.
 802.1Qbv time-aware scheduling, Qci per-stream filtering/policing, frame
 preemption, one-step timestamping, routed PTP transport, stacked VLAN service
 tags, and unrelated HDL modernization are not part of this release.
+
+The exclusions below are directed limitations, each with its revisit trigger.
+They are recorded decisions, not omissions.
+
+- **Milan v1.2 Section 8 seamless network redundancy.** The product is a
+  declared non-redundant end station: one AVB_INTERFACE on one cabled port,
+  and `GET_MILAN_INFO` reports the `features_flags` REDUNDANCY bit as 0 (Milan
+  v1.2 Section 5.4.4.1, Table 5.20). Milan v1.2 Sections 4.2.5 and 8.1 make
+  redundancy optional. It is out of scope for the October release by the
+  [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)
+  (2026-09-23) and is revisited with the P4/P5 PCB (#416/#417). Adopting it
+  needs a second AVB_INTERFACE with its own MAC, gPTP port, MAAP and SRP
+  contexts and paired streams, and that design is approved before any RTL
+  lane opens.
