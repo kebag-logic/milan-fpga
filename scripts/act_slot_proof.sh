@@ -7,19 +7,59 @@
 # see "Parallel replay slots" in docs/testing/CI_WORKFLOWS.md.
 #
 # In order, it proves:
-#   1. per-slot interruption cleanup: --interrupt-selftest in slot A;
-#   2. the serial references: PR A, then PR B, one after the other in the
-#      serial slot (default 0, today's replay);
-#   3. isolation: PR A in slot A and PR B in slot B at the same time, each
-#      with the verdict of its serial reference;
-#   4. the collision control: PR A and PR B at the same time in ONE slot.
-#      The second must be refused while the first holds the slot, and the
-#      first must still reach its serial verdict. With --collide-default the
-#      same control also runs on slot 0, which has no slot isolation at all.
+#   1. per-slot interruption cleanup: --interrupt-selftest in slot A passes
+#      and prints the runner's own teardown line for slot A;
+#   2. the serial references: PR A, then PR B, in the serial slot (default 0,
+#      today's replay); each must complete (see `complete`);
+#   3. isolation: PR A in slot A and PR B in slot B, started together. Both
+#      must hold their slots at the same time and each must complete with the
+#      verdict of its serial reference;
+#   4. the isolation control, run from inside each slot while its replay
+#      holds it: a listener container on a new bridge network of the default
+#      daemon, and the port it publishes on that network's gateway, must both
+#      be refused, while a public name resolves and answers on 443. The same
+#      probe from the host's own namespace must reach both targets, so the
+#      refusal is the slot firewall's and not a dead target's;
+#   5. the collision control with isolation: PR A and PR B in slot A at once;
+#      the second must be refused on the slot lock while the first still
+#      holds the slot and then completes with its serial verdict;
+#   6. the collision control without isolation: the same on slot 0, the one
+#      shared default daemon, where the second must be refused on act's
+#      global tool-cache or job-volume names. This is the collision the slots
+#      exist to remove, so it is always part of the proof.
 #
-# Exit 0 only when every proof holds. Each run's log, exit status and
-# extracted verdict land in --logs, with a summary in --logs/SUMMARY.
+# A run completes only with exit 0 and a PASS line for every selected
+# workflow in order, or exit 1 with PASS lines up to the first workflow that
+# FAILED and that FAILED line (the runner stops at the first failure). A
+# refusal or a signal never completes, so a proof built on runs that never
+# executed a workflow fails. PROVED is printed, with exit 0, only when all ten
+# checks recorded PASS. Each run's log, status and verdict land in --logs,
+# with a summary in --logs/SUMMARY and the probe answers in isolation.log.
+#
+# `--selftest` grades these checks offline against a stand-in runner and a
+# stand-in sudo (Docker CLI, namespace entry and probes) in a scratch
+# directory: no Docker, no privilege, no network. It passes only when the
+# honest case PROVES and each broken case FAILS on the check meant to catch it.
 set -euo pipefail
+
+PROOF_LABEL=org.kebag-logic.milan-act-slot-proof
+# The workflows the runner selects by default, in its own order (WORKFLOWS in
+# scripts/act_ci.py); a runner that adds one fails this proof until it is here.
+DEFAULT_WORKFLOWS=(docs elaborate rtl-fast rtl-full)
+# A connect probe: one `NAME=reached|refused` line per NAME,HOST,PORT; a name
+# that does not resolve, a refusal and a timeout are all `refused`.
+PROBE='import socket, sys
+for spec in sys.argv[1:]:
+    name, host, port = spec.split(",")
+    try:
+        socket.create_connection((host, int(port)), timeout=10).close()
+        print(f"{name}=reached")
+    except OSError:
+        print(f"{name}=refused")'
+LISTENER='import socket
+server = socket.create_server(("0.0.0.0", 8080))
+while True:
+    server.accept()[0].close()'
 
 usage() {
   cat <<'EOF'
@@ -27,19 +67,22 @@ usage: act_slot_proof.sh --runner ABS --sha256 HEX --act-bin ABS --logs DIR
          --pr-a N --worktree-a DIR --pr-b N --worktree-b DIR
          [--slot-a N] [--slot-root-a DIR] [--slot-b N] [--slot-root-b DIR]
          [--serial-slot N] [--repo OWNER/REPO] [--workflow NAME]...
-         [--collide-default]
+         [--probe-image IMAGE] [--probe-name HOST] [--poll-seconds S]
+       act_slot_proof.sh --selftest
 EOF
 }
 
 runner="" sha="" act_bin="" logs="" repo="kebag-logic/milan-fpga"
 pr_a="" worktree_a="" pr_b="" worktree_b=""
-slot_a=1 slot_b=2 serial_slot=0 collide_default=0
+slot_a=1 slot_b=2 serial_slot=0 poll_seconds=5
 slot_root_a=/var/lib/milan-act-ci slot_root_b=/var/lib/milan-act-ci
-workflow_args=()
+probe_image=catthehacker/ubuntu:full-latest probe_name=github.com
+workflow_args=() workflows=()
+target="" target_ip="" target_gateway="" target_port=""
 
 parse_arguments() {
   while [ "$#" -gt 0 ]; do
-    if [ "$1" != --collide-default ] && [ "$#" -lt 2 ]; then usage >&2; exit 2; fi
+    if [ "$#" -lt 2 ]; then usage >&2; exit 2; fi
     case "$1" in
       --runner) runner=$2 ;;
       --sha256) sha=$2 ;;
@@ -55,8 +98,10 @@ parse_arguments() {
       --slot-root-a) slot_root_a=$2 ;;
       --slot-root-b) slot_root_b=$2 ;;
       --serial-slot) serial_slot=$2 ;;
-      --workflow) workflow_args+=(--workflow "$2") ;;
-      --collide-default) collide_default=1; shift; continue ;;
+      --probe-image) probe_image=$2 ;;
+      --probe-name) probe_name=$2 ;;
+      --poll-seconds) poll_seconds=$2 ;;
+      --workflow) workflow_args+=(--workflow "$2"); workflows+=("$2") ;;
       *) usage >&2; exit 2 ;;
     esac
     shift 2
@@ -65,8 +110,11 @@ parse_arguments() {
     "$pr_b" "$worktree_b"; do
     if [ -z "$required" ]; then usage >&2; exit 2; fi
   done
-  if [ "$slot_a" -eq "$slot_b" ] || [ "$slot_a" -eq 0 ]; then
-    echo "slot A must be an isolated slot distinct from slot B" >&2
+  for number in "$slot_a" "$slot_b" "$serial_slot"; do
+    case "$number" in ''|*[!0-9]*) echo "slots are numbers: $number" >&2; exit 2 ;; esac
+  done
+  if [ "$slot_a" -eq "$slot_b" ] || [ "$slot_a" -eq 0 ] || [ "$slot_b" -eq 0 ]; then
+    echo "slots A and B must be two distinct isolated slots" >&2
     exit 2
   fi
 }
@@ -74,7 +122,8 @@ parse_arguments() {
 verify_runner() {
   local actual
   actual=$(sha256sum "$runner" | cut -d' ' -f1)
-  if [ "$actual" != "$sha" ] || [ -w "$runner" ]; then
+  if [ "$actual" != "$sha" ] || [ -n "$(find "$runner" -maxdepth 0 -perm /0222)" ] \
+    || { [ "$(id -u)" -ne 0 ] && [ -w "$runner" ]; }; then
     echo "runner $runner is not the audited read-only install $sha" >&2
     exit 2
   fi
@@ -85,9 +134,22 @@ verify_runner() {
   fi
 }
 
+record() {
+  printf '%s %s\n' "$1" "$2" | tee -a "$logs/SUMMARY"
+}
+
 # slot_root SLOT: the slot root the command line gave that slot.
 slot_root() {
   if [ "$1" -eq "$slot_a" ]; then echo "$slot_root_a"; else echo "$slot_root_b"; fi
+}
+
+# selected_workflows: the workflows every run executes, in the runner's order.
+selected_workflows() {
+  if [ "${#workflows[@]}" -eq 0 ] || [ "${workflows[*]}" = all ]; then
+    printf '%s\n' "${DEFAULT_WORKFLOWS[@]}"
+  else
+    printf '%s\n' "${workflows[@]}" | awk '!seen[$0]++'
+  fi
 }
 
 # replay LABEL PR WORKTREE SLOT: one PR run; its log, status and verdict.
@@ -102,11 +164,24 @@ replay() {
   else
     status=$?
   fi
-  printf '%s\n' "$status" >"$logs/$label.status"
   {
     printf 'exit %s\n' "$status"
     sed -n -E 's/^act-ci: ([a-z-]+): (PASS|FAILED).*/\1 \2/p' "$logs/$label.log"
   } >"$logs/$label.verdict"
+  printf '%s\n' "$status" >"$logs/$label.status"
+}
+
+# complete LABEL: whether run LABEL executed its workflows: exit 0 with a PASS
+# for every selected workflow in order, or exit 1 with PASS for those before
+# the first failure and FAILED for it. A refusal or a signal never completes.
+complete() {
+  local actual expected="" name
+  actual=$(cat "$logs/$1.verdict")
+  while IFS= read -r name; do
+    if [ "$actual" = "exit 1$expected"$'\n'"$name FAILED" ]; then return 0; fi
+    expected+=$'\n'"$name PASS"
+  done < <(selected_workflows)
+  [ "$actual" = "exit 0$expected" ]
 }
 
 # same_verdict LABEL REFERENCE: whether two runs reached identical verdicts.
@@ -114,30 +189,136 @@ same_verdict() {
   cmp -s "$logs/$1.verdict" "$logs/$2.verdict"
 }
 
-# compare LABEL REFERENCE: record whether LABEL kept REFERENCE's verdict.
+# reference LABEL: record whether serial reference LABEL completed.
+reference() {
+  if complete "$1"; then
+    record PASS "$1 completed: $(tr '\n' ' ' <"$logs/$1.verdict")"
+  else
+    record FAIL "$1 did not complete its workflows: $(tr '\n' ' ' <"$logs/$1.verdict")"
+  fi
+}
+
+# compare LABEL REFERENCE: record whether LABEL completed with REFERENCE's verdict.
 compare() {
-  if same_verdict "$1" "$2"; then record PASS "$1 = $2"; else record FAIL "$1 != $2"; fi
+  if ! complete "$1"; then
+    record FAIL "$1 did not complete its workflows: $(tr '\n' ' ' <"$logs/$1.verdict")"
+  elif same_verdict "$1" "$2"; then
+    record PASS "$1 = $2"
+  else
+    record FAIL "$1 != $2"
+  fi
 }
 
-record() {
-  printf '%s %s\n' "$1" "$2" | tee -a "$logs/SUMMARY"
+# ended LABEL: whether run LABEL has printed a verdict or a refusal. A run that
+# completes prints every verdict before its slot or Docker boundary is torn
+# down, so a run whose marker is printed and which has not ended holds its slot.
+ended() {
+  grep -q -E '^act-ci: ([a-z-]+: (PASS|FAILED)|REFUSED)' "$logs/$1.log" 2>/dev/null
 }
 
-# await_holder LABEL SLOT: block until run LABEL holds SLOT, or fail.
+# await_holder LABEL SLOT: block until run LABEL holds SLOT; fail once it has ended.
 await_holder() {
   local label=$1 slot=$2 marker="act-ci: running " polls=0
   if [ "$slot" -ne 0 ]; then marker="act-ci: slot $slot: own daemon"; fi
   while [ "$polls" -lt 720 ]; do
     if grep -q -F "$marker" "$logs/$label.log" 2>/dev/null; then return 0; fi
-    sleep 5
+    if [ -e "$logs/$label.status" ]; then return 1; fi
+    sleep "$poll_seconds"
     polls=$((polls + 1))
   done
   return 1
 }
 
-# collide SLOT REFUSAL: A holds SLOT, B arrives and must be refused.
+# interrupt_gate: the live interruption gate in slot A, torn down by the runner itself.
+interrupt_gate() {
+  local log=$logs/interrupt-$slot_a.log
+  if (cd "$logs" && python3 -I "$runner" --interrupt-selftest --act-bin "$act_bin" \
+    --sudo --slot "$slot_a" --slot-root "$slot_root_a") >"$log" 2>&1 \
+    && grep -q '^interrupt-selftest: PASS ' "$log" \
+    && grep -q "^interrupt-selftest: slot $slot_a: " "$log"; then
+    record PASS "interrupt self-test in slot $slot_a, whose slot the runner then tore down and proved absent"
+  else
+    record FAIL "interrupt self-test in slot $slot_a: see interrupt-$slot_a.log"
+  fi
+}
+
+# start_target: the isolation target, a listener container on a new bridge
+# network of the default daemon with a port published on that network's
+# gateway only; false when any step fails.
+start_target() {
+  target=milan-act-slot-proof-$(od -An -N6 -tx1 /dev/urandom | tr -d ' \n')
+  sudo -n docker network create --driver bridge --label "$PROOF_LABEL=$target" "$target" \
+    >/dev/null || return 1
+  target_gateway=$(sudo -n docker network inspect \
+    --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}' "$target") || return 1
+  sudo -n docker run --detach --pull never --name "$target" --network "$target" \
+    --label "$PROOF_LABEL=$target" --publish "$target_gateway::8080" \
+    --entrypoint python3 "$probe_image" -c "$LISTENER" >/dev/null || return 1
+  target_ip=$(sudo -n docker inspect \
+    --format "{{(index .NetworkSettings.Networks \"$target\").IPAddress}}" "$target") || return 1
+  target_port=$(sudo -n docker port "$target" 8080/tcp | sed -n '1s/.*://p') || return 1
+  printf 'target %s: container %s:8080, published %s:%s\n' "$target" "$target_ip" \
+    "$target_gateway" "$target_port" >>"$logs/isolation.log"
+  [ -n "$target_gateway" ] && [ -n "$target_ip" ] && [ -n "$target_port" ]
+}
+
+# remove_target: remove the isolation target and prove it absent.
+remove_target() {
+  local containers networks
+  if [ -z "$target" ]; then return 0; fi
+  sudo -n docker rm --force "$target" >/dev/null 2>&1 || true
+  sudo -n docker network rm "$target" >/dev/null 2>&1 || true
+  containers=$(sudo -n docker ps --all --quiet --filter "label=$PROOF_LABEL=$target") \
+    || containers=unknown
+  networks=$(sudo -n docker network ls --quiet --filter "label=$PROOF_LABEL=$target") \
+    || networks=unknown
+  if [ -n "$containers$networks" ]; then
+    record FAIL "isolation target $target survived its removal"
+  fi
+  target=""
+}
+
+# isolation SLOT: the isolation control from inside SLOT, set against the host.
+isolation() {
+  local slot=$1 inside outside
+  local -a targets=("container,$target_ip,8080" "published,$target_gateway,$target_port")
+  inside=$(sudo -n nsenter "--net=/run/netns/milan-act-slot-$slot" -- env -i PATH=/usr/bin:/bin \
+    python3 -I -c "$PROBE" "${targets[@]}" "internet,$probe_name,443" 2>&1 | tr '\n' ' ') || true
+  outside=$(sudo -n env -i PATH=/usr/bin:/bin python3 -I -c "$PROBE" "${targets[@]}" 2>&1 \
+    | tr '\n' ' ') || true
+  printf 'slot %s: %s\nhost: %s\n' "$slot" "$inside" "$outside" >>"$logs/isolation.log"
+  if [ "$inside" = "container=refused published=refused internet=reached " ] \
+    && [ "$outside" = "container=reached published=reached " ]; then
+    record PASS "isolation slot $slot: the default daemon's container and published port were refused, $probe_name:443 answered, and the host reached both targets"
+  else
+    record FAIL "isolation slot $slot: slot saw '$inside', host saw '$outside' (see isolation.log)"
+  fi
+}
+
+# parallel: PR A in slot A and PR B in slot B together, with the isolation control.
+parallel() {
+  local pid_a pid_b slot
+  replay parallel-a "$pr_a" "$worktree_a" "$slot_a" &
+  pid_a=$!
+  replay parallel-b "$pr_b" "$worktree_b" "$slot_b" &
+  pid_b=$!
+  if await_holder parallel-a "$slot_a" && await_holder parallel-b "$slot_b" \
+    && ! ended parallel-a && ! ended parallel-b; then
+    record PASS "overlap: slots $slot_a and $slot_b were held at the same time"
+    for slot in "$slot_a" "$slot_b"; do
+      if [ -n "$target" ]; then isolation "$slot"; else record FAIL "isolation slot $slot: no target"; fi
+    done
+  else
+    record FAIL "overlap: the parallel runs never held slots $slot_a and $slot_b at the same time"
+  fi
+  wait "$pid_a" "$pid_b"
+  compare parallel-a serial-a
+  compare parallel-b serial-b
+}
+
+# collide SLOT REFUSAL: A holds SLOT, B arrives while A holds it and must be refused.
 collide() {
-  local slot=$1 refusal=$2 holder rival_status
+  local slot=$1 refusal=$2 holder rival_early rival_status
   replay "collide-$slot-holder" "$pr_a" "$worktree_a" "$slot" &
   holder=$!
   if ! await_holder "collide-$slot-holder" "$slot"; then
@@ -146,38 +327,240 @@ collide() {
     return
   fi
   replay "collide-$slot-rival" "$pr_b" "$worktree_b" "$slot"
+  rival_early=1
+  if ended "collide-$slot-holder"; then rival_early=0; fi
   wait "$holder"
   rival_status=$(cat "$logs/collide-$slot-rival.status")
-  if [ "$rival_status" = 2 ] \
+  if [ "$rival_early" -eq 1 ] && [ "$rival_status" = 2 ] \
     && grep -q -E "$refusal" "$logs/collide-$slot-rival.log" \
-    && same_verdict "collide-$slot-holder" serial-a; then
-    record PASS "collision slot $slot: the rival was refused and the holder kept its serial verdict"
+    && complete "collide-$slot-holder" && same_verdict "collide-$slot-holder" serial-a; then
+    record PASS "collision slot $slot: the rival was refused while the holder held the slot, and the holder kept its serial verdict"
   else
     record FAIL "collision slot $slot: see collide-$slot-*.log"
   fi
 }
 
-main() {
-  parse_arguments "$@"
+prove() {
   verify_runner
-  if (cd "$logs" && python3 -I "$runner" --interrupt-selftest --act-bin "$act_bin" \
-    --sudo --slot "$slot_a" --slot-root "$slot_root_a") >"$logs/interrupt-$slot_a.log" 2>&1; then
-    record PASS "interrupt self-test in slot $slot_a"
-  else
-    record FAIL "interrupt self-test in slot $slot_a"
-  fi
+  trap remove_target EXIT
+  interrupt_gate
   replay serial-a "$pr_a" "$worktree_a" "$serial_slot"
+  reference serial-a
   replay serial-b "$pr_b" "$worktree_b" "$serial_slot"
-  replay parallel-a "$pr_a" "$worktree_a" "$slot_a" &
-  local parallel_a=$!
-  replay parallel-b "$pr_b" "$worktree_b" "$slot_b" &
-  wait "$parallel_a" "$!"
-  compare parallel-a serial-a
-  compare parallel-b serial-b
+  reference serial-b
+  if ! start_target; then
+    record FAIL "isolation target: it could not be started on the default daemon (see isolation.log)"
+  fi
+  parallel
+  remove_target
   collide "$slot_a" "is in use by another runner invocation"
-  if [ "$collide_default" -eq 1 ]; then collide 0 "act-toolcache|already exist"; fi
-  if grep -q '^FAIL' "$logs/SUMMARY"; then exit 1; fi
+  collide 0 "act-toolcache|already exist"
+  if grep -q '^FAIL' "$logs/SUMMARY" || [ "$(grep -c '^PASS' "$logs/SUMMARY")" -ne 10 ]; then
+    exit 1
+  fi
   record PROVED "every slot proof held"
+}
+
+# fake_runner_source: the stand-in runner --selftest grades the proof against.
+fake_runner_source() {
+  cat <<'EOF'
+#!/usr/bin/env python3
+"""Stand-in runner: takes slots with real flocks, prints the runner's lines, reaches scripted verdicts."""
+import fcntl, os, pathlib, sys, time
+args = sys.argv[1:]
+state = pathlib.Path(os.environ["FAKE_STATE"])
+faults = os.environ.get("FAKE_FAULTS", "").split(",")
+def value(flag, default):
+    return args[args.index(flag) + 1] if flag in args else default
+slot = value("--slot", "0")
+if "--interrupt-selftest" in args:
+    print("interrupt-selftest: PASS (stand-in)")
+    if "interrupt-no-slot" not in faults:
+        print(f"interrupt-selftest: slot {slot}: its daemon, uplink, firewall table, slice "
+              "and namespace were then torn down and proved absent")
+    sys.exit(0)
+workflows = [args[i + 1] for i, word in enumerate(args) if word == "--workflow"]
+workflows = workflows or ["docs", "elaborate", "rtl-fast", "rtl-full"]
+pr, hold = value("--pr", "0"), float(os.environ.get("FAKE_HOLD", "3"))
+with open(state / f"runs-{slot}-{pr}", "a+") as runs:
+    fcntl.flock(runs, fcntl.LOCK_EX)
+    runs.write("x")
+    runs.seek(0)
+    run_number = len(runs.read())
+if pr == "23" and slot == "1" and "rival-other-refusal" in faults:
+    print("act-ci: REFUSED: act version check failed", file=sys.stderr)
+    sys.exit(2)
+if pr == "23" and slot == "1" and "late-refusal" in faults:
+    time.sleep(hold + 1)
+    print("act-ci: REFUSED: replay slot 1 is in use by another runner invocation", file=sys.stderr)
+    sys.exit(2)
+time.sleep(0.2)
+if "serialize" in faults:
+    queue = open(state / "queue.lock", "w")
+    fcntl.flock(queue, fcntl.LOCK_EX)
+lock = open(state / f"lock-{slot}", "w")
+unlocked = "nolock" in faults or ("nolock0" in faults and slot == "0")
+try:
+    if not unlocked:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except BlockingIOError:
+    print("act-ci: REFUSED: " + (f"replay slot {slot} is in use by another runner invocation"
+          if slot != "0" else "shared Docker volume 'act-toolcache' already exists"), file=sys.stderr)
+    sys.exit(2)
+if slot != "0":
+    (state / f"netns-{slot}").touch()
+    print(f"act-ci: slot {slot}: own daemon unix:///run/milan-act-slot-{slot}/docker.sock", flush=True)
+try:
+    print(f"act-ci: running {workflows[0]} (stand-in)", flush=True)
+    time.sleep(hold)
+    if "refuse" in faults:
+        print("act-ci: REFUSED: action clone failed", file=sys.stderr)
+        sys.exit(2)
+    broken = "parallel-break" in faults or ("holder-break" in faults and run_number == 2)
+    for index, name in enumerate(workflows):
+        if "partial" in faults and index == 1:
+            sys.exit(0)
+        if (pr == "22" and index == 1) or (broken and slot == "1"):
+            print(f"act-ci: {name}: FAILED (1)", file=sys.stderr, flush=True)
+            sys.exit(1)
+        print(f"act-ci: {name}: PASS at {'a' * 40}", flush=True)
+finally:
+    (state / f"netns-{slot}").unlink(missing_ok=True)
+EOF
+}
+
+# fake_sudo_source: the stand-in `sudo -n` for the Docker CLI, namespace entry and probes.
+fake_sudo_source() {
+  cat <<'EOF'
+#!/usr/bin/env python3
+"""Stand-in sudo -n: answers the proof's Docker, nsenter and probe commands from a state directory."""
+import os, pathlib, sys
+state = pathlib.Path(os.environ["FAKE_STATE"])
+faults = os.environ.get("FAKE_FAULTS", "").split(",")
+args = sys.argv[1:]
+if args[:1] != ["-n"]:
+    sys.exit("stand-in sudo: only non-interactive -n is expected")
+args = args[1:]
+live = state / "target"
+def answers(specs, inside):
+    """What a probe of the given specs sees from inside a slot or from the host."""
+    alive = live.exists() and "target-dead" not in faults
+    for spec in specs:
+        name, host, port = spec.split(",")
+        known = {("container", "172.30.0.2", "8080"), ("published", "172.30.0.1", "32768")}
+        if name == "internet":
+            reached = host == "github.com" and port == "443"
+        elif inside:
+            reached = alive and "slot-reaches" in faults and (name, host, port) in known
+        else:
+            reached = alive and (name, host, port) in known
+        print(f"{name}={'reached' if reached else 'refused'}")
+if args[0] == "docker":
+    verb = " ".join(args[1:3])
+    if verb == "network create":
+        (state / "network").touch()
+        print("n" * 64)
+    elif verb == "network inspect":
+        print("172.30.0.1")
+    elif args[1] == "run":
+        assert "--publish" in args and "172.30.0.1::8080" in args and "never" in args
+        live.touch()
+        print("c" * 64)
+    elif args[1] == "inspect":
+        print("172.30.0.2")
+    elif args[1] == "port":
+        print("172.30.0.1:32768")
+    elif args[1] == "rm" and "target-survives" not in faults:
+        live.unlink(missing_ok=True)
+    elif verb == "network rm":
+        (state / "network").unlink(missing_ok=True)
+    elif args[1] == "ps":
+        print("c" * 12 if live.exists() else "", end="")
+    elif verb == "network ls":
+        print("n" * 12 if (state / "network").exists() else "", end="")
+    sys.exit(0)
+if args[0] == "nsenter":
+    slot = args[1].rsplit("-", 1)[1]
+    if not (state / f"netns-{slot}").exists():
+        sys.exit(f"nsenter: cannot open {args[1]}: No such file or directory")
+    answers(args[args.index("-c") + 2:], inside=True)
+    sys.exit(0)
+if args[0] == "env":
+    answers(args[args.index("-c") + 2:], inside=False)
+    sys.exit(0)
+sys.exit(f"stand-in sudo: unexpected command {args}")
+EOF
+}
+
+# selftest_case SCRATCH NAME FAULTS PR_B STATUS LINE: one graded run of this proof.
+selftest_case() {
+  local scratch=$1 name=$2 faults=$3 pr_b_case=$4 want_status=$5 want_line=$6 status=0
+  local case_dir=$scratch/$name
+  mkdir -p "$case_dir/state" "$case_dir/wt-a" "$case_dir/wt-b"
+  FAKE_STATE=$case_dir/state FAKE_FAULTS=$faults PATH="$scratch/bin:$PATH" \
+    bash "$0" --runner "$scratch/runner.py" --sha256 "$(sha256sum "$scratch/runner.py" | cut -d' ' -f1)" \
+    --act-bin /nonexistent/act --logs "$case_dir/logs" --pr-a 21 --worktree-a "$case_dir/wt-a" \
+    --pr-b "$pr_b_case" --worktree-b "$case_dir/wt-b" --slot-a 1 --slot-b 2 \
+    --poll-seconds 0.05 >"$case_dir/out" 2>&1 || status=$?
+  if [ "$status" = "$want_status" ] && grep -q -F -- "$want_line" "$case_dir/logs/SUMMARY" \
+    && { [ "$want_status" != 0 ] || [ "$(grep -c '^PASS' "$case_dir/logs/SUMMARY")" -eq 10 ]; }; then
+    echo "  ok   $name: exit $status with '$want_line'"
+  else
+    echo "  FAIL $name: exit $status, wanted $want_status with '$want_line'"
+    sed 's/^/       | /' "$case_dir/logs/SUMMARY" 2>/dev/null || true
+    return 1
+  fi
+}
+
+# selftest: grade every check of this proof against the stand-ins, in parallel.
+selftest() {
+  local scratch failures=0 name faults pr_b_case want_status want_line
+  local -a pids=() names=()
+  scratch=$(mktemp -d "${TMPDIR:-/tmp}/act-slot-proof-selftest.XXXXXX")
+  mkdir "$scratch/bin"
+  fake_runner_source >"$scratch/runner.py"
+  fake_sudo_source >"$scratch/bin/sudo"
+  chmod 0555 "$scratch/runner.py" "$scratch/bin/sudo"
+  while IFS='|' read -r name faults pr_b_case want_status want_line; do
+    selftest_case "$scratch" "$name" "$faults" "$pr_b_case" "$want_status" "$want_line" \
+      >"$scratch/$name.result" 2>&1 &
+    pids+=("$!")
+    names+=("$name")
+  done <<'EOF'
+honest, where PR B fails its second workflow||22|0|PROVED every slot proof held
+every run refuses after taking its slot|refuse|23|1|FAIL serial-a did not complete
+a run stops before its last workflow|partial|23|1|FAIL serial-a did not complete
+the interrupt gate ignores its slot|interrupt-no-slot|23|1|FAIL interrupt self-test in slot 1
+a slot changes a verdict|parallel-break|23|1|FAIL parallel-a != serial-a
+the slot lock is missing|nolock|23|1|FAIL collision slot 1
+the rival is refused only after the holder left|late-refusal|23|1|FAIL collision slot 1
+the rival is refused for another reason|rival-other-refusal|23|1|FAIL collision slot 1
+the collision holder changes its verdict|holder-break|23|1|FAIL collision slot 1
+the shared daemon does not collide|nolock0|23|1|FAIL collision slot 0
+a slot reaches the default daemon's container|slot-reaches|23|1|FAIL isolation slot 1
+the isolation target is dead|target-dead|23|1|FAIL isolation slot 1
+the isolation target survives removal|target-survives|23|1|FAIL isolation target
+the parallel runs never overlap|serialize|23|1|FAIL overlap
+EOF
+  for index in "${!pids[@]}"; do
+    if ! wait "${pids[$index]}"; then failures=$((failures + 1)); fi
+    cat "$scratch/${names[$index]}.result"
+  done
+  rm -rf "$scratch"
+  if [ "$failures" -ne 0 ]; then
+    echo "act_slot_proof selftest: $failures FAILURE(S)"
+    return 1
+  fi
+  echo "act_slot_proof selftest: PASS (${#names[@]} cases)"
+}
+
+main() {
+  if [ "$#" -eq 1 ] && [ "$1" = --selftest ]; then
+    selftest
+    return
+  fi
+  parse_arguments "$@"
+  prove
 }
 
 main "$@"
