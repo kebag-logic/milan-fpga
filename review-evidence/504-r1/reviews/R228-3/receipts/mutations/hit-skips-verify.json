@@ -1,0 +1,16 @@
+{
+ "id": "hit-skips-verify",
+ "kind": "installer",
+ "file": "scripts/ci_rv32_sdk.py",
+ "reverts": "cache hit adopted without verification",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "FAIL: test_changed_installer (__main__.InstallerTests.test_changed_installer)",
+  "AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised",
+  "FAIL: test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+}

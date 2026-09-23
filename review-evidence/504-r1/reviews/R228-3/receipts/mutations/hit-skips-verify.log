@@ -1,0 +1,408 @@
+SDK archive verified: /tmp/rv32-installer-test-jx573q9h/wrong-root.tar.xz sha256=7eaa8360bde792d68d4864bc14bb45f38f148a863b674696eb029e96a4cabd5a
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK argv: ["/tmp/rv32-installer-test-hv_qfaqe/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-hv_qfaqe/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-hv_qfaqe/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-hv_qfaqe/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK cache hit: verified
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-l3p7hn20/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK argv: ["/tmp/rv32-installer-test-j93gv77h/installed/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["/tmp/rv32-installer-test-j93gv77h/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["/tmp/rv32-installer-test-j93gv77h/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["/tmp/rv32-installer-test-j93gv77h/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+test_archive_root (__main__.InstallerTests.test_archive_root)
+An authenticated archive with another root is still not extracted. ... ok
+test_bad_archive (__main__.InstallerTests.test_bad_archive)
+A wrong offline --archive never reaches tar or creates an installation. ... ok
+test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+Explicit offline inputs are checked even beside a valid cache. ... ok
+test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run. ... FAIL
+test_download_path (__main__.InstallerTests.test_download_path)
+The hosted path, with no --archive, installs what the pin names. ... ok
+test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+A wrong download is refused before tar reads it or anything runs. ... ok
+test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+A compiler whose realpath leaves the prefix is never executed. ... ok
+test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed. ... FAIL
+test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit. ... FAIL
+test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+Deletion, replacement, mode change and extra files all refuse. ... 
+  test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='missing')
+Deletion, replacement, mode change and extra files all refuse. ... FAIL
+  test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='bytes')
+Deletion, replacement, mode change and extra files all refuse. ... FAIL
+  test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='mode')
+Deletion, replacement, mode change and extra files all refuse. ... FAIL
+  test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='extra')
+Deletion, replacement, mode change and extra files all refuse. ... FAIL
+  test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='link')
+Deletion, replacement, mode change and extra files all refuse. ... FAIL
+test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance. ... FAIL
+test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK. ... FAIL
+test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured. ... FAIL
+test_provenance_values (__main__.InstallerTests.test_provenance_values)
+The installer digest and host are the ones measured here, independently. ... ok
+test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift. ... FAIL
+test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs. ... FAIL
+test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree. ... FAIL
+test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache. ... FAIL
+test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+Even a successful process must prove its relocation result. ... ok
+test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+The fixed x86-64 archive cannot silently adopt another host. ... ok
+test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+Every cache input is bound, including the whole digest and prefix. ... 
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='archive_sha256')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='archive_url')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='destination')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='host')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='installer_revision')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='installer_sha256')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+  test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='release')
+Every cache input is bound, including the whole digest and prefix. ... FAIL
+test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+A compiler with the wrong version or target cannot create a receipt. ... ok
+test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+Cached identification must agree with the program actually invoked. ... ok
+
+======================================================================
+FAIL: test_changed_installer (__main__.InstallerTests.test_changed_installer)
+A cache made by other installer bytes is refused before its tools run.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 232, in test_changed_installer
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+A receipt carrying an unexpected section is malformed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 281, in test_extra_receipt_section
+    self.refuses_without_execution("malformed SDK provenance")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+A failed relocation leaves no success receipt and cannot become a hit.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 322, in test_failed_relocation
+    self.refuses_without_execution("incomplete install")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='missing')
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 303, in test_incomplete_and_corrupt_tree
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='bytes')
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 303, in test_incomplete_and_corrupt_tree
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='mode')
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 303, in test_incomplete_and_corrupt_tree
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='extra')
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 303, in test_incomplete_and_corrupt_tree
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree) (defect='link')
+Deletion, replacement, mode change and extra files all refuse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 303, in test_incomplete_and_corrupt_tree
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+JSON of the wrong type cannot pass as provenance.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 186, in test_malformed_receipt
+    self.refuses_without_execution("malformed SDK provenance")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+An existing directory is not an installed SDK.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 180, in test_missing_receipt
+    self.refuses_without_execution("incomplete install")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_moved_cache (__main__.InstallerTests.test_moved_cache)
+A relocated tree is bound to the prefix where it was measured.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 372, in test_moved_cache
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+Pointing the selector at another installed tool is cache drift.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 240, in test_retargeted_symlink
+    self.refuses_without_execution("inventory mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_special_file (__main__.InstallerTests.test_special_file)
+A FIFO planted in the cache is refused before any tool runs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 273, in test_special_file
+    self.refuses_without_execution("unexpected SDK entry")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+Provenance must be stored in the installation, not another tree.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 201, in test_symlink_receipt
+    self.refuses_without_execution("missing regular SDK provenance receipt")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+An interrupted receipt write never becomes a usable cache.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 192, in test_truncated_receipt
+    self.refuses_without_execution("Expecting value")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='archive_sha256')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='archive_url')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='destination')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='host')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='installer_revision')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='installer_sha256')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+======================================================================
+FAIL: test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance) (key='release')
+Every cache input is bound, including the whole digest and prefix.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 213, in test_wrong_provenance
+    self.refuses_without_execution("provenance mismatch")
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m6/scripts/ci_rv32_sdk_selftest.py", line 99, in refuses_without_execution
+    with self.assertRaisesRegex((ValueError, FileNotFoundError), reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: (<class 'ValueError'>, <class 'FileNotFoundError'>) not raised
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.897s
+
+FAILED (failures=22)

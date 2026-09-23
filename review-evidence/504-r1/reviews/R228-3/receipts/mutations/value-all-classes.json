@@ -1,0 +1,14 @@
+{
+ "id": "value-all-classes",
+ "kind": "literal",
+ "file": "sw/builder/test_builder.py",
+ "reverts": "every store class leaves its rs2 as the word",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "AssertionError: after a byte store at a frame slot's own offset the RV32 resolver still placed the next store ([0]): a word the store rewrote was read back as a placed address the census accepts"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644"
+}

@@ -1,0 +1,52 @@
+# Exact-head hosted evidence extract, head 97aa1ec943ac740a27b942210a248f6512ae3ff6 (read-only API fetch)
+check-run 107106135792 bdd-conformance: completed/success
+check-run 107106136100 changes: completed/success
+check-run 107106136535 docs-check: completed/success
+check-run 107106136624 docs-check-no-git: completed/success
+check-run 107106136284 elaborate: completed/success
+check-run 107106135763 full-ci-gate: completed/success
+check-run 107106248067 Physical gPTP (nightly and manual): completed/skipped
+check-run 107108254515 rtl-fast: completed/success
+check-run 107106222986 verilator-lint: completed/success
+check-run 107106246458 Verilator shard 0/5: completed/success
+check-run 107106246700 Verilator shard 1/5: completed/success
+check-run 107106246533 Verilator shard 2/5: completed/success
+check-run 107106246454 Verilator shard 3/5: completed/success
+check-run 107106246523 Verilator shard 4/5: completed/success
+check-run 107116196912 verilator-suites: completed/success
+check-run 107106136295 wire-accountability: completed/success
+check-run 107106223034 yosys-elaboration: completed/success
+check-run 107116249697 yosys-portability: completed/success
+check-run 107106246644 Yosys shard 0/4: completed/success
+check-run 107106246457 Yosys shard 1/4: completed/success
+check-run 107106246614 Yosys shard 2/4: completed/success
+check-run 107106246762 Yosys shard 3/4: completed/success
+## job 107106136535
+2026-09-23T08:37:24.6877250Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-09-23T08:37:26.8532070Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-09-23T08:37:27.6348914Z Ran 25 tests in 0.669s
+2026-09-23T08:37:28.6741028Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable
+2026-09-23T08:37:28.6748238Z SDK cache hit: verified
+2026-09-23T08:37:30.5568656Z compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+2026-09-23T08:40:36.0150407Z NOT RUN [gate 1b]: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did
+2026-09-23T08:40:36.0156125Z NOT RUN [gate 1b]: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from t
+2026-09-23T08:40:36.0157843Z NOT RUN [gate 1b]: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did
+2026-09-23T08:40:36.0158976Z GATE 1b PASS; 3 NOT RUN; 0 actual firmware compiler invocations
+2026-09-23T08:45:01.5818098Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+135/135 non-RTL mutations rejected on the safety property
+17/17 legitimate firmware edits and 4/4 legitimate Makefile edits
+170/170 non-RTL mutations rejected on the safety property
+17/17 legitimate firmware edits and 4/4 legitimate Makefile edits
+census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0
+reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused
+## job 107106136284
+2026-09-23T08:37:14.9668420Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-09-23T08:37:18.5960132Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+2026-09-23T08:37:19.5711215Z Ran 25 tests in 0.686s
+2026-09-23T08:37:20.7000332Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable
+2026-09-23T08:37:20.7010626Z SDK cache hit: verified
+2026-09-23T08:42:16.4991679Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+170/170 non-RTL mutations rejected on the safety property
+17/17 legitimate firmware edits and 4/4 legitimate Makefile edits
+census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0
+reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused

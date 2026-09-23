@@ -1,0 +1,14 @@
+{
+ "id": "range-footprint",
+ "kind": "literal",
+ "file": "sw/builder/test_builder.py",
+ "reverts": "ranged store judged by first bytes only",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "AssertionError: a bltu-bounded `sw zero,0(a5)` loop from 0x8fffffbe came back as [[0x8fffffbe..0x8ffffffd]], not as its footprint [0x8fffffbe..0x90000000]: the loop's last store writes the window's first byte, so a range that stops at its first byte places a CSR store outside the window"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644"
+}

@@ -1,0 +1,16 @@
+{
+ "id": "download-digest",
+ "kind": "installer",
+ "file": "scripts/ci_rv32_sdk.py",
+ "reverts": "download path extracts without the digest check (R228-1 F2 root)",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "FAIL: test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes) (payload='well-formed but unpinned')",
+  "AssertionError: ValueError not raised",
+  "FAIL: test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes) (payload='truncated')"
+ ],
+ "seconds": 1.1,
+ "restored_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4"
+}

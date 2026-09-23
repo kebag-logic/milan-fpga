@@ -1,0 +1,19 @@
+Compiler mode: absent cross tools
+Compiler audit: $PACKET/receipts/mutations/memop-displacement.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m4/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m4/sw/builder/test_builder.py", line 5247, in test_baremetal_profile_contract
+    assert all(len(stores) == 1 and isinstance(stores[0], Rv32Where) and
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               stores[0].kind == "unclassified" for stores in unclassified), \
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[unclassified(c.sw a5,0(a4))], [unclassified(amocas.w a3,a5,0(a4))], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed

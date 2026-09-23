@@ -1,0 +1,17 @@
+Compiler mode: absent cross tools
+Compiler audit: $PACKET/receipts/mutations/fp-classes.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$PACKET/scratch/m0/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/m0/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m0/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m0/sw/builder/test_builder.py", line 5226, in test_baremetal_profile_contract
+    assert reported == words, \
+           ^^^^^^^^^^^^^^^^^
+AssertionError: the RV32 resolver reported [unclassified(fsh fa5,0(a4))] for `fsh fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600']): the fsh store class must be judged by address like every other store, or a store into the Milan CSR window leaves the census unasked

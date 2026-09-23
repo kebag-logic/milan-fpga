@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/m5/sw/builder/test_firmware_compiler.py", line 140, in selftest
+    run_gate(None, Path(tmp) / "absent.jsonl", require=True)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/m5/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/m5/sw/builder/test_builder.py", line 4115, in test_baremetal_profile_contract
+    assert census_used["compiler"] == census_compilers[0], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$PACKET/scratch/m5/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/m5/sw/builder/test_firmware_compiler.py", line 181, in main
+    selftest()
+    ~~~~~~~~^^
+  File "$PACKET/scratch/m5/sw/builder/test_firmware_compiler.py", line 142, in selftest
+    assert "--require-rv32: the hosted firmware instruments must run" in str(exc), exc
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted

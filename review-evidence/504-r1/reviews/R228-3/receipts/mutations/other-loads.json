@@ -1,0 +1,14 @@
+{
+ "id": "other-loads",
+ "kind": "literal",
+ "file": "sw/builder/test_builder.py",
+ "reverts": "FP loads and LR no longer recognised as loads",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "AssertionError: the RV32 resolver reported a load as a store: [unclassified(flw fa5,0(a4)), unclassified(fld fa4,0(a4)), unclassified(lr.w.aqrl a3,0(a4))]"
+ ],
+ "seconds": 1.1,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644"
+}

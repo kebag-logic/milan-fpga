@@ -1,0 +1,14 @@
+{
+ "id": "unclassified-default",
+ "kind": "literal",
+ "file": "sw/builder/test_builder.py",
+ "reverts": "class fail-closed default removed",
+ "returncode": 1,
+ "stop_hook_reached": false,
+ "verdict": "KILLED",
+ "first_failure": [
+  "AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[], [], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed"
+ ],
+ "seconds": 1.0,
+ "restored_sha256": "fa9ed511df6007b7ec0040baced691edef8f1b54824b6d9f173066f02948e644"
+}
