@@ -1,0 +1,872 @@
+{
+ "asm-amoadd-b-zabha": {
+  "reported": [
+   "unclassified(amoadd.b a3,a5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(amoadd.b a3,a5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-amocas-w-zacas": {
+  "reported": [
+   "unclassified(amocas.w a3,a5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(amocas.w a3,a5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-amomax-aq": {
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-amominu-rl": {
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-amoswap-d-rv64-only": {
+  "reported": [
+   "unclassified(amoswap.d a3,a5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(amoswap.d a3,a5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-c-fsd": {
+  "reported": [
+   "unclassified(c.fsd fa5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(c.fsd fa5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-c-fsw": {
+  "reported": [
+   "unclassified(c.fsw fa5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(c.fsw fa5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-c-sw": {
+  "reported": [
+   "unclassified(c.sw a5,0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(c.sw a5,0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-cbo-zero": {
+  "reported": [
+   "unclassified(cbo.zero (a4))"
+  ],
+  "unplaceable": [
+   "unclassified(cbo.zero (a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-cbo-zero-0": {
+  "reported": [
+   "unclassified(cbo.zero 0(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(cbo.zero 0(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-fsd-neg-disp-straddle": {
+  "reported": [
+   "0x900005fc",
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-fsh": {
+  "reported": [
+   "0x90000602"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000602"
+  ]
+ },
+ "asm-fsq": {
+  "reported": [
+   "0x90000600",
+   "0x90000604",
+   "0x90000608",
+   "0x9000060c"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-fsw-pcrel-lo": {
+  "reported": [
+   "unreadable(fsw fa5,%pcrel_lo(.L1)(a4))"
+  ],
+  "unplaceable": [
+   "unreadable(fsw fa5,%pcrel_lo(.L1)(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-sc-w-aqrl": {
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-sc-w-no-disp": {
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-sw-hex-disp": {
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "asm-sw-spaced-operand": {
+  "reported": [
+   "unreadable(sw a5, 0( a4 ))"
+  ],
+  "unplaceable": [
+   "unreadable(sw a5, 0( a4 ))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "asm-vse32": {
+  "reported": [
+   "unclassified(vse32.v v1,(a4))"
+  ],
+  "unplaceable": [
+   "unclassified(vse32.v v1,(a4))"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "atomic-cas-32": {
+  "calls": [
+   "__stack_chk_fail"
+  ],
+  "mnemonics": [
+   "1:",
+   "addi",
+   "beq",
+   "bne",
+   "bnez",
+   "call",
+   "jr",
+   "la",
+   "li",
+   "lla",
+   "lr.w.aqrl",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "sc.w.rl",
+   "seqz",
+   "slli",
+   "sub",
+   "sw",
+   "xor"
+  ],
+  "reported": [
+   "0x90000600",
+   "stack(-)"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-cas-weak-32": {
+  "calls": [
+   "__stack_chk_fail"
+  ],
+  "mnemonics": [
+   "1:",
+   "addi",
+   "beq",
+   "bne",
+   "bnez",
+   "call",
+   "jr",
+   "la",
+   "li",
+   "lla",
+   "lr.w",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "sc.w",
+   "seqz",
+   "slli",
+   "sub",
+   "sw",
+   "xor"
+  ],
+  "reported": [
+   "0x90000600",
+   "stack(-)"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-exchange-16": {
+  "calls": [],
+  "mnemonics": [
+   "1:",
+   "addi",
+   "and",
+   "andi",
+   "bnez",
+   "jr",
+   "li",
+   "lla",
+   "lr.w.aqrl",
+   "lw",
+   "nop",
+   "not",
+   "or",
+   "ori",
+   "sc.w.rl",
+   "sll",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-exchange-32": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "amoswap.w.aqrl",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-exchange-64-libcall": {
+  "calls": [
+   "__atomic_exchange_8"
+  ],
+  "mnemonics": [
+   "addi",
+   "call",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [],
+  "unplaceable": [],
+  "verdict": "MISSED",
+  "window_hits": []
+ },
+ "atomic-fetch-and-32": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "amoand.w.aqrl",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-fetch-or-32": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "amoor.w",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-fetch-or-8": {
+  "calls": [],
+  "mnemonics": [
+   "1:",
+   "addi",
+   "and",
+   "andi",
+   "bnez",
+   "jr",
+   "li",
+   "lla",
+   "lr.w.aqrl",
+   "lw",
+   "nop",
+   "not",
+   "or",
+   "ori",
+   "sc.w.rl",
+   "sll",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "atomic-store-32": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "fence",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "bounded-loop-fsd": {
+  "calls": [],
+  "mnemonics": [
+   "add",
+   "addi",
+   "bleu",
+   "fld",
+   "fsd",
+   "j",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "unplaced(None)"
+  ],
+  "unplaceable": [
+   "unplaced(None)"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "builtin-memcpy-4": {
+  "calls": [
+   "__stack_chk_fail"
+  ],
+  "mnemonics": [
+   "addi",
+   "beq",
+   "call",
+   "jr",
+   "la",
+   "lbu",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "sb",
+   "slli",
+   "sw",
+   "xor"
+  ],
+  "reported": [
+   "0x90000600",
+   "0x90000601",
+   "0x90000602",
+   "0x90000603"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600",
+   "0x90000601",
+   "0x90000602",
+   "0x90000603"
+  ]
+ },
+ "builtin-memset-libcall": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "sb",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "complex-float": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "flw",
+   "fsw",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600",
+   "0x90000604"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "double-overlay-fsd": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "fld",
+   "fsd",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600",
+   "0x90000604"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "double-straddle-below-word": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "fld",
+   "fsd",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x900005fc",
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "float-compound-add": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "fadd.s",
+   "flw",
+   "fsw",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "float-overlay-fsw": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "flw",
+   "fsw",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "int-sw": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "load-flq": {
+  "reported": [],
+  "verdict": "NO-STORE"
+ },
+ "load-lr-w-aqrl": {
+  "reported": [],
+  "verdict": "NO-STORE"
+ },
+ "loads-flw-fld-lrw-lw": {
+  "reported": [],
+  "verdict": "NO-STORE"
+ },
+ "long-double": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "jr",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600",
+   "0x90000604",
+   "0x90000608",
+   "0x9000060c"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "struct-of-doubles-copy": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "jr",
+   "lla",
+   "lw",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x900005f8",
+   "0x900005fc",
+   "0x90000600",
+   "0x90000604"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "sync-fetch-and-or": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "amoor.w.aqrl",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "sync-test-and-set": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "amoswap.w.aq",
+   "jr",
+   "li",
+   "lla",
+   "lw",
+   "mv",
+   "nop",
+   "ori",
+   "slli",
+   "sw"
+  ],
+  "reported": [
+   "0x90000600"
+  ],
+  "unplaceable": [],
+  "verdict": "CAUGHT",
+  "window_hits": [
+   "0x90000600"
+  ]
+ },
+ "union-byte-over-parked-outside": {
+  "calls": [
+   "__stack_chk_fail"
+  ],
+  "mnemonics": [
+   "addi",
+   "beq",
+   "call",
+   "jr",
+   "la",
+   "li",
+   "lw",
+   "mv",
+   "nop",
+   "sb",
+   "sw",
+   "xor"
+  ],
+  "reported": [
+   "unplaced(None)"
+  ],
+  "unplaceable": [
+   "unplaced(None)"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "union-double-over-parked-outside": {
+  "calls": [
+   "__stack_chk_fail"
+  ],
+  "mnemonics": [
+   "addi",
+   "beq",
+   "call",
+   "fld",
+   "fsd",
+   "jr",
+   "la",
+   "li",
+   "lw",
+   "mv",
+   "nop",
+   "sw",
+   "xor"
+  ],
+  "reported": [
+   "unplaced(None)"
+  ],
+  "unplaceable": [
+   "unplaced(None)"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ },
+ "union-fp-over-parked-outside": {
+  "calls": [],
+  "mnemonics": [
+   "addi",
+   "flw",
+   "fsw",
+   "jr",
+   "li",
+   "lw",
+   "mv",
+   "nop",
+   "sw"
+  ],
+  "reported": [
+   "unplaced(None)"
+  ],
+  "unplaceable": [
+   "unplaced(None)"
+  ],
+  "verdict": "CAUGHT",
+  "window_hits": []
+ }
+}

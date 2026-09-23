@@ -1,0 +1,45 @@
+# pre-merge state
+2026-09-23T07:46:15Z
+git version 2.55.0
+HEAD 5081a25a451b4ac1c00f286ec59ab041c22fdde9
+HEAD tree 68a0628be2b55c1180a0e5751d2355cb8f987268
+origin/dev 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+# branch.oid 5081a25a451b4ac1c00f286ec59ab041c22fdde9
+# branch.head 504-hosted-rv32-compiler
+# branch.upstream origin/504-hosted-rv32-compiler
+# branch.ab +0 -0
+! avdecc/__pycache__/
+! scripts/__pycache__/
+! sw/builder/__pycache__/
+! sw/litex/__pycache__/
+! sw/litex/platforms/__pycache__/
+merge-base HEAD origin/dev: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+is 483a133e ancestor of dev: yes
+dev commits since 483a133e: 6
+574c29fa Merge PR #525: pin remaining RTL workflow scripts and the full-ci-gate SHA assertion
+776bc77d Merge PR #518: bind AXI stream assertions to the round-robin mux
+f01f237d Pin remaining RTL workflow scripts and the gate SHA assertion
+059c3a60 docs: correct pinned assertion semantics and witness grading
+60c5225f Validate issue372 candidate against merged PR513
+5bbf2953 Bind SVA checkers to axis_mux_rr_2in_1out with witnessed positives and a detection campaign (#372)
+## files dev changed since 483a133e
+docs/README.md
+docs/guides/VERIFICATION_DEVELOPER.md
+docs/testing/ASSERTIONS.md
+docs/testing/CI_WORKFLOWS.md
+docs/testing/TESTING.md
+scripts/ci_events.py
+scripts/measure_test_evidence.py
+tb/common/sva/axis_mux_rr_2in_1out_bind.sv
+tb/common/sva/axis_mux_rr_2in_1out_sva.sv
+tb/common/sva/axis_stream_source_sva.sv
+tb/verilator/README.md
+tb/verilator/ptp_ts/Makefile
+tb/verilator/ptp_ts/mux_sva_main.cpp
+tb/verilator/ptp_ts/sva_campaign.py
+## overlap with branch-changed files
+docs/testing/CI_WORKFLOWS.md
+scripts/ci_events.py
+## merge-tree
+fdf07c8588f8a242c2be626c51ed8072c863c191
+merge-tree exit 0

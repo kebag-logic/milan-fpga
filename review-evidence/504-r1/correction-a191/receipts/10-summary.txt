@@ -1,0 +1,23 @@
+# summary of 10-all-census-resolver-equivalence.txt
+assemblies compared: 120
+addresses identical in 116, differ in 4
+calls identical in 120, differ in 0
+seeds identical in 120, differ in 0
+stores identical in 0, differ in 120
+rets identical in 0, differ in 120
+assemblies whose store ADDRESSES differ:
+census-116.s
+--
+census-117.s
+--
+census-118.s
+--
+census-119.s
+function whose addresses differ:   addresses: differ in configure_fabric
+census-116: union { uint32_t word; uint8_t low; }
+census-117: union { uint32_t word; uint16_t low; }
+census-118: milan_slot_word_p milan_alias
+census-119: milan_slot_float_p milan_alias
+configure_fabric address change in census-116 (old -> new):
+  old ['.LFB56:0']
+  new ['.LFB56:unplaced(None)']
