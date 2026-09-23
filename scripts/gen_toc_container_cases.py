@@ -8,12 +8,90 @@ not copies of its unpublished shapes files or a per-ID correspondence.
 GitHub's GFM renderer supplies the expected heading presence. The reset rows
 hold the content column, item lifetime and block precedence. This module
 contains no Markdown classifier; gen_toc owns every decision.
+
+The two JSON fixtures beside this module carry GitHub's recorded rendering
+of every shape: the family-one set of #437's restated acceptance 1 and the
+rendered-comment controls. Each arm checks the receipt's bytes against its
+SHA-256, reads the heading elements out of the recorded HTML, and requires
+the walk to list exactly those headings.
 """
+import hashlib
+import json
 import tempfile
+from html.parser import HTMLParser
 from pathlib import Path
 from types import ModuleType
 
 from gen_toc import HTML, TEXT, blocks, headings
+
+FIXTURES = ("gen_toc_family_one.json", "gen_toc_comment_shapes.json")
+CONTEXT = "kebag-logic/milan-fpga"
+
+
+class _HeadingElements(HTMLParser):
+    """Collect [level, text] for every h1 to h6 element of rendered HTML."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.found: list[list] = []
+        self.level, self.text = 0, ""
+
+    def handle_starttag(self, tag: str, attrs: list) -> None:
+        """Open a heading element; any other element is only its content."""
+        if tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
+            self.level, self.text = int(tag[1]), ""
+
+    def handle_endtag(self, tag: str) -> None:
+        """Close the open heading element and keep its collapsed text."""
+        if self.level and tag == f"h{self.level}":
+            self.found.append([self.level, " ".join(self.text.split())])
+            self.level = 0
+
+    def handle_data(self, data: str) -> None:
+        """Text inside an open heading element is that heading's text."""
+        if self.level:
+            self.text += data
+
+
+def rendered_headings(html: str) -> list[list]:
+    """The [level, text] of every heading element GitHub's HTML carries."""
+    parser = _HeadingElements()
+    parser.feed(html)
+    parser.close()
+    return parser.found
+
+
+def recorded_shapes(fixture: str) -> list[dict]:
+    """Every shape of one committed fixture, with its recorded rendering."""
+    return json.loads(Path(__file__).with_name(fixture).read_text(encoding="ascii"))["shapes"]
+
+
+def _receipt_holds(shape: dict) -> object:
+    """The recorded request carries this page and both hashes match."""
+    request, response = shape["request_bytes"].encode(), shape["response_bytes"].encode()
+    return lambda page: (hashlib.sha256(request).hexdigest() == shape["request_sha256"]
+                         and hashlib.sha256(response).hexdigest() == shape["response_sha256"]
+                         and json.loads(request) == {"context": CONTEXT, "mode": "gfm", "text": page}
+                         and rendered_headings(shape["response_bytes"]) == shape["headings"])
+
+
+def _rendering_holds(shape: dict) -> object:
+    """The walk lists the recorded headings, and navigation lists Old iff it renders."""
+    from gen_toc import plan
+    tail = "\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"
+    visible = [2, "Old"] in shape["headings"]
+    return lambda page: ([[lvl, raw] for lvl, raw, _ in headings(page)] == shape["headings"]
+                         and ("old" in [h[2] for h in plan(page + tail) or []]) == visible)
+
+
+def recorded_arms() -> list[tuple[str, str, object]]:
+    """Two arms per recorded shape: its receipt, then the walk against it."""
+    arms = []
+    for fixture in FIXTURES:
+        for shape in recorded_shapes(fixture):
+            arms.append((f"I437 receipt {shape['name']}", shape["page"], _receipt_holds(shape)))
+            arms.append((f"I437 rendered {shape['name']}", shape["page"], _rendering_holds(shape)))
+    return arms
 
 
 def probe_rows() -> list[tuple[str, str, str, bool]]:
@@ -179,7 +257,7 @@ def container_arms() -> list[tuple[str, str, object]]:
         arms.append((f"I437 limitation {name}", page, lambda text: headings(text) == []))
     arms.extend((f"I437 {name}", page, _correction_holds(visible))
                 for name, page, visible in correction_rows())
-    return arms
+    return arms + recorded_arms()
 
 
 def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:
@@ -191,6 +269,8 @@ def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:
     """
     rows = [(name, f"{prefix}\n<{tag}>\n## Old\n</{tag}>\n", visible)
             for name, prefix, tag, visible in probe_rows()] + correction_rows()
+    rows += [(f"recorded {shape['name']}", shape["page"], [2, "Old"] in shape["headings"])
+             for fixture in FIXTURES for shape in recorded_shapes(fixture)]
     problems = []
     heading = "## Old \u2014 heading\n"
     tail = "\n## Alpha\n\nBody.\n\n## Beta\n\nBody.\n\n## Gamma\n\nBody.\n"

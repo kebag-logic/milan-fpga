@@ -528,8 +528,12 @@ This adds no container headings or anchors.
 An already-open item HTML block still uses flat-walk termination (#495).
 Types 6/7 wait for a blank after the item ends.
 This can hide headings or swallow fences and invent headings.
-Unclosed comments inside raw HTML can also hide rendered headings.
-The flat walk may list those headings (#437 evidence).
+A comment left open in raw HTML hides the rest of the rendered page.
+The walk reads prose there as commented until raw HTML closes it (#516 shapes).
+An escaped `-->` in prose or code closes nothing.
+`--!>` and non-comment inline tags close it for GitHub only (withholding).
+A code-span comment, or `-->` after prose `<!--`, closes it here only (escape).
+GitHub's recorded rendering of each shape is kept beside the walk's tests.
 
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against
 `HEAD` over every tracked `*.md` (renames followed, every page compared as

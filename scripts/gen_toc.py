@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440", "I437")
-MIN_ARMS = 909
+MIN_ARMS = 1091
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -375,9 +375,12 @@ def blocks(text: str) -> list[str]:
     already opened inside an item still lasts until its flat-walk closer:
     types 6/7 wait for a blank even when the item ends. That can withhold
     a following heading or swallow a fence and invent one (#495).
-    An unclosed comment inside raw HTML can hide subsequent headings in
-    GitHub's rendered output while this flat walk lists them. The #437
-    correction does not model comments nested inside an HTML block.
+    RENDERED COMMENTS: a `<!--` left open in raw HTML hides the rest of
+    GitHub's page until raw HTML carries `-->` (#516 shapes), so prose is
+    COMMENT until a raw, commented or `<!--` line closes it; an escaped
+    `-->` in prose or code closes nothing. `--!>` and a non-comment inline
+    tag close it for the renderer only (withhold); a closed comment in a
+    code span, or an escaped `-->` after prose `<!--`, only here (invent).
 
     HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
     omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
@@ -387,7 +390,7 @@ def blocks(text: str) -> list[str]:
     Setext and container headings remain outside its listing domain.
     """
     out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
-    item_context = None
+    item_context, rendered_comment = None, False
     for line in text.split("\n"):
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
@@ -400,7 +403,10 @@ def blocks(text: str) -> list[str]:
             label, state, delim, tag = _opens(line, opening_para, state)
             out.append(label)
         para, item_context = _list_paragraph_after(line, out[-1], para, prev, item_context)
-        prev = line
+        hidden = rendered_comment and out[-1] == TEXT
+        if out[-1] in (HTML, COMMENT) or (out[-1] == TEXT and COMMENT_OPEN in line):
+            rendered_comment = _comment_after(line, rendered_comment)
+        out[-1], prev = COMMENT if hidden else out[-1], line
     return out
 
 
@@ -494,7 +500,9 @@ def _comment_after(line: str, inside: bool) -> bool:
     closes one and opens another, and reading only the first delimiter
     left the second span classified as text, which handed a block inside
     it the exemption ([R0] round 6 on PR #384). A comment is also the only
-    block that can open after visible text.
+    block that can open after visible text. The opener's own dashes may
+    close it: `<!-->` and `<!--->` are empty comments (CommonMark 0.31.2
+    section 6.6, and the renderer, #437).
     """
     scan = line
     while scan:
@@ -507,7 +515,7 @@ def _comment_after(line: str, inside: bool) -> bool:
             at = scan.find(COMMENT_OPEN)
             if at < 0:
                 return False
-            scan, inside = scan[at + len(COMMENT_OPEN):], True
+            scan, inside = scan[at + len("<!"):], True
     return inside
 
 
