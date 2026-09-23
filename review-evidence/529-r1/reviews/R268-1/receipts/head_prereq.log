@@ -1,0 +1,9 @@
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 989 real (96.6%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@957 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1014 PDREQ@898 TXLOST@103 TXT1OK@180
+python3 gen_divergent_shape.py
+divergent shape: row0 0x0205022001006000, row1 0x020702200100C000

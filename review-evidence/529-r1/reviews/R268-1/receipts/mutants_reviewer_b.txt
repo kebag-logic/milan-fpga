@@ -1,0 +1,8 @@
+p1_bind_lock_unlock    nxn    rc=0 checks=1687 failures=0  (KL_crf_rx port map: lock/unlock tallies swapped)
+p1_bind_lock_unlock    notify rc=0 checks=143 failures=0  (KL_crf_rx port map: lock/unlock tallies swapped)
+p2_bind_late_early     nxn    rc=0 checks=1687 failures=0  (KL_crf_rx port map: late/early tallies swapped)
+p2_bind_late_early     notify rc=0 checks=143 failures=0  (KL_crf_rx port map: late/early tallies swapped)
+p3_bind_mr_tu          nxn    rc=0 checks=1687 failures=0  (KL_crf_rx port map: mr/tu tallies swapped)
+p3_bind_mr_tu          notify rc=0 checks=143 failures=0  (KL_crf_rx port map: mr/tu tallies swapped)
+p4_bind_intr_lock      nxn    rc=1 checks=1687 failures=1 [CTRS-CRF]x1 (KL_crf_rx port map: intr/lock tallies swapped)
+p4_bind_intr_lock      notify rc=0 checks=143 failures=0  (KL_crf_rx port map: intr/lock tallies swapped)

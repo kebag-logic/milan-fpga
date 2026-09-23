@@ -1,0 +1,27 @@
+--- <packet>/scratch/head/hdl/milan/milan_datapath.sv	2026-09-23 20:33:48.759000000 +0200
++++ <packet>/scratch/mut/a8_q2_zero/milan_datapath.sv	2026-09-23 20:55:10.476000000 +0200
+@@ -1789,8 +1789,13 @@
+   wire        crf_locked_w;
+   //! ...and the seven with no CSR slice. Their one reader is the
+   //! GET_COUNTERS row for STREAM_INPUT N_STREAMS (#529), which serves all ten
+-  wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+-  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
++  wire [31:0] crf_lockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_unlockcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_intrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_mrcnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_tucnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_latecnt_w /* verilator public_flat_rw */;
++  wire [31:0] crf_earlycnt_w /* verilator public_flat_rw */;
+   //! the CRF Media Clock Input's Table 5.22 counter-change pulse (gh #60 F2),
+   //! consumed by the descriptor arbiter in front of KL_pp_shadow
+   wire        crf_dirty_p_w;
+@@ -3529,7 +3534,7 @@
+     unique case (ctrq_word_r)
+       6'd0    : ctr_crf_blk_w = crf_lockcnt_w;   // @0   MEDIA_LOCKED
+       6'd1    : ctr_crf_blk_w = crf_unlockcnt_w; // @4   MEDIA_UNLOCKED
+-      6'd2    : ctr_crf_blk_w = crf_intrcnt_w;   // @8   STREAM_INTERRUPTED
++      6'd2    : ctr_crf_blk_w = 32'd0;   // @8   STREAM_INTERRUPTED
+       6'd3    : ctr_crf_blk_w = crf_seqerr_w;    // @12  SEQ_NUM_MISMATCH
+       6'd4    : ctr_crf_blk_w = crf_mrcnt_w;     // @16  MEDIA_RESET
+       6'd5    : ctr_crf_blk_w = crf_tucnt_w;     // @20  TIMESTAMP_UNCERTAIN

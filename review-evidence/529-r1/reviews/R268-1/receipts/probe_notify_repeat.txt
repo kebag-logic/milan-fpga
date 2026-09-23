@@ -1,0 +1,27 @@
+ctl_marked build rc=0
+ctl_marked run rc=0
+ctl_marked:   [ok]   [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A = 0x1
+ctl_marked:   [ok]   [NOTIFY-CRF] ...and to B                       = 0x1
+ctl_marked:   [ok]   [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body = 0x1
+ctl_marked:   [ok]   [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) = 0xf3f
+ctl_marked:   [ok]   [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer = 0x1
+ctl_marked:   [ok]   [NOTIFY-CRF] a second change inside the second is WITHHELD = 0x1
+ctl_marked:   [ok]   [NOTIFY-CRF] ...and RELEASED exactly once after it = 0x2
+ctl_marked:   [i]    CRF row pushes to B 997 ms apart
+ctl_marked:   [ok]   [NOTIFY-CRF] ...no earlier than one second after the first = 0x1
+ctl_marked:   [ok]   [R268-PROBE] no further CRF push without a further change = 0x2
+ctl_marked: checks: 144   failures: 0
+r3_crf_pend_stuck build rc=0
+r3_crf_pend_stuck run rc=1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A = 0x1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...and to B                       = 0x1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body = 0x1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) = 0xf3f
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer = 0x1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] a second change inside the second is WITHHELD = 0x1
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...and RELEASED exactly once after it = 0x2
+r3_crf_pend_stuck:   [i]    CRF row pushes to B 997 ms apart
+r3_crf_pend_stuck:   [ok]   [NOTIFY-CRF] ...no earlier than one second after the first = 0x1
+r3_crf_pend_stuck:   [FAIL] [R268-PROBE] no further CRF push without a further change got=0x4 exp=0x2
+r3_crf_pend_stuck: checks: 144   failures: 1
+r3_crf_pend_stuck:   [FAIL] [R268-PROBE] no further CRF push without a further change got=0x4 exp=0x2
