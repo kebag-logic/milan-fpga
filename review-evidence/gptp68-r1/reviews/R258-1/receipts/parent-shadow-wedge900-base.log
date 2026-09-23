@@ -1,0 +1,176 @@
+patching file tb/verilator/gptp_shadow/sim_main.cpp
+verilator: $DATA/tmp/372-manager-candidate1/pinned-tool-bin/verilator Verilator 5.050 2026-07-01 rev v5.050
+parent 574c29fa111c74e5e5ed63e4670aff1f492e28e2 donor c1b617435824929a790739ea8585c3fe1a328cc0 label wedge900-base
+make: Entering directory '$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow'
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 989 real (96.6%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@957 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1014 PDREQ@898 TXLOST@103 TXT1OK@180
+verilator --cc --exe --build -j 0 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow -Wall -Wextra" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_enable_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_arm_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+make[1]: Entering directory '$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow/obj_dir'
+g++  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow -Wall -Wextra   -c -o verilated.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow -Wall -Wextra   -c -o verilated_threads.o $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_shadow_wrap.cpp Vgptp_shadow_wrap___024root__0.cpp Vgptp_shadow_wrap__ConstPool__0__Slow.cpp Vgptp_shadow_wrap___024root__Slow.cpp Vgptp_shadow_wrap___024root__0__Slow.cpp Vgptp_shadow_wrap__Syms__Slow.cpp > Vgptp_shadow_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow -Wall -Wextra   -c -o Vgptp_shadow_wrap__ALL.o Vgptp_shadow_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_shadow_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_shadow_sim
+rm Vgptp_shadow_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.812 MB sources in 18 modules, into 0.810 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 5.320 s (elab=0.022, cvt=0.089, bld=5.163); cpu 0.169 s on 16 threads; allocated 830.477 MB
+./obj_dir/Vgptp_shadow_sim
+WEDGE lapse cyc=14498892 flags=5 adj=13562
+WEDGE k=0 cyc=14756956 offset=-899999995 adj=13310 flags=13 phcl=0 lost=0
+WEDGE k=1 cyc=15011006 offset=-1 adj=13378 flags=13 phcl=0 lost=0
+WEDGE k=2 cyc=15265056 offset=-2 adj=13462 flags=13 phcl=0 lost=0
+WEDGE k=3 cyc=15519106 offset=-2 adj=13496 flags=13 phcl=0 lost=0
+WEDGE k=4 cyc=15773156 offset=0 adj=13395 flags=13 phcl=0 lost=0
+WEDGE k=5 cyc=16027206 offset=-1 adj=13463 flags=13 phcl=0 lost=0
+WEDGE k=6 cyc=16285270 offset=1 adj=13345 flags=13 phcl=0 lost=0
+WEDGE k=7 cyc=16539738 offset=0 adj=13396 flags=13 phcl=0 lost=0
+WEDGE k=8 cyc=16793788 offset=0 adj=13396 flags=13 phcl=0 lost=0
+WEDGE k=9 cyc=17047838 offset=-1 adj=13464 flags=13 phcl=0 lost=0
+WEDGE k=10 cyc=17301888 offset=0 adj=13413 flags=13 phcl=0 lost=0
+WEDGE k=11 cyc=17555938 offset=0 adj=13413 flags=13 phcl=0 lost=0
+WEDGE k=12 cyc=17814002 offset=0 adj=13413 flags=13 phcl=0 lost=0
+WEDGE k=13 cyc=18068052 offset=-1 adj=13481 flags=13 phcl=0 lost=0
+WEDGE k=14 cyc=18322102 offset=0 adj=13430 flags=13 phcl=0 lost=0
+WEDGE k=15 cyc=18576570 offset=0 adj=13430 flags=13 phcl=0 lost=0
+WEDGE k=16 cyc=18830620 offset=0 adj=13430 flags=13 phcl=0 lost=0
+WEDGE k=17 cyc=19084670 offset=1 adj=13363 flags=13 phcl=0 lost=0
+WEDGE k=18 cyc=19342734 offset=0 adj=13414 flags=13 phcl=0 lost=0
+WEDGE k=19 cyc=19596784 offset=-1 adj=13482 flags=13 phcl=0 lost=0
+WEDGE k=20 cyc=19850834 offset=0 adj=13431 flags=13 phcl=0 lost=0
+WEDGE k=21 cyc=20104884 offset=1 adj=13364 flags=13 phcl=0 lost=0
+WEDGE k=22 cyc=20358934 offset=0 adj=13415 flags=13 phcl=0 lost=0
+WEDGE k=23 cyc=20613403 offset=0 adj=13415 flags=13 phcl=0 lost=0
+WEDGE k=24 cyc=20871467 offset=0 adj=13415 flags=13 phcl=0 lost=0
+WEDGE k=25 cyc=21125517 offset=-1 adj=13483 flags=13 phcl=0 lost=0
+WEDGE k=26 cyc=21379567 offset=0 adj=13432 flags=13 phcl=0 lost=0
+WEDGE k=27 cyc=21633617 offset=1 adj=13365 flags=13 phcl=0 lost=0
+WEDGE k=28 cyc=21887667 offset=0 adj=13416 flags=13 phcl=0 lost=0
+WEDGE k=29 cyc=22141717 offset=-1 adj=13484 flags=13 phcl=0 lost=0
+WEDGE k=30 cyc=22399781 offset=1 adj=13366 flags=13 phcl=0 lost=0
+WEDGE k=31 cyc=22654249 offset=-2 adj=13552 flags=13 phcl=0 lost=0
+WEDGE k=32 cyc=22908299 offset=1 adj=13384 flags=13 phcl=0 lost=0
+WEDGE k=33 cyc=23162349 offset=0 adj=13435 flags=13 phcl=0 lost=0
+WEDGE k=34 cyc=23416399 offset=1 adj=13368 flags=13 phcl=0 lost=0
+WEDGE k=35 cyc=23670449 offset=-1 adj=13487 flags=13 phcl=0 lost=0
+WEDGE k=36 cyc=23928513 offset=1 adj=13369 flags=13 phcl=0 lost=0
+WEDGE k=37 cyc=24182563 offset=0 adj=13420 flags=13 phcl=0 lost=0
+WEDGE k=38 cyc=24437031 offset=1 adj=13353 flags=13 phcl=0 lost=0
+WEDGE k=39 cyc=24691081 offset=0 adj=13404 flags=13 phcl=0 lost=0
+WEDGE k=40 cyc=24945131 offset=0 adj=13404 flags=13 phcl=0 lost=0
+WEDGE k=41 cyc=25199181 offset=-1 adj=13472 flags=13 phcl=0 lost=0
+WEDGE k=42 cyc=25457245 offset=0 adj=13421 flags=13 phcl=0 lost=0
+WEDGE k=43 cyc=25711295 offset=0 adj=13421 flags=13 phcl=0 lost=0
+WEDGE k=44 cyc=25965345 offset=-1 adj=13489 flags=13 phcl=0 lost=0
+WEDGE k=45 cyc=26219395 offset=1 adj=13371 flags=13 phcl=0 lost=0
+WEDGE k=46 cyc=26473863 offset=-1 adj=13490 flags=13 phcl=0 lost=0
+WEDGE k=47 cyc=26727913 offset=0 adj=13439 flags=13 phcl=0 lost=0
+WEDGE k=48 cyc=26985977 offset=0 adj=13439 flags=13 phcl=0 lost=0
+WEDGE k=49 cyc=27240027 offset=1 adj=13372 flags=13 phcl=0 lost=0
+WEDGE k=50 cyc=27494077 offset=-1 adj=13491 flags=13 phcl=0 lost=0
+WEDGE k=51 cyc=27748127 offset=1 adj=13373 flags=13 phcl=0 lost=0
+WEDGE k=52 cyc=28002177 offset=0 adj=13424 flags=13 phcl=0 lost=0
+WEDGE k=53 cyc=28256227 offset=1 adj=13357 flags=13 phcl=0 lost=0
+WEDGE k=54 cyc=28514709 offset=0 adj=13408 flags=13 phcl=0 lost=0
+WEDGE k=55 cyc=28768759 offset=0 adj=13408 flags=13 phcl=0 lost=0
+WEDGE k=56 cyc=29022809 offset=-1 adj=13476 flags=13 phcl=0 lost=0
+WEDGE k=57 cyc=29276859 offset=0 adj=13425 flags=13 phcl=0 lost=0
+WEDGE k=58 cyc=29530909 offset=1 adj=13358 flags=13 phcl=0 lost=0
+WEDGE k=59 cyc=29784959 offset=0 adj=13409 flags=13 phcl=0 lost=0
+WEDGE k=60 cyc=30043023 offset=-1 adj=13477 flags=13 phcl=0 lost=0
+WEDGE k=61 cyc=30297073 offset=0 adj=13426 flags=13 phcl=0 lost=0
+WEDGE k=62 cyc=30551541 offset=1 adj=13359 flags=13 phcl=0 lost=0
+WEDGE k=63 cyc=30805591 offset=-1 adj=13478 flags=13 phcl=0 lost=0
+WEDGE k=64 cyc=31059641 offset=0 adj=13427 flags=13 phcl=0 lost=0
+WEDGE k=65 cyc=31313691 offset=1 adj=13360 flags=13 phcl=0 lost=0
+WEDGE k=66 cyc=31571755 offset=-1 adj=13479 flags=13 phcl=0 lost=0
+WEDGE k=67 cyc=31825805 offset=0 adj=13428 flags=13 phcl=0 lost=0
+WEDGE k=68 cyc=32079855 offset=1 adj=13361 flags=13 phcl=0 lost=0
+WEDGE k=69 cyc=32333905 offset=0 adj=13412 flags=13 phcl=0 lost=0
+WEDGE k=70 cyc=32588373 offset=-1 adj=13480 flags=13 phcl=0 lost=0
+WEDGE k=71 cyc=32842423 offset=0 adj=13429 flags=13 phcl=0 lost=0
+WEDGE k=72 cyc=33100487 offset=0 adj=13429 flags=13 phcl=0 lost=0
+WEDGE k=73 cyc=33354537 offset=0 adj=13429 flags=13 phcl=0 lost=0
+WEDGE k=74 cyc=33608587 offset=1 adj=13362 flags=13 phcl=0 lost=0
+WEDGE k=75 cyc=33862637 offset=0 adj=13413 flags=13 phcl=0 lost=0
+WEDGE k=76 cyc=34116687 offset=-1 adj=13481 flags=13 phcl=0 lost=0
+WEDGE k=77 cyc=34370737 offset=0 adj=13430 flags=13 phcl=0 lost=0
+WEDGE k=78 cyc=34629219 offset=-1 adj=13498 flags=13 phcl=0 lost=0
+WEDGE k=79 cyc=34883269 offset=1 adj=13380 flags=13 phcl=0 lost=0
+WEDGE k=80 cyc=35137319 offset=0 adj=13431 flags=13 phcl=0 lost=0
+WEDGE k=81 cyc=35391369 offset=1 adj=13364 flags=13 phcl=0 lost=0
+WEDGE k=82 cyc=35645419 offset=-1 adj=13483 flags=13 phcl=0 lost=0
+WEDGE k=83 cyc=35899469 offset=0 adj=13432 flags=13 phcl=0 lost=0
+WEDGE k=84 cyc=36157533 offset=1 adj=13365 flags=13 phcl=0 lost=0
+WEDGE k=85 cyc=36412001 offset=0 adj=13416 flags=13 phcl=0 lost=0
+WEDGE k=86 cyc=36666051 offset=1 adj=13349 flags=13 phcl=0 lost=0
+WEDGE k=87 cyc=36920101 offset=0 adj=13400 flags=13 phcl=0 lost=0
+WEDGE k=88 cyc=37174151 offset=-1 adj=13468 flags=13 phcl=0 lost=0
+WEDGE k=89 cyc=37428201 offset=0 adj=13417 flags=13 phcl=0 lost=0
+WEDGE k=90 cyc=37686265 offset=0 adj=13417 flags=13 phcl=0 lost=0
+WEDGE k=91 cyc=37940315 offset=-1 adj=13485 flags=13 phcl=0 lost=0
+WEDGE k=92 cyc=38194365 offset=0 adj=13434 flags=13 phcl=0 lost=0
+WEDGE k=93 cyc=38448833 offset=1 adj=13367 flags=13 phcl=0 lost=0
+WEDGE k=94 cyc=38702883 offset=0 adj=13418 flags=13 phcl=0 lost=0
+WEDGE k=95 cyc=38956933 offset=0 adj=13418 flags=13 phcl=0 lost=0
+WEDGE k=96 cyc=39214997 offset=0 adj=13418 flags=13 phcl=0 lost=0
+WEDGE k=97 cyc=39469047 offset=0 adj=13418 flags=13 phcl=0 lost=0
+WEDGE k=98 cyc=39723097 offset=-1 adj=13486 flags=13 phcl=0 lost=0
+WEDGE k=99 cyc=39977147 offset=1 adj=13368 flags=13 phcl=0 lost=0
+WEDGE k=100 cyc=40231197 offset=0 adj=13419 flags=13 phcl=0 lost=0
+WEDGE k=101 cyc=40485665 offset=0 adj=13419 flags=13 phcl=0 lost=0
+WEDGE k=102 cyc=40743729 offset=0 adj=13419 flags=13 phcl=0 lost=0
+WEDGE k=103 cyc=40997779 offset=0 adj=13419 flags=13 phcl=0 lost=0
+WEDGE k=104 cyc=41251829 offset=-1 adj=13487 flags=13 phcl=0 lost=0
+WEDGE k=105 cyc=41505879 offset=1 adj=13369 flags=13 phcl=0 lost=0
+WEDGE k=106 cyc=41759929 offset=0 adj=13420 flags=13 phcl=0 lost=0
+WEDGE k=107 cyc=42013979 offset=0 adj=13420 flags=13 phcl=0 lost=0
+WEDGE k=108 cyc=42272043 offset=0 adj=13420 flags=13 phcl=0 lost=0
+WEDGE k=109 cyc=42526511 offset=-1 adj=13488 flags=13 phcl=0 lost=0
+WEDGE k=110 cyc=42780561 offset=0 adj=13437 flags=13 phcl=0 lost=0
+WEDGE k=111 cyc=43034611 offset=0 adj=13437 flags=13 phcl=0 lost=0
+WEDGE k=112 cyc=43288661 offset=0 adj=13437 flags=13 phcl=0 lost=0
+WEDGE k=113 cyc=43542711 offset=1 adj=13370 flags=13 phcl=0 lost=0
+WEDGE k=114 cyc=43800775 offset=0 adj=13421 flags=13 phcl=0 lost=0
+WEDGE k=115 cyc=44054825 offset=0 adj=13421 flags=13 phcl=0 lost=0
+WEDGE k=116 cyc=44308875 offset=0 adj=13421 flags=13 phcl=0 lost=0
+WEDGE k=117 cyc=44563343 offset=1 adj=13354 flags=13 phcl=0 lost=0
+WEDGE k=118 cyc=44817393 offset=0 adj=13405 flags=13 phcl=0 lost=0
+WEDGE k=119 cyc=45071443 offset=0 adj=13405 flags=13 phcl=0 lost=0
+WEDGE-END
+make: Leaving directory '$DATA/reviews/gptp68-r258-1-packet/scratch/parent-wedge900-base/tb/verilator/gptp_shadow'

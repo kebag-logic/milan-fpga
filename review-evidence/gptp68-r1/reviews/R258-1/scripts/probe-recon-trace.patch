@@ -1,0 +1,90 @@
+--- a/tb/verilator/gptp_shadow/sim_main.cpp	2026-09-23 09:29:18.470021456 +0200
++++ b/tb/verilator/gptp_shadow/sim_main.cpp	2026-09-23 09:29:37.159867804 +0200
+@@ -229,7 +229,7 @@
+   //! coincide. Since #360 the ledger delivers one result per admitted frame
+   //! IN FRAME ORDER, so `stamps[k]` is frame `txf[k]`'s result and the
+   //! pairing is positional rather than a tag lookup.
+-  struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; uint8_t ok; };
++  struct Stamp { uint16_t seq; uint8_t type; uint64_t ns; uint8_t ok; int32_t adj; uint64_t cy; };
+   std::vector<Stamp> stamps;
+   //! Every launch record the observer produced, in wire order.
+   struct Rec { uint16_t seq; uint8_t type; uint16_t oidx; uint8_t delta;
+@@ -245,6 +245,7 @@
+   //! the PHC at the edge the bench framer launched frame octet 0. The
+   //! reconstruction under test never touches it.
+   std::vector<uint64_t> launch_ns;
++  std::vector<int32_t> probe_launch_adj;   // probe: addend at launch
+   std::vector<std::vector<uint8_t>> txf;   // unpacked lane frames
+   std::vector<uint64_t> tx_sof_phc;        // phc at each frame's beat0
+   //! A root reset erases the ledger's transaction epoch: entries are
+@@ -336,7 +337,8 @@
+       stamps.push_back({static_cast<uint16_t>(dut->dbg_eng_txts_seq_o),
+                         static_cast<uint8_t>(dut->dbg_eng_txts_type_o),
+                         dut->dbg_eng_txts_ns_o,
+-                        static_cast<uint8_t>(dut->dbg_eng_txts_ok_o)});
++                        static_cast<uint8_t>(dut->dbg_eng_txts_ok_o),
++                        static_cast<int32_t>(dut->dbg_phc_adj_o), cyc});
+     //! A transfer is the value presented immediately before the active edge.
+     //! Sampling after the edge loses a last beat when a producer drops valid
+     //! in response to that same handshake -- a distinction the backpressure
+@@ -403,7 +405,8 @@
+     }
+     //! the observer's own records and the framer's independent launch
+     //! reference, both in wire order
+-    if (dut->dbg_launch_v_o) launch_ns.push_back(dut->dbg_launch_phc_o);
++    if (dut->dbg_launch_v_o) { launch_ns.push_back(dut->dbg_launch_phc_o);
++      probe_launch_adj.push_back(static_cast<int32_t>(dut->dbg_phc_adj_o)); }
+     if (dut->dbg_rec_v_o && !dut->dbg_rec_kind_o)
+       records.push_back({static_cast<uint16_t>(dut->dbg_rec_seq_o),
+                          static_cast<uint8_t>(dut->dbg_rec_type_o),
+@@ -674,6 +677,9 @@
+       // The crossing's sampling phase is exactly one fabric tick in this
+       // single-clock bench, so the mean-corrected result sits half a tick
+       // late by construction; anything beyond one tick is a dropped term.
++      if (!stamps[k].ok)
++        fprintf(stderr, "PROBE result k=%zu type=%d seq=%u ok=0 adj_deliver=%d cyc=%llu LOST\n",
++                k, stamps[k].type, stamps[k].seq, stamps[k].adj, (unsigned long long)stamps[k].cy);
+       if (stamps[k].ok && k < launch_ns.size() && k < rec_delayed.size()) {
+         if (rec_delayed[k]) {
+           law_recon_exempt++;
+@@ -682,6 +688,11 @@
+                               static_cast<int64_t>(launch_ns[k]);
+           const int64_t dev = err - kReconNominalNs;
+           if (dev < -kPhcTruncNs || dev > kPhcTruncNs) law_recon_wrong++;
++          fprintf(stderr, "PROBE result k=%zu type=%d seq=%u ok=1 dev_ns=%lld adj_launch=%d adj_deliver=%d cyc=%llu %s\n",
++                  k, stamps[k].type, stamps[k].seq, (long long)dev,
++                  k < probe_launch_adj.size() ? probe_launch_adj[k] : 0, stamps[k].adj,
++                  (unsigned long long)stamps[k].cy,
++                  (dev < -kPhcTruncNs || dev > kPhcTruncNs) ? "WRONG" : "ok");
+         }
+       }
+       law_type_mask |= 1 << ty;
+@@ -690,7 +701,9 @@
+     stamps.clear();
+     records.clear();
+     launch_ns.clear();
++    probe_launch_adj.clear();
+     rec_delayed.clear();
++    fprintf(stderr, "PROBE epoch-close cyc=%llu phcl=%u\n", (unsigned long long)cyc, (unsigned)dut->dbg_txts_phcl_o);
+   }
+ 
+   //! Release exactly one held record.
+@@ -984,6 +997,10 @@
+         Frame g = follow_up(sq, origin + static_cast<uint64_t>(D_NOM));
+         send_wide(g.b);
+         run(4000);
++        fprintf(stderr, "PROBE phase4 pair k=%d cyc=%llu offset=%d adj=%d flags=%u phcl=%u\n", k,
++                (unsigned long long)cyc, static_cast<int32_t>(dut->pub_offset_o),
++                static_cast<int32_t>(dut->dbg_phc_adj_o), (unsigned)dut->pub_flags_o,
++                (unsigned)dut->dbg_txts_phcl_o);
+         sq++;
+       }
+       expect("closed loop locked",
+@@ -1707,6 +1724,7 @@
+     stamps.clear();
+     records.clear();
+     launch_ns.clear();
++    probe_launch_adj.clear();
+     rec_delayed.clear();
+     cur.clear();
+     in_tx = false;
