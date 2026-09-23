@@ -1,0 +1,6 @@
+rev=HEAD findings=1 exempt=0 | nested quote, tag at column, fence swallowed, later real fence
+rev=HEAD findings=1 exempt=0 | nested list, tag at column, fence swallowed, later real fence
+rev=HEAD findings=1 exempt=0 | plain bullet paragraph, tag at column, in-item fence, later real fence
+rev=HEAD findings=1 exempt=0 | pre-existing: item comment opener at four columns after a blank
+rev=HEAD findings=1 exempt=0 | control: plain fence (renderer and walk both hide)
+rev=HEAD findings=0 exempt=1 | control: plain heading (renderer and walk both show)

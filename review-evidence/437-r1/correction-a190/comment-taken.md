@@ -1,0 +1,11 @@
+[A190] TAKEN
+
+Branch: `437-container-paragraph-scopes`, clean starting head `4741498f3b2b4f67f431037d327c96cf65691278` (tree `ee70aaf8faadbced21dfdd0cf7719597e9fbe8eb`). Sole implementation author per the [assignment](https://github.com/kebag-logic/milan-fpga/issues/437#issuecomment-5790500052). Manager A10; R237 and R238 review the next head cold.
+
+Authoritative references: #437 with [restated acceptance 1](https://github.com/kebag-logic/milan-fpga/issues/437#issuecomment-5788996063); #516; R237-r1, R238-r1 and [R237-2](https://github.com/kebag-logic/milan-fpga/pull/515#issuecomment-5790354117) with its archived receipts; the [rendered-comment decision](https://github.com/kebag-logic/milan-fpga/issues/437#issuecomment-5789133990); CONTRIBUTING 5 and 6.1; CODE_QUALITY rule 12; CommonMark 0.31.2 sections 4 to 6 (container rules in 5.1 and 5.2) and the GFM footnote and tag-filter behaviour.
+
+Interpreted scope: first merge live dev `574c29fa111c74e5e5ed63e4670aff1f492e28e2` after proving its paths disjoint from the issue's. Then resolve R237-2 at the root: F1 (a tag at the item's content column is read as continuing a live paragraph whatever holds the item, and a block opened inside an item outlives it), F2 (the rendered-comment flag opens on any `<!--` substring of a flat raw-HTML line) and F3 (the empty-item guard has no failing arm). Keep R237-r1 F1/F3, R238-r1 F1/F2, the six #516 resumed variants and both committed fixtures. Every page that agreed with GitHub at the base must still agree. No exemption, provenance or ratchet change, and every tracked page keeps its classification.
+
+Validation plan: `gen_toc.py --selftest`, `--check`, `--verify-anchors`; `check_em_dash.py --selftest` and `--base <merge-base>`; `docs_check.py` and its selftest; `check_doc_style.py`; `check_py_idiom.py`; the measure ratchets that read the module; `git diff --check`. GitHub `gfm` renderings of every page where the new walk and the base differ, over the R237-2 combinatorial corpus, every public receipt and new probes. A tracked-corpus comparison, and a named mutation per new property. At most 8 parallel jobs.
+
+Blockers: none. A short implementation decision follows before dependent edits.

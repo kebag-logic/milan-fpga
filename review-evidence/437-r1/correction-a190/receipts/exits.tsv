@@ -1,0 +1,36 @@
+toc-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:52Z	python3 -B scripts/gen_toc.py --selftest
+toc-check	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:52Z	python3 -B scripts/gen_toc.py --check
+toc-anchors	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:53Z	python3 -B scripts/gen_toc.py --verify-anchors
+toc-sites	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:54Z	python3 -B scripts/gen_toc.py --sites
+emdash-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:54Z	python3 -B scripts/check_em_dash.py --selftest
+emdash-base-mergebase	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:30:58Z	python3 -B scripts/check_em_dash.py --base 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+emdash-base-483a133e	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:01Z	python3 -B scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+emdash-base-88e9276b	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:04Z	python3 -B scripts/check_em_dash.py --base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+docs-check	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:08Z	python3 -B scripts/docs_check.py
+docs-check-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:11Z	python3 -B scripts/docs_check.py --selftest
+doc-style	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:11Z	python3 -B scripts/check_doc_style.py
+doc-style-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:12Z	python3 -B scripts/check_doc_style.py --selftest
+doc-paths	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:12Z	python3 -B scripts/check_doc_paths.py
+py-idiom	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:12Z	python3 -B scripts/check_py_idiom.py
+py-idiom-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:15Z	python3 -B scripts/check_py_idiom.py --selftest
+hygiene	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:17Z	python3 -B scripts/check_hygiene.py --check
+hygiene-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:18Z	python3 -B scripts/check_hygiene.py --selftest
+naming	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:18Z	python3 -B scripts/measure_naming.py --check
+fail-fast	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:18Z	python3 -B scripts/measure_fail_fast.py --check
+test-evidence	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:20Z	python3 -B scripts/measure_test_evidence.py --check
+cohesion-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:24Z	python3 -B scripts/measure_cohesion.py --selftest
+control-flow-selftest	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:25Z	python3 -B scripts/measure_control_flow.py --selftest
+todo-ownership	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:25Z	python3 -B scripts/check_todo_ownership.py
+feature-status	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:26Z	python3 -B scripts/check_feature_status.py
+diff-check-branch	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:26Z	git diff --check 574c29fa111c74e5e5ed63e4670aff1f492e28e2 HEAD
+diff-check-worktree	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:26Z	git diff --check
+status	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:26Z	git status --porcelain=v1 --untracked-files=all
+ac4-corpus	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:34Z	python3 -B $REVIEWS/437-a190-packet/scripts/corpus_ac4.py $REVIEWS/437-a190-packet/receipts/ac4-corpus.json 88e9276b2a220c716f64a843f7e1eb8f9265e896 574c29fa111c74e5e5ed63e4670aff1f492e28e2 HEAD
+prior-arms	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:46Z	python3 -B $REVIEWS/437-a190-packet/scripts/prior_arms.py $REVIEWS/437-a190-packet/receipts/prior-arms.json
+r237-2-findings	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:46Z	python3 -B $REVIEWS/437-a190-packet/scripts/r237_2_findings.py $REVIEWS/437-a190-packet/receipts/r237-2-findings.json
+emdash-probe-base	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:46Z	python3 -B $REVIEWS/437-a190-packet/scripts/emdash_probe_walk.py --repo $LANES/437-container-paragraph-scopes --rev 483a133ed08867ea0d300d2b4a027b5b48a4282f
+emdash-probe-head	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:47Z	python3 -B $REVIEWS/437-a190-packet/scripts/emdash_probe_walk.py --repo $LANES/437-container-paragraph-scopes --rev HEAD
+final-sweep	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:31:47Z	python3 -B $REVIEWS/437-a190-packet/scripts/final_sweep.py $REVIEWS/437-a190-packet/receipts/final-sweep.json
+fixtures-at-head	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:33:52Z	python3 -B $REVIEWS/437-a190-packet/scripts/verify_fixtures.py $REVIEWS/437-a190-packet/receipts/fixtures-at-head.json
+integrity	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:35:15Z	python3 -B $REVIEWS/437-a190-packet/scripts/integrity.py $REVIEWS/437-a190-packet/receipts/integrity.json
+mutations	0	e4906bfca65c61e7e109e3532ac1b2dd5b4c0096	2026-09-23T08:35:47Z	python3 -B $REVIEWS/437-a190-packet/scripts/mutate.py HEAD $REVIEWS/437-a190-packet/receipts/mutations.json

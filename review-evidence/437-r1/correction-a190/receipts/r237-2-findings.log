@@ -1,0 +1,7 @@
+R237-2 F1: 252 REGRESSION rows of combinatorial-render.json; 252 agree at HEAD, 0 disagree
+R237-2 F2: 10 REGRESSION rows of comment-rule-render.json; 10 agree at HEAD, 0 disagree
+R237-2 F3: '-\n  <span>\n  ```\n\n## Old\n\n## Real\n' -> [[2, 'Old'], [2, 'Real']]; '-\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n' -> [[2, 'Real']]
+R237-2 S1: '- item\n\n    <!--\n\n## Old\n\n## Real\n' -> []; '- item\n\n    <div><!--\n\n## Old\n\n## Real\n' -> []
+em-dash '- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n': findings=1 exempt=0
+em-dash '- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n': findings=0 exempt=1
+em-dash '- item\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n': findings=1 exempt=0
