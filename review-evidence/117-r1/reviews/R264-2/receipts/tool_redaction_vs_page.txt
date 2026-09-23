@@ -1,0 +1,20 @@
+packet tool files at the pinned commit: 32; published redacted: 7
+  bench-a200/tools/a200_enum.bin           as-run 8c9f2885 published b2aeed3e quoted-on-page=True identity_redacted=False
+  bench-a200/tools/run_a.sh                as-run 37444ec1 published 17a287e2 quoted-on-page=False identity_redacted=True
+  bench-a200/tools/run_b.sh                as-run 8014f5f4 published 1e35587e quoted-on-page=False identity_redacted=True
+  bench-a200/tools/run_c.sh                as-run 63c1f633 published 940685ab quoted-on-page=False identity_redacted=True
+  bench-a202/tools/analyze_cycle.py        as-run bdd228a1 published 2ca45609 quoted-on-page=True identity_redacted=True
+  bench-a202/tools/cycle_locked.sh         as-run c4ef8c9a published c0549e84 quoted-on-page=True identity_redacted=True
+  bench-a202/tools/run_cycle.sh            as-run 45889a7d published ea9b4d39 quoted-on-page=True identity_redacted=True
+page L216: | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd228a1...`, `summarize.py` `d6f53575...`, `census_compare.py` `40424c61...` |
+page L217: 
+page L218: Full hashes of every packet script and of the enumerator source and binary
+page L219: are in the packet manifests (`MANIFEST.sha256` in each packet; see
+page L220: [Raw artifacts](#raw-artifacts)). Three of those files are published with
+page L221: local paths redacted: the enumerator binary `8c9f2885...`, `run_cycle.sh`
+page L222: `45889a7d...` and `cycle_locked.sh` `c4ef8c9a...`. The hashes here are of the
+page L223: files as run, and the evidence `MANIFEST.json` maps each to its published
+page L224: copy. The la_avdecc libraries and the counters probe are not in the packets.
+page L225: Full values for `95d64fd5...`, `ad579e18...` and `0e9faf30...` are on the
+page L226: [2026-09-08 record](https://github.com/kebag-logic/milan-fpga/issues/117#issuecomment-5584039577);
+page L227: `8ef4b008...` has no published full value.

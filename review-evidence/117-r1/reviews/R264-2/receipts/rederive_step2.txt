@@ -1,0 +1,27 @@
+run A: 8683 tap records, 76 records without envelope, span 314.9 s
+run B: 37350 tap records, 0 records without envelope, span 114.9 s
+run C: 2882 tap records, 0 records without envelope, span 99.9 s
+run final: 1062 tap records, 0 records without envelope, span 39.9 s
+sync_far  intervals 4556, min 100.622 max 149.383 ms, per-run mean [A 125.00, B 125.00, C 125.01, final 125.02], within 30% 4556, logMessageInterval [-3]
+ann_far   intervals 565, min 999.710 max 1010.612 ms, per-run mean [A 1000.42, B 1002.19, C 1000.21, final 1006.04], within 30% 565, logMessageInterval [0]
+preq_far  intervals 564, min 999.886 max 1029.584 ms, per-run mean [A 1002.01, B 1006.73, C 1007.58, final 1006.85], within 30% 564, logMessageInterval [0]
+preq_dut  intervals 566, min 1000.002 max 1000.002 ms, per-run mean [A 1000.00, B 1000.00, C 1000.00, final 1000.00], within 30% 566, logMessageInterval [0]
+DUT Pdelay_Req source port ids: ['020000fffe0000010001']
+Announce grandmasterIdentity counts (switch side): {'3cc0c6fffefe0210': 569}
+switch requests, DUT responds : 568 of 568 complete
+   tap req->resp min 10984 ns max 11009 ns; resp->FU 7552..7569 ns; claimed t3-t2 10608..10629 ns
+   largest three tap turnarounds (ms): [0.011, 0.011, 0.011]
+   run A: median tap 10992 ns, median tap-minus-claimed 384 ns (min 375 max 400)
+   run B: median tap 10992 ns, median tap-minus-claimed 384 ns (min 371 max 400)
+   run C: median tap 10992 ns, median tap-minus-claimed 383 ns (min 375 max 400)
+   run final: median tap 11000 ns, median tap-minus-claimed 391 ns (min 375 max 399)
+DUT requests, switch responds : 570 of 570 complete
+   tap req->resp min 679394 ns max 18359403 ns; resp->FU 532193..1113995 ns; claimed t3-t2 679000..18358880 ns
+   largest three tap turnarounds (ms): [0.88, 18.33, 18.359]
+   run A: median tap 766602 ns, median tap-minus-claimed 394 ns (min 385 max 524)
+   run B: median tap 804057 ns, median tap-minus-claimed 394 ns (min 385 max 402)
+   run C: median tap 761210 ns, median tap-minus-claimed 393 ns (min 385 max 394)
+   run final: median tap 750730 ns, median tap-minus-claimed 394 ns (min 385 max 402)
+CRF PDUs: Run B 34061 (DUT-sent 34061), other runs 0; tu=1 count 0
+CRF sequence discontinuities (mod 256): 0
+CRF bursts (duration s, following pause ms): [(19.67, 1106), (18.45, 578), (15.0, 148), (15.0, None)]

@@ -1,0 +1,34 @@
+console transcripts with commands: 14
+    bench-a200/bench/console-memread-test.txt
+    bench-a200/bench/final/console-final.txt
+    bench-a200/bench/runA/console.txt
+    bench-a200/bench/runB/console.txt
+    bench-a200/identity/console-identity.txt
+    bench-a202/bench/cycle1/console.txt
+    bench-a202/bench/cycle2/console.txt
+    bench-a202/bench/cycle3/console.txt
+    bench-a202/bench/cycle4/console.txt
+    bench-a202/bench/cycle5/console.txt
+    bench-a202/bench/cycle6/console.txt
+    bench-a202/bench/final/console-final.txt
+    bench-a202/bench/poll-test/console.txt
+    bench-a202/identity/console-identity.txt
+command verbs: {'mem_read': 31154, 'milan_status': 7792, 'mem_list': 2, 'crc': 6} total 38954
+cycle 1: CLKV_TUCNT 37->77 (+40); tu=1 samples span 1.16..40.36 s (39.2 s); AS_PATH_GEN 3->5; path counts ['1']
+cycle 2: CLKV_TUCNT 77->116 (+39); tu=1 samples span 1.08..39.48 s (38.4 s); AS_PATH_GEN 5->7; path counts ['1']
+cycle 3: CLKV_TUCNT 116->157 (+41); tu=1 samples span 1.08..40.48 s (39.4 s); AS_PATH_GEN 7->9; path counts ['1']
+cycle 4: CLKV_TUCNT 157->197 (+40); tu=1 samples span 1.17..40.32 s (39.2 s); AS_PATH_GEN 9->11; path counts ['1']
+   CRFT_CTRL values ['0x3', '0x3002e3']; licence dropped 2.20 s; relicensed 41.25 s
+   CRF PDUs: 47343 total; tu=1 316, first tu=1 at 1.080, last PDU before return 1.710; first PDU after return 41.283, tu=1 after return 0; pre-off tu=1 0
+   CLKV_STAT[0] rose between 1.06 and 1.17 s
+   ACMP CONNECT_TX to the DUT: 7 total; between loss and all-good (40.42) 0; first after return 41.28; last before off -12.82
+cycle 5: CLKV_TUCNT 197->237 (+40); tu=1 samples span 1.09..40.43 s (39.3 s); AS_PATH_GEN 11->13; path counts ['1']
+   CRFT_CTRL values ['0x3', '0x3002e3']; licence dropped 5.23 s; relicensed 42.92 s
+   CRF PDUs: 46545 total; tu=1 293, first tu=1 at 1.067, last PDU before return 1.651; first PDU after return 42.960, tu=1 after return 0; pre-off tu=1 0
+   CLKV_STAT[0] rose between 0.99 and 1.09 s
+   ACMP CONNECT_TX to the DUT: 7 total; between loss and all-good (40.54) 0; first after return 42.96; last before off -12.37
+cycle 6: CLKV_TUCNT 237->278 (+41); tu=1 samples span 1.06..40.61 s (39.6 s); AS_PATH_GEN 13->15; path counts ['1']
+   CRFT_CTRL values ['0x3', '0x3002e3']; licence dropped 1.89 s; relicensed 41.44 s
+   CRF PDUs: 47678 total; tu=1 243, first tu=1 at 1.001, last PDU before return 1.485; first PDU after return 41.459, tu=1 after return 0; pre-off tu=1 0
+   CLKV_STAT[0] rose between 0.96 and 1.06 s
+   ACMP CONNECT_TX to the DUT: 6 total; between loss and all-good (40.72) 0; first after return 41.46; last before off -13.09

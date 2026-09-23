@@ -1,0 +1,24 @@
+distinct redacted tokens recovered: 9
+  class bench-host-prefix 1
+  class binary-run:pcap 5
+  class device-serial 2
+  class peer-product-name 1
+  T1 class bench-host-prefix length 4
+  T2 class binary-run:pcap length 3
+  T3 class binary-run:pcap length 3
+  T4 class binary-run:pcap length 12
+  T5 class binary-run:pcap length 13
+  T6 class binary-run:pcap length 25
+  T7 class device-serial length 11
+  T8 class device-serial length 13
+  T9 class peer-product-name length 4
+tree f547a49bee5966a901d1e11981eb4dc94d038711
+   ('bench-host-prefix', 4, 'T1') files 0 []
+   ('binary-run:pcap', 25, 'T6') files 0 []
+  skip short token ('binary-run:pcap', 3, 'T3')
+   ('binary-run:pcap', 12, 'T4') files 0 []
+  skip short token ('binary-run:pcap', 3, 'T2')
+   ('binary-run:pcap', 13, 'T5') files 0 []
+   ('device-serial', 11, 'T7') files 6 ['avdecc/aem_rom.json', 'avdecc/aem_specs.py', 'configs/endstation_arty_current.yaml', 'configs/endstation_ax7101_1x1_tdm8.yaml', 'configs/endstation_ax7101_8x8.yaml', 'scripts/entity_shape_selftest.py']
+   ('peer-product-name', 4, 'T9') files 0 []
+   ('device-serial', 13, 'T8') files 0 []

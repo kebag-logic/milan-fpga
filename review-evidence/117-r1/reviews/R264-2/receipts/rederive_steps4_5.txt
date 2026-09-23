@@ -1,0 +1,12 @@
+runA milan_status samples 60, all SYNC=1 ASCAPABLE=1 TU=0 True, GM ['3cc0c6fffefe0210'], CLKV_STAT ['00010002']
+runB milan_status samples 53, all SYNC=1 ASCAPABLE=1 TU=0 True, GM ['3cc0c6fffefe0210'], CLKV_STAT ['00010002']
+identity milan_status samples 2, all SYNC=1 ASCAPABLE=1 TU=0 True, GM ['3cc0c6fffefe0210'], CLKV_STAT ['00010002']
+final milan_status samples 1, all SYNC=1 ASCAPABLE=1 TU=0 True, GM ['3cc0c6fffefe0210'], CLKV_STAT ['00010002']
+total samples 116; console PDELAY_NS min 380 max 391 median 385.0
+Run A GET_AVB_INFO DUT polls 60, AS_CAPABLE all True, flags ['0x17'], propagation delay 381..391 median 385.0
+counters probe transcripts: 14 and 14 lines; differing after masking entity ids and times: 0
+enumeration log contains '5.3.8.10'                                           2
+enumeration log contains 'Milan mandatory counters missing for STREAM_INPUT'  2
+enumeration log contains 'Entity not fully Milan compliant'                   1
+enumeration log contains 'flags=IEEE17221 '                                   1
+enumeration log contains 'flags=IEEE17221|Milan'                              1

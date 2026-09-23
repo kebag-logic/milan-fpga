@@ -1,0 +1,8 @@
+bench-a200 ACMP states start/end 18 18 same set True conn_count values [0]
+   differs ('get_tx_state', '020000fffe000001', 1) {'dmac': ('000000000000', '91e0f0008d6f')}
+bench-a202 ACMP states start/end 18 18 same set True conn_count values [0]
+daemon check covered 2 hosts:
+   capture server | NTPSynchronized=yes no gPTP/AVB daemon process
+   controller host | NTPSynchronized=yes no gPTP/AVB daemon process
+   build box behind the capture server by 1.2747 s (rtt 0.4140 s)
+   build box behind the controller host by 1.2111 s (rtt 0.2802 s)

@@ -1,0 +1,16 @@
+distinct redacted tokens recovered: 9
+  class bench-host-prefix 1
+  class binary-run:pcap 5
+  class device-serial 2
+  class peer-product-name 1
+  T1 class bench-host-prefix length 4
+  T2 class binary-run:pcap length 3
+  T3 class binary-run:pcap length 3
+  T4 class binary-run:pcap length 12
+  T5 class binary-run:pcap length 13
+  T6 class binary-run:pcap length 25
+  T7 class device-serial length 11
+  T8 class device-serial length 13
+  T9 class peer-product-name length 4
+tokens checked (len>=4): [('bench-host-prefix', 4, 'T1'), ('binary-run:pcap', 12, 'T4'), ('binary-run:pcap', 13, 'T5'), ('binary-run:pcap', 25, 'T6'), ('device-serial', 11, 'T7'), ('device-serial', 13, 'T8'), ('peer-product-name', 4, 'T9')]
+hits: 0

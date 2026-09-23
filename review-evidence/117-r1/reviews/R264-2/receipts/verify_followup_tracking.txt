@@ -1,0 +1,9 @@
+#495 open: [Residue] Review leftovers: one checklist instead of one issue per pull request (9 comments)
+   [A10] Residue from the #117 silicon run (PR #531), not product defects:
+   - [ ] Controller load: the DUT sends one unsolicited GET_AVB_INFO per second to a registered controller while the propagation delay moves by a few ns (documented design, VERSION 0x0055 notes); consider a change threshold. Detail: #117 findings page, observation 4.
+   - [ ] Bench: the AVB switch requests an IPv4 address by DHCP every 15 s on the AVB segment and nothing answers (no management access); give it a management address. Observation 5.
+   - [ ] Bench: the AVB switch answered two of 570 DUT Pdelay requests after 18.3 ms (over the 15 ms limit on its side); the DUT absorbed both. Observation 6.
+#529 open: CRF Stream Input serves no AECP counters, so controllers downgrade the entity from Milan (3 comments)
+#530 open: CRF talker ends its own bursts while bound and starts emitting before a reservation exists (6 comments)
+   comment 5796889861 mentions item 9: False
+   comment 5797078565 mentions item 9: True
