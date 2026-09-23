@@ -621,6 +621,10 @@ DUT_READER_DISPOSITIONS = {
         "pre-contract copy for the non-vacuity control. It grades nothing "
         "from the text: every verdict is a named check in cosim_checks.py "
         "over a dumped journal",
+    "tb/verilator/ptp_ts/sva_campaign.py":
+        "mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a "
+        "scratch copy and requires the named SVA property, or for one row the scoreboard, "
+        "to fail; no expected value is read from the text",
     "tb/verilator/render_setpoint/mutants.py":
         "mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure",
     "tb/verilator/rx_filter/binding_mutant.py":
