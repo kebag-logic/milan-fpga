@@ -1,0 +1,27 @@
+case        base-sdk   base-absent      head-sdk   head-absent  label
+V1a          REFUSED       REFUSED      ACCEPTED      ACCEPTED  form feed before #: product-only arm with a literal-address cast store in a UART handler
+V1b          REFUSED       REFUSED      ACCEPTED      ACCEPTED  vertical tab before #: the same store
+V1c          REFUSED       REFUSED      ACCEPTED      ACCEPTED  NUL before #: the same store
+V1d          REFUSED       REFUSED      ACCEPTED      ACCEPTED  lone CR before #: the same store
+V1e          REFUSED       REFUSED      ACCEPTED      ACCEPTED  form feed before #: product-only arm with a lui/sw asm store
+V1f          REFUSED       REFUSED       REFUSED      ACCEPTED  control: plain # product-only arm with the literal cast store
+V2a          REFUSED       REFUSED      ACCEPTED      ACCEPTED  identity local forged by a SPLICE between the read and the guard
+V2b          REFUSED       REFUSED      ACCEPTED      ACCEPTED  identity local forged by a PASTE between the read and the guard
+V2c         ACCEPTED      ACCEPTED      ACCEPTED      ACCEPTED  identity local forged by a plain function-like macro (pre-existing control)
+V3a         ACCEPTED      ACCEPTED       REFUSED      ACCEPTED  correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD
+V3b         ACCEPTED      ACCEPTED       REFUSED      ACCEPTED  correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD
+V4          ACCEPTED      ACCEPTED      ACCEPTED      ACCEPTED  unterminated character literals in two #defines bracketing a product-only literal-address store
+
+== reasons base-sdk
+  V1a :: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found 
+  V1b :: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found 
+  V1c :: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found 
+  V1d :: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found 
+  V1e :: the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['_
+  V1f :: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found 
+  V2a :: firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can m
+  V2b :: firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either
+== reasons head-sdk
+  V1f :: under the arm selection line 1499 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address insi
+  V3a :: under the arm selection line 61 `#ifdef MILAN_DEBUG_TOD`: no arm taken; line 1506 `#ifdef MILAN_DEBUG_TOD`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled census could not build the firmware with $HOME/
+  V3b :: under the arm selection line 61 `#ifdef MILAN_DEBUG_TOD`: no arm taken; line 1503 `#ifdef MILAN_DEBUG_TOD`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled census could not build the firmware with $HOME/

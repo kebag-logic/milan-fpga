@@ -1,0 +1,2060 @@
+[
+ {
+  "label": "old AEM-gated PTP documentation",
+  "verdict": "REFUSED",
+  "pin": [
+   "bare-metal boot contract lost"
+  ],
+  "pin_ok": true,
+  "reason": "bare-metal boot contract lost: After the identity check and AEM verification succeed, set the `PP_CTRL[0]` and legacy `ADP_CTRL[0]` compatibility enable bits."
+ },
+ {
+  "label": "CSR identity contract repointed to VERSION",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID must resolve to the RTL A_ID address"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID must resolve to the RTL A_ID address, or the boot guard can validate a different CSR"
+ },
+ {
+  "label": "CSR identity magic changed to the VERSION value",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default, or the boot guard can accept a forged identity value"
+ },
+ {
+  "label": "CSR identity magic replaced by the sampled value",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default, or the boot guard can accept a forged identity value"
+ },
+ {
+  "label": "CSR identity magic replaced by a sampled expression",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default, or the boot guard can accept a forged identity value"
+ },
+ {
+  "label": "RTL A_ID address hidden behind a comment decoy",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID must resolve to the RTL A_ID address"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID must resolve to the RTL A_ID address, or the boot guard can validate a different CSR"
+ },
+ {
+  "label": "RTL A_ID default hidden behind a comment decoy",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default"
+  ],
+  "pin_ok": true,
+  "reason": "firmware MILAN_ID_MAGIC must equal the RTL A_ID readback default, or the boot guard can accept a forged identity value"
+ },
+ {
+  "label": "RTL A_ID address selected through an inactive preprocessor arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "CSR integration proof requires unconditional live SystemVerilog text"
+  ],
+  "pin_ok": true,
+  "reason": "CSR integration proof requires unconditional live SystemVerilog text: expected directives ('default_nettype', 'include', 'include', 'default_nettype'), found ('default_nettype', 'ifdef', 'else', 'endif', 'include', 'include', 'default_nettype')"
+ },
+ {
+  "label": "RTL A_ID address hidden in an inactive static generate arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "RTL CSR address declarations must be unconditional module-scope items"
+  ],
+  "pin_ok": true,
+  "reason": "RTL CSR address declarations must be unconditional module-scope items: checked connection must be an unconditional item in its inspected generate arm"
+ },
+ {
+  "label": "RTL A_ID default hidden in a dead procedural case",
+  "verdict": "REFUSED",
+  "pin": [
+   "RTL csr_default's address case must be a direct top-level item after its literal-zero default"
+  ],
+  "pin_ok": true,
+  "reason": "RTL csr_default's address case must be a direct top-level item after its literal-zero default"
+ },
+ {
+  "label": "RTL A_ID defaults-ROM fill forged",
+  "verdict": "REFUSED",
+  "pin": [
+   "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address"
+  ],
+  "pin_ok": true,
+  "reason": "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address: dflt_rom must be initialized solely from csr_default(11'(k * 4))"
+ },
+ {
+  "label": "RTL A_ID read address offset",
+  "verdict": "REFUSED",
+  "pin": [
+   "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address"
+  ],
+  "pin_ok": true,
+  "reason": "RTL A_ID readback plumbing must preserve the canonical csr_default ROM and direct AXI read address: unexpected rd_addr initializer 's_axi_araddr + A_VERSION'"
+ },
+ {
+  "label": "CSR identity mismatch guard removed",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must reject a mismatched CSR identity"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must reject a mismatched CSR identity before configuring fabric or verifying the AEM image"
+ },
+ {
+  "label": "CSR identity mismatch guard does not return",
+  "verdict": "REFUSED",
+  "pin": [
+   "CSR identity mismatch guard must return"
+  ],
+  "pin_ok": true,
+  "reason": "CSR identity mismatch guard must return before fabric configuration and AEM verification"
+ },
+ {
+  "label": "CSR identity mismatch guard inverted",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must reject a mismatched CSR identity"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must reject a mismatched CSR identity before configuring fabric or verifying the AEM image"
+ },
+ {
+  "label": "CSR identity sample overwritten before the guard",
+  "verdict": "REFUSED",
+  "pin": [
+   "CSR identity guard must consume the unmodified MILAN_ID sample"
+  ],
+  "pin_ok": true,
+  "reason": "CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+ },
+ {
+  "label": "milan_reg() ignores its offset",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed"
+  ],
+  "pin_ok": true,
+  "reason": "milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed"
+ },
+ {
+  "label": "milan_read() forges the identity value",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_read() must return exactly the value loaded through milan_reg(offset)"
+  ],
+  "pin_ok": true,
+  "reason": "milan_read() must return exactly the value loaded through milan_reg(offset)"
+ },
+ {
+  "label": "unconditional entity enable",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must configure, load AEM, then guard entity enable"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must configure, load AEM, then guard entity enable. NOTE, because this message has misdiagnosed a rename before: this gate finds the verdict by the literal identifier 'aem_loaded' and the guard by the choke-point call 'entity_advertise(aem_loaded)'. If those three steps are all present and you renamed the verdict, the boot order is fine and it is this gate that cannot follow the rename; found configure=True load=True guard=False"
+ },
+ {
+  "label": "inverted entity enable",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must configure, load AEM, then guard entity enable"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must configure, load AEM, then guard entity enable. NOTE, because this message has misdiagnosed a rename before: this gate finds the verdict by the literal identifier 'aem_loaded' and the guard by the choke-point call 'entity_advertise(aem_loaded)'. If those three steps are all present and you renamed the verdict, the boot order is fine and it is this gate that cannot follow the rename; found configure=True load=True guard=False"
+ },
+ {
+  "label": "software PTP enable write",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must not write the reset-enabled PHC"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must not write the reset-enabled PHC (PTP_CTRL (CSR 0x500))"
+ },
+ {
+  "label": "PHC disabled during fabric configuration",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must not write the reset-enabled PHC"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must not write the reset-enabled PHC (PTP_CTRL (CSR 0x500))"
+ },
+ {
+  "label": "ADP before PP",
+  "verdict": "REFUSED",
+  "pin": [
+   "AEM-success guard must enable PP before ADP"
+  ],
+  "pin_ok": true,
+  "reason": "AEM-success guard must enable PP before ADP"
+ },
+ {
+  "label": "PP bit 0 not asserted",
+  "verdict": "REFUSED",
+  "pin": [
+   "PP_CTRL (CSR 0x920) enable write must assert bit 0"
+  ],
+  "pin_ok": true,
+  "reason": "PP_CTRL (CSR 0x920) enable write must assert bit 0"
+ },
+ {
+  "label": "ADP bit 0 cleared",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) must have exactly one read/OR enable write"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) must have exactly one read/OR enable write, and there are 0. NOTE, because this message has described the wrong thing before: the OR mask must be a value this gate can EVALUATE, so a named constant (`| MILAN_ENTITY_ENABLE`) does not count as the enable write even though it is the same bit to the hardware. Hoisting the mask to a #define is refused for that reason, not because the enable is missing or duplicated"
+ },
+ {
+  "label": "PP enabled before AEM verification",
+  "verdict": "REFUSED",
+  "pin": [
+   "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "PP_CTRL (CSR 0x920) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "ADP enabled before AEM verification",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "entity enabled through an indirect helper",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_write() must name a register the RTL decodes"
+  ],
+  "pin_ok": true,
+  "reason": "milan_write() must name a register the RTL decodes so the bit-0 census can place it by ADDRESS, got 'indirect_reg()'"
+ },
+ {
+  "label": "ADP enabled through an address alias",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "PP enabled through an address alias",
+  "verdict": "REFUSED",
+  "pin": [
+   "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "PP_CTRL (CSR 0x920) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "PHC written through an address alias",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must not write the reset-enabled PHC"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must not write the reset-enabled PHC (PTP_CTRL (CSR 0x500))"
+ },
+ {
+  "label": "entity enabled through a repointed register name",
+  "verdict": "REFUSED",
+  "pin": [
+   "PP_CTRL (CSR 0x920) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "PP_CTRL (CSR 0x920) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "milan_write() given a value constant as its register",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_write() must name a register the RTL decodes"
+  ],
+  "pin_ok": true,
+  "reason": "milan_write() must name a register the RTL decodes so the bit-0 census can place it by ADDRESS, got 'MILAN_ID_MAGIC'"
+ },
+ {
+  "label": "entity enabled with a space before the call paren",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "entity enabled through a function pointer",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_write must always be called, never used as a value"
+  ],
+  "pin_ok": true,
+  "reason": "milan_write must always be called, never used as a value: a function pointer to it stores to a CSR outside the census"
+ },
+ {
+  "label": "entity enabled by storing through milan_reg()",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_reg() may be called only by milan_read()/milan_write()"
+  ],
+  "pin_ok": true,
+  "reason": "milan_reg() may be called only by milan_read()/milan_write(): a store through it bypasses the bit-0 census"
+ },
+ {
+  "label": "entity enabled through a second consumer of the address helper's return",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_reg() may be called only by milan_read()/milan_write()"
+  ],
+  "pin_ok": true,
+  "reason": "milan_reg() may be called only by milan_read()/milan_write(): a store through it bypasses the bit-0 census"
+ },
+ {
+  "label": "entity enabled through a raw CSR pointer",
+  "verdict": "REFUSED",
+  "pin": [
+   "only milan_reg() may form a CSR address"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, but the CSR base is used outside it: a raw store there reaches a control register without passing the bit-0 census"
+ },
+ {
+  "label": "entity enabled through a digraph-pasted call name",
+  "verdict": "REFUSED",
+  "pin": [
+   "must not spell a token with a digraph or a trigraph"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must not spell a token with a digraph or a trigraph: `%:` and `??=` spell a directive and `%:%:` a paste in text no reader here translates, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+ },
+ {
+  "label": "entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler",
+  "verdict": "REFUSED",
+  "pin": [
+   "inside a macro body: every store through a CSR primitive"
+  ],
+  "pin_ok": true,
+  "reason": "#define MILAN_ADP_ON hides milan_write() inside a macro body: every store through a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor over milan_read() is not refused: every rule that reads a read fails closed when the read is hidden"
+ },
+ {
+  "label": "PP pre-AEM clear removed",
+  "verdict": "REFUSED",
+  "pin": [
+   "PP_CTRL (CSR 0x920) bit 0 must be cleared before the AEM image"
+  ],
+  "pin_ok": true,
+  "reason": "PP_CTRL (CSR 0x920) bit 0 must be cleared before the AEM image is verified"
+ },
+ {
+  "label": "ADP pre-AEM clear removed",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified"
+ },
+ {
+  "label": "CRC failure accepted",
+  "verdict": "REFUSED",
+  "pin": [
+   "AEM verifier non-zero return must be textually after"
+  ],
+  "pin_ok": true,
+  "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+ },
+ {
+  "label": "AEM verdict overridden",
+  "verdict": "REFUSED",
+  "pin": [
+   "aem_loaded must contain only the image verifier's verdict"
+  ],
+  "pin_ok": true,
+  "reason": "aem_loaded must contain only the image verifier's verdict"
+ },
+ {
+  "label": "AEM verdict forced by compound assignment",
+  "verdict": "REFUSED",
+  "pin": [
+   "aem_loaded must contain only the image verifier's verdict"
+  ],
+  "pin_ok": true,
+  "reason": "aem_loaded must contain only the image verifier's verdict"
+ },
+ {
+  "label": "AEM verdict incremented",
+  "verdict": "REFUSED",
+  "pin": [
+   "aem_loaded must contain only the image verifier's verdict"
+  ],
+  "pin_ok": true,
+  "reason": "aem_loaded must contain only the image verifier's verdict"
+ },
+ {
+  "label": "disabled PHC reset",
+  "verdict": "REFUSED",
+  "pin": [
+   "bare-metal PHC contract requires the documented enabled reset"
+  ],
+  "pin_ok": true,
+  "reason": "bare-metal PHC contract requires the documented enabled reset"
+ },
+ {
+  "label": "PHC output gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_csr PHC output assignments must remain direct and independent"
+  ],
+  "pin_ok": true,
+  "reason": "milan_csr PHC output assignments must remain direct and independent of ADP and protocol-processor state: expected assign o_ptp_enable = ptp_ctrl[0];"
+ },
+ {
+  "label": "milan_csr PHC increment output gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_csr PHC output assignments must remain direct and independent"
+  ],
+  "pin_ok": true,
+  "reason": "milan_csr PHC output assignments must remain direct and independent of ADP and protocol-processor state: expected assign o_ptp_incr = ptp_incr;"
+ },
+ {
+  "label": "milan_csr PHC output binding gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_csr PHC output must drive cfg_ptp_enable directly"
+  ],
+  "pin_ok": true,
+  "reason": "milan_csr PHC output must drive cfg_ptp_enable directly: expected .o_ptp_enable(cfg_ptp_enable)"
+ },
+ {
+  "label": "PHC enable hidden behind a resolved second driver",
+  "verdict": "REFUSED",
+  "pin": [
+   "datapath PHC nets must retain sole-driver reference ownership"
+  ],
+  "pin_ok": true,
+  "reason": "datapath PHC nets must retain sole-driver reference ownership: cfg_ptp_enable must have exactly 3 live references, found 4"
+ },
+ {
+  "label": "ADP term spliced into the render recentre pulse",
+  "verdict": "REFUSED",
+  "pin": [
+   "render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities"
+  ],
+  "pin_ok": true,
+  "reason": "render recentre pulse must read only the GM-change, adjtime, settime and settled clock-source discontinuities: unexpected render_recentre_p_w initializer 'gm_recentre_p_r | eff_ptp_adjust_w | cfg_ptp_cmd_load\\n       | src_recentre_p_r | cfg_adp_enable'"
+ },
+ {
+  "label": "PHC crossing consumer gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "PHC CSR crossing enable must be driven directly by cfg_ptp_enable"
+  ],
+  "pin_ok": true,
+  "reason": "PHC CSR crossing enable must be driven directly by cfg_ptp_enable: expected .a_enable(cfg_ptp_enable)"
+ },
+ {
+  "label": "PHC crossing increment gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "PHC CSR-crossing controls and readback must remain direct and independent"
+  ],
+  "pin_ok": true,
+  "reason": "PHC CSR-crossing controls and readback must remain direct and independent of AEM, ADP and protocol-processor gates: expected .a_incr(cfg_ptp_incr)"
+ },
+ {
+  "label": "effective PHC frequency adjustment gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "effective PHC adjustment must select only gPTP or CSR control"
+  ],
+  "pin_ok": true,
+  "reason": "effective PHC adjustment must select only gPTP or CSR control: unexpected eff_ptp_adj_w initializer \"(GPTP_PLANE_EN_P != 1'b0)\\n                               ? unsigned'(gptp_adj_w)   : (cfg_ptp_adj & {32{cfg_adp_enable}})\""
+ },
+ {
+  "label": "effective PHC offset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "effective PHC offset must select only gPTP or CSR control"
+  ],
+  "pin_ok": true,
+  "reason": "effective PHC offset must select only gPTP or CSR control: unexpected eff_ptp_offset_w initializer \"(GPTP_PLANE_EN_P != 1'b0)\\n                               ? gptp_step_w             : (cfg_ptp_offset & {64{cfg_adp_enable}})\""
+ },
+ {
+  "label": "effective PHC adjustment strobe gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "effective PHC adjust strobe must select only gPTP or CSR control"
+  ],
+  "pin_ok": true,
+  "reason": "effective PHC adjust strobe must select only gPTP or CSR control: unexpected eff_ptp_adjust_w initializer \"(GPTP_PLANE_EN_P != 1'b0)\\n                               ? gptp_step_we_w          : (cfg_ptp_cmd_adjust & cfg_adp_enable)\""
+ },
+ {
+  "label": "PHC counter gtx reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "PHC CSR-crossing and counter clocks and resets must be direct"
+  ],
+  "pin_ok": true,
+  "reason": "PHC CSR-crossing and counter clocks and resets must be direct and independent of AEM, ADP and protocol-processor gates: expected .resetn(gtx_resetn)"
+ },
+ {
+  "label": "PHC crossing axis reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "PHC CSR-crossing and counter clocks and resets must be direct"
+  ],
+  "pin_ok": true,
+  "reason": "PHC CSR-crossing and counter clocks and resets must be direct and independent of AEM, ADP and protocol-processor gates: expected .aresetn(axis_resetn)"
+ },
+ {
+  "label": "external MAC RX ready gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC RX handshake must drive rx_axis_from_mac directly"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC RX handshake must drive rx_axis_from_mac directly: expected assign s_axis_mac_rx_tready = rx_axis_from_mac.tready;"
+ },
+ {
+  "label": "enabled RX-filter ingress valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "MAC RX must traverse the enabled RX-filter arm directly"
+  ],
+  "pin_ok": true,
+  "reason": "MAC RX must traverse the enabled RX-filter arm directly: expected .s_tvalid(rx_axis_from_mac.tvalid)"
+ },
+ {
+  "label": "enabled RX-filter clock gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "MAC RX must traverse the enabled RX-filter arm directly"
+  ],
+  "pin_ok": true,
+  "reason": "MAC RX must traverse the enabled RX-filter arm directly: expected .clk_i(axis_clk)"
+ },
+ {
+  "label": "enabled RX-filter reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "MAC RX must traverse the enabled RX-filter arm directly"
+  ],
+  "pin_ok": true,
+  "reason": "MAC RX must traverse the enabled RX-filter arm directly: expected .rst_n(axis_resetn)"
+ },
+ {
+  "label": "RX-filter default policy gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "reset-time RX filter policy must remain independent of ADP"
+  ],
+  "pin_ok": true,
+  "reason": "reset-time RX filter policy must remain independent of ADP: expected .default_pass_i(cfg_tcam_default_pass)"
+ },
+ {
+  "label": "bypass RX-filter ingress valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "MAC RX must traverse the bypass RX-filter arm directly"
+  ],
+  "pin_ok": true,
+  "reason": "MAC RX must traverse the bypass RX-filter arm directly: expected assign rx_axis_fabric.tvalid = rx_axis_from_mac.tvalid;"
+ },
+ {
+  "label": "fabric gPTP reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP RX and control inputs must observe the live datapath directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP RX and control inputs must observe the live datapath directly, independent of AEM, ADP and protocol-processor gates: expected .rst_n(axis_resetn)"
+ },
+ {
+  "label": "fabric gPTP ingress valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP RX and control inputs must observe the live datapath directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP RX and control inputs must observe the live datapath directly, independent of AEM, ADP and protocol-processor gates: expected .rx_tvalid_i(rx_axis_fabric.tvalid)"
+ },
+ {
+  "label": "fabric gPTP local egress valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP TX must traverse gptp_ctl_mux directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP TX must traverse gptp_ctl_mux directly, independent of AEM, ADP and protocol-processor gates: expected .s_adp_tvalid(gtx_tvalid_w)"
+ },
+ {
+  "label": "fabric gPTP control-mux reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP TX must traverse gptp_ctl_mux directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP TX must traverse gptp_ctl_mux directly, independent of AEM, ADP and protocol-processor gates: expected .rst_n(axis_resetn)"
+ },
+ {
+  "label": "fabric gPTP MAC-boundary valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP control output must reach the MAC-boundary arbiter directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP control output must reach the MAC-boundary arbiter directly, independent of AEM, ADP and protocol-processor gates: expected .s_adp_tvalid(ctlg3_tvalid)"
+ },
+ {
+  "label": "fabric gPTP boundary-mux reset gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "fabric gPTP control output must reach the MAC-boundary arbiter directly"
+  ],
+  "pin_ok": true,
+  "reason": "fabric gPTP control output must reach the MAC-boundary arbiter directly, independent of AEM, ADP and protocol-processor gates: expected .rst_n(axis_resetn)"
+ },
+ {
+  "label": "external MAC TX valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC TX handshake must be driven directly by tx_axis_to_mac: expected assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;"
+ },
+ {
+  "label": "external MAC TX valid hidden behind a resolved second driver",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC handshake ports must retain sole-driver/reference ownership"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC handshake ports must retain sole-driver/reference ownership: m_axis_mac_tx_tvalid must have exactly 4 live references, found 5"
+ },
+ {
+  "label": "commented direct TX decoy with live macro gate",
+  "verdict": "REFUSED",
+  "pin": [
+   "datapath integration proof requires unconditional live SystemVerilog text"
+  ],
+  "pin_ok": true,
+  "reason": "datapath integration proof requires unconditional live SystemVerilog text: expected directives ('default_nettype', 'include', 'include', 'default_nettype'), found ('default_nettype', 'include', 'define', 'PR187_TX_VALID', 'undef', 'include', 'default_nettype')"
+ },
+ {
+  "label": "direct TX connection made an inactive conditional",
+  "verdict": "REFUSED",
+  "pin": [
+   "datapath integration proof requires unconditional live SystemVerilog text"
+  ],
+  "pin_ok": true,
+  "reason": "datapath integration proof requires unconditional live SystemVerilog text: expected directives ('default_nettype', 'include', 'include', 'default_nettype'), found ('default_nettype', 'include', 'ifdef', 'endif', 'include', 'default_nettype')"
+ },
+ {
+  "label": "direct TX connection put in an inactive static generate arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC TX handshake must be driven directly by tx_axis_to_mac: checked connection must be an unconditional item in its inspected generate arm"
+ },
+ {
+  "label": "direct TX decoy selected by mid-line compiler directives",
+  "verdict": "REFUSED",
+  "pin": [
+   "datapath integration proof requires unconditional live SystemVerilog text"
+  ],
+  "pin_ok": true,
+  "reason": "datapath integration proof requires unconditional live SystemVerilog text: expected directives ('default_nettype', 'include', 'include', 'default_nettype'), found ('default_nettype', 'include', 'define', 'ifdef', 'else', 'PR187_ASSIGN', 'endif', 'include', 'default_nettype')"
+ },
+ {
+  "label": "direct TX decoy selected by an implicit conditional generate",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC TX handshake must be driven directly by tx_axis_to_mac"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC TX handshake must be driven directly by tx_axis_to_mac: checked connection must not be selected by an implicit conditional-generate item"
+ },
+ {
+  "label": "external MAC RX valid gated by ADP",
+  "verdict": "REFUSED",
+  "pin": [
+   "external MAC RX handshake must drive rx_axis_from_mac directly"
+  ],
+  "pin_ok": true,
+  "reason": "external MAC RX handshake must drive rx_axis_from_mac directly: expected assign rx_axis_from_mac.tvalid = s_axis_mac_rx_tvalid;"
+ },
+ {
+  "label": "AEM guard selected by a build flag",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "firmware must configure, load AEM, then guard entity enable"
+  ],
+  "pin_ok": false,
+  "reason": "the entity-advertise choke-point call must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+ },
+ {
+  "label": "pre-AEM clear behind a build flag",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x13', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "a dropped arm inside a CSR write's argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  ],
+  "pin_ok": false,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "fabric configuration made dead by a compile-time constant",
+  "verdict": "REFUSED",
+  "pin": [
+   "the fabric configuration step must be a statement of milan_init() itself"
+  ],
+  "pin_ok": true,
+  "reason": "the fabric configuration step must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path"
+ },
+ {
+  "label": "entity enabled by a goto into the AEM-success guard",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_init() must not contain 'goto'"
+  ],
+  "pin_ok": true,
+  "reason": "milan_init() must not contain 'goto': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"
+ },
+ {
+  "label": "entity enabled by a case falling into the AEM-success guard",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_init() must not contain 'switch'"
+  ],
+  "pin_ok": true,
+  "reason": "milan_init() must not contain 'switch': control that enters the AEM-success guard by any path other than the guard's own condition advertises an unverified entity"
+ },
+ {
+  "label": "AEM verdict overwritten through a pointer",
+  "verdict": "REFUSED",
+  "pin": [
+   "the address of aem_loaded must not be taken"
+  ],
+  "pin_ok": true,
+  "reason": "the address of aem_loaded must not be taken: a pointer to the verdict (or a memset through one) overwrites it without any assignment this gate can see"
+ },
+ {
+  "label": "AEM verifier returning a non-boolean status before the CRC gate",
+  "verdict": "REFUSED",
+  "pin": [
+   "AEM verifier non-zero return must be textually after"
+  ],
+  "pin_ok": true,
+  "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 2;' is not even placed behind that textual boundary"
+ },
+ {
+  "label": "ADP_CTRL given a second decode address",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must write adp_ctrl from exactly one CSR address"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must write adp_ctrl from exactly one CSR address, A_ADP_CTRL (CSR 0x600), or the register answers to an address the firmware census does not watch; write decode reaches it [['A_ADP_CTRL'], ['A_ADP_MIRROR']]"
+ },
+ {
+  "label": "AEM verifier succeeding from the no-QSPI preprocessor arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "AEM verifier non-zero return must be textually after"
+  ],
+  "pin_ok": true,
+  "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+ },
+ {
+  "label": "CRC comparison itself put behind a build flag",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "firmware boot guard missing: CRC mismatch refusal"
+  ],
+  "pin_ok": false,
+  "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+ },
+ {
+  "label": "AEM verifier that can never succeed",
+  "verdict": "REFUSED",
+  "pin": [
+   "AEM verifier never returns a non-zero verdict"
+  ],
+  "pin_ok": true,
+  "reason": "AEM verifier never returns a non-zero verdict, so the AEM-success guard this gate checks can never be taken"
+ },
+ {
+  "label": "second translation unit listed on the OBJECTS line",
+  "verdict": "REFUSED",
+  "pin": [
+   "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+  ],
+  "pin_ok": true,
+  "reason": "the bare-metal firmware must stay ONE translation unit, or the CSR store closure this gate proves covers only part of the image; make builds ['milan_baremetal.o', 'milan_bringup.o']"
+ },
+ {
+  "label": "second translation unit appended with OBJECTS +=",
+  "verdict": "REFUSED",
+  "pin": [
+   "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+  ],
+  "pin_ok": true,
+  "reason": "the bare-metal firmware must stay ONE translation unit, or the CSR store closure this gate proves covers only part of the image; make builds ['milan_baremetal.o', 'milan_bringup.o']"
+ },
+ {
+  "label": "second translation unit on an OBJECTS continuation line",
+  "verdict": "REFUSED",
+  "pin": [
+   "make builds ['milan_baremetal.o', 'milan_bringup.o']"
+  ],
+  "pin_ok": true,
+  "reason": "the bare-metal firmware must stay ONE translation unit, or the CSR store closure this gate proves covers only part of the image; make builds ['milan_baremetal.o', 'milan_bringup.o']"
+ },
+ {
+  "label": "object list this gate cannot evaluate",
+  "verdict": "REFUSED",
+  "pin": [
+   "must stay ONE translation unit"
+  ],
+  "pin_ok": true,
+  "reason": "the bare-metal firmware must stay ONE translation unit, or the CSR store closure this gate proves covers only part of the image; make builds []"
+ },
+ {
+  "label": "second object archived past the OBJECTS list",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must build and archive exactly the one object"
+  ],
+  "pin_ok": true,
+  "reason": "make must build and archive exactly the one object, and its whole plan names another: an object the OBJECTS list never named reaches the image; make touches ['milan_baremetal.o', 'milan_bringup.o']"
+ },
+ {
+  "label": "second source pulled in by #include of a .c",
+  "verdict": "REFUSED",
+  "pin": [
+   "the firmware's include set is pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+ },
+ {
+  "label": "second source pulled in by a macro include operand",
+  "verdict": "REFUSED",
+  "pin": [
+   "a #include operand must be a literal header name"
+  ],
+  "pin_ok": true,
+  "reason": "a #include operand must be a literal header name this gate can read, not a macro: a macro-expanded operand names a file no rule here opens, got 'MILAN_EXTRA_SRC'"
+ },
+ {
+  "label": "second source pulled in by a spliced #include directive",
+  "verdict": "REFUSED",
+  "pin": [
+   "the firmware's include set is pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+ },
+ {
+  "label": "second source pulled in by a %: digraph include",
+  "verdict": "REFUSED",
+  "pin": [
+   "the firmware's include set is pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+ },
+ {
+  "label": "second source pulled in by a ??= trigraph include",
+  "verdict": "REFUSED",
+  "pin": [
+   "the firmware's include set is pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+ },
+ {
+  "label": "a preprocessing directive this gate has no rule for",
+  "verdict": "REFUSED",
+  "pin": [
+   "the firmware's preprocessing directives are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the firmware's preprocessing directives are pinned, and '#undef' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+ },
+ {
+  "label": "a store planted in the AEM verifier's no-QSPI arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "is the one arm this gate does not compile"
+  ],
+  "pin_ok": true,
+  "reason": "the AEM verifier's other preprocessor arm (the build with no QSPI AEM slot) may hold only a literal printf and `return 0;`: it is the one arm this gate does not compile, because the census stub tree defines the QSPI slot, so no instrument reads what it would store; found '*(volatile unsigned int *)0x90000600u = 1u; printf(\" \"); return 0;'"
+ },
+ {
+  "label": "a #define planted in the AEM verifier's QSPI-slot group",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must not select boot code with the preprocessor"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+ },
+ {
+  "label": "ADP_CTRL's name moved to another register by an arm only the product compiles",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "AEM-success guard must contain exactly one PP and one ADP enable"
+  ],
+  "pin_ok": false,
+  "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+ },
+ {
+  "label": "more preprocessor arm selections than gate 1b grades",
+  "verdict": "REFUSED",
+  "pin": [
+   "more than 16 arm selections"
+  ],
+  "pin_ok": false,
+  "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+ },
+ {
+  "label": "entity enabled by a store whose whole value a read-only accessor macro builds, in a UART command handler",
+  "verdict": "REFUSED",
+  "pin": [
+   "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the"
+  ],
+  "pin_ok": true,
+  "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+ },
+ {
+  "label": "CSR identity sample forged through a read-only accessor macro",
+  "verdict": "REFUSED",
+  "pin": [
+   "firmware must reject a mismatched CSR identity before configuring"
+  ],
+  "pin_ok": true,
+  "reason": "firmware must reject a mismatched CSR identity before configuring fabric or verifying the AEM image"
+ },
+ {
+  "label": "pinned include shadowed by an added -I search path",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-jw6b83ag/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ -Ishadow /tmp/milan-make-jw6b83ag/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "object list the environment can override",
+  "verdict": "REFUSED",
+  "pin": [
+   "lets the ENVIRONMENT decide what gets compiled"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile lets the ENVIRONMENT decide what gets compiled: planned under a hostile environment it builds something else, so the file this gate reads is not necessarily the file the build compiles"
+ },
+ {
+  "label": "second file injected through -Wp, the preprocessor pass-through",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-59cerdpy/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -Wp,-include,/tmp/milan-make-59cerdpy/src/../shadow.h -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-59cerdpy/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "second file injected through a response file",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-iilivj0f/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ @/tmp/milan-make-iilivj0f/src/../shadow.rsp -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-iilivj0f/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "search path added through the -iprefix chain",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-owerzpve/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -iprefix /tmp/milan-make-owerzpve/src/../ -iwithprefixbefore shadow -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-owerzpve/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "second file injected through the CC tool variable",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-vlm78h_q/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -include /tmp/milan-make-vlm78h_q/src/../shadow.h -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-vlm78h_q/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "search path added through the CC tool variable",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-h7ykdr7s/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -iquote ../shadow -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-h7ykdr7s/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "compile flags deferred to an undefined environment name",
+  "verdict": "REFUSED",
+  "pin": [
+   "defers a pinned-recipe input to the environment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile defers a pinned-recipe input to the environment: $(origin MILAN_EXTRA_CFLAGS) = undefined for a name the pinned recipe chain references, so the environment, not the Makefile, decides its value and the pinned commands cannot show the deferral (#162)"
+ },
+ {
+  "label": "compile flags routed through a computed variable name",
+  "verdict": "REFUSED",
+  "pin": [
+   "computes a variable NAME at expansion time"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile computes a variable NAME at expansion time ($($(X))): a computed variable name defers the NAME itself, so no origin probe can enumerate what the environment decides; refused rather than modelled (#162)"
+ },
+ {
+  "label": "compile flags deferred to the environment through a define body",
+  "verdict": "REFUSED",
+  "pin": [
+   "defers a pinned-recipe input to the environment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile defers a pinned-recipe input to the environment: $(origin MILAN_EXTRA_CFLAGS) = undefined for a name the pinned recipe chain references, so the environment, not the Makefile, decides its value and the pinned commands cannot show the deferral (#162)"
+ },
+ {
+  "label": "compile flags deferred to the environment through a $(call) first argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "defers a pinned-recipe input to the environment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile defers a pinned-recipe input to the environment: $(origin MILAN_EXTRA) = undefined for a name the pinned recipe chain references, so the environment, not the Makefile, decides its value and the pinned commands cannot show the deferral (#162)"
+ },
+ {
+  "label": "compile flags deferred to the environment through a $(value) first argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "defers a pinned-recipe input to the environment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile defers a pinned-recipe input to the environment: $(origin MILAN_EXTRA_CFLAGS) = undefined for a name the pinned recipe chain references, so the environment, not the Makefile, decides its value and the pinned commands cannot show the deferral (#162)"
+ },
+ {
+  "label": "compile flags deferred to the environment through a top-level $(eval) assignment",
+  "verdict": "REFUSED",
+  "pin": [
+   "defers a pinned-recipe input to the environment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile defers a pinned-recipe input to the environment: $(origin MILAN_EXTRA_CFLAGS) = undefined for a name the pinned recipe chain references, so the environment, not the Makefile, decides its value and the pinned commands cannot show the deferral (#162)"
+ },
+ {
+  "label": "compile flags injected through an $(eval) of a called template",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) text that is not a whole-line literal assignment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) text that is not a whole-line literal assignment ($(eval $(call inject,$(MILAN_EXTRA_CFLAGS)))): $(eval) expands its argument and parses the RESULT, so the text make reads is not the text in this file; only `$(eval NAME op VALUE)` on a line of its own has a parse the origin walker can prove, and is walked as that assignment; anything else is refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags routed through a computed $(call) first argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "computes a variable NAME at expansion time"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile computes a variable NAME at expansion time ($(call $(X))): a computed variable name defers the NAME itself, so no origin probe can enumerate what the environment decides; refused rather than modelled (#162)"
+ },
+ {
+  "label": "compile flags injected through a $(call eval,...) line",
+  "verdict": "REFUSED",
+  "pin": [
+   "reaches a make BUILT-IN function through $(call)"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile reaches a make BUILT-IN function through $(call) ($(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))): make dispatches $(call NAME,...) to the built-in when NAME names one, so this is that built-in written where no scan for its own token can see it -- $(call eval,...) parses text make reads, $(call file,...) writes a fragment this build can include -- and it is refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a ${call eval,...} line",
+  "verdict": "REFUSED",
+  "pin": [
+   "reaches a make BUILT-IN function through $(call)"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile reaches a make BUILT-IN function through $(call) (${call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS)}): make dispatches $(call NAME,...) to the built-in when NAME names one, so this is that built-in written where no scan for its own token can see it -- $(call eval,...) parses text make reads, $(call file,...) writes a fragment this build can include -- and it is refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a $(call eval,...) on an unwalked right-hand side",
+  "verdict": "REFUSED",
+  "pin": [
+   "reaches a make BUILT-IN function through $(call)"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile reaches a make BUILT-IN function through $(call) ($(call eval,CFLAGS += $(MILAN_EXTRA_CFLAGS))): make dispatches $(call NAME,...) to the built-in when NAME names one, so this is that built-in written where no scan for its own token can see it -- $(call eval,...) parses text make reads, $(call file,...) writes a fragment this build can include -- and it is refused rather than modelled (#410)"
+ },
+ {
+  "label": "a Makefile fragment written at parse time by $(call file,...)",
+  "verdict": "REFUSED",
+  "pin": [
+   "reaches a make BUILT-IN function through $(call)"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile reaches a make BUILT-IN function through $(call) ($(call file,>milan_baremetal.d,CFLAGS += $$(MILAN_EXTRA_CFLAGS))): make dispatches $(call NAME,...) to the built-in when NAME names one, so this is that built-in written where no scan for its own token can see it -- $(call eval,...) parses text make reads, $(call file,...) writes a fragment this build can include -- and it is refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through an $(eval) of a plain reference",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) text that is not a whole-line literal assignment"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) text that is not a whole-line literal assignment ($(eval $(MILAN_HOOK))): $(eval) expands its argument and parses the RESULT, so the text make reads is not the text in this file; only `$(eval NAME op VALUE)` on a line of its own has a parse the origin walker can prove, and is walked as that assignment; anything else is refused rather than modelled (#410)"
+ },
+ {
+  "label": "a Makefile fragment included by an $(eval) whose value expands to a second line",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) a value that can expand to more than one LINE"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) a value that can expand to more than one LINE ($(eval CFLAGS ...) reads $(MILAN_NL), whose value spans lines): make parses the EXPANSION, so the eval adds makefile lines this walker reads as the single assignment it parsed -- an `include` among them is outside the include-set pin, which reads the file text; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of the call's own argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(1)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of the second call argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(2)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of the tenth call argument",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(10)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of ${1}",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += ${1}) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of $1",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $1) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) of $(1) behind a function",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(strip $(1))) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) reaching $(1) through a named define",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(MILAN_ARG)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) reached by a computed $(call) name",
+  "verdict": "REFUSED",
+  "pin": [
+   "computes a variable NAME at expansion time"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile computes a variable NAME at expansion time ($(call $(MILAN_T),$(MILAN_EXTRA_CFLAGS))): a computed variable name defers the NAME itself, so no origin probe can enumerate what the environment decides; refused rather than modelled (#162)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) wrapped onto a continuation line",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(1)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a define-body $(eval) reached through a second define",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(1)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through an $(eval) in a define whose NAME is not an identifier",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(MILAN_FLAG)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(MILAN_FLAG)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected by a $(let) rebinding the pinned name a define-body $(eval) reads",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(MILAN_FLAG)) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "a literal define-body $(eval) the environment decides to run",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += -include ../shadow.h) in a define body, bound where that define is reached): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "a recipe $(eval) on a rule the environment adds",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += -include ../shadow.h) on a recipe line, run only when that rule runs): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a top-level $(eval) of $(1)",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(1)) reads $(1)): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a top-level $(eval) of $M",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $M) reads $M): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a top-level $(eval) reaching $(1) through a named define",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval CFLAGS += $(MILAN_ARG)) reads $(1) via $(MILAN_ARG)): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "compile flags injected through a top-level $(eval) whose $$ becomes a live reference",
+  "verdict": "REFUSED",
+  "pin": [
+   "hands $(eval) an assignment the walker cannot bind"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile hands $(eval) an assignment the walker cannot bind ($(eval MILAN_LATE = $$(1)) reads $$): $(eval) parses the EXPANSION, so a value read from a positional parameter, a computed or single-character reference, an escaped $$ or a trailing $, and an eval in a define body or recipe whose expansion context the file does not fix, is decided outside the text this walker read; refused rather than modelled (#410)"
+ },
+ {
+  "label": "pinned include shadowed by an -iquote search path",
+  "verdict": "REFUSED",
+  "pin": [
+   "the commands make would run are pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the commands make would run are pinned, and this Makefile changes them: one compile of the one source with the one added include path, and one archive of the one object. Anything else can inject a file into the translation unit, move which file is compiled, or link a second one in, whatever flag spelling carries it.\n  expected: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ /tmp/milan-make-js9c4xxw/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']\n  make runs: ['__CC__ -c __BASE_CFLAGS__ -I__BIOS__ -iquote shadow /tmp/milan-make-js9c4xxw/src/milan_baremetal.c -o milan_baremetal.o', '__AR__ crs libmilan_baremetal.a milan_baremetal.o']"
+ },
+ {
+  "label": "one object linked from two sources by an explicit rule",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-ni8xga9b/src/milan_baremetal.c', '/tmp/milan-make-ni8xga9b/src/milan_bringup.part.c']"
+ },
+ {
+  "label": "objects added by a Makefile fragment this gate does not read",
+  "verdict": "REFUSED",
+  "pin": [
+   "the Makefile's include set is pinned"
+  ],
+  "pin_ok": true,
+  "reason": "the Makefile's include set is pinned: make can only plan the fragments that exist, so a fragment named here and shipped later can assign OBJECTS or override the rule that builds the one object without this gate ever seeing it; found ['include ../include/generated/variables.mak', 'include $(SOC_DIRECTORY)/software/common.mak', '-include extra.mk', '-include $(OBJECTS:.o=.d)']"
+ },
+ {
+  "label": "second source injected by a -include compiler flag",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-wqs0jfyy/src/milan_baremetal.c', 'milan_bringup.c']"
+ },
+ {
+  "label": "compile recipe redefined to take a second source",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-dk9_558h/src/milan_baremetal.c', 'milan_bringup.c']"
+ },
+ {
+  "label": "second source injected by an exported assignment",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-ob5eyl01/src/milan_baremetal.c', 'milan_bringup.c']"
+ },
+ {
+  "label": "second source injected by a target-specific assignment",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-9s235uuc/src/milan_baremetal.c', 'milan_bringup.c']"
+ },
+ {
+  "label": "the compiled source directory moved out from under the rule",
+  "verdict": "REFUSED",
+  "pin": [
+   "make could not plan this Makefile"
+  ],
+  "pin_ok": true,
+  "reason": "make could not plan this Makefile, so what it builds is unknown and this gate refuses rather than report a clean result it did not take; make said \"make: *** No rule to make target 'milan_baremetal.o', needed by 'libmilan_baremetal.a'.  Stop.\""
+ },
+ {
+  "label": "ADP_CTRL reset value advertising the entity",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must reset adp_ctrl with bit 0 CLEAR"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must reset adp_ctrl with bit 0 CLEAR, but it resets to \"32'h00000a01\": o_adp_enable is then asserted from FPGA configuration onward, so the entity is advertised before any firmware has verified an AEM image"
+ },
+ {
+  "label": "PP_CTRL reset value enabling the protocol processor",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must reset pp_ctrl_r with bit 0 CLEAR"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must reset pp_ctrl_r with bit 0 CLEAR, but it resets to \"32'h1\": o_pp_enable is then asserted from FPGA configuration onward, so the entity is advertised before any firmware has verified an AEM image"
+ },
+ {
+  "label": "entity enabled through a CSR base held in a variable",
+  "verdict": "REFUSED",
+  "pin": [
+   "but a CSR pointer cast is used outside it"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, but a CSR pointer cast is used outside it: a raw store there reaches a control register without passing the bit-0 census"
+ },
+ {
+  "label": "one object linked from two sources by literally named tools",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-qzk105t4/src/milan_baremetal.c', '/tmp/milan-make-qzk105t4/src/milan_bringup.c']"
+ },
+ {
+  "label": "second object archived by a literally named ar",
+  "verdict": "REFUSED",
+  "pin": [
+   "make must compile exactly one source"
+  ],
+  "pin_ok": true,
+  "reason": "make must compile exactly one source, milan_baremetal.c, and its whole plan names another: the object this gate calls one translation unit is built from several; make touches ['/tmp/milan-make-7w0vnf8t/src/milan_baremetal.c', '/tmp/milan-make-7w0vnf8t/src/milan_bringup.c']"
+ },
+ {
+  "label": "ADP_CTRL reset written blocking with the enable bit set",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must reset adp_ctrl with bit 0 CLEAR"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must reset adp_ctrl with bit 0 CLEAR, but it resets to \"32'h00000a01\": o_adp_enable is then asserted from FPGA configuration onward, so the entity is advertised before any firmware has verified an AEM image"
+ },
+ {
+  "label": "ADP_CTRL given no reset value at all",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must give adp_ctrl a reset value"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must give adp_ctrl a reset value, and it has none: with no assignment outside the write decode, o_adp_enable holds whatever the fabric brings up and this rule would otherwise pass by having nothing to check"
+ },
+ {
+  "label": "ADP_CTRL reset and readback default both advertising",
+  "verdict": "REFUSED",
+  "pin": [
+   "the RTL must reset adp_ctrl with bit 0 CLEAR"
+  ],
+  "pin_ok": true,
+  "reason": "the RTL must reset adp_ctrl with bit 0 CLEAR, but it resets to \"32'h00000a01\": o_adp_enable is then asserted from FPGA configuration onward, so the entity is advertised before any firmware has verified an AEM image"
+ },
+ {
+  "label": "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_reg() must return exactly MILAN_CSR_BASE plus the offset"
+  ],
+  "pin_ok": true,
+  "reason": "milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed"
+ },
+ {
+  "label": "entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)",
+  "verdict": "REFUSED",
+  "pin": [
+   "milan_reg() must return exactly MILAN_CSR_BASE plus the offset"
+  ],
+  "pin_ok": true,
+  "reason": "milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed"
+ },
+ {
+  "label": "entity enabled through a phase-2-spliced call name",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a space phase-2 token splice",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a tab phase-2 token splice",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a form-feed phase-2 token splice",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a vertical-tab phase-2 token splice",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a spliced call name in a UART command handler",
+  "verdict": "REFUSED",
+  "pin": [
+   "not from entity_advertise()"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware asserts bit 0 of an entity-enable register from milan_status_handler(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+ },
+ {
+  "label": "PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins",
+  "verdict": "REFUSED",
+  "pin": [
+   "choke point holds exactly one enable per register"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware asserts PP_CTRL (CSR 0x920) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register"
+ },
+ {
+  "label": "entity enabled through a pasted call name",
+  "verdict": "REFUSED",
+  "pin": [
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": true,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'), ('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler",
+  "verdict": "ACCEPTED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "not from entity_advertise()"
+  ]
+ },
+ {
+  "label": "a pasted call name in an arm the stub tree drops",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "a spliced call name in an arm the stub tree drops",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "a spliced call name in an arm only the product compiles",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "a spliced call name onto a literal address in a dropped arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "is not the boot path the compiler COMPILES"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "a struct-overlay store at the ADP_CTRL address in a dropped arm",
+  "verdict": "REFUSED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "materialises one elsewhere"
+  ],
+  "pin_ok": false,
+  "reason": "the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the fabric configuration step', 'statements x15', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'), ('the fabric configuration step', 'statements x14', 'milan_write', 'milan_read', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_read', 'milan_write', 'milan_write', 'milan_write', 'milan_write', 'milan_write'))]. The preprocessed unit is the compiler's own answer, so a conditional selecting boot code, a backslash-newline joining two tokens and a `##` pasting a call name are all this one disagreement, whichever spelled it"
+ },
+ {
+  "label": "the verifier's QSPI-slot condition made false in the census stub tree",
+  "verdict": "REFUSED",
+  "pin": [
+   "bounded store(s) in load_aem_image()"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destination must be exactly one: the copy loop's store is the one store this unit makes whose address is a range, and a verifier whose copy this lattice can no longer bound is a verifier whose destination this gate cannot place, which is a REFUSAL, not a residual"
+ },
+ {
+  "label": "an arm only the product compiles, short-circuiting the choke point's verdict test",
+  "verdict": "ACCEPTED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "verdict argument against zero"
+  ]
+ },
+ {
+  "label": "entity enabled by an inline-asm store to the CSR address",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000600', 'li t0, 0x90000600')]"
+ },
+ {
+  "label": "entity enabled by a lui-based inline-asm store",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled through a widened pointer cast",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a reordered pointer cast",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a pointer held in a local",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler",
+  "verdict": "ACCEPTED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "materialises one elsewhere"
+  ]
+ },
+ {
+  "label": "entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler",
+  "verdict": "ACCEPTED",
+  "pin": [
+   "one of the firmwares the product may build",
+   "STORES into the Milan CSR window"
+  ]
+ },
+ {
+  "label": "pinned include shadowed by a file beside the firmware",
+  "verdict": "REFUSED",
+  "pin": [
+   "a pinned include resolved to a file this repository supplies"
+  ],
+  "pin_ok": true,
+  "reason": "a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-y79j11ri/command.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the tree it was handed"
+ },
+ {
+  "label": "the second pinned quoted include shadowed by a file beside the firmware",
+  "verdict": "REFUSED",
+  "pin": [
+   "a pinned include resolved to a file this repository supplies"
+  ],
+  "pin_ok": true,
+  "reason": "a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-8o_bldxs/init.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the tree it was handed"
+ },
+ {
+  "label": "pinned include shadowed by a LINK beside the firmware to a file outside this repository",
+  "verdict": "REFUSED",
+  "pin": [
+   "a pinned include resolved to a file this repository supplies"
+  ],
+  "pin_ok": true,
+  "reason": "a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-k5uv9m85/command.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no name changing anywhere -- measured by the PATH the preprocessor opened and the file it reached, in the tree it was handed"
+ },
+ {
+  "label": "entity enabled through a typedef'd pointer and an access macro",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a struct overlay and an -> store",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a typedef'd pointer and a subscript store",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled through a qualifier-after-star cast",
+  "verdict": "REFUSED",
+  "pin": [
+   "materialises one elsewhere"
+  ],
+  "pin_ok": true,
+  "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+ },
+ {
+  "label": "entity enabled by a struct-overlay store through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by a subscript store through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000920. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by a store behind a brace-less if",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by a struct-overlay store through a base derived from a runtime CSR read",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(bits(set=0x600,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "a store the resolver cannot place, added inside the AEM verifier whose copy store is placed",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: load_aem_image() through unplaced x1 ['unplaced(bits(set=0x600,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "the AEM copy destination redirected onto ADP_CTRL by a runtime CSR read, keeping the retired residual's key and count",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: load_aem_image() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "the AEM copy destination made unresolvable while keeping one unplaced store in the verifier",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: load_aem_image() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "the AEM copy destination bounded but outside the buffer the CRC verdict is taken over",
+  "verdict": "REFUSED",
+  "pin": [
+   "the AEM copy loop's destination"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware bounds the AEM copy loop's destination to [0x20000000..0x20000fff], which is not inside the AEM buffer [0x7f700000..0x7f700fff] the CRC verdict is taken over: a copy that provably lands elsewhere leaves the CRC checking bytes this loop never wrote, so the verdict would be about a buffer the boot path did not fill"
+ },
+ {
+  "label": "entity enabled through an extern symbol the linker places",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through sym(milan_linker_adp) x1 ['sym(milan_linker_adp)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "AEM verifier reaching its success return by goto past the CRC comparison",
+  "verdict": "REFUSED",
+  "pin": [
+   "CRC-equality edge REMOVED"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled AEM verifier can hand back a verdict this gate cannot resolve to zero (None) with the CRC-equality edge REMOVED: that edge does not dominate every non-zero verdict, so a goto, a break or any other path past the comparison advertises an entity whose image was never checked"
+ },
+ {
+  "label": "AEM verifier reaching its success return by a structured break past the CRC comparison",
+  "verdict": "REFUSED",
+  "pin": [
+   "CRC-equality edge REMOVED"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled AEM verifier can hand back a verdict this gate cannot resolve to zero (None) with the CRC-equality edge REMOVED: that edge does not dominate every non-zero verdict, so a goto, a break or any other path past the comparison advertises an entity whose image was never checked"
+ },
+ {
+  "label": "CRC result overwritten between the call and the comparison",
+  "verdict": "REFUSED",
+  "pin": [
+   "never compares the value crc32() HANDED BACK"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled AEM verifier never compares the value crc32() HANDED BACK against MILAN_AEM_IMAGE_CRC32 (0xdeadbeef): the compared value is tracked from its producer, so an assignment of the expected constant to the same local between the call and the comparison, or a comparison in a preprocessor arm the compiler drops, leaves nothing here to find"
+ },
+ {
+  "label": "CRC taken over the QSPI source instead of the descriptor buffer",
+  "verdict": "REFUSED",
+  "pin": [
+   "takes its CRC over"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled AEM verifier takes its CRC over 0x20e00000, not over MILAN_AEM_DESC_BASE (0x7f700000): the descriptor store serves the DRAM buffer, so a CRC over the QSPI source leaves a short copy, a wrong destination or a DRAM fault invisible. Resolved from the emitted call operand"
+ },
+ {
+  "label": "entity enable hidden in a continuation-line macro body and invoked from a UART handler",
+  "verdict": "REFUSED",
+  "pin": [
+   "not from entity_advertise()"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware asserts bit 0 of an entity-enable register from milan_status_handler(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+ },
+ {
+  "label": "entity enable hidden after form-feed macro continuation whitespace",
+  "verdict": "REFUSED",
+  "pin": [
+   "not from entity_advertise()"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware asserts bit 0 of an entity-enable register from milan_status_handler(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+ },
+ {
+  "label": "choke point's address stored in a table and called through it from a UART handler",
+  "verdict": "REFUSED",
+  "pin": [
+   "ENTRANCE into the choke point this gate cannot tie to the AEM verdict"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware forms the ADDRESS of entity_advertise(), which is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: a symbol another translation unit can name, or an address parked in a table and reached through jalr, is a call site this unit's assembly never shows, so no rule here can say what verdict the choke point is entered with, and the dominance measured below would hold for a synthetic argument and for nothing else"
+ },
+ {
+  "label": "a second direct call to the choke point, spelled past the source rule's call counter",
+  "verdict": "REFUSED",
+  "pin": [
+   "ENTRANCE into the choke point this gate cannot tie to the AEM verdict"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exactly once: a second call site is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict, and one edge from the boot path is what makes the argument resolved next the only argument this function is ever handed"
+ },
+ {
+  "label": "the verifier's verdict overwritten through an alias the assignment rule cannot see",
+  "verdict": "REFUSED",
+  "pin": [
+   "entered with a verdict this gate cannot trace to the AEM verifier"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware enters entity_advertise() with [1] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assignment between the verifier and the call does not change the answer -- and an argument this resolver cannot resolve is a REFUSAL, never a default of verified"
+ },
+ {
+  "label": "an indirect call whose target is not the choke point at all",
+  "verdict": "REFUSED",
+  "pin": [
+   "ENTRANCE into the choke point this gate cannot tie to the AEM verdict"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through s1. An instrument that cannot place a call edge must REFUSE it rather than assume where it goes, because entity_advertise() is precisely what it cannot rule out"
+ },
+ {
+  "label": "a global alias of the choke point, which exports neither this name nor its address",
+  "verdict": "REFUSED",
+  "pin": [
+   "ENTRANCE into the choke point this gate cannot tie to the AEM verdict"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware names entity_advertise() in a form this gate does not recognise as the definition of a private function or a direct call to it, so it must read it as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: ['.set entity_advertise_public,entity_advertise']"
+ },
+ {
+  "label": "a second CRFT_CTRL write planted in the choke point",
+  "verdict": "REFUSED",
+  "pin": [
+   "resolved boot-word census"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware writes CRFT_CTRL (CSR 0x750) from ['configure_fabric', 'entity_advertise']: the declaration owns the CRF talker, so the WHOLE firmware makes exactly one write to it and configure_fabric() makes it. This is the resolved boot-word census, resolved from the emitted operands"
+ },
+ {
+  "label": "the retired ADP_CAPS write planted back outside configure_fabric()",
+  "verdict": "REFUSED",
+  "pin": [
+   "resolved boot-word census"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware writes ADP_ECAPS (CSR 0x614) from entity_advertise(): nothing reads that word -- the ADPDU carries the processor's own ADP_ENTITY_CAPS_C (#398) -- so the whole firmware writes it never. This is the resolved boot-word census"
+ },
+ {
+  "label": "entity enabled by a float struct-overlay store through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by a double struct-overlay store through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600, 0x90000604. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by an atomic exchange through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by an atomic fetch-or through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled by an atomic compare-exchange through a paged base",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORES into the Milan CSR window"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+ },
+ {
+  "label": "entity enabled through a local rewritten by a union byte store at its own offset",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "entity enabled through a local rewritten by a union half-word store at its own offset",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "entity enabled through a local rewritten by an integer store through a pointer to it",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "entity enabled through a local rewritten by a float store through a pointer to it",
+  "verdict": "REFUSED",
+  "pin": [
+   "STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced"
+  ],
+  "pin_ok": true,
+  "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime-derived page, a pointer this unit never forms, or a store operand this resolver cannot even read all land here"
+ },
+ {
+  "label": "MAKEFLAGS += -e letting the environment choose",
+  "verdict": "REFUSED",
+  "pin": [
+   "lets the ENVIRONMENT decide what gets compiled"
+  ],
+  "pin_ok": true,
+  "reason": "this Makefile lets the ENVIRONMENT decide what gets compiled: planned under a hostile environment it builds something else, so the file this gate reads is not necessarily the file the build compiles"
+ }
+]

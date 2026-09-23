@@ -1,0 +1,44 @@
+# GCC line terminators: pinned SDK preprocessor (14.3.0, riscv32-buildroot-linux-gnu)
+## input cr.c (cat -A)
+int a;^M#define X 7^Mint b = X;$
+int c = mil\^Man;$
+#ifdef Q$
+int d;$
+#endif$
+## gcc -std=gnu99 -E cr.c | grep -v '^#' (cat -A)
+int a;$
+$
+int b = 7;$
+int c = milan;$
+## input ff.c (cat -A)
+int a;$
+^L#define X 7$
+int b = X;$
+^K#define Y 8$
+int c = Y;$
+int d = (^M#ifdef Q^M1 &&^M#endif^M2);$
+## gcc -std=gnu99 -E ff.c
+int a;$
+$
+int b = 7;$
+$
+int c = 8;$
+int d = ($
+$
+$
+$
+2);$
+## gcc -std=gnu99 -DQ -E ff.c
+int a;$
+$
+int b = 7;$
+$
+int c = 8;$
+int d = ($
+$
+1 &&$
+$
+2);$
+## python re: (?m)^[ \t]*# matches in ff.c/cr.c
+cr.c ['#ifdef', '#endif']
+ff.c []

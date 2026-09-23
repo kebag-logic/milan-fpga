@@ -1,0 +1,15 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED V1a form feed before #: product-only arm with a literal-address cast store in a UART handler
+ACCEPTED V1b vertical tab before #: the same store
+ACCEPTED V1c NUL before #: the same store
+ACCEPTED V1d lone CR before #: the same store
+ACCEPTED V1e form feed before #: product-only arm with a lui/sw asm store
+ACCEPTED V1f control: plain # product-only arm with the literal cast store
+ACCEPTED V2a identity local forged by a SPLICE between the read and the guard
+ACCEPTED V2b identity local forged by a PASTE between the read and the guard
+ACCEPTED V2c identity local forged by a plain function-like macro (pre-existing control)
+ACCEPTED V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD
+ACCEPTED V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD
+ACCEPTED V4 unterminated character literals in two #defines bracketing a product-only literal-address store
+mode=absent disconnect=[] compiles=0 cases=12
+exit=0

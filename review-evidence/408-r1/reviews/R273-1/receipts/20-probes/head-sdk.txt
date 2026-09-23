@@ -1,0 +1,45 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+ACCEPTED ACC1 an #ifdef around a debug printf INSIDE milan_init()
+ACCEPTED ACC2 a benign statement in an arm the census tree drops, inside configure_fabric()
+ACCEPTED ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+ACCEPTED ACC4 a ## token paste building a call outside the boot path
+ACCEPTED ACC5 a token-joining backslash-newline inside a macro body
+ACCEPTED ACC6 a read-only #define accessor over milan_read()
+ACCEPTED ACC7 a fifth cast to a pointer, resolving outside the window
+ACCEPTED ACC8 a fifth store through a pointer, resolving outside the window
+ACCEPTED ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or removed
+ACCEPTED ACC10 a fifth inline-asm statement, a fence in a UART command handler
+REFUSED  H1 function pointer to milan_write built by a SPLICE, called from a UART handler
+         -> the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rath
+REFUSED  H2 function pointer to milan_write built by a PASTE, called from a UART handler
+         -> the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as an ENTRANCE into the choke point this gate cannot tie to the AEM verdict: milan_status_handler() at .L307 through a5. An instrument that cannot place a call edge must REFUSE it rath
+REFUSED  H3 second choke-point call built by a SPLICE, in a UART handler
+         -> the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exactly once: a second call site is an ENTRANCE into the choke point this gate cannot tie to the AEM verdict, and one edge from the boot path is what makes the argument resolved next th
+REFUSED  H4 verdict overwritten by a PASTE between the verifier and the choke point
+         -> the compiled firmware enters entity_advertise() with [1] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assign
+REFUSED  H5 verdict overwritten by a SPLICE between the verifier and the choke point
+         -> the compiled firmware enters entity_advertise() with [1] rather than with the one value load_aem_image() handed back, so it is entered with a verdict this gate cannot trace to the AEM verifier. The argument is tracked from its PRODUCER through the emitted code, so an alias, a macro body or an assign
+REFUSED  H11 store through milan_reg() built by a PASTE, in a UART handler
+         -> the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 store(s)): that return is the ONE address this firmware may reach a control register through, so exactly one function may store through it and it must be the milan_write() whose operands the bit
+REFUSED  H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+         -> the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_aem_image', 'entity_advertise'), ('the boot entry point', 'statements x8', 'milan_
+ACCEPTED H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+ACCEPTED H8 verifier QSPI-slot group with its #else arm deleted (the no-slot build falls off the end of load_aem_image())
+ACCEPTED H9 verifier #else behind a lone CR, its hidden arm returning 1
+REFUSED  H10 product-only 0 && in the choke point's verdict test (the gate's own control, graded here in both environments)
+         -> under the arm selection line 1396 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionall
+ACCEPTED H12 the same product-only 0 && with its directives behind lone CRs
+ACCEPTED H13 the same product-only 0 && with its directives behind form feeds
+ACCEPTED H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lone-CR #ifndef (census keeps it, product drops it)
+ACCEPTED ACC11 a README and a notes.txt beside the firmware
+REFUSED  H15 a LINK named init.h beside the firmware to a file outside
+         -> a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-xuo0atj2/init.h']. A quoted include resolves against the including file's directory FIRST, so a file or a link there answers to a pinned name and puts text this gate never read behind it with no nam
+mode=sdk disconnect=[] compiles=58 cases=26
+exit=0
