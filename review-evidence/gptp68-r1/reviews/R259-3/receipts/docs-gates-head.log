@@ -1,0 +1,20 @@
+# receipt docs-gates-head
+# command: sh $DATA/reviews/gptp68-r259-3-packet/scripts/docs_gates.sh
+# started 2026-09-23T18:26:53Z
+== make contract
+python3 tb/check_phc_contract.py
+PHC interface contract: PASS
+== make docs
+python3 scripts/generate_diagrams.py --check
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+python3 scripts/generate_diagrams.py --selftest
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+== em-dash (U+2014) and en-dash (U+2013) in lines added base..head
+added lines with U+2014: 0; with U+2013: 0
+== non-ASCII characters in lines added to docs/
+none
+# finished 2026-09-23T18:26:54Z exit 0

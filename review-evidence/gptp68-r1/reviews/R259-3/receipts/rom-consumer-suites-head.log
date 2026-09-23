@@ -1,0 +1,16 @@
+# receipt rom-consumer-suites-head
+# command: sh $DATA/reviews/gptp68-r259-3-packet/scripts/rom_consumer_suites.sh
+# started 2026-09-23T18:28:40Z
+== tb/verilator/ucpu (image sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb)
+make: Entering directory '$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/verilator/ucpu'
+$DATA/tmp/372-manager-candidate1/pinned-tool-bin/verilator --cc --exe --build -j 8 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' --top-module KL_gptp_ucpu -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/verilator/ucpu" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv sim_main.cpp -o Vucpu_sim
+./obj_dir/Vucpu_sim
+768 checks: 768 PASS, 0 FAIL
+make: Leaving directory '$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/verilator/ucpu'
+== tb/tsngen (image sha256 5c916f49511295eabf883c4476d12c12322d9a6a9cd878642bdda67f8ff51127)
+make: Entering directory '$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/tsngen'
+$DATA/tmp/372-manager-candidate1/pinned-tool-bin/verilator --cc --exe --build -j 8 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' --top-module KL_gptp_engine -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/tsngen" ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv tsngen_main.cpp -o Vtsngen
+python3 run_tsngen.py
+288 checks: 288 PASS, 0 FAIL
+make: Leaving directory '$DATA/reviews/gptp68-r259-3-packet/scratch/rom-suites-head/tb/tsngen'
+# finished 2026-09-23T18:28:53Z exit 0

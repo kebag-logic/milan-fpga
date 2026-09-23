@@ -1,0 +1,156 @@
+# receipt probe-phases-head
+# command: python3 $DATA/reviews/gptp68-r259-3-packet/scripts/mutation_probe.py $DATA/reviews/gptp68-r259-3-packet/scratch/probe-head/tb/verilator/engine/obj_dir/Vengine_probe $DATA/reviews/gptp68-r259-3-packet/scratch/probe-head --set probe
+# started 2026-09-23T18:30:39Z
+[pass] control (head generator)  (1432 checks: 1432 PASS, 0 FAIL)
+    property: must pass
+[caught] A a receipt timeout unlocks the servo  (1432 checks: 1401 PASS, 31 FAIL)
+    property: the servo stays locked across a Sync receipt timeout
+    FAIL receipt timeout, same GM, +50 us: step pulses
+    FAIL receipt timeout, same GM, +50 us: addend matches the mirror
+    FAIL receipt timeout, same GM, +50 us: no step pulse
+    FAIL receipt timeout, same GM, +150 us: addend matches the mirror
+    FAIL receipt timeout, same GM, +150 us: one step pulse
+    FAIL link-up +15 us: addend matches the mirror
+    FAIL link-up +25 us: addend matches the mirror
+    FAIL link-up +25 us: the step writes the bare estimate
+    FAIL link-up -15 us: addend matches the mirror
+    FAIL link-up -25 us: addend matches the mirror
+    FAIL link-up -25 us: the step writes the bare estimate
+    FAIL link-up +20 us: addend matches the mirror
+    FAIL link-up -20 us: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+    FAIL link-up -20 us - 1 ns: addend matches the mirror
+    FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+    FAIL locked +110 us: addend matches the mirror
+    FAIL locked -110 us: addend matches the mirror
+    FAIL failover, -50 us: step pulses
+    FAIL failover, -50 us: addend matches the mirror
+    FAIL failover, -50 us: no step pulse
+    FAIL failover, +150 us: addend matches the mirror
+    FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+    FAIL warm-reset link-up: first pair: addend matches the mirror
+    FAIL warm-reset link-up: +25 us: addend matches the mirror
+    FAIL P1: first pair, 3 us: addend matches the mirror
+    FAIL P1: link-up after a lost-response fall, +50 us steps: addend matches the mirror
+    FAIL P5: after a gap, +100 us slews: step pulses
+    FAIL P5: after a gap and a GM change, -100 us slews: step pulses
+    FAIL P5: after a gap and a GM change, -100 us slews: addend matches the mirror
+[caught] A becoming grandmaster unlocks the servo  (1432 checks: 1419 PASS, 13 FAIL)
+    property: the servo stays locked across a return from mastership
+    FAIL return from mastership, +50 us: step pulses
+    FAIL return from mastership, +50 us: addend matches the mirror
+    FAIL return from mastership, +50 us: no step pulse
+    FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+    FAIL warm-reset link-up: first pair: addend matches the mirror
+    FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+    FAIL warm-reset link-up: +25 us: addend matches the mirror
+    FAIL P1: first pair, 3 us: addend matches the mirror
+    FAIL P1: locked +30 us slews: addend matches the mirror
+    FAIL P1: link-up after a lost-response fall, +50 us steps: addend matches the mirror
+    FAIL P2: first pair, 3 us: addend matches the mirror
+    FAIL P2: link-up after cease and resume, +50 us steps: addend matches the mirror
+    FAIL P3: first pair since the rise, after mastership, +50 us steps: addend matches the mirror
+[caught] A the locked threshold is 200 us  (1411 checks: 1353 PASS, 58 FAIL)
+    property: a locked pair steps over 100 us, after a receipt timeout too
+    FAIL receipt timeout, same GM, +150 us: step pulses
+    FAIL receipt timeout, same GM, +150 us: addend matches the mirror
+    FAIL receipt timeout, same GM, +150 us: one step pulse
+    FAIL link-up +25 us: addend matches the mirror
+    FAIL link-up +25 us: the step writes the bare estimate
+    FAIL link-up -15 us: addend matches the mirror
+    FAIL link-up -25 us: addend matches the mirror
+    FAIL link-up -25 us: the step writes the bare estimate
+    FAIL link-up -20 us: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+    FAIL link-up -20 us - 1 ns: addend matches the mirror
+    FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+    FAIL locked +110 us: step pulses
+    FAIL locked +110 us: addend matches the mirror
+    FAIL locked -110 us: step pulses
+    FAIL locked -110 us: addend matches the mirror
+    FAIL locked +100 us + 1 ns: step pulses
+    FAIL locked +100 us + 1 ns: addend matches the mirror
+    FAIL locked -100 us - 1 ns: step pulses
+    FAIL locked -100 us - 1 ns: addend matches the mirror
+    FAIL locked: one step pulse per probe over 100 us
+    FAIL slew addend matches the PI mirror
+    FAIL closed loop pair 0: addend matches the mirror
+    FAIL integrator survives the step
+    FAIL closed loop pair 1: addend matches the mirror
+    FAIL closed loop pair 2: addend matches the mirror
+    FAIL closed loop pair 3: addend matches the mirror
+    FAIL closed loop pair 4: addend matches the mirror
+    FAIL closed loop pair 5: addend matches the mirror
+    FAIL closed loop pair 6: addend matches the mirror
+    FAIL closed loop pair 7: addend matches the mirror
+    FAIL closed loop pair 8: addend matches the mirror
+    FAIL closed loop pair 9: addend matches the mirror
+    FAIL closed loop pair 10: addend matches the mirror
+    FAIL closed loop pair 11: addend matches the mirror
+    FAIL closed loop pair 12: addend matches the mirror
+    FAIL closed loop pair 13: addend matches the mirror
+    FAIL closed loop pair 14: addend matches the mirror
+    FAIL closed loop pair 15: addend matches the mirror
+    FAIL closed loop pair 16: addend matches the mirror
+    FAIL closed loop pair 17: addend matches the mirror
+    FAIL closed loop pair 18: addend matches the mirror
+    FAIL closed loop pair 19: addend matches the mirror
+    FAIL closed loop pair 20: addend matches the mirror
+    FAIL closed loop pair 21: addend matches the mirror
+    FAIL closed loop pair 22: addend matches the mirror
+    FAIL closed loop pair 23: addend matches the mirror
+    FAIL failover, +150 us: step pulses
+    FAIL failover, +150 us: addend matches the mirror
+    FAIL failover, +150 us: one step pulse
+    FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+    FAIL warm-reset link-up: first pair: addend matches the mirror
+    FAIL warm-reset link-up: +25 us: addend matches the mirror
+    FAIL P1: first pair, 3 us: addend matches the mirror
+    FAIL P1: link-up after a lost-response fall, +50 us steps: addend matches the mirror
+    FAIL P5: after a gap, -(100 us + 1 ns) steps: step pulses
+    FAIL P5: after a gap, -(100 us + 1 ns) steps: addend matches the mirror
+[caught] A asCapable's rise keeps the lock  (1405 checks: 1379 PASS, 26 FAIL)
+    property: the first pair after asCapable rises, or after a reset, is a link-up
+    FAIL link-up +25 us: step pulses
+    FAIL link-up +25 us: addend matches the mirror
+    FAIL link-up +25 us: the step writes the bare estimate
+    FAIL link-up -15 us: addend matches the mirror
+    FAIL link-up -25 us: step pulses
+    FAIL link-up -25 us: addend matches the mirror
+    FAIL link-up -25 us: the step writes the bare estimate
+    FAIL link-up -20 us: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: step pulses
+    FAIL link-up +20 us + 1 ns: addend matches the mirror
+    FAIL link-up +20 us + 1 ns: the step writes the bare estimate
+    FAIL link-up -20 us - 1 ns: step pulses
+    FAIL link-up -20 us - 1 ns: addend matches the mirror
+    FAIL link-up -20 us - 1 ns: the step writes the bare estimate
+    FAIL link-up: one step pulse per probe over 20 us
+    FAIL link-up after asCapable returns, -25 us: step pulses
+    FAIL link-up after asCapable returns, -25 us: addend matches the mirror
+    FAIL warm-reset link-up: first pair: addend matches the mirror
+    FAIL warm-reset link-up: locked +30 us: addend matches the mirror
+    FAIL warm-reset link-up: +25 us: step pulses
+    FAIL warm-reset link-up: +25 us: addend matches the mirror
+    FAIL P1: first pair, 3 us: addend matches the mirror
+    FAIL P1: link-up after a lost-response fall, +50 us steps: step pulses
+    FAIL P1: link-up after a lost-response fall, +50 us steps: addend matches the mirror
+    FAIL P2: link-up after cease and resume, +50 us steps: step pulses
+    FAIL P3: first pair since the rise, after mastership, +50 us steps: step pulses
+[caught] RV2 the delay-threshold fall re-arms, the rise does not  (1420 checks: 1413 PASS, 7 FAIL)
+    property: every asCapable rise, whatever made it fall, re-arms the link-up
+    FAIL warm-reset link-up: +25 us: step pulses
+    FAIL warm-reset link-up: +25 us: addend matches the mirror
+    FAIL P1: first pair, 3 us: addend matches the mirror
+    FAIL P1: link-up after a lost-response fall, +50 us steps: step pulses
+    FAIL P1: link-up after a lost-response fall, +50 us steps: addend matches the mirror
+    FAIL P2: link-up after cease and resume, +50 us steps: step pulses
+    FAIL P3: first pair since the rise, after mastership, +50 us steps: step pulses
+[caught] RV5 the Follow_Up receipt timeout unlocks the servo  (1432 checks: 1431 PASS, 1 FAIL)
+    property: only an asCapable rise unlocks
+    FAIL P4: after a lost Follow_Up, locked +50 us slews: step pulses
+
+runs 7; unexpected outcomes 0
+# finished 2026-09-23T18:31:19Z exit 0

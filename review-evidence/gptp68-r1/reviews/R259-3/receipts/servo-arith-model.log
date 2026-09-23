@@ -1,0 +1,18 @@
+# receipt servo-arith-model
+# command: python3 $DATA/reviews/gptp68-r259-3-packet/scripts/servo_arith_model.py
+# started 2026-09-23T18:26:51Z
+(a) threshold decision == (-T <= off <= T): 824024 offsets, T in 20 us / 100 us
+(b) clk   2000000: lim 1677722; e_sat == clamp and == base integrator clamp
+(b) clk  25000000: lim 134218; e_sat == clamp and == base integrator clamp
+(b) clk  50000000: lim 67109; e_sat == clamp and == base integrator clamp
+(b) clk 100000000: lim 33554; e_sat == clamp and == base integrator clamp
+(b) clk 125000000: lim 26844; e_sat == clamp and == base integrator clamp
+(c) every DIVU divisor fits the 32-bit divisor field
+(d) clk   2000000: gain 4295, worst |PI| at 100 us 6710925 (4.00 x the envelope), clamped to 1677722
+(d) clk  25000000: gain 344, worst |PI| at 100 us 537343 (4.00 x the envelope), clamped to 134218
+(d) clk  50000000: gain 172, worst |PI| at 100 us 268672 (4.00 x the envelope), clamped to 67109
+(d) clk 100000000: gain 86, worst |PI| at 100 us 134336 (4.00 x the envelope), clamped to 33554
+(d) clk 125000000: gain 69, worst |PI| at 100 us 107703 (4.01 x the envelope), clamped to 26844
+
+0 failure(s)
+# finished 2026-09-23T18:26:53Z exit 0

@@ -1,0 +1,30 @@
+# receipt identity-end
+# command: sh $DATA/reviews/gptp68-r259-3-packet/scripts/identity.sh
+# started 2026-09-23T18:31:19Z
+== clone
+HEAD ba9268100ebe92dfc61aed30e2910245fc8c97cf
+tree 5a02fa35db15d9a773895f82bb17020b55cfa775
+expect HEAD ba9268100ebe92dfc61aed30e2910245fc8c97cf tree 5a02fa35db15d9a773895f82bb17020b55cfa775
+identity: MATCH
+status-porcelain-lines 0
+index-vs-HEAD diff lines 0
+worktree-vs-index diff lines 0
+ls-files -s sha256 0dda67adea2502a2e5749665dd6a2cabf6fc0cb9c4ab82250584530879e150ed
+ls-tree -r HEAD sha256 dbd6a8ce215b29641c5eef7a9a3b4be5b0f21a72ed75d14604bdcd90f2c67953
+gitlinks (mode 160000): 0
+assume-unchanged/skip-worktree flags: 0
+tracked blobs byte/mode check: MATCH
+commits base..head:
+  ba9268100ebe92dfc61aed30e2910245fc8c97cf Re-arm the link-up threshold only on an asCapable rise, so a Sync lapse or mastership stays locked (#68)
+  cbccf226068c107fb30764891c98b8d70c54d775 Step over 20 us at link-up and over 100 us once locked, and clamp the whole trim to 200 ppm (#68)
+  77c34e904eba2446755d13e1bf4763d1652c3ca7 Step the PHC only on a first synchronization over one second (#68)
+== pinned simulator
+wrapper $DATA/tmp/372-manager-candidate1/pinned-tool-bin/verilator
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $DATA/tmp/372-manager-candidate1/pinned-tool-bin/verilator
+script $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  $HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin
+Verilator 5.050 2026-07-01 rev v5.050
+system verilator (not used): Verilator 5.052 2026-09-05 rev v5.052
+python3 Python 3.14.7
+# finished 2026-09-23T18:31:20Z exit 0

@@ -1,0 +1,41 @@
+# receipt rom-check
+# command: python3 $DATA/reviews/gptp68-r259-3-packet/scripts/rom_check.py
+# started 2026-09-23T18:26:50Z
+== 1. tracked images equal the head generator's output
+tb/verilator/engine/gptp_ucode.hex args=--clk-hz 2000000 --cease-ms 3000
+  tracked sha256 938b0a117b94068a2eb173721292726c9a337d9e4d60c4599650b321c6b2bc3d
+  regen   sha256 938b0a117b94068a2eb173721292726c9a337d9e4d60c4599650b321c6b2bc3d  EQUAL
+  1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+tb/tsngen/gptp_ucode.hex args=--clk-hz 2000000
+  tracked sha256 5c916f49511295eabf883c4476d12c12322d9a6a9cd878642bdda67f8ff51127
+  regen   sha256 5c916f49511295eabf883c4476d12c12322d9a6a9cd878642bdda67f8ff51127  EQUAL
+  1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+tb/verilator/ucpu/gptp_ucode.hex args=(defaults)
+  tracked sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+  regen   sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb  EQUAL
+  1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+syn/ooc/work/gptp_ucode.hex args=(defaults)
+  tracked sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+  regen   sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb  EQUAL
+  1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+image engine --seq-seed 0x200000: sha256 ad5d78536ee36250e999dcd8aee09035e14a5099424b50e93d8b06cf2ee565ba
+image engine --sync-seq-seed 0x10000: sha256 4b067ed5ef5bf38098d7b10df8c0307a95ebddaead5f06707a3ad65adad85eb0
+image --clk-hz 2000000: sha256 5c916f49511295eabf883c4476d12c12322d9a6a9cd878642bdda67f8ff51127
+image --clk-hz 25000000: sha256 32b66ad80e8d3b2532b98a995aa080a5f3df0ac937b98f21cbc462dcc4ae6323
+image --clk-hz 50000000: sha256 105fdf23a81704dd18c27db1d0fd7d9aa4455add8720b49be45540817c451120
+image --clk-hz 100000000: sha256 4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+image --clk-hz 125000000: sha256 50f2944287ec49575f3ec4876400b7a1b3fc5ba71998d90f13d35387b4b38841
+== 2. per-program content at the head's addresses
+    2000000 Hz vs base: real words 989->994; content differs: PDPAIR(59->61 words), SERVO(48->51 words); moved: SYNCTX 957->959, RESUME 1014->1016, PDREQ 898->900
+   25000000 Hz vs base: real words 989->994; content differs: PDPAIR(59->61 words), SERVO(48->51 words); moved: SYNCTX 957->959, RESUME 1014->1016, PDREQ 898->900
+   50000000 Hz vs base: real words 989->994; content differs: PDPAIR(59->61 words), SERVO(48->51 words); moved: SYNCTX 957->959, RESUME 1014->1016, PDREQ 898->900
+  100000000 Hz vs base: real words 989->994; content differs: PDPAIR(59->61 words), SERVO(48->51 words); moved: SYNCTX 957->959, RESUME 1014->1016, PDREQ 898->900
+  125000000 Hz vs base: real words 989->994; content differs: PDPAIR(59->61 words), SERVO(48->51 words); moved: SYNCTX 957->959, RESUME 1014->1016, PDREQ 898->900
+    2000000 Hz vs prev: real words 996->994; content differs: BECOME(22->21 words), SRTO(6->5 words); moved: BECOME 103->159, SRTO 249->59, FUTO 59->125, TXLOST 159->103, TXT1OK 181->180
+   25000000 Hz vs prev: real words 996->994; content differs: BECOME(22->21 words), SRTO(6->5 words); moved: BECOME 103->159, SRTO 249->59, FUTO 59->125, TXLOST 159->103, TXT1OK 181->180
+   50000000 Hz vs prev: real words 996->994; content differs: BECOME(22->21 words), SRTO(6->5 words); moved: BECOME 103->159, SRTO 249->59, FUTO 59->125, TXLOST 159->103, TXT1OK 181->180
+  100000000 Hz vs prev: real words 996->994; content differs: BECOME(22->21 words), SRTO(6->5 words); moved: BECOME 103->159, SRTO 249->59, FUTO 59->125, TXLOST 159->103, TXT1OK 181->180
+  125000000 Hz vs prev: real words 996->994; content differs: BECOME(22->21 words), SRTO(6->5 words); moved: BECOME 103->159, SRTO 249->59, FUTO 59->125, TXLOST 159->103, TXT1OK 181->180
+
+0 failure(s)
+# finished 2026-09-23T18:26:51Z exit 0
