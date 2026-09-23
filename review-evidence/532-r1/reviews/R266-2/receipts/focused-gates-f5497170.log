@@ -1,0 +1,53 @@
+$ python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 299 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+rc=0
+
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 847 tracked first-party file(s))
+rc=0
+
+$ python3 scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (441 arm(s))
+rc=0
+
+$ python3 scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+
+$ python3 scripts/check_sh_idiom.py
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+rc=0
+
+$ python3 scripts/ci_events.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (1631 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+rc=0
+
+$ python3 scripts/check_doc_paths.py
+doc path gate: OK (835 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+
+$ python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 f5497170a2c444e01175683606310dbe7fbb2816
+rc=0
+
+$ bash -n scripts/act_slot_proof.sh
+rc=0
+

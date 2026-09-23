@@ -1,0 +1,9 @@
+base a37af3c6 (published sandbox log): 363 arms, 0 FAIL
+head f5497170 (published sandbox log): 422 arms, 0 FAIL
+head f5497170 (hosted docs-check job 107331098784): 422 arms, 0 FAIL
+hosted label set == sandbox label set at head: True
+base labels absent at head: 4; head labels new: 63
+  base-only: the firewall loaded is exactly the slot's rules
+  base-only: the namespace, memory cap, firewall and every teardown command are pinned word for word
+  base-only: the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+  base-only: the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI and the real clock

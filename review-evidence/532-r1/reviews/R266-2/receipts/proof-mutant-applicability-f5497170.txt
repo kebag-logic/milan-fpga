@@ -1,0 +1,17 @@
+target act_slot_proof.sh sha256=84d1777f5719f270e851d78f50e2e011ca2115ef38c4c4f972c398f3ab63a7cb
+ok   occurrences=1 control comment
+ok   occurrences=1 F3 a run that never completed counts
+ok   occurrences=1 F3 interrupt gate graded on its exit status and PASS line only
+ok   occurrences=1 F3 no-isolation collision (slot 0) dropped
+ok   occurrences=1 F3 serial reference check dropped
+ok   occurrences=1 F3 parallel verdict equality dropped
+ok   occurrences=1 F3 overlap not required
+ok   occurrences=1 F3 a run that already ended still counts as holding its slot
+ok   occurrences=1 F3 rival may be refused after the holder left
+ok   occurrences=1 F3 rival refusal reason unchecked
+ok   occurrences=1 F3 collision holder verdict unchecked
+ok   occurrences=1 F1 slot-side refusal not required
+ok   occurrences=1 F1 host-side differential dropped
+ok   occurrences=1 F1 published port not probed
+ok   occurrences=1 F1 target absence not proved
+mutants=15 not-exactly-once=0

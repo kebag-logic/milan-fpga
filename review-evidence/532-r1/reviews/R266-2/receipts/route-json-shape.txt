@@ -1,0 +1,6 @@
+family -4: rc=0
+  top-level type=list routes=1
+  route 0: keys=['dev', 'dst', 'flags', 'gateway', 'metric', 'prefsrc', 'protocol'] type=<absent: unicast> dev=present nexthops=absent
+family -6: rc=0
+  top-level type=list routes=0
+distinct unicast default-route interfaces: 1; quotable=True
