@@ -1,0 +1,111 @@
+MAAP announce: yes CRFT_CTRL=0x00000003
+      0.00 ms  CRF emission licence -> 0 (declaring=0 lstn_reg=0 sr_admitted=0 active=0)
+      0.00 ms  DA gate (acmp_declaring[CRF]) -> 0
+      0.00 ms  registered Listener on the CRF source (lstn_reg_state) -> 0
+      0.00 ms  processor ACTIVE[CRF] -> 0
+      0.00 ms  processor sr_admitted[CRF] -> 0
+      0.04 ms  start: no Listener declared, CRFT_CTRL=0x00000003
+      0.04 ms  listener sends PROBE_TX to the CRF source
+      1.34 ms  DA gate (acmp_declaring[CRF]) -> 1
+      1.38 ms  CRF emission licence -> 1 (declaring=1 lstn_reg=0 sr_admitted=1 active=0)
+      1.38 ms  processor sr_admitted[CRF] -> 1
+      2.69 ms  PROBE_TX response status 3 (stream_id 0000000000000000)
+     37.60 ms  first CRF PDU on the wire (tagged=1)
+     78.34 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 0 CRF]
+    278.20 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 0 CRF]
+    473.18 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 3 CRF]
+   1073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   2073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   3073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   4002.00 ms  listener sends PROBE_TX to the CRF source
+   4004.65 ms  PROBE_TX response status 0 (stream_id 0200000000010001)
+   4034.00 ms  bridge sends Listener JoinIn Ready for the CRF stream
+   4035.08 ms  registered Listener on the CRF source (lstn_reg_state) -> 2
+   4035.08 ms  processor ACTIVE[CRF] -> 1
+   4073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   5073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   6073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   7073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   8073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   8278.47 ms  DUT MSRP PDU: [type 4 la 1 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+   9073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  10073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  11073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  12073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  13072.98 ms  registered Listener on the CRF source (lstn_reg_state) -> 0
+  13072.98 ms  processor ACTIVE[CRF] -> 0
+  13073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  14073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  15073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  16073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  17073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  18073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  18268.00 ms  bridge sends its LeaveAll MRPDU in the bench switch's layout: [Listener LA JoinMt/Ready][Domain LA n2][TA LA n0][TF LA n0]
+  18269.80 ms  registered Listener on the CRF source (lstn_reg_state) -> 2
+  18269.80 ms  processor ACTIVE[CRF] -> 1
+  18278.58 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 4 la 0 n 1 ev0 1] [type 4 la 0 n 1 ev0 1] [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  18473.18 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 3 CRF]
+  19073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  20073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  20673.50 ms  DUT MSRP PDU: [type 4 la 1 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  21073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  22073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  23073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  23269.98 ms  registered Listener on the CRF source (lstn_reg_state) -> 0
+  23269.98 ms  processor ACTIVE[CRF] -> 0
+  23270.02 ms  DA gate (acmp_declaring[CRF]) -> 0
+  23270.05 ms  CRF emission licence -> 0 (declaring=0 lstn_reg=0 sr_admitted=0 active=0)
+  23270.05 ms  processor sr_admitted[CRF] -> 0
+  23278.33 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 5 CRF]
+  23280.00 ms  bridge sends Listener Lv for the CRF stream
+  23778.00 ms  listener sends PROBE_TX to the CRF source
+  23779.22 ms  DA gate (acmp_declaring[CRF]) -> 1
+  23779.26 ms  CRF emission licence -> 1 (declaring=1 lstn_reg=0 sr_admitted=1 active=0)
+  23779.26 ms  processor sr_admitted[CRF] -> 1
+  23780.65 ms  PROBE_TX response status 0 (stream_id 0200000000010001)
+  23878.20 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 3 CRF]
+  24073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  25073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  26073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  27073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  28073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  29073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  30073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  31073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  32073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  33073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  33673.50 ms  DUT MSRP PDU: [type 4 la 1 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  34073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  35073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  36073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  37073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  38073.52 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1] [type 1 la 0 n 1 ev0 3 CRF]
+  38778.49 ms  DA gate (acmp_declaring[CRF]) -> 0
+  38778.52 ms  CRF emission licence -> 0 (declaring=0 lstn_reg=0 sr_admitted=0 active=0)
+  38778.52 ms  processor sr_admitted[CRF] -> 0
+  38878.20 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 5 CRF]
+  39072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  40072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  41072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  42072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  43072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  44072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  45072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  46072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  47072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  48072.91 ms  DUT MSRP PDU: [type 4 la 1 n 1 ev0 1] [type 4 la 0 n 1 ev0 1]
+  48273.18 ms  DUT MSRP PDU: [type 1 la 0 n 1 ev0 4 CRF]
+  49072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  50072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  51072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  52072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  53072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  54072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  55072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  56072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  57072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  58072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+  59072.73 ms  DUT MSRP PDU: [type 4 la 0 n 1 ev0 1]
+---- summary (attribute-type-scope bridge) ----
+CRF PDUs on the wire: 78, of which with no Listener declared by the bridge: 39
+first CRF PDU at 37 ms, first Listener Ready at 4034 ms

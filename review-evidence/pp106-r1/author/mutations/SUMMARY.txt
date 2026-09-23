@@ -1,0 +1,115 @@
+restored-file sha256 must equal f1517e9f2f8c74da01f000ef87c3fe845a4085bb1011db1f16a0e031e2bece97
+== M0 base encoder (main fbc1f715) against the new suite
+rc=2 tally=526 checks: 380 PASS, 146 FAIL fail_lines=146
+    FAIL: E7: length got 48 exp 123
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: E7 the Listener message carries its own LeaveAllEvent
+    FAIL: L1[1]: length got 51 exp 121
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 51, plain 51)
+    FAIL: L1[2]: length got 60 exp 121
+    FAIL: L1[2]: byte-exact against the independent packer
+== M5 P1 every registered type flagged on its first vector: LeaveAllEvent back on the PDU's first vector only
+rc=2 tally=526 checks: 398 PASS, 128 FAIL fail_lines=128
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: E7 the Listener message carries its own LeaveAllEvent
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[2]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 1 (not declared) has 0 LeaveAll-only vectors
+== M6 P2 a LeaveAll-only vector for each type not declared: no append
+rc=2 tally=526 checks: 411 PASS, 115 FAIL fail_lines=115
+    FAIL: E7: length got 48 exp 123
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: length got 51 exp 121
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 51, plain 51)
+    FAIL: L1[2]: length got 60 exp 121
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: type 1 carries LeaveAll once, on its first vector (0 flags)
+== M7 P3 the LeaveAll-only vector is NumberOfValues 0: written as 1
+rc=2 tally=526 checks: 445 PASS, 81 FAIL fail_lines=81
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[2]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 4 carries LeaveAll once, on its first vector (0 flags)
+== M7b P3 the LeaveAll-only FirstValue is zero: written all-ones
+rc=2 tally=556 checks: 506 PASS, 50 FAIL fail_lines=50
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: type 2 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 34, no packed events, AttributeListLength 38, after every declared message
+    FAIL: L1[1]: type 3 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 8, no packed events, AttributeListLength 12, after every declared message
+    FAIL: L1[1]: type 4 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 4, no packed events, AttributeListLength 8, after every declared message
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[2]: type 3 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 8, no packed events, AttributeListLength 12, after every declared message
+    FAIL: L1[2]: type 4 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 4, no packed events, AttributeListLength 8, after every declared message
+    FAIL: L1[3]: byte-exact against the independent packer
+    FAIL: L1[3]: type 3 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 8, no packed events, AttributeListLength 12, after every declared message
+    FAIL: L1[3]: type 4 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 4, no packed events, AttributeListLength 8, after every declared message
+    FAIL: L1[4]: byte-exact against the independent packer
+    FAIL: L1[4]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+== M8 P4 nothing added when every type is declared: declared types are never marked seen (always-append encoder)
+rc=2 tally=590 checks: 462 PASS, 128 FAIL fail_lines=128
+    FAIL: E7: length got 151 exp 123
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: length got 154 exp 121
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: type 1 carries LeaveAll once, on its first vector (2 flags)
+    FAIL: L1[1]: type 1 (declared) has 1 LeaveAll-only vectors
+    FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 154, plain 51)
+    FAIL: L1[2]: length got 163 exp 121
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: type 2 carries LeaveAll once, on its first vector (2 flags)
+    FAIL: L1[2]: type 2 (declared) has 1 LeaveAll-only vectors
+    FAIL: L1[2]: LeaveAll adds exactly 61 octets (got 163, plain 60)
+    FAIL: L1[3]: length got 197 exp 122
+    FAIL: L1[3]: byte-exact against the independent packer
+== M9 P5 MVRP LeaveAll unchanged: MVRP type set emptied
+rc=2 tally=556 checks: 553 PASS, 3 FAIL fail_lines=3
+    FAIL: L4: byte-exact against the independent packer
+    FAIL: L4 LeaveAll on the first VID vector only, one message, none added
+    FAIL: L4 with and without LeaveAll differ by the one flag bit
+== M10 P6 a LeaveAll requested mid-drain goes whole to the next MRPDU: consumed at commit again (the base encoder's point)
+rc=2 tally=556 checks: 554 PASS, 2 FAIL fail_lines=2
+    FAIL: L5 next PDU: length got 60 exp 121
+    FAIL: L5 next PDU: byte-exact against the independent packer
+== M11 P7 a start-cycle LeaveAll is taken once: latch no longer gated
+rc=2 tally=556 checks: 554 PASS, 2 FAIL fail_lines=2
+    FAIL: L6 next PDU: length got 121 exp 30
+    FAIL: L6 next PDU: byte-exact against the independent packer
+== M12 P7 a start-cycle LeaveAll is taken by that drain: snapshot ignores the same-cycle request
+rc=2 tally=556 checks: 554 PASS, 2 FAIL fail_lines=2
+    FAIL: L6 start-cycle LeaveAll: length got 30 exp 121
+    FAIL: L6 start-cycle LeaveAll: byte-exact against the independent packer
+restored sha256 f1517e9f2f8c74da01f000ef87c3fe845a4085bb1011db1f16a0e031e2bece97 OK
