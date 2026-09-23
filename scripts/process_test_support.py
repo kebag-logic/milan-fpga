@@ -40,10 +40,10 @@ if (control / "mutation.json").exists():
     data["mutations"] = [row["name"] for row in catalog
                          if hashlib.sha256((root / row["path"]).read_bytes()).hexdigest() == row["hash"]]
     data["private"] = str(root)
-    # Write both required dependencies, including modes. A link back to the
-    # caller would corrupt the independently measured input snapshot.
-    for name in ("gptp-processor/hdl", "third_party/verilog-axis/rtl"):
-        target = root / name / "probe.txt"
+    # Write copied inputs of both required dependencies, including modes. A
+    # link back to the caller would corrupt the independently measured snapshot.
+    for name in json.loads((control / "private-writes.json").read_text()):
+        target = root / name
         target.write_text("private dependency write\n")
         target.chmod(0o700)
 (control / "ready.tmp").write_text(json.dumps(data))
@@ -79,10 +79,13 @@ FACILITY_MODES = ("no-prctl", "prctl-fails", "no-pidfd-open", "no-pidfd-signal")
 
 
 def git(root: Path, *args: str) -> bytes:
-    """Run fixture-only Git without caller Git redirection or index refresh."""
+    """Run fixture-only Git without caller Git redirection or index refresh.
+
+    Only standard output is returned: a Git warning is never fixture data.
+    """
     env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
-    return subprocess.check_output(["git", "--no-optional-locks", "-C", str(root), *args],
-                                   env=env, stderr=subprocess.STDOUT)
+    return subprocess.run(["git", "--no-optional-locks", "-C", str(root), *args],
+                          env=env, capture_output=True, check=True).stdout
 
 
 def commit(root: Path) -> None:

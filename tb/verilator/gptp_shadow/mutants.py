@@ -6,7 +6,8 @@
 WHY THIS EXISTS. A green suite and a suite that cannot go red look the same
 from the outside. Each control below plants ONE defect the design is
 supposed to refuse, requires this suite to notice, and writes only private
-source/build copies. Caller sources are never modified, even under KILL.
+copies of the files the build reads (`make print-inputs`). Caller sources are
+never modified, even under KILL.
 A control that leaves the suite green is a finding about the suite, and is
 reported as one.
 
@@ -253,7 +254,8 @@ def main() -> int:
         with OwnedProcesses() as owner:
             with tempfile.TemporaryDirectory(prefix="gptp-shadow-mutants-") as scratch:
                 private = Path(scratch)
-                copy_inputs(REPO, private, owner)
+                targets = {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}
+                copy_inputs(REPO, HERE, private, owner, targets)
                 failures = campaign(private, owner)
             owner.checkpoint()
         print(f"controls: {len(MUTATIONS)}   failures: {failures}")

@@ -18,16 +18,42 @@ ROOT = HERE.parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 from owned_process import OwnedProcesses  # noqa: E402
 from process_test_support import (  # noqa: E402
-    Probe, assert_reaped, commit, git, install, snapshot, write,
+    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, commit, git, install, snapshot, write,
 )
 from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE  # noqa: E402
 
 DRIVER = "tb/verilator/gptp_shadow/mutants.py"
+SUITE = "tb/verilator/gptp_shadow"
 SOURCE = "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv"
+DEPENDENCIES = ("gptp-processor", "third_party/verilog-axis")
+#: The local headers sim_main.cpp includes. Stated here, independently of the
+#: driver's include walk, so a walk that loses one fails the population check.
+HEADERS = ("tb/common/verilator_harness.hpp", "tb/common/gptp_tx_flags.hpp")
+#: Tracked files the build never reads. Their state must never refuse.
+UNRELATED = ("tb/verilator/gptp_shadow/README.md", "hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md",
+             "hdl/ieee1722/aaf/doc/TEST_RESULTS.md", "tb/common/gptp_launch_observer.hpp")
+UNRELATED_DEPENDENCY = "third_party/verilog-axis/rtl/axis_adapter.v"
+#: Ordinary settings that cannot change what the identity commands read.
+PRESENTATION = dict(GIT_EDITOR="true", GIT_SEQUENCE_EDITOR="true", GIT_PAGER="cat",
+                    GIT_AUTHOR_NAME="Author", GIT_AUTHOR_EMAIL="author@example.invalid",
+                    GIT_COMMITTER_NAME="Committer", GIT_COMMITTER_EMAIL="committer@example.invalid",
+                    GIT_SSH_COMMAND="ssh -oBatchMode=yes", GIT_ASKPASS="true", GIT_TERMINAL_PROMPT="0",
+                    GIT_TRACE="0", GIT_MERGE_AUTOEDIT="no", GIT_NAMESPACE="presentation")
+#: Every variable that redirects the checkout Git reads must refuse by name.
+#: Listed here, not imported, so dropping one from the driver turns its arm red.
+REDIRECTS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
+             "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_REPLACE_REF_BASE", "GIT_CONFIG_PARAMETERS",
+             "GIT_CONFIG_COUNT", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_SYSTEM")
 
 MAKE = r'''#!/usr/bin/env python3
-import hashlib, json, os, subprocess, sys
+import hashlib, json, os, shutil, subprocess, sys
 from pathlib import Path
+if "print-inputs" in sys.argv:
+    # The input declaration is the real Makefile, asked through real make.
+    here = Path(__file__).resolve().parent
+    real = shutil.which("make", path=os.pathsep.join(
+        entry for entry in os.environ["PATH"].split(os.pathsep) if Path(entry).resolve() != here))
+    os.execv(real, [real, *sys.argv[1:]])
 control = Path(os.environ["PROBE_CONTROL"])
 root = Path.cwd().parents[2]
 (control / "workspace").write_text(str(root))
@@ -52,20 +78,42 @@ print("1 checks: 0 PASS, 1 FAIL")
 raise SystemExit(1)
 '''
 
+#: Real Git, with one unreadable record ahead of every index listing.
+GARBLED_GIT = r'''#!/usr/bin/env python3
+import os, shutil, subprocess, sys
+from pathlib import Path
+here = Path(__file__).resolve().parent
+real = shutil.which("git", path=os.pathsep.join(
+    entry for entry in os.environ["PATH"].split(os.pathsep) if Path(entry).resolve() != here))
+result = subprocess.run([real, *sys.argv[1:]], stdout=subprocess.PIPE, check=False)
+if "--stage" in sys.argv:
+    sys.stdout.buffer.write(b"not an identity record\0")
+sys.stdout.buffer.write(result.stdout)
+raise SystemExit(result.returncode)
+'''
+
+
+def declared() -> set[str]:
+    """What the real suite Makefile says its build reads, plus the stated headers."""
+    words = subprocess.run(["make", "-s", "--no-print-directory", "print-inputs"], cwd=ROOT / SUITE,
+                           capture_output=True, text=True, check=True).stdout.split()
+    return {str((ROOT / SUITE / word).resolve().relative_to(ROOT)) for word in words} | set(HEADERS)
+
 
 def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
     """Create tracked inputs and two real pinned disposable dependency repos."""
     root = parent / (label + " input [523]")
     root.mkdir()
-    for relative in (DRIVER, "tb/verilator/gptp_shadow/private_inputs.py",
-                     "scripts/owned_process.py", "tb/verilator/gptp_shadow/Makefile",
-                     "tb/verilator/gptp_shadow/sim_main.cpp", "tb/common/verilator_harness.hpp"):
+    population = declared()
+    first_party = {name for name in population if not name.startswith(DEPENDENCIES)}
+    for relative in sorted(first_party | set(UNRELATED) | {
+            DRIVER, "tb/verilator/gptp_shadow/private_inputs.py", "scripts/owned_process.py"}):
         install(root, relative)
-    for path in {row[1] for row in MUTATIONS + NOT_SEPARATELY_OBSERVABLE}:
-        install(root, str(path.relative_to(ROOT)))
     git(root, "init", "-q")
-    for name, source_dir in (("gptp-processor", "hdl"), ("third_party/verilog-axis", "rtl")):
-        write(root / name / source_dir / "probe.txt", "pinned dependency\n")
+    for name in DEPENDENCIES:
+        for relative in sorted(population - first_party) + [UNRELATED_DEPENDENCY]:
+            if relative.startswith(name + "/"):
+                write(root / relative, f"pinned dependency input {relative}\n")
         git(root / name, "init", "-q")
         commit(root / name)
     commit(root)
@@ -76,6 +124,10 @@ def fixture(parent: Path, label: str) -> tuple[Path, Probe]:
         catalog.append(dict(name=name, path=str(path.relative_to(ROOT)), new=new, expect=expect,
                             hash=hashlib.sha256(original.replace(old, new, 1).encode()).hexdigest()))
     write(probe.control / "mutation.json", json.dumps(catalog))
+    writes = [min(name for name in population if name.startswith(dependency + "/"))
+              for dependency in DEPENDENCIES]
+    write(probe.control / "private-writes.json", json.dumps(writes))
+    write(probe.control / "population.json", json.dumps(sorted(population)))
     write(probe.control / "bin/make", MAKE, executable=True)
     probe.env["PATH"] = str(probe.control / "bin") + os.pathsep + os.environ["PATH"]
     return root, probe
@@ -85,7 +137,6 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
     """Check exact populations, verdict distinctions and repeated cleanup."""
     root, probe = fixture(parent, mode)
     probe.env["PROBE_MODE"] = mode
-    probe.env["GIT_PAGER"] = "cat"  # presentation does not change input identity
     before = snapshot(root)
     for iteration in range(2 if repeat else 1):
         probe.start([sys.executable, str(root / DRIVER)])
@@ -107,6 +158,34 @@ def normal(parent: Path, mode: str, repeat: bool = False) -> None:
                         source_unchanged=True, scratch_removed=True))
 
 
+def accepted(parent: Path, kind: str) -> None:
+    """Files the build never reads and non-redirecting Git settings run every control."""
+    root, probe = fixture(parent, "accept-" + kind)
+    probe.env["PROBE_MODE"] = "detect"
+    if kind == "unrelated":
+        for relative in UNRELATED:
+            path = root / relative
+            path.write_bytes(path.read_bytes().replace(b"20", b"21", 1) + b"\nrewritten by another suite\n")
+        git(root, "add", UNRELATED[0])
+        write(root / "hdl/common/unrelated_work.sv", "// untracked caller work\n")
+        write(root / UNRELATED_DEPENDENCY, "caller dependency work\n")
+    elif kind == "presentation":
+        probe.env.update(PRESENTATION)
+    elif kind == "scrubbed":
+        # Would make every literal-pathspec identity command fail if passed on.
+        probe.env["GIT_GLOB_PATHSPECS"] = "1"
+    elif kind == "git-stderr":
+        # Git reports this deprecated setting on standard error.
+        git(root, "config", "core.fsyncObjectFiles", "true")
+    before = snapshot(root)
+    probe.start([sys.executable, str(root / DRIVER)])
+    status, output = probe.finish()
+    assert status == 0 and "controls: 9   failures: 0\nRESULT: PASS" in output, output
+    assert snapshot(root) == before, "caller inputs changed"
+    assert not Path((probe.control / "workspace").read_text()).exists(), "scratch survived"
+    probe.save(dict(exit=status, accepted=kind, controls=9, source_unchanged=True))
+
+
 def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
     """Signal only after private mutation and stubborn-child readiness."""
     label = ("unsafe-" if unsafe else "isolated-") + signal.Signals(signum).name
@@ -118,7 +197,7 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
         # Restore the original defect: caller input is the mutation/build tree,
         # and restoration remains after the command, unreachable on interruption.
         path.write_text(text.replace("private = Path(scratch)", "private = REPO")
-                        .replace("copy_inputs(REPO, private, owner)", "owner.checkpoint()"))
+                        .replace("copy_inputs(REPO, HERE, private, owner, targets)", "owner.checkpoint()"))
         commit(root)
     before = snapshot(root)
     probe.env["PROBE_MODE"] = "hold"
@@ -128,7 +207,12 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
     private = Path(data["private"])
     if not unsafe:
         assert private != root and snapshot(root) == before
-        for relative in (SOURCE, "gptp-processor/hdl/probe.txt", "third_party/verilog-axis/rtl/probe.txt"):
+        # Exactly what the build reads is copied: nothing it never reads.
+        expected = json.loads((probe.control / "population.json").read_text())
+        copied = sorted(str(path.relative_to(private)) for path in private.rglob("*")
+                        if path.is_file() or path.is_symlink())
+        assert copied == expected, (copied, expected)
+        for relative in [SOURCE, *json.loads((probe.control / "private-writes.json").read_text())]:
             assert not (root / relative).samefile(private / relative)
     probe.signal(signum)
     status, output = probe.finish()
@@ -147,10 +231,10 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
                     cleanup_required=signum != signal.SIGKILL))
 
 
-def refusal(parent: Path, kind: str) -> None:
-    """Dirty, index-hidden and linked input must fail before starting make."""
-    root, probe = fixture(parent, kind)
+def prepare_refusal(root: Path, probe: Probe, kind: str) -> str:
+    """Plant one refused input state; return the reason the refusal must name."""
     path = root / SOURCE
+    dependency = root / "gptp-processor"
     if kind in ("dirty", "staged", "assume", "skip", "mode"):
         if kind in ("assume", "skip"):
             git(root, "update-index", "--assume-unchanged" if kind == "assume" else "--skip-worktree", SOURCE)
@@ -161,49 +245,87 @@ def refusal(parent: Path, kind: str) -> None:
             path.write_bytes(path.read_bytes() + b"\n// caller work\n")
         if kind == "staged":
             git(root, "add", SOURCE)
-    elif kind == "untracked":
-        git(root, "rm", "--cached", SOURCE)
-    elif kind == "extra":
-        write(root / "hdl/untracked.sv", "unknown input\n")
-    elif kind == "symlink":
+            return "index differs from HEAD"
+        return "modified input bytes/mode"
+    changed = {"dirty-input": "hdl/common/cdc_pulse.sv", "dirty-header": HEADERS[1],
+               "dirty-anchor": "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv"}
+    if kind in changed:
+        target = root / changed[kind]
+        target.write_bytes(target.read_bytes() + b"\n// caller work\n")
+        return "modified input bytes/mode: " + str(target)
+    if kind == "untracked":
+        git(root, "rm", "--cached", "-q", SOURCE)
+        return "index differs from HEAD"
+    if kind == "undeclared-target":
+        makefile = root / SUITE / "Makefile"
+        makefile.write_text(makefile.read_text().replace("$(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \\\n", ""))
+        commit(root)
+        return "mutation target or anchor is not a build input: " + SOURCE
+    if kind == "symlink":
         saved = root / "saved.sv"
         path.rename(saved)
         path.symlink_to(saved)
-    elif kind == "parent-link":
-        directory = root / "hdl/ieee8021as"
-        saved = root / "saved-hdl"
+        return "input is not a regular file"
+    if kind in ("parent-link", "dependency-link"):
+        directory = root / ("hdl/ieee8021as" if kind == "parent-link" else "gptp-processor")
+        saved = root / ("saved-" + kind)
         directory.rename(saved)
         directory.symlink_to(saved, target_is_directory=True)
-    elif kind == "dependency":
-        dependency = root / "gptp-processor"
-        git(dependency, "update-index", "--skip-worktree", "hdl/probe.txt")
-        write(dependency / "hdl/probe.txt", "caller dependency work\n")
-    elif kind == "off-pin":
-        dependency = root / "gptp-processor"
-        write(dependency / "hdl/probe.txt", "different revision\n")
+        return "input directory is missing or linked"
+    if kind == "dependency":
+        name = json.loads((probe.control / "private-writes.json").read_text())[0]
+        inner = name[len("gptp-processor/"):]
+        git(dependency, "update-index", "--skip-worktree", inner)
+        write(root / name, "caller dependency work\n")
+        return "modified input bytes/mode: " + str(root / name)
+    if kind == "off-pin":
+        name = json.loads((probe.control / "private-writes.json").read_text())[0]
+        write(root / name, "different revision\n")
         commit(dependency)
-    elif kind == "pin-index":
+        return "required dependency is not at its pin: gptp-processor"
+    if kind == "pin-index":
         git(root, "update-index", "--force-remove", "gptp-processor")
-    elif kind == "dependency-link":
-        dependency = root / "gptp-processor"
-        saved = root / "saved-dependency"
-        dependency.rename(saved)
-        dependency.symlink_to(saved, target_is_directory=True)
-    elif kind == "git-env":
-        probe.env["GIT_INDEX_FILE"] = str(root / ".git/index")
+        return "required dependency gitlinks differ from HEAD"
+    if kind == "git-garbage":
+        write(probe.control / "bin/git", GARBLED_GIT, executable=True)
+        return "unreadable Git identity record"
+    variable = kind[len("git-env-"):]
+    assert variable in REDIRECTS, kind
+    probe.env[variable] = str(root / ".git")
+    return "Git environment redirects the checkout: " + variable
+
+
+def refusal(parent: Path, kind: str) -> None:
+    """Dirty, index-hidden, linked, redirected or unreadable input fails before make."""
+    root, probe = fixture(parent, kind)
+    reason = prepare_refusal(root, probe, kind)
     before = snapshot(root)
     probe.start([sys.executable, str(root / DRIVER)])
     status, output = probe.finish()
-    assert status == 2 and "REFUSED:" in output, output
+    assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+    assert "Traceback" not in output, output
     assert snapshot(root) == before and not (probe.control / "seen").exists(), output
     assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
-    probe.save(dict(exit=status, refusal=kind, input_unchanged=True, make_started=False))
+    probe.save(dict(exit=status, refusal=kind, reason=reason, input_unchanged=True, make_started=False))
+
+
+def unsupported(parent: Path, mode: str) -> None:
+    """A host lacking a process facility gets the documented refusal, not a traceback."""
+    root, probe = fixture(parent, "facility-" + mode)
+    write(probe.control / "site/sitecustomize.py", FACILITY_SITE)
+    probe.env.update(PYTHONPATH=str(probe.control / "site"), PROBE_FACILITY=mode)
+    before = snapshot(root)
+    probe.start([sys.executable, str(root / DRIVER)])
+    status, output = probe.finish()
+    assert status == 2 and "REFUSED:" in output and "Traceback" not in output, output
+    assert snapshot(root) == before and not (probe.control / "seen").exists(), output
+    assert not list(probe.control.glob("gptp-shadow-mutants-*")), "refusal left scratch"
+    probe.save(dict(exit=status, facility=mode, refused=True, make_started=False))
 
 
 def ownership(parent: Path) -> None:
     """The normal Makefile owns lifecycle tests and propagates their failure."""
     root, probe = fixture(parent, "make-owner")
-    write(root / "gptp-processor/hdl/ucode/gen_gptp_ucode.py", "# dry-run prerequisite\n")
     directory = root / "tb/verilator/gptp_shadow"
     status = subprocess.run(["make", "-n", "-C", str(directory)], capture_output=True, text=True, check=False)
     assert status.returncode == 0 and "python3 test_mutant_lifecycle.py" in status.stdout, status
@@ -227,7 +349,8 @@ def outer_cancellation(parent: Path, signum: int) -> None:
         shutil.copytree(original / relative, root / relative, dirs_exist_ok=True)
     git(root, "init", "-q")
     commit(root)
-    shutil.copy2(mutation_probe.control / "mutation.json", probe.control / "mutation.json")
+    for name in ("mutation.json", "private-writes.json"):
+        shutil.copy2(mutation_probe.control / name, probe.control / name)
     shim = MAKE.replace('control = Path(os.environ["PROBE_CONTROL"])', '''control = Path(os.environ["PROBE_CONTROL"])
 if "-C" in sys.argv:
     suite = Path(sys.argv[sys.argv.index("-C") + 1])
@@ -253,21 +376,29 @@ if "-C" in sys.argv:
                     source_unchanged=True, scratch_removed=True, next_suite=False))
 
 
+REFUSALS = ("dirty", "staged", "assume", "skip", "mode", "dirty-input", "dirty-header", "dirty-anchor",
+            "untracked", "undeclared-target", "symlink", "parent-link", "dependency", "off-pin",
+            "pin-index", "dependency-link", "git-garbage") + tuple("git-env-" + name for name in REDIRECTS)
+
+
 def main() -> int:
     """Run the normal, refusal and deterministic interruption controls."""
     with tempfile.TemporaryDirectory(prefix="mutant-lifecycle-") as scratch:
-        parent = Path(scratch)
+        # Refusals name resolved caller paths; compare against the same form.
+        parent = Path(scratch).resolve()
         # This outer owner is test containment only. Successful graceful cases
         # must prove identities gone BEFORE it can reap any leaked descendant.
         with OwnedProcesses():
             normal(parent, "detect", repeat=True)
             normal(parent, "survive")
             normal(parent, "build")
+            for kind in ("unrelated", "presentation", "scrubbed", "git-stderr"):
+                accepted(parent, kind)
             ownership(parent)
-            for kind in ("dirty", "staged", "assume", "skip", "mode", "untracked", "extra",
-                         "symlink", "parent-link", "dependency", "off-pin", "pin-index",
-                         "dependency-link", "git-env"):
+            for kind in REFUSALS:
                 refusal(parent, kind)
+            for mode in FACILITY_MODES:
+                unsupported(parent, mode)
             for signum in (signal.SIGINT, signal.SIGTERM, signal.SIGKILL):
                 # KILL may leave private children. Reap these fixture-owned
                 # survivors before deleting the disposable fixture directory.
@@ -279,8 +410,9 @@ def main() -> int:
                 interrupted(parent, signal.SIGKILL, unsafe=True)
             for signum in (signal.SIGINT, signal.SIGTERM):
                 outer_cancellation(parent, signum)
-    print("mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, "
-          "input refusals, INT/TERM/KILL, unsafe negative controls)")
+    print("mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and "
+          "Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, "
+          "unsafe negative controls)")
     return 0
 
 

@@ -1,10 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 VERILATOR ?= verilator
-VERILATOR_JOBS ?= 4
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 GPTP_DIR   = ../../../gptp-processor
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
+UCODE_GEN  = $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
 TOP        = gptp_shadow_wrap
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
@@ -33,7 +34,7 @@ SRCS = gptp_shadow_wrap.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run mutants lifecycle clean
+.PHONY: all run mutants lifecycle print-inputs clean
 
 all: lifecycle mutants
 
@@ -54,8 +55,15 @@ lifecycle:
 mutants: run
 	python3 mutants.py
 
-gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+gptp_ucode.hex: $(UCODE_GEN)
 	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
+
+#: The tracked files `run` reads, relative to this directory. `mutants.py`
+#: verifies and copies exactly these (and the local headers they include)
+#: into its private build, so a file this build never reads cannot refuse
+#: the campaign. It asks make rather than parsing this file.
+print-inputs:
+	@echo Makefile $(SRCS) $(CPP) $(UCODE_GEN)
 
 clean:
 	rm -rf obj_dir gptp_ucode.hex
