@@ -1,0 +1,500 @@
+{
+ "head": "50c0d00ac3e7b7aa319ba4eab995d7e12b89149e",
+ "tree": "4819081971902d71acba2948e659e9658b3fb977",
+ "python": "3.14.7",
+ "jobs": 4,
+ "results": [
+  {
+   "name": "G01-merge-tree",
+   "argv": [
+    "git",
+    "merge-tree",
+    "--write-tree",
+    "18271bebbd1a4abf2e32e7783477573114e2a5fa",
+    "4876423d4cf8e89b820c56f8339f230abefb4827"
+   ],
+   "exit_code": 0,
+   "seconds": 0.008,
+   "log": "G01-merge-tree.log",
+   "log_sha256": "c567f520f7bf33b19fdcadf1611634d51d965b59f98ba62d7789c22b7b81890b"
+  },
+  {
+   "name": "G02-diff-check",
+   "argv": [
+    "git",
+    "diff",
+    "--check",
+    "18271bebbd1a4abf2e32e7783477573114e2a5fa",
+    "50c0d00ac3e7b7aa319ba4eab995d7e12b89149e"
+   ],
+   "exit_code": 0,
+   "seconds": 0.02,
+   "log": "G02-diff-check.log",
+   "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "name": "G03-baremetal-check",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 13.399,
+   "log": "G03-baremetal-check.log",
+   "log_sha256": "671cc55aabb74136eb6c26a6b7af25d90375850c654197159f14765208664e80"
+  },
+  {
+   "name": "G04-baremetal-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_baremetal_only.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 2.691,
+   "log": "G04-baremetal-selftest.log",
+   "log_sha256": "70a9e7245af1e619bc423ece5171ccae136b663f8ada0b838e1f14bd80d61673"
+  },
+  {
+   "name": "G05-ci-events-check",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/ci_events.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 0.189,
+   "log": "G05-ci-events-check.log",
+   "log_sha256": "b5dc6c652c99118dd27cbda479c0d3bbf1db07bf67b6ced4c61db76241027438"
+  },
+  {
+   "name": "G06-ci-events-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/ci_events.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 14.486,
+   "log": "G06-ci-events-selftest.log",
+   "log_sha256": "473d59f152975eb3697b5f82fad7766335bb778ef8f12fd9a42d4c4519013939"
+  },
+  {
+   "name": "G07-ci-scope-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/ci_scope.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 1.77,
+   "log": "G07-ci-scope-selftest.log",
+   "log_sha256": "eae4a29e073a4a193cd2ca995ac4dedb6cc21d2ef4f57797dac58b329aff7738"
+  },
+  {
+   "name": "G08-docs-check",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/docs_check.py"
+   ],
+   "exit_code": 0,
+   "seconds": 3.807,
+   "log": "G08-docs-check.log",
+   "log_sha256": "8f5d95b25d464f5b429274f26b8f2682492fac56285f419bccdafce537f20466"
+  },
+  {
+   "name": "G09-docs-check-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/docs_check.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.127,
+   "log": "G09-docs-check-selftest.log",
+   "log_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"
+  },
+  {
+   "name": "G10-toc-check",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/gen_toc.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 0.364,
+   "log": "G10-toc-check.log",
+   "log_sha256": "2a09e2bf3415d2c143c29d6c416216954388779d768e25e8f59a446e40be2337"
+  },
+  {
+   "name": "G11-toc-anchors",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/gen_toc.py",
+    "--verify-anchors"
+   ],
+   "exit_code": 0,
+   "seconds": 0.395,
+   "log": "G11-toc-anchors.log",
+   "log_sha256": "31bd90f24468ddd16097f071c830a1a975ea6898b7783f543ec9d3819bfea1d7"
+  },
+  {
+   "name": "G12-toc-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/gen_toc.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.163,
+   "log": "G12-toc-selftest.log",
+   "log_sha256": "4ead8b2e55a8531f08cc2d3f6889fdfd47b6726803060fc9f267783b79407410"
+  },
+  {
+   "name": "G13-em-dash-base-parent",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_em_dash.py",
+    "--base",
+    "18271bebbd1a4abf2e32e7783477573114e2a5fa"
+   ],
+   "exit_code": 0,
+   "seconds": 0.938,
+   "log": "G13-em-dash-base-parent.log",
+   "log_sha256": "8060069601f674c2a06458fd9f8e7b177371a991359901d92e7352bc4d39d2d5"
+  },
+  {
+   "name": "G14-em-dash-base-dev",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_em_dash.py",
+    "--base",
+    "ede8d48ecd7c7f589a14b957951f040d92c99c70"
+   ],
+   "exit_code": 0,
+   "seconds": 0.932,
+   "log": "G14-em-dash-base-dev.log",
+   "log_sha256": "4a1ec66fa050b12cca8befff8b29c356dec0fba2475543c24ba5551bea73289e"
+  },
+  {
+   "name": "G15-em-dash-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_em_dash.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.925,
+   "log": "G15-em-dash-selftest.log",
+   "log_sha256": "62ec2d2bbc2682dde5f8dea5417b359b99067751c0f3c518a43ab0f919414d61"
+  },
+  {
+   "name": "G16-doc-style",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_doc_style.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.046,
+   "log": "G16-doc-style.log",
+   "log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+  },
+  {
+   "name": "G17-doc-style-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_doc_style.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.034,
+   "log": "G17-doc-style-selftest.log",
+   "log_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+  },
+  {
+   "name": "G18-doc-paths",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_doc_paths.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.06,
+   "log": "G18-doc-paths.log",
+   "log_sha256": "949fee5cc4741593bc6ddb0a8db76ec92b03302518ca4d0b8a5314649bbe33f4"
+  },
+  {
+   "name": "G19-solution-docs",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_solution_docs.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.108,
+   "log": "G19-solution-docs.log",
+   "log_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+  },
+  {
+   "name": "G20-archive",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_archive.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.245,
+   "log": "G20-archive.log",
+   "log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+  },
+  {
+   "name": "G21-hygiene",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_hygiene.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 0.291,
+   "log": "G21-hygiene.log",
+   "log_sha256": "7a86995e70834638401cedc395663af69d3912ae971457958bbec3296a377011"
+  },
+  {
+   "name": "G22-todo-ownership",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_todo_ownership.py"
+   ],
+   "exit_code": 0,
+   "seconds": 1.232,
+   "log": "G22-todo-ownership.log",
+   "log_sha256": "a1d7b113d4c9d3efd53e40640f8c9c742e619a037482ce1641a2d9b37c150816"
+  },
+  {
+   "name": "G23-feature-status",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_feature_status.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.582,
+   "log": "G23-feature-status.log",
+   "log_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+  },
+  {
+   "name": "G24-submodule-docs",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_submodule_docs.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.41,
+   "log": "G24-submodule-docs.log",
+   "log_sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"
+  },
+  {
+   "name": "G25-py-idiom",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_py_idiom.py"
+   ],
+   "exit_code": 0,
+   "seconds": 3.059,
+   "log": "G25-py-idiom.log",
+   "log_sha256": "2de5deb88f7e4729a4a158ddee092c7ae506aac94a04da4c515a982f14b6e9b6"
+  },
+  {
+   "name": "G26-sh-idiom",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_sh_idiom.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.195,
+   "log": "G26-sh-idiom.log",
+   "log_sha256": "5b4da4ada78926b702a3ceac7ef8b8f3edd481897f50641078e04f7f8deeae8e"
+  },
+  {
+   "name": "G27-fail-fast",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_fail_fast.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 1.359,
+   "log": "G27-fail-fast.log",
+   "log_sha256": "5323fa60bd93e7511ee7b996a0d88869401be05df5e28e8440b2c64ee0792805"
+  },
+  {
+   "name": "G28-test-evidence",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_test_evidence.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 4.718,
+   "log": "G28-test-evidence.log",
+   "log_sha256": "6a4e9fa9de58325dd214bcf5512d05058df3591baa4c57ca28974f5d46d8c991"
+  },
+  {
+   "name": "G29-test-evidence-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_test_evidence.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 4.73,
+   "log": "G29-test-evidence-selftest.log",
+   "log_sha256": "6941e2a84d477d1d50fc87b5654262810f29707e73006d6d8f19dcf7e679ae6c"
+  },
+  {
+   "name": "G30-naming",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_naming.py",
+    "--check"
+   ],
+   "exit_code": 0,
+   "seconds": 0.416,
+   "log": "G30-naming.log",
+   "log_sha256": "4720c6a75ce2edc1f03ce40f83703070be69eed382593386e62652c2b1221615"
+  },
+  {
+   "name": "G31-control-flow-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_control_flow.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.115,
+   "log": "G31-control-flow-selftest.log",
+   "log_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"
+  },
+  {
+   "name": "G32-cohesion-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/measure_cohesion.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.055,
+   "log": "G32-cohesion-selftest.log",
+   "log_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"
+  },
+  {
+   "name": "G33-pp-srcs",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/pp_srcs.py",
+    "--check",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 0.188,
+   "log": "G33-pp-srcs.log",
+   "log_sha256": "8ff214d02993a2b1dea0268a8a96c3f7bfb2c37fd8f974de6fe8662305d256fb"
+  },
+  {
+   "name": "G34-rv32-sdk-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/ci_rv32_sdk_selftest.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.971,
+   "log": "G34-rv32-sdk-selftest.log",
+   "log_sha256": "ebd936b0409415c76b35a587224acd94d8f12410c414e97f57b5dad94a994af0"
+  },
+  {
+   "name": "G35-firmware-compiler-selftest",
+   "argv": [
+    "python3",
+    "-B",
+    "sw/builder/test_firmware_compiler.py",
+    "--selftest"
+   ],
+   "exit_code": 0,
+   "seconds": 1.658,
+   "log": "G35-firmware-compiler-selftest.log",
+   "log_sha256": "f6da142138888df7ecd9ef31e7b86895260648309005e1400148d78004e385d7"
+  },
+  {
+   "name": "G36-py-compile",
+   "argv": [
+    "python3",
+    "-B",
+    "-c",
+    "import sys\nfor f in sys.argv[1:]:\n    compile(open(f, 'rb').read(), f, 'exec')\nprint('compiled in memory', len(sys.argv)-1)",
+    "scripts/check_baremetal_only.py",
+    "scripts/ci_events.py",
+    "scripts/ci_rv32_sdk.py",
+    "scripts/ci_rv32_sdk_selftest.py",
+    "sw/builder/test_builder.py",
+    "sw/builder/test_firmware_compiler.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.336,
+   "log": "G36-py-compile.log",
+   "log_sha256": "9c1fb6a8df3a29c4d747c5f5f9994805bbd599db1e510922b065dfde57b41631"
+  },
+  {
+   "name": "G37-cpp-idiom",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_cpp_idiom.py"
+   ],
+   "exit_code": 0,
+   "seconds": 1.06,
+   "log": "G37-cpp-idiom.log",
+   "log_sha256": "66b7ebd6003d7a2cadf302cac5b8dd12d1b03ee2a1356bb8af7675627ce39780"
+  },
+  {
+   "name": "G38-sv-idiom",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_sv_idiom.py"
+   ],
+   "exit_code": 0,
+   "seconds": 0.404,
+   "log": "G38-sv-idiom.log",
+   "log_sha256": "59321f1aef997a4d5698faaa0ab436bccdd32f00a2577bed135f58dd0046927f"
+  }
+ ]
+}
