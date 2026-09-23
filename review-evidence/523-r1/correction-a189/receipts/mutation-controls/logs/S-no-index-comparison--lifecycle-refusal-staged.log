@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.refusal(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/S-no-index-comparison/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 314, in refusal
+    assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('index differs from HEAD', 'REFUSED: modified input bytes/mode: /tmp/mutation-arm-wnbwu5ew/staged input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv\n')

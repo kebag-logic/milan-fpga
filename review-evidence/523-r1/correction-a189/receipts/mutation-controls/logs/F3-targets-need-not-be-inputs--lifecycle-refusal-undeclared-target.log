@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.refusal(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F3-targets-need-not-be-inputs/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 314, in refusal
+    assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('mutation target or anchor is not a build input: hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv', "REFUSED: [Errno 2] No such file or directory: '/tmp/mutation-arm-in3uecv3/undeclared-target-control/gptp-shadow-mutants-d2mme5z9/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv'\n")

@@ -1,0 +1,25 @@
+RED  F1-commands-outlive-owner                        {'sweep:hard_stop:KILL': 1, 'sweep:hard_stop:HUP': 1, 'sweep:hard_stop:HUP-group': 1, 'lifecycle:interrupted:SIGKILL': 1}
+RED  F3b-no-facility-resolution                       {'sweep:unsupported:no-prctl': 1, 'sweep:unsupported:no-pidfd-open': 1, 'sweep:unsupported:no-pidfd-signal': 1, 'lifecycle:unsupported:no-prctl': 1, 'lifecycle:unsupported:no-pidfd-open': 1, 'lifecycle:unsupported:no-pidfd-signal': 1}
+RED  F2-original-allowlist                            {'lifecycle:accepted:presentation': 1, 'lifecycle:accepted:scrubbed': 1}
+RED  F2-git-variables-reach-identity-commands         {'lifecycle:accepted:scrubbed': 1}
+RED  F2-redirect-GIT_DIR-accepted                     {'lifecycle:refusal:git-env-GIT_DIR': 1}
+RED  F2-redirect-GIT_WORK_TREE-accepted               {'lifecycle:refusal:git-env-GIT_WORK_TREE': 1}
+RED  F2-redirect-GIT_COMMON_DIR-accepted              {'lifecycle:refusal:git-env-GIT_COMMON_DIR': 1}
+RED  F2-redirect-GIT_INDEX_FILE-accepted              {'lifecycle:refusal:git-env-GIT_INDEX_FILE': 1}
+RED  F2-redirect-GIT_OBJECT_DIRECTORY-accepted        {'lifecycle:refusal:git-env-GIT_OBJECT_DIRECTORY': 1}
+RED  F2-redirect-GIT_ALTERNATE_OBJECT_DIRECTORIES-accepted {'lifecycle:refusal:git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES': 1}
+RED  F2-redirect-GIT_REPLACE_REF_BASE-accepted        {'lifecycle:refusal:git-env-GIT_REPLACE_REF_BASE': 1}
+RED  F2-redirect-GIT_CONFIG_PARAMETERS-accepted       {'lifecycle:refusal:git-env-GIT_CONFIG_PARAMETERS': 1}
+RED  F2-redirect-GIT_CONFIG_COUNT-accepted            {'lifecycle:refusal:git-env-GIT_CONFIG_COUNT': 1}
+RED  F2-redirect-GIT_CONFIG_GLOBAL-accepted           {'lifecycle:refusal:git-env-GIT_CONFIG_GLOBAL': 1}
+RED  F2-redirect-GIT_CONFIG_SYSTEM-accepted           {'lifecycle:refusal:git-env-GIT_CONFIG_SYSTEM': 1}
+RED  F3-directory-scope-population                    {'lifecycle:accepted:unrelated': 1, 'lifecycle:interrupted:SIGTERM': 1}
+RED  F3-no-include-walk                               {'lifecycle:refusal:dirty-header': 1, 'lifecycle:interrupted:SIGTERM': 1}
+RED  F3-targets-need-not-be-inputs                    {'lifecycle:refusal:undeclared-target': 1}
+RED  F4-copied-dependency-accepted                    {'lifecycle:refusal:copied-dependency': 1}
+RED  F5-stderr-parsed-as-records                      {'lifecycle:accepted:git-stderr': 1}
+RED  F5-unreadable-record-crashes                     {'lifecycle:refusal:git-garbage': 1}
+RED  S-no-directory-link-check                        {'lifecycle:refusal:parent-link': 1, 'lifecycle:refusal:dependency-link': 1}
+RED  S-no-index-comparison                            {'lifecycle:refusal:staged': 1, 'lifecycle:refusal:untracked': 1}
+baseline: {'lifecycle:accepted:git-stderr': 0, 'lifecycle:accepted:presentation': 0, 'lifecycle:accepted:scrubbed': 0, 'lifecycle:accepted:unrelated': 0, 'lifecycle:interrupted:SIGKILL': 0, 'lifecycle:interrupted:SIGTERM': 0, 'lifecycle:refusal:copied-dependency': 0, 'lifecycle:refusal:dependency-link': 0, 'lifecycle:refusal:dirty-header': 0, 'lifecycle:refusal:git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES': 0, 'lifecycle:refusal:git-env-GIT_COMMON_DIR': 0, 'lifecycle:refusal:git-env-GIT_CONFIG_COUNT': 0, 'lifecycle:refusal:git-env-GIT_CONFIG_GLOBAL': 0, 'lifecycle:refusal:git-env-GIT_CONFIG_PARAMETERS': 0, 'lifecycle:refusal:git-env-GIT_CONFIG_SYSTEM': 0, 'lifecycle:refusal:git-env-GIT_DIR': 0, 'lifecycle:refusal:git-env-GIT_INDEX_FILE': 0, 'lifecycle:refusal:git-env-GIT_OBJECT_DIRECTORY': 0, 'lifecycle:refusal:git-env-GIT_REPLACE_REF_BASE': 0, 'lifecycle:refusal:git-env-GIT_WORK_TREE': 0, 'lifecycle:refusal:git-garbage': 0, 'lifecycle:refusal:parent-link': 0, 'lifecycle:refusal:staged': 0, 'lifecycle:refusal:undeclared-target': 0, 'lifecycle:refusal:untracked': 0, 'lifecycle:unsupported:no-pidfd-open': 0, 'lifecycle:unsupported:no-pidfd-signal': 0, 'lifecycle:unsupported:no-prctl': 0, 'sweep:hard_stop:HUP': 0, 'sweep:hard_stop:HUP-group': 0, 'sweep:hard_stop:KILL': 0, 'sweep:unsupported:no-pidfd-open': 0, 'sweep:unsupported:no-pidfd-signal': 0, 'sweep:unsupported:no-prctl': 0}
+verdict: PASS

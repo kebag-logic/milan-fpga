@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.hard_stop(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F1-commands-outlive-owner/scripts/test_suite_cancellation.py", line 269, in hard_stop
+    eventually(lambda: not running(shell, shell_start), 5, "sweep shell outlived its owner")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F1-commands-outlive-owner/scripts/process_test_support.py", line 140, in eventually
+    assert time.monotonic() < deadline, what
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: sweep shell outlived its owner

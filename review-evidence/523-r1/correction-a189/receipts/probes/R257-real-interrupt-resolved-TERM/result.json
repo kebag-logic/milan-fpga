@@ -1,0 +1,31 @@
+{
+ "signal": "TERM",
+ "exit": 143,
+ "boundary": {
+  "private": "$REVIEWS/523-a189-packet/scratch/probe-tmp/gptp-shadow-mutants-pfhn73er",
+  "mutation": "abort_counts_as_completion",
+  "descendants": {
+   "3501950": [
+    "18327255",
+    "$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator_bin --cc --exe --buil"
+   ],
+   "3501597": [
+    "18327244",
+    "make -s run "
+   ],
+   "3501787": [
+    "18327250",
+    "perl $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator --cc --exe --bui"
+   ]
+  }
+ },
+ "private_exists_after": false,
+ "descendants_alive_after_exit": {},
+ "output_tail": [
+  "CANCELLED: signal 15; no mutation verdict"
+ ],
+ "completed_verdict_printed": false,
+ "caller_integrity_exit": 0,
+ "caller_integrity_problems": [],
+ "probe_terminated_survivors": []
+}

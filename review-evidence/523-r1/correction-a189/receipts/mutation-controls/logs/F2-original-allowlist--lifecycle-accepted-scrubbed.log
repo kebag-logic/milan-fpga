@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.accepted(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F2-original-allowlist/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 184, in accepted
+    assert status == 0 and "controls: 9   failures: 0\nRESULT: PASS" in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: REFUSED: Git environment overrides are not accepted: GIT_GLOB_PATHSPECS
+

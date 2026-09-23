@@ -1,0 +1,21 @@
+{
+ "name": "52-R256-lock-wait-cancel",
+ "argv": [
+  "python3",
+  "$MANAGEMENT/2026-09-23/523-a189/scratch/review-probes/review-evidence/523-r1/reviews/R256-2/scripts/probe_lock_wait_cancel.py",
+  "$LANES/523-isolate-mutation-cancellation",
+  "$MANAGEMENT/2026-09-23/523-a189/receipts/probes/R256-lock-wait-cancel.json"
+ ],
+ "cwd": "$LANES/523-isolate-mutation-cancellation/scripts",
+ "set_env": {
+  "TMPDIR": "$REVIEWS/523-a189-packet/scratch/probe-tmp",
+  "PYTHONPATH": "$LANES/523-isolate-mutation-cancellation/scripts"
+ },
+ "unset_env": [],
+ "git_env_names": [
+  "GIT_EDITOR"
+ ],
+ "started": "2026-09-23T09:24:47+0200",
+ "seconds": 6.363,
+ "exit": 0
+}

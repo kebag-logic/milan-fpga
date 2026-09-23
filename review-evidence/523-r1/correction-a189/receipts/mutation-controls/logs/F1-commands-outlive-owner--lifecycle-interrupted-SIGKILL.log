@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.interrupted(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F1-commands-outlive-owner/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 228, in interrupted
+    eventually(lambda: not running(make, make_start), 5, "make outlived the killed driver")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F1-commands-outlive-owner/scripts/process_test_support.py", line 140, in eventually
+    assert time.monotonic() < deadline, what
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: make outlived the killed driver

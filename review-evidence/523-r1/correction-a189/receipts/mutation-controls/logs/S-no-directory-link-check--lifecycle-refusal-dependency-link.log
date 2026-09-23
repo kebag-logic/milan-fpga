@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.refusal(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/S-no-directory-link-check/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 314, in refusal
+    assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('input directory is missing or linked', 'REFUSED: required dependency has no checkout: gptp-processor\n')

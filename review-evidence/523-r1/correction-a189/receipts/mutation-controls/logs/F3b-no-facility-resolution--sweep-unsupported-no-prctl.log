@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.unsupported(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F3b-no-facility-resolution/scripts/test_suite_cancellation.py", line 296, in unsupported
+    assert status == 2 and "REFUSED: process ownership" in output and "Traceback" not in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "/tmp/mutation-arm-190890jb/facility-no-prctl input [523]/scripts/owned_process.py", line 299, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/mutation-arm-190890jb/facility-no-prctl input [523]/scripts/owned_process.py", line 286, in main
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "/tmp/mutation-arm-190890jb/facility-no-prctl input [523]/scripts/owned_process.py", line 96, in __enter__
+    if self.prctl(PR_GET_PDEATHSIG, ctypes.byref(ctypes.c_int()), 0, 0, 0):
+       ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not callable
+

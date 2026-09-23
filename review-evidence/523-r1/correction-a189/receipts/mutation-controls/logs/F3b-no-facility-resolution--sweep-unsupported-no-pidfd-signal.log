@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.unsupported(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F3b-no-facility-resolution/scripts/test_suite_cancellation.py", line 296, in unsupported
+    assert status == 2 and "REFUSED: process ownership" in output and "Traceback" not in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+PASS     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 2   failed: 0   timed out: 0
+checks: 2   in-suite failures: 0
+logs: /tmp/mutation-arm-ihhen3ck/facility-no-pidfd-signal input [523]/logs
+

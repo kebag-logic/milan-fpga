@@ -1,0 +1,24 @@
+{
+ "name": "50-R257-real-interrupt-KILL",
+ "argv": [
+  "python3",
+  "$MANAGEMENT/2026-09-23/523-a189/scratch/review-probes/review-evidence/523-r1/reviews/R257-1/scripts/probe_real_interrupt.py",
+  "$LANES/523-isolate-mutation-cancellation",
+  "6674c278a8db5f0886d036dceff02d33b7ca6a37",
+  "KILL",
+  "$MANAGEMENT/2026-09-23/523-a189/receipts/probes/R257-real-interrupt-resolved-KILL"
+ ],
+ "cwd": "$LANES/523-isolate-mutation-cancellation",
+ "set_env": {
+  "TMPDIR": "$REVIEWS/523-a189-packet/scratch/probe-tmp",
+  "PROBE_VERILATOR": "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator",
+  "PATH": "$VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin"
+ },
+ "unset_env": [],
+ "git_env_names": [
+  "GIT_EDITOR"
+ ],
+ "started": "2026-09-23T09:24:29+0200",
+ "seconds": 1.388,
+ "exit": 0
+}
