@@ -1,0 +1,394 @@
+== mut-R1
+  probe_srp_decoder: 159 checks: 156 PASS, 3 FAIL
+    FAIL: U1 one message strobe order
+    FAIL: U2 across messages strobe order
+    FAIL: U3 MVRP strobe order
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R10
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R11
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R2
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1062 PASS, 6 FAIL
+    FAIL: H TalkerAdvertise: talker Failed applicant VP
+    FAIL: H TalkerFailed: talker Advertise applicant VP
+    FAIL: H Listener: talker Advertise applicant VP
+    FAIL: H Listener: talker Failed applicant VP
+    FAIL: H Domain: talker Advertise applicant VP
+    FAIL: H Domain: talker Failed applicant VP
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R3
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1065 PASS, 3 FAIL
+    FAIL: H TalkerAdvertise: listener Listener applicant VP
+    FAIL: H TalkerFailed: listener Listener applicant VP
+    FAIL: H Domain: listener Listener applicant VP
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R4
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R5
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R6
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 554 PASS, 2 FAIL
+    FAIL: L6 next PDU: length got 121 exp 30
+    FAIL: L6 next PDU: byte-exact against the independent packer
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R7
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 540 PASS, 16 FAIL
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[3]: byte-exact against the independent packer
+    FAIL: L1[4]: byte-exact against the independent packer
+    FAIL: L1[5]: byte-exact against the independent packer
+    FAIL: L1[6]: byte-exact against the independent packer
+    FAIL: L1[8]: byte-exact against the independent packer
+    FAIL: L1[9]: byte-exact against the independent packer
+    FAIL: L1[10]: byte-exact against the independent packer
+    FAIL: L1[12]: byte-exact against the independent packer
+    FAIL: L2 LeaveAll-only tail equals the switch's wire bytes
+    FAIL: L2b Domain LeaveAll-only message: list length 8, NoV 0, 4 zero octets
+    FAIL: L3: byte-exact against the independent packer
+    FAIL: L5 next PDU: byte-exact against the independent packer
+    FAIL: L6 start-cycle LeaveAll: byte-exact against the independent packer
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R8
+  probe_srp_decoder: 159 checks: 157 PASS, 2 FAIL
+    FAIL: A2 re-armed after a malformed MRPDU strobe order
+    FAIL: A3 re-armed after a discarded MRPDU strobe order
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 556 checks: 556 PASS, 0 FAIL
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== mut-R9
+  srp_decoder: 150 checks: 150 PASS, 0 FAIL
+  srp_encoder: 541 checks: 426 PASS, 115 FAIL
+    FAIL: E7: length got 251 exp 123
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: L1[1]: length got 377 exp 121
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 2 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 34, no packed events, AttributeListLength 38, after every declared message
+    FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 377, plain 51)
+    FAIL: L1[2]: length got 377 exp 121
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[2]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[2]: LeaveAll adds exactly 61 octets (got 377, plain 60)
+    FAIL: L1[3]: length got 314 exp 122
+    FAIL: L1[3]: byte-exact against the independent packer
+    FAIL: L1[3]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[3]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[3]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[3]: type 3 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 8, no packed events, AttributeListLength 12, after every declared message
+    FAIL: L1[3]: LeaveAll adds exactly 28 octets (got 314, plain 94)
+    FAIL: L1[4]: length got 314 exp 122
+    FAIL: L1[4]: byte-exact against the independent packer
+    FAIL: L1[4]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[4]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[4]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[4]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[4]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[4]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[4]: LeaveAll adds exactly 87 octets (got 314, plain 35)
+    FAIL: L1[5]: length got 251 exp 123
+    FAIL: L1[5]: byte-exact against the independent packer
+    FAIL: L1[5]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[5]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[5]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[5]: type 2 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 34, no packed events, AttributeListLength 38, after every declared message
+    FAIL: L1[5]: LeaveAll adds exactly 54 octets (got 251, plain 69)
+    FAIL: L1[6]: length got 251 exp 123
+    FAIL: L1[6]: byte-exact against the independent packer
+    FAIL: L1[6]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[6]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[6]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[6]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[6]: LeaveAll adds exactly 45 octets (got 251, plain 78)
+    FAIL: L1[7]: length got 188 exp 124
+    FAIL: L1[7]: byte-exact against the independent packer
+    FAIL: L1[7]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[7]: type 4 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 4, no packed events, AttributeListLength 8, after every declared message
+    FAIL: L1[7]: LeaveAll adds exactly 12 octets (got 188, plain 112)
+    FAIL: L1[8]: length got 377 exp 121
+    FAIL: L1[8]: byte-exact against the independent packer
+    FAIL: L1[8]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[8]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[8]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[8]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[8]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[8]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[8]: LeaveAll adds exactly 91 octets (got 377, plain 30)
+    FAIL: L1[9]: length got 314 exp 122
+    FAIL: L1[9]: byte-exact against the independent packer
+    FAIL: L1[9]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[9]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[9]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[9]: type 2 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 34, no packed events, AttributeListLength 38, after every declared message
+    FAIL: L1[9]: LeaveAll adds exactly 58 octets (got 314, plain 64)
+    FAIL: L1[10]: length got 314 exp 122
+    FAIL: L1[10]: byte-exact against the independent packer
+    FAIL: L1[10]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[10]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[10]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[10]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[10]: LeaveAll adds exactly 49 octets (got 314, plain 73)
+    FAIL: L1[11]: length got 251 exp 123
+    FAIL: L1[11]: byte-exact against the independent packer
+    FAIL: L1[11]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[11]: type 3 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 8, no packed events, AttributeListLength 12, after every declared message
+    FAIL: L1[11]: LeaveAll adds exactly 16 octets (got 251, plain 107)
+    FAIL: L1[12]: length got 251 exp 123
+    FAIL: L1[12]: byte-exact against the independent packer
+    FAIL: L1[12]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[12]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[12]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[12]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[12]: LeaveAll adds exactly 75 octets (got 251, plain 48)
+    FAIL: L1[13]: length got 188 exp 124
+    FAIL: L1[13]: byte-exact against the independent packer
+    FAIL: L1[13]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[13]: type 2 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 34, no packed events, AttributeListLength 38, after every declared message
+    FAIL: L1[13]: LeaveAll adds exactly 42 octets (got 188, plain 82)
+    FAIL: L1[14]: length got 188 exp 124
+    FAIL: L1[14]: byte-exact against the independent packer
+    FAIL: L1[14]: one well-formed MRPDU, list lengths agree
+    FAIL: L1[14]: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L1[14]: LeaveAll adds exactly 33 octets (got 188, plain 91)
+    FAIL: L2 frame is 121 octets got 377
+    FAIL: L2 LeaveAll-only tail equals the switch's wire bytes
+    FAIL: L2b Domain LeaveAll-only message: list length 8, NoV 0, 4 zero octets
+    FAIL: L3: length got 281 exp 153
+    FAIL: L3: byte-exact against the independent packer
+    FAIL: L3: one well-formed MRPDU, list lengths agree
+    FAIL: L3: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L3: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L3: type 1 LeaveAll-only vector: LeaveAll, NoV 0, zero FirstValue of AttributeLength 25, no packed events, AttributeListLength 29, after every declared message
+    FAIL: L3 six vectors got 5
+    FAIL: L3 the Listener's second vector and second message carry no LeaveAll
+    FAIL: L5 next PDU: length got 377 exp 121
+    FAIL: L5 next PDU: byte-exact against the independent packer
+    FAIL: L6 start-cycle LeaveAll: length got 377 exp 121
+    FAIL: L6 start-cycle LeaveAll: byte-exact against the independent packer
+  srp_stream_fsms: 1068 checks: 1068 PASS, 0 FAIL
+  srp_top: 252 checks: 252 PASS, 0 FAIL
+== plant-X1
+  srp_encoder: 526 checks: 380 PASS, 146 FAIL
+    FAIL: E7: length got 48 exp 123
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: E7 the Listener message carries its own LeaveAllEvent
+    FAIL: L1[1]: length got 51 exp 121
+    FAIL: L1[1]: byte-exact against the independent packer
+    FAIL: L1[1]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[1]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[1]: LeaveAll adds exactly 70 octets (got 51, plain 51)
+    FAIL: L1[2]: length got 60 exp 121
+    FAIL: L1[2]: byte-exact against the independent packer
+    FAIL: L1[2]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[2]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[2]: LeaveAll adds exactly 61 octets (got 60, plain 60)
+    FAIL: L1[3]: length got 94 exp 122
+    FAIL: L1[3]: byte-exact against the independent packer
+    FAIL: L1[3]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[3]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[3]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[3]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[3]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[3]: LeaveAll adds exactly 28 octets (got 94, plain 94)
+    FAIL: L1[3]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[4]: length got 35 exp 122
+    FAIL: L1[4]: byte-exact against the independent packer
+    FAIL: L1[4]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[4]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[4]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[4]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[4]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[4]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[4]: LeaveAll adds exactly 87 octets (got 35, plain 35)
+    FAIL: L1[5]: length got 69 exp 123
+    FAIL: L1[5]: byte-exact against the independent packer
+    FAIL: L1[5]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[5]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[5]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[5]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[5]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[5]: LeaveAll adds exactly 54 octets (got 69, plain 69)
+    FAIL: L1[5]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[6]: length got 78 exp 123
+    FAIL: L1[6]: byte-exact against the independent packer
+    FAIL: L1[6]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[6]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[6]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[6]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[6]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[6]: LeaveAll adds exactly 45 octets (got 78, plain 78)
+    FAIL: L1[6]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[7]: length got 112 exp 124
+    FAIL: L1[7]: byte-exact against the independent packer
+    FAIL: L1[7]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[7]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[7]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[7]: type 4 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[7]: LeaveAll adds exactly 12 octets (got 112, plain 112)
+    FAIL: L1[7]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 3 types declared)
+    FAIL: L1[8]: length got 30 exp 121
+    FAIL: L1[8]: byte-exact against the independent packer
+    FAIL: L1[8]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[8]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[8]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[8]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[8]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[8]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[8]: LeaveAll adds exactly 91 octets (got 30, plain 30)
+    FAIL: L1[9]: length got 64 exp 122
+    FAIL: L1[9]: byte-exact against the independent packer
+    FAIL: L1[9]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[9]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[9]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[9]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[9]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[9]: LeaveAll adds exactly 58 octets (got 64, plain 64)
+    FAIL: L1[9]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[10]: length got 73 exp 122
+    FAIL: L1[10]: byte-exact against the independent packer
+    FAIL: L1[10]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[10]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[10]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[10]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[10]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[10]: LeaveAll adds exactly 49 octets (got 73, plain 73)
+    FAIL: L1[10]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[11]: length got 107 exp 123
+    FAIL: L1[11]: byte-exact against the independent packer
+    FAIL: L1[11]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[11]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[11]: type 3 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[11]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[11]: LeaveAll adds exactly 16 octets (got 107, plain 107)
+    FAIL: L1[11]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 3 types declared)
+    FAIL: L1[12]: length got 48 exp 123
+    FAIL: L1[12]: byte-exact against the independent packer
+    FAIL: L1[12]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[12]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[12]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[12]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[12]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[12]: LeaveAll adds exactly 75 octets (got 48, plain 48)
+    FAIL: L1[12]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 2 types declared)
+    FAIL: L1[13]: length got 82 exp 124
+    FAIL: L1[13]: byte-exact against the independent packer
+    FAIL: L1[13]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[13]: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[13]: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[13]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[13]: LeaveAll adds exactly 42 octets (got 82, plain 82)
+    FAIL: L1[13]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 3 types declared)
+    FAIL: L1[14]: length got 91 exp 124
+    FAIL: L1[14]: byte-exact against the independent packer
+    FAIL: L1[14]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[14]: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L1[14]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[14]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[14]: LeaveAll adds exactly 33 octets (got 91, plain 91)
+    FAIL: L1[14]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 3 types declared)
+    FAIL: L1[15]: byte-exact against the independent packer
+    FAIL: L1[15]: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[15]: type 3 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[15]: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L1[15]: declared messages differ only by one LeaveAllEvent bit per type (1 octets differ, 4 types declared)
+    FAIL: L2 frame is 121 octets got 30
+    FAIL: L2 LeaveAll-only tail equals the switch's wire bytes
+    FAIL: L2b Domain LeaveAll-only message: list length 8, NoV 0, 4 zero octets
+    FAIL: L3: length got 78 exp 153
+    FAIL: L3: byte-exact against the independent packer
+    FAIL: L3: type 1 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L3: type 1 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L3: type 2 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L3: type 2 (not declared) has 0 LeaveAll-only vectors
+    FAIL: L3: type 4 carries LeaveAll once, on its first vector (0 flags)
+    FAIL: L3 six vectors got 4
+    FAIL: L3 the Listener's second vector and second message carry no LeaveAll
+    FAIL: L5 next PDU: length got 60 exp 121
+    FAIL: L5 next PDU: byte-exact against the independent packer
+    FAIL: L6 start-cycle LeaveAll: length got 30 exp 121
+    FAIL: L6 start-cycle LeaveAll: byte-exact against the independent packer
+== plant-X2
+  srp_decoder: 150 checks: 131 PASS, 19 FAIL
+    FAIL: L on the Domain lane got 0
+    FAIL: P Listener lane once got 0
+    FAIL: P Domain lane once got 0
+    FAIL: P Talker Advertise lane once got 4
+    FAIL: P Talker Failed lane once got 0
+    FAIL: P strobe order
+    FAIL: Q Domain lane once got 0
+    FAIL: Q talker lanes never fire
+    FAIL: Q strobe order
+    FAIL: R Listener lane once got 0
+    FAIL: R strobe order
+    FAIL: S pdu 0 Listener lane once got 0
+    FAIL: S pdu 0 no other lane got 3
+    FAIL: S pdu 0 strobe order
+    FAIL: S pdu 1 Listener lane once got 0
+    FAIL: S pdu 1 no other lane got 3
+    FAIL: S pdu 1 strobe order
+    FAIL: S MVRP lane once per MRPDU got 2
+    FAIL: S MVRP strobe order
+== plant-X3
+  srp_top: 252 checks: 247 PASS, 5 FAIL
+    FAIL: F5a: Run B LeaveAll MRPDU: the Listener registration stays IN past T-MRP-LEAVE
+    FAIL: F5a: source 1 stays ACTIVE
+    FAIL: F5b: a Domain-only LeaveAll never ages the Listener registration
+    FAIL: F5b: nor sink 0's Talker Advertise
+    FAIL: F5c: sink 0's Talker Advertise untouched
+== oldtb-srp_decoder
+  srp_decoder: 113 checks: 113 PASS, 0 FAIL
+== oldtb-srp_encoder
+  srp_encoder: 180 checks: 177 PASS, 3 FAIL
+    FAIL: E7: length got 123 exp 48
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: E7 second vector carries no LeaveAll
+== oldtb-srp_top
+  srp_top: 235 checks: 230 PASS, 5 FAIL
+    FAIL: F2: TK_ATTR_UNREGISTERED after T-MRP-LEAVE
+    FAIL: F2: registration gone
+    FAIL: F2: Listener declaration withdrawn
+    FAIL: F2: Listener Lv on the wire
+    FAIL: F4: every cycle re-declares Listener Ready

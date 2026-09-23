@@ -1,0 +1,6 @@
+simulator: Verilator 5.050 2026-07-01 rev v5.050
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+wrapper exec target: $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af57.../diff/usr/bin/verilator (same overlay the manager receipts name)
+verilator_bin sha256: 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+job cap: scripts/vl_j2.sh rewrites the suites' '--build -j 0' to '-j 2'; at most 4 suites concurrently (<= 8 jobs)
+python: Python 3.14.7

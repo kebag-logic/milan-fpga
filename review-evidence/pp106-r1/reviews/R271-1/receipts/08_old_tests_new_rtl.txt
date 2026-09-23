@@ -1,0 +1,11 @@
+FAIL srp_encoder rc=2 (180 checks: 177 PASS, 3 FAIL)
+    FAIL: E7: length got 123 exp 48
+    FAIL: E7: byte-exact against the independent packer
+    FAIL: E7 second vector carries no LeaveAll
+PASS srp_decoder (113 checks: 113 PASS, 0 FAIL)
+FAIL srp_top rc=2 (235 checks: 230 PASS, 5 FAIL)
+    FAIL: F2: TK_ATTR_UNREGISTERED after T-MRP-LEAVE
+    FAIL: F2: registration gone
+    FAIL: F2: Listener declaration withdrawn
+    FAIL: F2: Listener Lv on the wire
+    FAIL: F4: every cycle re-declares Listener Ready
