@@ -1,0 +1,154 @@
+{
+ "control-default-no-localedef": {
+  "rc": 0,
+  "ok": 564,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "lossy-git-bytes-no-localedef": {
+  "rc": 1,
+  "ok": 541,
+  "fail_count": 8,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-patch-bytes",
+   "locale-big5-in-process-7261772dff-patch-bytes",
+   "locale-big5-in-process-e282ac2e747874-patch-bytes",
+   "locale-big5-in-process-a1fe2e747874-linear-missing",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-enumerated-bytes",
+   "locale-big5-in-process-a1fe2e747874-postimage"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "       got [True, None], expected [False, None]"
+  ],
+  "stderr_tail": "/423-a186-packet/scratch/mut-mutations-head-9dde528c-no-localedef/lossy-git-bytes-no-localedef/scripts/merge_containment_replay.py\", line 70, in _tree_entry\n    raise _MeasurementError(\"invalid ls-tree path or object ID\")\nmerge_containment_replay._MeasurementError: invalid ls-tree path or object ID\n"
+ },
+ "restore-4671-replay-transport-no-localedef": {
+  "rc": 1,
+  "ok": 560,
+  "fail_count": 4,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-merge-reverted",
+   "locale-big5-in-process-c3a92e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 4 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-4671-patch-transport-no-localedef": {
+  "rc": 1,
+  "ok": 539,
+  "fail_count": 25,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-linear-missing",
+   "locale-big5-in-process-c3a92e747874-unproved-path",
+   "locale-big5-in-process-c3a92e747874-merge-retained",
+   "locale-big5-in-process-c3a92e747874-retention-proof",
+   "locale-big5-in-process-c3a92e747874-patch-bytes",
+   "locale-big5-in-process-7261772dff-linear-missing",
+   "locale-big5-in-process-7261772dff-unproved-path",
+   "locale-big5-in-process-7261772dff-merge-retained",
+   "locale-big5-in-process-7261772dff-retention-proof",
+   "locale-big5-in-process-7261772dff-patch-bytes",
+   "locale-big5-in-process-e282ac2e747874-linear-missing",
+   "locale-big5-in-process-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 25 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "drop-lossy-output-guard-no-localedef": {
+  "rc": 1,
+  "ok": 562,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-big5-in-process-git-lossy-output",
+   "locale-big5-in-process-git-lossy-head-branch"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-raw-differing-names-no-localedef": {
+  "rc": 1,
+  "ok": 554,
+  "fail_count": 10,
+  "fails_first": [
+   "retention-distinct-linear-path",
+   "retention-distinct-merge-path",
+   "locale-utf-8-stdout-verdicts",
+   "locale-utf-8-stdout-ascii-report",
+   "locale-utf-8-stdout-names",
+   "locale-ascii-stdout-verdicts",
+   "locale-ascii-stdout-ascii-report",
+   "locale-ascii-stdout-names",
+   "locale-utf-8-strict-stdout-verdicts",
+   "locale-utf-8-strict-stdout-names"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 10 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-decoded-unknown-labels-no-localedef": {
+  "rc": 1,
+  "ok": 547,
+  "fail_count": 17,
+  "fails_first": [
+   "retention-literal-revert-'raw-\\udcff'-path",
+   "locale-utf-8-c3a92e747874-unproved-path",
+   "locale-utf-8-7261772dff-unproved-path",
+   "locale-utf-8-e282ac2e747874-unproved-path",
+   "locale-utf-8-a1fe2e747874-unproved-path",
+   "locale-ascii-c3a92e747874-unproved-path",
+   "locale-ascii-7261772dff-unproved-path",
+   "locale-ascii-e282ac2e747874-unproved-path",
+   "locale-ascii-a1fe2e747874-unproved-path",
+   "locale-utf-8-strict-c3a92e747874-unproved-path",
+   "locale-utf-8-strict-7261772dff-unproved-path",
+   "locale-utf-8-strict-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 17 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ }
+}

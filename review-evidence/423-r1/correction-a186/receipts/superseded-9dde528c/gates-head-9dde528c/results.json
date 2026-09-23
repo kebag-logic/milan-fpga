@@ -1,0 +1,473 @@
+{
+ "head_before": "9dde528c91599285c7b5ef63b5497483c31d317e",
+ "head_after": "9dde528c91599285c7b5ef63b5497483c31d317e",
+ "status_after": "",
+ "results": {
+  "selftest-default": {
+   "name": "selftest-default",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 36.476,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "selftest-utf8-mode": {
+   "name": "selftest-utf8-mode",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {
+    "PYTHONUTF8": "1"
+   },
+   "rc": 0,
+   "seconds": 36.387,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "selftest-utf8-strict": {
+   "name": "selftest-utf8-strict",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {
+    "LC_ALL": "en_US.UTF-8",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0"
+   },
+   "rc": 0,
+   "seconds": 36.543,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "selftest-ascii": {
+   "name": "selftest-ascii",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {
+    "LC_ALL": "C",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0"
+   },
+   "rc": 0,
+   "seconds": 36.009,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "selftest-latin1": {
+   "name": "selftest-latin1",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {
+    "LC_ALL": "en_US.ISO-8859-1",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0",
+    "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+   },
+   "rc": 0,
+   "seconds": 37.028,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "selftest-big5": {
+   "name": "selftest-big5",
+   "argv": [
+    "python3",
+    "-B",
+    "scripts/check_merge_containment.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {
+    "LC_ALL": "zh_TW.BIG5",
+    "PYTHONUTF8": "0",
+    "PYTHONCOERCECLOCALE": "0",
+    "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+   },
+   "rc": 0,
+   "seconds": 37.564,
+   "ok_lines": 678,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  ok   locale-big5-in-process-git-lossy-head-branch Big5 filesystem codec in this process",
+    "selftest: PASS"
+   ]
+  },
+  "docs-check": {
+   "name": "docs-check",
+   "argv": [
+    "python3",
+    "scripts/docs_check.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 3.756,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "docs_check: 0 finding(s) across 163 md files + 833 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]"
+   ]
+  },
+  "em-dash": {
+   "name": "em-dash",
+   "argv": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "483a133ed08867ea0d300d2b4a027b5b48a4282f"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 1.179,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "check_em_dash: 0 finding(s) over 54 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]"
+   ]
+  },
+  "em-dash-selftest": {
+   "name": "em-dash-selftest",
+   "argv": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 1.187,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "check_em_dash selftest: PASS (57 arm(s))"
+   ]
+  },
+  "doc-style": {
+   "name": "doc-style",
+   "argv": [
+    "python3",
+    "scripts/check_doc_style.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.046,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "documentation style: OK (22 current documents)"
+   ]
+  },
+  "doc-paths": {
+   "name": "doc-paths",
+   "argv": [
+    "python3",
+    "scripts/check_doc_paths.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.075,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)"
+   ]
+  },
+  "gen-toc-check": {
+   "name": "gen-toc-check",
+   "argv": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--check"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.362,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)"
+   ]
+  },
+  "gen-toc-anchors": {
+   "name": "gen-toc-anchors",
+   "argv": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--verify-anchors"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.385,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "anchor check: 144 existing cross-page fragment links reproduced"
+   ]
+  },
+  "feature-status": {
+   "name": "feature-status",
+   "argv": [
+    "python3",
+    "scripts/check_feature_status.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.575,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "feature_status: 0 finding(s)"
+   ]
+  },
+  "py-idiom": {
+   "name": "py-idiom",
+   "argv": [
+    "python3",
+    "scripts/check_py_idiom.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 2.864,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  global statement: 0 <= 0",
+    "  over-long line: 0 <= 0"
+   ]
+  },
+  "py-idiom-selftest": {
+   "name": "py-idiom-selftest",
+   "argv": [
+    "python3",
+    "scripts/check_py_idiom.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 2.861,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "",
+    "54 checks: 54 PASS, 0 FAIL"
+   ]
+  },
+  "hygiene": {
+   "name": "hygiene",
+   "argv": [
+    "python3",
+    "scripts/check_hygiene.py",
+    "--check"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.289,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0",
+    "HYGIENE RATCHET: PASS (3 population(s), 712 file(s))"
+   ]
+  },
+  "hygiene-selftest": {
+   "name": "hygiene-selftest",
+   "argv": [
+    "python3",
+    "scripts/check_hygiene.py",
+    "--selftest"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.298,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "",
+    "35 checks: 35 PASS, 0 FAIL"
+   ]
+  },
+  "naming": {
+   "name": "naming",
+   "argv": [
+    "python3",
+    "scripts/measure_naming.py",
+    "--check"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.426,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "",
+    "NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)"
+   ]
+  },
+  "fail-fast": {
+   "name": "fail-fast",
+   "argv": [
+    "python3",
+    "scripts/measure_fail_fast.py",
+    "--check"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 1.401,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)",
+    "  the ratchets can be lowered to 82, 4 and 0"
+   ]
+  },
+  "test-evidence": {
+   "name": "test-evidence",
+   "argv": [
+    "python3",
+    "scripts/measure_test_evidence.py",
+    "--check"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 4.636,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))",
+    "  the mutation ratchet can be lowered to 75"
+   ]
+  },
+  "todo-ownership": {
+   "name": "todo-ownership",
+   "argv": [
+    "python3",
+    "scripts/check_todo_ownership.py"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 1.218,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": [
+    "TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 762 first-party file(s) read)"
+   ]
+  },
+  "whitespace": {
+   "name": "whitespace",
+   "argv": [
+    "git",
+    "diff",
+    "--check",
+    "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+    "HEAD"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.005,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": []
+  },
+  "whitespace-reviewed-head": {
+   "name": "whitespace-reviewed-head",
+   "argv": [
+    "git",
+    "diff",
+    "--check",
+    "4671e582cfa4bba4809b9e3a354ce5b6eb967f99",
+    "HEAD"
+   ],
+   "cwd": "$LANES/423-retained-redundant-replay",
+   "env": {},
+   "rc": 0,
+   "seconds": 0.018,
+   "ok_lines": 0,
+   "fail_lines": 0,
+   "not_run": [],
+   "tail": []
+  }
+ }
+}

@@ -1,0 +1,16 @@
+A-merge-big5             rc=0 'contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]'
+A-merge-utf8-mode        rc=1 "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'"
+A-merge-utf8-strict      rc=1 "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'"
+A-merge-latin1           rc=1 "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'"
+A-merge-ascii            rc=1 "UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'"
+A-linear-big5            rc=0 'contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]'
+A-linear-utf8-mode       rc=1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]'
+A-linear-utf8-strict     rc=1 '""))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: \'utf-8\' codec can\'t encode characters in position 89-90: surrogates not allowed\n'
+A-linear-latin1          rc=1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]'
+A-linear-ascii           rc=1 'STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]'
+D-multitarget-utf8-strict rc=1 'contained  refs/heads/aa-ok'
+D-multitarget-utf8-mode  rc=1 'contained  refs/heads/aa-ok'
+D-multitarget-ascii      rc=1 'contained  refs/heads/aa-ok'
+D-multitarget-latin1     rc=1 'contained  refs/heads/aa-ok'
+D-multitarget-big5       rc=1 'contained  refs/heads/aa-ok'
+C-guards                 rc=0 "rename   head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'a.tx"

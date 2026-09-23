@@ -1,0 +1,23 @@
+483a133e Merge PR #512: bound AUDIO_UNIT rates to the PP contract
+1496558d Merge dev after Markdown closer validation
+2b200948 docs: pin AUDIO_UNIT memory-map reference to processor commit
+d81a3027 Merge dev for AUDIO_UNIT rate-list validation
+099e1911 fix(builder): enforce AUDIO_UNIT rate-list contract
+docs/ENDSTATION_BUILDER.md       |   2 +-
+ sw/builder/endstation_builder.py |  13 ++++-
+ sw/builder/test_builder.py       | 123 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 136 insertions(+), 2 deletions(-)
+Merge made by the 'ort' strategy.
+ docs/ENDSTATION_BUILDER.md       |   2 +-
+ sw/builder/endstation_builder.py |  13 ++++-
+ sw/builder/test_builder.py       | 123 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 136 insertions(+), 2 deletions(-)
+merge rc=0
+e1e0f97974180190c8e0c2a28877eb2b8f326c7d
+12dcd757ec2ecba56b57138ad999c51cf0e60eb2
+4671e582cfa4bba4809b9e3a354ce5b6eb967f99
+483a133ed08867ea0d300d2b4a027b5b48a4282f
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
