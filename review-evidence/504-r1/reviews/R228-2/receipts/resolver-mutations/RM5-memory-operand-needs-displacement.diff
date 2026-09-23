@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..cdce5e98 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -775,7 +775,7 @@ def rv32_is_load(mnem: str) -> bool:
+     return mnem in RV32_LOADS or bool(RV32_OTHER_LOAD_RE.match(mnem))
+ 
+ 
+-RV32_MEM_BASE_RE = re.compile(r"\(\s*([a-z0-9]+)\s*\)$")
++RV32_MEM_BASE_RE = re.compile(r"\d\(\s*([a-z0-9]+)\s*\)$")
+ 
+ 
+ def rv32_memory_operand(args: list[str]) -> bool:

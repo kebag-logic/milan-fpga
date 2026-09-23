@@ -1,0 +1,13 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index c1ba135a..5a1e022e 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -1577,7 +1577,7 @@ def _rv32_step_store(state, mnem, ops, args):
+         if isinstance(held, Rv32Stack):
+             return ("store", (Rv32Where("stack"), value))
+         if base in RV32_FRAME_REGS and held is None:
+-            _rv32_forget_overlap(state.mem, (base,), offset, width)
++            _rv32_forget_overlap(state.mem, (base,), offset, 4)
+             state.mem[(base, offset)] = value
+             return None
+         if isinstance(held, Rv32Tag) and held.what.startswith("call:"):

@@ -1,0 +1,65 @@
+# Exact-head hosted evidence, read-only via the GitHub API at 2026-09-23T06:55:48Z
+# commit 5081a25a451b4ac1c00f286ec59ab041c22fdde9 check runs (name, status, conclusion, started, completed, id)
+bdd-conformance	completed	success	2026-09-23T05:26:52Z	2026-09-23T05:27:04Z	107056963946
+changes	completed	success	2026-09-23T05:26:50Z	2026-09-23T05:27:05Z	107056964170
+docs-check	completed	success	2026-09-23T05:26:51Z	2026-09-23T05:39:28Z	107056964016
+docs-check-no-git	completed	success	2026-09-23T05:26:51Z	2026-09-23T05:27:01Z	107056963839
+elaborate	completed	success	2026-09-23T05:26:50Z	2026-09-23T05:37:22Z	107056964304
+full-ci-gate	completed	success	2026-09-23T05:26:50Z	2026-09-23T05:27:07Z	107056963499
+Physical gPTP (nightly and manual)	completed	skipped	2026-09-23T05:27:07Z	2026-09-23T05:27:07Z	107057029469
+rtl-fast	completed	success	2026-09-23T05:34:09Z	2026-09-23T05:34:12Z	107058377389
+verilator-lint	completed	success	2026-09-23T05:27:07Z	2026-09-23T05:27:37Z	107057022274
+Verilator shard 0/5	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:38:57Z	107057028543
+Verilator shard 1/5	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:49:52Z	107057028520
+Verilator shard 2/5	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:30:40Z	107057028571
+Verilator shard 3/5	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:32:49Z	107057028523
+Verilator shard 4/5	completed	success	2026-09-23T05:27:09Z	2026-09-23T06:00:43Z	107057028491
+verilator-suites	completed	success	2026-09-23T06:00:45Z	2026-09-23T06:00:53Z	107064117632
+wire-accountability	completed	success	2026-09-23T05:26:51Z	2026-09-23T05:27:00Z	107056964028
+yosys-elaboration	completed	success	2026-09-23T05:27:07Z	2026-09-23T05:33:36Z	107057022283
+yosys-portability	completed	success	2026-09-23T06:00:55Z	2026-09-23T06:01:06Z	107064159020
+Yosys shard 0/4	completed	success	2026-09-23T05:27:10Z	2026-09-23T05:27:45Z	107057028581
+Yosys shard 1/4	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:27:35Z	107057028493
+Yosys shard 2/4	completed	success	2026-09-23T05:27:09Z	2026-09-23T05:27:34Z	107057028525
+Yosys shard 3/4	completed	success	2026-09-23T05:27:10Z	2026-09-23T05:27:35Z	107057028526
+
+# job 107056964016: 4458 log lines, sha256 0c5cee27c0774bfdbb622d479a10e1b78203742063b7615c5324f9b9a2c02b66
+265:docs-check	Run actions/checkout@v4	2026-09-23T05:27:01.8552714Z HEAD is now at eb3c17ac Merge 5081a25a451b4ac1c00f286ec59ab041c22fdde9 into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+677:docs-check	Cache the pinned RV32 SDK	2026-09-23T05:28:14.1742352Z Cache restored successfully
+678:docs-check	Cache the pinned RV32 SDK	2026-09-23T05:28:14.1892443Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+758:docs-check	Install and verify the pinned RV32 SDK	2026-09-23T05:28:14.9526542Z Ran 25 tests in 0.653s
+767:docs-check	Install and verify the pinned RV32 SDK	2026-09-23T05:28:15.9916563Z SDK cache hit: verified
+774:docs-check	Compiler-absent firmware controls	2026-09-23T05:28:17.8213296Z compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS
+802:docs-check	Compiler-absent firmware controls	2026-09-23T05:31:24.0117513Z NOT RUN [gate 1b]: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neith
+803:docs-check	Compiler-absent firmware controls	2026-09-23T05:31:24.0126209Z NOT RUN [gate 1b]: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutan
+804:docs-check	Compiler-absent firmware controls	2026-09-23T05:31:24.0128932Z NOT RUN [gate 1b]: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+805:docs-check	Compiler-absent firmware controls	2026-09-23T05:31:24.0130725Z GATE 1b PASS; 3 NOT RUN; 0 actual firmware compiler invocations
+819:docs-check	End-station builder gates	2026-09-23T05:35:45.0320760Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+1088:docs-check	End-station builder gates	2026-09-23T05:36:20.2172312Z ALL GATES PASS EXCEPT 13 NOT RUN
+      1 135/135 non-RTL mutations rejected
+      1 166/166 non-RTL mutations rejected
+      1 census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0
+      1 classifying all 66 store(s)
+      1 reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused on the resolved store address
+
+# job 107056964304: 1158 log lines, sha256 014c080a6be9ecf7e64399902fc5482caa5108039f814f0e6d7e79288a15ca53
+267:elaborate	Run actions/checkout@v4	2026-09-23T05:27:01.1247006Z HEAD is now at eb3c17ac Merge 5081a25a451b4ac1c00f286ec59ab041c22fdde9 into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+458:elaborate	Cache the pinned pip downloads	2026-09-23T05:27:07.0225921Z Cache restored successfully
+459:elaborate	Cache the pinned pip downloads	2026-09-23T05:27:07.0309313Z Cache restored from key: elaborate-pip-Linux-4f2135aa3d03386ae9fcb56f88207b63f6a04571d861d464a13c692b319e9684
+502:elaborate	Cache the Scala toolchain	2026-09-23T05:27:36.1232713Z Cache restored successfully
+503:elaborate	Cache the Scala toolchain	2026-09-23T05:27:36.1414073Z Cache restored from key: elaborate-sbt-Linux
+529:elaborate	Cache the generated CPU metadata	2026-09-23T05:27:36.4964679Z Cache restored successfully
+530:elaborate	Cache the generated CPU metadata	2026-09-23T05:27:36.5044269Z Cache restored from key: elaborate-vexii-2bde2c81064bf8744d7af0116b65d8ccfebf8f44a633c54de10ddcd3f2005590
+566:elaborate	Place the VexiiRiscv source at the revision LiteX pins	2026-09-23T05:27:38.5776013Z HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+628:elaborate	Cache the pinned RV32 SDK	2026-09-23T05:27:46.4217391Z Cache restored successfully
+629:elaborate	Cache the pinned RV32 SDK	2026-09-23T05:27:46.4368828Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+717:elaborate	Install and verify the pinned RV32 SDK	2026-09-23T05:27:47.8652816Z Ran 25 tests in 0.691s
+726:elaborate	Install and verify the pinned RV32 SDK	2026-09-23T05:27:48.9874016Z SDK cache hit: verified
+747:elaborate	Elaboration gates	2026-09-23T05:32:38.9993937Z   [gate 1b] compiler argv[0]=/home/runner/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+1006:elaborate	Elaboration gates	2026-09-23T05:34:30.5093977Z ALL GATES PASS EXCEPT 3 NOT RUN
+1033:elaborate	Cache the pinned Verilator build	2026-09-23T05:34:31.4871128Z Cache restored successfully
+1034:elaborate	Cache the pinned Verilator build	2026-09-23T05:34:31.4995002Z Cache restored from key: verilator-v5.050-Linux
+      1 166/166 non-RTL mutations rejected
+      1 census ISA is rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0
+      1 classifying all 66 store(s)
+      1 reached the resolver as fsw, fsd, amoswap.w, amoor.w, sc.w, each refused on the resolved store address
