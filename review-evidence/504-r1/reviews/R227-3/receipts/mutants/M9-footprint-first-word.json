@@ -1,0 +1,20 @@
+{
+ "id": "M9-footprint-first-word",
+ "reverts": "R228-F4: a store is judged at its first word only",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "not the words it writes",
+ "last_error_line": "AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every other store, or a store into the Milan CSR window leaves the census unasked",
+ "edits": [
+  {
+   "old": "    return [address & RV32_MASK] + [word & RV32_MASK for word in further]\n",
+   "new": "    return [address & RV32_MASK]\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

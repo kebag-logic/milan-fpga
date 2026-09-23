@@ -1,0 +1,42 @@
+{
+ "tree": "$REVIEW_OUT/scratch/base-tree",
+ "label": "as-is",
+ "halfword-read": {
+  "stores": [
+   "0x92340600"
+  ],
+  "final_store": "0x92340600",
+  "final_store_judged": "placed outside: ACCEPTED by rule 1"
+ },
+ "wholeword-read-masked": {
+  "stores": [
+   "0x90000600"
+  ],
+  "final_store": "0x90000600",
+  "final_store_judged": "in window: refused by rule 1"
+ },
+ "halfword-read-static": {
+  "stores": [
+   "sym(probe_static)",
+   "unplaced(bits(set=0x90000000,clear=0x0))"
+  ],
+  "final_store": "unplaced(bits(set=0x90000000,clear=0x0))",
+  "final_store_judged": "unplaced: rule 1b"
+ },
+ "top-byte-store-frame": {
+  "stores": [
+   "0x12000600"
+  ],
+  "final_store": "0x12000600",
+  "final_store_judged": "placed outside: ACCEPTED by rule 1"
+ },
+ "top-byte-store-static": {
+  "stores": [
+   "sym(probe_static)",
+   "sym(probe_static)",
+   "0x12000600"
+  ],
+  "final_store": "0x12000600",
+  "final_store_judged": "placed outside: ACCEPTED by rule 1"
+ }
+}

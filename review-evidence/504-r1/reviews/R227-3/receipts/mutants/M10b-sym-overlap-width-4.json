@@ -1,0 +1,20 @@
+{
+ "id": "M10b-sym-overlap-width-4",
+ "reverts": "R228-F4 (RM11): static overlap width fixed at 4",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "reloaded at its second",
+ "last_error_line": "AssertionError: after an fsd over a static's first word, reloaded at its second the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "            _rv32_forget_overlap(state.mem, (\"sym\", held.name), at, width)\n",
+   "new": "            _rv32_forget_overlap(state.mem, (\"sym\", held.name), at, 4)\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

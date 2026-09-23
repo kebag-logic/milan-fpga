@@ -1,0 +1,25 @@
+ci_rv32_sdk_selftest exit=0 elapsed=1s argv=python3 scripts/ci_rv32_sdk_selftest.py
+firmware_compiler_selftest exit=0 elapsed=1s argv=python3 sw/builder/test_firmware_compiler.py --selftest
+ci_events_check exit=0 elapsed=0s argv=python3 scripts/ci_events.py --check
+ci_events_selftest exit=0 elapsed=14s argv=python3 scripts/ci_events.py --selftest
+baremetal_check exit=0 elapsed=14s argv=python3 scripts/check_baremetal_only.py --check
+baremetal_selftest exit=0 elapsed=2s argv=python3 scripts/check_baremetal_only.py --selftest
+em_dash_base exit=0 elapsed=1s argv=python3 scripts/check_em_dash.py --base 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+em_dash_selftest exit=0 elapsed=1s argv=python3 scripts/check_em_dash.py --selftest
+docs_check exit=0 elapsed=4s argv=python3 scripts/docs_check.py
+doc_style exit=0 elapsed=0s argv=python3 scripts/check_doc_style.py
+doc_style_selftest exit=0 elapsed=0s argv=python3 scripts/check_doc_style.py --selftest
+doc_paths exit=0 elapsed=0s argv=python3 scripts/check_doc_paths.py
+toc_selftest exit=0 elapsed=0s argv=python3 scripts/gen_toc.py --selftest
+toc_anchors exit=0 elapsed=1s argv=python3 scripts/gen_toc.py --verify-anchors
+toc_check exit=0 elapsed=0s argv=python3 scripts/gen_toc.py --check
+py_idiom exit=0 elapsed=3s argv=python3 scripts/check_py_idiom.py
+py_idiom_selftest exit=0 elapsed=2s argv=python3 scripts/check_py_idiom.py --selftest
+hygiene_check exit=0 elapsed=1s argv=python3 scripts/check_hygiene.py --check
+hygiene_selftest exit=0 elapsed=0s argv=python3 scripts/check_hygiene.py --selftest
+todo_ownership exit=0 elapsed=1s argv=python3 scripts/check_todo_ownership.py
+fail_fast_check exit=0 elapsed=2s argv=python3 scripts/measure_fail_fast.py --check
+naming_check exit=0 elapsed=0s argv=python3 scripts/measure_naming.py --check
+test_evidence_check exit=0 elapsed=5s argv=python3 scripts/measure_test_evidence.py --check
+feature_status_selftest exit=0 elapsed=0s argv=python3 scripts/check_feature_status.py --self-test
+feature_status exit=0 elapsed=1s argv=python3 scripts/check_feature_status.py

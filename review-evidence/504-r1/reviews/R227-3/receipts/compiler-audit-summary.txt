@@ -1,0 +1,8 @@
+head-sdk-argv: records=242 firmware_compiles=235 argv_tails_preserved=True
+  argv0 mappings: [('$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc', '$REVIEW_OUT/scratch/sdk/host/bin/riscv32-linux-gcc'), ('cc', 'cc'), ('gcc', 'gcc'), ('riscv64-elf-gcc', 'riscv64-elf-gcc')]
+  results: {0: 241, 1: 1}
+  assembly arch: {'rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0': 120}
+head-absent-argv: records=9 firmware_compiles=0 argv_tails_preserved=True
+  argv0 mappings: [('$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc', None), ('cc', 'cc'), ('gcc', 'gcc'), ('riscv32-unknown-elf-gcc', None), ('riscv64-elf-gcc', None)]
+  results: {'deliberately absent': 3, 0: 2, 1: 4}
+  assembly arch: {}

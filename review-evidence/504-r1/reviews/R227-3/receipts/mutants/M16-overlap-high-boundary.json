@@ -1,0 +1,20 @@
+{
+ "id": "M16-overlap-high-boundary",
+ "reverts": "boundary: a slot starting exactly at the store's last byte",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "SURVIVED",
+ "expected": null,
+ "last_error_line": "",
+ "edits": [
+  {
+   "old": "key[-1] <= start + width - 1 and",
+   "new": "key[-1] < start + width - 1 and"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

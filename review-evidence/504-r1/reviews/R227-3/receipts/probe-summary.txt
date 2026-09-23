@@ -1,0 +1,81 @@
+Resolver fault probes at exact head 97aa1ec9 (receipts/mutants/<id>.{json,log})
+C1-compiled-subword            compiled KILLED       exit=1     331s  reverts: M1 with its literal control neutralised: the compiled union mutants must still refuse
+                               control: AssertionError: entity enabled through a local rewritten by a union byte store at its own offset mutation passed the boot-contract gate
+C2-compiled-pointer-rewrite    compiled KILLED       exit=1     333s  reverts: M2 with its literal control neutralised: the compiled pointer mutants must still refuse
+                               control: AssertionError: entity enabled through a local rewritten by an integer store through a pointer to it mutation passed the boot-contract gate
+C3-compiled-fp-classes         compiled KILLED       exit=1       5s  reverts: pre-R228-F1 classes (no fsw/fsd, no fallback), literal controls neutralised
+                               control: AssertionError: the resolver accepted the float struct-overlay store through a paged base, which writes the entity-enable word through a paged base: that store class is open on every instrument
+C4-compiled-M15                compiled SURVIVED     exit=0     335s  reverts: M15 in the complete compiled gate: does any control fail?
+FIX1-plants-frame-lw-only      plants   PLANTS-DONE  exit=1      18s  reverts: information only: frame loads read the slot on lw alone, as statics do; plants re-asked
+M0-none                        literal  SURVIVED     exit=1       1s  reverts: no edit: the literal controls must pass to the stop marker
+M1-subword-keeps-value         literal  KILLED       exit=1       1s  reverts: R227-2-F1: sb/sh store their register as the slot's whole word
+                               control: AssertionError: after a byte store at a frame slot's own offset the RV32 resolver still placed the next store ([0]): a word the store rewrote was read back as a placed address the census accepts
+M10-no-sym-overlap             literal  KILLED       exit=1       1s  reverts: R228-F4: a static store forgets no overlapped word
+                               control: AssertionError: after a byte store into a static's word the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census acce
+M10b-sym-overlap-width-4       literal  KILLED       exit=1       1s  reverts: R228-F4 (RM11): static overlap width fixed at 4
+                               control: AssertionError: after an fsd over a static's first word, reloaded at its second the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed
+M11-no-class-fallback          literal  KILLED       exit=1       1s  reverts: R228-F1: memory-addressing unknown mnemonics are stepped over
+                               control: AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[], [], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed
+M12-no-other-loads             literal  KILLED       exit=1       1s  reverts: R228-F1: FP and LR loads no longer recognised as loads
+                               control: AssertionError: the RV32 resolver reported a load as a store: [unclassified(flw fa5,0(a4)), unclassified(fld fa4,0(a4)), unclassified(lr.w.aqrl a3,0(a4))]
+M13-memop-needs-disp           literal  KILLED       exit=1       1s  reverts: R228-S4: memory operand recognised only with a displacement
+                               control: AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[unclassified(c.sw a5,0(a4))], [unclassified(amocas.w a3,a5,0(a4))], []], not as one UNCLASSIFIED store: th
+M14-no-fsw                     literal  KILLED       exit=1       1s  reverts: R228-F1: fsw dropped from the store table
+                               control: AssertionError: the RV32 resolver reported [unclassified(fsw fa5,0(a4))] for `fsw fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600']): the fsw store class must be judged by address like every
+M15-overlap-low-boundary       literal  SURVIVED     exit=1       1s  reverts: boundary: a slot ending exactly at the store's first byte
+M16-overlap-high-boundary      literal  SURVIVED     exit=1       1s  reverts: boundary: a slot starting exactly at the store's last byte
+M17-footprint-boundary         literal  SURVIVED     exit=1       1s  reverts: boundary: last byte computed one short
+M18-stores-first-only          literal  KILLED       exit=1       1s  reverts: R228-F4: a multi-word observation keeps only its first word
+                               control: AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every ot
+M2-no-forget-frame             literal  KILLED       exit=1       1s  reverts: R227-2-F1/R228-F5: a store through a stack address forgets no slot
+                               control: AssertionError: after an integer store through a pointer to a frame slot the RV32 resolver still placed the next store ([stack(-), 2147487744]): a word the store rewrote was read back as a placed address the census accepts
+M21-amoswap-unknown            literal  KILLED       exit=1       1s  reverts: positive arm: amoswap no longer leaves its rs2
+                               control: AssertionError: after an amoswap.w into a static the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places anything
+M3-no-frame-overlap            literal  KILLED       exit=1       1s  reverts: R228-F4: a frame store forgets no overlapped neighbouring slot
+                               control: AssertionError: after an fsd over a frame slot the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts
+M4-mirror-int-first-term       literal  SURVIVED     exit=1       1s  reverts: R227-2-F2: slot mirror first term back to integer stores only
+M45-mirror-pre-pr              literal  KILLED       exit=1       1s  reverts: R227-2-F2: slot mirror reverted to the base's integer-only test
+                               control: AssertionError: with an fsw over the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a word the slot no lon
+M5-mirror-no-memop-term        literal  KILLED       exit=1       1s  reverts: R227-2-F2: slot mirror loses the memory-operand fail-closed term
+                               control: AssertionError: with an amocas.w through a pointer to the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a
+M6-range-first-byte            literal  KILLED       exit=1       1s  reverts: R227-2-F2/R228-F4: ranged store placed by first bytes only
+                               control: AssertionError: a bltu-bounded `sw zero,0(a5)` loop from 0x8fffffbe came back as [[0x8fffffbe..0x8ffffffd]], not as its footprint [0x8fffffbe..0x90000000]: the loop's last store writes the window's first byte, so a range that stop
+M7-any-amo-writes-rs2          literal  KILLED       exit=1       1s  reverts: R227-2-F2: every AMO and SC treated as writing its rs2
+                               control: AssertionError: after an amoor.w into a frame slot, handed a placed address the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts
+M7b-sc-writes-rs2              literal  KILLED       exit=1       1s  reverts: R227-2-F2: SC treated as writing its rs2
+                               control: AssertionError: after an sc.w into a static, handed a placed address the RV32 resolver still placed the next store ([sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accepts
+M8-amo-rd-kept                 literal  KILLED       exit=1       1s  reverts: R227-2-F2: an AMO's rd keeps its old value
+                               control: AssertionError: after an AMO writing its base register the RV32 resolver still placed the next store ([2147487744, 2147487744]): a word the store rewrote was read back as a placed address the census accepts
+M9-footprint-first-word        literal  KILLED       exit=1       1s  reverts: R228-F4: a store is judged at its first word only
+                               control: AssertionError: the RV32 resolver reported [2415920640] for `fsd fa5,0(a4)` through a base resolved to 0x90000600, not the words it writes (['0x90000600', '0x90000604']): the fsd store class must be judged by address like every ot
+P-plants-M15                   plants   PLANTS-DONE  exit=1      18s  reverts: M15 with the R227-3 plants: the top-byte plants must flip to ACCEPTED
+P-plants                       plants   PLANTS-DONE  exit=1      18s  reverts: no resolver edit: R227-3 compiled plants, resolver alone and whole gate
+
+Compiled plants (resolver alone / complete gate 1b), receipts/mutants/<run>.plants.json
+== P-plants  (CSR window 0x90000000+0x10000, ADP_CTRL 0x90000600)
+   byte-read-of-frame-slot        resolver=ACCEPTED whole-gate=ACCEPTED
+   callee-writes-caller-frame     resolver=ACCEPTED whole-gate=ACCEPTED
+   control-whole-word-read        resolver=REFUSED  whole-gate=REFUSED
+   doc-64bit-atomic-exchange      resolver=ACCEPTED whole-gate=ACCEPTED
+   doc-memset                     resolver=REFUSED  whole-gate=REFUSED
+   half-word-read-of-frame-slot   resolver=ACCEPTED whole-gate=ACCEPTED
+   top-byte-store-frame           resolver=REFUSED  whole-gate=REFUSED
+   top-byte-store-static          resolver=REFUSED  whole-gate=REFUSED
+== P-plants-M15  (CSR window 0x90000000+0x10000, ADP_CTRL 0x90000600)
+   byte-read-of-frame-slot        resolver=ACCEPTED whole-gate=ACCEPTED
+   callee-writes-caller-frame     resolver=ACCEPTED whole-gate=ACCEPTED
+   control-whole-word-read        resolver=REFUSED  whole-gate=REFUSED
+   doc-64bit-atomic-exchange      resolver=ACCEPTED whole-gate=ACCEPTED
+   doc-memset                     resolver=REFUSED  whole-gate=REFUSED
+   half-word-read-of-frame-slot   resolver=ACCEPTED whole-gate=ACCEPTED
+   top-byte-store-frame           resolver=ACCEPTED whole-gate=ACCEPTED
+   top-byte-store-static          resolver=ACCEPTED whole-gate=ACCEPTED
+== FIX1-plants-frame-lw-only  (CSR window 0x90000000+0x10000, ADP_CTRL 0x90000600)
+   byte-read-of-frame-slot        resolver=REFUSED  whole-gate=REFUSED
+   callee-writes-caller-frame     resolver=ACCEPTED whole-gate=ACCEPTED
+   control-whole-word-read        resolver=REFUSED  whole-gate=REFUSED
+   doc-64bit-atomic-exchange      resolver=ACCEPTED whole-gate=ACCEPTED
+   doc-memset                     resolver=REFUSED  whole-gate=REFUSED
+   half-word-read-of-frame-slot   resolver=REFUSED  whole-gate=REFUSED
+   top-byte-store-frame           resolver=REFUSED  whole-gate=REFUSED
+   top-byte-store-static          resolver=REFUSED  whole-gate=REFUSED

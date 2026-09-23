@@ -1,0 +1,106 @@
+{
+ "adp_window_address": "0x90000600",
+ "byte_parked": "0x12345606",
+ "csr_base": "0x90000000",
+ "csr_size": "0x10000",
+ "parked": "0x12340600",
+ "plants": {
+  "byte-read-of-frame-slot": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled byte-read-of-frame-slot makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(bits(set=0x90000000,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omit",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(bits(set=0x90000000,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store ",
+    "verdict": "REFUSED"
+   }
+  },
+  "callee-writes-caller-frame": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "control-whole-word-read": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled control-whole-word-read STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT ",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   }
+  },
+  "doc-64bit-atomic-exchange": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "doc-memset": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled doc-memset STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   }
+  },
+  "half-word-read-of-frame-slot": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled half-word-read-of-frame-slot makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(bits(set=0x90000000,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(bits(set=0x90000000,clear=0x0))']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store ",
+    "verdict": "REFUSED"
+   }
+  },
+  "top-byte-store-frame": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled top-byte-store-frame makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the censu",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime",
+    "verdict": "REFUSED"
+   }
+  },
+  "top-byte-store-static": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled top-byte-store-static makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the cens",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware makes a STORE this gate cannot PLACE and that no declared residual accounts for: configure_fabric() through unplaced x1 ['unplaced(None)']. The declared residual is [('parse_u64', 'call', '__errno_location')]. An address this gate cannot resolve is an address it cannot prove is outside the control window, so it REFUSES rather than omitting the store from the census: a runtime",
+    "verdict": "REFUSED"
+   }
+  }
+ },
+ "top_parked": "0x12000600"
+}

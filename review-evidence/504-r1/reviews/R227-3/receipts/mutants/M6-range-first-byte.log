@@ -1,0 +1,17 @@
+Compiler mode: absent cross tools
+Compiler audit: $REVIEW_OUT/scratch/mut/M6-range-first-byte.argv.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEW_OUT/scratch/mut/M6-range-first-byte/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEW_OUT/scratch/mut/M6-range-first-byte/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_OUT/scratch/mut/M6-range-first-byte/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_OUT/scratch/mut/M6-range-first-byte/sw/builder/test_builder.py", line 5393, in test_baremetal_profile_contract
+    assert placed == [want] and start + 63 < csr_base == want.hi, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a bltu-bounded `sw zero,0(a5)` loop from 0x8fffffbe came back as [[0x8fffffbe..0x8ffffffd]], not as its footprint [0x8fffffbe..0x90000000]: the loop's last store writes the window's first byte, so a range that stops at its first byte places a CSR store outside the window

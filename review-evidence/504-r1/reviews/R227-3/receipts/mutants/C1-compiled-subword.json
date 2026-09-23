@@ -1,0 +1,20 @@
+{
+ "id": "C1-compiled-subword",
+ "reverts": "M1 with its literal control neutralised: the compiled union mutants must still refuse",
+ "mode": "compiled",
+ "exit": 1,
+ "elapsed_s": 331,
+ "verdict": "KILLED",
+ "expected": "mutation passed the boot-contract gate",
+ "last_error_line": "AssertionError: entity enabled through a local rewritten by a union byte store at its own offset mutation passed the boot-contract gate",
+ "edits": [
+  {
+   "old": "    if mnem == \"sw\" or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n",
+   "new": "    if mnem in (\"sw\", \"sh\", \"sb\") or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n"
+  },
+  {
+   "old": "        assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed",
+   "new": "        assert True or reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed"
+  }
+ ]
+}

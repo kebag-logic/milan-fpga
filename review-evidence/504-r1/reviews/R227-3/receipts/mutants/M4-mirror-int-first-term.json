@@ -1,0 +1,20 @@
+{
+ "id": "M4-mirror-int-first-term",
+ "reverts": "R227-2-F2: slot mirror first term back to integer stores only",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "SURVIVED",
+ "expected": "between the slot's load and the bltu",
+ "last_error_line": "",
+ "edits": [
+  {
+   "old": "        if rv32_store_bytes(mnem) is not None or \\\n                (rv32_memory_operand(args) and not rv32_is_load(mnem)) or \\\n                mnem in (\"call\", \"jal\", \"jalr\", \"tail\", \"jr\", \"ret\"):\n",
+   "new": "        if mnem in (\"sw\", \"sh\", \"sb\") or \\\n                (rv32_memory_operand(args) and not rv32_is_load(mnem)) or \\\n                mnem in (\"call\", \"jal\", \"jalr\", \"tail\", \"jr\", \"ret\"):\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

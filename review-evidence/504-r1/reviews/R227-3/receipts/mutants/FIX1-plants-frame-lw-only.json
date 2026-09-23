@@ -1,0 +1,20 @@
+{
+ "id": "FIX1-plants-frame-lw-only",
+ "reverts": "information only: frame loads read the slot on lw alone, as statics do; plants re-asked",
+ "mode": "plants",
+ "exit": 1,
+ "elapsed_s": 18,
+ "verdict": "PLANTS-DONE",
+ "expected": null,
+ "last_error_line": "",
+ "edits": [
+  {
+   "old": "        elif base in RV32_FRAME_REGS and held is None:\n            state.set(args[0], state.mem.get((base, offset)))\n",
+   "new": "        elif base in RV32_FRAME_REGS and held is None and mnem == \"lw\":\n            state.set(args[0], state.mem.get((base, offset)))\n"
+  },
+  {
+   "old": "    #: ---- and the verifier's CONTROL and DATA flow, which no positional\n",
+   "new": "    import sys as _r227_sys\n    _r227_sys.path.insert(0, '$REVIEW_OUT/scripts')\n    import r227_plants\n    r227_plants.run(dict(locals()))\n    raise SystemExit('R227-3-PLANTS-DONE')\n    #: ---- and the verifier's CONTROL and DATA flow, which no positional\n"
+  }
+ ]
+}

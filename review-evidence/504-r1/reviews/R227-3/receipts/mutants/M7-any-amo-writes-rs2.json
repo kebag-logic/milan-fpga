@@ -1,0 +1,20 @@
+{
+ "id": "M7-any-amo-writes-rs2",
+ "reverts": "R227-2-F2: every AMO and SC treated as writing its rs2",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "handed a placed address",
+ "last_error_line": "AssertionError: after an amoor.w into a frame slot, handed a placed address the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "    if mnem == \"sw\" or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n",
+   "new": "    if mnem == \"sw\" or RV32_ATOMIC_STORE_RE.match(mnem):\n        return state.get(args[-2])\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

@@ -1,0 +1,257 @@
+{
+ "installer": [
+  {
+   "id": "I0-none",
+   "reverts": "no fault: the self-test must pass",
+   "exit": 0,
+   "verdict": "SURVIVED",
+   "tests_ran": 25,
+   "failed_tests": []
+  },
+  {
+   "id": "I1-no-extract-digest",
+   "reverts": "R228-F2: the download path's only digest check removed",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_download_path_refuses_unpinned_bytes"
+   ]
+  },
+  {
+   "id": "I2-prefix-digest",
+   "reverts": "R228-F2: digest compared on a prefix",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_download_path_refuses_unpinned_bytes"
+   ]
+  },
+  {
+   "id": "I3-drop-destination",
+   "reverts": "R228-F3: a provenance field dropped",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_fresh_and_cache_hit",
+    "test_moved_cache",
+    "test_provenance_values",
+    "test_wrong_provenance"
+   ]
+  },
+  {
+   "id": "I4-installer-digest-const",
+   "reverts": "R228-F3: installer digest not measured",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_changed_installer",
+    "test_provenance_values"
+   ]
+  },
+  {
+   "id": "I5-no-symlink-records",
+   "reverts": "symlinks left out of the inventory",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_retargeted_symlink"
+   ]
+  },
+  {
+   "id": "I6-no-realpath-escape",
+   "reverts": "escaping compiler realpath accepted",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_escaping_compiler"
+   ]
+  },
+  {
+   "id": "I7-no-inventory-check",
+   "reverts": "inventory not compared on a hit",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_incomplete_and_corrupt_tree",
+    "test_retargeted_symlink"
+   ]
+  },
+  {
+   "id": "I8-identify-before-inventory",
+   "reverts": "cached tools run before the inventory check",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_incomplete_and_corrupt_tree",
+    "test_retargeted_symlink",
+    "test_special_file"
+   ]
+  },
+  {
+   "id": "I9-any-host",
+   "reverts": "host identity not enforced",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_unsupported_host"
+   ]
+  },
+  {
+   "id": "I10-no-root-check",
+   "reverts": "archive root not checked",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_archive_root"
+   ]
+  },
+  {
+   "id": "I11-symlink-destination",
+   "reverts": "symlinked destination adopted",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_symlink_destination"
+   ]
+  },
+  {
+   "id": "I12-no-sysroot-check",
+   "reverts": "unrelocated sysroot accepted",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_wrong_tool"
+   ]
+  },
+  {
+   "id": "I13-no-location-check",
+   "reverts": "relocation receipt not read",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_unrelocated_sdk"
+   ]
+  },
+  {
+   "id": "I14-no-mode-record",
+   "reverts": "file modes left out of the inventory",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_incomplete_and_corrupt_tree"
+   ]
+  },
+  {
+   "id": "I15-no-version-check",
+   "reverts": "GCC version not enforced",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_wrong_tool"
+   ]
+  },
+  {
+   "id": "I16-no-offline-archive-check",
+   "reverts": "offline --archive not checked beside a cache",
+   "exit": 1,
+   "verdict": "KILLED",
+   "tests_ran": 25,
+   "failed_tests": [
+    "test_bad_archive_with_cache"
+   ]
+  }
+ ],
+ "workflow": [
+  {
+   "id": "W1-builder-no-require-rv32",
+   "file": ".github/workflows/docs.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/docs.yml: job `docs-check` builder call must be exactly ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_builder.py --require-rv32'] (found ['python3 -m pip install --quiet pyyaml', 'python3 sw/builder/test_builder.py'])",
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 24 (`End-station builder gates`) script is not the canonical form: line 2 must be 'python3 sw/builder/test_builder.py --require-rv32' (found 'python3 sw/builder/test_builder.py'); 2 line(s) expected, 2 found"
+   ]
+  },
+  {
+   "id": "W2-no-absent-control",
+   "file": ".github/workflows/docs.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/docs.yml: job `docs-check` must carry exactly 47 steps, in the recorded order (found 46): an inserted step of ANY content runs before every later step and can set their inherited environment at run time -- a `BASH_ENV` written to `$GITHUB_ENV`, a `$GITHUB_PATH` prepend, a third-party action -- which the declared allowlists cannot see, and a removed one takes its gate with it",
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 23 must be the step named `Compiler-absent firmware controls` (found `End-station builder gates`): the position is the contract -- the steps before this one decide what it reads, and the steps after it read what it leaves behind"
+   ]
+  },
+  {
+   "id": "W3-elaborate-install-unguarded",
+   "file": ".github/workflows/elaborate.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/elaborate.yml: job `elaborate` step 14 (`Install and verify the pinned RV32 SDK`) keys must be exactly name, if, run; missing: if",
+    "FAIL .github/workflows/elaborate.yml: job `elaborate` step 14 (`Install and verify the pinned RV32 SDK`) `if` must be exactly `${{ steps.scope.outputs.rtl == 'true' }}` (found ``): any other condition changes when this step runs, and the recorded guard -- a scope answer, a cache miss, a shard's suite ownership or `always()` -- is the one this job legitimately carries"
+   ]
+  },
+  {
+   "id": "W4-cache-path",
+   "file": ".github/workflows/elaborate.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/elaborate.yml: job `elaborate` step 13 (`Cache the pinned RV32 SDK`) `with` must be exactly {'path': '~/br-milan-rv32/host', 'key': \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\"} (found {'path': '~/br-milan-rv32', 'key': \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\"}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers"
+   ]
+  },
+  {
+   "id": "W5-no-installer-bytes-in-key",
+   "file": ".github/workflows/docs.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 21 (`Cache the pinned RV32 SDK`) `with` must be exactly {'path': '~/br-milan-rv32/host', 'key': \"rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}\"} (found {'path': '~/br-milan-rv32/host', 'key': 'rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f'}): a `with` decides what an action reads and restores -- a widened cache key hands over generated metadata from another toolchain head, a moved upload path publishes other bytes, and a widened download pattern feeds the verifier evidence from other workers"
+   ]
+  },
+  {
+   "id": "W6-absent-without-audit",
+   "file": ".github/workflows/docs.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 23 (`Compiler-absent firmware controls`) script is not the canonical form: line 3 must be 'python3 sw/builder/test_firmware_compiler.py --absent --audit \"$RUNNER_TEMP/rv32-absent.jsonl\"' (found 'python3 sw/builder/test_firmware_compiler.py --selftest'); 3 line(s) expected, 3 found"
+   ]
+  },
+  {
+   "id": "W7-install-continue-on-error",
+   "file": ".github/workflows/docs.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 22 (`Install and verify the pinned RV32 SDK`) must carry no `continue-on-error` (found True): it decides whether or how the script runs",
+    "FAIL .github/workflows/docs.yml: job `docs-check` step 22 (`Install and verify the pinned RV32 SDK`) keys must be exactly name, run; surplus: continue-on-error"
+   ]
+  },
+  {
+   "id": "W8-selftest-dropped",
+   "file": ".github/workflows/elaborate.yml",
+   "exit": 1,
+   "verdict": "REFUSED",
+   "first_refusal": [
+    "FAIL .github/workflows/elaborate.yml: job `elaborate` step 14 (`Install and verify the pinned RV32 SDK`) script is not the canonical form: line 2 must be 'python3 scripts/ci_rv32_sdk_selftest.py' (found 'python3 scripts/ci_rv32_sdk.py --destination \"$HOME/br-milan-rv32/host\"'); 3 line(s) expected, 2 found"
+   ]
+  }
+ ]
+}

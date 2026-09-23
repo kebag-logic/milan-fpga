@@ -1,0 +1,20 @@
+{
+ "id": "M13-memop-needs-disp",
+ "reverts": "R228-S4: memory operand recognised only with a displacement",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "UNCLASSIFIED store",
+ "last_error_line": "AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[unclassified(c.sw a5,0(a4))], [unclassified(amocas.w a3,a5,0(a4))], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed",
+ "edits": [
+  {
+   "old": "RV32_MEM_BASE_RE = re.compile(r\"\\(\\s*([a-z0-9]+)\\s*\\)$\")\n",
+   "new": "RV32_MEM_BASE_RE = re.compile(r\"-?\\d+\\(\\s*([a-z0-9]+)\\s*\\)$\")\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}
