@@ -1764,6 +1764,15 @@ them:
   Its own iptables management stays enabled and exists only in the slot
   namespace.
 
+The units, the slice and the cgroup driver belong to the build host's service
+manager, not to the product (#259's host-tooling non-goal, recorded for the
+runner in #376). The bare-metal scope gate, `scripts/check_baremetal_only.py`,
+therefore masks the runner's unit executable, its dockerd cgroup-driver value
+and its cgroup-mount root only in their exact code contexts in
+`scripts/act_ci.py`. The same literals in any other context or file, or in a
+product document, are still refused, and the gate's self-test proves each of
+those refusals.
+
 Before anything else touches the daemon, `docker info` through the slot socket
 must report the slot label, the invocation token and the slot data-root. The
 Docker CLI and `act` then both run under
