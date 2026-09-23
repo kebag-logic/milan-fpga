@@ -52,7 +52,7 @@ NEST_WHEN_H3_ATLEAST = 8
 #: on PR #428). The floor rises with the corpus.
 ARM_FAMILIES = ("walk", "tag", "guard", "heading", "predecessor",
                 "provenance", "refusal", "I440", "I437")
-MIN_ARMS = 1091
+MIN_ARMS = 1244
 
 #: Pages that are deliberately TOC-free, with the reason.
 SKIP = {
@@ -74,6 +74,11 @@ SKIP = {
 #: COLUMNS (`_indent_columns`); `delimiter blank` is the wider padding
 #: GFM's delimiter-row scanner takes; `tag blank` is also what may follow
 #: a type-1 or type-6 NAME, where the renderer reads widest ([R85] F1(b)).
+#: The HTML stage (`gen_toc_html`) reads three more: `html space` is HTML's
+#: tokenizer whitespace less the refused form feed, with the line feed that
+#: joins a raw run; `declaration name` is the uppercase letter GitHub's
+#: inline declarations take (`<!x -->` measured as text, #437); `escapable`
+#: is CommonMark 2.4's ASCII punctuation.
 _BLANK = " \t"
 CLASSES = {
     "blank": _BLANK,
@@ -94,6 +99,9 @@ CLASSES = {
     "ordinal": "0-9",
     "bullet": "-+*",
     "cell stop": "|",
+    "html space": _BLANK + "\n",
+    "declaration name": "A-Z",
+    "escapable": "!-/:-@\\[-`{-~",
 }
 #: The characters at which PYTHON'S notion of whitespace and the
 #: renderer's disagree: everything `str.isspace()` accepts but the space,
@@ -109,6 +117,11 @@ REFUSED = ("\v\f\r\x1c\x1d\x1e\x1f\x85\xa0\u1680\u2000\u2001\u2002"
 #: pair again, so renaming one fails an arm instead of emptying the
 #: enumeration.
 WALK_ROOTS = ("blocks", "line_kinds")
+#: The walk's three modules: this one (every expression and class, the leaf
+#: machine and `blocks()`), its container layer and its HTML stage (#437).
+#: The class guard reads their union (`walk_source()`); `_owner_guards`
+#: still binds the four modules beside the walk, none of which holds a rule.
+WALK_MODULES = ("gen_toc.py", "gen_toc_containers.py", "gen_toc_html.py")
 #: The renderer folds a tag NAME in ASCII, where `re.IGNORECASE` folds
 #: Unicode and matched U+017F to `s` and U+0131 and U+0130 to `i`, opening
 #: and closing type-1 blocks on names the renderer reads as no tag at all
@@ -214,13 +227,18 @@ HTML_TAG_LINE_RE = re.compile(
     r"^%s{0,3}(?:<%s%s*%s*/?>|</%s%s*>)%s*$"
     % (_cc("indent"), _HTML_TAG_NAME, _HTML_ATTRIBUTE, _cc("tag blank"),
        _HTML_TAG_NAME, _cc("tag blank"), _cc("tag tail")))
+#: CommonMark's raw HTML blocks of types 3 to 5: `<?`, `<![CDATA[`, and `<!`
+#: then an uppercase letter (GitHub's, measured: `<!x` opens none). Their
+#: lines stay text in `blocks()` (#413); the container layer marks them raw,
+#: so a `<!--` after one's bogus comment opens the rendered comment (#437).
+RAW_3_5_RE = re.compile(r"^%s{0,3}<(?:(\?)|(!\[CDATA\[)|!%s)"
+                        % (_cc("indent"), _cc("declaration name")))
 #: Whether a paragraph is open, for the one block that may not interrupt
 #: one. NO_PARAGRAPH: none is, and the next plain line starts one.
 #: PARAGRAPH: a top-level paragraph is open. HELD: a list item, a block
 #: quote or a table holds the plain lines that follow (CommonMark's lazy
-#: continuation, GFM's rows without a pipe), so no TOP-LEVEL paragraph is
-#: open. A live nonempty list's content column supplies PARAGRAPH to the
-#: opener for lines inside that item. Blanks end paragraphs, not items.
+#: continuation, GFM's rows without a pipe), so none is open and a plain
+#: line starts none; a blank line or an interrupting block ends the hold.
 NO_PARAGRAPH, PARAGRAPH, HELD = "no paragraph", "paragraph", "held"
 #: CommonMark's ATX opener, not `HEAD_RE`: an indented or empty heading
 #: ends a paragraph even though `headings()` lists neither.
@@ -362,25 +380,22 @@ def blocks(text: str) -> list[str]:
     visible text is labelled by the block it STARTS in, which can withhold
     a heading but never invent one.
 
-    LIST PARAGRAPHS retain their item's content column across blank lines
-    (#437, CommonMark 5.2). A plain TEXT line at that column is HELD by the
-    item, not a top-level paragraph; a lone tag outside that item can
-    therefore open HTML. At the content column the tag continues the
-    item's live paragraph. One space below `- item` is outside that item.
-    A dedented quote or footnote definition releases the item context.
-    Indentation still labels blocks from column 0, with tab stops of four;
-    this does not add a recursive container walk. Existing withholding
-    remains for a quote or item holding plain lines after non-paragraph
-    content, and for a tag at four columns inside an item. An HTML block
-    already opened inside an item still lasts until its flat-walk closer:
-    types 6/7 wait for a blank even when the item ends. That can withhold
-    a following heading or swallow a fence and invent one (#495).
-    RENDERED COMMENTS: a `<!--` left open in raw HTML hides the rest of
-    GitHub's page until raw HTML carries `-->` (#516 shapes), so prose is
-    COMMENT until a raw, commented or `<!--` line closes it; an escaped
-    `-->` in prose or code closes nothing. `--!>` and a non-comment inline
-    tag close it for the renderer only (withhold); a closed comment in a
-    code span, or an escaped `-->` after prose `<!--`, only here (invent).
+    CONTAINERS (#437). Block quotes, list items and footnote definitions
+    are read by the container layer (`gen_toc_containers`, CommonMark 5.1
+    and 5.2), which changes no label itself and answers three questions:
+    whether a lone type-7 tag meets an open paragraph (only when the
+    deepest block the line matches is one), whether the container a fence,
+    raw HTML block or comment opened in has ended (the block ends with it),
+    and which lines GitHub emits as raw HTML. Indentation still labels
+    blocks from column 0, with tab stops of four, so a block opened four or
+    more columns into an item is labelled indented code or text; types 3 to
+    5 stay text (#413). A comment the layer reads as inline (opened after
+    visible text, or indented into a paragraph) ends at the first line that
+    is not paragraph text. RENDERED COMMENTS: a `<!--` that HTML's tokenizer
+    meets in the raw HTML GitHub emits hides the rest of the page until a
+    closer (`gen_toc_html`, the #516 shapes), so prose there is COMMENT.
+    Both modules import this one, so they are imported below, after this
+    module is registered under its own NAME, as `selftest()` does.
 
     HEADING LIMITATION (#437, PR #428 R86-5): five measured forms remain
     omitted by `headings()`: `Alpha` over `===`, `text` over `---`, `text`
@@ -389,24 +404,27 @@ def blocks(text: str) -> list[str]:
     and refuses copied-label exemptions; it does not add their anchors.
     Setext and container headings remain outside its listing domain.
     """
+    sys.modules.setdefault("gen_toc", sys.modules[__name__])
+    from gen_toc_containers import container_lines
+    from gen_toc_html import hidden_lines
+    lines = text.split("\n")
+    scopes = container_lines(lines)
     out, state, delim, tag, prev, para = [], TEXT, "", "", "", NO_PARAGRAPH
-    item_context, rendered_comment = None, False
-    for line in text.split("\n"):
+    owner, prose = 0, False
+    for line, scope, hidden in zip(lines, scopes, hidden_lines(scopes)):
+        if state in (FENCE, COMMENT, HTML) and (
+                owner not in scope.held_by or (prose and not scope.plain)):
+            state = TEXT                # its container or paragraph ended
         if state in (FENCE, COMMENT, HTML):
             out.append(state)
             state, delim, tag = _still_open(line, state, delim, tag)
         else:
-            opening_para = para
-            if para == HELD and item_context and not item_context[1] \
-                    and _indent_columns(line) >= item_context[0]:
-                opening_para = PARAGRAPH
-            label, state, delim, tag = _opens(line, opening_para, state)
+            label, state, delim, tag = _opens(line, para, state, scope.gate)
             out.append(label)
-        para, item_context = _list_paragraph_after(line, out[-1], para, prev, item_context)
-        hidden = rendered_comment and out[-1] == TEXT
-        if out[-1] in (HTML, COMMENT) or (out[-1] == TEXT and COMMENT_OPEN in line):
-            rendered_comment = _comment_after(line, rendered_comment)
-        out[-1], prev = COMMENT if hidden else out[-1], line
+            owner = scope.held_by[-1]
+            prose = state == COMMENT and (label == TEXT or scope.plain)
+        para, prev = _paragraph_after(line, out[-1], para, prev), line
+        out[-1] = COMMENT if hidden and out[-1] == TEXT else out[-1]
     return out
 
 
@@ -459,37 +477,6 @@ def _paragraph_after(line: str, label: str, para: str, prev: str) -> str:
             and _table_cells(line) == _table_cells(prev):
         return HELD
     return HELD if para == HELD else PARAGRAPH
-
-
-def _list_paragraph_after(line: str, label: str, para: str, prev: str,
-                          context: tuple[int, bool] | None) -> tuple[str, tuple[int, bool] | None]:
-    """Keep an outer list's (content column, empty item) paragraph context.
-
-    Blank lines end paragraphs, not nonempty items. An empty item ends at
-    its next blank line (CommonMark 5.2). Nested content retains the outer
-    column; a sibling replaces it. Dedented lazy text retains a live hold,
-    but a fresh dedented paragraph or block releases the item. This only
-    changes paragraph context; block openers still use column-zero indentation.
-    """
-    after = _paragraph_after(line, label, para, prev)
-    if not line.strip(CLASSES["blank"]):
-        return after, None if context and context[1] else context
-    if context and _indent_columns(line) >= context[0]:
-        return HELD if after == PARAGRAPH else after, (context[0], False)
-    item = LIST_ITEM_RE.match(line) if label == TEXT and after == HELD else None
-    if item:
-        prefix = line[:item.start(2)] if item.group(2) else line
-        marker_end = len(prefix.rstrip(CLASSES["blank"]))
-        column = len(prefix.expandtabs(4))
-        # Over four columns of padding starts code; empty items use W+1.
-        if not item.group(2) or column - marker_end > 4:
-            column = marker_end + 1
-        return after, (column, not bool(item.group(2)))
-    if BLOCK_QUOTE_RE.match(line) or FOOTNOTE_DEFINITION_RE.match(line):
-        return after, None
-    if para == HELD and after == HELD:
-        return after, context
-    return after, None
 
 
 def _comment_after(line: str, inside: bool) -> bool:
@@ -549,13 +536,15 @@ def _still_open(line: str, state: str, delim: str,
     return FENCE, delim, ""
 
 
-def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
+def _opens(line: str, para: str, state: str,
+           gate: str | None = None) -> tuple[str, str, str, str]:
     """(what this line is, the state after it, fence delimiter, HTML tag)
     for a line that no block encloses. The order is CommonMark's: an
     indented code run swallows the line before any delimiter is read; a
     type-1 tag is read before the type-7 grammar; a comment opening after
     visible text leaves THIS line ordinary. `para` gates the two blocks
-    that may not interrupt a paragraph."""
+    that may not interrupt a paragraph; `gate`, when the container layer
+    supplies it, is what the type-7 block meets instead (#437)."""
     if state == CODE and (not line.strip(CLASSES["blank"])
                           or _indent_columns(line) >= INDENT_CODE_COLUMNS):
         return CODE, CODE, "", ""      # the run continues across blank lines
@@ -569,7 +558,8 @@ def _opens(line: str, para: str, state: str) -> tuple[str, str, str, str]:
         tag = html.group(1)
         closed = _type_1_end(line)
         return HTML, (TEXT if closed else HTML), "", tag
-    if HTML_BLOCK_OPEN_RE.match(line) or (para != PARAGRAPH
+    if HTML_BLOCK_OPEN_RE.match(line) or ((para if gate is None else gate)
+                                          != PARAGRAPH
                                           and HTML_TAG_LINE_RE.match(line)):
         # Types 6 and 7 carry no tag here: the blank line, not a closing
         # tag, is what ends them. A lone `<span>` under paragraph text is
@@ -860,13 +850,20 @@ def _owner_guards(name: str, source: str, values: dict) -> list[str]:
     return bad
 
 
+def walk_source() -> str:
+    """Every walk module's source, one after another: what the class guard
+    enumerates the walk's decision sites from."""
+    here = Path(__file__)
+    return "\n".join(here.with_name(name).read_text() for name in WALK_MODULES)
+
+
 def _sites() -> tuple[list[str], list[str]]:
     """The walk's decision sites and the notes against them, from
     `gen_toc_guards`. The import is deferred and this module registered
     under its own NAME first, for the reason `selftest()` gives."""
     sys.modules.setdefault("gen_toc", sys.modules[__name__])
     import gen_toc_guards
-    return gen_toc_guards._class_guards(Path(__file__).read_text())
+    return gen_toc_guards._class_guards(walk_source())
 
 
 def selftest() -> int:

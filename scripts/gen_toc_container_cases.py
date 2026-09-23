@@ -9,11 +9,12 @@ GitHub's GFM renderer supplies the expected heading presence. The reset rows
 hold the content column, item lifetime and block precedence. This module
 contains no Markdown classifier; gen_toc owns every decision.
 
-The two JSON fixtures beside this module carry GitHub's recorded rendering
-of every shape: the family-one set of #437's restated acceptance 1 and the
-rendered-comment controls. Each arm checks the receipt's bytes against its
-SHA-256, reads the heading elements out of the recorded HTML, and requires
-the walk to list exactly those headings.
+The three JSON fixtures beside this module carry GitHub's recorded rendering
+of every shape: the family-one set of #437's restated acceptance 1, the
+rendered-comment controls, and the container-walk shapes of the R237-2
+correction (each with the finding or rule it pins). Each arm checks the
+receipt's bytes against its SHA-256, reads the heading elements out of the
+recorded HTML, and requires the walk to list exactly those headings.
 """
 import hashlib
 import json
@@ -22,9 +23,11 @@ from html.parser import HTMLParser
 from pathlib import Path
 from types import ModuleType
 
-from gen_toc import HTML, TEXT, blocks, headings
+from gen_toc import FENCE, HTML, TEXT, WALK_MODULES, blocks, headings
+from gen_toc_html import FILTERED_TAGS
 
-FIXTURES = ("gen_toc_family_one.json", "gen_toc_comment_shapes.json")
+FIXTURES = ("gen_toc_family_one.json", "gen_toc_comment_shapes.json",
+            "gen_toc_container_walk.json")
 CONTEXT = "kebag-logic/milan-fpga"
 
 
@@ -243,6 +246,32 @@ def _probe_holds(visible: bool) -> object:
                          and headings(page)[-1] == (2, "Real", "real"))
 
 
+def label_rows() -> list[tuple[str, int, tuple[str, str], str]]:
+    """(Recorded shape, index of its tag line, labels of that line and the
+    next, what GitHub's HTML shows). Under a nested block or an empty item
+    the tag and the line after it are raw inside the item; under the item's
+    own paragraph the tag is inline and the next line opens its own block."""
+    raw, inline = "<span>\n```\n</span>", "<br>\n<span>\n<pre"
+    return [("nested quote, tag opens HTML", 2, (HTML, HTML), raw),
+            ("nested bullet, tag opens HTML", 2, (HTML, HTML), raw),
+            ("table in item, tag opens HTML", 4, (HTML, HTML), raw),
+            ("quote-first item, tag opens HTML", 1, (HTML, HTML), raw),
+            ("lazy line after nested quote, tag opens HTML", 3, (HTML, HTML), raw),
+            ("thematic break in item, tag opens HTML", 2, (HTML, HTML), raw),
+            ("empty item, tag opens HTML", 1, (HTML, HTML), raw),
+            ("live bullet paragraph, in-item fence", 1, (TEXT, FENCE), inline),
+            ("live ordered paragraph, in-item pre", 1, (TEXT, HTML), inline)]
+
+
+def _label_arms() -> list[tuple[str, str, object]]:
+    """The tag line's label and the next line's, against the recorded HTML."""
+    shapes = {shape["name"]: shape for shape in recorded_shapes(FIXTURES[2])}
+    return [(f"I437 labels {name}", shapes[name]["page"],
+             lambda page, at=at, kinds=kinds, html=shapes[name]["response_bytes"], seen=seen:
+             tuple(blocks(page)[at:at + 2]) == kinds and seen in html)
+            for name, at, kinds, seen in label_rows()]
+
+
 def container_arms() -> list[tuple[str, str, object]]:
     """Raw classification and heading assertions, independent of policy."""
     arms = [(f"I437 {name}", f"{prefix}\n<{tag}>\n## Old\n</{tag}>\n\n## Real\n",
@@ -257,7 +286,13 @@ def container_arms() -> list[tuple[str, str, object]]:
         arms.append((f"I437 limitation {name}", page, lambda text: headings(text) == []))
     arms.extend((f"I437 {name}", page, _correction_holds(visible))
                 for name, page, visible in correction_rows())
-    return arms + recorded_arms()
+    arms += [("I437 the walk is the three modules spelled here", "",
+              lambda t: WALK_MODULES == ("gen_toc.py", "gen_toc_containers.py",
+                                         "gen_toc_html.py")),
+             ("I437 the tag filter names GFM's nine tags", "",
+              lambda t: FILTERED_TAGS == ("title", "textarea", "style", "xmp", "iframe",
+                                          "noembed", "noframes", "script", "plaintext"))]
+    return arms + _label_arms() + recorded_arms()
 
 
 def em_dash_arms(gate: ModuleType) -> tuple[list[str], int]:

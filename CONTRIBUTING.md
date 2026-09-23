@@ -521,18 +521,23 @@ Five measured forms render headings but remain absent from Contents:
 `> ## Q`, and `## Inner` indented into a list item.
 Their copied labels receive no exemption because those headings are omitted.
 The walk does not supply their anchors.
-List paragraph context survives blank lines at the item's content column.
-Tags within that live paragraph continue it; tags outside may open HTML.
-Dedented quotes and footnote definitions release the item context.
-This adds no container headings or anchors.
-An already-open item HTML block still uses flat-walk termination (#495).
-Types 6/7 wait for a blank after the item ends.
-This can hide headings or swallow fences and invent headings.
-A comment left open in raw HTML hides the rest of the rendered page.
-The walk reads prose there as commented until raw HTML closes it (#516 shapes).
-An escaped `-->` in prose or code closes nothing.
-`--!>` and non-comment inline tags close it for GitHub only (withholding).
-A code-span comment, or `-->` after prose `<!--`, closes it here only (escape).
+Block quotes, list items and footnote definitions are read as containers.
+The rules are CommonMark's (sections 5.1 and 5.2), lazy lines included.
+A lone tag continues a paragraph only when its line reaches that paragraph.
+Otherwise it opens raw HTML, inside a list item too.
+A fence, raw HTML block or comment ends with the container it opened in.
+Labels still count indentation from column 0, and no heading or anchor is added.
+Raw HTML that leaves an HTML comment open hides the rest of GitHub's page.
+The walk reads that raw HTML as the page's HTML parser does (#516 shapes).
+An opener inside an attribute value, a bogus comment or CDATA opens nothing.
+`-->` or `--!>` closes it, in raw HTML or in inline HTML within prose.
+In a code span, after an escape or in plain prose, neither closes it.
+Footnote content is not read, because GitHub renders it at the page end.
+Two escapes remain, both already in the base walk.
+A raw HTML block of types 3 to 5 is labelled prose, so a heading in one is listed.
+Raw HTML that ends inside an unclosed tag or bogus comment hides GitHub's next heading.
+Inside an open quoted value it hides every later one; the walk lists them.
+The walk is `gen_toc.py` with `gen_toc_containers.py` and `gen_toc_html.py`.
 GitHub's recorded rendering of each shape is kept beside the walk's tests.
 
 `scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against

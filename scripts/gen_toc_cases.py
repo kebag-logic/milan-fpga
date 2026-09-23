@@ -28,7 +28,8 @@ from pathlib import Path
 from gen_toc import (ARM_FAMILIES, CLASSES, CODE, COMMENT, FENCE,
                      HTML_BLOCK_TAGS, HTML, MIN_ARMS, RAW_HTML_TAGS, REFUSED,
                      TEXT, WALK_ROOTS, _owner_guards, _tally_guards,
-                     generated_block, headings, refusal_notes, refusals)
+                     generated_block, headings, refusal_notes, refusals,
+                     walk_source)
 from gen_toc_guards import _class_guards
 
 
@@ -691,6 +692,9 @@ _CLASSES_SPELLED = {
     "ordinal": "0-9",
     "bullet": "-+*",
     "cell stop": "|",
+    "html space": " \t\n",
+    "declaration name": "A-Z",
+    "escapable": "!-/:-@\\[-`{-~",
 }
 
 
@@ -823,10 +827,10 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
          "`source` and not `search`", "",
          lambda t: HTML_BLOCK_TAGS == _TYPE_6_SPELLED),
         ("the shipped walk carries no decision site of its own", "",
-         lambda t: _class_guards(Path(gen_toc_file()).read_text())[1] == []),
+         lambda t: _class_guards(walk_source())[1] == []),
         ("the shipped walk carries only single-source decision sites", "",
          lambda t: {site.split(": ")[1] for site in _class_guards(
-             Path(gen_toc_file()).read_text())[0]} == {"single source"}),
+             walk_source())[0]} == {"single source"}),
         ("a class spelled inline in an expression is refused", "",
          lambda t: len(_notes(pattern='"[ \\t]+"')) == 1),
         ("so is a blank quantified in one", "",
@@ -884,8 +888,7 @@ def _class_guard_arms() -> list[tuple[str, str, object]]:
         # a spelling it does not read and say nothing, no arm having pinned
         # how many there are. This one does.
         ("the walk carries the number of decision sites recorded here", "",
-         lambda t: len(_class_guards(
-             Path(gen_toc_file()).read_text())[0]) == 27),
+         lambda t: len(_class_guards(walk_source())[0]) == 34),
         ("the site enumerator beside the walk holds no rule of its own", "",
          lambda t: _beside_the_walk() == []),
     ]
@@ -897,12 +900,6 @@ def _beside_the_walk() -> list[str]:
     import gen_toc_guards
     src = Path(gen_toc_guards.__file__)
     return _owner_guards(src.name, src.read_text(), vars(gen_toc_guards))
-
-
-def gen_toc_file() -> str:
-    """The generator's own path, for the arms that read its source."""
-    import gen_toc
-    return gen_toc.__file__
 
 
 def refusal_arms() -> list[tuple[str, str, object]]:
