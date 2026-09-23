@@ -1,0 +1,26 @@
+probe:
+	addi	sp,sp,-16
+	sw	ra,12(sp)
+	sw	s0,8(sp)
+	addi	s0,sp,16
+	lla	a4,g
+	li	a5,4096
+	add	a5,a4,a5
+	li	a4,-2147479552
+	sw	a4,0(a5)
+	lla	a4,g
+	li	a5,4096
+	add	a5,a4,a5
+	li	a4,-16
+	sb	a4,3(a5)
+	lla	a4,g
+	li	a5,4096
+	add	a5,a4,a5
+	lw	a5,0(a5)
+	mv	a0,a5
+	call	sink@plt
+	nop
+	lw	ra,12(sp)
+	lw	s0,8(sp)
+	addi	sp,sp,16
+	jr	ra

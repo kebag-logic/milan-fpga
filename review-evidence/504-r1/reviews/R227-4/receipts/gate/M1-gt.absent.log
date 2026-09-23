@@ -1,0 +1,23 @@
+verilator: $PINNED_TOOL_BIN/verilator :: Verilator 5.050 2026-07-01 rev v5.050
+tree: M1-gt mode: absent
+test_builder.py sha256: 0c6d94fb2dad657d50b0bdaf307f078be2347f7b9cca63cdba30d762a2cd73b8
+Compiler mode: absent cross tools
+Compiler audit: $REVIEW_OUT/scratch/audit/M1-gt.absent.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEW_OUT/scratch/gate/M1-gt/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEW_OUT/scratch/gate/M1-gt/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_OUT/scratch/gate/M1-gt/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_OUT/scratch/gate/M1-gt/sw/builder/test_builder.py", line 5310, in test_baremetal_profile_contract
+    assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reported[-1].kind == "unplaced", \
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts
+EXIT 1 after 1s

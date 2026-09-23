@@ -1,0 +1,34 @@
+# git diff --stat 574c29fa..4876423d
+ .github/workflows/docs.yml             |  17 +-
+ .github/workflows/elaborate.yml        |  15 +-
+ docs/integration/BAREMETAL_FIRMWARE.md | 132 ++++++-
+ docs/testing/CI_WORKFLOWS.md           |  73 ++++
+ scripts/check_baremetal_only.py        |  45 ++-
+ scripts/ci_events.py                   |  85 ++++-
+ scripts/ci_rv32_sdk.py                 | 189 ++++++++++
+ scripts/ci_rv32_sdk_selftest.py        | 376 ++++++++++++++++++++
+ sw/builder/test_builder.py             | 619 +++++++++++++++++++++++++++++++--
+ sw/builder/test_firmware_compiler.py   | 189 ++++++++++
+ 10 files changed, 1673 insertions(+), 67 deletions(-)
+# git diff --stat 97aa1ec9..4876423d
+ sw/builder/test_builder.py | 27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
+# gitlinks at base 574c29fa
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# delta name-status
+M	sw/builder/test_builder.py
+# commit
+tree b2fb9e0516aa4ed9a17cdedfb1ae25460270d408
+parent 97aa1ec943ac740a27b942210a248f6512ae3ff6
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1790162366 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1790162366 +0200
+
+builder: control the store census overlap at a modelled word's last byte

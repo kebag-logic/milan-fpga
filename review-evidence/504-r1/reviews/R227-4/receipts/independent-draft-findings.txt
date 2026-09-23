@@ -1,0 +1,46 @@
+R227-4 independent draft, exact head 4876423d4cf8e89b820c56f8339f230abefb4827
+
+Written after the independent pass over the delta 97aa1ec9..4876423d and
+immediately after first reading the PR #521 review comments (R227-3 only at
+the time of writing; R228-3 not yet read). The measurements it rests on
+predate that read; see receipts/independence_timeline.txt (every probe,
+gate and static receipt below is older than scratch/pr521_comments.txt).
+Disclosure: the issue #504 thread, read during reconstruction as the
+contract requires, includes the A194 REVIEW READY (issue comment 5794053679),
+which names the R227-3/R228-3 finding and the optional companion-boundary
+suggestions by ID. The findings below were measured, not taken from it.
+
+Delta scope: one file, sw/builder/test_builder.py, +20/-7, all inside the
+literal resolver control block of test_baremetal_profile_contract()
+(lines 5263-5355). No resolver function, installer, workflow, doc or RTL
+path changes; gitlinks identical; one-line commit, no trailers.
+
+Draft conclusions:
+- Tests: the new stale-probe arm kills every low-boundary under-forget
+  mutant (>, +2, +1) and the new kept-probe arm kills every low-boundary
+  over-forget mutant (+4, start-1, +7, low term dropped), each new probe
+  killing alone, both removals reproducing the gap
+  (receipts/overlap_probe_results.jsonl). The head passes gate 1b in both
+  modes; M1 and M2 are KILLED through the complete gate in both modes on
+  the new controls' own sentences (receipts/gate/). No finding.
+- SUGGESTION (Tests): the companion HIGH boundary `key[-1] <= start +
+  width - 1` still has no failing control. U1 (`<`) survives the literal
+  controls and the complete SDK-mapped gate 1b (217/217). U2 (`<= start +
+  width`) survives the literal controls; U3 (high term dropped) is killed
+  only by the pristine compiled census. A literal probe that kills U1
+  exists (receipts/extra_probes.*.jsonl). Reachable only through a
+  misaligned multi-byte store; the census compile emits byte stores for
+  packed fields (receipts/align_probe_stores.txt).
+- SUGGESTION (Robustness, Docs): pre-existing, not introduced here. `lla`
+  with a folded addend (`lla a5,g+4`) is modelled as a distinct symbol, so
+  a store through it neither sets nor forgets the word keyed on `g`; a
+  later `lla g; lw 4(...)` reads a stale parked address and the next store
+  is PLACED (receipts/extra_probes.head.jsonl). GCC emits that spelling only
+  for an address-taken expression (receipts/sym_spelling_probe.s.txt), so a
+  store through it needs a pointer store or cast, which the retained text
+  sets pin today. It belongs with the documented resolver gaps before
+  #408/#409 retire any text rule onto the census; the page's "does NOT
+  observe" list does not name it.
+- Conformance, RTL, Docs: the delta does not touch their scope; head gate
+  1b counts equal the previous head's (217/182, 17, 4, 46).
+- Draft verdict: POSITIVE unless a prior finding remains open.

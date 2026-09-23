@@ -1,0 +1,21 @@
+verilator: $PINNED_TOOL_BIN/verilator :: Verilator 5.050 2026-07-01 rev v5.050
+tree: M2-plus4 mode: absent
+test_builder.py sha256: 95bee21bd879a3f95514612f81385055c001fe5446534ed6093d33ef065dbf66
+Compiler mode: absent cross tools
+Compiler audit: $REVIEW_OUT/scratch/audit/M2-plus4.absent.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEW_OUT/scratch/gate/M2-plus4/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEW_OUT/scratch/gate/M2-plus4/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_OUT/scratch/gate/M2-plus4/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_OUT/scratch/gate/M2-plus4/sw/builder/test_builder.py", line 5335, in test_baremetal_profile_contract
+    assert reported[-1:] == [outside], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places anything
+EXIT 1 after 1s
