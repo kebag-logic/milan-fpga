@@ -1,0 +1,54 @@
+[
+ {
+  "name": "glued bogus declaration then item comment",
+  "page": "- <!X y\n- <!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "glued bogus PI then item comment",
+  "page": "- <? x\n- <!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "glued bogus CDATA then quote comment",
+  "page": "- <![CDATA[ x\n> <!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "glued unclosed end tag then item comment",
+  "page": "- </ x\n- <!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "control ended declaration then item comment",
+  "page": "- <!X y>\n- <!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "tag inside declaration block",
+  "page": "<!X y\n<b>\n## X\n\n## Y\n"
+ },
+ {
+  "name": "tag inside PI block",
+  "page": "<? x\n<span>\n?>\n## X\n\n## Y\n"
+ },
+ {
+  "name": "tag inside CDATA block",
+  "page": "<![CDATA[\n<span>\n]]>\n## X\n\n## Y\n"
+ },
+ {
+  "name": "control text inside PI block",
+  "page": "<? x\ntext\n?>\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI block then prose comment line",
+  "page": "<? x\n- <!--\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI block then empty comment",
+  "page": "<? x\n<!-->\n## X\n\n## Y\n"
+ },
+ {
+  "name": "CDATA block then quoted comment",
+  "page": "<![CDATA[\n> <!--\n## X\n\n## Y\n"
+ },
+ {
+  "name": "control PI block then heading",
+  "page": "<? x\n## X\n\n## Y\n"
+ }
+]
