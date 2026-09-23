@@ -150,7 +150,11 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
 #: together - may hold in memory, with no swap beyond it (unit-property size
 #: syntax). Four matrix legs at CONTAINER_MEMORY each could reach 64 GB, so a
 #: slot that overruns is killed inside its own slice rather than starving the
-#: host or a sibling slot. Slot 0 keeps only the per-container bound it had.
+#: host or a sibling slot. Hosted runners have no such aggregate cap, so a run
+#: the cap itself cut short is refused rather than reported as a verdict
+#: (require_slot_memory_cap_unexhausted). Its effect on the shipping workflows
+#: is unmeasured; each slot run prints its peak. Slot 0 keeps only the
+#: per-container bound it had.
 SLOT_MEMORY_MAX = "24G"
 SLOT_COMMAND_TIMEOUT_SECONDS = 60
 #: A slot daemon's start job (until dockerd reports ready) and its stop job
@@ -166,6 +170,10 @@ SLOT_DOCKER_HOST_RE = re.compile(
     r"^unix:///run/milan-act-slot-([1-9][0-9]?)/docker\.sock$"
 )
 CGROUP_ROOT = pathlib.Path("/sys/fs/cgroup")
+#: A host interface name the slot firewall may quote: the 15-character
+#: interface-name limit and a conservative alphabet, so a route query can
+#: never place anything but a name in the rule.
+UPLINK_INTERFACE_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,14}$")
 #: Every host executable an isolated slot's lifecycle runs; each is resolved
 #: before the lock or any mutation, so a missing one refuses a clean host.
 SLOT_HOST_TOOLS = (
@@ -3809,32 +3817,37 @@ def validate_slot_root(
     *,
     inspect: Callable[[pathlib.Path], os.stat_result] = pathlib.Path.lstat,
 ) -> None:
-    """Refuse a slot root that is not an absolute, root-owned real directory closed to group and other writes.
+    """Refuse a slot root unless it and each directory above it is root-owned, real and closed to group/other writes.
 
     The operator creates it once, deliberately, on the filesystem that is to
-    hold every isolated slot's image cache; the runner never creates it. The
-    root itself is inspected without following a symlink.
+    hold every isolated slot's image cache; the runner never creates it. Each
+    component from `/` down is inspected without following a symlink (#532
+    DECISION: root-owned, not writable by group or other, no symlink in its
+    path). Checking the ancestors too is what makes the check hold until the
+    root daemon starts: only root can rename or replace any of them.
     """
     if not root.is_absolute() or ".." in root.parts:
         raise Refusal(f"slot root must be an absolute path without '..': {root}")
-    try:
-        info = inspect(root)
-    except FileNotFoundError as exc:
-        raise Refusal(
-            f"slot root {root} does not exist; create it once with "
-            f"`sudo install -d -m 0755 -o root -g root {root}`"
-        ) from exc
-    except OSError as exc:
-        raise Refusal(f"cannot inspect slot root {root}: {exc}") from exc
-    if (
-        not stat.S_ISDIR(info.st_mode)
-        or info.st_uid != 0
-        or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
-    ):
-        raise Refusal(
-            f"slot root {root} must be a real directory owned by root and not "
-            "writable by group or other"
-        )
+    for depth in range(1, len(root.parts) + 1):
+        component = pathlib.Path(*root.parts[:depth])
+        try:
+            info = inspect(component)
+        except FileNotFoundError as exc:
+            raise Refusal(
+                f"slot root {root} does not exist ({component} is missing); create it "
+                f"once with `sudo install -d -m 0755 -o root -g root {root}`"
+            ) from exc
+        except OSError as exc:
+            raise Refusal(f"cannot inspect slot root component {component}: {exc}") from exc
+        if (
+            not stat.S_ISDIR(info.st_mode)
+            or info.st_uid != 0
+            or info.st_mode & (stat.S_IWGRP | stat.S_IWOTH)
+        ):
+            raise Refusal(
+                f"slot root {root}: {component} must be a real directory (not a "
+                "symlink) owned by root and not writable by group or other"
+            )
 
 
 def new_slot_token() -> str:
@@ -3923,7 +3936,7 @@ def lock_replay_slot(
 
 @dataclass(frozen=True)
 class SlotHost:
-    """The collaborators one slot lifecycle calls through: privileged commands, path probes, the lock, Docker, time.
+    """The collaborators one slot lifecycle calls through: host commands, path probes, the lock, Docker, time, reads.
 
     The defaults are production; the self-test replaces them together to
     drive acquisition and teardown against a fake host, so they are one value.
@@ -3937,6 +3950,7 @@ class SlotHost:
     inspect_root: Callable[[pathlib.Path], os.stat_result] = pathlib.Path.lstat
     monotonic: Callable[[], float] = time.monotonic
     sleep: Callable[[float], None] = time.sleep
+    read_text: Callable[[pathlib.Path], str] = pathlib.Path.read_text
 
 
 @dataclass
@@ -3946,7 +3960,7 @@ class SlotLease:
     `attempted` names each slot resource before the command that creates it,
     so an interrupt or failure between the two still tears that resource down.
     Holding the lock is what makes a resource under the slot's names this
-    invocation's own.
+    invocation's own. `uplinks` are the interfaces the slot firewall allows.
     """
 
     slot: ReplaySlot
@@ -3954,6 +3968,7 @@ class SlotLease:
     lock: int | None = None
     attempted: list[str] = field(default_factory=list)
     released: bool = False
+    uplinks: tuple[str, ...] = ()
 
 
 def slot_uplink_command(slot: ReplaySlot) -> list[str]:
@@ -4046,22 +4061,82 @@ def slot_daemon_command(slot: ReplaySlot, token: str) -> list[str]:
     ]
 
 
-def slot_firewall_rules(slot: ReplaySlot) -> str:
-    """The slot's own nft table: nothing in the slot's cgroup may reach a host-local address.
+def require_uplink_names(uplinks: Sequence[str]) -> tuple[str, ...]:
+    """`uplinks` as the firewall may quote them; none, a duplicate, loopback or an unquotable name is a Refusal."""
+    names = tuple(uplinks)
+    if (
+        not names
+        or len(set(names)) != len(names)
+        or any(not UPLINK_INTERFACE_RE.fullmatch(name) or name == "lo" for name in names)
+    ):
+        raise Refusal(f"no usable uplink interface for an isolated slot: {list(names)!r}")
+    return names
 
-    The uplink is the slot's only host-side socket owner, so this closes the
+
+def slot_uplink_interfaces(host: SlotHost) -> tuple[str, ...]:
+    """The host interfaces carrying a unicast default route: the only ones a slot's traffic may leave through.
+
+    An unreachable, blackhole or prohibit default is not an uplink, and a
+    multipath default contributes every next hop. A host with no usable
+    default route, or one this query cannot read, is a Refusal before any
+    slot resource exists.
+    """
+    found: list[str] = []
+    for family in ("-4", "-6"):
+        description = f"host default route query ({family})"
+        result = host.run(
+            [require_tool("ip"), "-json", family, "route", "show", "default"],
+            description=description,
+        )
+        require_host_success(result, description)
+        try:
+            routes = json.loads((result.stdout or "").strip() or "[]")
+        except json.JSONDecodeError as exc:
+            raise Refusal(f"{description} returned malformed JSON") from exc
+        if not isinstance(routes, list) or not all(isinstance(route, dict) for route in routes):
+            raise Refusal(f"{description} returned something other than a route list")
+        for route in routes:
+            if route.get("type", "unicast") != "unicast":
+                continue
+            hops = route.get("nexthops", [route])
+            if not isinstance(hops, list) or not all(isinstance(hop, dict) for hop in hops):
+                raise Refusal(f"{description} returned a malformed multipath route")
+            for hop in hops:
+                name = hop.get("dev")
+                if not isinstance(name, str):
+                    raise Refusal(f"{description} returned a default route with no interface")
+                if name not in found:
+                    found.append(name)
+    return require_uplink_names(found)
+
+
+def slot_firewall_rules(slot: ReplaySlot, uplinks: Sequence[str]) -> str:
+    """The slot's own nft table: slot traffic may leave only through `uplinks`, and never for a host-local address.
+
+    The uplink is the slot's only host-side socket owner, so every connection
+    a slot job makes is one the host originates. The first rule closes the
     host loopback, the default daemon's bridge gateways and every other
-    runner's artifact and cache servers to the slot, while DNS and the
-    internet stay reachable. `create` makes the transaction fail whole if the
+    runner's artifact and cache servers to the slot. The second rejects
+    whatever the host would route anywhere but out of an interface carrying
+    its default route: a container behind any Docker bridge, a port Docker
+    publishes on a host address (its destination rewrite runs before this
+    filter), and any other local bridge, tunnel or VM network. Docker isolates
+    its networks from each other only on the forward path, which
+    host-originated traffic never takes, so without that rule a slot reached
+    containers slot 0's jobs cannot. DNS and the internet stay reachable
+    through the uplinks. `create` makes the transaction fail whole if the
     table already exists.
     """
     table = f"inet {slot.nft_table}"
+    selector = f'socket cgroupv2 level 1 "{slot.slice_unit}"'
+    allowed = ", ".join(f'"{name}"' for name in require_uplink_names(uplinks))
     return (
         f"create table {table}\n"
         f"add chain {table} output "
         "{ type filter hook output priority filter; policy accept; }\n"
-        f'add rule {table} output socket cgroupv2 level 1 "{slot.slice_unit}" '
+        f"add rule {table} output {selector} "
         "fib daddr type local counter reject\n"
+        f"add rule {table} output {selector} oifname != {{ {allowed} }} counter reject\n"
     )
 
 
@@ -4161,7 +4236,7 @@ def acquire_replay_slot(
     scratch: pathlib.Path,
     host: SlotHost,
 ) -> None:
-    """Lock the slot, prove it clean, then create namespace, slice cap, uplink, firewall and daemon in order."""
+    """Lock the slot, prove it clean, find its uplinks, then create namespace, slice cap, uplink, firewall, daemon."""
     slot = lease.slot
     for tool in SLOT_HOST_TOOLS:
         require_tool(tool)
@@ -4175,6 +4250,7 @@ def acquire_replay_slot(
             + f"); nothing was adopted or removed. Recover with: "
             f"{slot_recovery_commands(slot)}"
         )
+    lease.uplinks = slot_uplink_interfaces(host)
     ip_tool = require_tool("ip")
     systemctl = require_tool("systemctl")
     steps: tuple[tuple[str, list[str], float], ...] = (
@@ -4212,7 +4288,7 @@ def acquire_replay_slot(
         )
     rules = scratch / f"{slot.nft_table}.nft"
     try:
-        rules.write_text(slot_firewall_rules(slot), encoding="utf-8")
+        rules.write_text(slot_firewall_rules(slot, lease.uplinks), encoding="utf-8")
     except OSError as exc:
         raise Refusal(f"cannot write replay slot {slot.number} firewall rules: {exc}") from exc
     lease.attempted.append("firewall")
@@ -4374,6 +4450,38 @@ def release_replay_slot(lease: SlotLease, *, host: SlotHost) -> None:
         )
 
 
+def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str:
+    """The slot's memory peak; a Refusal when the slot's own cap ran out while the body ran, or cannot be read.
+
+    `memory.events.local` counts only the slice's own limit, never a job
+    container's CONTAINER_MEMORY limit below it, so a nonzero `oom` there means
+    the slot cap, which hosted runners do not have, decided the run. That
+    verdict is not the candidate's, so it is refused rather than reported.
+    """
+    cgroup = CGROUP_ROOT / slot.slice_unit
+    try:
+        events = dict(
+            line.split() for line in host.read_text(cgroup / "memory.events.local").splitlines()
+        )
+        exhausted = int(events["oom"])
+    except (OSError, ValueError, KeyError) as exc:
+        raise Refusal(
+            f"cannot prove replay slot {slot.number}'s memory cap never ran out: {exc}"
+        ) from exc
+    if exhausted:
+        raise Refusal(
+            f"replay slot {slot.number} ran out of its own memory cap "
+            f"(MemoryMax={SLOT_MEMORY_MAX}) {exhausted} time(s): the slot cap, not the "
+            "candidate, decided this run, so its verdict is refused; replay it in "
+            "slot 0 or with fewer slots at once"
+        )
+    try:
+        peak = f"{int(host.read_text(cgroup / 'memory.peak')) / 2**30:.1f} GiB"
+    except (OSError, ValueError):
+        peak = "unrecorded"
+    return f"memory peak {peak} of its {SLOT_MEMORY_MAX} cap, which never ran out"
+
+
 @contextlib.contextmanager
 def replay_slot(
     slot: ReplaySlot,
@@ -4382,7 +4490,11 @@ def replay_slot(
     scratch: pathlib.Path,
     host: SlotHost = SlotHost(),
 ) -> Iterator[None]:
-    """Run the body against `slot`'s daemon: none to start for slot 0, one owned for this invocation otherwise."""
+    """Run the body against `slot`'s daemon: none to start for slot 0, one owned for this invocation otherwise.
+
+    After a body that returns, an isolated slot proves its memory cap never
+    ran out and prints its peak; a body that raises keeps its own exception.
+    """
     if not slot.isolated:
         yield
         return
@@ -4397,10 +4509,14 @@ def replay_slot(
         print(
             f"act-ci: slot {slot.number}: own daemon {slot.docker_host}, "
             f"data-root {slot.data_root}, CPUs {container_cpuset(slot.number)}, "
-            f"memory {SLOT_MEMORY_MAX}",
+            f"memory {SLOT_MEMORY_MAX}, uplinks {','.join(lease.uplinks)}",
             flush=True,
         )
         yield
+        print(
+            f"act-ci: slot {slot.number}: {require_slot_memory_cap_unexhausted(slot, host)}",
+            flush=True,
+        )
     finally:
         if not lease.released:
             with blocked_cleanup_signals():
@@ -10690,8 +10806,14 @@ class FakeSlotHost:
     `state` holds the slot resources that exist: netns, runtime (the daemon's
     runtime directory), pidfile (the uplink's), daemon and uplink (loaded
     units), slice (an active slice), cgroup, dropins (the runtime cap) and
-    table. `fail_on` makes one command kind return failure, `raise_on` makes
-    one raise, and `survive` keeps a resource through its own removal.
+    table. `fail_on` makes one command kind return failure, every time or, as
+    `kind@n`, only its n-th time; `raise_on` makes one raise, and `survive`
+    keeps a resource through every removal. `unit_states` is what a present
+    unit reports, `routes` what each default-route query prints, the memory
+    files what the slice's cgroup holds (None: unreadable), and `root_stats`
+    what the slot root's components are. `masked` records, per command,
+    whether every cleanup signal was blocked while it ran; `body_failure` is
+    raised inside the slot, and `transcript` is what the lifecycle printed.
     """
 
     def __init__(
@@ -10709,12 +10831,23 @@ class FakeSlotHost:
         self.state: set[str] = set()
         self.keys: list[str] = []
         self.commands: dict[str, list[str]] = {}
+        self.masked: list[tuple[str, bool]] = []
         self.rules = ""
         self.token = ""
         self.identity = "ok"
         self.cgroup = f"/{slot.slice_unit}"
         self.lock_busy = False
         self.clock = 0.0
+        self.unit_states = {"daemon": "loaded", "uplink": "loaded", "slice": "active"}
+        self.routes = {
+            "-4": '[{"dst":"default","gateway":"192.0.2.1","dev":"eth0","flags":[]}]\n',
+            "-6": "[]\n",
+        }
+        self.memory_events: str | None = "low 0\nhigh 0\nmax 3\noom 0\noom_kill 0\n"
+        self.memory_peak: str | None = "13421772800\n"
+        self.root_stats: dict[pathlib.Path, os.stat_result] = {}
+        self.body_failure: BaseException | None = None
+        self.transcript = ""
 
     def unit_kind(self, unit: str) -> str:
         """Which slot resource a unit name is."""
@@ -10739,6 +10872,8 @@ class FakeSlotHost:
             return "slice-cap"
         if tool == "ip" and words[0] == "-n":
             return "lo-up"
+        if tool == "ip" and words[0] == "-json":
+            return f"uplink-query{words[1]}"
         if tool in ("ip", "nft"):
             return {
                 "add": "netns-add",
@@ -10770,8 +10905,8 @@ class FakeSlotHost:
             "firewall-delete": lambda: self.remove("table"),
             "stop-daemon": lambda: self.remove("daemon", "runtime"),
             "stop-uplink": lambda: self.remove("uplink", "pidfile"),
-            "stop-slice": lambda: self.state.difference_update(
-                {"slice", "cgroup", "daemon", "runtime", "uplink", "pidfile"}
+            "stop-slice": lambda: self.remove(
+                "slice", "cgroup", "daemon", "runtime", "uplink", "pidfile"
             ),
             "revert-slice": lambda: self.remove("dropins"),
             "netns-delete": lambda: self.remove("netns"),
@@ -10790,16 +10925,32 @@ class FakeSlotHost:
             if "table" in self.state:
                 return 0, "table", ""
             return 1, "", "Error: No such file or directory"
-        replies = {
-            "show-LoadState-daemon": "loaded" if "daemon" in self.state else "not-found",
-            "show-LoadState-uplink": "loaded" if "uplink" in self.state else "not-found",
-            "show-ActiveState-slice": "active" if "slice" in self.state else "inactive",
+        if kind.startswith("uplink-query"):
+            return 0, self.routes[kind.removeprefix("uplink-query")], ""
+        return 0, self.unit_reply(kind) + "\n", ""
+
+    def unit_reply(self, kind: str) -> str:
+        """What one `show` query prints about the model's units."""
+        present = {
+            "show-LoadState-daemon": "daemon",
+            "show-LoadState-uplink": "uplink",
+            "show-ActiveState-slice": "slice",
+        }
+        if kind in present:
+            resource = present[kind]
+            absent = "inactive" if resource == "slice" else "not-found"
+            return self.unit_states[resource] if resource in self.state else absent
+        return {
             "show-ControlGroup-slice": self.cgroup,
             "show-DropInPaths-slice": "/run/drop-ins/50-MemoryMax.conf"
             if "dropins" in self.state
             else "",
-        }
-        return 0, replies.get(kind, "") + "\n", ""
+        }.get(kind, "")
+
+    def faulted(self, kind: str) -> bool:
+        """Whether `fail_on` fails this call of `kind`: every call, or only the n-th of `kind@n`."""
+        name, _separator, nth = self.fail_on.partition("@")
+        return name == kind and (not nth or self.keys.count(kind) == int(nth))
 
     def run(
         self, command: Sequence[str], *, description: str, timeout: float = 0
@@ -10809,9 +10960,11 @@ class FakeSlotHost:
         kind = self.classify(command)
         self.keys.append(kind)
         self.commands[kind] = list(command)
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+        self.masked.append((kind, all(item in mask for item in CLEANUP_SIGNALS)))
         if self.raise_on is not None and self.raise_on[0] == kind:
             raise self.raise_on[1]
-        if kind == self.fail_on:
+        if self.faulted(kind):
             return subprocess.CompletedProcess(list(command), 1, "", "injected failure")
         returncode, stdout, stderr = self.answer(kind, command)
         return subprocess.CompletedProcess(list(command), returncode, stdout, stderr)
@@ -10861,9 +11014,23 @@ class FakeSlotHost:
         )
         return docker_completed(list(arguments), stdout=payload)
 
-    def inspect_root(self, _root: pathlib.Path) -> os.stat_result:
-        """A root-owned 0755 directory."""
-        return os.stat_result((stat.S_IFDIR | 0o755, 0, 0, 1, 0, 0, 0, 0, 0, 0))
+    def inspect_root(self, component: pathlib.Path) -> os.stat_result:
+        """What `root_stats` says `component` is; a root-owned 0755 directory otherwise."""
+        return self.root_stats.get(
+            component, os.stat_result((stat.S_IFDIR | 0o755, 0, 0, 1, 0, 0, 0, 0, 0, 0))
+        )
+
+    def read_text(self, path: pathlib.Path) -> str:
+        """The slice's memory file at `path`; an unreadable one raises as the real read would."""
+        cgroup = CGROUP_ROOT / self.slot.slice_unit
+        contents = {
+            cgroup / "memory.events.local": self.memory_events,
+            cgroup / "memory.peak": self.memory_peak,
+        }[path]
+        self.keys.append(f"read-{path.name}")
+        if contents is None:
+            raise PermissionError(13, "Permission denied", str(path))
+        return contents
 
     def monotonic(self) -> float:
         """A clock that advances only when the lifecycle sleeps."""
@@ -10884,6 +11051,7 @@ class FakeSlotHost:
             inspect_root=self.inspect_root,
             monotonic=self.monotonic,
             sleep=self.sleep,
+            read_text=self.read_text,
         )
 
 
@@ -10893,6 +11061,8 @@ SLOT_ACQUISITION_KINDS = [
     "show-LoadState-uplink",
     "show-ActiveState-slice",
     "firewall-query",
+    "uplink-query-4",
+    "uplink-query-6",
     "netns-add",
     "lo-up",
     "slice-cap",
@@ -10903,6 +11073,8 @@ SLOT_ACQUISITION_KINDS = [
     "docker-info",
 ]
 SLOT_TEARDOWN_KINDS = [
+    "read-memory.events.local",
+    "read-memory.peak",
     "stop-daemon",
     "show-LoadState-daemon",
     "stop-uplink",
@@ -10935,11 +11107,12 @@ def drive_fake_slot(
     )
     entry_keys = -1
     outcome = ""
+    printed = io.StringIO()
     with mock.patch.object(
         sys.modules[__name__], "require_tool", fake_host_tool
     ), mock.patch.object(os, "cpu_count", return_value=128):
         try:
-            with contextlib.redirect_stdout(io.StringIO()):
+            with contextlib.redirect_stdout(printed):
                 with replay_slot(
                     host.slot,
                     context=context,
@@ -10947,8 +11120,11 @@ def drive_fake_slot(
                     host=host.seams(),
                 ):
                     entry_keys = len(host.keys)
+                    if host.body_failure is not None:
+                        raise host.body_failure
         except (Refusal, TerminationRequest) as exc:
             outcome = f"{type(exc).__name__}: {exc}"
+    host.transcript = printed.getvalue()
     return outcome, entry_keys
 
 
@@ -11275,14 +11451,70 @@ def selftest_slot_commands(tally: SelftestTally) -> None:
     )
     check(
         "the slot firewall is one new table rejecting the slot cgroup's traffic to "
-        "host-local addresses, created whole or not at all",
-        slot_firewall_rules(slot)
+        "host-local addresses and out of any interface but the uplinks, created whole "
+        "or not at all",
+        slot_firewall_rules(slot, ("eth0", "wg0"))
         == "create table inet milan_act_slot_2\n"
         "add chain inet milan_act_slot_2 output "
         "{ type filter hook output priority filter; policy accept; }\n"
         'add rule inet milan_act_slot_2 output socket cgroupv2 level 1 '
-        '"milan_act_slot_2.slice" fib daddr type local counter reject\n',
+        '"milan_act_slot_2.slice" fib daddr type local counter reject\n'
+        'add rule inet milan_act_slot_2 output socket cgroupv2 level 1 '
+        '"milan_act_slot_2.slice" oifname != { "eth0", "wg0" } counter reject\n',
     )
+    selftest_slot_uplinks(tally, slot)
+
+
+def selftest_slot_uplinks(tally: SelftestTally, slot: ReplaySlot) -> None:
+    """Arms: the firewall's uplinks are the host's unicast default-route interfaces, and nothing else is quoted."""
+    check = tally.check
+    refused = tally.refused
+    for label, uplinks in (
+        ("no uplink", ()),
+        ("loopback as the uplink", ("lo",)),
+        ("a duplicated uplink", ("eth0", "eth0")),
+        ("an uplink name that would leave its quotes", ('eth0" }',)),
+        ("an uplink name over 15 characters", ("e" * 16,)),
+    ):
+        refused(
+            f"the slot firewall refuses {label}",
+            lambda uplinks=uplinks: slot_firewall_rules(slot, uplinks),
+        )
+
+    def uplinks_of(ipv4: str, ipv6: str = "[]\n") -> tuple[str, ...]:
+        """The uplinks the query finds when the host prints `ipv4` and `ipv6`."""
+        host = FakeSlotHost(slot)
+        host.routes = {"-4": ipv4, "-6": ipv6}
+        with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool):
+            return slot_uplink_interfaces(host.seams())
+
+    check(
+        "the uplinks are every unicast default route's interface, IPv4 then IPv6, "
+        "each once, with multipath next hops and no unreachable default",
+        uplinks_of(
+            '[{"dst":"default","dev":"enp1s0"},{"dst":"default","dev":"wlan0","metric":600}]',
+            '[{"dst":"default","nexthops":[{"dev":"enp1s0"},{"dev":"wg0"}]},'
+            '{"type":"unreachable","dst":"default","dev":"lo"}]',
+        )
+        == ("enp1s0", "wlan0", "wg0"),
+    )
+    for label, ipv4 in (
+        ("a host with no default route", "[]\n"),
+        ("a host whose only default is unreachable", '[{"type":"blackhole","dst":"default"}]'),
+        ("a default route naming no interface", '[{"dst":"default","gateway":"192.0.2.1"}]'),
+        ("a default route through loopback", '[{"dst":"default","dev":"lo"}]'),
+        ("an unquotable interface name", '[{"dst":"default","dev":"eth 0"}]'),
+        ("malformed route output", "default via 192.0.2.1 dev eth0\n"),
+        ("a route list of non-objects", '["default"]'),
+        ("a malformed multipath route", '[{"dst":"default","nexthops":{"dev":"eth0"}}]'),
+    ):
+        refused(f"{label} is refused before any slot resource", lambda ipv4=ipv4: uplinks_of(ipv4))
+    failing = FakeSlotHost(slot, fail_on="uplink-query-6")
+    with mock.patch.object(sys.modules[__name__], "require_tool", fake_host_tool):
+        refused(
+            "a default-route query that fails is refused, never read as no route",
+            lambda: slot_uplink_interfaces(failing.seams()),
+        )
 
 
 def selftest_slot_act_command(tally: SelftestTally, docker: DockerFixture) -> None:
@@ -11348,17 +11580,25 @@ def selftest_slot_lifecycle(tally: SelftestTally, layout: RunLayout) -> None:
         "table and namespace, proves each gone, then unlocks",
         host.keys[entry:] == SLOT_TEARDOWN_KINDS and host.state == set(),
     )
-    check(
-        "the firewall loaded is exactly the slot's rules",
-        host.rules == slot_firewall_rules(slot) and len(host.token) == 32,
-    )
+    selftest_slot_loaded_firewall(tally, layout, host)
     systemctl, ip_tool, nft = "/usr/bin/systemctl", "/usr/bin/ip", "/usr/bin/nft"
+
+    def show(name: str, unit: str) -> list[str]:
+        """The pinned unit-property query."""
+        return [systemctl, "show", f"--property={name}", "--value", unit]
+
     check(
-        "the namespace, memory cap, firewall and every teardown command are pinned "
-        "word for word",
+        "the queries, namespace, memory cap, firewall and every teardown command are "
+        "pinned word for word",
         host.commands
         == {
-            **{kind: host.commands[kind] for kind in host.commands if kind.startswith("show-")},
+            "show-LoadState-daemon": show("LoadState", "milan-act-slot-2-dockerd.service"),
+            "show-LoadState-uplink": show("LoadState", "milan-act-slot-2-net.service"),
+            "show-ActiveState-slice": show("ActiveState", "milan_act_slot_2.slice"),
+            "show-ControlGroup-slice": show("ControlGroup", "milan_act_slot_2.slice"),
+            "show-DropInPaths-slice": show("DropInPaths", "milan_act_slot_2.slice"),
+            "uplink-query-4": [ip_tool, "-json", "-4", "route", "show", "default"],
+            "uplink-query-6": [ip_tool, "-json", "-6", "route", "show", "default"],
             "firewall-query": [nft, "list", "table", "inet", "milan_act_slot_2"],
             "netns-add": [ip_tool, "netns", "add", "milan-act-slot-2"],
             "lo-up": [ip_tool, "-n", "milan-act-slot-2", "link", "set", "lo", "up"],
@@ -11416,6 +11656,33 @@ def selftest_slot_lifecycle(tally: SelftestTally, layout: RunLayout) -> None:
     check(
         "a host missing any slot tool is refused before the lock or any mutation",
         "unavailable: pasta" in outcome and bare.keys == [],
+    )
+
+
+def selftest_slot_loaded_firewall(
+    tally: SelftestTally, layout: RunLayout, host: FakeSlotHost
+) -> None:
+    """Arms: the firewall a slot loads allows exactly the uplinks its host's default routes use."""
+    check = tally.check
+    slot = host.slot
+    check(
+        "the firewall loaded is exactly the slot's rules, allowing the host's default-route "
+        "interface as its only uplink",
+        host.rules == slot_firewall_rules(slot, ("eth0",)) and len(host.token) == 32,
+    )
+    routed = FakeSlotHost(slot)
+    routed.routes = {
+        "-4": '[{"dst":"default","dev":"enp1s0"}]',
+        "-6": '[{"dst":"default","dev":"wg0"}]',
+    }
+    outcome, _entry = drive_fake_slot(routed, layout)
+    check(
+        "the firewall allows exactly the interfaces this host's default routes use, and "
+        "the slot announces them",
+        outcome == ""
+        and routed.rules == slot_firewall_rules(slot, ("enp1s0", "wg0"))
+        and 'oifname != { "enp1s0", "wg0" }' in routed.rules
+        and "memory 24G, uplinks enp1s0,wg0\n" in routed.transcript,
     )
 
 
@@ -11524,18 +11791,60 @@ def selftest_slot_residue(tally: SelftestTally, layout: RunLayout) -> None:
         "mutation, is named with the recovery commands and survives untouched",
         all(verdicts) and len(verdicts) == 7,
     )
+    for resource, states in (
+        ("daemon", ("masked", "error", "bad-setting")),
+        ("uplink", ("masked", "error", "bad-setting")),
+        ("slice", ("failed", "activating", "deactivating", "reloading", "maintenance")),
+    ):
+        caught = []
+        for state in states:
+            host = FakeSlotHost(slot)
+            host.state = {resource}
+            host.unit_states[resource] = state
+            outcome, _entry = drive_fake_slot(host, layout)
+            caught.append(f"({state})" in outcome and "netns-add" not in host.keys)
+        check(
+            f"a {resource} unit left in any state but the absent one "
+            f"({', '.join(states)}) is residue, not a clean slot",
+            all(caught),
+        )
+    for query in (
+        "show-LoadState-daemon", "show-LoadState-uplink", "show-ActiveState-slice", "firewall-query",
+    ):
+        host = FakeSlotHost(slot, fail_on=f"{query}@1")
+        outcome, _entry = drive_fake_slot(host, layout)
+        check(
+            f"a residue query that cannot answer ({query}) refuses the slot before any "
+            "mutation instead of reading as absent",
+            "query failed: injected failure" in outcome
+            and not SLOT_REMOVALS.intersection(host.keys)
+            and "netns-add" not in host.keys
+            and host.keys[-1] == "unlock-99",
+        )
+
+
+#: Every resource the teardown proves absent, as the model names it, with the
+#: problem its survival must produce.
+SLOT_SURVIVORS = (
+    ("daemon", "daemon unit", "{slot.daemon_unit} survived teardown (LoadState=loaded)"),
+    ("runtime", "runtime directory", "{slot.runtime_directory} survived teardown"),
+    ("uplink", "uplink unit", "{slot.uplink_unit} survived teardown (LoadState=loaded)"),
+    ("pidfile", "uplink PID file", "{slot.uplink_pidfile} survived teardown"),
+    ("slice", "active slice", "{slot.slice_unit} survived teardown (ActiveState=active)"),
+    ("cgroup", "slice cgroup", "{cgroup} survived teardown"),
+    ("dropins", "memory cap", "{slot.slice_unit} kept its runtime memory cap"),
+    ("table", "firewall table", "nft table inet {slot.nft_table} survived teardown"),
+    ("netns", "namespace", "{slot.netns_path} survived teardown"),
+)
 
 
 def selftest_slot_teardown_failures(tally: SelftestTally, layout: RunLayout) -> None:
-    """Arms: a resource that survives teardown refuses the run, while every other step still runs."""
+    """Arms: a resource that survives teardown refuses the run, naming it, while every other step still runs."""
     check = tally.check
     slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
-    for resource, described, named in (
-        ("daemon", "daemon unit", f"{slot.daemon_unit} survived teardown (LoadState=loaded)"),
-        ("netns", "namespace", f"{slot.netns_path} survived teardown"),
-        ("table", "firewall table", f"nft table inet {slot.nft_table} survived teardown"),
-        ("dropins", "memory cap", f"{slot.slice_unit} kept its runtime memory cap"),
-    ):
+    cgroup = CGROUP_ROOT / slot.slice_unit
+    for resource, described, problem in SLOT_SURVIVORS:
+        named = problem.format(slot=slot, cgroup=cgroup)
         host = FakeSlotHost(slot, survive=frozenset({resource}))
         outcome, entry = drive_fake_slot(host, layout)
         check(
@@ -11582,6 +11891,52 @@ def selftest_slot_teardown_failures(tally: SelftestTally, layout: RunLayout) -> 
     )
 
 
+def selftest_slot_teardown_queries(tally: SelftestTally, layout: RunLayout) -> None:
+    """Arms: a teardown proof whose query cannot answer refuses the run instead of reading as absent."""
+    check = tally.check
+    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+    for fault, named in (
+        ("show-LoadState-daemon@2", f"{slot.daemon_unit} LoadState query failed"),
+        ("show-LoadState-uplink@2", f"{slot.uplink_unit} LoadState query failed"),
+        ("show-ActiveState-slice@2", f"{slot.slice_unit} ActiveState query failed"),
+        ("show-DropInPaths-slice", f"{slot.slice_unit} DropInPaths query failed"),
+        ("firewall-query@2", "replay slot 2 firewall query failed"),
+    ):
+        host = FakeSlotHost(slot, fail_on=fault)
+        outcome, entry = drive_fake_slot(host, layout)
+        check(
+            f"a teardown proof whose query cannot answer ({fault}) refuses the run, "
+            "naming the query, while every removal and the unlock still run",
+            "teardown failed" in outcome
+            and named in outcome
+            and SLOT_REMOVALS.issubset(host.keys[entry:])
+            and host.keys[-1] == "unlock-99",
+        )
+
+
+def selftest_slot_teardown_signals(tally: SelftestTally, layout: RunLayout) -> None:
+    """Arm: slot teardown runs with every cleanup signal blocked, and acquisition does not."""
+    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+    host = FakeSlotHost(slot)
+    pending = signal.sigpending() & set(CLEANUP_SIGNALS)
+    previous = signal.pthread_sigmask(signal.SIG_UNBLOCK, set() if pending else CLEANUP_SIGNALS)
+    try:
+        outcome, _entry = drive_fake_slot(host, layout)
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous)
+    kinds = [kind for kind, _blocked in host.masked]
+    first = kinds.index("stop-daemon") if "stop-daemon" in kinds else 0
+    tally.check(
+        "every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a "
+        "repeated signal cannot cut it short, while acquisition ran with them unblocked",
+        not pending
+        and outcome == ""
+        and first > 0
+        and all(blocked for _kind, blocked in host.masked[first:])
+        and not any(blocked for _kind, blocked in host.masked[:first]),
+    )
+
+
 def selftest_slot_root(tally: SelftestTally) -> None:
     """Arms: a slot root must be an absolute, root-owned real directory closed to group and other writes."""
     check = tally.check
@@ -11620,6 +11975,55 @@ def selftest_slot_root(tally: SelftestTally) -> None:
         "a missing slot root's refusal names the one-time creation command",
         "sudo install -d -m 0755 -o root -g root /srv/slots"
         in refusal_text(lambda: validate_slot_root(pathlib.Path("/srv/slots"), inspect=missing)),
+    )
+    selftest_slot_root_ancestors(tally)
+
+
+def selftest_slot_root_ancestors(tally: SelftestTally) -> None:
+    """Arms: every directory above a slot root is held to the root's own rule, and none is followed."""
+    root = pathlib.Path("/srv/slots/deep")
+    inspected: list[pathlib.Path] = []
+
+    def only(component: str, mode: int, uid: int = 0) -> Callable[[pathlib.Path], os.stat_result]:
+        """An inspector for which only `component` differs from a root-owned 0755 directory."""
+        def inspect_component(path: pathlib.Path) -> os.stat_result:
+            """One component's status, recorded."""
+            inspected.append(path)
+            if path != pathlib.Path(component):
+                return os.stat_result((stat.S_IFDIR | 0o755, 0, 0, 1, 0, 0, 0, 0, 0, 0))
+            if not mode:
+                raise FileNotFoundError(path)
+            return os.stat_result((mode, 0, 0, 1, uid, 0, 0, 0, 0, 0))
+        return inspect_component
+
+    tally.check(
+        "a slot root whose every ancestor is a root-owned 0755 directory is accepted, and "
+        "each component from / down is inspected without following it",
+        refusal_text(lambda: validate_slot_root(root, inspect=only("/unrelated", 0))) == ""
+        and inspected
+        == [pathlib.Path(path) for path in ("/", "/srv", "/srv/slots", "/srv/slots/deep")],
+    )
+    for label, component, mode, uid in (
+        ("a symlinked parent", "/srv", stat.S_IFLNK | 0o777, 0),
+        ("a symlinked top-level directory", "/srv", stat.S_IFLNK | 0o755, 0),
+        ("a parent owned by a user", "/srv/slots", stat.S_IFDIR | 0o755, 1000),
+        ("a group-writable parent", "/srv/slots", stat.S_IFDIR | 0o775, 0),
+        ("a sticky other-writable parent such as /tmp", "/srv", stat.S_IFDIR | 0o1777, 0),
+        ("a parent that is not a directory", "/srv/slots", stat.S_IFREG | 0o755, 0),
+    ):
+        text = refusal_text(
+            lambda component=component, mode=mode, uid=uid: validate_slot_root(
+                root, inspect=only(component, mode, uid)
+            )
+        )
+        tally.check(
+            f"a slot root under {label} is refused, naming that component",
+            f"{component} must be a real directory" in text,
+        )
+    tally.check(
+        "a slot root whose parent is missing is refused with the one-time creation command",
+        "sudo install -d -m 0755 -o root -g root /srv/slots/deep"
+        in refusal_text(lambda: validate_slot_root(root, inspect=only("/srv/slots", 0))),
     )
 
 
@@ -11676,23 +12080,234 @@ def selftest_slot_lock(tally: SelftestTally) -> None:
 
 
 def selftest_slot_wiring(tally: SelftestTally) -> None:
-    """Arms: the slot lifecycle defaults to the real host, lock, Docker and clock."""
+    """Arms: the slot lifecycle defaults to the real host, lock, Docker, clock and reads."""
     check = tally.check
     defaults = SlotHost()
     check(
         "the slot lifecycle defaults to real privileged commands, path probes, the "
-        "real lock, the real Docker CLI and the real clock",
+        "real lock, the real Docker CLI, the real clock and real file reads",
         (
             defaults.run, defaults.exists, defaults.lock, defaults.unlock,
             defaults.docker_command, defaults.inspect_root, defaults.monotonic,
-            defaults.sleep,
+            defaults.sleep, defaults.read_text,
         )
         == (
             run_privileged_host_command, path_present, lock_replay_slot, os.close,
             run_docker, pathlib.Path.lstat, time.monotonic, time.sleep,
+            pathlib.Path.read_text,
         )
         and replay_slot.__wrapped__.__kwdefaults__["host"] == SlotHost(),
     )
+    owner = inspect.signature(lock_replay_slot).parameters["owner"]
+    source = ast.parse(inspect.getsource(lock_replay_slot)).body[0]
+    check(
+        "the production slot lock accepts only a root-owned file: its owner default is "
+        "the literal 0, never the invoking user",
+        owner.default == 0
+        and isinstance(source, ast.FunctionDef)
+        and [
+            default.value
+            for argument, default in zip(source.args.kwonlyargs, source.args.kw_defaults)
+            if argument.arg == "owner" and isinstance(default, ast.Constant)
+        ]
+        == [0],
+    )
+    commands: list[tuple[list[str], CommandContext, float]] = []
+
+    def tracked(
+        command: Sequence[str], *, context: CommandContext, timeout: float
+    ) -> subprocess.CompletedProcess[str]:
+        """Record the contained command a privileged host command becomes."""
+        commands.append((list(command), context, timeout))
+        return subprocess.CompletedProcess(list(command), 0, "", "")
+
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        run_tracked_process_group_command=tracked,
+        require_tool=fake_host_tool,
+    ):
+        run_privileged_host_command(["/usr/bin/ip", "netns", "list"], description="probe")
+    check(
+        "a slot host command runs as `sudo -n --`, never prompting, from / with only a "
+        "fixed PATH and locale, under the default bound",
+        commands
+        == [
+            (
+                ["/usr/bin/sudo", "-n", "--", "/usr/bin/ip", "netns", "list"],
+                CommandContext(
+                    use_sudo=True,
+                    cwd=pathlib.Path("/"),
+                    env={"PATH": SAFE_PATH, "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"},
+                ),
+                SLOT_COMMAND_TIMEOUT_SECONDS,
+            )
+        ],
+    )
+    for raised, described in (
+        (subprocess.TimeoutExpired(["ip"], 1), "timed out"),
+        (OSError(2, "No such file or directory"), "cannot run probe"),
+    ):
+        def failing(*_args: object, raised: BaseException = raised, **_kwargs: object) -> None:
+            """A contained command that cannot complete."""
+            raise raised
+
+        with mock.patch.multiple(
+            sys.modules[__name__],
+            run_tracked_process_group_command=failing,
+            require_tool=fake_host_tool,
+        ):
+            text = refusal_text(
+                lambda: run_privileged_host_command(["/usr/bin/ip"], description="probe")
+            )
+        check(f"a slot host command that {described} is a Refusal", described in text)
+
+
+def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+    """Arms: a slot whose own cap ran out is refused, not reported; its peak is printed; teardown always runs."""
+    check = tally.check
+    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+    host = FakeSlotHost(slot)
+    outcome, entry = drive_fake_slot(host, layout)
+    check(
+        "a slot whose cap never ran out passes, printing its peak, and reads only the "
+        "slice's own events, never those of a container's limit below it",
+        outcome == ""
+        and "act-ci: slot 2: memory peak 12.5 GiB of its 24G cap, which never ran out\n"
+        in host.transcript
+        and host.keys[entry : entry + 2] == ["read-memory.events.local", "read-memory.peak"],
+    )
+    for events, described, named in (
+        ("low 0\nmax 9\noom 2\noom_kill 2\n", "a cap that ran out twice",
+         "ran out of its own memory cap (MemoryMax=24G) 2 time(s)"),
+        (None, "unreadable events", "cannot prove replay slot 2's memory cap never ran out"),
+        ("oom\n", "malformed events", "cannot prove replay slot 2's memory cap never ran out"),
+        ("low 0\nmax 0\n", "events without an oom count",
+         "cannot prove replay slot 2's memory cap never ran out"),
+    ):
+        host = FakeSlotHost(slot)
+        host.memory_events = events
+        outcome, entry = drive_fake_slot(host, layout)
+        check(
+            f"a slot with {described} is refused naming its cap, not reported as a "
+            "verdict, and the whole slot is still torn down and unlocked",
+            outcome.startswith("Refusal")
+            and named in outcome
+            and "memory peak" not in host.transcript
+            and SLOT_REMOVALS.issubset(host.keys[entry:])
+            and host.state == set()
+            and host.keys[-1] == "unlock-99",
+        )
+    host = FakeSlotHost(slot)
+    host.memory_peak = None
+    outcome, _entry = drive_fake_slot(host, layout)
+    check(
+        "an unreadable peak is reported as unrecorded and refuses nothing",
+        outcome == "" and "memory peak unrecorded of its 24G cap" in host.transcript,
+    )
+    host = FakeSlotHost(slot)
+    host.body_failure = Refusal("the body failed")
+    outcome, _entry = drive_fake_slot(host, layout)
+    check(
+        "a body that raises keeps its own exception: the cap is not read over it, and "
+        "the slot is torn down",
+        outcome == "Refusal: the body failed"
+        and not any(key.startswith("read-") for key in host.keys)
+        and host.state == set()
+        and host.keys[-1] == "unlock-99",
+    )
+
+
+def selftest_live_gate_slot(tally: SelftestTally) -> None:
+    """Arms: the live interruption gate runs in the slot the command line names, and enters it before act."""
+    check = tally.check
+    calls: list[tuple[object, ...]] = []
+
+    def recorded(*arguments: object) -> int:
+        """Record one live self-test's arguments instead of running it."""
+        calls.append(arguments)
+        return RC_OK
+
+    with mock.patch.dict(os.environ, {"PATH": SAFE_PATH}, clear=True), mock.patch.multiple(
+        sys.modules[__name__],
+        resolve_act_binary=lambda _name: "/trusted/act",
+        validate_act_binary=lambda *_args: None,
+        interrupt_selftest=recorded,
+        boundary_selftest=recorded,
+        run_with_cleanup_signals=lambda action: action(),
+    ), mock.patch.object(os, "cpu_count", return_value=128):
+        status = main(
+            ["act_ci.py", "--interrupt-selftest", "--sudo", "--slot", "2", "--slot-root", "/srv/slots"]
+        )
+    check(
+        "--interrupt-selftest --slot 2 runs the live gate in slot 2 on its slot root, "
+        "never silently in slot 0",
+        status == RC_OK and calls == [("/trusted/act", True, ReplaySlot(2, pathlib.Path("/srv/slots")))],
+    )
+    entered: list[tuple[int, int]] = []
+
+    @contextlib.contextmanager
+    def stop_in_slot(
+        selected: ReplaySlot, *, context: CommandContext, **_kwargs: object
+    ) -> Iterator[None]:
+        """Record the slot entered and the endpoint its context carries, then stop."""
+        entered.append((selected.number, slot_of_environment(context.env)))
+        raise Refusal("stopped inside the slot")
+        yield
+
+    def stop_before_act(*_args: object, **_kwargs: object) -> list[str]:
+        """Stop where act would be resolved: reaching it outside the slot is the defect."""
+        raise Refusal("reached act outside the slot")
+
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        replay_slot=stop_in_slot,
+        require_runtime=stop_before_act,
+        commit_interrupt_selftest_checkout=lambda *_args: None,
+    ):
+        text = refusal_text(
+            lambda: interrupt_selftest("/trusted/act", False, ReplaySlot(2, pathlib.Path("/srv/slots")))
+        )
+    check(
+        "the live gate enters its slot, with that slot's own endpoint, before it resolves act",
+        text == "stopped inside the slot" and entered == [(2, 2)],
+    )
+
+
+def selftest_slot_guards(tally: SelftestTally, layout: RunLayout) -> None:
+    """Arms: acquisition validates the slot root, CPUs stop at the host's last, and a dangling symlink is present."""
+    check = tally.check
+    slot = ReplaySlot(2, pathlib.Path("/srv/slots"))
+    for component, mode, uid, described in (
+        (pathlib.Path("/srv"), stat.S_IFDIR | 0o755, 1000, "a user-owned parent"),
+        (pathlib.Path("/srv/slots"), stat.S_IFLNK | 0o777, 0, "a symlink as the root"),
+    ):
+        host = FakeSlotHost(slot)
+        host.root_stats = {component: os.stat_result((mode, 0, 0, 1, uid, 0, 0, 0, 0, 0))}
+        outcome, _entry = drive_fake_slot(host, layout)
+        check(
+            f"acquiring a slot whose root has {described} refuses before the lock or any "
+            "host command",
+            f"{component} must be a real directory" in outcome and host.keys == [],
+        )
+    with mock.patch.object(os, "cpu_count", return_value=11):
+        text = refusal_text(lambda: container_cpuset(2))
+    with mock.patch.object(os, "cpu_count", return_value=12):
+        exact = container_cpuset(2)
+    check(
+        "slot 2 needs CPU 11: an 11-CPU host (CPUs 0-10) refuses it, a 12-CPU host "
+        "gives it exactly 8-11",
+        "needs CPUs 8-11, but this host has 11" in text and exact == "8-11",
+    )
+    with tempfile.TemporaryDirectory(prefix="act-ci-slot-path-") as raw:
+        scratch = pathlib.Path(raw)
+        (scratch / "dangling").symlink_to(scratch / "nowhere")
+        (scratch / "file").touch()
+        check(
+            "a dangling symlink occupies a slot path, as a file does; only nothing is absent",
+            path_present(scratch / "dangling")
+            and path_present(scratch / "file")
+            and not path_present(scratch / "nowhere"),
+        )
 
 
 def selftest_slot_validation_path(
@@ -11766,9 +12381,14 @@ def selftest_slot_stages(tally: SelftestTally, docker: DockerFixture) -> None:
     selftest_slot_rollback(tally, docker.layout)
     selftest_slot_residue(tally, docker.layout)
     selftest_slot_teardown_failures(tally, docker.layout)
+    selftest_slot_teardown_queries(tally, docker.layout)
+    selftest_slot_teardown_signals(tally, docker.layout)
+    selftest_slot_memory_cap(tally, docker.layout)
+    selftest_slot_guards(tally, docker.layout)
     selftest_slot_root(tally)
     selftest_slot_lock(tally)
     selftest_slot_wiring(tally)
+    selftest_live_gate_slot(tally)
 
 
 def selftest_run_directory_stages(
@@ -13519,8 +14139,9 @@ def build_argument_parser() -> argparse.ArgumentParser:
         "--slot-root",
         type=pathlib.Path,
         help=(
-            "root-owned directory holding each isolated slot's persistent "
-            f"data-root (default {DEFAULT_SLOT_ROOT})"
+            "root-owned directory, with root-owned ancestors and no symlink, "
+            "holding each isolated slot's persistent data-root "
+            f"(default {DEFAULT_SLOT_ROOT})"
         ),
     )
     parser.add_argument(
