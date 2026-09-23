@@ -1,0 +1,32 @@
+36:direct:
+41:	sw	ra,12(sp)
+42:	sw	s0,8(sp)
+47:	lla	a5,arr
+49:	sw	a4,4(a5)
+50:	lla	a5,sarr
+52:	sw	a4,20(a5)
+53:	lla	a5,nested
+55:	sw	a4,8(a5)
+56:	lla	a5,nested
+58:	sb	a4,11(a5)
+59:	lla	a5,nested
+61:	sh	a4,10(a5)
+62:	lla	a5,uw
+64:	sb	a4,6(a5)
+65:	lla	a5,arr
+66:	lw	a4,4(a5)
+67:	lla	a5,sarr
+68:	lw	a5,20(a5)
+70:	lla	a5,nested
+71:	lw	a5,8(a5)
+73:	lla	a5,uw
+74:	lw	a5,4(a5)
+79:	lw	ra,12(sp)
+81:	lw	s0,8(sp)
+93:address_taken:
+98:	sw	ra,12(sp)
+99:	sw	s0,8(sp)
+104:	lla	a0,nested+8
+106:	lla	a0,arr+4
+109:	lw	ra,12(sp)
+111:	lw	s0,8(sp)
