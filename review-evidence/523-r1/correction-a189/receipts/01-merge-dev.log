@@ -1,0 +1,22 @@
+Auto-merging docs/testing/TESTING.md
+Auto-merging scripts/measure_test_evidence.py
+Merge made by the 'ort' strategy.
+ docs/README.md                             |    1 +
+ docs/guides/VERIFICATION_DEVELOPER.md      |    1 +
+ docs/testing/ASSERTIONS.md                 |  301 +++++++++
+ docs/testing/TESTING.md                    |    2 +-
+ scripts/measure_test_evidence.py           |    4 +
+ tb/common/sva/axis_mux_rr_2in_1out_bind.sv |   60 ++
+ tb/common/sva/axis_mux_rr_2in_1out_sva.sv  |  191 ++++++
+ tb/common/sva/axis_stream_source_sva.sv    |   93 +++
+ tb/verilator/README.md                     |    3 +-
+ tb/verilator/ptp_ts/Makefile               |   61 +-
+ tb/verilator/ptp_ts/mux_sva_main.cpp       | 1006 ++++++++++++++++++++++++++++
+ tb/verilator/ptp_ts/sva_campaign.py        |  554 +++++++++++++++
+ 12 files changed, 2270 insertions(+), 7 deletions(-)
+ create mode 100644 docs/testing/ASSERTIONS.md
+ create mode 100644 tb/common/sva/axis_mux_rr_2in_1out_bind.sv
+ create mode 100644 tb/common/sva/axis_mux_rr_2in_1out_sva.sv
+ create mode 100644 tb/common/sva/axis_stream_source_sva.sv
+ create mode 100644 tb/verilator/ptp_ts/mux_sva_main.cpp
+ create mode 100644 tb/verilator/ptp_ts/sva_campaign.py

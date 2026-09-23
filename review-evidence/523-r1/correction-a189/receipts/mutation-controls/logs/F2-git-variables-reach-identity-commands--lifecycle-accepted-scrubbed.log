@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.accepted(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F2-git-variables-reach-identity-commands/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 184, in accepted
+    assert status == 0 and "controls: 9   failures: 0\nRESULT: PASS" in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: REFUSED: git ls-tree -rz HEAD -- hdl/common/KL_link_guard.sv hdl/common/cdc_handshake.sv hdl/common/cdc_pulse.sv hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv tb/common/gptp_tx_flags.hpp tb/common/verilator_harness.hpp tb/verilator/gptp_shadow/Makefile tb/verilator/gptp_shadow/gptp_shadow_wrap.sv tb/verilator/gptp_shadow/sim_main.cpp: exit 128: fatal: global 'literal' pathspec setting is incompatible with all other global pathspec settings
+

@@ -1,0 +1,59 @@
+{
+ "signal": "KILL",
+ "driver": "$LANES/523-isolate-mutation-cancellation/scripts/run_all_suites.sh",
+ "tree_before_signal": {
+  "2757570": [
+   "18178600",
+   "S",
+   "timeout 1800 make -C $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-K"
+  ],
+  "2757779": [
+   "18178605",
+   "S",
+   "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-"
+  ],
+  "2757668": [
+   "18178602",
+   "S",
+   "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-"
+  ],
+  "2756421": [
+   "18178573",
+   "S",
+   "bash $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL input [523]/"
+  ],
+  "2756262": [
+   "18178569",
+   "S",
+   "python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL input [52"
+  ],
+  "2757577": [
+   "18178600",
+   "S",
+   "python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-control/b"
+  ]
+ },
+ "caller_status": -9,
+ "caller_output_at_death": "shard: 0/1   selected suites: 2\n",
+ "survivors_after_caller_death": {
+  "2757570": "timeout 1800 make -C $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-K",
+  "2757779": "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-",
+  "2757668": "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-",
+  "2757577": "python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-1rtt7aui/hardstop-KILL-control/b"
+ },
+ "output_after_caller_death": "",
+ "later_suite_started": false,
+ "completed_summary_after_death": false,
+ "suite_logs": [
+  "alpha.log",
+  "preflight/check_list_hermetic.log",
+  "preflight/check_merge_containment.log",
+  "preflight/check_merge_review_integrity.log",
+  "preflight/check_results_fresh.log",
+  "preflight/suite_shards.log",
+  "preflight/suite_tally.log",
+  "preflight/test_suite_cancellation.log",
+  "preflight/xvlog_gate.log"
+ ],
+ "lock_owner_left": true
+}

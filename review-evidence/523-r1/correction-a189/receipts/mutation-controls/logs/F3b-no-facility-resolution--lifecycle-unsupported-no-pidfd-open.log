@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.unsupported(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F3b-no-facility-resolution/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 329, in unsupported
+    assert status == 2 and "REFUSED:" in output and "Traceback" not in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "/tmp/mutation-arm-4c3avk8g/facility-no-pidfd-open input [523]/tb/verilator/gptp_shadow/mutants.py", line 319, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/tmp/mutation-arm-4c3avk8g/facility-no-pidfd-open input [523]/tb/verilator/gptp_shadow/mutants.py", line 254, in main
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "/tmp/mutation-arm-4c3avk8g/facility-no-pidfd-open input [523]/scripts/owned_process.py", line 98, in __enter__
+    fd = os.pidfd_open(os.getpid())
+         ^^^^^^^^^^^^^
+AttributeError: module 'os' has no attribute 'pidfd_open'
+

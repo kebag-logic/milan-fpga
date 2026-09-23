@@ -1,0 +1,46 @@
+{
+ "signal": "KILL",
+ "driver": "$MANAGEMENT/2026-09-23/523-a189/scratch/base-run_all_suites.sh",
+ "tree_before_signal": {
+  "2768065": [
+   "18178860",
+   "S",
+   "timeout 1800 make -C $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-K"
+  ],
+  "2768305": [
+   "18178865",
+   "S",
+   "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-"
+  ],
+  "2768069": [
+   "18178860",
+   "S",
+   "python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-control/b"
+  ],
+  "2767191": [
+   "18178839",
+   "S",
+   "bash $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL input [523]/"
+  ],
+  "2768171": [
+   "18178862",
+   "S",
+   "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-"
+  ]
+ },
+ "caller_status": -9,
+ "caller_output_at_death": "shard: 0/1   selected suites: 2\n",
+ "survivors_after_caller_death": {
+  "2768065": "timeout 1800 make -C $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-K",
+  "2768305": "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-",
+  "2768069": "python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-control/b",
+  "2768171": "/usr/bin/python3 $MANAGEMENT/2026-09-23/523-a189/scratch/probe-tmp/hardstop-ne7mnm0v/hardstop-KILL-"
+ },
+ "output_after_caller_death": "",
+ "later_suite_started": false,
+ "completed_summary_after_death": false,
+ "suite_logs": [
+  "alpha.log"
+ ],
+ "lock_owner_left": true
+}

@@ -1,0 +1,285 @@
+{
+ "revision": "6674c278a8db5f0886d036dceff02d33b7ca6a37",
+ "baseline": {
+  "lifecycle:accepted:git-stderr": 0,
+  "lifecycle:accepted:presentation": 0,
+  "lifecycle:accepted:scrubbed": 0,
+  "lifecycle:accepted:unrelated": 0,
+  "lifecycle:interrupted:SIGKILL": 0,
+  "lifecycle:interrupted:SIGTERM": 0,
+  "lifecycle:refusal:copied-dependency": 0,
+  "lifecycle:refusal:dependency-link": 0,
+  "lifecycle:refusal:dirty-header": 0,
+  "lifecycle:refusal:git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES": 0,
+  "lifecycle:refusal:git-env-GIT_COMMON_DIR": 0,
+  "lifecycle:refusal:git-env-GIT_CONFIG_COUNT": 0,
+  "lifecycle:refusal:git-env-GIT_CONFIG_GLOBAL": 0,
+  "lifecycle:refusal:git-env-GIT_CONFIG_PARAMETERS": 0,
+  "lifecycle:refusal:git-env-GIT_CONFIG_SYSTEM": 0,
+  "lifecycle:refusal:git-env-GIT_DIR": 0,
+  "lifecycle:refusal:git-env-GIT_INDEX_FILE": 0,
+  "lifecycle:refusal:git-env-GIT_OBJECT_DIRECTORY": 0,
+  "lifecycle:refusal:git-env-GIT_REPLACE_REF_BASE": 0,
+  "lifecycle:refusal:git-env-GIT_WORK_TREE": 0,
+  "lifecycle:refusal:git-garbage": 0,
+  "lifecycle:refusal:parent-link": 0,
+  "lifecycle:refusal:staged": 0,
+  "lifecycle:refusal:undeclared-target": 0,
+  "lifecycle:refusal:untracked": 0,
+  "lifecycle:unsupported:no-pidfd-open": 0,
+  "lifecycle:unsupported:no-pidfd-signal": 0,
+  "lifecycle:unsupported:no-prctl": 0,
+  "sweep:hard_stop:HUP": 0,
+  "sweep:hard_stop:HUP-group": 0,
+  "sweep:hard_stop:KILL": 0,
+  "sweep:unsupported:no-pidfd-open": 0,
+  "sweep:unsupported:no-pidfd-signal": 0,
+  "sweep:unsupported:no-prctl": 0
+ },
+ "mutations": [
+  {
+   "id": "F1-commands-outlive-owner",
+   "finding": "R256-2 F1 / R257-1 F1",
+   "file": "scripts/owned_process.py",
+   "applied": true,
+   "arms": {
+    "sweep:hard_stop:KILL": 1,
+    "sweep:hard_stop:HUP": 1,
+    "sweep:hard_stop:HUP-group": 1,
+    "lifecycle:interrupted:SIGKILL": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F3b-no-facility-resolution",
+   "finding": "R257-1 F3",
+   "file": "scripts/owned_process.py",
+   "applied": true,
+   "arms": {
+    "sweep:unsupported:no-prctl": 1,
+    "sweep:unsupported:no-pidfd-open": 1,
+    "sweep:unsupported:no-pidfd-signal": 1,
+    "lifecycle:unsupported:no-prctl": 1,
+    "lifecycle:unsupported:no-pidfd-open": 1,
+    "lifecycle:unsupported:no-pidfd-signal": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-original-allowlist",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:accepted:presentation": 1,
+    "lifecycle:accepted:scrubbed": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-git-variables-reach-identity-commands",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:accepted:scrubbed": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_DIR-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_DIR": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_WORK_TREE-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_WORK_TREE": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_COMMON_DIR-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_COMMON_DIR": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_INDEX_FILE-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_INDEX_FILE": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_OBJECT_DIRECTORY-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_OBJECT_DIRECTORY": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_ALTERNATE_OBJECT_DIRECTORIES-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_REPLACE_REF_BASE-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_REPLACE_REF_BASE": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_CONFIG_PARAMETERS-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_CONFIG_PARAMETERS": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_CONFIG_COUNT-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_CONFIG_COUNT": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_CONFIG_GLOBAL-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_CONFIG_GLOBAL": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F2-redirect-GIT_CONFIG_SYSTEM-accepted",
+   "finding": "R256-2 F2 / R257-1 F2",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-env-GIT_CONFIG_SYSTEM": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F3-directory-scope-population",
+   "finding": "R256-2 F3",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:accepted:unrelated": 1,
+    "lifecycle:interrupted:SIGTERM": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F3-no-include-walk",
+   "finding": "R256-2 F3",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:dirty-header": 1,
+    "lifecycle:interrupted:SIGTERM": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F3-targets-need-not-be-inputs",
+   "finding": "R256-2 F3",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:undeclared-target": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F4-copied-dependency-accepted",
+   "finding": "R256-2 F4",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:copied-dependency": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F5-stderr-parsed-as-records",
+   "finding": "R256-2 F5",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:accepted:git-stderr": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "F5-unreadable-record-crashes",
+   "finding": "R256-2 F5",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:git-garbage": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "S-no-directory-link-check",
+   "finding": "R256-2 S1 / R257-1 S3",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:parent-link": 1,
+    "lifecycle:refusal:dependency-link": 1
+   },
+   "all_arms_red": true
+  },
+  {
+   "id": "S-no-index-comparison",
+   "finding": "R257-1 S3",
+   "file": "tb/verilator/gptp_shadow/private_inputs.py",
+   "applied": true,
+   "arms": {
+    "lifecycle:refusal:staged": 1,
+    "lifecycle:refusal:untracked": 1
+   },
+   "all_arms_red": true
+  }
+ ],
+ "verdict": "PASS"
+}

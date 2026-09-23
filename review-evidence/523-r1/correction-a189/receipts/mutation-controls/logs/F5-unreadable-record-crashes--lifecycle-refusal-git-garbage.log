@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    t.refusal(pathlib.Path(scratch).resolve(), arg)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/523-a189-packet/scratch/mutation/trees/F5-unreadable-record-crashes/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 314, in refusal
+    assert status == 2 and "REFUSED:" in output and reason in output, (reason, output)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('unreadable Git identity record', 'Traceback (most recent call last):\n  File "/tmp/mutation-arm-wnqokr49/git-garbage input [523]/tb/verilator/gptp_shadow/mutants.py", line 319, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/tmp/mutation-arm-wnqokr49/git-garbage input [523]/tb/verilator/gptp_shadow/mutants.py", line 258, in main\n    copy_inputs(REPO, HERE, private, owner, targets)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/tmp/mutation-arm-wnqokr49/git-garbage input [523]/tb/verilator/gptp_shadow/private_inputs.py", line 181, in copy_inputs\n    _copy_files(repo, target, owner, "HEAD", first_party)\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/tmp/mutation-arm-wnqokr49/git-garbage input [523]/tb/verilator/gptp_shadow/private_inputs.py", line 131, in _copy_files\n    indexed = _records(_git(root, owner, "ls-files", "--stage", "-z", "--", *sorted(names)))\n  File "/tmp/mutation-arm-wnqokr49/git-garbage input [523]/tb/verilator/gptp_shadow/private_inputs.py", line 66, in _records\n    metadata, name = row.split("\\t", 1)\n    ^^^^^^^^^^^^^^\nValueError: not enough values to unpack (expected 2, got 1)\n')
