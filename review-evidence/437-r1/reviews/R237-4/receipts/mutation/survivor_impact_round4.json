@@ -1,0 +1,56 @@
+{
+ "lazy-hr-lazy": [
+  {
+   "page": "- a\n***\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- a\n___\n  <div>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  }
+ ]
+}

@@ -1,0 +1,402 @@
+{
+ "control": {
+  "name": "CONTROL",
+  "file": "gen_toc.py",
+  "killed": false,
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failed_arms": []
+  },
+  "em": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failed_arms": []
+  }
+ },
+ "mutants": [
+  {
+   "name": "lazy-indented-not-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "lazy-raw-3-5-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered type-3 opener is no lazy line]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered type-3 opener is no lazy line]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded type-3 opener is no lazy line] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded type-3 opener is no lazy line] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "lazy-footnote-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 footnote column 1 releases iff dedented]",
+     "TOC selftest: FAIL (1265/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 R238 D02]",
+     "  FAIL [I437 R238 D04]",
+     "  FAIL [I437 footnote column 0 releases iff dedented]",
+     "  FAIL [I437 footnote column 1 releases iff dedented]",
+     "TOC selftest: FAIL (1265/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 footnote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page195.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 5 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 R238 D02] expected findings/exempt (0, 1), got 1/0: ['page53.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 R238 D04] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 footnote column 0 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page194.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 footnote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page195.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "lazy-quote-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 quote column 1 releases iff dedented]",
+     "TOC selftest: FAIL (1265/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 R238 D01]",
+     "  FAIL [I437 R238 D03]",
+     "  FAIL [I437 quote column 0 releases iff dedented]",
+     "  FAIL [I437 quote column 1 releases iff dedented]",
+     "TOC selftest: FAIL (1265/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 quote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page192.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 5 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 R238 D01] expected findings/exempt (0, 1), got 1/0: ['page52.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 R238 D03] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 quote column 0 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page191.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 quote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page192.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "lazy-heading-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "quote-no-optional-space",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "cdata-ends-at-gt",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "leaf-kept-on-open",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "owner-always-page",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+     "TOC selftest: FAIL (1254/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered live bullet paragraph, in-item fence]",
+     "  FAIL [I437 rendered live bullet paragraph, in-item fence would escape]",
+     "  FAIL [I437 rendered live ordered paragraph, in-item pre]",
+     "  FAIL [I437 rendered task item, in-item fence would escape]",
+     "  FAIL [I437 rendered resumed paragraph, in-item fence would escape]",
+     "  FAIL [I437 rendered R238 P02 tag after a blank in the item, then fence]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 limitation #516 item end uncovers a comment over a fence] expected findings/exempt (0, 1), got 1/0: ['page371.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 23 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded live bullet paragraph, in-item fence] expected findings/exempt (0, 1), got 1/0: ['page296.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded live bullet paragraph, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded live ordered paragraph, in-item pre] expected findings/exempt (0, 1), got 1/0: ['page298.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded task item, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded resumed paragraph, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded R238 P02 tag after a blank in the item, then fence] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "item-needs-more",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+     "TOC selftest: FAIL (1177/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 two spaces]",
+     "  FAIL [I437 star item]",
+     "  FAIL [I437 ordered item]",
+     "  FAIL [I437 two paragraphs]",
+     "  FAIL [I437 task item]",
+     "  FAIL [I437 interrupting item]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 limitation #516 item end uncovers a comment over a fence] expected findings/exempt (0, 1), got 1/0: ['page371.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 150 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 interrupting item] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "hr-is-item",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 thematic break is no item]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 thematic break is no item]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 thematic break is no item] expected findings/exempt (0, 1), got 1/0: ['page39.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "open-at-four",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "lazy-needs-paragraph-any",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered boundary footnote definition two spaces, unknown tag]",
+     "TOC selftest: FAIL (1250/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 one space outside item]",
+     "  FAIL [I437 footnote two spaces]",
+     "  FAIL [I437 padding outside]",
+     "  FAIL [I437 ordered outside]",
+     "  FAIL [I437 marker indent outside]",
+     "  FAIL [I437 four padding columns]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded boundary footnote definition two spaces, unknown tag] expected findings/exempt (0, 1), got 1/0: ['page243.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 20 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 one space outside item] expected findings/exempt (0, 1), got 1/0: ['page11.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 footnote two spaces] expected findings/exempt (0, 1), got 1/0: ['page14.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 padding outside] expected findings/exempt (0, 1), got 1/0: ['page18.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 ordered outside] expected findings/exempt (0, 1), got 1/0: ['page20.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 marker indent outside] expected findings/exempt (0, 1), got 1/0: ['page21.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "quote-lead-four",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "tab-stop-two",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [a lone tag under a pipeless delimiter row indented by a tab continues it, so the heading renders]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [a lone tag directly under a tab-indented line under a heading hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a line indented by one space and a tab under a heading hides the heading it wraps]",
+     "  FAIL [a lone tag under a pipeless delimiter row indented by a tab continues it, so the heading renders]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  }
+ ]
+}

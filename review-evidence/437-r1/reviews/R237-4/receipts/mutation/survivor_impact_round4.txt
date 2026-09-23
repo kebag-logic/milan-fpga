@@ -1,0 +1,3 @@
+lazy-hr-lazy: 4507 pages, mutant differs from head on 2; head agrees with GitHub on 2, mutant agrees on 0, mutant lists a heading GitHub hides on 2
+   e.g. '- a\n***\n  ```\n## Old\n```\n\n## Real\n' gh [[2, 'Real']] head [[2, 'Real']] mutant [[2, 'Old']]
+   e.g. '- a\n___\n  <div>\n## Old\n\n## Real\n' gh [[2, 'Real']] head [[2, 'Real']] mutant [[2, 'Old'], [2, 'Real']]

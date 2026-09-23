@@ -1,0 +1,11 @@
+lazy-indented-not-lazy: 4518 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+lazy-heading-lazy: 4518 pages, mutant differs from head on 3; head agrees with GitHub on 3, mutant agrees on 0, mutant lists a heading GitHub hides on 2
+   e.g. '- a\n## H\n  ```\n## Old\n```\n\n## Real\n' gh [[2, 'H'], [2, 'Real']] head [[2, 'H'], [2, 'Real']] mutant [[2, 'H'], [2, 'Old']]
+   e.g. '- a\n# H\n  <div>\n## Old\n\n## Real\n' gh [[1, 'H'], [2, 'Real']] head [[1, 'H'], [2, 'Real']] mutant [[1, 'H'], [2, 'Old'], [2, 'Real']]
+   e.g. '- a\n## H\n  text\n<span>\n## Old\n</span>\n\n## Real\n' gh [[2, 'H'], [2, 'Old'], [2, 'Real']] head [[2, 'H'], [2, 'Old'], [2, 'Real']] mutant [[2, 'H'], [2, 'Real']]
+quote-no-optional-space: 4518 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+cdata-ends-at-gt: 4518 pages, mutant differs from head on 1; head agrees with GitHub on 0, mutant agrees on 1, mutant lists a heading GitHub hides on 0
+   e.g. '<![CDATA[ a > b\n<span>\n## Old\n]]>\n\n## Real\n' gh [[2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+leaf-kept-on-open: 4518 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+open-at-four: 4518 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+quote-lead-four: 4518 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0

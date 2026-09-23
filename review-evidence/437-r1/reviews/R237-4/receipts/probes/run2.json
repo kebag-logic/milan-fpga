@@ -1,0 +1,10041 @@
+[
+ {
+  "name": "6.1 opener GitHub prints as text withholds (code span)",
+  "page": "text `<!--` more\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head": [],
+  "head_direction": "withhold",
+  "has_comment_opener": true,
+  "request_sha256": "75d77ac96578a0c0da48481fdcef527a30429b2f7a39c602809f58858d18b8e9",
+  "response_sha256": "cdd4131807f5fa7482b0ee99d29f2ecc02e39211f38eff6bf024621ce9ddc427",
+  "exit": 0
+ },
+ {
+  "name": "6.1 opener GitHub prints as text withholds (escape)",
+  "page": "text \\<!-- more\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head": [],
+  "head_direction": "withhold",
+  "has_comment_opener": true,
+  "request_sha256": "bf2510e12c2ebe1e6e5d92b85db5f17fa28c86781240ee3982c7cab72304bc8d",
+  "response_sha256": "bb351e046473807381544e53d6737f5c6f97cc9688bac32c4d9a2c0f5faa08be",
+  "exit": 0
+ },
+ {
+  "name": "6.1 opener GitHub prints as text withholds (no closer in paragraph)",
+  "page": "text <!-- more\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head": [],
+  "head_direction": "withhold",
+  "has_comment_opener": true,
+  "request_sha256": "d7722bacb085f0dbf4be67a6da094ae524107dea19d015b6f66c0ad40959ad98",
+  "response_sha256": "bb351e046473807381544e53d6737f5c6f97cc9688bac32c4d9a2c0f5faa08be",
+  "exit": 0
+ },
+ {
+  "name": "6.1 empty comment <!--> withholds",
+  "page": "<!-->\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head": [],
+  "head_direction": "withhold",
+  "has_comment_opener": true,
+  "request_sha256": "9d30d938b80b938202f26f1748e9ed1758f1b8b2e64b47b682c3ae603b7f58d1",
+  "response_sha256": "dcba3da37caa51ef2f85259744ec59c8e285a28fef24c0dd10926908d8413c7c",
+  "exit": 0
+ },
+ {
+  "name": "6.1 empty comment <!---> withholds",
+  "page": "<!--->\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "head": [],
+  "head_direction": "withhold",
+  "has_comment_opener": true,
+  "request_sha256": "0c98416edb3b7a38b8f454882fe71a247d64a9c6332bf97d16b1513fb5919d4a",
+  "response_sha256": "dcba3da37caa51ef2f85259744ec59c8e285a28fef24c0dd10926908d8413c7c",
+  "exit": 0
+ },
+ {
+  "name": "6.1 --!> withholds",
+  "page": "<!-- a --!>\n\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [],
+  "base": [],
+  "head": [],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b447e13a6ad3fde198e54d496d55b4881bd7231c04531339a7b2129100bed40c",
+  "response_sha256": "0095264b8bdcf540e88dbc357061d9a8ef1076f066b3cc722b28a0681e8a0982",
+  "exit": 0
+ },
+ {
+  "name": "6.1 comment over a fence lists after --> in fence",
+  "page": "<!-->\n```\n-->\n## Old\n```\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_direction": "escape+withhold",
+  "has_comment_opener": true,
+  "request_sha256": "8fb38f2a6236b328168b8a8f90986ab910bc761c1a51f76e255ab26c77e7c1c2",
+  "response_sha256": "777ae2e3c8d30b45e01de5460dbc6797e57646cdee753eb531ec918b4a425cba",
+  "exit": 0
+ },
+ {
+  "name": "6.1 #516 opener in raw HTML block",
+  "page": "<div>\n<!--\n</div>\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": true,
+  "request_sha256": "d8f45cd88ea4d52fd4df8f00fc6d7c972b1fdc018d36cbff2c5a4d7c6328bb16",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "exit": 0
+ },
+ {
+  "name": "6.1 #516 opener four columns into an item",
+  "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": true,
+  "request_sha256": "5328b4355ffd5e45ba3d57e43c2f0d30324d4c6b19f117dcf1c687f0cc3f9a45",
+  "response_sha256": "723ec4f71c22e4763334ef3f54127d74a92b2e645f26897a3bcfad87d87cec52",
+  "exit": 0
+ },
+ {
+  "name": "6.1 #516 closer GitHub prints as text",
+  "page": "<div>\n<!--\n</div>\n\n`-->`\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": true,
+  "request_sha256": "740cf94c61ec3d9cf6d277f08389097e1242eaec2e134cb4216be58630d6523a",
+  "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+  "exit": 0
+ },
+ {
+  "name": "6.1 comment closed in its own raw HTML block agrees",
+  "page": "<div>\n<!-- a -->\n</div>\n\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "fa60a8173991e2e1e2b6177e7c3ed8bdf3f7b5e8ceb7d2aad2ebfd625947587f",
+  "response_sha256": "dce5ab45715b2c9cd78724c1fa002055e93ca989791602d94f443cfb16dfc4bb",
+  "exit": 0
+ },
+ {
+  "name": "6.1 raw HTML ends inside unclosed tag hides next heading",
+  "page": "<div\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "5ca25a744cba17a74d63be817b50bec097a34ea4d432d0a6c39fe21e965bf339",
+  "response_sha256": "3892cd287b7786bccc40a2b7e81d6db39eb1b4b6607ba309d3b78113743ff433",
+  "exit": 0
+ },
+ {
+  "name": "6.1 raw HTML ends inside bogus comment hides next heading",
+  "page": "<div>\n<?x\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "68b2fe885b15a0d705a1dc408a3b927ac80052dae90ded57b9ac076d90b8360e",
+  "response_sha256": "dfe835894e6209b3a7ce41d717ef712f13f0a087f01c0526f8c6f96b85490a41",
+  "exit": 0
+ },
+ {
+  "name": "6.1 raw HTML ends inside open quoted value hides every later",
+  "page": "<div title=\"\n\n## Old\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "01f04a7ade43d38cae837d87cc67b6eb713079ef46804d40245746319ccd2b13",
+  "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "exit": 0
+ },
+ {
+  "name": "6.1 select hides the headings inside it",
+  "page": "<select>\n\n## Old\n\n</select>\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "292817593514baa1434e7ba50ec0ad4f93f5433c6024b0ff9f6bbe9759a345cd",
+  "response_sha256": "cd536c0ba2f06514a91f746c5f853dc379e5c40feccd26b49d35ed99bcd36694",
+  "exit": 0
+ },
+ {
+  "name": "6.1 type 3 to 5 block labelled prose lists heading",
+  "page": "<?php\n## Old\n?>\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "a7cea740a782801d8146a241c27032e3e2a0d109ac307605af192fd47a3caefb",
+  "response_sha256": "c55a92c64e0dee3fed5586e3fa488a6a030dd54ece1308111d4fc7e2850780d6",
+  "exit": 0
+ },
+ {
+  "name": "6.1 type 4 block labelled prose lists heading",
+  "page": "<!DOCTYPE x\n## Old\n>\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "87f914b11da0caffd8ee8e08f8468a3fd26d4006ece70ec55041d37c2f5d9c1f",
+  "response_sha256": "c55a92c64e0dee3fed5586e3fa488a6a030dd54ece1308111d4fc7e2850780d6",
+  "exit": 0
+ },
+ {
+  "name": "6.1 CDATA block labelled prose lists heading",
+  "page": "<![CDATA[\n## Old\n]]>\n\n## Real\n",
+  "class": "wrong-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": "escape",
+  "has_comment_opener": false,
+  "request_sha256": "880a0e23c0278d976c5efc4ca363f27cd37dc882d253e9a3fe3b6d4c596840b8",
+  "response_sha256": "c55a92c64e0dee3fed5586e3fa488a6a030dd54ece1308111d4fc7e2850780d6",
+  "exit": 0
+ },
+ {
+  "name": "6.1 lone tag continues a paragraph its line reaches",
+  "page": "- a\n\n  b\n  <span>\n## Old\n  </span>\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "fe7ded4fb3e5389ce0a41bdc8a6feff7cb22d798a6b4c325b404e7b9be2e5164",
+  "response_sha256": "c7a456f246069d779c2dea2eeec79a97c5a11364c40f97ef88782b7c42e20434",
+  "exit": 0
+ },
+ {
+  "name": "6.1 lone tag otherwise opens raw HTML inside an item",
+  "page": "- a\n  - b\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "f75c4aa8ec3efffe66fbccb25153443572c962e0bb7f475814591988747484c3",
+  "response_sha256": "fc485737f2d5843e89815ff477c20ebec9d5e6d1f880a2ecec98deed951b6660",
+  "exit": 0
+ },
+ {
+  "name": "6.1 fence ends with the container it opened in",
+  "page": "- a\n  ```\n## Old\n```\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "bc2e5392f1df3514f015c71d3da0bfa5ddd704dcb4c6c2f6c51ae3fbc4121141",
+  "response_sha256": "71bd920671322ac84c9a7101ca51d5152db6bbb1e4ba95ee5a9c03a05701b552",
+  "exit": 0
+ },
+ {
+  "name": "6.1 raw HTML block ends with its container",
+  "page": "> <div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "193a1e9118264601495189b5ea7ef3041c1e9a4570cf5dfc1b052c3bf240d904",
+  "response_sha256": "9873cb94d1f9e7f47e92c24d330614218e73bde879e329a9b880d0bb2331291c",
+  "exit": 0
+ },
+ {
+  "name": "6.1 definition-only item empty once it closes",
+  "page": "- [a]: /u\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "115e03c155922df9cb5708dd0b0404b70a768241c5162f9279c4fc29bd8ea34d",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "exit": 0
+ },
+ {
+  "name": "6.1 other definition keeps the item open",
+  "page": "- [a]: <u>\n\n\n  ```\n## Old\n```\n\n## Real\n",
+  "class": "regress",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ]
+  ],
+  "head_direction": "escape+withhold",
+  "has_comment_opener": false,
+  "request_sha256": "32e95e9e0ee6f9e0f04f35ab1dda450eb38e90c776e6f4cd920e56b4cd8b2c8b",
+  "response_sha256": "2f17e25ad43ad9f3f1e6bcd79eb5f963769fa096713e97921796de4e6d5ca6ba",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False span",
+  "page": "<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "de7dfeda3c2261054e197abfc66c12f0b93f605652408fd8506a14b48f84fe81",
+  "response_sha256": "8a2c1645d1afe0dfbbfba8f94b1fca431aca6ebcb7d32a2785cd0352efb75708",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False text span",
+  "page": "text\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8a43e41b3732210d5413ee61557c5d1892f33dd462645b6f3f3a52fcb34e3bd8",
+  "response_sha256": "a0eac85d26adddb121153273c2195bd0db003d8abe5d97043536513fb217bf1a",
+  "exit": 0
+ },
+ {
+  "name": "C - none gap=False span",
+  "page": "- a\n\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "18e1d7d83619baed64562dd36e00dc4b9532b716ee3f6e06c27d94b6667b2a9d",
+  "response_sha256": "67a0ee87814c1b757dae3fd8ef4a8ad64fb952d6d1ce0c94769a0df57da0d6d3",
+  "exit": 0
+ },
+ {
+  "name": "C > none gap=False span",
+  "page": "\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "9af9cffd179deacfbe240b4f0750efb98dd9b92b0c337e26c9f5a0122d8f1bc9",
+  "response_sha256": "8a2c1645d1afe0dfbbfba8f94b1fca431aca6ebcb7d32a2785cd0352efb75708",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=True text span",
+  "page": "\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "ec192070980df82a54aa4e1a560bf174409510c82f4b50ff84ca3a7de9181f68",
+  "response_sha256": "a0eac85d26adddb121153273c2195bd0db003d8abe5d97043536513fb217bf1a",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False close",
+  "page": "</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "aac44b0fbb4264acf53499dc4f514e76079cfa02c55e824860102d5a62462e63",
+  "response_sha256": "8cb8167ba5148c975abf1d7d0ad1a0b7bb8123e80392378bfd71ae04e5a0b474",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False text close",
+  "page": "text\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "2d509cb873ebf314018424d23e46b0075f4dc65007064ad2dd954b7f7ff1a357",
+  "response_sha256": "0211e405bed2358c06eb6c332f72b4f0d378fa88e08a0a0e62bda55f4b093515",
+  "exit": 0
+ },
+ {
+  "name": "C - none gap=False close",
+  "page": "- a\n\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "38d836956b6eb6b70c87c7015aca1fd81f6637e45e90aeb58badc151cf2e7896",
+  "response_sha256": "babc82bca776f56ba55f04f184d71687f5a2e7a05adb1fa53880c9df9c57ccde",
+  "exit": 0
+ },
+ {
+  "name": "C > none gap=False close",
+  "page": "\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8c3b4b2706a94991ee6de1ef89fe2313525b5f35d16705a5bbebfe835499dbdb",
+  "response_sha256": "8cb8167ba5148c975abf1d7d0ad1a0b7bb8123e80392378bfd71ae04e5a0b474",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=True text close",
+  "page": "\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "04d2d736f4de107e049fecd1962cd1b336025540611a01fea488a0f758fea23d",
+  "response_sha256": "0211e405bed2358c06eb6c332f72b4f0d378fa88e08a0a0e62bda55f4b093515",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False custom",
+  "page": "<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0d45d27b8d3b9152fcf6969c19b153e3df6e8219e8140a470d47d8a0fab257b9",
+  "response_sha256": "8cb8167ba5148c975abf1d7d0ad1a0b7bb8123e80392378bfd71ae04e5a0b474",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False text custom",
+  "page": "text\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "a67b622c04c7d4a2d5870af3af9877d30a146d9d9032ece5a5f5d7974e73c008",
+  "response_sha256": "0211e405bed2358c06eb6c332f72b4f0d378fa88e08a0a0e62bda55f4b093515",
+  "exit": 0
+ },
+ {
+  "name": "C - none gap=False custom",
+  "page": "- a\n\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e76508e11bb2e27a5af9cb845f2e1a196124c05c5c6bc37376892e71498140ef",
+  "response_sha256": "babc82bca776f56ba55f04f184d71687f5a2e7a05adb1fa53880c9df9c57ccde",
+  "exit": 0
+ },
+ {
+  "name": "C > none gap=False custom",
+  "page": "\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "3654b3b4e9aa104d1ad604b1b0dbc2dfea7730c1638cc04b461d93f93b8d96f0",
+  "response_sha256": "8cb8167ba5148c975abf1d7d0ad1a0b7bb8123e80392378bfd71ae04e5a0b474",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=True text custom",
+  "page": "\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8cb4c58efef6d87051ebef67e72953b2e0a8d7feb2cc29a084c62f1e3dc0fea2",
+  "response_sha256": "0211e405bed2358c06eb6c332f72b4f0d378fa88e08a0a0e62bda55f4b093515",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False div",
+  "page": "<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8355f8ccaf5f3aefd4dcc8fb66e8f47f5323a58d6f314c6768cabd4c5ad44f0b",
+  "response_sha256": "c6cf7fcdd79230e3013c17c0d78a5f4c59d88335aa64a8b03b4807e9c5054ab3",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=False text div",
+  "page": "text\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "ca73f3fdf19647ed91cacab644b31d2fb3a888a8d49c256d37ff41140779af73",
+  "response_sha256": "356d4e563802c8a96d8838c164c08f587461f0f02d5d3a9f425d7bb0cddb35fc",
+  "exit": 0
+ },
+ {
+  "name": "C - none gap=False div",
+  "page": "- a\n\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "f590df63fb5fa3eada13d9b59523c4da4211ea04798b7e534262324d4b09be49",
+  "response_sha256": "bfb02f0492d8e93d14ccc5016ee6506acd9a515cfc05b195f0776ec1e3c3aab8",
+  "exit": 0
+ },
+ {
+  "name": "C > none gap=False div",
+  "page": "\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7d0bc91f49bd8b24a38e644f2aecae4635f8fccd875e7aaa701baeb2d90415db",
+  "response_sha256": "c6cf7fcdd79230e3013c17c0d78a5f4c59d88335aa64a8b03b4807e9c5054ab3",
+  "exit": 0
+ },
+ {
+  "name": "C none gap=True text div",
+  "page": "\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7c3b286a913f72bc42aae351f452c780396a3fe5b36ac699044b44bf8acdb2a5",
+  "response_sha256": "356d4e563802c8a96d8838c164c08f587461f0f02d5d3a9f425d7bb0cddb35fc",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False span",
+  "page": "text <!-- c --> more\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f113370de25db7fad40a900690766fcafd81c5e37884ca8a2e6613c78ac424c1",
+  "response_sha256": "58151f738e1d6f449ea92b89fa6ff6cfd773ac9e87b1bd926ac3890fc6820d97",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False text span",
+  "page": "text <!-- c --> more\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "049c9e052738f61fad8fa659c9034043f942ee594834b03239a302c02270ec79",
+  "response_sha256": "b49a8723522f07958a4a2003c4d2d21ebd9ee33421da6fef1dbd16ce4d9ec866",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-closed gap=False span",
+  "page": "- a\n\n  text <!-- c --> more\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "73604f9b3905065fcd542c9857080cd8d1d330ac3435b40a78ea9a9aee5255a4",
+  "response_sha256": "d47f101b9e07f6749df1d3cd876bd2b2c03d803f31d34c79e1f421f12c556fd7",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-closed gap=False span",
+  "page": "> text <!-- c --> more\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "061ef6f7ed132dc5dd76887599ac16de9c8da87469b42b7ea484860689ce2b23",
+  "response_sha256": "d15eb0842a96cf6f60ebd089e76b804ac897f843766321fb3768eadfb4e75abd",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True span",
+  "page": "text <!-- c --> more\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f54f50297b9e4ff9cf7872d995e0ee8c75353ecffb780415206f85c936e9b82a",
+  "response_sha256": "927f538fab106597443dab892efa0dbfc0f7c9660cd4085139535cf766e5fe28",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True text span",
+  "page": "text <!-- c --> more\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "3229fb7d5458e4a3766ada0466b71b4f617c06adc0a32fb4f8389b54b0cdcf0b",
+  "response_sha256": "db2168bcde08e3c78f1f79870fbd784a2cc102befea8c7a66a0d4dee3e207ec8",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False close",
+  "page": "text <!-- c --> more\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b6cd8399c3670430822d929331f2e8db3218f06819909fc320b14e4efd110a45",
+  "response_sha256": "e8dfc438520de8ff04c68f150914c932f6078bcc7bebf6bfbef0c8d7aa842cfc",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False text close",
+  "page": "text <!-- c --> more\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "140e8316be308bf9476110a73513e5f46c27e0f0730c43ae28794d2cab9e70bb",
+  "response_sha256": "bae12ef494024c97f6c057e443c6115dcbfb5fd25775ddbc8dc057175c08e555",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-closed gap=False close",
+  "page": "- a\n\n  text <!-- c --> more\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "dd5d0a23da95fadc9a7f8851b6c81db33c651ccc32f1e5b30201e4e500007bd7",
+  "response_sha256": "87c15c728f558db517721a0df732a3f5789635921dbaaca1c1f1723607ca8dc2",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-closed gap=False close",
+  "page": "> text <!-- c --> more\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b0caad8f53c5ca7accd7b69784ed46934adb5833c15e69995363b490b693d08a",
+  "response_sha256": "bd2b731ec72f971fdeb61c555bbb524cbbf42b05fde768a4ed3ae97579c75bfc",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True close",
+  "page": "text <!-- c --> more\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "4b6cf04419ec1a50c01f62456ec5224c2c3b9483cd61f11f905f8b572666a9c8",
+  "response_sha256": "0f434f89e3548896e75983d41efac0f3c5109ff597c916fa8f3f309c4dda044a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True text close",
+  "page": "text <!-- c --> more\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "a3b6562d592024a3d3a26571c41ee87191cdbc27885f0727861c1f3eb677afa3",
+  "response_sha256": "5b5323c32f6bbb44f623c4fd50b2f0d7bc624d1f24c2520b3ca74ea291313165",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False custom",
+  "page": "text <!-- c --> more\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "1022c63107d73b057a3264ac82e618f0baffc53d915c768d94fa29fd0687348d",
+  "response_sha256": "e8dfc438520de8ff04c68f150914c932f6078bcc7bebf6bfbef0c8d7aa842cfc",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False text custom",
+  "page": "text <!-- c --> more\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "a19bf3f001b6d94c6faf7a2eba3784b6b9c1790192cdc44fab081f7be40362ab",
+  "response_sha256": "bae12ef494024c97f6c057e443c6115dcbfb5fd25775ddbc8dc057175c08e555",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-closed gap=False custom",
+  "page": "- a\n\n  text <!-- c --> more\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "8d3c07e785337a84ab10c5a4d28f7c1936022107105af4f6737f1c821ba41eb2",
+  "response_sha256": "87c15c728f558db517721a0df732a3f5789635921dbaaca1c1f1723607ca8dc2",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-closed gap=False custom",
+  "page": "> text <!-- c --> more\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "828e3b4142de876100a41c98836ad7f27ce305a4b503467f5007f08807826b81",
+  "response_sha256": "bd2b731ec72f971fdeb61c555bbb524cbbf42b05fde768a4ed3ae97579c75bfc",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True custom",
+  "page": "text <!-- c --> more\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "84d4b17dcf5f2a6c3ce75718a1249dba75b451c64eeb89da1935753bd6849282",
+  "response_sha256": "0f434f89e3548896e75983d41efac0f3c5109ff597c916fa8f3f309c4dda044a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True text custom",
+  "page": "text <!-- c --> more\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "4558e4625eb32770bb53037ceedf8f9d87d8a431d3eee9936166db8ea4c0df3a",
+  "response_sha256": "5b5323c32f6bbb44f623c4fd50b2f0d7bc624d1f24c2520b3ca74ea291313165",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False div",
+  "page": "text <!-- c --> more\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e5cfa1d0baa40c4268d86b89fae89c64d6e484d5f60c943f1b58506e54a998d9",
+  "response_sha256": "d8e3584df20ea576a8881c1573d655cfdc1a764dcd5d2201f83efbd91229d591",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=False text div",
+  "page": "text <!-- c --> more\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "fb7fc90a5345c19661f1ee1eadc32f827c888d8b7beff00941e8f474eb749e21",
+  "response_sha256": "4d048844042b78a3d8a81c017ca746a113a37ff537ee9ae3a90427d5f4fa2626",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-closed gap=False div",
+  "page": "- a\n\n  text <!-- c --> more\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "1de5e082e773d60c80cf6c5d20a8c8209b0bdc3936d7b66f67fb4fa32f59735e",
+  "response_sha256": "150a1312590a6052c6a4ef982617b70a6c773f537160c17931d5cfd2081c53f9",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-closed gap=False div",
+  "page": "> text <!-- c --> more\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "933cc4afc569ad61d1e9cf9a887d1d9614010d2263853e2bcd25bd56e1a0724c",
+  "response_sha256": "067bad7ad52b8e4eba4adbcbeb8956eb5d2d876023e01c0fc7fa3b7bec2c865d",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True div",
+  "page": "text <!-- c --> more\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "38c300a6d6c78dc32f428e4ba58f6e0604502c0043f3313a5e19406a3d9bb48e",
+  "response_sha256": "d8e3584df20ea576a8881c1573d655cfdc1a764dcd5d2201f83efbd91229d591",
+  "exit": 0
+ },
+ {
+  "name": "C inline-closed gap=True text div",
+  "page": "text <!-- c --> more\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "d0586c531b4b5b6df3041381bb754db38434ead944662edbc910af5ed4b8b95d",
+  "response_sha256": "8869d986e175fcb1caa3e09f6e0d9c891369d8f6e9f7e6455b5b33517dcd0eb1",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False span",
+  "page": "text <!-- c\nmore -->\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "9a832fba5dc59bb5aacf1fb3d4b07065810f438fc77789a884bf786351c6b153",
+  "response_sha256": "f8be53607f2d9e1c63cfdfb51c66e0acaa05c945a670ed6c9d05b30199a69652",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False text span",
+  "page": "text <!-- c\nmore -->\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7aad9146a01fd5a0791e69117d595ba340903d1f88588d01a76445a2420f4ed3",
+  "response_sha256": "8860a5114ea51f6c9907ba378a96b88bc4fe6161fccd6b1c255af7e3181641d6",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-closed-later gap=False span",
+  "page": "- a\n\n  text <!-- c\n  more -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "1825432fdea023785be51d1b4c27a88e2ea3acde9d21a4213e46b4dd688fd370",
+  "response_sha256": "e48c0edf27140be7a4e0b8631bada472bc70bfa7e2edc1b0f30193534af5275a",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-closed-later gap=False span",
+  "page": "> text <!-- c\n> more -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7e6dd8c8d5ff7113ca65fec1afdb6c306f48f7dd8ddd1c88f1f5bef3719c5d6c",
+  "response_sha256": "5e14e977b7a9da76037b98007ae80df144b15d159176bce574a5e784745ab2d4",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True span",
+  "page": "text <!-- c\nmore -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5455dd6136b11a58399e4513d6f5f58738506848dce7d9cdfc440e67a2b57574",
+  "response_sha256": "56242bc3fb090a2329ac37cf3c15f4bea8de4f9e1000742636222a128133702b",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True text span",
+  "page": "text <!-- c\nmore -->\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c1853c5b31dfe57477d5f3a8a46f3d68f25edaae49c15ccc7d53410ff433a876",
+  "response_sha256": "161a6c6fc7ebaf21a5afafeee44b39c4b317b603086eada7476401a5d350776d",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False close",
+  "page": "text <!-- c\nmore -->\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5a6ac13bd63048d1eccfa13b9ca9abafc3deeb5a3f19af06c59b6cf5ad6992dd",
+  "response_sha256": "d62c6912a0767ccc50c4fda1a4293ca532909f3e460fa61b53679d1a2350df90",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False text close",
+  "page": "text <!-- c\nmore -->\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "3be69b6b3d03974e967d471a24809e8c01a71845bdd7b492bdbc0110c8c9b215",
+  "response_sha256": "2f4d25f2c39554a3546d6d53faaa1b6cc6b1f5fa74987287a8771dcee6280f2c",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-closed-later gap=False close",
+  "page": "- a\n\n  text <!-- c\n  more -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "8704e3559dfafcaa98684d50004da2d60bb219faf0180199d822328d555a6a60",
+  "response_sha256": "a5194cee4a48861971b9970b4bf64e8a913761f5b714752ed00c5cb8a7975004",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-closed-later gap=False close",
+  "page": "> text <!-- c\n> more -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "eb02ac0031c1e3e07c9eb8c08ea85ac878ebad460399e3df4441698156352953",
+  "response_sha256": "18a336d570216c5c71a3aa74056c6b319d2eb0d1f442ec0c9ad443b4c5681c6a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True close",
+  "page": "text <!-- c\nmore -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c0c9c867700dea1791cca3a85fbd0d5804c37c04228f80d1299e1e37a4fb635b",
+  "response_sha256": "64caa3eb0d99bb4a5d41e13f9b4a8855f4142fd067fe4133c38fbac19ed5c728",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True text close",
+  "page": "text <!-- c\nmore -->\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7094b1d5e77fa8f1fe3b1e77bd2a307a78fe6d21740b162a72e0be95f4803a6b",
+  "response_sha256": "9798ebe66cdc949f65cc52a72cf18f7a1a212c82e7805ac5ea16c42e880f9e10",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False custom",
+  "page": "text <!-- c\nmore -->\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "6bb7a3076b22d654131b2281a00d7a92bd752352b7fc7e6973240b443f14746a",
+  "response_sha256": "d62c6912a0767ccc50c4fda1a4293ca532909f3e460fa61b53679d1a2350df90",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False text custom",
+  "page": "text <!-- c\nmore -->\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e3f50c2dd064a43c25c3787d9aa06e1a92677ee2b00c9de3eb34f7f21aa1d70f",
+  "response_sha256": "2f4d25f2c39554a3546d6d53faaa1b6cc6b1f5fa74987287a8771dcee6280f2c",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-closed-later gap=False custom",
+  "page": "- a\n\n  text <!-- c\n  more -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "74b8131e758b8984472f03e28d3461c9717b9439d74c5af1dc06797395b5697f",
+  "response_sha256": "a5194cee4a48861971b9970b4bf64e8a913761f5b714752ed00c5cb8a7975004",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-closed-later gap=False custom",
+  "page": "> text <!-- c\n> more -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "dedc329f7e652b6c9edfeb76dca14c7ca68cb4d42e83f954d4a01257ee0dc17f",
+  "response_sha256": "18a336d570216c5c71a3aa74056c6b319d2eb0d1f442ec0c9ad443b4c5681c6a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True custom",
+  "page": "text <!-- c\nmore -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e0e1653603733a0ffdd3d42035c3013037dc0032ae65e8b14b8daacae3c0cab5",
+  "response_sha256": "64caa3eb0d99bb4a5d41e13f9b4a8855f4142fd067fe4133c38fbac19ed5c728",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True text custom",
+  "page": "text <!-- c\nmore -->\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "6949a0ec30034f28f82eb5b6d0213b2ec1431eef0dda31e3dbf6beb64f24b952",
+  "response_sha256": "9798ebe66cdc949f65cc52a72cf18f7a1a212c82e7805ac5ea16c42e880f9e10",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False div",
+  "page": "text <!-- c\nmore -->\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e05eae983a82f528a6bc4954cf8004d4f256e3f896332e7575123d67726a840e",
+  "response_sha256": "25d5c8463ee92800a515cd776a7b184d9567fef710c5d13f0a6bc40bc272bdff",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=False text div",
+  "page": "text <!-- c\nmore -->\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "190e2d3595d4e124724d8a45e9ca17702a2d30c5b81d7d4ba6816c02fc097d75",
+  "response_sha256": "6f75f8d3c79b761c189b6d12ae39325ae71261d74f052b459568b0df0721bcf4",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-closed-later gap=False div",
+  "page": "- a\n\n  text <!-- c\n  more -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5c79f09ae5af64bb43a12fbeeccb0dcb17c59f73bca16ce748436f8f379c8ea7",
+  "response_sha256": "6104e1560953126b665e9c251fe47e1e627ad4b1536d4b9ef2f3be598eff0feb",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-closed-later gap=False div",
+  "page": "> text <!-- c\n> more -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "9ae16dca0db3168ee1ad7745db870a640d44b16e00d821c5396c2e2e3ae6aa31",
+  "response_sha256": "7ba98969adab2bee25d8471fcd1fdbcfb6164c86b859791d3cd2f51f4078b2c3",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True div",
+  "page": "text <!-- c\nmore -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5b83d7074dfdde7ecd458191035cf1799d7820b95390cc3bf6570c949d91703e",
+  "response_sha256": "25d5c8463ee92800a515cd776a7b184d9567fef710c5d13f0a6bc40bc272bdff",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-closed-later gap=True text div",
+  "page": "text <!-- c\nmore -->\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "11cfff8d0d19e83cfcef3598b34b7058c01df7ee4d852516fc4246a76f5d211b",
+  "response_sha256": "a0033ff703347a9ffeaf42f070ed34efd101f135ed39a10f11b04c8f0c9db364",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False span",
+  "page": "text <!-- c\n\nmore -->\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "970031cf7445c483df3f0e0876d3da2a1a63d54e83404e59ddfb2e81c146172e",
+  "response_sha256": "2d4d9e33beed607dd0a82c7e77a3d5d72da3da3d0d5415f0d15a084af0bcaebe",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False text span",
+  "page": "text <!-- c\n\nmore -->\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "054c136b10d233618400ae5e4f471dcee0ca0b64043bdf24a00bac0f85ab60f0",
+  "response_sha256": "c992cdc84177d93c7bdd37147dc3ca5e114053e381c63ab9df6516306f06799f",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-blank-closed gap=False span",
+  "page": "- a\n\n  text <!-- c\n  \n  more -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "38cf749ced73d06bfacf6bf3b89cebfb5be94a1d1622ae525fcd186207dfb0f6",
+  "response_sha256": "da33d61b548e83fcce94a211b678298240a4b7468e534791cdc67fcd647b28ba",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-blank-closed gap=False span",
+  "page": "> text <!-- c\n> \n> more -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "0606e2d9e445d52fae34afd8fd4597fe6a1d7c50fd8f96ae6a8f46864cff9731",
+  "response_sha256": "b7f222444e27dc35c17b5c0d7be1128b6c27ce26313f85b427f318fe27666bfd",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True span",
+  "page": "text <!-- c\n\nmore -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "4f4e06543bf5d2938d8b115fa1bec78328269baaccf130bb2798c9b0db78065d",
+  "response_sha256": "729973da1c57858eaaed2553e5427efd9bd17435483d15e2a8bd33109e164473",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True text span",
+  "page": "text <!-- c\n\nmore -->\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "9d07d94400033499f02d35c8052b1fb1bc2cbc9dcbf5ab9240c81ff6c4ca150a",
+  "response_sha256": "385000ab1efb0a4fb7baf2f1984ce33fd1a1bea51f0d9c2784c7057ec57404d4",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False close",
+  "page": "text <!-- c\n\nmore -->\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b2608bf23ac7b9855d7885cce3de1cb73fc41f5af7c7745f6a6129befd6e50a3",
+  "response_sha256": "982a7a3cba4f9e97128508b9eff2a6c3033777343d41cdc9162238b6da6613bf",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False text close",
+  "page": "text <!-- c\n\nmore -->\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "43e30be4d6bedf86ac6f3194f6e64c4fea1fc2e07e72f96d826139e163b9f528",
+  "response_sha256": "96450a56ffd68244682919479cddb49163fbeb24ce5a82a57edda693432bf247",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-blank-closed gap=False close",
+  "page": "- a\n\n  text <!-- c\n  \n  more -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "2095327aaf3eb7e470bdc17dd9776018d5ecbea268f2eaae60abff4b08abdcd4",
+  "response_sha256": "fa8c55125601de8c5a78f0e9bc9be79d8aaa361f3bb4b3f6c8f95e0cdbc31abc",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-blank-closed gap=False close",
+  "page": "> text <!-- c\n> \n> more -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "be7ffd1df36634dbfe8b399d160c3944e11c6f3a1547227c64e5f371b5ba8291",
+  "response_sha256": "97a1031ee01d93b9d393114a96be768c04523b70f737d992bc6e085bdd6ecb3a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True close",
+  "page": "text <!-- c\n\nmore -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f02ce86849b0cdfb132b784d84657f7ab808d5ce19a917417366391cd03f3f8f",
+  "response_sha256": "dc30cc2e2a69f9705bc8c47e5f597b78cc986635337731e89dda4d3acf5382d3",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True text close",
+  "page": "text <!-- c\n\nmore -->\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "3b1789fd9cd332f665b9dc3df433f7ade08d86b2b98421660ff7d341f0d82c33",
+  "response_sha256": "fc5828d5e0cbc6709f3abf86b47da0d569c78571c95f9cf3cf2f49a52be2184b",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False custom",
+  "page": "text <!-- c\n\nmore -->\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "88e5a4695b116b808c447793288419e40b0eda376da28a111b5c26115b15c827",
+  "response_sha256": "982a7a3cba4f9e97128508b9eff2a6c3033777343d41cdc9162238b6da6613bf",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False text custom",
+  "page": "text <!-- c\n\nmore -->\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7a84c8e8af7b3008594c4e2a1cc9bf7e40dfbcde977aed12292fc4eed82e095c",
+  "response_sha256": "96450a56ffd68244682919479cddb49163fbeb24ce5a82a57edda693432bf247",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-blank-closed gap=False custom",
+  "page": "- a\n\n  text <!-- c\n  \n  more -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c25a64497ab81fce14c519e4ce940eb40b09e4b2e7f2bc9b9a12fae5dc01ffbd",
+  "response_sha256": "fa8c55125601de8c5a78f0e9bc9be79d8aaa361f3bb4b3f6c8f95e0cdbc31abc",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-blank-closed gap=False custom",
+  "page": "> text <!-- c\n> \n> more -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5d27fb547efdc2d7ace673d34158f2a6e572196e9fa7b4cb8a8a3e5f3023b60c",
+  "response_sha256": "97a1031ee01d93b9d393114a96be768c04523b70f737d992bc6e085bdd6ecb3a",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True custom",
+  "page": "text <!-- c\n\nmore -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "3409b9dc2e0a7e9d83892fb038f20483861fae4ba4f7ae09387d5479a34b680a",
+  "response_sha256": "dc30cc2e2a69f9705bc8c47e5f597b78cc986635337731e89dda4d3acf5382d3",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True text custom",
+  "page": "text <!-- c\n\nmore -->\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "ae63f35490c3e9d2c37b1e97c32d652b09ddbb5fbe364363beccb8d1601176db",
+  "response_sha256": "fc5828d5e0cbc6709f3abf86b47da0d569c78571c95f9cf3cf2f49a52be2184b",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False div",
+  "page": "text <!-- c\n\nmore -->\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7329d31e4b8e8bc063e01d8c3bb510a48025c8954f7386a1bf0e22baee49ff43",
+  "response_sha256": "078c24bb6f4c01293ca376b08213b5cf01e95ae4f9eabe976b041655be5212cf",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=False text div",
+  "page": "text <!-- c\n\nmore -->\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "8a6f1dbb6939518f3331a947c63f765bcaf9b4c442616278ec8ed3b7a55065c4",
+  "response_sha256": "0ff19f00621a3de751b8c3749065dc15c05e5dfe38c5ab899c98071ff63d538e",
+  "exit": 0
+ },
+ {
+  "name": "C - inline-open-blank-closed gap=False div",
+  "page": "- a\n\n  text <!-- c\n  \n  more -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "66103b958f2089de24514d162978ef21ea6061e7818a3988093e1679a2d8186c",
+  "response_sha256": "63779c4ce71c58324683459ad00871939b5026491c7187caaec453792ad5b390",
+  "exit": 0
+ },
+ {
+  "name": "C > inline-open-blank-closed gap=False div",
+  "page": "> text <!-- c\n> \n> more -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c6b19bf529d09a1314177b9bf54a47379a34eb0a4f8e1e27323a27ae91280b8f",
+  "response_sha256": "6c9407bcc866835f7e7a6cc87278ed696277807dd0f0152a1ce7553d262d7c17",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True div",
+  "page": "text <!-- c\n\nmore -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "4df9081e3c7330f782a5932fbab5e5fcd4ee8972e597d43a3c35ea1a3a88cb46",
+  "response_sha256": "078c24bb6f4c01293ca376b08213b5cf01e95ae4f9eabe976b041655be5212cf",
+  "exit": 0
+ },
+ {
+  "name": "C inline-open-blank-closed gap=True text div",
+  "page": "text <!-- c\n\nmore -->\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "a3109923580555e3ba11f7c22fd8ae03efc781186372731c42fe8b28531c8d24",
+  "response_sha256": "08b129972ab3da08ba5a9933383d576a541422d8bec7dcf7f81f8368f60fe868",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False span",
+  "page": "<!-- c\n-->\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b389982ef5013160b11b53242c35b932202579b3d89493cf46c007b62d6d4f86",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False text span",
+  "page": "<!-- c\n-->\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "7f41cfd58fdf95d129b625583e354b963fe7ca2dd5619c0504bbf7c764d59c34",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C - block-comment gap=False span",
+  "page": "- a\n\n  <!-- c\n  -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "471553b5b6659d0564543fc6a885944b16ae37119a32c66ba4c0e9050521092c",
+  "response_sha256": "62c7030dceb06bfe13b3bd98e78e562c2be567760d06af3ec485e43e06256fe9",
+  "exit": 0
+ },
+ {
+  "name": "C > block-comment gap=False span",
+  "page": "> <!-- c\n> -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5f85f8821a0b8b5e8d439eccad88746dc0acdd6024b383467764ccbafe6eadb2",
+  "response_sha256": "ac89a7f335812807c3d49fbece681394eab322d988d4adc9648d3bead055d0db",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True span",
+  "page": "<!-- c\n-->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "78d63811e952c84452012d179116fea4b5842acd202070846cd44a24349b35af",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True text span",
+  "page": "<!-- c\n-->\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f5e76a28dfd5ca531e4455ddb0287869e76ffb68186ec7be7760ea8f62e0d786",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False close",
+  "page": "<!-- c\n-->\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c7c705f0fc34436b2f397f4777e7200c327c4f3ec3c05ce30d7d40d631107175",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False text close",
+  "page": "<!-- c\n-->\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e9bdf01f296e97c8ea2ee49025947d405ac969b4e6d044494486b791b4ee4ea6",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - block-comment gap=False close",
+  "page": "- a\n\n  <!-- c\n  -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "84315896e45807cd78cdfa53d3134821cdffaa3d9a9d916ba3bbabdcfb433920",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > block-comment gap=False close",
+  "page": "> <!-- c\n> -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f63829e2054ea2cef2b6a8176e2132bef943248da4b449e5a6c167909900103b",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True close",
+  "page": "<!-- c\n-->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "2c6240be036bdbc3b61831d1ac930440bdf75d29e0bf50659bd37652cd1e1767",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True text close",
+  "page": "<!-- c\n-->\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "3aaaed3ae1788187835e6c1d242e9e67454eea4f3dc778ff1dd1cb2b38bf747c",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False custom",
+  "page": "<!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "2d4b35d61eb7e8514dd1c03ee62a88ef52820dbc75e8698ad6e110139e0d5881",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False text custom",
+  "page": "<!-- c\n-->\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "9b08a881e7b6863711c54b8167b0b793c09f40dc9ae1fa314823be40cab967fc",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - block-comment gap=False custom",
+  "page": "- a\n\n  <!-- c\n  -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "19c26a7d6608c68a2c067d3b55efa78546db7d770725103f7e56c31e4e96f140",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > block-comment gap=False custom",
+  "page": "> <!-- c\n> -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "5613a7c4fe9af7d1f510e55fde1fa7b9b7cdf8c45a7886c8f73651d6c6e8e1c2",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True custom",
+  "page": "<!-- c\n-->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "4b8a6909390f1df2e1de9227346c00f63fdba206ddd31df46ff488638f647668",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True text custom",
+  "page": "<!-- c\n-->\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "bd13d98c09aa33b06516e07735548f74a45aa77e6ad73df89c51f7470165697c",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False div",
+  "page": "<!-- c\n-->\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f325741b37895c76a026fd06b903399b13bb9a8cda9eab72ab410e880ab17867",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=False text div",
+  "page": "<!-- c\n-->\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "59adf4fc26a38c7814e0e702d27902b45d565854e4b8d20eae031adff05cb109",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C - block-comment gap=False div",
+  "page": "- a\n\n  <!-- c\n  -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "e0fc2bf848399a868d56787fdf6150a698b19fb76118b2e40f96b4fbfa124ec4",
+  "response_sha256": "5c52261218709df56404724fe1ce90f730b4560203df9c4e4b921169e06f8041",
+  "exit": 0
+ },
+ {
+  "name": "C > block-comment gap=False div",
+  "page": "> <!-- c\n> -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "f05e6dd5078338ced9e4b0ce2ea5eebf84111a1dae02c27322aff2ec5bdc197a",
+  "response_sha256": "1c0c72962daf8c6c06912948cb8a267ae46c65996b3fd7c617159ce4f1e8e2a6",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True div",
+  "page": "<!-- c\n-->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "9a087c782d4f6d2c4a39855027d9d85f7e432410777ceada065809000275abdb",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C block-comment gap=True text div",
+  "page": "<!-- c\n-->\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "b1dab5fa4c64ac1241b83f6c581ec42b1e6f36216aa385f5e1627dbbca717b1c",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False span",
+  "page": "text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "8904590a15ca17f7ad309944f019b94437e451b1816ba060e32202a277ef93ee",
+  "response_sha256": "5c051cfdc3a782937571489682fef51ba4875700b82de74527657aba3700813d",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False text span",
+  "page": "text\n    <!-- c\n-->\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "23f5555135b2a0918d35680e1388146672f86e5d96c0c31cccf7ae2cb2985492",
+  "response_sha256": "c00ca40ed199370d43236b3a86708bb4d21fcc0300bf0ecaf475b2498951e5aa",
+  "exit": 0
+ },
+ {
+  "name": "C - indented4-in-para gap=False span",
+  "page": "- a\n\n  text\n      <!-- c\n  -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "76a839a5c2f2495661253c259d89f390b762e4ff2a7b0d8f080ba60be8a08791",
+  "response_sha256": "80c40db2ad7efeb06905b1492cd3a5d99a53330bbc01f0d0fcccc6cff19c7ed5",
+  "exit": 0
+ },
+ {
+  "name": "C > indented4-in-para gap=False span",
+  "page": "> text\n>     <!-- c\n> -->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "18fe996ec4439bb7de8f5c129a92f48bca417a372c8cfe0aad45e04ce9d0a558",
+  "response_sha256": "275ed6cb2dc26cd05604e70899aec23e95e822c9bc8c9d40055df94c28060f74",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True span",
+  "page": "text\n    <!-- c\n-->\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "0b814e41d3b5d073e8827e173df3bcd19dcfd22b3d0545040665fff23ad31d4d",
+  "response_sha256": "2e7d3034ad1cd8f52f9b3cd53d641f0f3b54f5ea80ce8a9c899ea1235672da40",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True text span",
+  "page": "text\n    <!-- c\n-->\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "8c0200bc6b78f4f4a7208d46c17fa71dcb3a13b65da59946fa9ff008b8c0e4fc",
+  "response_sha256": "6544879242bd15e2d8554271e66911400047b8adb41589cee62fd068bf0f3726",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False close",
+  "page": "text\n    <!-- c\n-->\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "cd2a1d530ab5a9c636789bc424865c9aef9c7427dd17a8e1c4e266a628e29fe1",
+  "response_sha256": "6ca5c4f0f17fe585583962b3a299bf4c8609f1ca16cbb2a75fa58c56fbdcfdcd",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False text close",
+  "page": "text\n    <!-- c\n-->\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "ab53e52eaf960f2711f12ce3501c9d814de50c146ae2b176faf2a36bef3ac530",
+  "response_sha256": "4831cb6c9245d13dab408428508c1c50ccec9cd999656a5c809e37b92c105b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - indented4-in-para gap=False close",
+  "page": "- a\n\n  text\n      <!-- c\n  -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "16e95404c184ff3af6a56b0bacf5029cf13d7a50710bcb794e36756cf5ae2428",
+  "response_sha256": "81e02c3238bfa10bf66e0ff9e86b41848c806d27f64dc8de079c88ba3cc3b03f",
+  "exit": 0
+ },
+ {
+  "name": "C > indented4-in-para gap=False close",
+  "page": "> text\n>     <!-- c\n> -->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "78a7ab0a6ee443c6abcaf6cb8bc9922ec868d5bba600ddb66f7b77e3ea8a0e5a",
+  "response_sha256": "0babd4ec48d34ee3b047778ca0fa00bd22f57ec9b9ea90e1645ec2fc9ecb8e06",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True close",
+  "page": "text\n    <!-- c\n-->\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "62dfbf7e7832eaff811c8a32a168d08a66029ff9f6b76c40858fb4bc72fa6d6f",
+  "response_sha256": "1d769fd3ab5b3af9c0be68da039159df76717796e5f4330910463032ad9844f2",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True text close",
+  "page": "text\n    <!-- c\n-->\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "1527419de85242ae9b0a5f7d0cddebfcffe6991b248ff30a1a2e0690e3de2a0f",
+  "response_sha256": "c62d85314052e627460318cba2a420c3fb40e77622b192e5143f28cd50eeaa3b",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False custom",
+  "page": "text\n    <!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "266637c95c1ba324932344b5b4a539b3630244662a1ca6510645eae859c7fd04",
+  "response_sha256": "6ca5c4f0f17fe585583962b3a299bf4c8609f1ca16cbb2a75fa58c56fbdcfdcd",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False text custom",
+  "page": "text\n    <!-- c\n-->\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "93f657beb4d76a27a4d2dea4449649c6257b385bbc354e3f7f21e7c8d742e0af",
+  "response_sha256": "4831cb6c9245d13dab408428508c1c50ccec9cd999656a5c809e37b92c105b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - indented4-in-para gap=False custom",
+  "page": "- a\n\n  text\n      <!-- c\n  -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "daa1c12c370132468943f8b51a89a324c8258741e9a832d8a385326acccc7f24",
+  "response_sha256": "81e02c3238bfa10bf66e0ff9e86b41848c806d27f64dc8de079c88ba3cc3b03f",
+  "exit": 0
+ },
+ {
+  "name": "C > indented4-in-para gap=False custom",
+  "page": "> text\n>     <!-- c\n> -->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "450d14a1bce540d5c8f58773365f4ffebc04ed4393bcd180da76aa9ea1cbde70",
+  "response_sha256": "0babd4ec48d34ee3b047778ca0fa00bd22f57ec9b9ea90e1645ec2fc9ecb8e06",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True custom",
+  "page": "text\n    <!-- c\n-->\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "848395f4aff5063eb54ec669c258a360e67a69b74eba8095b3cbc3280cb82e1e",
+  "response_sha256": "1d769fd3ab5b3af9c0be68da039159df76717796e5f4330910463032ad9844f2",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True text custom",
+  "page": "text\n    <!-- c\n-->\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "c7b068e8c811df3701db3e14a5c932ef7ca55e1b1ccb9ac754b6eb0722c18a4c",
+  "response_sha256": "c62d85314052e627460318cba2a420c3fb40e77622b192e5143f28cd50eeaa3b",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False div",
+  "page": "text\n    <!-- c\n-->\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "968b5bbdf93a7ec8e4aa1dc3d4e5eaacc84672b2f619a79768e886865250fa74",
+  "response_sha256": "b7b3e814b1672b9f0c068a0ee0aac5b5b6a9926973907c59e9df3b950a416cad",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=False text div",
+  "page": "text\n    <!-- c\n-->\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "566e097ddd84abd0d8b4c2dcde35f0c21c65ddce1642cd3b26006be1affd1163",
+  "response_sha256": "1879d52a3eb5631993fbb53f100ae342bc19aaac1a6dc95192a370e5c60f9f83",
+  "exit": 0
+ },
+ {
+  "name": "C - indented4-in-para gap=False div",
+  "page": "- a\n\n  text\n      <!-- c\n  -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "50b44657b6f464713badaaff907e944bf2a0f15bdc77f411abe752f0a8a1d966",
+  "response_sha256": "adba96a730594ed32f91ae69b2ef6db62d3f9b0ae8952bacf61c29ce733ce15f",
+  "exit": 0
+ },
+ {
+  "name": "C > indented4-in-para gap=False div",
+  "page": "> text\n>     <!-- c\n> -->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "46c13ccf8271bea2cc6165deba4af2e1d7e989562d4a8cb4694f8d9c2ba4240e",
+  "response_sha256": "e9f2ea235d21383dfe800e2aa8e182d64144dfdb02271b254ce4104a89114a50",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True div",
+  "page": "text\n    <!-- c\n-->\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "94e35eba04a3c2d2d8c7c99b12f64d557765c1fe0c3bfbda0a0b652f5702eb59",
+  "response_sha256": "b7b3e814b1672b9f0c068a0ee0aac5b5b6a9926973907c59e9df3b950a416cad",
+  "exit": 0
+ },
+ {
+  "name": "C indented4-in-para gap=True text div",
+  "page": "text\n    <!-- c\n-->\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": true,
+  "request_sha256": "6352fbd3b1e599a3a0a5d6961cc4a1f098e3ecc4cfe68b10f60ff26cd3d8b7cd",
+  "response_sha256": "3f01f4b2a7f099e675d51ebf3329d29a6addf4abc20c974c580bdf128851fb1b",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False span",
+  "page": "<?x ?>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1bc100dcc358df6c8d252f1765924cb77b520ee9951e16e563b258d4de5fbd32",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False text span",
+  "page": "<?x ?>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "6ccc23699a66d15b288881f038acb6f19e9637063c3bdebb36057d8fd04d7a14",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C - type3 gap=False span",
+  "page": "- a\n\n  <?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "98a80f28612b01ce5c8d3c14f55141780764f16302f462392939c940b638f788",
+  "response_sha256": "62c7030dceb06bfe13b3bd98e78e562c2be567760d06af3ec485e43e06256fe9",
+  "exit": 0
+ },
+ {
+  "name": "C > type3 gap=False span",
+  "page": "> <?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e7ccabe2bab629ecf39d0e5018318afa12ecd4ac4b55cb7a9226a379b010f373",
+  "response_sha256": "ac89a7f335812807c3d49fbece681394eab322d988d4adc9648d3bead055d0db",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True span",
+  "page": "<?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "82369c09e4fd96dc0cd53ceb76d9b782a5f02089fec1d85d3f12865f8768ad4b",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True text span",
+  "page": "<?x ?>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "becbe9f138ef048bd84a0629ebee44acc4b0bb47912a7b9303da2d046f2e676a",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False close",
+  "page": "<?x ?>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0f3a424b60997e9f8b6f6a87f50d04a89655b50d35e677ebc76f9a98ff7c888f",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False text close",
+  "page": "<?x ?>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "6b78c45af352a7a59edd77de747d5e934dd64834fbe78d221b5ae69aae6374f0",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type3 gap=False close",
+  "page": "- a\n\n  <?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "6078285df983ff6ec7cc0077fe33e042b3b63d1c1af013f847ca59e0ecefed01",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type3 gap=False close",
+  "page": "> <?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e57cbd0c051482ad4142d09a139671500735d09e1e1a26c9971805405e7f0126",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True close",
+  "page": "<?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c64d48ae9e8bbdc2b89f225d08a290fed01b46dbc1a4296471e17dc2301381fd",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True text close",
+  "page": "<?x ?>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "40b89f9fd1433a9a3aaade3233508fefdabcd92c540ed3fdc541b31762776e1c",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False custom",
+  "page": "<?x ?>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "672aa3a7a94b4700d4a09a9bcdb144f69214aa770f04e7a27590187fe8056414",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False text custom",
+  "page": "<?x ?>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "367521623e5071c89b7b5b24fa167780499d60dfe6f8696dfcef6808b071e078",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type3 gap=False custom",
+  "page": "- a\n\n  <?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "01d18d7a934b5f7acb2ca7997a1d255a37a7cd71ff5bfd5deaa29253bbd1477f",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type3 gap=False custom",
+  "page": "> <?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "73a040dcc5979a217b650ee079eef8e25467f6957484a708c887afda8548a7e9",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True custom",
+  "page": "<?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "a254c05f3f1ac529cf2291a353905397a4d822d03d5fa2e54be3575d8db095c1",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True text custom",
+  "page": "<?x ?>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "aba480e26cabce6298d58ccf16d86640ffe99f7b3e46939f89673e94ee25ddec",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False div",
+  "page": "<?x ?>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "919c93a9b1acea20fa83c35cc95177f7dddb9352088e7332a87b23534bd41531",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=False text div",
+  "page": "<?x ?>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "5f520e6acf9164bae9e4eee7da86ee45480d358656a7011ec6c9054109e0842d",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C - type3 gap=False div",
+  "page": "- a\n\n  <?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "70646c6c991cae3b1dcbc53bc931a05b05b799d37113a129fee0e324dcdf8505",
+  "response_sha256": "5c52261218709df56404724fe1ce90f730b4560203df9c4e4b921169e06f8041",
+  "exit": 0
+ },
+ {
+  "name": "C > type3 gap=False div",
+  "page": "> <?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8251d9480a660f266908080d97a571be56c93a32f41ceae898dabd31878b5e06",
+  "response_sha256": "1c0c72962daf8c6c06912948cb8a267ae46c65996b3fd7c617159ce4f1e8e2a6",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True div",
+  "page": "<?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "9f5915bc4977bdb46272dd8ac0072eaf58f59ca2916de96e24de4ad4b4a56571",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type3 gap=True text div",
+  "page": "<?x ?>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0fa5366ce1b04548241b88d274405c7d1dd81bf83538a82476e36259f32a396d",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False span",
+  "page": "<?x\ny ?>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "526d77ad575ab0991656e338568d1bb58cd52402d005eb984bf124db7d528b69",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False text span",
+  "page": "<?x\ny ?>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "635e0a1e523d2b555c2a8776c8603e5d23ffa345a627ab3caa91c59d55bb300d",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C - type3-multi gap=False span",
+  "page": "- a\n\n  <?x\n  y ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "85842c4847260e17d80f68d03fcfbd4f81df1ea005f41cde81857e66f7722244",
+  "response_sha256": "62c7030dceb06bfe13b3bd98e78e562c2be567760d06af3ec485e43e06256fe9",
+  "exit": 0
+ },
+ {
+  "name": "C > type3-multi gap=False span",
+  "page": "> <?x\n> y ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c6f48974c56ba023001a7ea9b3eb0f49aa66f8637cc664de3403717f0b419c9a",
+  "response_sha256": "ac89a7f335812807c3d49fbece681394eab322d988d4adc9648d3bead055d0db",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True span",
+  "page": "<?x\ny ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "810ca5aa3d9a1a9097e5fc6a43ce381c56f858d27a02a098a5d37caf095341c8",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True text span",
+  "page": "<?x\ny ?>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7c46aa0eecdc545a19a15414fbfcbae7eac329bfbc9f78273c753766ede15d5f",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False close",
+  "page": "<?x\ny ?>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "bdc0f4223cdb628f4fd5cd6da4900518717d3d790a26bb43a1fb2ec886c6365d",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False text close",
+  "page": "<?x\ny ?>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "76206ded9dff9d57ada701297473f763ff96e5c8782aa797d6ea54367b6f0424",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type3-multi gap=False close",
+  "page": "- a\n\n  <?x\n  y ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "f3ff9159758466919c9144094030bcb13122800f546a0f7ef27eef0c15f71f35",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type3-multi gap=False close",
+  "page": "> <?x\n> y ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "b7d8898d0053a2fec63f3b7b078966e3d5d1ad8e7be641587b33fe7ff0733704",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True close",
+  "page": "<?x\ny ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e8a3b9ffb6e943e77360918b6a05e5a1dda0016ba93cb5dc5918cdbf552785ef",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True text close",
+  "page": "<?x\ny ?>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0d43203c62d3fa28666ae4f2afe5b97f45c01f3a6e4827d77146b54cfff4bf08",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False custom",
+  "page": "<?x\ny ?>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "4ab24845330a080cf8152cba071f84d143edbac516a0a7012f4775cc0195915e",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False text custom",
+  "page": "<?x\ny ?>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c5981f0c637f49e55d3afdfec04863424646a666bf0c515c529d104305b5cb32",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type3-multi gap=False custom",
+  "page": "- a\n\n  <?x\n  y ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1f2f6ede0b4244dfba4a2e8e30429fc8cbe5bb58ae91eb5520bd0dd29623ac8a",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type3-multi gap=False custom",
+  "page": "> <?x\n> y ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "cbd6d6517d2f1c4682ec10fab6580ae15834ca1444913d7b29467713611f08e9",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True custom",
+  "page": "<?x\ny ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "05f2a1c073e873b7d544ae8c7e8610885f2deac644d8db6b86a3d4974fdae8ea",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True text custom",
+  "page": "<?x\ny ?>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e60e50f7ab67dfcc10df8160e600ba8407f3a4a2f054848c2f2d3eb66f93f3cb",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False div",
+  "page": "<?x\ny ?>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e61d742791b26d9e68ededf2afaf0de3b38ec22d677e69d26be2540af5a52c61",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=False text div",
+  "page": "<?x\ny ?>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "648b98fb35cb4fdda87a7c67d2f2b5b83f7d96ce814d4865b3c37dd956155a8f",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C - type3-multi gap=False div",
+  "page": "- a\n\n  <?x\n  y ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0999c5f044430a71de945184c98435bb978aaa217075ca6ca5511993f26e4391",
+  "response_sha256": "5c52261218709df56404724fe1ce90f730b4560203df9c4e4b921169e06f8041",
+  "exit": 0
+ },
+ {
+  "name": "C > type3-multi gap=False div",
+  "page": "> <?x\n> y ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "4224282cd33c6a1b63a59c7dc5976e6112e6a3d83243ee8008f4961efb6958c1",
+  "response_sha256": "1c0c72962daf8c6c06912948cb8a267ae46c65996b3fd7c617159ce4f1e8e2a6",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True div",
+  "page": "<?x\ny ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c6037241139838db89ce217340e5c1cafd2284ecf9881d1055be11cd40cf870c",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type3-multi gap=True text div",
+  "page": "<?x\ny ?>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "25193b5040985513b522716d1e7f8886e8b165cdec4f3bdc762e52e27370b088",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False span",
+  "page": "<!X y>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "4dcbb6674e6e8ff6fd7fbc95b949501cd20015670db96211ded58e4ed465fe7d",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False text span",
+  "page": "<!X y>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d5b0e74caf2eb4e0137f0080ef4009d2141547dd6fd5d08bd6e60284769c5cb3",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C - type4 gap=False span",
+  "page": "- a\n\n  <!X y>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d04736779b9e7fe2577c4dc4c84599681d6d9f258e7e0170823913a5ec0d98b9",
+  "response_sha256": "62c7030dceb06bfe13b3bd98e78e562c2be567760d06af3ec485e43e06256fe9",
+  "exit": 0
+ },
+ {
+  "name": "C > type4 gap=False span",
+  "page": "> <!X y>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "2f00616ce9c60c76211d746ea9768193fe6bf5bb0638cba5fccb28536bff197d",
+  "response_sha256": "ac89a7f335812807c3d49fbece681394eab322d988d4adc9648d3bead055d0db",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True span",
+  "page": "<!X y>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7037dfebb701c09a5f683de9bb375073be8e5d72a030a5862ba84829839adfaa",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True text span",
+  "page": "<!X y>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7cfbb26296b1a8bd4d7065b8289f3e20f2e2b481c58ddf507e318c95b2e252a4",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False close",
+  "page": "<!X y>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d2d0383baa98aa15a0d4b5432330be366a60dab9515b430b13d73149c807ecf4",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False text close",
+  "page": "<!X y>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "dfe3bb60ececb735b25709fdf3256fa3d2e545d4e62733ed42a2895cb079ea73",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type4 gap=False close",
+  "page": "- a\n\n  <!X y>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8f36716ecfd8b8092f415c381279b0da9883d7bddeb4dd67fa336801502ad628",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type4 gap=False close",
+  "page": "> <!X y>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "385d0968b7eef88b5187ba501ddc59d4e7ca1ae92c37582eb220e859fa4b43d0",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True close",
+  "page": "<!X y>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "875642a342c4c21e838ece782f0c54b73f12b36f2eb8de7ece39b0bfd73446bf",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True text close",
+  "page": "<!X y>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "29a711b4cf8b0f05ca37a13935622eb959ff4174eb852d1befeba67254822b53",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False custom",
+  "page": "<!X y>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1a6b057732e0607b2bb071a5a49d50c397f4c66720afd8f21b6b56dbfb1558d9",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False text custom",
+  "page": "<!X y>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "a3cec1eee3c274b48667492379c5dbba8373691fc2a3b5262b600db65d0b27f8",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - type4 gap=False custom",
+  "page": "- a\n\n  <!X y>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "94a10478bb7f2a4ad833b4c40f008ed13f5df20b5dec23222052d7d9b9907f0d",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > type4 gap=False custom",
+  "page": "> <!X y>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "f6394f8a4b9999a3e5999226b5a9d1eae8969a37b9e339d865898c74754682a8",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True custom",
+  "page": "<!X y>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1bfb6370f3365a327e6426915609976f848215118df6a217018fb05214501241",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True text custom",
+  "page": "<!X y>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "2a85031e14e8ab7de60fd8e3ec04927aac2853e44decd9a810fb2a018f6692be",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False div",
+  "page": "<!X y>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "cbb9f3c25e13b420e7741253b2fc1f5a1141f2707b01873c2ffc0085e5e439d4",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=False text div",
+  "page": "<!X y>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1e5fd1cbac226a369c16dbce847065f9d7f22ee3f7963148088d3be8024487a6",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C - type4 gap=False div",
+  "page": "- a\n\n  <!X y>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "10c36fedca6052d433b2a6b9fd6866f1b90522660a5f9810a2073c0ca61f3070",
+  "response_sha256": "5c52261218709df56404724fe1ce90f730b4560203df9c4e4b921169e06f8041",
+  "exit": 0
+ },
+ {
+  "name": "C > type4 gap=False div",
+  "page": "> <!X y>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e686f573924076606cc74986194c3109705a23a0b3bd8be2cf325e2b5df57d36",
+  "response_sha256": "1c0c72962daf8c6c06912948cb8a267ae46c65996b3fd7c617159ce4f1e8e2a6",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True div",
+  "page": "<!X y>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8c617961764bb5663b766ba195e17edd526a0249008f3f313c5264ba7743055b",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C type4 gap=True text div",
+  "page": "<!X y>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c57470a48b7eb7ea89512ce06dcac65a9e092be884b53a54db02a576f75dc7ac",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False span",
+  "page": "<![CDATA[ x ]]>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "84d28355d8ac09f4b26361246e56cef6f42a95ecdf6456dd58e905209feaa3ae",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False text span",
+  "page": "<![CDATA[ x ]]>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "b4894078733f2423bd3d3ea07960b1b3d593e09850479d1f749b5ca5a663db6e",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C - cdata gap=False span",
+  "page": "- a\n\n  <![CDATA[ x ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "961c42b21a566126ac1357fc4920cc49097ce00f499ba5395274f96ae557986b",
+  "response_sha256": "62c7030dceb06bfe13b3bd98e78e562c2be567760d06af3ec485e43e06256fe9",
+  "exit": 0
+ },
+ {
+  "name": "C > cdata gap=False span",
+  "page": "> <![CDATA[ x ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "ed4aa7501b88e7dc78d762f4aff0914c55ac7391949d65a303394cea91ca0692",
+  "response_sha256": "ac89a7f335812807c3d49fbece681394eab322d988d4adc9648d3bead055d0db",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True span",
+  "page": "<![CDATA[ x ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c7a8d481e08e6371dba562ba982772ae7768892fd6e0c698f248c993a04c2139",
+  "response_sha256": "1b5695c779577661f90f3385d8c15f56063bade97917dff09671c16436954d7b",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True text span",
+  "page": "<![CDATA[ x ]]>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c4ceb7624394c148be2dc193559e0d798c871158cbec3a216b18bce22d9de5f6",
+  "response_sha256": "80419e20709ecd54105c7a9a134dc55e35303d787ea6f036927a188845559661",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False close",
+  "page": "<![CDATA[ x ]]>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "efe0ebc245278b6a4a038cf52c51a00c0c480d5c6d0e43ee8fc0defe95a987e4",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False text close",
+  "page": "<![CDATA[ x ]]>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1c1a9aa08035320202abf3178cca5852012d0f970509f92c17cf61460f8d8732",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - cdata gap=False close",
+  "page": "- a\n\n  <![CDATA[ x ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "1ad85e24a7f6dac237113d3475566f6c1ac141b2a4079110fa6b5be4eda324fd",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > cdata gap=False close",
+  "page": "> <![CDATA[ x ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d145ab69a129187e77a5c06b84534dbde9673c81d5457b642fdd3c4f58595f5c",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True close",
+  "page": "<![CDATA[ x ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "ec766413236124e39bd1348af930d2d01c0db4df538c9b8916dbf3d281484ca5",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True text close",
+  "page": "<![CDATA[ x ]]>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "dd661eb2a64e9424fab2e3edb18e5adc5bc6edc1b824251c57e37bb235ec5a94",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False custom",
+  "page": "<![CDATA[ x ]]>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "22fab24876867bdf1cde9d336024402342081bbde4a9d0a65653a162056dd72d",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False text custom",
+  "page": "<![CDATA[ x ]]>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "142c169a5ba7aea139feea7a043901ee0a3614690c46181951904a97680ada9d",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C - cdata gap=False custom",
+  "page": "- a\n\n  <![CDATA[ x ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "fdcfc1543903845a7d3b63e63af5da9a40c7e72c1a19de5dda30350db0931120",
+  "response_sha256": "745408560fd491c6e648223d0e6d0ad8f86bfd23fd6a8959e03a6ab1ba55eee6",
+  "exit": 0
+ },
+ {
+  "name": "C > cdata gap=False custom",
+  "page": "> <![CDATA[ x ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0e7cf5766d5b13d841c52e0213564226152481b7e5a2e230085285a85769818b",
+  "response_sha256": "3f4b3460c66b8535b07a023963620538567db30bbeb0e2dd11528935225a2347",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True custom",
+  "page": "<![CDATA[ x ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "73bdc3d295283be33074c05a920d5ad36731deb58668c412cbe613e86c58c744",
+  "response_sha256": "0193f4112d2c624ed30c65f7964cf05071cf795a57ab313fb26a09346ea18816",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True text custom",
+  "page": "<![CDATA[ x ]]>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "00fedbabfffe02b6c32c5f06314b05508f0c978e4ed50592bb08459fe8610c8e",
+  "response_sha256": "e24adac3e1bfffcc9be04f31bf716e2221821413d7a472e1f0261cf0f7149b9d",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False div",
+  "page": "<![CDATA[ x ]]>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8b8590ddf3bbcb8b3b407fda1669d1c05c24431f7f69c22edadb5247553785f8",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=False text div",
+  "page": "<![CDATA[ x ]]>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "6b0d581e073a9dae1a89d7fb1aa2e464f108b2fad154ac112f4849ab48c47d8c",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C - cdata gap=False div",
+  "page": "- a\n\n  <![CDATA[ x ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "3e623a36761a80fa0999655497e682f591e8309be357299ee8e90c131d3b2e48",
+  "response_sha256": "5c52261218709df56404724fe1ce90f730b4560203df9c4e4b921169e06f8041",
+  "exit": 0
+ },
+ {
+  "name": "C > cdata gap=False div",
+  "page": "> <![CDATA[ x ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c2ec4d3aa48373389b4cffd3de7d8b4bed1caeedbd523ae67877eeab4d1b3c18",
+  "response_sha256": "1c0c72962daf8c6c06912948cb8a267ae46c65996b3fd7c617159ce4f1e8e2a6",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True div",
+  "page": "<![CDATA[ x ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "cacb8e4683fdc40fa88448fcfc5ad82a0082e580f09702dce27b7d73208b5742",
+  "response_sha256": "bce19aeedeff8338f4a1115ff4c5d3483ae204198002f60391b486df3610a962",
+  "exit": 0
+ },
+ {
+  "name": "C cdata gap=True text div",
+  "page": "<![CDATA[ x ]]>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "b6f83dfb6704e11b4cc9825cf7a535a3c13f414066bdd4b61f4c348ed0876d56",
+  "response_sha256": "9037395addbcc2553270edd49d47d84a1988845fb8df04c55b25d7d37ac25527",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False span",
+  "page": "text\n<?x ?>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d3e1cd1837e01b9f3e1495c080d4b15c15cdfba223cf1c5c36896f14c5271fc0",
+  "response_sha256": "a924fa8b91633fa2772edb6ed1e8bf2419ff36d83d48129da2a52bdeeef6ffcb",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False text span",
+  "page": "text\n<?x ?>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "42a5af41a0f8703ad6a571017ca84ca3f72a0e0af3194eaf071c8462f3390e7d",
+  "response_sha256": "dd0b6f89ebafa8c1d637e09f27ccd628a4f159963acbda3aaecae79b1d8d7079",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-type3 gap=False span",
+  "page": "- a\n\n  text\n  <?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "305e650f2d1532bec0606eaebbfa2d8413dfb92dae5e2d5f0e39909d5a7b7e84",
+  "response_sha256": "5b525a8e118a4b71002964afbd88a4bc46fcedb1afe5d8bf7314970838d77c59",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-type3 gap=False span",
+  "page": "> text\n> <?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "7a7e3ec617ad34eb5b9f69f704a3b5269e1d0d85d13eb8838561975026190ef2",
+  "response_sha256": "7d78284cd5fea5c522046d62cbc1415fb965edb84d24945bdefedf687430c3fc",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True span",
+  "page": "text\n<?x ?>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c5590ee14e92fdb2a405354df468931028fca1374223ba184867e5531cc09e5d",
+  "response_sha256": "a924fa8b91633fa2772edb6ed1e8bf2419ff36d83d48129da2a52bdeeef6ffcb",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True text span",
+  "page": "text\n<?x ?>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "06992dbfc3f4829e9048aa7f026690332df340fae6a0f6ae8aee10baff1b1f22",
+  "response_sha256": "dd0b6f89ebafa8c1d637e09f27ccd628a4f159963acbda3aaecae79b1d8d7079",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False close",
+  "page": "text\n<?x ?>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "4807a48215f5f175b9fb90c09e41f79e135b5e597dbba5ae655aa88d573d205b",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False text close",
+  "page": "text\n<?x ?>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "cd82d9a85515c0cc0682c5af908b9e52fcc3bd4b9330c452024d3acbbab73872",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-type3 gap=False close",
+  "page": "- a\n\n  text\n  <?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "664d78d5c3c36de7c570ead3fcab13fb0d03c50b1d4b3d89ad6d9386482d38af",
+  "response_sha256": "91e38b2374523dcf37ff4d52c8df6e08670340ef473143f3fffd8cec4772679a",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-type3 gap=False close",
+  "page": "> text\n> <?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "54dd96b60614c6b4399878d1d7ed425fcd05ef68779ac645a9d42f1f760b69c1",
+  "response_sha256": "f7f7bcd915c9792e518b7342d5d503938c628fdb60ea6f5c66f63d96d305d5f3",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True close",
+  "page": "text\n<?x ?>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "5278a8dea32d49497785fbed6d335c0aa0d1c73c42da8ab86f41c230d54c8d8c",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True text close",
+  "page": "text\n<?x ?>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e07b555a6b4320d1061f44c40442392b217b19c73fcb8cb372a867bcb8cc042a",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False custom",
+  "page": "text\n<?x ?>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "613d030448256cc62e5827c0f58220f1a6e52dbc29964a4f603270955bbf8aa5",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False text custom",
+  "page": "text\n<?x ?>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "bd77da8ed1a3fbea089de27e99eadaf21f22dd05ac34544979a977e0b068ddc9",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-type3 gap=False custom",
+  "page": "- a\n\n  text\n  <?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e56cf860fb17e90029fe19e4d32fdc30ecfd5dc9559dc1c0f20f8e50b5de92b1",
+  "response_sha256": "91e38b2374523dcf37ff4d52c8df6e08670340ef473143f3fffd8cec4772679a",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-type3 gap=False custom",
+  "page": "> text\n> <?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "cc612d9dfe28975cb4ba2a22577c28fa4068cd0414ee1175157049bc7509d36d",
+  "response_sha256": "f7f7bcd915c9792e518b7342d5d503938c628fdb60ea6f5c66f63d96d305d5f3",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True custom",
+  "page": "text\n<?x ?>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "22b3dae2e56d5fea6f18963cec2d2aafb9feabfa180c2e31edfd988df28d1c15",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True text custom",
+  "page": "text\n<?x ?>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "456dd775e2f9ae78b41d7ece40d385897122bd9f80a6d17aaaaa6b29cf436a41",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False div",
+  "page": "text\n<?x ?>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8e6aa6161fb99214cd35da2c32c06cad675131479a399eac1813f360fcb117cf",
+  "response_sha256": "cbecd9d152565d11ba8ed6477b8d618815cb8bc31daa17ef10f356ccf4df69d0",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=False text div",
+  "page": "text\n<?x ?>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "274dcc42dad6fb06cd379fc1ce2f670d7d78aaa069aaad802984f8137b9c74f4",
+  "response_sha256": "c5304a7e95c786578b453b95302e741aaf62e62a5b2536622398f9f3281ba1d9",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-type3 gap=False div",
+  "page": "- a\n\n  text\n  <?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "ddf7307d97b73f9ba64e93b97fc20457ebf5487fee2b382b4ad261ea7d800659",
+  "response_sha256": "b03af5a482058cd27f9a448b5975ea421e048aa4500819834eacb8f366b1c84b",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-type3 gap=False div",
+  "page": "> text\n> <?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8e190ce5e37066e67adfca48087debec292a01f7b907e6d0defe0db596ea9f65",
+  "response_sha256": "bcd98e8821c95735347d37211bcc94dd3167cf2b3be445978ab1e7208a1a61be",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True div",
+  "page": "text\n<?x ?>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "da6d8e1d5a9cb2b8155ea394091a7cdbeb14066a68222a21cb9c7f4a31ca1eb3",
+  "response_sha256": "cbecd9d152565d11ba8ed6477b8d618815cb8bc31daa17ef10f356ccf4df69d0",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-type3 gap=True text div",
+  "page": "text\n<?x ?>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e4346665b3bb5c66486c81a8a04928771bcf1e674e345b7a0fbaa59c0fd85c40",
+  "response_sha256": "c5304a7e95c786578b453b95302e741aaf62e62a5b2536622398f9f3281ba1d9",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False span",
+  "page": "text\n<![CDATA[\nx ]]>\n<span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "81aaa8c1a7c70c6a2e8580cb32977aad74bfe6556424fb10338059a4291d13ea",
+  "response_sha256": "a924fa8b91633fa2772edb6ed1e8bf2419ff36d83d48129da2a52bdeeef6ffcb",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False text span",
+  "page": "text\n<![CDATA[\nx ]]>\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "dfe375c84069a329e9ea3e630cd766d1910c5dd230b261aa7e9a859122fb6cb7",
+  "response_sha256": "dd0b6f89ebafa8c1d637e09f27ccd628a4f159963acbda3aaecae79b1d8d7079",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-cdata-multi gap=False span",
+  "page": "- a\n\n  text\n  <![CDATA[\n  x ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "150ee405ca98050fa8695c13c0d120325bd32fd605e7e9d40cfda2b252427a04",
+  "response_sha256": "5b525a8e118a4b71002964afbd88a4bc46fcedb1afe5d8bf7314970838d77c59",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-cdata-multi gap=False span",
+  "page": "> text\n> <![CDATA[\n> x ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "a0e7414b7a0bcc454fe5f4c1b7645dedda9ee47d6cc3ce87ec9467df2b6af206",
+  "response_sha256": "7d78284cd5fea5c522046d62cbc1415fb965edb84d24945bdefedf687430c3fc",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True span",
+  "page": "text\n<![CDATA[\nx ]]>\n\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "3239ff12d26176794a35e00ad2e24b53d7efcb6176a344112c13bb5db4fd8942",
+  "response_sha256": "a924fa8b91633fa2772edb6ed1e8bf2419ff36d83d48129da2a52bdeeef6ffcb",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True text span",
+  "page": "text\n<![CDATA[\nx ]]>\n\ntext\n<span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "9919577359e7e2e156a02d3747798e56bcc8119921776326c995f7188da42bc9",
+  "response_sha256": "dd0b6f89ebafa8c1d637e09f27ccd628a4f159963acbda3aaecae79b1d8d7079",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False close",
+  "page": "text\n<![CDATA[\nx ]]>\n</span>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "25057d92ede306eec2d88a2928f973f553bb8030c3fedd5e46b82af446218e5c",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False text close",
+  "page": "text\n<![CDATA[\nx ]]>\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "5ab00211a45aaaf737fc966ec25bcff39e11f3d644837d65ab8b756dfba8e65f",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-cdata-multi gap=False close",
+  "page": "- a\n\n  text\n  <![CDATA[\n  x ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "394c42c8d518967946f6782e65ff4da42c04d133cc2df289b65f263926e512b0",
+  "response_sha256": "91e38b2374523dcf37ff4d52c8df6e08670340ef473143f3fffd8cec4772679a",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-cdata-multi gap=False close",
+  "page": "> text\n> <![CDATA[\n> x ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8dbe74c9b2fb444e76574da10388b2f519f243b431f459a7f70b5e2871aea038",
+  "response_sha256": "f7f7bcd915c9792e518b7342d5d503938c628fdb60ea6f5c66f63d96d305d5f3",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True close",
+  "page": "text\n<![CDATA[\nx ]]>\n\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "a3a49934217f843a5d770f14b41c84d4f5a79e2ed3aa2b21d912fe07af7b09ee",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True text close",
+  "page": "text\n<![CDATA[\nx ]]>\n\ntext\n</span>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "0739aeb610839ebce06cfac5ac5bceabfd4ba698da5ca8306728267d5357ff04",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False custom",
+  "page": "text\n<![CDATA[\nx ]]>\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "fix",
+  "walks_differ": true,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d8fb77d4511f96c35c1a8e817a01b47b71938242ef6ba970f57b583cfd5f4da8",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False text custom",
+  "page": "text\n<![CDATA[\nx ]]>\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "c8db7b0b4f6d6240dc9cbbb55d0c66beb95b35d1e62be4f5777a58ea88773be0",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-cdata-multi gap=False custom",
+  "page": "- a\n\n  text\n  <![CDATA[\n  x ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "95d68ff9b00759c460789f3e368930ded5d9dbe134632c80d1192b203d24c911",
+  "response_sha256": "91e38b2374523dcf37ff4d52c8df6e08670340ef473143f3fffd8cec4772679a",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-cdata-multi gap=False custom",
+  "page": "> text\n> <![CDATA[\n> x ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "e2b715c6baff6a9d625afdedd490cf478564fd4256fcb47a9a1d2882fb802410",
+  "response_sha256": "f7f7bcd915c9792e518b7342d5d503938c628fdb60ea6f5c66f63d96d305d5f3",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True custom",
+  "page": "text\n<![CDATA[\nx ]]>\n\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "d665586e9264dfe15c8d0db862657d02594fdf56060ba3b93df7b0bd1511ebf4",
+  "response_sha256": "4dea1ddca131781414ea8feee8a3da04e1aea980b4e86bc1f021e86af64aec5e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True text custom",
+  "page": "text\n<![CDATA[\nx ]]>\n\ntext\n<custom-tag>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "276a98e4054eea6f3f8b2c71c35f049853f1813aca80e137ec0447391e03c0cd",
+  "response_sha256": "e5d8dce9b3823e12927e00dfb0788026cf6cc8a23c72b40c801d7759a03e668e",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False div",
+  "page": "text\n<![CDATA[\nx ]]>\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "bf26e831a1d6d42df1b909fa87c41d50afcf3ddf02f0e2389a8952907b1b668e",
+  "response_sha256": "cbecd9d152565d11ba8ed6477b8d618815cb8bc31daa17ef10f356ccf4df69d0",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=False text div",
+  "page": "text\n<![CDATA[\nx ]]>\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "f8d2cf5bda0d4eb9c0493b384151f3c88129179af9b861d8078e981d77eb55e5",
+  "response_sha256": "c5304a7e95c786578b453b95302e741aaf62e62a5b2536622398f9f3281ba1d9",
+  "exit": 0
+ },
+ {
+  "name": "C - para-then-cdata-multi gap=False div",
+  "page": "- a\n\n  text\n  <![CDATA[\n  x ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "8cc336591ec70224719e9b823848b45ce97c5b8da667d3c5d916c80b817d9915",
+  "response_sha256": "b03af5a482058cd27f9a448b5975ea421e048aa4500819834eacb8f366b1c84b",
+  "exit": 0
+ },
+ {
+  "name": "C > para-then-cdata-multi gap=False div",
+  "page": "> text\n> <![CDATA[\n> x ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "bf662ad5592fcac75f4f2cecf4f5d945efce710603b23c5ba41867610fd2d8b0",
+  "response_sha256": "bcd98e8821c95735347d37211bcc94dd3167cf2b3be445978ab1e7208a1a61be",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True div",
+  "page": "text\n<![CDATA[\nx ]]>\n\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "3da7a950749fb4893f33a6799a4658913f9668544f5120a66681dca54b0add55",
+  "response_sha256": "cbecd9d152565d11ba8ed6477b8d618815cb8bc31daa17ef10f356ccf4df69d0",
+  "exit": 0
+ },
+ {
+  "name": "C para-then-cdata-multi gap=True text div",
+  "page": "text\n<![CDATA[\nx ]]>\n\ntext\n<div>\n## Old\n\n## Real\n",
+  "class": "agree-both",
+  "walks_differ": false,
+  "github": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head": [
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "head_direction": null,
+  "has_comment_opener": false,
+  "request_sha256": "2f1a3db77e776566da0d2ddce576631328272e73979953aed2c4d4a18e68fd6f",
+  "response_sha256": "c5304a7e95c786578b453b95302e741aaf62e62a5b2536622398f9f3281ba1d9",
+  "exit": 0
+ }
+]

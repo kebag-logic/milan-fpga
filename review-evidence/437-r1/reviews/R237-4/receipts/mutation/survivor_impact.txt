@@ -1,0 +1,15 @@
+footnote-whitespace-continues-guarded: 4509 pages, mutant differs from head on 0; head agrees with GitHub on 0, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+link-definition-title-any-token-guarded: 4509 pages, mutant differs from head on 22; head agrees with GitHub on 12, mutant agrees on 10, mutant lists a heading GitHub hides on 10
+   e.g. '- [a]: /u x\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n' gh [[2, 'Real']] head [[2, 'Real']] mutant [[2, 'Old'], [2, 'Real']]
+   e.g. '- [a]: /u x\n\n\n  ```\n## Old\n```\n\n## Real\n' gh [[2, 'Old']] head [[2, 'Old']] mutant [[2, 'Real']]
+   e.g. "- [a]: /u 't'\n\n\n  ```\n## Old\n```\n\n## Real\n" gh [[2, 'Real']] head [[2, 'Old']] mutant [[2, 'Real']]
+   e.g. "- [a]: /u 't'\n\n\n  <div>\n## Old\n\n## Real\n" gh [[2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+inline-comment-opens-block: 4509 pages, mutant differs from head on 9; head agrees with GitHub on 9, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+   e.g. 'text <!-- c\nmore -->\n<span>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+   e.g. 'text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+   e.g. 'text <!-- c\nmore -->\n</span>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+   e.g. 'text <!-- c\nmore -->\n<custom-tag>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+inline-comment-after-text-only: 4509 pages, mutant differs from head on 3; head agrees with GitHub on 3, mutant agrees on 0, mutant lists a heading GitHub hides on 0
+   e.g. 'text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+   e.g. 'text\n    <!-- c\n-->\n</span>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]
+   e.g. 'text\n    <!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n' gh [[2, 'Old'], [2, 'Real']] head [[2, 'Old'], [2, 'Real']] mutant [[2, 'Real']]

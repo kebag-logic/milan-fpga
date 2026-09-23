@@ -1,0 +1,544 @@
+{
+ "control": {
+  "name": "CONTROL",
+  "file": "gen_toc.py",
+  "killed": false,
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failed_arms": []
+  },
+  "em": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failed_arms": []
+  }
+ },
+ "mutants": [
+  {
+   "name": "gate-ignored",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+     "TOC selftest: FAIL (1199/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 two spaces]",
+     "  FAIL [I437 three spaces]",
+     "  FAIL [I437 star item]",
+     "  FAIL [I437 ordered item]",
+     "  FAIL [I437 two paragraphs]",
+     "  FAIL [I437 task item]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R238-2 F2 C17 a type-3 block ends at its marker] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 118 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "no-end-with-container",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+     "TOC selftest: FAIL (1254/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered live bullet paragraph, in-item fence]",
+     "  FAIL [I437 rendered live bullet paragraph, in-item fence would escape]",
+     "  FAIL [I437 rendered live ordered paragraph, in-item pre]",
+     "  FAIL [I437 rendered task item, in-item fence would escape]",
+     "  FAIL [I437 rendered resumed paragraph, in-item fence would escape]",
+     "  FAIL [I437 rendered R238 P02 tag after a blank in the item, then fence]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 limitation #516 item end uncovers a comment over a fence] expected findings/exempt (0, 1), got 1/0: ['page371.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 23 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded live bullet paragraph, in-item fence] expected findings/exempt (0, 1), got 1/0: ['page296.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded live bullet paragraph, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded live ordered paragraph, in-item pre] expected findings/exempt (0, 1), got 1/0: ['page298.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded task item, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded resumed paragraph, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded R238 P02 tag after a blank in the item, then fence] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "comment-ends-with-container",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered comment block outlives its quote]",
+     "TOC selftest: FAIL (1263/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered a quote's optional space leaves a raw opener]",
+     "  FAIL [I437 rendered a continued quote's optional space leaves a raw opener]",
+     "  FAIL [I437 rendered raw HTML in an item]",
+     "  FAIL [I437 rendered raw HTML in a quote]",
+     "  FAIL [I437 rendered comment block outlives its item]",
+     "  FAIL [I437 rendered comment block outlives its quote]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded comment block outlives its quote] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 12 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded a quote's optional space leaves a raw opener] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded a continued quote's optional space leaves a raw opener] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded raw HTML in an item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded raw HTML in a quote] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded comment block outlives its item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded comment block outlives its quote] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "empty-comment-closes",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered R238-2 F1c empty comment after a type-3 opener]",
+     "  FAIL [I437 limitation #516 item end uncovers a comment over a fence]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 limitation #516 item end uncovers a comment over a fence] expected findings/exempt (0, 1), got 1/0: ['page371.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded R238-2 F1c empty comment after a type-3 opener] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 limitation #516 item end uncovers a comment over a fence] expected findings/exempt (0, 1), got 1/0: ['page371.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "link-definition-ignored",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered R237-3 F2 definition-only item ends at a second blank]",
+     "  FAIL [I437 rendered R237-3 F2 two definitions leave the item empty]",
+     "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F2 titled definition leaves the item empty] expected findings/exempt (0, 1), got 1/0: ['page354.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded R237-3 F2 definition-only item ends at a second blank] expected findings/exempt (0, 1), got 1/0: ['page349.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 two definitions leave the item empty] expected findings/exempt (0, 1), got 1/0: ['page353.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 titled definition leaves the item empty] expected findings/exempt (0, 1), got 1/0: ['page354.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "holds-always",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]",
+     "TOC selftest: FAIL (1263/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 empty item ends at blank]",
+     "  FAIL [I437 empty padded item ends at blank]",
+     "  FAIL [I437 rendered empty item ended by a shorter blank]",
+     "  FAIL [I437 rendered R237-3 F2 definition-only item ends at a second blank]",
+     "  FAIL [I437 rendered R237-3 F2 two definitions leave the item empty]",
+     "  FAIL [I437 rendered R237-3 F2 titled definition leaves the item empty]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F2 titled definition leaves the item empty] expected findings/exempt (0, 1), got 1/0: ['page354.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 6 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 empty item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page26.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 empty padded item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page27.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded empty item ended by a shorter blank] expected findings/exempt (0, 1), got 1/0: ['page307.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 definition-only item ends at a second blank] expected findings/exempt (0, 1), got 1/0: ['page349.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 two definitions leave the item empty] expected findings/exempt (0, 1), got 1/0: ['page353.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 titled definition leaves the item empty] expected findings/exempt (0, 1), got 1/0: ['page354.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "open-paragraph-not-held",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F2 definition-only item survives one blank]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered R237-3 F2 definition-only item survives one blank]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F2 definition-only item survives one blank] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded R237-3 F2 definition-only item survives one blank] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "no-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+     "TOC selftest: FAIL (1260/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps]",
+     "  FAIL [a lone tag directly under two plain lines lazily continuing a list item hides the heading it wraps]",
+     "  FAIL [I437 lazy line retains item]",
+     "  FAIL [I437 labels lazy line after nested quote, tag opens HTML]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F4 a blank line ends a quote] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 7 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded lazy line after nested quote, tag opens HTML] expected findings/exempt (0, 1), got 1/0: ['page294.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded R237-3 F2 lazy text keeps a definition's item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded R237-3 F4 a blank line ends a quote] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "blank-continues-quote",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F4 a blank line ends a quote] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded R237-3 F4 a blank line ends a quote] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "raw-3-5-never-ends",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered R238-2 F2 C17 a type-3 block ends at its marker]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R238-2 F2 C17 a type-3 block ends at its marker] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded R238-2 F2 C17 a type-3 block ends at its marker] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "raw-3-5-gate-not-none",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered type-5 block leaves the gate to the walk]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered type-4 block leaves the gate to the walk]",
+     "  FAIL [I437 rendered type-3 block leaves the gate to the walk]",
+     "  FAIL [I437 rendered type-5 block leaves the gate to the walk]",
+     "TOC selftest: FAIL (1266/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded type-5 block leaves the gate to the walk] expected findings/exempt (0, 1), got 1/0: ['page363.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded type-4 block leaves the gate to the walk] expected findings/exempt (0, 1), got 1/0: ['page361.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded type-3 block leaves the gate to the walk] expected findings/exempt (0, 1), got 1/0: ['page362.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded type-5 block leaves the gate to the walk] expected findings/exempt (0, 1), got 1/0: ['page363.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "footnote-whitespace-continues",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [the walk carries the number of decision sites recorded here]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [the shipped walk carries only single-source decision sites]",
+     "  FAIL [the walk carries the number of decision sites recorded here]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "any-ordinal-interrupts",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 noninterrupting ordinal is no item]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders]",
+     "  FAIL [I437 noninterrupting ordinal is no item]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 1 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  },
+  {
+   "name": "wide-padding-is-content",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 code padding uses one]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 code padding uses one]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 code padding uses one] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 code padding uses one] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "nested-container-no-fill",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered nested quote holds an empty item]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 rendered nested empty item holds the item]",
+     "  FAIL [I437 rendered nested quote holds an empty item]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded nested quote holds an empty item] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 4 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 recorded nested empty item holds the item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded nested quote holds an empty item] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "inline-comment-opens-block",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "link-definition-title-any-quote",
+   "file": "gen_toc.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [the shipped walk carries only single-source decision sites]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [the shipped walk carries only single-source decision sites]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "footnote-needs-two",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered boundary footnote definition two spaces, unknown tag]",
+     "TOC selftest: FAIL (1262/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 footnote two spaces]",
+     "  FAIL [I437 R238 D02]",
+     "  FAIL [I437 R238 D04]",
+     "  FAIL [I437 footnote column 0 releases iff dedented]",
+     "  FAIL [I437 footnote column 1 releases iff dedented]",
+     "  FAIL [I437 rendered boundary footnote definition two spaces, inline tag]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded boundary footnote definition two spaces, unknown tag] expected findings/exempt (0, 1), got 1/0: ['page243.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 8 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 footnote two spaces] expected findings/exempt (0, 1), got 1/0: ['page14.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 R238 D02] expected findings/exempt (0, 1), got 1/0: ['page53.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 R238 D04] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 footnote column 0 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page194.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 footnote column 1 releases iff dedented] expected findings/exempt (0, 1), got 1/0: ['page195.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "  - [I437 recorded boundary footnote definition two spaces, inline tag] expected findings/exempt (0, 1), got 1/0: ['page242.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  }
+ ]
+}

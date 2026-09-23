@@ -1,0 +1,131 @@
+{
+ "control": {
+  "name": "CONTROL",
+  "file": "gen_toc.py",
+  "killed": false,
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1269/1269 arm(s))"
+   ],
+   "failed_arms": []
+  },
+  "em": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (429 arm(s))"
+   ],
+   "failed_arms": []
+  }
+ },
+ "mutants": [
+  {
+   "name": "lazy-hr-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": false,
+   "toc": {
+    "exit": 0,
+    "tail": [
+     "TOC selftest: PASS (1269/1269 arm(s))"
+    ],
+    "failed_arms": []
+   },
+   "em": {
+    "exit": 0,
+    "tail": [
+     "check_em_dash selftest: PASS (429 arm(s))"
+    ],
+    "failed_arms": []
+   }
+  },
+  {
+   "name": "lazy-item-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 sibling replaces boundary]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 sibling replaces boundary]",
+     "TOC selftest: FAIL (1268/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 sibling replaces boundary] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 2 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 sibling replaces boundary] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "lazy-block-open-lazy",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered R237-3 F4 a blank line ends a quote]",
+     "TOC selftest: FAIL (1135/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [a lone tag directly under a list item hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a block quote hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a footnote definition hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a footnote definition interrupting a paragraph hides the heading it wraps]",
+     "  FAIL [a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps]"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded R237-3 F4 a blank line ends a quote] absent base heading was not the refusal reason",
+     "check_em_dash: FATAL: 226 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 star item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 ordered item] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 two paragraphs] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 task item] expected findings/exempt (1, 0), got 0/1: []"
+    ]
+   }
+  },
+  {
+   "name": "empty-item-content-at-marker",
+   "file": "gen_toc_containers.py",
+   "killed": true,
+   "toc": {
+    "exit": 1,
+    "tail": [
+     "  FAIL [I437 rendered empty item ended by a shorter blank]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ],
+    "failed_arms": [
+     "  FAIL [I437 empty item ignores padding]",
+     "  FAIL [I437 rendered empty item ended by a shorter blank]",
+     "TOC selftest: FAIL (1267/1269 arm(s))"
+    ]
+   },
+   "em": {
+    "exit": 2,
+    "tail": [
+     "  - [I437 recorded empty item ended by a shorter blank] expected findings/exempt (0, 1), got 1/0: ['page307.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+     "check_em_dash: FATAL: 3 of 429 arm(s) did not hold"
+    ],
+    "failed_arms": [
+     "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+     "  - [I437 recorded empty item ended by a shorter blank] expected findings/exempt (0, 1), got 1/0: ['page307.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+    ]
+   }
+  }
+ ]
+}

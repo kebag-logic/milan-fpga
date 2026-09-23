@@ -1,0 +1,54 @@
+DOC-CLAIM SHAPES: claimed direction vs measured (head vs GitHub), base
+OK  claim=withhold measured=withhold         class=wrong-both | 6.1 opener GitHub prints as text withholds (code span) | gh=['Old', 'Real'] base=[] head=[]
+OK  claim=withhold measured=withhold         class=wrong-both | 6.1 opener GitHub prints as text withholds (escape) | gh=['Old', 'Real'] base=[] head=[]
+OK  claim=withhold measured=withhold         class=wrong-both | 6.1 opener GitHub prints as text withholds (no closer in paragraph) | gh=['Old', 'Real'] base=[] head=[]
+OK  claim=withhold measured=withhold         class=wrong-both | 6.1 empty comment <!--> withholds | gh=['Old', 'Real'] base=[] head=[]
+OK  claim=withhold measured=withhold         class=wrong-both | 6.1 empty comment <!---> withholds | gh=['Old', 'Real'] base=[] head=[]
+MISMATCH claim=withhold measured=agree            class=agree-both | 6.1 --!> withholds | gh=[] base=[] head=[]
+OK  claim=escape   measured=escape+withhold  class=wrong-both | 6.1 comment over a fence lists after --> in fence | gh=['Real'] base=['Old'] head=['Old']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 #516 opener in raw HTML block | gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 #516 opener four columns into an item | gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 #516 closer GitHub prints as text | gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=agree    measured=agree            class=agree-both | 6.1 comment closed in its own raw HTML block agrees | gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 raw HTML ends inside unclosed tag hides next heading | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 raw HTML ends inside bogus comment hides next heading | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 raw HTML ends inside open quoted value hides every later | gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 select hides the headings inside it | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 type 3 to 5 block labelled prose lists heading | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 type 4 block labelled prose lists heading | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=escape   measured=escape           class=wrong-both | 6.1 CDATA block labelled prose lists heading | gh=['Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=agree    measured=agree            class=agree-both | 6.1 lone tag continues a paragraph its line reaches | gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=agree    measured=agree            class=agree-both | 6.1 lone tag otherwise opens raw HTML inside an item | gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=agree    measured=agree            class=fix        | 6.1 fence ends with the container it opened in | gh=['Old'] base=['Real'] head=['Old']
+OK  claim=agree    measured=agree            class=agree-both | 6.1 raw HTML block ends with its container | gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+OK  claim=agree    measured=agree            class=agree-both | 6.1 definition-only item empty once it closes | gh=['Real'] base=['Real'] head=['Real']
+OK  claim=escape   measured=escape+withhold  class=regress    | 6.1 other definition keeps the item open | gh=['Real'] base=['Real'] head=['Old']
+
+COMBINATORIAL ROWS (no containers unless named) THAT ARE NOT agree-both: 27
+fix | C inline-open-closed-later gap=False span | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\nmore -->\n<span>\n## Old\n\n## Real\n'
+fix | C inline-open-closed-later gap=False close | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\nmore -->\n</span>\n## Old\n\n## Real\n'
+fix | C inline-open-closed-later gap=False custom | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\nmore -->\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C inline-open-blank-closed gap=False span | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\n\nmore -->\n<span>\n## Old\n\n## Real\n'
+fix | C inline-open-blank-closed gap=False close | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\n\nmore -->\n</span>\n## Old\n\n## Real\n'
+fix | C inline-open-blank-closed gap=False custom | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text <!-- c\n\nmore -->\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C indented4-in-para gap=False span | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n'
+fix | C indented4-in-para gap=False close | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text\n    <!-- c\n-->\n</span>\n## Old\n\n## Real\n'
+fix | C indented4-in-para gap=False custom | gh= ['Old', 'Real'] base= ['Real'] head= ['Old', 'Real'] | 'text\n    <!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C type3 gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x ?>\n<span>\n## Old\n\n## Real\n'
+fix | C type3 gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x ?>\n</span>\n## Old\n\n## Real\n'
+fix | C type3 gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x ?>\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C type3-multi gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x\ny ?>\n<span>\n## Old\n\n## Real\n'
+fix | C type3-multi gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x\ny ?>\n</span>\n## Old\n\n## Real\n'
+fix | C type3-multi gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<?x\ny ?>\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C type4 gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<!X y>\n<span>\n## Old\n\n## Real\n'
+fix | C type4 gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<!X y>\n</span>\n## Old\n\n## Real\n'
+fix | C type4 gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<!X y>\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C cdata gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<![CDATA[ x ]]>\n<span>\n## Old\n\n## Real\n'
+fix | C cdata gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<![CDATA[ x ]]>\n</span>\n## Old\n\n## Real\n'
+fix | C cdata gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | '<![CDATA[ x ]]>\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C para-then-type3 gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<?x ?>\n<span>\n## Old\n\n## Real\n'
+fix | C para-then-type3 gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<?x ?>\n</span>\n## Old\n\n## Real\n'
+fix | C para-then-type3 gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<?x ?>\n<custom-tag>\n## Old\n\n## Real\n'
+fix | C para-then-cdata-multi gap=False span | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<![CDATA[\nx ]]>\n<span>\n## Old\n\n## Real\n'
+fix | C para-then-cdata-multi gap=False close | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<![CDATA[\nx ]]>\n</span>\n## Old\n\n## Real\n'
+fix | C para-then-cdata-multi gap=False custom | gh= ['Real'] base= ['Old', 'Real'] head= ['Real'] | 'text\n<![CDATA[\nx ]]>\n<custom-tag>\n## Old\n\n## Real\n'
