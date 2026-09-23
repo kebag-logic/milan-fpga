@@ -1,0 +1,23 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3522,8 +3522,7 @@
+   //! row, and the guard keeps the neighbouring index from answering for it.
+   localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
+   wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+-                && (ctrq_type_r == DESC_STREAM_INPUT_C)
+-                && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
++                && (ctrq_type_r == DESC_STREAM_INPUT_C);
+   logic [31:0] ctr_crf_blk_w;
+   always_comb begin : ctr_crf_block
+     unique case (ctrq_word_r)
+@@ -3544,8 +3543,8 @@
+ 
+   //! Everything else, including ENTITY and out-of-range indices, answers zero data
+   //! AND an empty mask on the same term, so the two can never disagree.
+-  assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+-                       : ctr_crf_w ? ctr_crf_blk_w
++  assign ctr_ans_raw_w = ctr_crf_w ? ctr_crf_blk_w
++                       : ctr_sin_w ? ctr_blk_w
+                        : ctr_sout_w ? ctr_sout_blk_w
+                        : ctr_avb_w ? ctr_avb_blk_w
+                        : ctr_ckd_w ? ctr_ckd_blk_w

@@ -1,0 +1,22 @@
+full_log=vd-to-idx0.notify.log
+full_log_sha256=da73ee803e251d3aafaf79856f7d64e4a4c0ee6eef3f2ab432b576b02fb13244
+full_log_lines=165
+1: leg=notify
+2: datapath_sha256=37a2f41989f2de17ced630a65766b8b21c201e02e3d4a242451fe6da920f6aa5
+3: harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+4: crf_rx_sha256=747f6f36e68ce204e4d86a3691e3cedb59a7156d17c3cfd6bf01d181f40921e5
+5: build_exit=0 build_s=55
+101:   [FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1
+102:   [FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1
+103:   [FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1
+104:   [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+105:   [FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1
+106:   [FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1
+107:   [FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2
+108:   [i]    CRF row pushes to B -1 ms apart
+109:   [FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1
+110:   [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x0 exp=0x2
+111:   [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x0 exp=0x2
+162: checks: 145   failures: 10
+163: RESULT: FAIL
+165: run_exit=1 run_s=18

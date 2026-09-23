@@ -1,0 +1,14 @@
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index c1d49f22..c6946a5d 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -3606,8 +3606,7 @@ class NxnDatapathHarness {
+         //! unlock, its tally and every wire after it are the engine's.
+         static constexpr uint32_t kCrfSilenceCyc = 10000000;  // CLK_FREQ_HZ_P / 10
+         static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
+-        dut->rootp->milan_datapath__DOT__crf_rx__DOT__tout_r = kCrfSilenceCyc - kFabricMsCyc;
+-        for (uint32_t c = 0; c < kFabricMsCyc + kFabricMsCyc / 10; c++) step();
++        for (uint32_t c = 0; c < kCrfSilenceCyc + kFabricMsCyc / 10; c++) step();
+         ck("[CTRS-CRF] events: the silence's last millisecond unlocks the sink",
+            axi_read(A_CRF_CTRL_L) >> 31, 0);
+         const std::vector<uint8_t> r2 = crf_ctrs(0x4407);

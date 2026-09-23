@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3347,7 +3347,7 @@
+   end
+ 
+   wire ctr_sin_w = (ctrq_type_r == DESC_STREAM_INPUT_C)
+-                && (ctrq_index_r < 16'(N_STREAMS));
++                && (ctrq_index_r <= 16'(N_STREAMS));
+ 
+   assign aecp_diag_idx_w = ctr_sin_w ? ctrq_index_r[3:0] : 4'd0;
+ 

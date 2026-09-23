@@ -1,0 +1,14 @@
+# simulator identity
+wrapper: <pinned-simulator-wrapper>
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  <pinned-simulator-wrapper>
+--- wrapper text
+#!/bin/sh
+exec env VERILATOR_ROOT=<pinned-image-root>/usr/share/verilator <pinned-image-root>/usr/bin/verilator "$@"
+
+--- --version
+Verilator 5.050 2026-07-01 rev v5.050
+--- underlying binaries
+-rwxr-xr-x 1 user group    32093 Jul  2 08:43 <pinned-image-root>/usr/bin/verilator
+-rwxr-xr-x 1 user group 12906200 Jul  2 08:43 <pinned-image-root>/usr/bin/verilator_bin
+fb2cc573b1055cf096c90e1efc9966fe56bdb4b265c83590cf2a49f7a0defcdf  <pinned-image-root>/usr/bin/verilator
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  <pinned-image-root>/usr/bin/verilator_bin

@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7243,7 +7243,7 @@
+         end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+           pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+           pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
+-        end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
++        end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+           pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
+         end else begin
+           pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;

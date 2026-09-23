@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3529,7 +3529,7 @@
+     unique case (ctrq_word_r)
+       6'd0    : ctr_crf_blk_w = crf_lockcnt_w;   // @0   MEDIA_LOCKED
+       6'd1    : ctr_crf_blk_w = crf_unlockcnt_w; // @4   MEDIA_UNLOCKED
+-      6'd2    : ctr_crf_blk_w = crf_intrcnt_w;   // @8   STREAM_INTERRUPTED
++      6'd2    : ctr_crf_blk_w = {16'd0, crf_intrcnt_w[15:0]};   // @8   STREAM_INTERRUPTED
+       6'd3    : ctr_crf_blk_w = crf_seqerr_w;    // @12  SEQ_NUM_MISMATCH
+       6'd4    : ctr_crf_blk_w = crf_mrcnt_w;     // @16  MEDIA_RESET
+       6'd5    : ctr_crf_blk_w = crf_tucnt_w;     // @20  TIMESTAMP_UNCERTAIN

@@ -1,0 +1,83 @@
+full_log=vx-cnt_locked-cnt_intr.nxn8.log
+full_log_sha256=797e03c4f60b06225c6ccf60958d7e536e6e06f7eb6d8820fa17dc671195b1d3
+full_log_lines=3181
+1: leg=nxn8
+2: datapath_sha256=502a4a50c6c0b446767b6fad6e033b0100096ee51b1aa7e2909efbdb5761dc5d
+3: harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+4: crf_rx_sha256=747f6f36e68ce204e4d86a3691e3cedb59a7156d17c3cfd6bf01d181f40921e5
+5: build_exit=0 build_s=71
+2292:   [ok]   [CTRS-CRF] descriptor image declares STREAM_INPUT N, not N + 1 = 0x1
+2293:   [ok]   [CTRS-CRF] GET_COUNTERS(STREAM_INPUT, N) status SUCCESS = 0x0
+2294:   [ok]   [CTRS-CRF] cdl = 12 + 136                      = 0x94
+2295:   [ok]   [CTRS-CRF] the frame is as long as it claims   = 0xae
+2296:   [ok]   [CTRS-CRF] descriptor_type echoed              = 0x5
+2297:   [ok]   [CTRS-CRF] descriptor_index echoed             = 0x8
+2298:   [ok]   [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) = 0xf3f
+2299:   [ok]   [CTRS-CRF] from reset: @0 MEDIA_LOCKED         = 0x0
+2300:   [ok]   [CTRS-CRF] from reset: @4 MEDIA_UNLOCKED       = 0x0
+2301:   [ok]   [CTRS-CRF] from reset: @8 STREAM_INTERRUPTED   = 0x0
+2302:   [ok]   [CTRS-CRF] from reset: @12 SEQ_NUM_MISMATCH    = 0x0
+2303:   [ok]   [CTRS-CRF] from reset: @16 MEDIA_RESET         = 0x0
+2304:   [ok]   [CTRS-CRF] from reset: @20 TIMESTAMP_UNCERTAIN = 0x0
+2305:   [ok]   [CTRS-CRF] from reset: @32 UNSUPPORTED_FORMAT  = 0x0
+2306:   [ok]   [CTRS-CRF] from reset: @36 LATE_TIMESTAMP      = 0x0
+2307:   [ok]   [CTRS-CRF] from reset: @40 EARLY_TIMESTAMP     = 0x0
+2308:   [ok]   [CTRS-CRF] from reset: @44 FRAMES_RX           = 0x0
+2309:   [ok]   [CTRS-CRF] from reset: unclaimed @24/@28/@48.. zero = 0x0
+2310:   [ok]   [CTRS-CRF] signatures: counters_valid still 0xF3F = 0xf3f
+2311:   [ok]   [CTRS-CRF] signatures: @0 MEDIA_LOCKED         = 0xa5010101
+2312:   [ok]   [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       = 0xa5020202
+2313:   [ok]   [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   = 0xa5030303
+2314:   [ok]   [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH    = 0xa5040404
+2315:   [ok]   [CTRS-CRF] signatures: @16 MEDIA_RESET         = 0xa5050505
+2316:   [ok]   [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN = 0xa5060606
+2317:   [ok]   [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT  = 0xa5090909
+2318:   [ok]   [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      = 0xa50a0a0a
+2319:   [ok]   [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     = 0xa50b0b0b
+2320:   [ok]   [CTRS-CRF] signatures: @44 FRAMES_RX           = 0xa50c0c0c
+2321:   [ok]   [CTRS-CRF] signatures: unclaimed @24/@28/@48.. zero = 0x0
+2322:   [ok]   [CTRS-CRF] CRF_STATUS reads the same pdu/fmt/seq flops = 0xc0c0904
+2323:   [ok]   [CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet = 0x1
+2324:   [ok]   [CTRS-CRF] index N + 1 refuses NO_SUCH_DESCRIPTOR = 0x2
+2325:   [ok]   [CTRS-CRF] ...with the empty mask and a zero block, not the CRF bank = 0x1
+2326:   [ok]   [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only = 0x100
+2327:   [ok]   [CTRS-CRF] after the bind edge: counters_valid still 0xF3F = 0xf3f
+2328:   [ok]   [CTRS-CRF] after the bind edge: @0 MEDIA_LOCKED = 0x0
+2329:   [ok]   [CTRS-CRF] after the bind edge: @4 MEDIA_UNLOCKED = 0x0
+2330:   [ok]   [CTRS-CRF] after the bind edge: @8 STREAM_INTERRUPTED = 0x0
+2331:   [ok]   [CTRS-CRF] after the bind edge: @12 SEQ_NUM_MISMATCH = 0x0
+2332:   [ok]   [CTRS-CRF] after the bind edge: @16 MEDIA_RESET = 0x0
+2333:   [ok]   [CTRS-CRF] after the bind edge: @20 TIMESTAMP_UNCERTAIN = 0x0
+2334:   [ok]   [CTRS-CRF] after the bind edge: @32 UNSUPPORTED_FORMAT = 0x0
+2335:   [ok]   [CTRS-CRF] after the bind edge: @36 LATE_TIMESTAMP = 0x0
+2336:   [ok]   [CTRS-CRF] after the bind edge: @40 EARLY_TIMESTAMP = 0x0
+2337:   [ok]   [CTRS-CRF] after the bind edge: @44 FRAMES_RX  = 0x0
+2338:   [ok]   [CTRS-CRF] after the bind edge: unclaimed @24/@28/@48.. zero = 0x0
+2339:   [ok]   [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF = 0xffffffff
+2340:   [ok]   [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF = 0xffffffff
+2341:   [ok]   [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 = 0x0
+2342:   [ok]   [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move = 0xffffffff
+2343:   [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+2344:   [ok]   [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once = 0x1
+2345:   [ok]   [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero = 0x1
+2346:   [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x3 exp=0x1
+2347:   [ok]   [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) = 0x0
+2348:   [ok]   [CTRS-CRF] events: ...and CRF_CTRL[31] reads the sink locked = 0x1
+2349:   [ok]   [CTRS-CRF] events: the silence's last millisecond unlocks the sink = 0x0
+2350:   [ok]   [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 = 0x1
+2351:   [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x3 exp=0x1
+2352:   [ok]   [CTRS-CRF] events: counters_valid still 0xF3F  = 0xf3f
+2353:   [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x3 exp=0x2
+2354:   [ok]   [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  = 0x1
+2355:   [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x2 exp=0x3
+2356:   [ok]   [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH = 0x4
+2357:   [ok]   [CTRS-CRF] events, all ten: @16 MEDIA_RESET    = 0x5
+2358:   [ok]   [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN = 0x6
+2359:   [ok]   [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT = 0x7
+2360:   [ok]   [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP = 0x8
+2361:   [ok]   [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP = 0x9
+2362:   [ok]   [CTRS-CRF] events, all ten: @44 FRAMES_RX      = 0x15
+2363:   [ok]   [CTRS-CRF] events, all ten: unclaimed @24/@28/@48.. zero = 0x0
+3178: checks: 3133   failures: 5
+3179: RESULT: FAIL
+3181: run_exit=1 run_s=12

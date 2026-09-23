@@ -1,0 +1,68 @@
+vx-pdu_count-fmt_err	exchange	instance: pdu_count_o and fmt_err_o exchange their root wires
+vx-pdu_count-seq_err	exchange	instance: pdu_count_o and seq_err_o exchange their root wires
+vx-pdu_count-mr_cnt	exchange	instance: pdu_count_o and mr_cnt_o exchange their root wires
+vx-pdu_count-tu_cnt	exchange	instance: pdu_count_o and tu_cnt_o exchange their root wires
+vx-pdu_count-late_cnt	exchange	instance: pdu_count_o and late_cnt_o exchange their root wires
+vx-pdu_count-early_cnt	exchange	instance: pdu_count_o and early_cnt_o exchange their root wires
+vx-pdu_count-cnt_locked	exchange	instance: pdu_count_o and cnt_locked_o exchange their root wires
+vx-pdu_count-cnt_unlocked	exchange	instance: pdu_count_o and cnt_unlocked_o exchange their root wires
+vx-pdu_count-cnt_intr	exchange	instance: pdu_count_o and cnt_intr_o exchange their root wires
+vx-fmt_err-seq_err	exchange	instance: fmt_err_o and seq_err_o exchange their root wires
+vx-fmt_err-mr_cnt	exchange	instance: fmt_err_o and mr_cnt_o exchange their root wires
+vx-fmt_err-tu_cnt	exchange	instance: fmt_err_o and tu_cnt_o exchange their root wires
+vx-fmt_err-late_cnt	exchange	instance: fmt_err_o and late_cnt_o exchange their root wires
+vx-fmt_err-early_cnt	exchange	instance: fmt_err_o and early_cnt_o exchange their root wires
+vx-fmt_err-cnt_locked	exchange	instance: fmt_err_o and cnt_locked_o exchange their root wires
+vx-fmt_err-cnt_unlocked	exchange	instance: fmt_err_o and cnt_unlocked_o exchange their root wires
+vx-fmt_err-cnt_intr	exchange	instance: fmt_err_o and cnt_intr_o exchange their root wires
+vx-seq_err-mr_cnt	exchange	instance: seq_err_o and mr_cnt_o exchange their root wires
+vx-seq_err-tu_cnt	exchange	instance: seq_err_o and tu_cnt_o exchange their root wires
+vx-seq_err-late_cnt	exchange	instance: seq_err_o and late_cnt_o exchange their root wires
+vx-seq_err-early_cnt	exchange	instance: seq_err_o and early_cnt_o exchange their root wires
+vx-seq_err-cnt_locked	exchange	instance: seq_err_o and cnt_locked_o exchange their root wires
+vx-seq_err-cnt_unlocked	exchange	instance: seq_err_o and cnt_unlocked_o exchange their root wires
+vx-seq_err-cnt_intr	exchange	instance: seq_err_o and cnt_intr_o exchange their root wires
+vx-mr_cnt-tu_cnt	exchange	instance: mr_cnt_o and tu_cnt_o exchange their root wires
+vx-mr_cnt-late_cnt	exchange	instance: mr_cnt_o and late_cnt_o exchange their root wires
+vx-mr_cnt-early_cnt	exchange	instance: mr_cnt_o and early_cnt_o exchange their root wires
+vx-mr_cnt-cnt_locked	exchange	instance: mr_cnt_o and cnt_locked_o exchange their root wires
+vx-mr_cnt-cnt_unlocked	exchange	instance: mr_cnt_o and cnt_unlocked_o exchange their root wires
+vx-mr_cnt-cnt_intr	exchange	instance: mr_cnt_o and cnt_intr_o exchange their root wires
+vx-tu_cnt-late_cnt	exchange	instance: tu_cnt_o and late_cnt_o exchange their root wires
+vx-tu_cnt-early_cnt	exchange	instance: tu_cnt_o and early_cnt_o exchange their root wires
+vx-tu_cnt-cnt_locked	exchange	instance: tu_cnt_o and cnt_locked_o exchange their root wires
+vx-tu_cnt-cnt_unlocked	exchange	instance: tu_cnt_o and cnt_unlocked_o exchange their root wires
+vx-tu_cnt-cnt_intr	exchange	instance: tu_cnt_o and cnt_intr_o exchange their root wires
+vx-late_cnt-early_cnt	exchange	instance: late_cnt_o and early_cnt_o exchange their root wires
+vx-late_cnt-cnt_locked	exchange	instance: late_cnt_o and cnt_locked_o exchange their root wires
+vx-late_cnt-cnt_unlocked	exchange	instance: late_cnt_o and cnt_unlocked_o exchange their root wires
+vx-late_cnt-cnt_intr	exchange	instance: late_cnt_o and cnt_intr_o exchange their root wires
+vx-early_cnt-cnt_locked	exchange	instance: early_cnt_o and cnt_locked_o exchange their root wires
+vx-early_cnt-cnt_unlocked	exchange	instance: early_cnt_o and cnt_unlocked_o exchange their root wires
+vx-early_cnt-cnt_intr	exchange	instance: early_cnt_o and cnt_intr_o exchange their root wires
+vx-cnt_locked-cnt_unlocked	exchange	instance: cnt_locked_o and cnt_unlocked_o exchange their root wires
+vx-cnt_locked-cnt_intr	exchange	instance: cnt_locked_o and cnt_intr_o exchange their root wires
+vx-cnt_unlocked-cnt_intr	exchange	instance: cnt_unlocked_o and cnt_intr_o exchange their root wires
+vr3-mr-tu-late	rotation	instance: mr->tu wire, tu->late wire, late->mr wire (3-cycle)
+vr10	rotation	instance: every output moved to the next wire (10-cycle)
+vg-lvl-q0	row	row: quadlet 0 serves the lock LEVEL, not the MEDIA_LOCKED tally
+vg-dup-q1	row	row: quadlet 1 serves MEDIA_LOCKED again
+vg-q9-q10	row	row: LATE and EARLY quadlets exchanged
+vg-slice-q2	row	row: STREAM_INTERRUPTED served through a 16-bit slice
+vg-mask-3f	row	row: mask 0x03F (drops UF/LT/ET/FRX claims)
+vg-mask-fff	row	row: mask 0xFFF (claims the untallied tv pair)
+vg-idx-plus1	guard	guard: the CRF row answers at N_STREAMS + 1
+vg-no-type	guard	guard: the CRF row ignores descriptor_type (answers any type at index N)
+vg-sin-le	guard	guard: the AAF row answers index N_STREAMS too
+vg-ctl-marked	control	control: the visibility marking alone (must stay green)
+vg-row-removed	row	row: the CRF arm removed from the answer mux (marked)
+vg-q2-zero	row	row: STREAM_INTERRUPTED quadlet tied to zero, one tally unwired (marked)
+vg-crf-first-noidx	guard	guard: the CRF arm, without its index term, ahead of the AAF arm
+vd-nodirty	arbiter	arbiter: the CRF dirty pulse dropped
+vd-to-idx0	arbiter	arbiter: the CRF dirty pulse delivered as STREAM_INPUT 0
+vd-clear-stuck	arbiter	arbiter: the CRF row's pending bit never clears
+vd-sout-off	arbiter	arbiter: STREAM_OUTPUT index still offset by N_STREAMS (pre-#529 formula)
+vd-avb-pick	arbiter	arbiter: AVB_INTERFACE selected at the pre-#529 position
+vd-rr-sout	arbiter	arbiter: round-robin resume after a STREAM_OUTPUT uses N_STREAMS
+ve-also-ckd	extra-tuple	arbiter: the CRF dirty pulse also raises CLOCK_DOMAIN 0
+ve-also-sout	extra-tuple	arbiter: the CRF dirty pulse also raises STREAM_OUTPUT N_STREAMS

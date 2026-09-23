@@ -1,0 +1,14 @@
+symbol | Table 5.16/7-156 bit# | bit value | Table 7-157 offset | quadlet | head row source
+MEDIA_LOCKED | 31 | 0x00000001 | 0 | 0 | crf_lockcnt_w
+MEDIA_UNLOCKED | 30 | 0x00000002 | 4 | 1 | crf_unlockcnt_w
+STREAM_INTERRUPTED | 29 | 0x00000004 | 8 | 2 | crf_intrcnt_w
+SEQ_NUM_MISMATCH | 28 | 0x00000008 | 12 | 3 | crf_seqerr_w
+MEDIA_RESET | 27 | 0x00000010 | 16 | 4 | crf_mrcnt_w
+TIMESTAMP_UNCERTAIN | 26 | 0x00000020 | 20 | 5 | crf_tucnt_w
+UNSUPPORTED_FORMAT | 23 | 0x00000100 | 32 | 8 | crf_fmterr_w
+LATE_TIMESTAMP | 22 | 0x00000200 | 36 | 9 | crf_latecnt_w
+EARLY_TIMESTAMP | 21 | 0x00000400 | 40 | 10 | crf_earlycnt_w
+FRAMES_RX | 20 | 0x00000800 | 44 | 11 | crf_pducnt_w
+sum of Table 5.16 bit values = 0x00000F3F; head CTR_VALID_CRF_C = 0x00000F3F; equal = True
+unclaimed by Milan Table 5.16: TIMESTAMP_VALID (bit 25, offset 24) and TIMESTAMP_NOT_VALID (bit 24, offset 28)
+Milan v1.2 5.3.8.10: 32-bit unsigned, wraps to zero; reset to zero on not-bound -> bound; not reset on bound -> not bound

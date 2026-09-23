@@ -1,0 +1,17 @@
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index c1d49f22..d49d1b47 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -3467,9 +3467,12 @@ class NxnDatapathHarness {
+     //! reach the Table 5.22 arbiter as {STREAM_INPUT, N} and as nothing else.
+     void prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit() {
+         pp_ctr_evt_sin_seen = 0;
++        pp_ctr_evt_sout_seen = 0; pp_ctr_evt_avb_seen = false; pp_ctr_evt_ckd_seen = false;
+         crf_lever(true);
+         ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+            pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
++        ck("[PROBE] ...and as no STREAM_OUTPUT, AVB_INTERFACE or CLOCK_DOMAIN tuple",
++           static_cast<long>(pp_ctr_evt_sout_seen != 0 || pp_ctr_evt_avb_seen || pp_ctr_evt_ckd_seen), 0);
+         const std::vector<uint8_t> r = crf_ctrs(0x4402);
+         ck("[CTRS-CRF] after the bind edge: counters_valid still 0xF3F",
+            ctr_word(r, 32), CRF_CTR_MASK);

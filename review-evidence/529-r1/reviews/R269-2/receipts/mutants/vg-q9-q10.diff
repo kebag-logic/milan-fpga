@@ -1,0 +1,13 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3534,8 +3534,8 @@
+       6'd4    : ctr_crf_blk_w = crf_mrcnt_w;     // @16  MEDIA_RESET
+       6'd5    : ctr_crf_blk_w = crf_tucnt_w;     // @20  TIMESTAMP_UNCERTAIN
+       6'd8    : ctr_crf_blk_w = crf_fmterr_w;    // @32  UNSUPPORTED_FORMAT
+-      6'd9    : ctr_crf_blk_w = crf_latecnt_w;   // @36  LATE_TIMESTAMP
+-      6'd10   : ctr_crf_blk_w = crf_earlycnt_w;  // @40  EARLY_TIMESTAMP
++      6'd9    : ctr_crf_blk_w = crf_earlycnt_w;   // @36  LATE_TIMESTAMP
++      6'd10   : ctr_crf_blk_w = crf_latecnt_w;  // @40  EARLY_TIMESTAMP
+       6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+       6'd32   : ctr_crf_blk_w = CTR_VALID_CRF_C; //      counters_valid
+       default : ctr_crf_blk_w = 32'd0;  // @24/@28 unclaimed, @48.. reserved
