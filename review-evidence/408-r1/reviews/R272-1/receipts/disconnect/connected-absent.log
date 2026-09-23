@@ -1,0 +1,44 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what the token-joining splice ban, the ## paste ban, the directory pin and the ordered pointer-cast, pointer-store and inline-asm sets used to refuse, and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives, the per-selection grading of each conditional included (its text half), and the hosted builder jobs require this compiler
+ACCEPTED pin_ok=False: [retired] entity enabled through a phase-2-spliced call name
+ACCEPTED pin_ok=False: [retired] entity enabled through a space phase-2 token splice
+ACCEPTED pin_ok=False: [retired] entity enabled through a tab phase-2 token splice
+ACCEPTED pin_ok=False: [retired] entity enabled through a form-feed phase-2 token splice
+ACCEPTED pin_ok=False: [retired] entity enabled through a vertical-tab phase-2 token splice
+ACCEPTED pin_ok=False: [retired] entity enabled through a spliced call name in a UART command handler
+ACCEPTED pin_ok=False: [retired] PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins
+ACCEPTED pin_ok=False: [retired] entity enabled through a pasted call name
+ACCEPTED pin_ok=False: [retired] entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] a pasted call name in an arm the stub tree drops
+ACCEPTED pin_ok=False: [retired] a spliced call name in an arm the stub tree drops
+ACCEPTED pin_ok=False: [retired] a spliced call name in an arm only the product compiles
+ACCEPTED pin_ok=False: [retired] a spliced call name onto a literal address in a dropped arm
+ACCEPTED pin_ok=False: [retired] a struct-overlay store at the ADP_CTRL address in a dropped arm
+ACCEPTED pin_ok=False: [retired] the verifier's QSPI-slot condition made false in the census stub tree
+ACCEPTED pin_ok=False: [retired] an arm only the product compiles, short-circuiting the choke point's verdict test
+ACCEPTED pin_ok=False: [retired] entity enabled by an inline-asm store to the CSR address
+ACCEPTED pin_ok=False: [retired] entity enabled by a lui-based inline-asm store
+ACCEPTED pin_ok=False: [retired] entity enabled through a widened pointer cast
+ACCEPTED pin_ok=False: [retired] entity enabled through a reordered pointer cast
+ACCEPTED pin_ok=False: [retired] entity enabled through a pointer held in a local
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] pinned include shadowed by a file beside the firmware
+ACCEPTED pin_ok=False: [retired] the second pinned quoted include shadowed by a file beside the firmware
+ACCEPTED pin_ok=False: [retired] pinned include shadowed by a LINK beside the firmware to a file outside this repository
+REFUSED pin_ok=True: [selection] AEM guard selected by a build flag
+    under the arm selection line 1455 `#ifdef MILAN_DEV_ALWAYS_ADVERTISE`: arm 1 of 2 taken, one of the firmwares the product may build: firmware must configure, load AEM, then guard entity enable. NOTE, because this message has misdiagnosed a rename before: this gate finds the verdict by the literal id
+REFUSED pin_ok=True: [selection] pre-AEM clear behind a build flag
+    under the arm selection line 1366 `#ifdef MILAN_CLEAR_ENTITY_ON_BOOT`: no arm taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 must be cleared before the AEM image is verified
+REFUSED pin_ok=True: [selection] a dropped arm inside a CSR write's argument
+    under the arm selection line 1385 `#ifndef MILAN_CENSUS_SOC`: arm 1 of 1 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED pin_ok=True: [selection] CRC comparison itself put behind a build flag
+    under the arm selection line 1421 `#ifndef MILAN_SKIP_CRC`: no arm taken; line 1404 `#if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)`: arm 1 of 2 taken, one of the firmwares the product may build: firmware boot guard missing: CRC mismatch refusal
+REFUSED pin_ok=True: [selection] ADP_CTRL's name moved to another register by an arm only the product compiles
+    under the arm selection line 30 `#ifdef CSR_UART_BASE`: arm 1 of 2 taken, one of the firmwares the product may build: AEM-success guard must contain exactly one PP and one ADP enable
+REFUSED pin_ok=True: [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+    milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed
+REFUSED pin_ok=True: [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)
+    milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed
+PROBE DONE: 33 case(s), 0 firmware compiles
+exit=0

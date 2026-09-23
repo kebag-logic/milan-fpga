@@ -1,0 +1,30 @@
+{
+ "tree": "$REVIEWS/r272-1-408",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 74,
+ "results": [
+  {
+   "label": "identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "identity forged through a token-joining splice of the local's name",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "identity forged through a ## paste of the local's name",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1501 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

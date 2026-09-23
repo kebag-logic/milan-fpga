@@ -1,0 +1,72 @@
+{
+ "tree": "$REVIEWS/r272-1-408",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 94,
+ "results": [
+  {
+   "label": "control: shipping firmware",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1396 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally"
+  },
+  {
+   "label": "form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1501 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+  },
+  {
+   "label": "plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef CSR_UART_BASE`: arm 1 of 1 taken, one of the firmwares the product may build: the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from milan_status_handler(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: arm 1 of 2 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: arm 2 of 2 taken, one of the firmwares the product may build: ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

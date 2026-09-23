@@ -1,0 +1,21 @@
+{
+ "tree": "$REVIEWS/408-r272-1-packet/scratch/base-tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 70,
+ "results": [
+  {
+   "label": "a debug helper defined under #ifdef MILAN_DEBUG_TOD and called under a second #ifdef MILAN_DEBUG_TOD in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "control: the same debug printf in ONE #ifdef in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "a debug-only static counter declared under #ifdef and incremented under a second #ifdef of the same macro",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

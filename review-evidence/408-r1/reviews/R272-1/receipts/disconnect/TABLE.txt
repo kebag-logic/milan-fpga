@@ -1,0 +1,43 @@
+connected- connected-    sel-sdk sel-absent      e-sdk      h-sdk    res-sdk   eres-sdk  control
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a phase-2-spliced call name
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a space phase-2 token splice
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a tab phase-2 token splice
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a form-feed phase-2 token splice
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a vertical-tab phase-2 token splice
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a spliced call name in a UART command handler
+         P          A          P          A          P          P          A          A  [retired] PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins
+         P          A          P          A          O          P          P          A  [retired] entity enabled through a pasted call name
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+         P          A          O          A          O          P          P          A  [retired] a pasted call name in an arm the stub tree drops
+         P          A          O          A          O          P          P          A  [retired] a spliced call name in an arm the stub tree drops
+         P          A          O          A          O          P          P          A  [retired] a spliced call name in an arm only the product compiles
+         P          A          O          A          O          P          P          A  [retired] a spliced call name onto a literal address in a dropped arm
+         P          A          O          A          P          P          A          A  [retired] a struct-overlay store at the ADP_CTRL address in a dropped arm
+         P          A          P          A          P          P          A          A  [retired] the verifier's QSPI-slot condition made false in the census stub tree
+         P          A          A          A          P          P          A          A  [retired] an arm only the product compiles, short-circuiting the choke point's verdict test
+         P          A          P          A          P          P          A          A  [retired] entity enabled by an inline-asm store to the CSR address
+         P          A          P          A          P          P          A          A  [retired] entity enabled by a lui-based inline-asm store
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a widened pointer cast
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a reordered pointer cast
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a pointer held in a local
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+         P          A          P          A          P          A          P          P  [retired] pinned include shadowed by a file beside the firmware
+         P          A          P          A          P          A          P          P  [retired] the second pinned quoted include shadowed by a file beside the firmware
+         P          A          P          A          P          A          P          P  [retired] pinned include shadowed by a LINK beside the firmware to a file outside this repository
+         P          P          O          O          P          P          P          P  [selection] AEM guard selected by a build flag
+         P          P          O          A          P          P          P          P  [selection] pre-AEM clear behind a build flag
+         P          P          O          O          P          P          P          P  [selection] a dropped arm inside a CSR write's argument
+         P          P          O          O          P          P          P          P  [selection] CRC comparison itself put behind a build flag
+         P          P          O          O          P          P          P          P  [selection] ADP_CTRL's name moved to another register by an arm only the product compiles
+         P          P          P          P          P          P          P          P  [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+         P          P          P          P          P          P          P          P  [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)
+
+connected-sdk: 33 controls, P=33 O=0 A=0
+connected-absent: 33 controls, P=7 O=0 A=26
+sel-sdk: 33 controls, P=19 O=10 A=4
+sel-absent: 33 controls, P=2 O=4 A=27
+e-sdk: 33 controls, P=23 O=10 A=0
+h-sdk: 33 controls, P=30 O=0 A=3
+res-sdk: 33 controls, P=20 O=0 A=13
+eres-sdk: 33 controls, P=10 O=0 A=23
