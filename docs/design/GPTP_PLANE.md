@@ -361,6 +361,7 @@ It cites REQ-PTP-06's constants and the single cabled port.
 | Can a configuration set it? | No. The builder refuses every `gptp` key it does not know (`_known_gp`). | [`endstation_builder.py`](../../sw/builder/endstation_builder.py) |
 | Does the engine take it? | No. The pinned gPTP processor has no asymmetry input. | Outside its historic prototype pages the pinned tree never names it ([donor issue 58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58)) |
 | What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
+| Is the donor's latch compensation adopted? | No. Its ingress/egress latch correction would apply the same pair a second time. | REQ-PTP-06: no correction can be applied twice |
 | What fixes a one-way split error? | Re-measured constants (#64, #488). Never a second asymmetry term. | REQ-PTP-06 names one owner |
 | Is live tuning allowed? | No. The donor's UART Y/I/E tuner stays donor-bench-only. | REQ-PTP-06 constants; REQ-PTP-09 |
 | Does Milan ask for it? | No. Milan v1.2 never mentions asymmetry. | Milan v1.2 Section 4.2.6 defers to 802.1AS |
