@@ -896,18 +896,24 @@ evidence that closes it. Every `[CTRS-CRF]` check named here runs on the
    empty body at `N_STREAMS + 1`.
 3. *"Connect the CRF dirty source to the rate-limited Table 5.22
    scheduler."* `[CTRS-CRF]` sees the bind edge reach the descriptor arbiter
-   as {STREAM_INPUT, `N_STREAMS`} and as nothing else. On the timed
-   `obj_notify` leg, `[NOTIFY-CRF]` sees the push reach both registered
-   controllers, byte-identical from the body on to the solicited answer. A
-   second change is withheld until the one-second limit releases it, and the
-   next two seconds without a change bring no further push.
+   as {STREAM_INPUT, `N_STREAMS`} and as nothing else. The harness records
+   every tuple the arbiter hands over in that window, of any type and at any
+   index. No other STREAM_INPUT row, no STREAM_OUTPUT row (the CRF Media
+   Clock Output's at the same index included), neither AVB_INTERFACE 0 nor
+   CLOCK_DOMAIN 0, and no tuple of any other type or index may appear. On the
+   timed `obj_notify` leg, `[NOTIFY-CRF]` sees the push reach both registered
+   controllers, each copy byte-identical from the body on to the solicited
+   answer. A second change is withheld until the one-second limit releases
+   it, and the next two seconds without a change bring no further push.
 4. *"Add root-wire tests for reset, wrap, descriptor isolation, and
    controller decoding before treating the CRF input counter duty as
    closed."* The checks above cover each. Each of these wiring mutations
    turns at least one of them red: the row removed, two quadlets permuted, a
    16-bit slice, a claimed tv pair, the dirty source removed, the CRF row
    answering for the AAF inputs, the AAF guard answering for the CRF input,
-   one tally unwired, and the row's pending bit never cleared. Each of the 45
+   one tally unwired, the row's pending bit never cleared, and the CRF pulse
+   also raising the AAF inputs, STREAM_OUTPUT `N_STREAMS`, AVB_INTERFACE 0,
+   CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45
    pairwise exchanges of the ten `KL_crf_rx` output bindings at the instance
    turns both of its quadlets red on the 4x4 and 8x8 legs. Confirmation by a
    Milan controller on silicon follows the merge (#117).
