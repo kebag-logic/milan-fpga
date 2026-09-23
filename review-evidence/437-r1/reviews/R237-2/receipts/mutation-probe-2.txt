@@ -1,0 +1,32 @@
+KILLED  M11 strict column for the continuation: toc=1 emdash=2
+      FAIL [I437 R238 C01]
+      FAIL [I437 R238 C03]
+      FAIL [I437 R238 C04]
+      FAIL [I437 R238 C05]
+KILLED  M12 strict column for item membership: toc=1 emdash=2
+      FAIL [I437 two spaces]
+      FAIL [I437 star item]
+      FAIL [I437 ordered item]
+      FAIL [I437 two paragraphs]
+KILLED  M13 empty item keeps its padded column: toc=1 emdash=2
+      FAIL [I437 empty item ignores padding]
+    TOC selftest: FAIL (1090/1091 arm(s))
+KILLED  M14 prose openers do not update the rendered comment: toc=1 emdash=2
+      FAIL [I437 rendered closed by an inline comment]
+      FAIL [I437 rendered closed by a comment in a heading]
+    TOC selftest: FAIL (1089/1091 arm(s))
+KILLED  M15 a non-interrupting ordinal seeds an item: toc=1 emdash=2
+      FAIL [I437 thematic break is no item]
+      FAIL [I437 noninterrupting ordinal is no item]
+    TOC selftest: FAIL (1089/1091 arm(s))
+KILLED  M16 a blank ends every item: toc=1 emdash=2
+      FAIL [I437 two spaces]
+      FAIL [I437 three spaces]
+      FAIL [I437 star item]
+      FAIL [I437 ordered item]
+KILLED  M17 hidden prose also hides headings in fences only: toc=1 emdash=2
+      FAIL [I437 rendered #516 first tag column 0 open]
+      FAIL [I437 rendered #516 first tag column 0 close]
+      FAIL [I437 rendered #516 first tag column 0 attribute]
+      FAIL [I437 rendered #516 first tag column 1 open]
+restored gen_toc.py sha256 03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb; survivors 0

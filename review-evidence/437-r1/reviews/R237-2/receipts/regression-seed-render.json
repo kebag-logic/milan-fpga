@@ -1,0 +1,345 @@
+{
+ "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+ "base_gen_toc_sha256": "ffdd8207a438d9fbb79905dc61d25665bf8d216387d1ee0e66b8ca86ce9d6eb3",
+ "head": "4741498f3b2b4f67f431037d327c96cf65691278",
+ "head_gen_toc_sha256": "03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb",
+ "rows": [
+  {
+   "name": "nested quote, tag at column, fence swallowed, later real fence",
+   "page": "- item\n  > quote\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003e quote\\n  \\u003cspan\\u003e\\n  ```\\n\\ntext\\n\\n```\\n## Old\\n```\\n\\n## Real\\n\"}",
+   "request_sha256": "b0ba646a8f08bfcfcf978c2b3d565add5c18dfa9cfa2a7b82896c73e5cbae00b",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n```\n</span></li>\n</ul>\n<p dir=\"auto\">text</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "ce4784940cb67c003c92b476a8bd7b616bff2bb599351b1a007bd266c612d8c5",
+   "recorded_utc": "2026-09-23T06:28:25Z",
+   "rendered": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "ESCAPE lists [[2, 'Old']]; WITHHOLD omits [[2, 'Real']]"
+  },
+  {
+   "name": "nested quote, tag at column, fence swallowed",
+   "page": "- item\n  > quote\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003e quote\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "8782ccb43d95bed2a99b5c8c996e95654715baf393d37fc729eba515f28cedc7",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "30e7175f17643dd1200208d3ab929d90c4a310342636662803b31b2c38295872",
+   "recorded_utc": "2026-09-23T06:28:25Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "nested list, tag at column, fence swallowed",
+   "page": "- item\n  - nested\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  - nested\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "5c92b5b002a570d53cd7ecb181062cbb448af8f1a37ba9d35924b0d9938a1de7",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "a13d189e730b625c2285759417027fdb6a68f357c6e3cf0660a78f1430f88379",
+   "recorded_utc": "2026-09-23T06:28:26Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "nested list, tag at column, later real fence",
+   "page": "- item\n  - nested\n  <span>\n  ```\n\ntext\n\n```\n## Old\n```\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  - nested\\n  \\u003cspan\\u003e\\n  ```\\n\\ntext\\n\\n```\\n## Old\\n```\\n\\n## Real\\n\"}",
+   "request_sha256": "a85801493812b75d95a39b14a535da1e19848925defb5597a340757fc51f7eab",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<ul dir=\"auto\">\n<li>nested</li>\n</ul>\n<span>\n```\n</span></li>\n</ul>\n<p dir=\"auto\">text</p>\n<pre class=\"notranslate\"><code class=\"notranslate\">## Old\n</code></pre>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "444e1ac44511ae291e5b49fd9727dceee7881fd19671c7f5c5d88f549bd296fb",
+   "recorded_utc": "2026-09-23T06:28:26Z",
+   "rendered": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "ESCAPE lists [[2, 'Old']]; WITHHOLD omits [[2, 'Real']]"
+  },
+  {
+   "name": "quote-first item, tag at column, fence swallowed",
+   "page": "- > quote\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- \\u003e quote\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "95cd01a80e999c22a3331b5baa1851b01292d03ba1d5c71bd32a8695418cc810",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "7147dd64b6d7e3f652060c8d992fb1af9e12f7422b2a79cde1132f10df1f2927",
+   "recorded_utc": "2026-09-23T06:28:27Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "heading-first item, tag at column, fence swallowed",
+   "page": "- # Head\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- # Head\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "aa40c043ee167ee5058fc7b04c303c763c78b94c1d3c36973a3eca1c206bca3c",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<h1 dir=\"auto\">Head</h1>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "7fc93e0a970db31af0493e06d358e98705748fa1357af90ce4698f4473c3a0dc",
+   "recorded_utc": "2026-09-23T06:28:27Z",
+   "rendered": [
+    [
+     1,
+     "Head"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "both-disagree-differently",
+   "base_direction": "WITHHOLD omits [[1, 'Head']]",
+   "head_direction": "WITHHOLD omits [[1, 'Head'], [2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "resumed quote in item, tag at column, fence swallowed",
+   "page": "- item\n\n  > quote\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003e quote\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "ef7e3ed517d68601a66a4b4c29b299a251faf2da1e4e2a47d915423418d6a453",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "071d375eaa4ed29669fabf2d0594d4744911ccccd0119b23af6092d9f5c83261",
+   "recorded_utc": "2026-09-23T06:28:27Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "nested quote, tag at column, pre swallowed",
+   "page": "- item\n  > quote\n  <span>\n  <pre>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003e quote\\n  \\u003cspan\\u003e\\n  \\u003cpre\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "2cd73c76ab03c9d2c6ee20ae7d7fdcb39752802e73caa436bccdfe9022ae983d",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n<pre class=\"notranslate\"></pre></span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "1fd87a8463abb340f8b03f8deb9e70b35211f156a25070175b694bfd27ae5bcf",
+   "recorded_utc": "2026-09-23T06:28:28Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "setext dash in item, tag at column, fence swallowed",
+   "page": "- item\n\n  text\n  -\n  <span>\n  ```\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  text\\n  -\\n  \\u003cspan\\u003e\\n  ```\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "bc0bcb6dea8eb82c6011d92c2b27c95d389a7cbe8838ca12e696ef09854012bc",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">text</h2>\n<span>\n```\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "a251ee0e785b8631b4fa762d4620ff4eb45bb19692faf9c3172d133044d66897",
+   "recorded_utc": "2026-09-23T06:28:28Z",
+   "rendered": [
+    [
+     2,
+     "text"
+    ],
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "both-disagree-differently",
+   "base_direction": "WITHHOLD omits [[2, 'text']]",
+   "head_direction": "WITHHOLD omits [[2, 'text'], [2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "control: nested quote, tag at column, no block",
+   "page": "- item\n  > quote\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n  \\u003e quote\\n  \\u003cspan\\u003e\\n## Old\\n  \\u003c/span\\u003e\\n\\n## Real\\n\"}",
+   "request_sha256": "1ac737003faab8a3b61221293d3bd100a5ba5fe401d25d5ae58a7cefc0673eb7",
+   "response_bytes": "<ul dir=\"auto\">\n<li>item\n<blockquote>\n<p dir=\"auto\">quote</p>\n</blockquote>\n<span>\n</span></li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n  \n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "ec764e40e0d849dfcfb84f19ed3c4bbaacc4afb05f7bf7eba3e8076da92ea2f4",
+   "recorded_utc": "2026-09-23T06:28:29Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "fix",
+   "base_direction": "WITHHOLD omits [[2, 'Old']]",
+   "head_direction": ""
+  }
+ ]
+}

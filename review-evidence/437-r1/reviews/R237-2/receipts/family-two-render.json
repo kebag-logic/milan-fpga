@@ -1,0 +1,108 @@
+{
+ "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+ "base_gen_toc_sha256": "ffdd8207a438d9fbb79905dc61d25665bf8d216387d1ee0e66b8ca86ce9d6eb3",
+ "head": "4741498f3b2b4f67f431037d327c96cf65691278",
+ "head_gen_toc_sha256": "03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb",
+ "rows": [
+  {
+   "name": "family two: equals setext",
+   "page": "Alpha\n===\n",
+   "base_walk": [],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"Alpha\\n===\\n\"}",
+   "request_sha256": "13eb3702950453b66a6c0a42d4dcec89025ca74cc4eb39ba30ad14577a55a7f9",
+   "response_bytes": "<h1 dir=\"auto\">Alpha</h1>",
+   "response_sha256": "76bad60cdcc9e1197d34585519f95936cbcbdf2d9731b7015891d2b9121dacc0",
+   "recorded_utc": "2026-09-23T06:37:09Z",
+   "rendered": [
+    [
+     1,
+     "Alpha"
+    ]
+   ],
+   "class": "both-disagree-same",
+   "base_direction": "WITHHOLD omits [[1, 'Alpha']]",
+   "head_direction": "WITHHOLD omits [[1, 'Alpha']]"
+  },
+  {
+   "name": "family two: hyphen setext",
+   "page": "text\n---\n",
+   "base_walk": [],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n---\\n\"}",
+   "request_sha256": "8971dc90619a1967d10fc069aa12ceea3faacaa752fb5dc0022853b059db5718",
+   "response_bytes": "<h2 dir=\"auto\">text</h2>",
+   "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+   "recorded_utc": "2026-09-23T06:37:09Z",
+   "rendered": [
+    [
+     2,
+     "text"
+    ]
+   ],
+   "class": "both-disagree-same",
+   "base_direction": "WITHHOLD omits [[2, 'text']]",
+   "head_direction": "WITHHOLD omits [[2, 'text']]"
+  },
+  {
+   "name": "family two: single hyphen setext",
+   "page": "text\n-\n",
+   "base_walk": [],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text\\n-\\n\"}",
+   "request_sha256": "2ee344008d66c3cfd2a660a86ef933f5b3e960bcc58795511c9d27377f72b397",
+   "response_bytes": "<h2 dir=\"auto\">text</h2>",
+   "response_sha256": "003e22a60742bd737b98e20c4f1fbefb7cce3d8a1118d622f5d43d8e0a651655",
+   "recorded_utc": "2026-09-23T06:37:09Z",
+   "rendered": [
+    [
+     2,
+     "text"
+    ]
+   ],
+   "class": "both-disagree-same",
+   "base_direction": "WITHHOLD omits [[2, 'text']]",
+   "head_direction": "WITHHOLD omits [[2, 'text']]"
+  },
+  {
+   "name": "family two: quoted heading",
+   "page": "> ## Q\n",
+   "base_walk": [],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003e ## Q\\n\"}",
+   "request_sha256": "093e4b74de5af472c7f9791b5ea668f850130f791e8a406b512acf2226e36917",
+   "response_bytes": "<blockquote>\n<h2 dir=\"auto\">Q</h2>\n</blockquote>",
+   "response_sha256": "45c09cb780095e0edcbde590d68f06f53b31759407f2f17377840f94735ba908",
+   "recorded_utc": "2026-09-23T06:37:10Z",
+   "rendered": [
+    [
+     2,
+     "Q"
+    ]
+   ],
+   "class": "both-disagree-same",
+   "base_direction": "WITHHOLD omits [[2, 'Q']]",
+   "head_direction": "WITHHOLD omits [[2, 'Q']]"
+  },
+  {
+   "name": "family two: list heading",
+   "page": "- item\n\n  ## Inner\n",
+   "base_walk": [],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  ## Inner\\n\"}",
+   "request_sha256": "c3804ec3fdb7e7108a1d3b6bec78e7841f790a03fbecb1a3c0a5e23addaf4b52",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<h2 dir=\"auto\">Inner</h2>\n</li>\n</ul>",
+   "response_sha256": "d6a41b8b76ba28ed75c4d7ff32adacbca845d94416a020b555ea498a9acfa116",
+   "recorded_utc": "2026-09-23T06:37:10Z",
+   "rendered": [
+    [
+     2,
+     "Inner"
+    ]
+   ],
+   "class": "both-disagree-same",
+   "base_direction": "WITHHOLD omits [[2, 'Inner']]",
+   "head_direction": "WITHHOLD omits [[2, 'Inner']]"
+  }
+ ]
+}
