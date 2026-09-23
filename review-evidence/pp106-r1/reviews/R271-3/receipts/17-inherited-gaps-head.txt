@@ -1,0 +1,18 @@
+commit 5f8cb1325312002c2c8bda45f30d98abc750ca7c
+plants X-F X-G
+build jobs per suite 4, plants in parallel 2
+
+== X-F: SURVIVED -- talker registrar no longer aged by an own LeaveAll (head RTL)
+   planted hdl/srp/KL_srp_talker_fsm.sv sha256 c65629384d591d9a3a1cbb1293a028733da4cf8139227e018ecfa963b5e5c836
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+
+== X-G: SURVIVED -- listener registrars no longer aged by an own LeaveAll (head RTL)
+   planted hdl/srp/KL_srp_listener_fsm.sv sha256 df834271555b9592a2082081261eca174e3a49925d0fa4d82d8b69240e650b9b
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+

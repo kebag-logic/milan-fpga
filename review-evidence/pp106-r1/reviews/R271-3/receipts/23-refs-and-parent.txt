@@ -1,0 +1,8 @@
+parent kebag-logic/milan-fpga dev tip: 26d855a9176d63625e6635a029a0c44e3d57ce9a
+gitlink protocol-processor at dev: submodule 424c688fa2205b934a7689a58f2aa766420f2326
+gitlink protocol-processor at 26d855a9: submodule 424c688fa2205b934a7689a58f2aa766420f2326
+PP main tip: fbc1f7156d711e5b7f511da8a16d9494256b017b
+PP PR head branch tip: 5f8cb1325312002c2c8bda45f30d98abc750ca7c
+MRP-5 row at parent dev:
+112:| MRP-5 | 10.7.9 | LeaveAll: on rx/tx LeaveAll, all registrations enter leave-pending and must be re-declared | processor timer service + SRP FSMs | 🔵 PROCESSOR — the LeaveAll turn and prompt re-declare were pinned by the deleted `lwsrp` suite | 10.7.9: mishandling the periodic bridge LeaveAll (~every 10 s) tears every stream down once per period. |
+424c688f is an ancestor of fbc1f715

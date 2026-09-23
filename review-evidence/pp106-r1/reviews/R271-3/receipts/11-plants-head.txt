@@ -1,0 +1,177 @@
+commit 5f8cb1325312002c2c8bda45f30d98abc750ca7c
+plants K0 K5 K6 K7 K8 K13 K14 X-A X-B X-C X-D X-E
+build jobs per suite 2, plants in parallel 4
+
+== K0: CONTROL PASSES -- control, no change
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+
+== K5: KILLED -- gate re-armed at a malformed or an unpadded clean end, never after a padded MRPDU
+   planted hdl/srp/KL_srp_decoder.sv sha256 36411c7265b7b570a6ac93c6e98c704a9b9464373c55819c49238ebf68176ab8
+   srp_decoder: 190 checks, 1 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+   srp_decoder FAIL: V3 padded MRPDU 1, re-armed after padding strobe order
+
+== K6: KILLED -- the gate remembers only the last type that fired
+   planted hdl/srp/KL_srp_decoder.sv sha256 6987592c5d426490970da321c061c012af9411d68f99a9f0910b9b2f292cc788
+   srp_decoder: 190 checks, 2 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+   srp_decoder FAIL: V1 Listener and Domain lanes once each got 2 1 of 3
+   srp_decoder FAIL: V1 across a Domain message strobe order
+
+== K7: KILLED -- an unflagged VectorHeader re-opens its type's gate
+   planted hdl/srp/KL_srp_decoder.sv sha256 a8fa9739f2f3f6270f95d550d3ac328d06a442bc8829a2531e5af1aea7d4152f
+   srp_decoder: 190 checks, 2 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+   srp_decoder FAIL: V2 Listener lane once, no other lane got 2 of 2
+   srp_decoder FAIL: V2 after an unflagged vector strobe order
+
+== K8: KILLED -- gate re-armed at every message whose AttributeType differs from the previous one
+   planted hdl/srp/KL_srp_decoder.sv sha256 3cc1a80fa2b2d026b9d4ad9c6f519899dea7ce930efb7e67175af880ee1338c3
+   srp_decoder: 190 checks, 2 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+   srp_decoder FAIL: V1 Listener and Domain lanes once each got 2 1 of 3
+   srp_decoder FAIL: V1 across a Domain message strobe order
+
+== K13: KILLED -- Domain participant also takes the Talker Advertise lane
+   planted hdl/srp/KL_srp_top.sv sha256 ee54f43ff1eb8e48fdd620f3efdab477938592f2834b8db68f6582e647279081
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 1 FAIL (rc 2)
+   srp_top FAIL: F5c: a Talker Advertise LeaveAll never re-declares our Domain
+
+== K14: KILLED -- Domain participant also takes the Talker Failed lane
+   planted hdl/srp/KL_srp_top.sv sha256 19d20094a4d56e0b757df006af1b01fb04a447d52fe4466e7721d12101437985
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 1 FAIL (rc 2)
+   srp_top FAIL: F5c: a Talker Failed-only LeaveAll never re-declares our Domain
+
+== X-A: KILLED -- gate re-armed at every message, whatever its type
+   planted hdl/srp/KL_srp_decoder.sv sha256 af9ed252738d98277a823373ed9ad89c4ace819f7722d4303ffdb19867be9036
+   srp_decoder: 190 checks, 8 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+   srp_decoder FAIL: S pdu 0 Listener lane once got 2
+   srp_decoder FAIL: S pdu 0 no other lane got 2
+   srp_decoder FAIL: S pdu 0 strobe order
+   srp_decoder FAIL: S pdu 1 Listener lane once got 2
+   srp_decoder FAIL: S pdu 1 no other lane got 2
+   srp_decoder FAIL: S pdu 1 strobe order
+   srp_decoder FAIL: V1 Listener and Domain lanes once each got 2 1 of 3
+   srp_decoder FAIL: V1 across a Domain message strobe order
+
+== X-B: KILLED -- gate re-armed only after a padded MRPDU or a malformed one, never at an unpadded clean end
+   planted hdl/srp/KL_srp_decoder.sv sha256 4b51597b24a1d80b4ad7e309e571f579fd68fe8c62d37978f5e956f59b364391
+   srp_decoder: 190 checks, 26 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 4 FAIL (rc 2)
+   srp_decoder FAIL: Q Domain lane once got 0
+   srp_decoder FAIL: Q one MSRP strobe in all got 0
+   srp_decoder FAIL: Q strobe order
+   srp_decoder FAIL: R Listener lane once got 0
+   srp_decoder FAIL: R no other lane got 0
+   srp_decoder FAIL: R strobe order
+   srp_decoder FAIL: S pdu 0 Listener lane once got 0
+   srp_decoder FAIL: S pdu 0 no other lane got 0
+   srp_decoder FAIL: S pdu 0 strobe order
+   srp_decoder FAIL: S pdu 1 Listener lane once got 0
+   srp_decoder FAIL: S pdu 1 no other lane got 0
+   srp_decoder FAIL: S pdu 1 strobe order
+   srp_decoder FAIL: S MVRP lane once per MRPDU got 0
+   srp_decoder FAIL: S MVRP strobe order
+   srp_decoder FAIL: T1 Listener lane once, no other lane got 0 of 0
+   srp_decoder FAIL: T1 one message strobe order
+   srp_decoder FAIL: T2 Listener and Domain lanes once each got 0 0 of 0
+   srp_decoder FAIL: T2 across messages strobe order
+   srp_decoder FAIL: T3 MVRP lane once got 0
+   srp_decoder FAIL: T3 MVRP strobe order
+   srp_decoder FAIL: U1 truncated: lane before the cut strobe order
+   srp_decoder FAIL: U2 single EndMark: prefix stands strobe order
+   srp_decoder FAIL: U3 bad AttributeLength: the discarded Domain LeaveAll never fires strobe order
+   srp_decoder FAIL: V2 Listener lane once, no other lane got 0 of 0
+   srp_decoder FAIL: V2 after an unflagged vector strobe order
+   srp_decoder FAIL: V3 padded MRPDU 0 strobe order
+   srp_top FAIL: F4: no single cycle approaches the 11-PDU storm
+   srp_top FAIL: F5a: its Talker Advertise lane ages sink 0's un-re-declared Advertise
+   srp_top FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+   srp_top FAIL: F5c: no re-declaration: the Listener registration ages to MT
+
+== X-C: KILLED -- gate never re-arms after reset
+   planted hdl/srp/KL_srp_decoder.sv sha256 888e3e37bfd6b60cf79b3da07a9a885615984e3cf3865a7a96a753df5d8af105
+   srp_decoder: 190 checks, 38 FAIL (rc 2)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 4 FAIL (rc 2)
+   srp_decoder FAIL: P Domain lane once got 0
+   srp_decoder FAIL: P Talker Advertise lane once got 0
+   srp_decoder FAIL: P four MSRP strobes in all got 2
+   srp_decoder FAIL: P strobe order
+   srp_decoder FAIL: Q Domain lane once got 0
+   srp_decoder FAIL: Q one MSRP strobe in all got 0
+   srp_decoder FAIL: Q strobe order
+   srp_decoder FAIL: R Listener lane once got 0
+   srp_decoder FAIL: R no other lane got 0
+   srp_decoder FAIL: R strobe order
+   srp_decoder FAIL: S pdu 0 Listener lane once got 0
+   srp_decoder FAIL: S pdu 0 no other lane got 0
+   srp_decoder FAIL: S pdu 0 strobe order
+   srp_decoder FAIL: S pdu 1 Listener lane once got 0
+   srp_decoder FAIL: S pdu 1 no other lane got 0
+   srp_decoder FAIL: S pdu 1 strobe order
+   srp_decoder FAIL: S MVRP lane once per MRPDU got 0
+   srp_decoder FAIL: S MVRP strobe order
+   srp_decoder FAIL: T1 Listener lane once, no other lane got 0 of 0
+   srp_decoder FAIL: T1 one message strobe order
+   srp_decoder FAIL: T2 Listener and Domain lanes once each got 0 0 of 0
+   srp_decoder FAIL: T2 across messages strobe order
+   srp_decoder FAIL: T3 MVRP lane once got 0
+   srp_decoder FAIL: T3 MVRP strobe order
+   srp_decoder FAIL: U1 truncated: lane before the cut strobe order
+   srp_decoder FAIL: U1 re-armed after a truncated MRPDU strobe order
+   srp_decoder FAIL: U2 single EndMark: prefix stands strobe order
+   srp_decoder FAIL: U2 re-armed after a single-EndMark MRPDU strobe order
+   srp_decoder FAIL: U3 bad AttributeLength: the discarded Domain LeaveAll never fires strobe order
+   srp_decoder FAIL: U3 re-armed after a discarded MRPDU strobe order
+   srp_decoder FAIL: U4 MVRP out-of-alphabet digit: prefix stands strobe order
+   srp_decoder FAIL: U4 MVRP re-armed after a discarded MRPDU strobe order
+   srp_decoder FAIL: V1 Listener and Domain lanes once each got 0 0 of 0
+   srp_decoder FAIL: V1 across a Domain message strobe order
+   srp_decoder FAIL: V2 Listener lane once, no other lane got 0 of 0
+   srp_decoder FAIL: V2 after an unflagged vector strobe order
+   srp_decoder FAIL: V3 padded MRPDU 0 strobe order
+   srp_decoder FAIL: V3 padded MRPDU 1, re-armed after padding strobe order
+   srp_top FAIL: F4: no single cycle approaches the 11-PDU storm
+   srp_top FAIL: F5a: its Talker Advertise lane ages sink 0's un-re-declared Advertise
+   srp_top FAIL: F5b: the Domain lane re-declares our Domain (JoinIn)
+   srp_top FAIL: F5c: no re-declaration: the Listener registration ages to MT
+
+== X-D: KILLED -- Domain participant also takes the Listener lane
+   planted hdl/srp/KL_srp_top.sv sha256 b2d0172297f6f4c0503b4c0bc7a90adaf5c662654dc0ef769ad4609c18c6b2b8
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 1 FAIL (rc 2)
+   srp_top FAIL: F5c: a Listener-only LeaveAll never re-declares our Domain
+
+== X-E: SURVIVED -- VLAN participant also takes every MSRP lane (inherited routing gap)
+   planted hdl/srp/KL_srp_top.sv sha256 78f402fe9d8b58d940fefa1bbcc0e3d01a22538036c93328cc2f18bcb36e6443
+   srp_decoder: 190 checks, 0 FAIL (rc 0)
+   srp_encoder: 556 checks, 0 FAIL (rc 0)
+   srp_stream_fsms: 1068 checks, 0 FAIL (rc 0)
+   srp_top: 255 checks, 0 FAIL (rc 0)
+

@@ -1,0 +1,50 @@
+reviewed head 5f8cb1325312002c2c8bda45f30d98abc750ca7c tree 495bfb5d5fbcf7c73cb347b0e5f8b4420be9842c; source base fbc1f7156d711e5b7f511da8a16d9494256b017b (PP main tip, unmoved)
+merges in fbc1f715..head: 0; commits: 10; head descends from base: yes
+
+commits (sha, tree, non-empty message lines, subject):
+9370f8ab80231bbf1a6a833312e6b4ffbd0a4f9b 1b88d92490a9d2d63b5ebf7eb3b2044ee07ce16c lines=1 Signal LeaveAll for every registered MSRP attribute type
+fc155c3ca28b04c2220bf41ebea9214379210452 6bd2fef51217a82f281deb14f3f975e39a6efdc5 lines=1 Route a received LeaveAll to its own attribute type, once per MRPDU
+871213549bb83ae5a5a19cddf9de04ea4390081a 166ea322a6c0bd8ec0503c598c7dd1fc1bc2454b lines=1 Pin both boundaries of the once-per-MRPDU LeaveAll gate in the decoder suite
+039ec3269b89064c02318dcf217e4ae3c9217f1c 335e7e2c61e4de44c02f5f805a949964915b4492 lines=1 Check that a Listener-only LeaveAll never re-declares our Domain
+90f4a0f1c731b54b8ec1667d7641c275654e9aef 8ec151bd13c0cf7782c0ad3741c6fe0307866a4b lines=1 Stop crediting a timer restart on a received LeaveAll and track the deviation in #108
+acd44d7fbf6dddd4d346045302cdc3a2b48a01d5 485d31cdf3dc0c33daa2b905c08e894030783860 lines=1 State the 10.7.5.20 NOTE criterion for the LeaveAll attribute-type constant
+27763677d83d4df7237389ffc0945ef9e224aa31 7bfd82de512acd31a3378cf69a6bb30931395a56 lines=1 Record the gate-boundary and Domain-negative failing arms in the suite READMEs
+c6149b25c46caa91ea1be77f8102b213a88f8232 31862d78133d104682c7f037ecdb04a8696094bf lines=1 Pin the LeaveAll gate closed to the MRPDU end and re-armed after a padded MRPDU
+4f2403566146fc5ccd92bccf6ebb70d3e5eb5f09 d9ada990b8478a04a2de055a441fae4da049d07a lines=1 Check that neither talker lane's LeaveAll re-declares our Domain
+5f8cb1325312002c2c8bda45f30d98abc750ca7c 495bfb5d5fbcf7c73cb347b0e5f8b4420be9842c lines=1 Record the gate-closure, padding re-arm and talker-lane Domain-negative arms in the suite READMEs
+
+correction round 2 range 27763677..5f8cb132, name-status:
+M	tb/srp_decoder/README.md
+M	tb/srp_decoder/sim_main.cpp
+M	tb/srp_top/README.md
+M	tb/srp_top/sim_main.cpp
+hdl/ diff bytes 27763677..5f8cb132: 0
+non-tb paths changed 27763677..5f8cb132: 0
+
+SRP RTL blob ids at 27763677 and at head:
+hdl/srp/KL_srp_decoder.sv 0e0d065329126901d3ea25cc0460947d5658b32a 0e0d065329126901d3ea25cc0460947d5658b32a
+hdl/srp/KL_srp_encoder.sv 57339fec3607b52a5d480d21d3d93a3d5f6b5c40 57339fec3607b52a5d480d21d3d93a3d5f6b5c40
+hdl/srp/KL_srp_top.sv 816ff958a1536a8ca961d79a8b0a4427ad13b3ea 816ff958a1536a8ca961d79a8b0a4427ad13b3ea
+hdl/srp/KL_srp_talker_fsm.sv 94120b1d6f0d06f8754a5f9eefe69dec31fb0d1a 94120b1d6f0d06f8754a5f9eefe69dec31fb0d1a
+hdl/srp/KL_srp_listener_fsm.sv 45953747c6ec2d9c9422399d172aa0bf3e878c79 45953747c6ec2d9c9422399d172aa0bf3e878c79
+hdl/srp/srp_pkg.sv 62eae4dda0b82ca92f7a5c667a74e5588a4ad99a 62eae4dda0b82ca92f7a5c667a74e5588a4ad99a
+
+full range fbc1f715..head --stat:
+ docs/10_RESOURCE_AND_EFFORT.md             |  11 +-
+ docs/architecture/10_srp_engine.md         |  95 +++++-
+ hdl/srp/KL_srp_decoder.sv                  |  49 ++-
+ hdl/srp/KL_srp_encoder.sv                  | 103 +++++--
+ hdl/srp/KL_srp_listener_fsm.sv             |  26 +-
+ hdl/srp/KL_srp_talker_fsm.sv               |  24 +-
+ hdl/srp/KL_srp_top.sv                      |  32 +-
+ hdl/srp/srp_pkg.sv                         |  11 +-
+ tb/srp_decoder/README.md                   |  83 +++++-
+ tb/srp_decoder/sim_main.cpp                | 461 ++++++++++++++++++++++++++++-
+ tb/srp_encoder/README.md                   |  64 +++-
+ tb/srp_encoder/sim_main.cpp                | 383 +++++++++++++++++++++++-
+ tb/srp_stream_fsms/README.md               |  37 ++-
+ tb/srp_stream_fsms/sim_main.cpp            | 165 ++++++++++-
+ tb/srp_stream_fsms/srp_stream_fsms_wrap.sv |   2 +-
+ tb/srp_top/README.md                       |  64 +++-
+ tb/srp_top/sim_main.cpp                    | 157 +++++++++-
+ 17 files changed, 1666 insertions(+), 101 deletions(-)

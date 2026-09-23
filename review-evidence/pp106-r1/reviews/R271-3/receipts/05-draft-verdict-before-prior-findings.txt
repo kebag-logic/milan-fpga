@@ -1,0 +1,15 @@
+Draft verdict, recorded 2026-09-23T22:52:46Z BEFORE reading any prior review report or finding
+exact head 5f8cb1325312002c2c8bda45f30d98abc750ca7c tree 495bfb5d5fbcf7c73cb347b0e5f8b4420be9842c
+
+Independent pass (issue body, manager decisions, PR body, diff fbc1f715..head, full decoder RTL,
+top/FSM/encoder RTL diffs, delta tests; own plants written from the assignment text):
+- 27763677..head changes tb/srp_decoder/{README.md,sim_main.cpp} and tb/srp_top/{README.md,sim_main.cpp} only; hdl/ diff empty.
+- K0 control passes at head (190/556/1068/255) and at 27763677 (177/556/1068/253).
+- K5 K6 K7 K8 K13 K14: SURVIVED at 27763677, KILLED at head, each by the new V1/V2/V3/F5c checks only;
+  planted RTL bytes identical at both commits.
+- Extra boundary plants X-A..X-D killed at head. Inherited gaps X-E (VLAN takes MSRP lanes) and
+  X-F/X-G (own LeaveAll dropped from registrar aging) survive at head and at base fbc1f715.
+- make check OK; git diff --check fbc1f715..head clean; focused SRP lint OK; F5c timing claims hold.
+
+Draft: POSITIVE. No BLOCKER/MAJOR/MINOR found. Draft SUGGESTION: the inherited, untested routing
+properties (X-E, X-F, X-G) belong in a follow-up issue; not introduced by this PR.

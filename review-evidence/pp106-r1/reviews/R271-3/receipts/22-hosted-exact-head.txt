@@ -1,0 +1,36 @@
+== job 107410884253 bytes=30684
+Verilator 5.050 2026-07-01 rev v5.050
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+PASS srp_decoder (190 checks: 190 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+suites: 15479 checks total, 0 failing
+== job 107410867034 bytes=29255
+Verilator 5.050 2026-07-01 rev v5.050
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+PASS srp_decoder (190 checks: 190 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+suites: 15479 checks total, 0 failing
+
+workflow runs at head:
+35929011873 hdl event=pull_request status=completed conclusion=success head=5f8cb1325312002c2c8bda45f30d98abc750ca7c
+35929006641 hdl event=push status=completed conclusion=success head=5f8cb1325312002c2c8bda45f30d98abc750ca7c
+
+check runs at head:
+107410884253 suites status=completed conclusion=success started=2026-09-23T22:33:42Z completed=2026-09-23T22:46:01Z suite=97292925095
+107410883914 portability status=completed conclusion=success started=2026-09-23T22:33:42Z completed=2026-09-23T22:36:17Z suite=97292925095
+107410883806 docs-gates status=completed conclusion=success started=2026-09-23T22:33:42Z completed=2026-09-23T22:33:51Z suite=97292925095
+107410867510 docs-gates status=completed conclusion=success started=2026-09-23T22:33:38Z completed=2026-09-23T22:33:50Z suite=97292911970
+107410867384 portability status=completed conclusion=success started=2026-09-23T22:33:38Z completed=2026-09-23T22:35:56Z suite=97292911970
+107410867034 suites status=completed conclusion=success started=2026-09-23T22:33:38Z completed=2026-09-23T22:42:53Z suite=97292911970
+
+job steps:
+run 35929011873 job docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
+run 35929011873 job portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+run 35929011873 job suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+run 35929006641 job suites success steps: Set up job=success; Run actions/checkout@v4=success; Cache the pinned Verilator build=success; Build Verilator v5.050=skipped; Lint (zero tolerance) + every suite=success; Traceability matrix no-drift + untested budget 0=success; nvm_port README figures agree with the tree=success; Post Cache the pinned Verilator build=success; Post Run actions/checkout@v4=success; Complete job=success
+run 35929006641 job portability success steps: Set up job=success; Run actions/checkout@v4=success; Install yosys + sv2v=success; Elaborate every top off-vendor=success; Post Run actions/checkout@v4=success; Complete job=success
+run 35929006641 job docs-gates success steps: Set up job=success; Run actions/checkout@v4=success; Link, matrix, wavedrom and staleness gates=success; Post Run actions/checkout@v4=success; Complete job=success
