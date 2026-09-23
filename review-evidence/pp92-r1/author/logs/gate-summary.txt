@@ -1,0 +1,29 @@
+# head 3691340c9079215a9b5749bc26f5a194f598e439; the only change since d6448ab (where the suites ran) is tb/pp_top/README.md:
+ tb/pp_top/README.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+# make check re-run at this head: exit 0; git diff --check fbc1f715..HEAD: clean
+
+# gates at d6448ab4dc68ab70f5e6db5c863db7957ed7e9f8 (branch 92-93-boot-restore, base fbc1f7156d711e5b7f511da8a16d9494256b017b)
+# simulator: Verilator 5.050 2026-07-01 rev v5.050
+## git diff --check fbc1f715..HEAD
+exit 0
+## tree clean
+## hdl/srp untouched since base (empty below)
+## scripts/run_suites.sh
+exit 0
+suites: 15237 checks total, 0 failing
+## make check (lint diagrams, wavedrom, links, matrix, gen_matrix --check, stale)
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 827 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (90 rows, 0 untested)
+## scripts/lint_hdl.sh (HDL unchanged since daab6a5)
+exit 0
+LINT OK lines: 39
+## syn/yosys/run.sh (HDL unchanged since daab6a5)
+exit 0
+YOSYS OK lines: 34
+## make -C tb/nvm_port figures
+exit 0
+## HDL diff since daab6a5 (empty = none)

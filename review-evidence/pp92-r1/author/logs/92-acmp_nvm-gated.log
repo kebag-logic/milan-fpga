@@ -1,0 +1,13 @@
+verilator --cc --exe --build -j 0 --top-module acmp_nvm_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GDEB_TICKS_P=50 -CFLAGS "-std=c++17 -O2 -I$LANES/pp92-93-boot-restore/tb/acmp_nvm -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv acmp_nvm_wrap.sv sim_main.cpp -o Vacmp_nvm_sim
+make[1]: Entering directory '$LANES/pp92-93-boot-restore/tb/acmp_nvm/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/pp92-93-boot-restore/tb/acmp_nvm -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+../sim_main.cpp:187:17: warning: ‘uint64_t be_get(const std::vector<unsigned char>&, int, int)’ defined but not used [-Wunused-function]
+  187 | static uint64_t be_get(const std::vector<uint8_t>& p, int at, int n) {
+      |                 ^~~~~~
+g++    sim_main.o verilated.o verilated_threads.o Vacmp_nvm_wrap__ALL.a    -pthread -lpthread -latomic   -o Vacmp_nvm_sim
+make[1]: Leaving directory '$LANES/pp92-93-boot-restore/tb/acmp_nvm/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 2.033 s (elab=0.000, cvt=0.000, bld=2.032); cpu 0.001 s on 8 threads; allocated 16.488 MB
+./obj_dir/Vacmp_nvm_sim
+187 checks: 187 PASS, 0 FAIL
