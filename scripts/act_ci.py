@@ -10826,7 +10826,8 @@ class FakeSlotHost:
     files what the slice's cgroup holds (None: unreadable), and `root_stats`
     what the slot root's components are. `masked` records, per command,
     whether every cleanup signal was blocked while it ran; `body_failure` is
-    raised inside the slot, and `transcript` is what the lifecycle printed.
+    raised inside the slot, or else the body returns `body_verdict`, and
+    `verdict` is what left the slot; `transcript` is what the lifecycle printed.
     """
 
     def __init__(
@@ -10860,6 +10861,8 @@ class FakeSlotHost:
         self.memory_peak: str | None = "13421772800\n"
         self.root_stats: dict[pathlib.Path, os.stat_result] = {}
         self.body_failure: BaseException | None = None
+        self.body_verdict = RC_OK
+        self.verdict: int | None = None
         self.transcript = ""
 
     def unit_kind(self, unit: str) -> str:
@@ -11121,20 +11124,27 @@ def drive_fake_slot(
     entry_keys = -1
     outcome = ""
     printed = io.StringIO()
+
+    def body() -> int:
+        """The run inside the slot: the host's scripted failure, or else its verdict."""
+        nonlocal entry_keys
+        with replay_slot(
+            host.slot,
+            context=context,
+            scratch=layout.temporary if scratch is None else scratch,
+            host=host.seams(),
+        ):
+            entry_keys = len(host.keys)
+            if host.body_failure is not None:
+                raise host.body_failure
+            return host.body_verdict
+
     with mock.patch.object(
         sys.modules[__name__], "require_tool", fake_host_tool
     ), mock.patch.object(os, "cpu_count", return_value=128):
         try:
             with contextlib.redirect_stdout(printed):
-                with replay_slot(
-                    host.slot,
-                    context=context,
-                    scratch=layout.temporary if scratch is None else scratch,
-                    host=host.seams(),
-                ):
-                    entry_keys = len(host.keys)
-                    if host.body_failure is not None:
-                        raise host.body_failure
+                host.verdict = body()
         except (Refusal, TerminationRequest) as exc:
             outcome = f"{type(exc).__name__}: {exc}"
     host.transcript = printed.getvalue()
@@ -12219,6 +12229,19 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
     check(
         "an unreadable peak is reported as unrecorded and refuses nothing",
         outcome == "" and "memory peak unrecorded of its 24G cap" in host.transcript,
+    )
+    host = FakeSlotHost(slot)
+    host.memory_events = "low 0\nhigh 0\nmax 5361\noom 0\noom_kill 0\n"
+    host.memory_peak = f"{24 * 2**30}\n"
+    host.body_verdict = RC_FAILED
+    outcome, _entry = drive_fake_slot(host, layout)
+    check(
+        "a FAILED run whose slice sat at its cap without an OOM keeps its FAILED, since "
+        "only an OOM is refused, and reports the peak at the cap and how often it was hit",
+        outcome == ""
+        and host.verdict == RC_FAILED
+        and "act-ci: slot 2: memory peak 24.0 GiB of its 24G cap; the cap was hit 5361 "
+        "time(s), with no OOM at it\n" in host.transcript,
     )
     host = FakeSlotHost(slot)
     host.body_failure = Refusal("the body failed")

@@ -2021,8 +2021,9 @@ The offline self-test of the runner pins:
   start;
 - the memory cap: an OOM at the cap, and unreadable or malformed events or
   either count missing, refused after the whole slot is torn down; the peak
-  and the number of cap hits printed; and a failing body keeping its own
-  error;
+  and the number of cap hits printed; a `FAILED` run whose slice sat at the
+  cap without an OOM keeping its `FAILED`; and a body that raises keeping its
+  own error;
 - the slot root and every directory above it, as checked on acquisition;
 - the real lock's exclusivity, root-owner check (including its production
   default) and symlink refusal, the dangling-symlink probe, and the host
