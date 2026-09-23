@@ -127,6 +127,23 @@ independent pad oracle over the product's own converted MAC; the remaining
 offset from that register stage to the pad, and every physical term with it,
 is #117's and #64's to measure.
 
+Scope note (propagation asymmetry, #511): the product does not model IEEE
+802.1AS-2011 `delayAsymmetry`. Section 8.3 does not require it to be measured,
+and Section 10.2.4.8 makes an unmodelled value zero, so the value is zero here.
+The product has one cabled port, and the two REQ-PTP-06 elaboration constants
+remain its only timestamp corrections. No configuration key, CSR or runtime path
+sets an asymmetry. The gPTP processor's live UART tuner stays a donor-bench
+instrument and never becomes a product control. A one-way error left by the
+assigned ingress/egress split (#64, #488) is corrected by re-measuring those
+constants, never by a second asymmetry term. This is a directed limitation
+recorded by the
+[owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
+(2026-09-23). Revisit it before a profile adds a second cabled port, such as
+Section 8 redundancy under #394; a runtime correction first needs an amendment
+of REQ-PTP-06. The
+[gPTP plane record](docs/design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)
+lists what an adoption must define and prove.
+
 Acceptance combines the focused PHC, timestamp, gPTP-plane, publication,
 clock-validity, CSR, and full-datapath benches with #117's wire and
 publication correlation of the one AX7101 DUT against the Milan-validated
@@ -252,3 +269,8 @@ They are recorded decisions, not omissions.
   needs a second AVB_INTERFACE with its own MAC, gPTP port, MAAP and SRP
   contexts and paired streams, and that design is approved before any RTL
   lane opens.
+- **IEEE 802.1AS-2011 `delayAsymmetry` modelling.** Not modelled, so its value
+  is zero (Sections 8.3 and 10.2.4.8), and the gPTP processor's live UART
+  tuner stays donor-bench-only. See the Section 4 scope note and the
+  [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
+  (2026-09-23).

@@ -345,6 +345,88 @@ Each result is a measurement or a counted loss.
 
 No live PHC value enters the engine.
 
+### Propagation asymmetry is not modelled
+
+This record settles the design boundary of issue #511.
+
+The [owner decision](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257) excludes delayAsymmetry for v1.2.
+
+It cites REQ-PTP-06's constants and the single cabled port.
+
+| Question | v1.2 answer | Authority |
+|---|---|---|
+| Is delayAsymmetry modelled? | No. Its value is zero. | IEEE 802.1AS-2011 8.3 does not require measuring it; 10.2.4.8 makes an unmodelled value zero |
+| Where would it enter? | ClockSlaveSync `syncReceiptTime` and `setMDSyncReceive()` `upstreamTxTime`. At zero both terms vanish. It never enters the Pdelay mean. | IEEE 802.1AS-2011 10.2.12, 11.2.13.2.1 and 11.2.15.2.4 |
+| Is it managed? | No managed object, CSR or configuration key carries it. | IEEE 802.1AS-2011 14.6.9 lists it read-write and recommended |
+| Can a configuration set it? | No. The builder refuses every `gptp` key it does not know (`_known_gp`). | [`endstation_builder.py`](../../sw/builder/endstation_builder.py) |
+| Does the engine take it? | No. The pinned gPTP processor has no asymmetry input. | Outside its historic prototype pages the pinned tree never names it ([donor issue 58](https://github.com/Mister-M-alt/FPGA-gPTP/issues/58)) |
+| What corrects timestamps? | The two per-board elaboration constants, applied once in `KL_gptp_shadow`. | REQ-PTP-06; IEEE 802.1AS-2011 8.4.3 `ingressLatency` and `egressLatency` |
+| What fixes a one-way split error? | Re-measured constants (#64, #488). Never a second asymmetry term. | REQ-PTP-06 names one owner |
+| Is live tuning allowed? | No. The donor's UART Y/I/E tuner stays donor-bench-only. | REQ-PTP-06 constants; REQ-PTP-09 |
+| Does Milan ask for it? | No. Milan v1.2 never mentions asymmetry. | Milan v1.2 Section 4.2.6 defers to 802.1AS |
+
+Two donor citations disagree with the 2011 text.
+
+The clauses above were checked against that text.
+
+| Donor citation | IEEE 802.1AS-2011 text |
+|---|---|
+| Issue 58: 11.2.15 | The MDPdelayReq machine; `computePropTime()` has no asymmetry term |
+| Prototype pages: 10.2.4.5 | That clause is `syncInterval`; delayAsymmetry is 10.2.4.8 |
+
+#### Revisit trigger
+
+Revisit when a profile adds a second cabled port.
+
+Section 8 redundancy under #394 is one such profile.
+
+A runtime correction first needs a REQ-PTP-06 amendment.
+
+#### What an adoption must define
+
+| Item | Required answer |
+|---|---|
+| Requirement | A public REQ-PTP amendment naming one owner, before any RTL lane |
+| Sign | Positive when responder-to-initiator is longer (8.3) |
+| Units | `scaledNs` in the grandmaster time base (10.2.4.8, 14.6.9) |
+| Default and reset | Zero, which is today's behavior |
+| Range | Declared in the configuration schema; the builder refuses values outside it |
+| Configuration owner | One key per port, carried to one engine input |
+| Application point | 10.2.12 and 11.2.13.2.1 only; never `computePropTime()` |
+| Update | An elaboration constant, unless REQ-PTP-06 is amended first |
+| Double compensation | Never folded into `INGRESS_LAT_NS_P` or `EGRESS_LAT_NS_P` |
+
+#### What an adoption must prove
+
+No result is claimed here: nothing is implemented.
+
+| Arm | Expected evidence |
+|---|---|
+| Zero | Offset and PHC trajectory identical to today's build |
+| Positive and negative | The offset moves by the configured value, in opposite directions |
+| Sign | A sign-swapped mutation fails the suite |
+| Limits | Out-of-range values are refused by the builder |
+| Reset and update | Reset restores zero; no live change without an amendment |
+| Peer delay | `neighborPropDelay` is unchanged by every value |
+| Double correction | The I/E constants and `GPTP_LAT` are unchanged |
+| Configuration to engine | The configured value reaches the engine input exactly |
+
+An adoption is one bounded lane, tracked under issue #110.
+
+It owes a reviewed durable donor pin and regenerated ROM.
+
+It also owes donor `make`, `gptp_shadow` and root integration.
+
+Every CONTRIBUTING gate runs at that candidate.
+
+| Party | Owns |
+|---|---|
+| Parent | The product contract, REQ-PTP-06 constants, the builder refusal and this record |
+| gPTP processor | Any asymmetry input and its arithmetic, under donor issue 58 |
+| Donor bench | The UART Y/I/E tuner, never pinned into a product image |
+| Issues #64 and #488 | Physical measurement of the split |
+| Issue #110 | Integration tracking of any adopted donor pin |
+
 ### After a reset
 
 A reset invalidates the association between entries and positions.

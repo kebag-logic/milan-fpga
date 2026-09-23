@@ -31,6 +31,7 @@ Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c
 | Parent transport | Implemented | `gptp_shadow` |
 | Public consumers | Implemented | `milan_dp` |
 | Physical calibration | Incomplete | Issue #64 |
+| Propagation asymmetry | Excluded for v1.2 | Issue #511 |
 | Physical acceptance against the reference peer | Incomplete | Issue #117 |
 | Media clock selection | Implemented | Feature-status ledger |
 

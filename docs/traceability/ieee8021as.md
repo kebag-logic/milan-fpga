@@ -26,6 +26,7 @@ Decision #139 records that edition split.
 | Partial | Some required evidence remains open |
 | Missing | Required capability or evidence remains absent |
 | Not applicable | Product media excludes that clause |
+| Excluded | A recorded decision keeps an optional mechanism out |
 
 Simulation never becomes physical evidence.
 
@@ -45,6 +46,7 @@ Simulation never becomes physical evidence.
 | AS-10 | 11.4 (11.4.1, 11.4.2.3, Table 11-4) | Milan-selected message formats; exact Ethernet TX flags; ignored RX flags | Imported engine | `tsn_fuzz`; `gptp_plane`; `gptp_shadow`; `milan_dp` | Covered |
 | AS-11 | 12–16 | Non-Ethernet media layers | None | Product scope | Not applicable |
 | AS-12 | 10.3, 10.6 | Traffic-independent receipt timing | Imported engine timers | Donor; `tsn_fuzz` | Partial |
+| AS-13 | 8.3, 10.2.4.8, 14.6.9 | `delayAsymmetry` not modelled, so zero | None; decision on #511 | [Plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) | Excluded |
 
 The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
 
@@ -59,7 +61,7 @@ The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b6174358249
 | `REQ-PTP-03` | AS-3, AS-5 |
 | `REQ-PTP-04` | Standalone timestamp-record scope |
 | `REQ-PTP-05` | AS-6 through AS-12 |
-| `REQ-PTP-06` | AS-3, AS-4 |
+| `REQ-PTP-06` | AS-3, AS-4, AS-13 |
 | `REQ-PTP-07` | AS-3, AS-6 through AS-9 |
 | `REQ-PTP-08` | AS-7, AS-12 |
 | `REQ-PTP-09` | AS-6 through AS-12 |
@@ -72,6 +74,7 @@ The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b6174358249
 - Issue #117 owns product acceptance against the reference peer.
 - AS-6 needs the physical winner variant.
 - AS-12 needs physical traffic-load repetition.
+- AS-13 is excluded for v1.2 by issue #511.
 
 Option-off evidence proves safe absence only.
 

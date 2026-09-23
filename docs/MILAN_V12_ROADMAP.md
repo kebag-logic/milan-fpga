@@ -472,6 +472,7 @@ Do not schedule these as SHALLs and do not let a grader count them.
 | IDENTIFY_NOTIFICATION as a transmitted unsolicited response | 5.4.5.4 | **SHOULD** — *"it should implement the Identification Notification"* |
 | `ACQUIRE_ENTITY` answering specifically `NOT_SUPPORTED` | 5.4.2.1 | the SHALL is only *"shall not reply SUCCESS"*; the code choice is a SHOULD (we do answer `NOT_SUPPORTED`) |
 | Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so item 11.x is Not Applicable. **OPTIONAL** by Sections 4.2.5 and 8.1; out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
+| IEEE 802.1AS-2011 delayAsymmetry | 802.1AS 8.3 / 10.2.4.8 | **OPTIONAL** to model, zero when not modelled; excluded for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257), [gPTP plane record](design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 
 ---
 

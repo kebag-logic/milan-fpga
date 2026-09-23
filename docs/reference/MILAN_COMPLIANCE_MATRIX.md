@@ -223,6 +223,7 @@ clause numbers below differ from 802.1AS-2020's in places (MDPdelayReq is
 | Clause | Requirement | Owner | Status / evidence |
 |---|---|---|---|
 | 8.2 | PTP timescale: monotonic, settable, frequency-adjustable | fabric (`timestamp_counter`) | implemented — RTL ptp (201 k checks vs a 128-bit model) |
+| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled | gPTP plane | n/a: not modelled, so zero; the REQ-PTP-06 elaboration constants stay the only timestamp corrections and the live UART tuner stays donor-bench-only. A directed limitation for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257); revisit trigger and adoption plan in the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 | 8.4.2.2 / 8.4.3 | event messages timestamped at the reference plane; general messages never | fabric (`ptp_ts_core/top`) | implemented — RTL ptp_ts interference suite |
 | Annex B.1.1 | LocalClock within ± 100 ppm, finely adjustable | fabric + board oscillator | implemented — RTL ptp adjfine granularity |
 | 10.2 / 10.3 | time-sync state machines + BTCA | gPTP plane | implemented — RTL gptp_shadow, milan_dp `obj_gptp`; SILICON elections both ways |

@@ -28,7 +28,7 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 - **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[Section 2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then nine subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS and management.
 - **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The line-rate, packet-rate, timing, resource, fabric scale-up, and future multi-port bounds for the one-hart bare-metal product.
 - **[4. Scalability architecture](#4-scalability-architecture)** -- How configuration grows fabric streams, channels, rates, and optional endpoint replicas while the CPU remains a single boot-and-policy controller outside packet and media deadlines.
-- **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
+- **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, gPTP delayAsymmetry, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
 - **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller, fabric-gPTP and CSR tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
 
@@ -225,6 +225,16 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CLK-04 | As a media-clock talker the entity MUST source a CRF stream; as a follower it MUST recover the media clock from CRF. Stream-derived recovery from an AAF input stream is neither provided nor advertised (#389). | M | T |
 | FR-CLK-05 | Hardware ingress and egress timestamps MUST represent each frame's event at the timestamp reference point required by the selected protocol edition. They MUST be delivered with correct frame identity to the fabric gPTP plane and diagnostics. Direct capture or reconstruction from a per-frame hardware observation is permitted only with an independently verified error bound. The digital observation point, clock-domain transfer error and measured physical correction MUST be documented separately; variable frame queueing MUST NOT be replaced by a guessed constant correction. | M | T |
 
+> **Scope (#511):** FR-CLK-01's time-aware endpoint does not model IEEE
+> 802.1AS-2011 `delayAsymmetry`. Section 8.3 does not require it, and Section
+> 10.2.4.8 makes the unmodelled value zero. REQ-PTP-06's two per-board
+> elaboration constants stay the only timestamp corrections, and the gPTP
+> processor's live UART tuner stays donor-bench-only. This is a directed
+> limitation by the
+> [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257);
+> the revisit trigger and the adoption plan are in the
+> [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled).
+
 ### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 Section 7; Milan Section 6)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
@@ -403,6 +413,13 @@ the completed PS-to-fabric migration plan (#259, in git history).
 >   (2026-09-23); revisited with the P4/P5 PCB (#416/#417). A future
 >   `P_PORTS ≥ 2` profile (NFR-SCOUT-05) is a separate entity per port, not
 >   Section 8 redundancy.
+> - IEEE 802.1AS-2011 **delayAsymmetry** (Sections 8.3, 10.2.4.8 and 14.6.9).
+>   Not modelled, so its value is zero; the REQ-PTP-06 elaboration constants
+>   remain the only timestamp corrections, and the live UART tuner stays
+>   donor-bench-only. Excluded for v1.2 by the
+>   [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257)
+>   (2026-09-23); revisit before a second cabled port (the Section 2.6 scope
+>   note and the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled)).
 > - Sample rates beyond 48/96/192 kHz, and AEM authentication.
 
 ---
@@ -422,6 +439,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
 | Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | Section A/Section B params |
 | Scale-out | NFR-SCOUT-\* |  -  | fabric contexts / replicated endpoint | Section 4 |
 | Redundancy | FR-MVU-03, NFR-SCOUT-05 | Sections 4.2.5 and 8 | one AVB_INTERFACE | out of scope for v1.2 by the #394 decision; revisited with the P4/P5 PCB (#416/#417); Section 5 out-of-scope list |
+| gPTP asymmetry | FR-CLK-01, REQ-PTP-06 | Section 4.2.6 (IEEE 802.1AS-2011 8.3, 10.2.4.8) | no `gptp` asymmetry key | not modelled, zero, by the #511 decision; [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP,
