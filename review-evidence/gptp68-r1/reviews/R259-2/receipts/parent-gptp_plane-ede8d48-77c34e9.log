@@ -1,0 +1,19 @@
+# parent ede8d48ecd7c7f589a14b957951f040d92c99c70, 8 input blobs verified; gptp-processor = donor 77c34e904eba2446755d13e1bf4763d1652c3ca7 tree 10154fc3f95ccc542a6f5dcd8a58105d302fd1af
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 993 real (97.0%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@957 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1014 PDREQ@898 TXLOST@103 TXT1OK@180
+python3 $PINNED_ROOT/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_plane_wrap.cpp Vgptp_plane_wrap___024root__0.cpp Vgptp_plane_wrap__ConstPool__0__Slow.cpp Vgptp_plane_wrap___024root__Slow.cpp Vgptp_plane_wrap___024root__0__Slow.cpp Vgptp_plane_wrap__Syms__Slow.cpp > Vgptp_plane_wrap__ALL.cpp
+rm Vgptp_plane_wrap__ALL.verilator_deplist.tmp
+./obj_dir/Vgptp_plane_sim
+FAIL one adjtime re-base            got 0000000000000000 exp 0000000000000001
+FAIL re-base near +1 ms             got 0000000000000000 exp 0000000000000001
+FAIL measured offset locked         got 0000000000000000 exp 0000000000000001
+FAIL addend at the +100 ppm ideal   got 0000000000000000 exp 0000000000000001
+FAIL counter tracks the master      got 0000000000000000 exp 0000000000000001
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000
+29 checks: 24 PASS, 5 FAIL
+make: *** [Makefile:25: run] Error 1
+# make exit status: 2

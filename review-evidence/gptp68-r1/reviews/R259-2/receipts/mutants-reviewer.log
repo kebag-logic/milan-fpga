@@ -1,0 +1,71 @@
+# verilator: Verilator 5.050 2026-07-01 rev v5.050; head cbccf226068c107fb30764891c98b8d70c54d775; selection reviewer
+[PASS] control: pass
+[PASS] caught: R1 a repeat asCapable verdict also unlocks the servo - defends "only an asCapable RISE re-arms the link-up"; 1207 checks: 1196 PASS, 11 FAIL
+        FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000023 exp 0000000000000000
+        FAIL long slew: no step pulse     got 0000000000000013 exp 0000000000000011
+        FAIL matching FU steers as the mirror got 00000000000d6a55 exp 0000000000148334
+        FAIL paired FU steers as the mirror got 00000000000a3dc0 exp 000000000011569f
+        FAIL GM change: the pair before it: addend matches the mirror got 00000000000c156a exp 0000000000132e49
+        FAIL GM change, -5 ms: addend matches the mirror got 000000000001966b exp 000000000008af4a
+[PASS] caught: R2 the clamp picks its bound with a logical shift - defends "a negative overflow clamps to -envelope"; 1207 checks: 1190 PASS, 17 FAIL
+        FAIL locked -90 us: addend matches the mirror got 00000000ffe66666 exp 000000000019999a
+        FAIL locked -100 us: addend matches the mirror got 00000000ffe66666 exp 000000000019999a
+        FAIL long slew, master +90 us: every addend matches the mirror got 0000000000000030 exp 0000000000000000
+        FAIL long slew, master +90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+        FAIL long slew, master +90 us: the trim rides its clamp got 000000000012d0fc exp 000000000019999a
+        FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000026 exp 0000000000000000
+[PASS] caught: R3 the trim clamp is one unit narrower than the envelope - defends "the trim reaches the envelope exactly"; 1207 checks: 1194 PASS, 13 FAIL
+        FAIL locked +90 us: addend matches the mirror got 00000000ffe66667 exp 00000000ffe66666
+        FAIL locked -90 us: addend matches the mirror got 0000000000199999 exp 000000000019999a
+        FAIL locked +100 us: addend matches the mirror got 00000000ffe66667 exp 00000000ffe66666
+        FAIL locked -100 us: addend matches the mirror got 0000000000199999 exp 000000000019999a
+        FAIL long slew, master +90 us: every addend matches the mirror got 000000000000000c exp 0000000000000000
+        FAIL long slew, master +90 us: the trim rides its clamp got 0000000000199999 exp 000000000019999a
+[PASS] caught: R4 the integrator clamp is one unit wider - defends "the integrator is clamped to the envelope"; 1207 checks: 1169 PASS, 38 FAIL
+        FAIL locked +100 us + 1 ns: addend matches the mirror got 000000000000000c exp 000000000000000d
+        FAIL locked -100 us - 1 ns: addend matches the mirror got 000000000000000c exp 000000000000000d
+        FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+        FAIL closed loop pair 0: addend matches the mirror got 00000000fffeb85e exp 00000000fffeb85f
+        FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+        FAIL closed loop pair 1: addend matches the mirror got 0000000000125690 exp 0000000000125691
+[PASS] caught: R5 the locked threshold is 1 ns wider - defends "a locked pair steps above exactly 100 us"; 1201 checks: 1170 PASS, 31 FAIL
+        FAIL locked +100 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+        FAIL locked +100 us + 1 ns: addend matches the mirror got 00000000ffe66666 exp 000000000000000d
+        FAIL locked -100 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+        FAIL locked -100 us - 1 ns: addend matches the mirror got 000000000019999a exp 000000000000000d
+        FAIL locked: one step pulse per probe over 100 us got 000000000000000e exp 0000000000000010
+        FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+[PASS] caught: R6 the positive boundary is 1 ns wider - defends "+(T + 1 ns) steps"; 1201 checks: 1168 PASS, 33 FAIL
+        FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+        FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffeb84d4 exp 0000000000000002
+        FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffeb84d4 exp 0000000000000002
+        FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000fffae137 exp 0000000000000002
+        FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fffae137 exp 0000000000000002
+        FAIL link-up: one step pulse per probe over 20 us got 000000000000000b exp 000000000000000c
+[PASS] caught: R7 the step writes a zero addend, not the integrator - defends "a step keeps the rate estimate as the whole addend"; 1207 checks: 1189 PASS, 18 FAIL
+        FAIL link-up +25 us: addend matches the mirror got 0000000000000000 exp 00000000fffc28f4
+        FAIL link-up +25 us: the step writes the bare estimate got 0000000000000000 exp 00000000fffc28f4
+        FAIL link-up -25 us: addend matches the mirror got 0000000000000000 exp 0000000000000001
+        FAIL link-up -25 us: the step writes the bare estimate got 0000000000000000 exp 0000000000000001
+        FAIL link-up +20 us + 1 ns: addend matches the mirror got 0000000000000000 exp 0000000000000002
+        FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 0000000000000000 exp 0000000000000002
+[PASS] caught: R8 the threshold reads the wrong scratch cell - defends "the threshold follows the lock cell"; 1207 checks: 1146 PASS, 61 FAIL
+        FAIL locked +90 us: step pulses   got 0000000000000001 exp 0000000000000000
+        FAIL locked +90 us: addend matches the mirror got 0000000000000002 exp 00000000ffe66666
+        FAIL locked -90 us: step pulses   got 0000000000000001 exp 0000000000000000
+        FAIL locked -90 us: addend matches the mirror got 0000000000000002 exp 000000000019999a
+        FAIL locked +110 us: addend matches the mirror got 0000000000000002 exp 0000000000000003
+        FAIL locked -110 us: addend matches the mirror got 0000000000000002 exp 0000000000000003
+[PASS] caught: R9 the step carries +offset - defends "a step carries -offset"; 1207 checks: 1175 PASS, 32 FAIL
+        FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+        FAIL complete Follow_Up re-bases the phc got 0000000000000000 exp 0000000000000001
+        FAIL padded Sync (60) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+        FAIL padded Sync (74) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+        FAIL sync flags 0200/0000: pairs and steers got 0000000000000007 exp 000000000000000f
+        FAIL sync flags 0208/0008: pairs and steers got 0000000000000007 exp 000000000000000f
+
+10 checks: 10 PASS, 0 FAIL
+
+real	1m29.368s
+user	4m47.707s
+sys	0m0.767s

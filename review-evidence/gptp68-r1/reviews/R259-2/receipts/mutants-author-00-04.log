@@ -1,0 +1,39 @@
+# verilator: Verilator 5.050 2026-07-01 rev v5.050; head cbccf226068c107fb30764891c98b8d70c54d775; selection author:0-4
+[PASS] control: pass
+[PASS] caught: result face always ready - defends "a result already owed to the micro-code cannot be replaced by a later one"; 1138 checks: 1096 PASS, 42 FAIL
+        FAIL reset holds the result face closed got 0000000000000001 exp 0000000000000000
+        FAIL D1 face closes behind the accepted result got 0000000000000001 exp 0000000000000000
+        FAIL D1 second result waits for the first to dispatch got 0000000000000000 exp 0000000000000001
+        FAIL D1 face stays closed while a result is owed got 0000000000000001 exp 0000000000000000
+        FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+        FAIL D1 response stalled at its first byte got 0000000000000000 exp 0000000000000001
+[PASS] caught: result value taken without an accepted beat - defends "the accepted result keeps its own timestamp until its dispatch"; 1207 checks: 1198 PASS, 9 FAIL
+        FAIL D1 response keeps its own t3 got 0000000002627558 exp 0000000002625a00
+        FAIL D1 response keeps its own t3 got 000000000263fbf8 exp 000000000263e0a0
+        FAIL D1 response keeps its own t3 got 0000000002658298 exp 0000000002656740
+        FAIL D1 response keeps its own t3 got 0000000002670938 exp 000000000266ede0
+        FAIL D1 response keeps its own t3 got 0000000002688fd8 exp 0000000002687480
+        FAIL D1 response keeps its own t3 got 00000000026a1678 exp 000000000269fb20
+[PASS] caught: result tag taken without an accepted beat - defends "the accepted result keeps its own tag and outcome until its dispatch"; 1160 checks: 1076 PASS, 84 FAIL
+        FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+        FAIL D1 Sync keeps its own t1     got 0000000002625a00 exp 0000000002627558
+        FAIL D1 the held result was finally taken got 0000000000000001 exp 0000000000000000
+        FAIL wait_tx type 0: timeout
+        FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+        FAIL the result face keeps accepting got 0000000000000000 exp 0000000000000001
+[PASS] caught: recorded t1 survives reset - defends "a t1 measured before a reset cannot pair with a later Follow_Up"; 1207 checks: 1205 PASS, 2 FAIL
+        FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000
+        FAIL D3d interval 0 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+[PASS] caught: byte face advances without ready - defends "a stalled byte, including the final one, waits for an accepted transfer"; 1016 checks: 752 PASS, 264 FAIL
+        FAIL raw-empty overload: only frozen A commits got 000000000000001e exp 000000000000001f
+        FAIL raw-empty overload: post-release path commits got 000000000000001e exp 000000000000001f
+        FAIL pub offset                   got 0000000000000000 exp 00000000000f3bff
+        FAIL sync-ok rose                 got 0000000000000000 exp 0000000000000008
+        FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+        FAIL late FU dropped              got 0000000000000000 exp 00000000000f3bff
+
+6 checks: 6 PASS, 0 FAIL
+
+real	1m53.832s
+user	4m24.583s
+sys	0m2.670s

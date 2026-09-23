@@ -1,0 +1,12 @@
+#!/bin/sh
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Run the pinned Verilator wrapper in $PIN_BIN, rewriting a `-j 0` build
+# parallelism (all host cores) to `-j 8`, the review's job cap.
+: "${PIN_BIN:?PIN_BIN must name the pinned Verilator wrapper directory}"
+n=$#; prev=""
+for x in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$x" = "0" ]; then x=8; fi
+  set -- "$@" "$x"; prev=$x
+done
+shift "$n"
+exec "$PIN_BIN/verilator" "$@"

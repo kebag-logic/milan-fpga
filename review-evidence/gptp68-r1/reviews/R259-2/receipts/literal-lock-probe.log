@@ -1,0 +1,55 @@
+# verilator: Verilator 5.050 2026-07-01 rev v5.050; head cbccf226068c107fb30764891c98b8d70c54d775
+== generator: head (probe phase) ==
+FAIL probe: same GM after a Sync gap, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL probe: same GM after a Sync gap, +50 us: addend matches the mirror got 000000000000d1dd exp 00000000ffe66666
+PROBE probe: same GM after a Sync gap, +50 us: step pulses 1 (owner text: 0)
+FAIL probe: GM failover after a Sync gap, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL probe: GM failover after a Sync gap, -50 us: addend matches the mirror got 000000000000d1dd exp 000000000019999a
+PROBE probe: GM failover after a Sync gap, -50 us: step pulses 1 (owner text: 0)
+FAIL probe: same GM after a Sync gap, +90 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL probe: same GM after a Sync gap, +90 us: addend matches the mirror got 000000000000d1dd exp 00000000ffe66666
+PROBE probe: same GM after a Sync gap, +90 us: step pulses 1 (owner text: 0)
+848 checks: 842 PASS, 6 FAIL
+== generator: narrow (probe phase) ==
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up -15 us: addend matches the mirror got 0000000000051ebc exp 00000000000b8525
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend matches the mirror got 000000000013333f exp 0000000000000001
+FAIL link-up -25 us: the step writes the bare estimate got 000000000013333f exp 0000000000000001
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8517 exp 00000000ffeb8516
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c34 exp 00000000000f5c33
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000000f5c67 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000000f5c67 exp 0000000000000002
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000008 exp 000000000000000c
+FAIL locked +110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+FAIL locked -110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+PROBE probe: same GM after a Sync gap, +50 us: step pulses 0 (owner text: 0)
+PROBE probe: GM failover after a Sync gap, -50 us: step pulses 0 (owner text: 0)
+PROBE probe: same GM after a Sync gap, +90 us: step pulses 0 (owner text: 0)
+836 checks: 818 PASS, 18 FAIL
+== generator: narrow (the whole unmodified suite, probe off) ==
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up -15 us: addend matches the mirror got 0000000000051ebc exp 00000000000b8525
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend matches the mirror got 000000000013333f exp 0000000000000001
+FAIL link-up -25 us: the step writes the bare estimate got 000000000013333f exp 0000000000000001
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8517 exp 00000000ffeb8516
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c34 exp 00000000000f5c33
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000000f5c67 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000000f5c67 exp 0000000000000002
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000008 exp 000000000000000c
+FAIL locked +110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+FAIL locked -110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+1195 checks: 1177 PASS, 18 FAIL

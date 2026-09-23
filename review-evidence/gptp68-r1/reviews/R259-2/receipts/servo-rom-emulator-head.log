@@ -1,0 +1,34 @@
+clk 2000000: parent PHC_ADJ_MAX_C 1677722, ROM DIVU clamp divisors [3355445, 3355445] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21417 step, 16797 slew, 8448 slews whose P+I exceeded the envelope before the clamp, 12346 addends exactly on it, max |addend| 1677722 (limit 1677722)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 25000000: parent PHC_ADJ_MAX_C 134218, ROM DIVU clamp divisors [268437, 268437] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21274 step, 16940 slew, 8782 slews whose P+I exceeded the envelope before the clamp, 12654 addends exactly on it, max |addend| 134218 (limit 134218)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 50000000: parent PHC_ADJ_MAX_C 67109, ROM DIVU clamp divisors [134219, 134219] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21219 step, 16995 slew, 8529 slews whose P+I exceeded the envelope before the clamp, 12391 addends exactly on it, max |addend| 67109 (limit 67109)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 62500000: parent PHC_ADJ_MAX_C 53687, ROM DIVU clamp divisors [107375, 107375] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21967 step, 16247 slew, 8484 slews whose P+I exceeded the envelope before the clamp, 12482 addends exactly on it, max |addend| 53687 (limit 53687)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 100000000: parent PHC_ADJ_MAX_C 33554, ROM DIVU clamp divisors [67109, 67109] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21769 step, 16445 slew, 8292 slews whose P+I exceeded the envelope before the clamp, 12256 addends exactly on it, max |addend| 33554 (limit 33554)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 125000000: parent PHC_ADJ_MAX_C 26844, ROM DIVU clamp divisors [53689, 53689] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21296 step, 16918 slew, 9033 slews whose P+I exceeded the envelope before the clamp, 12911 addends exactly on it, max |addend| 26844 (limit 26844)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 156250000: parent PHC_ADJ_MAX_C 21475, ROM DIVU clamp divisors [42951, 42951] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21945 step, 16269 slew, 8200 slews whose P+I exceeded the envelope before the clamp, 12203 addends exactly on it, max |addend| 21475 (limit 21475)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+clk 1000000: parent PHC_ADJ_MAX_C 3355443, ROM DIVU clamp divisors [6710887, 6710887] -> OK; SERVO@651 SRTO@249 BECOME@103
+  SERVO: 38214 cases, 21120 step, 17094 slew, 8985 slews whose P+I exceeded the envelope before the clamp, 12829 addends exactly on it, max |addend| 3355443 (limit 3355443)
+  SRTO: S_LOCK writes [0], flags 0xf -> ['0x7'], PHC writes 0 -> OK
+  BECOME: S_LOCK writes [0], flags 0xd -> ['0x7'], PHC writes 0 -> OK
+ppm_addend vs parent expression: 411 clocks, 0 differ; exact-tie clocks exercised: [2147483648, 10737418240, 53687091200]
+RESULT: PASS (0 mismatches)

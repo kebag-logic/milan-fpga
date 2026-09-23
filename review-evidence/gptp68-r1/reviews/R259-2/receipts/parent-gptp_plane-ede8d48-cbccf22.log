@@ -1,0 +1,13 @@
+# parent ede8d48ecd7c7f589a14b957951f040d92c99c70, 8 input blobs verified; gptp-processor = donor cbccf226068c107fb30764891c98b8d70c54d775 tree e8b9fa23fe5e1d5e3bd3ab1dd3c09196760a5063
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 996 real (97.3%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@249 FUTO@59 SERVO@651 RESUME@1016 PDREQ@900 TXLOST@159 TXT1OK@181
+python3 $PINNED_ROOT/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_plane_wrap.cpp Vgptp_plane_wrap___024root__0.cpp Vgptp_plane_wrap__ConstPool__0__Slow.cpp Vgptp_plane_wrap___024root__Slow.cpp Vgptp_plane_wrap___024root__0__Slow.cpp Vgptp_plane_wrap__Syms__Slow.cpp > Vgptp_plane_wrap__ALL.cpp
+rm Vgptp_plane_wrap__ALL.verilator_deplist.tmp
+./obj_dir/Vgptp_plane_sim
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000
+29 checks: 29 PASS, 0 FAIL
+# make exit status: 0
