@@ -1,0 +1,7 @@
+[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)
+[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF ALIGNED: the walk STOPPED once the grids were held together, which is what the aligner buys the lane"
+
+5 checks: 5 PASS, 0 FAIL (--leg-defects: the arms that need no elaboration; the gateware and shape mutants are the tdm8render-mutants target)

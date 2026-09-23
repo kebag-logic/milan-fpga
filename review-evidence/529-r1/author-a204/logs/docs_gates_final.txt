@@ -1,0 +1,27 @@
+python3 scripts/docs_check.py rc=0 :: docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70 rc=0 :: check_em_dash: 0 finding(s) over 121 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+python3 scripts/check_doc_style.py rc=0 :: documentation style: OK (22 current documents)
+python3 scripts/check_gptp_docs.py rc=0 :: gPTP documentation: OK (8 current pages)
+python3 docs/DOC_MAP.gen.py --check rc=0 :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+python3 docs/diagrams/timesync_chain.gen.py --check rc=0 :: time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+python3 docs/diagrams/submodule_boundaries.gen.py --check rc=0 :: submodule diagram: OK (4 exact gitlinks, decoded PNG)
+python3 scripts/check_solution_docs.py rc=0 :: solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+python3 scripts/check_submodule_docs.py rc=0 :: submodule documentation: OK (4 exact gitlinks)
+python3 scripts/check_feature_status.py rc=0 :: feature_status: 0 finding(s)
+python3 scripts/gen_toc.py --check rc=0 :: TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+python3 scripts/gen_toc.py --verify-anchors rc=0 :: anchor check: 145 existing cross-page fragment links reproduced
+python3 scripts/check_doc_paths.py rc=0 :: doc path gate: OK (835 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+python3 scripts/check_hygiene.py --check rc=0 :: HYGIENE RATCHET: PASS (3 population(s), 718 file(s))
+python3 scripts/check_todo_ownership.py rc=0 :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 768 first-party file(s) read)
+python3 scripts/check_archive.py rc=0 :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+python3 scripts/measure_test_evidence.py --check rc=0 ::   the mutation ratchet can be lowered to 74
+python3 scripts/measure_fail_fast.py --check rc=0 ::   the ratchets can be lowered to 82, 4 and 0
+python3 scripts/measure_naming.py --check rc=0 :: NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+python3 scripts/check_cpp_idiom.py rc=0 ::   build without warnings: 0 <= 0
+python3 scripts/check_py_idiom.py rc=0 ::   over-long line: 0 <= 0
+python3 scripts/check_sh_idiom.py rc=0 ::   top-heavy long script: 0 <= 0
+python3 scripts/ci_events.py --check rc=0 :: ci_events: OK (1589 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+python3 scripts/check_baremetal_only.py --check rc=0 :: baremetal-only: OK (0 findings across 838 tracked first-party file(s))
+python3 scripts/check_soc_sources.py rc=0 :: SoC source gate: OK (42 instantiated modules all registered, 69 sources all present)
+python3 scripts/check_nvm_record_space.py rc=0 :: 0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a uniq
+python3 scripts/check_diagram_pngs.py rc=0 :: diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)

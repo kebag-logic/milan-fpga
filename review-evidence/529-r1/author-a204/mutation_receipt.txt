@@ -1,0 +1,74 @@
+== M1_row_removed [nxn] rc=1 checks: 1687   failures: 18
+   [FAIL] [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) got=0x0 exp=0xf3f
+   [FAIL] [CTRS-CRF] signatures: counters_valid still 0xF3F got=0x0 exp=0xf3f
+   [FAIL] [CTRS-CRF] signatures: @0 MEDIA_LOCKED         got=0x0 exp=0xa5010101
+   [FAIL] [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       got=0x0 exp=0xa5020202
+   [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+   [FAIL] [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH    got=0x0 exp=0xa5040404
+   [FAIL] [CTRS-CRF] signatures: @16 MEDIA_RESET         got=0x0 exp=0xa5050505
+   [FAIL] [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN got=0x0 exp=0xa5060606
+   [FAIL] [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT  got=0x0 exp=0xa5090909
+   [FAIL] [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      got=0x0 exp=0xa50a0a0a
+   [FAIL] [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     got=0x0 exp=0xa50b0b0b
+   [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0x0 exp=0xa50c0c0c
+   [FAIL] [CTRS-CRF] after the bind edge: counters_valid still 0xF3F got=0x0 exp=0xf3f
+   [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+   [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0x0 exp=0x1
+== M1_row_removed [notify] rc=1 checks: 143   failures: 1
+   [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+== M2_ml_mu_swapped [nxn] rc=1 checks: 1687   failures: 2
+   [FAIL] [CTRS-CRF] signatures: @0 MEDIA_LOCKED         got=0xa5020202 exp=0xa5010101
+   [FAIL] [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       got=0xa5010101 exp=0xa5020202
+== M3_frx_16bit [nxn] rc=1 checks: 1687   failures: 2
+   [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0xc0c exp=0xa50c0c0c
+   [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0xffff exp=0xffffffff
+== M4_mask_0xFFF [nxn] rc=1 checks: 1687   failures: 3
+   [FAIL] [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) got=0xfff exp=0xf3f
+   [FAIL] [CTRS-CRF] signatures: counters_valid still 0xF3F got=0xfff exp=0xf3f
+   [FAIL] [CTRS-CRF] after the bind edge: counters_valid still 0xF3F got=0xfff exp=0xf3f
+== M5_dirty_removed [nxn] rc=1 checks: 1687   failures: 1
+   [FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x10
+== M5_dirty_removed [notify] rc=1 checks: 143   failures: 8
+   [FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1
+   [FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1
+   [FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1
+   [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+   [FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1
+   [FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1
+   [FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2
+   [FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1
+== M6_crf_answers_every_input [nxn] rc=1 checks: 1687   failures: 8
+   [FAIL] [CTRS] counters_valid = 0xFFF (quadlets 0..11) got=0xf3f exp=0xfff
+   [FAIL] [CTRS] @0 MEDIA_LOCKED == CSR CNT0             got=0x0 exp=0x1
+   [FAIL] [CTRS] @8 STREAM_INTERRUPTED == CSR CNT2       got=0x0 exp=0x1
+   [FAIL] [CTRS] @12 SEQ_NUM_MISMATCH == CSR CNT3        got=0x0 exp=0x1
+   [FAIL] [CTRS] @36 LATE_TIMESTAMP == CSR CNT7          got=0x0 exp=0xa
+   [FAIL] [CTRS] @44 FRAMES_RX == CSR CNT9               got=0x0 exp=0xa
+   [FAIL] [CTRS] the graded counters are DISTINCT, not a flat block got=0x0 exp=0x1
+   [FAIL] [CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet got=0x0 exp=0x1
+== M7_aaf_guard_admits_crf [nxn] rc=1 checks: 1687   failures: 18
+   [FAIL] [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) got=0xfff exp=0xf3f
+   [FAIL] [CTRS-CRF] signatures: counters_valid still 0xF3F got=0xfff exp=0xf3f
+   [FAIL] [CTRS-CRF] signatures: @0 MEDIA_LOCKED         got=0x0 exp=0xa5010101
+   [FAIL] [CTRS-CRF] signatures: @4 MEDIA_UNLOCKED       got=0x0 exp=0xa5020202
+   [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+   [FAIL] [CTRS-CRF] signatures: @12 SEQ_NUM_MISMATCH    got=0x0 exp=0xa5040404
+   [FAIL] [CTRS-CRF] signatures: @16 MEDIA_RESET         got=0x0 exp=0xa5050505
+   [FAIL] [CTRS-CRF] signatures: @20 TIMESTAMP_UNCERTAIN got=0x0 exp=0xa5060606
+   [FAIL] [CTRS-CRF] signatures: @32 UNSUPPORTED_FORMAT  got=0x0 exp=0xa5090909
+   [FAIL] [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      got=0x0 exp=0xa50a0a0a
+   [FAIL] [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     got=0x0 exp=0xa50b0b0b
+   [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0x0 exp=0xa50c0c0c
+   [FAIL] [CTRS-CRF] after the bind edge: counters_valid still 0xF3F got=0xfff exp=0xf3f
+   [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+   [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0x0 exp=0x1
+== M8_si_unwired [nxn] rc=1 checks: 1687   failures: 3
+   [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+   [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+   [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff

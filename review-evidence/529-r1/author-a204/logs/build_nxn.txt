@@ -1,0 +1,439 @@
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:850:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  850 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:854:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  854 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:857:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:897:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  897 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:901:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:948:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  948 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:951:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  951 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:954:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  954 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:957:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  957 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:963:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:1569:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1569 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:208:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  208 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:134:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  134 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:137:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                              : ... Suggest assign a label with 'begin : gen_<label_name>'
+  137 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:136:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+  136 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:120:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+  120 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:122:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+  122 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:124:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+  124 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                            : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                  : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                  : ... Suggest assign a label with 'begin : gen_<label_name>'
+   65 |         end else begin
+      |                  ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/priority_encoder.v:75:36: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                  : ... Suggest assign a label with 'begin : gen_<label_name>'
+   75 |             if (LSB_HIGH_PRIORITY) begin
+      |                                    ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/priority_encoder.v:78:22: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                  : ... Suggest assign a label with 'begin : gen_<label_name>'
+   78 |             end else begin
+      |                      ^~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:65:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   65 |   parameter int TDATA_WIDTH = 64,
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee8021q/filtering/rx_mac_filter.sv:48:19: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   48 |     parameter int TDATA_WIDTH  = 64,
+      |                   ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+%Warning-VARHIDDEN: ../../../configs/generated/endstation_arty_4x4/../../../hdl/ieee1722/aaf/KL_i2s_playback.sv:52:17: Declaration of signal hides declaration in upper scope: 'CLK_FREQ_HZ'
+   52 |   parameter int CLK_FREQ_HZ   = 50_000_000,  
+      |                 ^~~~~~~~~~~
+                    ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/ethernet_packet_pkg.sv:344:15: ... Location of original declaration
+  344 | parameter int CLK_FREQ_HZ = 100_000_000;
+      |               ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:60:70: Procedural assignment to declaration with initial value: 'tx_error_underflow_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   60 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_error_underflow_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:86:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   86 |   tx_error_underflow_cnt <= counters[TX_ERROR_UNDERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:61:68: Procedural assignment to declaration with initial value: 'tx_fifo_overflow_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   61 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:87:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   87 |   tx_fifo_overflow_cnt <= counters[TX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:62:69: Procedural assignment to declaration with initial value: 'tx_fifo_bad_frame_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   62 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:88:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   88 |   tx_fifo_bad_frame_cnt <= counters[TX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:63:70: Procedural assignment to declaration with initial value: 'tx_fifo_good_frame_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   63 | (* mark_debug = "true" *) logic [WIDTH-1:0] tx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:89:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   89 |   tx_fifo_good_frame_cnt <= counters[TX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:64:70: Procedural assignment to declaration with initial value: 'rx_error_bad_frame_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   64 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:90:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   90 |   rx_error_bad_frame_cnt <= counters[RX_ERROR_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:65:68: Procedural assignment to declaration with initial value: 'rx_error_bad_fcs_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   65 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_error_bad_fcs_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:91:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   91 |   rx_error_bad_fcs_cnt <= counters[RX_ERROR_BAD_FCS];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:66:68: Procedural assignment to declaration with initial value: 'rx_fifo_overflow_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   66 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_overflow_cnt = '0;
+      |                                                                    ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:92:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   92 |   rx_fifo_overflow_cnt <= counters[RX_FIFO_OVERFLOW];
+      |   ^~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:67:69: Procedural assignment to declaration with initial value: 'rx_fifo_bad_frame_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   67 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_bad_frame_cnt = '0;
+      |                                                                     ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:93:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   93 |   rx_fifo_bad_frame_cnt <= counters[RX_FIFO_BAD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:68:70: Procedural assignment to declaration with initial value: 'rx_fifo_good_frame_cnt'
+                                                                                                                                   : ... note: In instance 'milan_datapath.ethernet_counters'
+                                                                                                                                   : ... Location of variable initialization
+   68 | (* mark_debug = "true" *) logic [WIDTH-1:0] rx_fifo_good_frame_cnt = '0;
+      |                                                                      ^~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/eth_event_counter/ethernet_events.sv:94:3: ... Location of variable process write
+                                                                                                                                  : ... Perhaps should initialize instead using a reset in this process
+   94 |   rx_fifo_good_frame_cnt <= counters[RX_FIFO_GOOD_FRAME];
+      |   ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2239:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                 : ... note: In instance 'milan_datapath.csr'
+                                                                                                                 : ... Location of variable initialization
+ 2239 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2730:34: ... Location of variable process write
+                                                                                                                 : ... Perhaps should initialize instead using a reset in this process
+ 2730 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2727:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                 : ... note: In instance 'milan_datapath.csr'
+                                                                                                                 : ... Location of variable initialization
+ 2727 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2729:5: ... Location of variable process write
+                                                                                                                : ... Perhaps should initialize instead using a reset in this process
+ 2729 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:3336:10: ... Location of async usage
+ 3336 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:759:10: ... Location of sync usage
+  759 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make: Entering directory '$REVIEWS/529-a204-packet/obj/nxn'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_nxn.o ../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__0.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__1.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__2.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__3.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__4.cpp
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::grade_get_configuration_against_the_entity_row()’:
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp:2023:29: warning: ‘: configuration_index IS the...’ directive output may be truncated writing 65 bytes into a region of size between 49 and 144 [-Wformat-truncation=]
+ 2023 |                          "%s: configuration_index IS the model's "
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2024 |                          "ENTITY.current_configuration", t);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp:2022:25: note: ‘snprintf’ output between 66 and 161 bytes into a destination of size 144
+ 2022 |                 snprintf(w, sizeof w,
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+ 2023 |                          "%s: configuration_index IS the model's "
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2024 |                          "ENTITY.current_configuration", t);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::grade_get_sampling_rate_against_the_audio_unit()’:
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp:2397:29: warning: ‘: sampling_rate IS the model...’ directive output may be truncated writing 54 bytes into a region of size between 49 and 144 [-Wformat-truncation=]
+ 2397 |                          "%s: sampling_rate IS the model's "
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2398 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp:2397:26: note: directive argument in the range [0, 4294967295]
+ 2397 |                          "%s: sampling_rate IS the model's "
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2398 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../../../../lanes/529-crf-input-counters/tb/verilator/milan_dp/sim_nxn.cpp:2396:25: note: ‘snprintf’ output between 57 and 161 bytes into a destination of size 144
+ 2396 |                 snprintf(w, sizeof w,
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+ 2397 |                          "%s: sampling_rate IS the model's "
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2398 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__5.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__6.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__7.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__8.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath___024root__9.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__1__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__2__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_nxn.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_nxn
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make: Leaving directory '$REVIEWS/529-a204-packet/obj/nxn'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 127.824 MB sources in 113 modules, into 12.960 MB in 22 C++ files needing 0.005 MB
+- Verilator: Walltime 14.717 s (elab=0.388, cvt=2.723, bld=11.118); cpu 3.783 s on 8 threads; allocated 807.387 MB
