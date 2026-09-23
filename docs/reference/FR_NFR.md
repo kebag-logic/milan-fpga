@@ -400,8 +400,8 @@ the completed PS-to-fabric migration plan (#259, in git history).
     *(NFR-SCUP/SCOUT)*
 
 > Features intentionally **out of scope for now** (documented, not required
-> here). Each is a directed limitation with its revisit trigger, not an
-> omission:
+> here). The first two are recorded decisions: each is a directed limitation
+> with its revisit trigger, not an omission.
 >
 > - Seamless network **redundancy** (Milan v1.2 Section 8). This is a declared
 >   non-redundant end station: one AVB_INTERFACE on one cabled port, and
