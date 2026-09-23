@@ -1,0 +1,34 @@
+{
+  "cwd": "$LANES/437-validation",
+  "head": "4741498f3b2b4f67f431037d327c96cf65691278",
+  "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+  "commands": [
+    [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/437-manager-r2/full-suite-logs",
+      "--wait"
+    ],
+    [
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/437-manager-r2/yosys-results"
+    ],
+    [
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "behave",
+      "tests/features"
+    ]
+  ]
+}
