@@ -1,0 +1,23 @@
+MUTANT coin_old (hdl/ieee1722/aaf/KL_chan_map_capture.sv)
+  diff: 545c545
+  diff: <           tdm_frame_pend_r <= tdm_frame_pend_r;
+  diff: ---
+  diff: >           tdm_frame_pend_r <= 1'b0;
+  media_grid_align: 45 checks, 3 failures
+    mga   [FAIL] G9: a slow grid's passage is one junction dup        = 11 (expected 1)
+    mga   [FAIL] G9: a fast grid's passage is one junction skip       = 0 (expected 1)
+    mga   [FAIL] G9: a fast grid's passage is no junction dup         = 10 (expected 0)
+    mga   acquisition: 5 junction dups, 0 skips
+    mga   window 0: 0 junction dups, 0 skips, err 5 cycles
+    mga   window 1: 0 junction dups, 0 skips, err 3 cycles
+    mga   window 2: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 3: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 4: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 5: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 6: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 7: 0 junction dups, 0 skips, err 1 cycles
+    mga   acquisition: 331 junction dups, 46 skips
+  chmap_capture: KL_chan_map_capture: 204 checks, 3 failures
+    chmap   [FAIL] T0: a coincidence carries a pending frame (no dup after) got=0x5 exp=0x4
+    chmap   [FAIL] T0: a frame over a carried frame is a skip     got=0x2 exp=0x3
+    chmap   [FAIL] T0: the carried frames leave no dup behind     got=0x5 exp=0x4

@@ -1,0 +1,19 @@
+MUTANT keep_small (hdl/ieee1722/crf/KL_media_grid_align.sv)
+  diff: 114c114
+  diff: <   parameter int unsigned LOCK_KEEPOFF_CYC_P  = (CLK_FREQ_HZ_P / FS_HZ_P) / 128
+  diff: ---
+  diff: >   parameter int unsigned LOCK_KEEPOFF_CYC_P  = (CLK_FREQ_HZ_P / FS_HZ_P) / 512
+  media_grid_align: 45 checks, 2 failures
+    mga   [FAIL] G7: marker clearance from every tick at lock (cycles) = 3 (outside [12, 2083])
+    mga   [FAIL] G8: marker clearance from every tick at lock (cycles) = 1 (outside [12, 2083])
+    mga   acquisition: 0 junction dups, 0 skips
+    mga   window 0: 0 junction dups, 0 skips, err 5 cycles
+    mga   window 1: 0 junction dups, 0 skips, err 3 cycles
+    mga   window 2: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 3: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 4: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 5: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 6: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 7: 0 junction dups, 0 skips, err 1 cycles
+    mga   acquisition: 303 junction dups, 303 skips
+  chmap_capture: KL_chan_map_capture: 204 checks, 0 failures

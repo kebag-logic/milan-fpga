@@ -1,0 +1,4 @@
+545c545
+<           tdm_frame_pend_r <= tdm_frame_pend_r;
+---
+>           tdm_frame_pend_r <= 1'b1; if (tdm_fed_r && !tdm_frame_pend_r && tdm_dup_cnt_o != 16'hFFFF) tdm_dup_cnt_o <= tdm_dup_cnt_o + 16'd1;

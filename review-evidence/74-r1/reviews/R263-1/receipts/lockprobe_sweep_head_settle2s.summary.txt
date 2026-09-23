@@ -1,0 +1,34 @@
+rate jit runs lock_clean min_clr clr<12 held_exact surplus_exact(non-ambig) nco_gap_runs(acq) nco_gaps(lock) ambiguous_surplus_skipped
+fast 0 26 26 15 0 26 26 0 0 32
+fast 1 26 26 15 0 26 26 0 0 32
+fast 2 26 26 14 0 26 26 2 0 33
+fast 4 26 26 13 0 26 26 5 0 33
+fast 8 26 26 11 10 26 26 6 0 33
+   exception lead=0 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=1210/1210
+   exception lead=1 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=939/940
+   exception lead=2 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=481/482
+   exception lead=3 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=1211/1211
+   exception lead=5 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=1219/1219
+   exception lead=8 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=318/319
+   exception lead=12 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=1222/1222
+   exception lead=15 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=388/389
+   exception lead=16 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=574/575
+   exception lead=2083 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=1 acq=946/946
+plan 0 26 26 16 0 26 26 0 0 32
+plan 1 26 26 14 0 26 26 2 0 33
+plan 2 26 26 1 1 26 26 2 0 33
+   exception lead=2075 lock_counts=0 clr=1 held=(1, 0) badsur=0 nco_gaps_acq=2 acq=627/629
+plan 4 26 26 13 0 26 26 3 0 33
+plan 8 26 24 0 12 26 26 2 0 33
+   exception lead=0 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=1 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=2 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=3 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=5 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=8 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=12 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=15 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=16 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=0/0
+   exception lead=2067 lock_counts=132 clr=0 held=(1, 0) badsur=0 nco_gaps_acq=2 acq=2584/2586
+   exception lead=2070 lock_counts=84 clr=0 held=(1, 0) badsur=0 nco_gaps_acq=2 acq=2586/2588
+   exception lead=2083 lock_counts=0 clr=11 held=(1, 0) badsur=0 nco_gaps_acq=0 acq=1/0

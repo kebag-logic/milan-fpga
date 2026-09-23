@@ -1,0 +1,21 @@
+MUTANT keep_cross (hdl/ieee1722/crf/KL_media_grid_align.sv)
+  diff: 181c181
+  diff: <   wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_LO_C
+  diff: ---
+  diff: >   wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_HI_C
+  media_grid_align: 45 checks, 4 failures
+    mga   [FAIL] G7: marker clearance from every tick at lock (cycles) = 8 (outside [12, 2083])
+    mga   [FAIL] G8: zero junction dups over 0.2 s at the lock        = 82 (expected 0)
+    mga   [FAIL] G8: zero junction skips over 0.2 s at the lock       = 83 (expected 0)
+    mga   [FAIL] G8: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+    mga   acquisition: 77 junction dups, 78 skips
+    mga   window 0: 0 junction dups, 0 skips, err 4 cycles
+    mga   window 1: 0 junction dups, 0 skips, err 3 cycles
+    mga   window 2: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 3: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 4: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 5: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 6: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 7: 0 junction dups, 0 skips, err 1 cycles
+    mga   acquisition: 90 junction dups, 90 skips
+  chmap_capture: KL_chan_map_capture: 204 checks, 0 failures

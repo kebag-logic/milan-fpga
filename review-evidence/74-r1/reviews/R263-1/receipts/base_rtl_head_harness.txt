@@ -1,0 +1,30 @@
+== base RTL + head harnesses ==
+45 checks, 13 failures
+  [ ok ] G2: |err| peak over acquisition (cycles, <1 sample=2083) = 35 (in [0, 300])
+  acquisition: 7 junction dups, 0 skips
+  window 0: 0 junction dups, 0 skips, err 5 cycles
+  window 1: 0 junction dups, 0 skips, err 3 cycles
+  window 2: 771 junction dups, 0 skips, err 0 cycles
+  window 3: 2351 junction dups, 0 skips, err 1 cycles
+  window 4: 2431 junction dups, 569 skips, err 1 cycles
+  window 5: 1980 junction dups, 870 skips, err 0 cycles
+  window 6: 1694 junction dups, 853 skips, err 0 cycles
+  window 7: 1701 junction dups, 871 skips, err 0 cycles
+  [FAIL] G7: zero junction dups over 8 x 0.2 s at the raced lock = 10928 (expected 0)
+  [FAIL] G7: zero junction skips over 8 x 0.2 s at the raced lock = 3163 (expected 0)
+  [FAIL] G7: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+  [FAIL] G7: a held frame is one junction dup                 = 73 (expected 1)
+  [FAIL] G7: a held frame is no junction skip                 = 36 (expected 0)
+  [FAIL] G7: a surplus frame is one junction skip             = 13 (expected 1)
+  [FAIL] G7: a surplus frame is no junction dup               = 21 (expected 0)
+  acquisition: 418 junction dups, 3 skips
+  [FAIL] G8: zero junction dups over 0.2 s at the lock        = 2278 (expected 0)
+  [FAIL] G8: zero junction skips over 0.2 s at the lock       = 356 (expected 0)
+  [FAIL] G8: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+  [FAIL] G9: a slow grid's passage is one junction dup        = 10 (expected 1)
+  [FAIL] G9: a fast grid's passage is one junction skip       = 0 (expected 1)
+  [FAIL] G9: a fast grid's passage is no junction dup         = 9 (expected 0)
+KL_chan_map_capture: 204 checks, 3 failures
+  [FAIL] T0: a coincidence carries a pending frame (no dup after) got=0x5 exp=0x4
+  [FAIL] T0: a frame over a carried frame is a skip     got=0x2 exp=0x3
+  [FAIL] T0: the carried frames leave no dup behind     got=0x5 exp=0x4

@@ -1,0 +1,53 @@
+### python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 -B scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### python3 -B scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 37 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+### python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+### python3 -B scripts/lint_rtl.py --check
+  missing: gptp-processor             (KL_gptp_shadow's KL_gptp_engine)
+  A fresh `git worktree add` inherits no submodules. Initialise them (no network needed for these three):
+    git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+  Refused rather than counted: a violation count over an incomplete resolution set proves nothing and must not read as a pass, nor invite a ratchet tighten - the pp_srcs.py rule.
+rc=2
+### python3 -B scripts/check_sv_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor; -424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2
+### python3 -B scripts/measure_naming.py --check
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor; -424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2
+### git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD
+rc=0
+### python3 -B scripts/lint_rtl.py --check
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0
+### python3 -B scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+### python3 -B scripts/measure_naming.py --check
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 587 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+rc=0
+### python3 -B scripts/check_port_contracts.py
+port contract gate: OK (3576 first-party port(s): hdl 1902, gptp-processor 124, protocol-processor 1550; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 101 open and 51 literal-bound named connection(s), 65 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)
+  the ratchet can be lowered - regenerate with --write-budget; 3 recorded connection(s) gained a rationale or left
+rc=0
+### python3 -B scripts/check_cpp_idiom.py
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0

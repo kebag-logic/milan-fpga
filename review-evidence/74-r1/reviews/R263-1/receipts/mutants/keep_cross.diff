@@ -1,0 +1,4 @@
+181c181
+<   wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_LO_C
+---
+>   wire [TSTW_C-1:0] ref_keep_w = (tst_next_w < KEEP_LO_C) ? KEEP_HI_C

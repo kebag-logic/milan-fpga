@@ -1,0 +1,4 @@
+264c264
+<       if (frame_ev_i) ref_r <= ref_keep_w;
+---
+>       if (frame_ev_i) ref_r <= tst_next_w;

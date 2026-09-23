@@ -1,0 +1,27 @@
+MUTANT keep_raw (hdl/ieee1722/crf/KL_media_grid_align.sv)
+  diff: 264c264
+  diff: <       if (frame_ev_i) ref_r <= ref_keep_w;
+  diff: ---
+  diff: >       if (frame_ev_i) ref_r <= tst_next_w;
+  media_grid_align: 45 checks, 10 failures
+    mga   [FAIL] G7: zero junction dups over 8 x 0.2 s at the raced lock = 5203 (expected 0)
+    mga   [FAIL] G7: zero junction skips over 8 x 0.2 s at the raced lock = 5203 (expected 0)
+    mga   [FAIL] G7: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+    mga   [FAIL] G7: a held frame is one junction dup                 = 60 (expected 1)
+    mga   [FAIL] G7: a held frame is no junction skip                 = 59 (expected 0)
+    mga   [FAIL] G7: a surplus frame is one junction skip             = 23 (expected 1)
+    mga   [FAIL] G7: a surplus frame is no junction dup               = 21 (expected 0)
+    mga   [FAIL] G8: zero junction dups over 0.2 s at the lock        = 634 (expected 0)
+    mga   [FAIL] G8: zero junction skips over 0.2 s at the lock       = 635 (expected 0)
+    mga   [FAIL] G8: marker clearance from every tick at lock (cycles) = 0 (outside [12, 2083])
+    mga   acquisition: 0 junction dups, 0 skips
+    mga   window 0: 0 junction dups, 0 skips, err 5 cycles
+    mga   window 1: 0 junction dups, 0 skips, err 3 cycles
+    mga   window 2: 0 junction dups, 0 skips, err 0 cycles
+    mga   window 3: 0 junction dups, 0 skips, err 1 cycles
+    mga   window 4: 994 junction dups, 994 skips, err 1 cycles
+    mga   window 5: 1421 junction dups, 1422 skips, err 0 cycles
+    mga   window 6: 1397 junction dups, 1397 skips, err 0 cycles
+    mga   window 7: 1391 junction dups, 1390 skips, err 0 cycles
+    mga   acquisition: 5 junction dups, 4 skips
+  chmap_capture: KL_chan_map_capture: 204 checks, 0 failures
