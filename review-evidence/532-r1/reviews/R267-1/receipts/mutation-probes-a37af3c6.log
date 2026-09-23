@@ -1,0 +1,25 @@
+R01 live interrupt self-test silently runs in slot 0: SURVIVED rc=0
+R02 interrupt self-test never enters its slot: SURVIVED rc=0
+R03 daemon runtime directory absence not proved: SURVIVED rc=0
+R04 uplink pidfile absence not proved: SURVIVED rc=0
+R05 uplink unload not proved (stop still runs): SURVIVED rc=0
+R06 slice inactivity not proved: KILLED rc=1
+    FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+R07 slice cgroup absence not proved: SURVIVED rc=0
+R08 an unanswerable nft query is read as table absent (fail-open): SURVIVED rc=0
+R09 slot root never validated on acquisition: SURVIVED rc=0
+R10 production lock accepts a lock file owned by the invoking user: SURVIVED rc=0
+R11 privileged host commands may prompt (sudo without -n): SURVIVED rc=0
+R12 slot teardown runs without blocked cleanup signals: SURVIVED rc=0
+R13 residue ignores an active slice: KILLED rc=1
+    FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+R14 residue ignores the uplink pidfile: KILLED rc=1
+    FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+R15 residue counts only units in state loaded: SURVIVED rc=0
+R16 firewall table deleted before the uplink stops: KILLED rc=1
+    FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+R17 firewall rule matches only IPv4 loopback instead of every host-local address: KILLED rc=1
+    FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+R18 identity accepts either label instead of both: KILLED rc=1
+    FAIL a slot daemon reporting another invocation's token refuses and the slot is torn down
+restored scripts/act_ci.py sha256=e1d614342e30162aae19a5ca8df7fe631784b61212e30dfa7f5ec6b034be276c EXACT

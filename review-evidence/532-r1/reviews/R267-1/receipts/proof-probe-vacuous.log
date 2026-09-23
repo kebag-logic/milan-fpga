@@ -1,0 +1,20 @@
+PASS interrupt self-test in slot 1
+PASS parallel-a = serial-a
+PASS parallel-b = serial-b
+PASS collision slot 1: the rival was refused and the holder kept its serial verdict
+PROVED every slot proof held
+proof-script rc=0 (proof script sha256 775c7f887dc6a88b5a509038c67def207b29fe9b122d3cc5fd2d48c5a64b62a7)
+== collide-1-holder.verdict
+exit 2
+== collide-1-rival.verdict
+exit 2
+== parallel-a.verdict
+exit 2
+== parallel-b.verdict
+exit 2
+== serial-a.verdict
+exit 2
+== serial-b.verdict
+exit 2
+== interrupt log
+interrupt-selftest: PASS (slot 0 only; the requested slot was ignored)
