@@ -1,0 +1,12 @@
+campaign=f815harness_nxn leg=nxn mutant=swap_pdu_count_o__cnt_intr_o
+mutant_sha256=5e6e7fff38782578d9c0b2446148f2e1698cc28e2c943c18610fe8bc9901c9b1
+harness_sha256=3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a
+build_exit=0
+leg=nxn exit=1 checks=1687 failures=6 ok_lines=1681 fail_lines=6 crf_ok=50 crf_fail=4 wall_s=6 bin_sha256=e45bdd30a967c511005929eb001c5fcc00605825c1803a6512cfc881338cda73
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0x0 exp=0x1
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3

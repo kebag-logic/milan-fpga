@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=swap_early_cnt_o__cnt_unlocked_o
+mutant_sha256=30ed16d25f1671f99ea81de0c5b2bd9eb8175964fcbfd915792c1ef8d47eb891
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=7 bin_sha256=749653903ca0b19c83ceb3c0d2d4126c9e36009798b6a21a0380a09f32f071ba
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x5 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x5 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x9 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x1 exp=0x9

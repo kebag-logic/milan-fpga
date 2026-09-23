@@ -1,0 +1,8 @@
+campaign=prior_nxn leg=nxn mutant=r268_p3_bind_mr_tu
+mutant_sha256=efefbfafdd5afc647b13ccccfccb29c21350ba2cc108e1b3621b2a53e101adc3
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=6 bin_sha256=dad4bdba77c0723f84a1468c9e59d84aae433245c65efca07c0612ac6e6f2de3
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x6 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x5 exp=0x6

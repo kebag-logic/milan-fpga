@@ -1,0 +1,11 @@
+campaign=head_nxn leg=nxn mutant=swap_seq_err_o__cnt_locked_o
+mutant_sha256=aca8a43f0ad43f7da5a07dcd321fdd508615f5e6b5b954447135edab9426ec16
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=5 ok_lines=1700 fail_lines=5 crf_ok=67 crf_fail=5 wall_s=7 bin_sha256=368739f88dc3aa976678f9ede298719d0cd1abbeff7bba9ae84e6ad9a2c79bcf
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x4 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x4 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x4 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x2 exp=0x4

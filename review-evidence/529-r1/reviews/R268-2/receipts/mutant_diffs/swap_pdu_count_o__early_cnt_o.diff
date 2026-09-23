@@ -1,0 +1,20 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5479,7 +5479,7 @@
+     .stop_i      (crf_snk_stopped_w),
+     .delta_o     (crf_delta_w),
+     .rate_o      (crf_rate_w),
+-    .pdu_count_o (crf_pducnt_w),
++    .pdu_count_o (crf_earlycnt_w),
+     .fmt_err_o   (crf_fmterr_w),
+     .seq_err_o   (crf_seqerr_w),
+     //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+@@ -5489,7 +5489,7 @@
+     .mr_cnt_o    (crf_mrcnt_w),
+     .tu_cnt_o    (crf_tucnt_w),
+     .late_cnt_o  (crf_latecnt_w),
+-    .early_cnt_o (crf_earlycnt_w),
++    .early_cnt_o (crf_pducnt_w),
+     .locked_o    (crf_locked_w),
+     .cnt_locked_o   (crf_lockcnt_w),
+     .cnt_unlocked_o (crf_unlockcnt_w),

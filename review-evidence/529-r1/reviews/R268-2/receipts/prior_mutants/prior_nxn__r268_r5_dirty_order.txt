@@ -1,0 +1,8 @@
+campaign=prior_nxn leg=nxn mutant=r268_r5_dirty_order
+mutant_sha256=e7d71aa30aee92637dc76159f85b69c8e8e0088d22132b367d92f26fce8822b4
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=71 crf_fail=1 wall_s=6 bin_sha256=f8115a73b18326fdd24f88a3ff428a62fad430ad2a63336cf14845eb694c77bd
+verdict=KILLED
+  [FAIL] [CTRS] real input counter changes reached the descriptor arbiter got=0x4 exp=0x6
+  [FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x1 exp=0x10

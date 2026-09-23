@@ -1,0 +1,12 @@
+static gates run by this round in a disposable clone of the exact head (focused evidence only; the manager's banks are separate)
+--- scripts/check_port_contracts.py
+port contract gate: OK (3576 first-party port(s): hdl 1902, gptp-processor 124, protocol-processor 1550; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 51 literal-bound named connection(s), 62 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)
+--- scripts/check_port_contracts.py --write-budget, then git diff --exit-code scripts/port_docs.budget: byte-identical (restored)
+--- scripts/lint_rtl.py --check
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+--- scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 153 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+--- scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+--- git diff --check ede8d48e HEAD: clean; 6 commits, each one line with no trailers and one parent; gitlinks unchanged from base

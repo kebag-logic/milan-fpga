@@ -1,0 +1,9 @@
+campaign=head_nxn leg=nxn mutant=swap_fmt_err_o__seq_err_o
+mutant_sha256=1593f85d387a357a96079f07c7e6f8aabadad0b48cef6f9d7ea4e08439c83e76
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=3 ok_lines=1702 fail_lines=3 crf_ok=69 crf_fail=3 wall_s=7 bin_sha256=d2773ab9ad73bed42d0477a25f4e4f73271e8c6454cad6a056aa256eab718ca8
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x7 exp=0x4
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x4 exp=0x7

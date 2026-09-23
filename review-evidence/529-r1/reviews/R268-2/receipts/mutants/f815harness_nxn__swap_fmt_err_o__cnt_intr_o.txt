@@ -1,0 +1,7 @@
+campaign=f815harness_nxn leg=nxn mutant=swap_fmt_err_o__cnt_intr_o
+mutant_sha256=78b1b0b6efacbe3758e7f305cb90bfe32c4cf2a7868a81ea160e9ab30f2bb60b
+harness_sha256=3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a
+build_exit=0
+leg=nxn exit=1 checks=1687 failures=1 ok_lines=1686 fail_lines=1 crf_ok=53 crf_fail=1 wall_s=6 bin_sha256=cced358c38dab23b8af2f8e1e81a481b939b1d3a1a50a2df5906756679d17629
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0

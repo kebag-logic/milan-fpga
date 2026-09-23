@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=mux_mask_f3e
+mutant_sha256=569b9cc8270afc0425e7b02b4ec4d35257edb5bedf14c3234c016992816692d7
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=1b852b00dd1e604148da6cc734568b07869767dd4812a052048663f5966e7d0c
+verdict=KILLED
+  [FAIL] [CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten) got=0xf3e exp=0xf3f
+  [FAIL] [CTRS-CRF] signatures: counters_valid still 0xF3F got=0xf3e exp=0xf3f
+  [FAIL] [CTRS-CRF] after the bind edge: counters_valid still 0xF3F got=0xf3e exp=0xf3f
+  [FAIL] [CTRS-CRF] events: counters_valid still 0xF3F  got=0xf3e exp=0xf3f

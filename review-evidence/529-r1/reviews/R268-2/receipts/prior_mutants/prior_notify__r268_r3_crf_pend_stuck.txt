@@ -1,0 +1,8 @@
+campaign=prior_notify leg=notify mutant=r268_r3_crf_pend_stuck
+mutant_sha256=6e876a42ff26ff15a5e1be0bb4ddab725d8ab2dd558e6d538ed88bee4750d528
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=notify exit=1 checks=145 failures=2 ok_lines=143 fail_lines=2 crf_ok=8 crf_fail=2 wall_s=13 bin_sha256=7735c3e88029c517bbf71686d0be7fc378720acd7bffad055bc2f8872d2d53f9
+verdict=KILLED
+  [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x4 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x4 exp=0x2

@@ -1,0 +1,8 @@
+campaign=prior_nxn8 leg=nxn8 mutant=r268_p2_bind_late_early
+mutant_sha256=1b5419b3a7654253cbfb28bfb76c009778a25114c0eca4f2f2f7af7a3d5b2128
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn8 exit=1 checks=3133 failures=2 ok_lines=3131 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=12 bin_sha256=5da8dc7734fba95aeabd8880e48f1ef257c8f7cc642259c490574375a09e8d83
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x9 exp=0x8
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x8 exp=0x9

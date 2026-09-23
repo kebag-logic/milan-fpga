@@ -1,0 +1,10 @@
+campaign=prior_nxn leg=nxn mutant=r269_mx2_port_swap_locked_unlocked
+mutant_sha256=c7cba1b58e3afafbe1bc903d39e9d13b666d07641ef95277cef22e0def5bf1c3
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=31bc7cacf8a282235fda37754b2c75bc16d093f6bef88a98ba9f5194cea1f279
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x1 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x2 exp=0x1

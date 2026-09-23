@@ -1,0 +1,8 @@
+campaign=head_nxn leg=nxn mutant=swap_fmt_err_o__mr_cnt_o
+mutant_sha256=4880115537ba41fd30f6da81a91641118f42eac05250c4f2d13381d9ea328c51
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=7 bin_sha256=bae2dd2a7ae73184192478652ea1214996d173276bfa61a6d47db445d2a04772
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x7 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x5 exp=0x7

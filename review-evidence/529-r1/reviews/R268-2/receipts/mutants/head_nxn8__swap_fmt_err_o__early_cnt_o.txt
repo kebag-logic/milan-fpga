@@ -1,0 +1,9 @@
+campaign=head_nxn8 leg=nxn8 mutant=swap_fmt_err_o__early_cnt_o
+mutant_sha256=b70828610bcf67b1b0a96e33fce8fe27f1a8fa6e2cf0a6c6d38a32a5a28a1b30
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn8 exit=1 checks=3133 failures=3 ok_lines=3130 fail_lines=3 crf_ok=70 crf_fail=2 wall_s=12 bin_sha256=73cf00fa4e34d5245a226a43b65b37d5947713f1d3badbd1c3fd92f671a4e597
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x9 exp=0x7
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x7 exp=0x9
+  [FAIL] CRF 5.3.8.7 stopped: fmt/seq stayed clean      got=0xa00 exp=0x0

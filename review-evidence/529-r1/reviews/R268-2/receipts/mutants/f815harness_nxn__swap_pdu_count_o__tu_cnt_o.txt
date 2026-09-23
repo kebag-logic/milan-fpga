@@ -1,0 +1,10 @@
+campaign=f815harness_nxn leg=nxn mutant=swap_pdu_count_o__tu_cnt_o
+mutant_sha256=e075990f975e143f55e2d9d61ab39735cf1614b982237d4a0f11246521c1369f
+harness_sha256=3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a
+build_exit=0
+leg=nxn exit=1 checks=1687 failures=4 ok_lines=1683 fail_lines=4 crf_ok=52 crf_fail=2 wall_s=6 bin_sha256=45e4243ad8d058617f06ad8c3a82ebb0c96be271ccbff40a2340e4a17f684c7e
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0xffffffff exp=0x1
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3

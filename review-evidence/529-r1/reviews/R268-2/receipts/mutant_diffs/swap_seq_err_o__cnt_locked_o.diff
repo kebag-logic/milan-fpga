@@ -1,0 +1,20 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5481,7 +5481,7 @@
+     .rate_o      (crf_rate_w),
+     .pdu_count_o (crf_pducnt_w),
+     .fmt_err_o   (crf_fmterr_w),
+-    .seq_err_o   (crf_seqerr_w),
++    .seq_err_o   (crf_lockcnt_w),
+     //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+     //! the three above are the GET_COUNTERS row for STREAM_INPUT N_STREAMS
+     //! (ctr_crf_block). Only pdu, fmt_err and seq_err also have a CSR slice
+@@ -5491,7 +5491,7 @@
+     .late_cnt_o  (crf_latecnt_w),
+     .early_cnt_o (crf_earlycnt_w),
+     .locked_o    (crf_locked_w),
+-    .cnt_locked_o   (crf_lockcnt_w),
++    .cnt_locked_o   (crf_seqerr_w),
+     .cnt_unlocked_o (crf_unlockcnt_w),
+     .cnt_intr_o     (crf_intrcnt_w),
+     //! ...and that row's Table 5.22 source: the descriptor arbiter in front

@@ -1,0 +1,10 @@
+campaign=prior_nxn leg=nxn mutant=r268_a8_q2_zero
+mutant_sha256=32cc3767046df73bc88a7b8be6844186e999228cb0dc109929bb438e1b22bf1e
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=a8b4cf7dcb079d2eeddd263d2a2c8dcfd42ce49c9cb6a47797bafc15ed81e2d1
+verdict=KILLED
+  [FAIL] [CTRS-CRF] signatures: @8 STREAM_INTERRUPTED   got=0x0 exp=0xa5030303
+  [FAIL] [CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move got=0x0 exp=0xffffffff
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x0 exp=0x3

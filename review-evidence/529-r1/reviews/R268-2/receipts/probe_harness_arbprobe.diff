@@ -1,0 +1,14 @@
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn_arbprobe.cpp
+@@ -3467,7 +3467,11 @@
+     //! reach the Table 5.22 arbiter as {STREAM_INPUT, N} and as nothing else.
+     void prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit() {
+         pp_ctr_evt_sin_seen = 0;
++        pp_ctr_evt_sout_seen = 0; pp_ctr_evt_avb_seen = false; pp_ctr_evt_ckd_seen = false;
+         crf_lever(true);
++        ck("[PROBE] the bind edge delivered no STREAM_OUTPUT tuple", pp_ctr_evt_sout_seen, 0);
++        ck("[PROBE] ...no AVB_INTERFACE tuple", pp_ctr_evt_avb_seen ? 1 : 0, 0);
++        ck("[PROBE] ...no CLOCK_DOMAIN tuple", pp_ctr_evt_ckd_seen ? 1 : 0, 0);
+         ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+            pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+         const std::vector<uint8_t> r = crf_ctrs(0x4402);

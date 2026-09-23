@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=tout_double
+mutant_sha256=64890e789c9248e316768306f9fe73470b64b8ce4b2fd4d36c17e6c922acfefe
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=ed8481ddd1161ea765c6940ea115fe8b2467e4c728b4b605473a073fe65c3e78
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: the silence's last millisecond unlocks the sink got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x1 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x0 exp=0x1

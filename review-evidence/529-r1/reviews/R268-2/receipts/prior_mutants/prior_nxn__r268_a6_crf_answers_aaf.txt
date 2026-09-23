@@ -1,0 +1,14 @@
+campaign=prior_nxn leg=nxn mutant=r268_a6_crf_answers_aaf
+mutant_sha256=6d311956a4f746286965655c3b9c4b93b3ba35eda984de8dd53ca2f29be109b3
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=8 ok_lines=1697 fail_lines=8 crf_ok=71 crf_fail=1 wall_s=6 bin_sha256=854882935b380eadf8fbb53eee4381b58bd4871ed8ba3cc57d4e82c25f2466be
+verdict=KILLED
+  [FAIL] [CTRS] counters_valid = 0xFFF (quadlets 0..11) got=0xf3f exp=0xfff
+  [FAIL] [CTRS] @0 MEDIA_LOCKED == CSR CNT0             got=0x0 exp=0x1
+  [FAIL] [CTRS] @8 STREAM_INTERRUPTED == CSR CNT2       got=0x0 exp=0x1
+  [FAIL] [CTRS] @12 SEQ_NUM_MISMATCH == CSR CNT3        got=0x0 exp=0x1
+  [FAIL] [CTRS] @36 LATE_TIMESTAMP == CSR CNT7          got=0x0 exp=0xa
+  [FAIL] [CTRS] @44 FRAMES_RX == CSR CNT9               got=0x0 exp=0xa
+  [FAIL] [CTRS] the graded counters are DISTINCT, not a flat block got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet got=0x0 exp=0x1

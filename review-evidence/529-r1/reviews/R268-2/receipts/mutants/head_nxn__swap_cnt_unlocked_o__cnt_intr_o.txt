@@ -1,0 +1,11 @@
+campaign=head_nxn leg=nxn mutant=swap_cnt_unlocked_o__cnt_intr_o
+mutant_sha256=fa89ccd8008eae47d13a57e285357fe65ff0199724d0cd364ec8569513e5e33c
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=5 ok_lines=1700 fail_lines=5 crf_ok=67 crf_fail=5 wall_s=7 bin_sha256=3cb9444420c3a55db7a27001542f26cf44ba2ec34dcbc9b97e04a0275d69b45b
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x3 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x1 exp=0x3

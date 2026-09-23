@@ -1,0 +1,5 @@
+probe=nowrite harness_sha256=1162894b98b1af2c9a62bc93a1d8c37cd22b9ad07c53e27d5176ab4b4017f035 leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=7 bin_sha256=7c7af058548b0afa1c33724e7ed3ad9b69ee0ce443e6aff18c8428cc8cf0538f
+  [FAIL] [CTRS-CRF] events: the silence's last millisecond unlocks the sink got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x1 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x0 exp=0x1

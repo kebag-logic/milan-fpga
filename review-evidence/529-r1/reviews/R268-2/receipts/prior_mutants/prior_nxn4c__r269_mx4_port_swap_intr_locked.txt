@@ -1,0 +1,11 @@
+campaign=prior_nxn4c leg=nxn4c mutant=r269_mx4_port_swap_intr_locked
+mutant_sha256=502a4a50c6c0b446767b6fad6e033b0100096ee51b1aa7e2909efbdb5761dc5d
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn4c exit=1 checks=1705 failures=5 ok_lines=1700 fail_lines=5 crf_ok=67 crf_fail=5 wall_s=6 bin_sha256=d09223fbafca114f6816e2f51e720779517f635ce3816608d1c27474f890cea3
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x3 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x2 exp=0x3

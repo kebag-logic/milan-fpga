@@ -1,0 +1,11 @@
+campaign=head_nxn8 leg=nxn8 mutant=swap_seq_err_o__cnt_unlocked_o
+mutant_sha256=671c6fa80bf0251b2262c264e1367be0c4b8b95c01710740b605a2c8d56fe9b6
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn8 exit=1 checks=3133 failures=5 ok_lines=3128 fail_lines=5 crf_ok=67 crf_fail=5 wall_s=11 bin_sha256=294071e329eae249b149ca3f148b661e823f5d46374b2935c4a94afea48b99dc
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x4 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x4 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x4 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @12 SEQ_NUM_MISMATCH got=0x1 exp=0x4

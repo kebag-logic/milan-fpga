@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=mux_q9_q10_swap
+mutant_sha256=732b833b6f93314b1df31c7981156761e4cccd16d6441a1138a224a92f016b84
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=cb812758a7320fdc5b6a2600fe989f8b4e09772f0b61f97b24266350c964d96b
+verdict=KILLED
+  [FAIL] [CTRS-CRF] signatures: @36 LATE_TIMESTAMP      got=0xa50b0b0b exp=0xa50a0a0a
+  [FAIL] [CTRS-CRF] signatures: @40 EARLY_TIMESTAMP     got=0xa50a0a0a exp=0xa50b0b0b
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x9 exp=0x8
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x8 exp=0x9

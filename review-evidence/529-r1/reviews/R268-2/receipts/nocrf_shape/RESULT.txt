@@ -1,0 +1,6 @@
+no-CRF-sink 4x4 shape (crf_sink: false, media_clock_sources: [internal]) built through the nxn recipe with SHAPE_4x4 overridden
+config sha256 40d48b858332eee7123ebe7a1f12f80c555c3dc63eab56fd5710e8ec539830dd
+shape header: // Shape : 4 AAF listener(s) + 4 AAF talker(s); CRF sink no, CRF output yes; localparam int ADP_LISTENER_SINK_C = 4;;
+verilator SV elaboration: 0 %Error from the SV front end; %Warning kinds/counts identical to the head 4x4 build modulo path prefix: IDENTICAL
+harness C++ compile (expected, no leg builds this shape):
+../../tree/tb/verilator/milan_dp/sim_nxn.cpp:3333:33: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__crf_intrcnt_w’

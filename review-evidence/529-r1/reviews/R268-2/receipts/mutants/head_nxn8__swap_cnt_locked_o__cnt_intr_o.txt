@@ -1,0 +1,11 @@
+campaign=head_nxn8 leg=nxn8 mutant=swap_cnt_locked_o__cnt_intr_o
+mutant_sha256=502a4a50c6c0b446767b6fad6e033b0100096ee51b1aa7e2909efbdb5761dc5d
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn8 exit=1 checks=3133 failures=5 ok_lines=3128 fail_lines=5 crf_ok=67 crf_fail=5 wall_s=12 bin_sha256=ac78764de253c5dcba871626af22f526d5dfa4287ef11cf6b15e170245b26b56
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x3 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x3 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x2 exp=0x3

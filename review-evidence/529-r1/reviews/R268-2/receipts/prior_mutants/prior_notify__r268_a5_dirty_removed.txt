@@ -1,0 +1,16 @@
+campaign=prior_notify leg=notify mutant=r268_a5_dirty_removed
+mutant_sha256=2d076efee5fc342ccb7425f9763094c3b95b2635e68beeb221492827a34cbc6b
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=notify exit=1 checks=145 failures=10 ok_lines=135 fail_lines=10 crf_ok=0 crf_fail=10 wall_s=18 bin_sha256=40c993518184c0d7840a95c6d694085db8276e48e1b2707c5f6f81c6a37cfff0
+verdict=KILLED
+  [FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f
+  [FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x0 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x0 exp=0x2

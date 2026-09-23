@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=swap_fmt_err_o__cnt_unlocked_o
+mutant_sha256=710f069e71907fd1c7aaec8667c6bf3e50b045ae6fd76b09b4f330e4947e53eb
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=e95f4e72e523f6d75a2ee5714fd3f964606d797a8dfdbfdb93fc36cd47ee8539
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x7 exp=0x0
+  [FAIL] [CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4 got=0x7 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x7 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x1 exp=0x7

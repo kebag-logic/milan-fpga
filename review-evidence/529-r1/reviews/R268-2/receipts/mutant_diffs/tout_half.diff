@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5436,7 +5436,7 @@
+   //  GET_COUNTERS and pushes through Table 5.22 (#529).
+   // ==========================================================================
+   KL_crf_rx #(
+-    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
++    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ / 2),
+     .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
+   ) crf_rx (
+     .clk_i (axis_clk), .rst_n (axis_resetn),

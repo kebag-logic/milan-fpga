@@ -1,0 +1,10 @@
+campaign=head_notify leg=notify mutant=dirty_free_running
+mutant_sha256=0d7e41905e8b7e87e4e5ee6875194d4c7ce245db6984765c1d0f0fa92a783402
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=notify exit=1 checks=145 failures=4 ok_lines=141 fail_lines=4 crf_ok=8 crf_fail=2 wall_s=13 bin_sha256=79950445b6afb68d86d5bb1a37f822365be28f4935e69cccfb222081acb50f25
+verdict=KILLED
+  [FAIL] [NOTIFY] ...A's entry starts its own sequence at 0 got=0x1 exp=0x0
+  [FAIL] [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) got=0x3 exp=0x1
+  [FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x4 exp=0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x4 exp=0x2

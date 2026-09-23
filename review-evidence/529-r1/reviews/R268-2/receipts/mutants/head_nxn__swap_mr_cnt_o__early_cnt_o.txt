@@ -1,0 +1,8 @@
+campaign=head_nxn leg=nxn mutant=swap_mr_cnt_o__early_cnt_o
+mutant_sha256=9cd7d5fd8463645ef0cdcc88f81abe5d2255451c99356fb383a9194650bdc90e
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=6 bin_sha256=49b1bbdcb6684750c67f5cd5864f86371934d12b08898122b94921ea5b779cdf
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @16 MEDIA_RESET    got=0x9 exp=0x5
+  [FAIL] [CTRS-CRF] events, all ten: @40 EARLY_TIMESTAMP got=0x5 exp=0x9

@@ -1,0 +1,12 @@
+campaign=head_nxn leg=nxn mutant=swap_pdu_count_o__tu_cnt_o
+mutant_sha256=e075990f975e143f55e2d9d61ab39735cf1614b982237d4a0f11246521c1369f
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=6 ok_lines=1699 fail_lines=6 crf_ok=68 crf_fail=4 wall_s=7 bin_sha256=ec8d7422c945d810b2743a05e9ef1b37035520d441baccdbb13f769d1451942c
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero got=0xffffffff exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x15 exp=0x6
+  [FAIL] [CTRS-CRF] events, all ten: @44 FRAMES_RX      got=0x6 exp=0x15
+  [FAIL] CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10  got=0x0 exp=0xa
+  [FAIL] CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair got=0x0 exp=0x3

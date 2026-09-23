@@ -1,0 +1,8 @@
+campaign=prior_nxn4c leg=nxn4c mutant=r268_p5_bind_fmt_late
+mutant_sha256=0612257a4e8430226b9040d0c77cf5a4797320e764b593a8727d63b4ada750fe
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn4c exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=6 bin_sha256=c492a25a4c1290b8174944df09de9d1021e168a9304cb1700e1bc2d51ccc517b
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events, all ten: @32 UNSUPPORTED_FORMAT got=0x8 exp=0x7
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x7 exp=0x8

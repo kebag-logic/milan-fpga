@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3520,7 +3520,7 @@
+   //! no tally for them, and claiming a counter nothing moves is the lie this
+   //! face exists to prevent. A shape that declares no CRF sink has no such
+   //! row, and the guard keeps the neighbouring index from answering for it.
+-  localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
++  localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3E;
+   wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+                 && (ctrq_type_r == DESC_STREAM_INPUT_C)
+                 && (32'(ctrq_index_r) == CRF_SNK_IDX_C);

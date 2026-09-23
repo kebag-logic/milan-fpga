@@ -1,0 +1,8 @@
+campaign=prior_nxn leg=nxn mutant=r268_a3_q11_16bit
+mutant_sha256=5e40fe25fd7d59f701698c524d4f9b8970c51f69b11ade1afda22a386adb78f6
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=2 ok_lines=1703 fail_lines=2 crf_ok=70 crf_fail=2 wall_s=6 bin_sha256=31945671c273541a9d6eae5474af4ba75cbe6825e0bbe80f5ca4c15c80e8a30e
+verdict=KILLED
+  [FAIL] [CTRS-CRF] signatures: @44 FRAMES_RX           got=0xc0c exp=0xa50c0c0c
+  [FAIL] [CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF got=0xffff exp=0xffffffff

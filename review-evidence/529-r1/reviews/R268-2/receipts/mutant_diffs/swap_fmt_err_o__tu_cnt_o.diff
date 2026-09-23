@@ -1,0 +1,19 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5480,14 +5480,14 @@
+     .delta_o     (crf_delta_w),
+     .rate_o      (crf_rate_w),
+     .pdu_count_o (crf_pducnt_w),
+-    .fmt_err_o   (crf_fmterr_w),
++    .fmt_err_o   (crf_tucnt_w),
+     .seq_err_o   (crf_seqerr_w),
+     //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+     //! the three above are the GET_COUNTERS row for STREAM_INPUT N_STREAMS
+     //! (ctr_crf_block). Only pdu, fmt_err and seq_err also have a CSR slice
+     //! (CRF_STATUS 0x74C), truncated there and full-width on the wire.
+     .mr_cnt_o    (crf_mrcnt_w),
+-    .tu_cnt_o    (crf_tucnt_w),
++    .tu_cnt_o    (crf_fmterr_w),
+     .late_cnt_o  (crf_latecnt_w),
+     .early_cnt_o (crf_earlycnt_w),
+     .locked_o    (crf_locked_w),

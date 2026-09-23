@@ -1,0 +1,9 @@
+campaign=head_nxn leg=nxn mutant=swap_late_cnt_o__cnt_intr_o
+mutant_sha256=b874d7b20c8d6977dc5de6d4637a63c60cbcf5d125aa96f0c7ab1d4b27b1c0a5
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=3 ok_lines=1702 fail_lines=3 crf_ok=69 crf_fail=3 wall_s=6 bin_sha256=88af27253fd53fc09bb77f650e15c8fa3cce4e69d37c944d92e59662350dbdf9
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0 got=0xffffffff exp=0x0
+  [FAIL] [CTRS-CRF] events, all ten: @8 STREAM_INTERRUPTED got=0x8 exp=0x3
+  [FAIL] [CTRS-CRF] events, all ten: @36 LATE_TIMESTAMP got=0x3 exp=0x8

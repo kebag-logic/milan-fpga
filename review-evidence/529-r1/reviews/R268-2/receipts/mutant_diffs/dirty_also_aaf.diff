@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7210,7 +7210,7 @@
+                                          ? $clog2(PP_CTR_EVT_N_C) : 1;
+   wire  [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+   if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+-    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
++    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w | {N_STREAMS{crf_dirty_p_w}}};
+   end else begin : g_ctr_no_crf_dirty
+     assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+   end

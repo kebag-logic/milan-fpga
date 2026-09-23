@@ -1,0 +1,12 @@
+campaign=prior_nxn leg=nxn mutant=r268_r4_type_dropped
+mutant_sha256=f9409fcca2680e1769012a81928804b829d4d308ee93de40865193464753464e
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=6 ok_lines=1699 fail_lines=6 crf_ok=72 crf_fail=0 wall_s=7 bin_sha256=b4efe473c95d3384a0ad637d59487c9576287405f24c230b43db172b1626279f
+verdict=KILLED
+  [FAIL] [CTRS-OUT] every AAF and CRF output returns mask 0x1F got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real start/stop edges reach every index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real q3/q4 stimuli reach every AAF and CRF index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] real q2 stimulus reaches every AAF and CRF index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] every NxN row preserves its unique five-word signature got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] unclaimed quadlets 5..31 are zero   got=0x5 exp=0x0

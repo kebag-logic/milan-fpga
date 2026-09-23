@@ -1,0 +1,8 @@
+campaign=f815harness_nxn leg=nxn mutant=swap_seq_err_o__early_cnt_o
+mutant_sha256=65b05319267eff613da010ce2b5cdf74a286c70a76712d37b1fc32d81be4378e
+harness_sha256=3f948b1b5def79e51e5f7c19e0455c22c04b1099139b598f1b53db0796bccd3a
+build_exit=0
+leg=nxn exit=1 checks=1687 failures=2 ok_lines=1685 fail_lines=2 crf_ok=53 crf_fail=1 wall_s=6 bin_sha256=d6cd7b525aabb029c27238d497bde8d1d8e107454e4e848b6a50c1f8547bcca4
+verdict=KILLED
+  [FAIL] [CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once got=0x2 exp=0x1
+  [FAIL] CRF 5.3.8.7 stopped: fmt/seq stayed clean      got=0xa exp=0x0

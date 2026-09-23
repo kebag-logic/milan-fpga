@@ -1,0 +1,7 @@
+campaign=head_nxn leg=nxn mutant=unbind_cnt_locked_o
+mutant_sha256=1daf8b8a9217c74783f63e677b1d118ec7be10487d5f9c9964054b916b2d1a69
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=2
+verdict=BUILD_FAIL
+build failure (harness C++ compile; the RTL elaborated):
+tb/verilator/milan_dp/sim_nxn.cpp:3331:33: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__crf_lockcnt_w’

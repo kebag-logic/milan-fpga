@@ -1,0 +1,10 @@
+campaign=prior_nxn8 leg=nxn8 mutant=r268_p1_bind_lock_unlock
+mutant_sha256=c258524d12ba1988c33bc396ad389bfcff5dba78dc81314f3a740d54f1a32904
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn8 exit=1 checks=3133 failures=4 ok_lines=3129 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=12 bin_sha256=bdc0eca54c136847452633680e129ea1fc068b0a825fab19ead73efb4c57dafd
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form) got=0x1 exp=0x0
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x1 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @4 MEDIA_UNLOCKED  got=0x2 exp=0x1

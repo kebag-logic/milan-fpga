@@ -1,0 +1,10 @@
+campaign=head_nxn leg=nxn mutant=swap_tu_cnt_o__cnt_locked_o
+mutant_sha256=2c4d89757515644962ae0c32c8a7426eaf9d3c1438f57367dfb4040694d1a19d
+harness_sha256=fe0e4c37bee03fbfbc5a083144983524d6b9f938ff504884c35e64df191c6f57
+build_exit=0
+leg=nxn exit=1 checks=1705 failures=4 ok_lines=1701 fail_lines=4 crf_ok=68 crf_fail=4 wall_s=6 bin_sha256=a7bba21f609d68161ce4c89865c7e6af1eeeac55faac573710c5b88f493737fc
+verdict=KILLED
+  [FAIL] [CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0 got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized) got=0x0 exp=0x1
+  [FAIL] [CTRS-CRF] events, all ten: @0 MEDIA_LOCKED    got=0x6 exp=0x2
+  [FAIL] [CTRS-CRF] events, all ten: @20 TIMESTAMP_UNCERTAIN got=0x2 exp=0x6

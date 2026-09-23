@@ -1,0 +1,10 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3545,7 +3545,6 @@
+   //! Everything else, including ENTITY and out-of-range indices, answers zero data
+   //! AND an empty mask on the same term, so the two can never disagree.
+   assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+-                       : ctr_crf_w ? ctr_crf_blk_w
+                        : ctr_sout_w ? ctr_sout_blk_w
+                        : ctr_avb_w ? ctr_avb_blk_w
+                        : ctr_ckd_w ? ctr_ckd_blk_w
