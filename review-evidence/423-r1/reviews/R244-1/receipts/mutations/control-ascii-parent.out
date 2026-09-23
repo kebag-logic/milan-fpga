@@ -1,0 +1,175 @@
+  ok   default-development-base   the retired development branch name cannot return silently
+  ok   self-containment           a commit is contained in itself
+  ok   ancestor-plumbing-error    a failed ancestry command is UNKNOWN, never not-ancestor
+  ok   missing-ref                a ref that cannot be resolved is UNKNOWN, never contained
+  ok   missing-base               ...and so is a base that cannot be resolved
+  ok   quiet-git-traced           the trace saw the commit, the push's receive-pack, the fetch
+  ok   quiet-git-no-housekeeping  ...and none of them started maintenance or gc (#438)
+  ok   cleanup-recorded           a failed removal is recorded with its path, not raised
+  ok   cleanup-keeps-arm-error    ...and an arm's own exception still propagates past it
+  ok   cleanup-verdict-rc         every arm passed, a tree was left: the cleanup exit code
+  ok   cleanup-verdict-words      ...worded as housekeeping, never as a failed or untrusted check
+  ok   cleanup-under-failure      a failed arm is still exit 1, the status the sweep aborts on
+  ok   stranded-count             a linear child is one commit ahead of its parent
+  ok   contained-backwards        ...and the parent is contained in the child
+  ok   e2e-stranded-rc            a stranded branch exits non-zero through main()
+  ok   e2e-stranded-count         ...and prints the real count, not a placeholder
+  ok   e2e-stranded-word          ...and says STRANDED
+  ok   default-base-e2e           the implicit CLI base is origin/dev
+  ok   implicit-hex-branch-rc     the checked-out hex branch keeps its refs/heads identity
+  ok   implicit-hex-branch-word   ...rather than becoming its contained object-name twin
+  ok   e2e-contained-rc           a contained branch exits 0
+  ok   e2e-unknown-rc             an unresolvable ref FAILS -- an unknown is not a pass
+  ok   e2e-unknown-word           ...and says UNKNOWN
+  ok   e2e-unknown-flag           an unrecognised flag is refused, never read as a branch
+  ok   e2e-revision-branch        a revision expression cannot hide the branch tip
+  ok   e2e-revision-base          a revision expression cannot replace the exact base
+  ok   e2e-duplicate-base         a repeated base option is refused
+  ok   e2e-duplicate-no-fetch     a repeated no-fetch option is refused
+  ok   e2e-sweep-operand          a merged sweep cannot silently ignore a branch operand
+  ok   git-minimum-current        the Git running this self-test has patch-id --verbatim
+  ok   git-minimum-named          a Git without --verbatim is refused naming the minimum
+  ok   git-minimum-version        ...and the version actually found
+  ok   git-minimum-e2e-rc         ...and main() cannot run instead of answering UNKNOWN
+  ok   git-minimum-e2e-silent     ...and prints no verdict at all
+  ok   git-minimum-e2e-stderr     ...and main() prints that refusal on stderr
+  ok   git-minimum-selftest-rc    --selftest itself stops at the refusal before any arm runs
+  ok   git-minimum-any-status     a patch-id failing with another status is refused the same way
+  ok   git-minimum-restored       the real Git measures the stranded fixture again
+  ok   fresh-fixture-local        the local branch is deliberately stale at base
+  ok   fresh-fixture-remote       the fetched branch has three later commits
+  ok   fresh-local-ref-rc         fetch checks origin/work, not the stale local branch
+  ok   fresh-local-ref-word       ...and reports the work on the fetched tip
+  ok   full-oid-branch-rc         a hex-named origin branch cannot replace an object ID
+  ok   full-oid-branch-word       ...and the immutable stranded object is measured
+  ok   full-oid-base-rc           a hex-named origin branch cannot replace the base OID
+  ok   full-oid-base-word         ...and the immutable base object is measured
+  ok   full-oid-local-collision-branch-rc local branch and tag names cannot obscure a branch OID
+  ok   full-oid-local-collision-branch-word ...and the immutable branch object remains measured
+  ok   full-oid-local-collision-base-rc local branch and tag names cannot obscure a base OID
+  ok   full-oid-local-collision-base-word ...and the immutable base object remains measured
+  ok   deleted-tag-remote-rc      a tag cannot stand in for a deleted origin branch
+  ok   deleted-tag-remote-word    ...and the qualified missing branch is UNKNOWN
+  ok   deleted-tag-short-rc       a short tag cannot stand in for a missing branch
+  ok   deleted-tag-short-word     ...and the fetched namespace remains authoritative
+  ok   offline-tag-branch-rc      an offline short branch cannot fall through to a tag
+  ok   offline-tag-branch-word    ...and the missing local branch remains UNKNOWN
+  ok   offline-tag-base-rc        an offline short base cannot fall through to a tag
+  ok   offline-tag-base-word      ...and the missing local base remains UNKNOWN
+  ok   deleted-tag-base-rc        a tag cannot stand in for a deleted base branch
+  ok   deleted-tag-base-word      ...and the missing fetched base is UNKNOWN
+  ok   deleted-explicit-base-rc   a stale explicit local base cannot replace origin
+  ok   deleted-explicit-base-word ...and normal mode keeps the missing origin base
+  ok   ambiguous-remote-normal-rc an ambiguous non-origin remote shorthand is refused
+  ok   ambiguous-remote-offline-rc ...and offline mode keeps the remote shorthand typed
+  ok   ambiguous-remote-offline-word ...so a same-spelled local branch cannot replace it
+  ok   missing-remote-tracking-rc a configured remote shorthand stays non-origin even when its tracking ref is missing
+  ok   missing-remote-offline-rc  offline remote shorthand keeps its missing identity
+  ok   missing-remote-offline-word ...instead of falling back to a slash-named branch
+  ok   missing-remote-base-rc     a missing configured remote base is refused before fetch
+  ok   missing-remote-base-offline-rc offline mode keeps a missing remote base typed
+  ok   missing-remote-base-offline-word ...rather than using a slash-named local base
+  ok   slash-remote-normal-rc     a slash-bearing configured remote stays non-origin
+  ok   slash-remote-offline-rc    offline slash-bearing remote shorthand stays typed
+  ok   slash-remote-offline-word  ...instead of using a same-spelled local branch
+  ok   slash-remote-base-rc       a slash-bearing remote base is refused before fetch
+  ok   slash-remote-base-offline-rc offline slash-bearing remote base stays typed
+  ok   slash-remote-base-offline-word ...instead of using a same-spelled local base
+  ok   overlapping-remote-prefix-rc overlapping configured remote prefixes are ambiguous
+  ok   explicit-origin-overlap-rc an explicit origin ref stays refreshable despite a configured prefix collision
+  ok   explicit-origin-overlap-word ...and the fetched origin branch is measured
+  ok   merged-live-tip-rc         the merged sweep ignores the frozen head OID
+  ok   merged-live-tip-word       ...and assesses origin/work instead
+  ok   merged-recreated-lineage   lineage alone cannot see exact-head recreation
+  ok   merged-recreated-event     a durable deletion event prevents false success
+  ok   merged-recreated-word      ...and the lost ref identity is UNKNOWN
+  ok   timeline-delete-parser     the GitHub timeline parser preserves deletion proof
+  ok   merged-list-order          the sweep selects PRs by merge time
+  ok   merged-list-complete-query ...after requesting a bounded complete candidate set
+  ok   merged-list-truncation     ...and possible candidate truncation is not a pass
+  ok   merged-fork-rc             a fork head cannot borrow origin's same-name ref
+  ok   merged-fork-word           ...and the unrefreshable live tip is UNKNOWN
+  ok   merged-reused-rc           a recreated same-name branch cannot false-pass
+  ok   merged-reused-word         ...and failed continuity is UNKNOWN
+  ok   local-ahead-fixture        only the local tip carries the unpushed commit
+  ok   local-ahead-rc             a fetched remote cannot hide unpushed local work
+  ok   local-ahead-word           ...and the local tip is named in the finding
+  ok   origin-spelling-local      origin/name still checks an unpushed local tip
+  ok   origin-spelling-label      ...and identifies the local source
+  ok   other-remote-full-rc       an unrefreshed full remote ref is refused
+  ok   other-remote-short-rc      ...and so is its short spelling
+  ok   other-remote-base-rc       an unrefreshed base ref is refused too
+  ok   deleted-remote-rc          a deleted remote tip cannot fall back to stale local
+  ok   deleted-remote-word        ...and the missing origin tip is UNKNOWN
+  ok   deleted-remote-label       ...while the missing source is named
+  ok   shallow-offline-rc         offline mode refuses incomplete history
+  ok   shallow-deepened-rc        normal mode deepens before measuring containment
+  ok   ambiguous-ref-rc           a tag and branch sharing one name cannot false-pass
+  ok   ambiguous-ref-word         ...and the typed short name measures the branch
+  ok   replacement-ref-fixture    the fixture installs a replacement ancestry edge
+  ok   replacement-ref-rc         replacement ancestry cannot create containment
+  ok   replacement-ref-path       ...and the raw stranded path is reported
+  ok   legacy-graft-fixture       the fixture locates Git's active graft file
+  ok   legacy-graft-rc            legacy graft ancestry is refused before a verdict
+  ok   legacy-graft-direct        the containment predicate cannot trust grafts either
+  ok   squash-base-advanced       unrelated base work does not hide a squash merge
+  ok   squash-path-equivalence    ...through the path-scoped content check
+  ok   net-zero-history-rc        a branch with no net tree change is already contained
+  ok   net-zero-history-word      ...and the conservative proof is named
+  ok   path-enumeration-error-rc  a failed path measurement exits non-zero
+  ok   path-enumeration-error-word ...and is UNKNOWN rather than STRANDED
+  ok   path-comparison-error-rc   a failed path comparison exits non-zero
+  ok   path-comparison-error-word ...and is UNKNOWN rather than STRANDED
+  ok   rename-source-remains      a copied destination cannot hide a missing deletion
+  ok   literal-pathspec-name      an exclude-shaped filename remains part of the comparison
+  ok   linear-patch-fallback      patch equivalence handles a linear rebase
+  ok   linear-patch-word          ...through the patch-id fallback
+  ok   whitespace-fixture         git cherry equates different whitespace content
+  ok   whitespace-exact-rc        verbatim patch IDs refuse different content
+  ok   whitespace-exact-path      ...and the differing path is reported
+  ok   hunk-position-fixture      verbatim patch IDs omit the different hunk positions
+  ok   hunk-postimage-rc          different repeated locations cannot false-pass
+  ok   hunk-postimage-path        ...and the differing path is reported
+  ok   textconv-path-raw          raw diff sees content hidden by textconv
+  ok   textconv-path-rc           textconv cannot create path-equivalence containment
+  ok   textconv-path-name         ...and the raw differing path is reported
+  ok   textconv-patch-raw         raw patch IDs include content hidden by textconv
+  ok   textconv-patch-rc          textconv cannot create patch-equivalence containment
+  ok   textconv-patch-name        ...and the hidden file is reported
+  ok   submodule-pin-raw          raw diff includes a gitlink despite ignore configuration
+  ok   submodule-pin-rc           an ignored submodule pin cannot false-pass
+  ok   submodule-pin-name         ...and the missing gitlink path is reported
+  ok   merge-fixture-count        the fixture contains one unique merge commit
+  ok   merge-fixture-cherry       git cherry hides that merge behind equivalent commits
+  ok   merge-resolution-rc        a merge commit cannot disappear from the patch fallback
+  ok   merge-resolution-path      ...and its unique path is reported as stranded
+  ok   replay-01-positive-replay-far-extension settled public matrix: exit AND verdict
+  ok   replay-01-proof            the new arm proves retention after real historical replay
+
+--stderr--
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/check_merge_containment.py", line 997, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/check_merge_containment.py", line 948, in main
+    return _run_selftest()
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/check_merge_containment.py", line 730, in _run_selftest
+    return selftest(sys.modules[__name__])
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/merge_containment_selftest.py", line 97, in selftest
+    _fixture_cases(fx)
+    ~~~~~~~~~~~~~~^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/merge_containment_selftest.py", line 135, in _fixture_cases
+    replay_cases(fx)
+    ~~~~~~~~~~~~^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/merge_containment_selftest_replay.py", line 590, in replay_cases
+    mutation_cases(fx, index)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/423-r244-1/mut/control-ascii-parent/scripts/merge_containment_selftest_mutations.py", line 46, in mutation_cases
+    checker = (source_dir / "check_merge_containment.py").read_text()
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 788, in read_text
+    return f.read()
+           ~~~~~~^^
+  File "/usr/lib/python3.14/encodings/ascii.py", line 26, in decode
+    return codecs.ascii_decode(input, self.errors)[0]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc2 in position 4099: ordinal not in range(128)

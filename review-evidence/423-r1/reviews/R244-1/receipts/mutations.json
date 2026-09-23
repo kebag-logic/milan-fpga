@@ -1,0 +1,223 @@
+{
+ "control-default": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-latin1-parent": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-ascii-parent": {
+  "rc": 1,
+  "ok": 147,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "  ok   replay-01-proof            the new arm proves retention after real historical replay"
+  ],
+  "stderr_tail": "ead()\n           ~~~~~~^^\n  File \"/usr/lib/python3.14/encodings/ascii.py\", line 26, in decode\n    return codecs.ascii_decode(input, self.errors)[0]\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\nUnicodeDecodeError: 'ascii' codec can't decode byte 0xc2 in position 4099: ordinal not in range(128)\n"
+ },
+ "restore-pre-b911-all": {
+  "rc": 1,
+  "ok": 369,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-ascii-process",
+   "locale-iso8859-1-process"
+  ],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-git-utf8-only": {
+  "rc": 1,
+  "ok": 369,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-ascii-process",
+   "locale-iso8859-1-process"
+  ],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-replay-utf8-only": {
+  "rc": 1,
+  "ok": 369,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-ascii-process",
+   "locale-iso8859-1-process"
+  ],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-base-text-git": {
+  "rc": 1,
+  "ok": 256,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "  ok   retention-literal-revert-'crlf\\r\\npath'-path the unproved literal path is named without decoding loss"
+  ],
+  "stderr_tail": "         self.stdout.encoding,\n                                      self.stdout.errors)\n  File \"/usr/lib/python3.14/subprocess.py\", line 1099, in _translate_newlines\n    data = data.decode(encoding, errors)\nUnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 12: invalid start byte\n"
+ },
+ "restore-pre-4671-latin1-parent": {
+  "rc": 1,
+  "ok": 454,
+  "fail_count": 1,
+  "fails_first": [
+   "retention-literal-revert-'raw-\\udcff'-path"
+  ],
+  "last": [
+   "selftest: 1 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-pre-4671-default-parent": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "ancestor-regular-guard": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "retention-renames-folded": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "retention-submodules-default": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "entry-name-check": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "entry-full-tree": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "identity-oid-only": {
+  "rc": 1,
+  "ok": 449,
+  "fail_count": 6,
+  "fails_first": [
+   "replay-10-later-exec-bit-loss",
+   "replay-10-evidence",
+   "retention-symlink-to-file",
+   "retention-symlink-to-file-path",
+   "retention-file-to-symlink",
+   "retention-file-to-symlink-path"
+  ],
+  "last": [
+   "selftest: 6 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "merge-order-swapped": {
+  "rc": 1,
+  "ok": 363,
+  "fail_count": 92,
+  "fails_first": [
+   "replay-01-positive-replay-far-extension",
+   "replay-01-proof",
+   "replay-02-positive-replay-two-later-commits",
+   "replay-02-proof",
+   "mutation-merge-count-03",
+   "replay-14-partial-revert-one-hunk",
+   "replay-14-evidence",
+   "mutation-merge-tree-22",
+   "mutation-parent-count-25",
+   "mutation-direct-parent-28",
+   "retention-symlink-identical",
+   "retention-symlink-identical-proof"
+  ],
+  "last": [
+   "selftest: 92 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "single-base-dropped": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "distinct-replay-dropped": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "conflict-style-override-dropped": {
+  "rc": 0,
+  "ok": 455,
+  "fail_count": 0,
+  "fails_first": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ }
+}
