@@ -1,0 +1,80 @@
+CHECK published-sha-matches-pin PASS entries=236 mismatches=0 []
+CHECK manifest-covers-every-file PASS files=236 entries=236 missing=[] extra=[] dup=[]
+INFO redacted=77 identity=71 path_only=6 per_packet={'bench-a200': 20, 'bench-a202': 57}
+INFO path_only_files=bench-a200/HANDOFF.md,bench-a200/bench/tool-revisions.txt,bench-a200/tools/a200_enum.bin,bench-a202/HANDOFF.md,bench-a202/bench/attempt1-aborted/console_poll.stdout,bench-a202/bench/attempt1-aborted/lock.txt
+CHECK page-count-77 PASS archive=77
+CHECK page-count-6-path-only PASS archive=6
+CHECK page-count-71-identity PASS archive=71
+CHECK page-count-20-57 PASS archive={'bench-a200': 20, 'bench-a202': 57}
+CHECK path_redacted-flag-consistent PASS mismatches=[]
+CHECK bench-a200-MANIFEST.sha256-lists-originals PASS lines=81 not-equal-to-original=0 sha256sum-c-FAILED=20 unlisted=0 []
+CHECK bench-a202-MANIFEST.sha256-lists-originals PASS lines=153 not-equal-to-original=0 sha256sum-c-FAILED=57 unlisted=0 []
+INFO page_64hex_total=82 unique=81 resolve_via_manifest=73 outside=8
+  OUTSIDE line=77 f0725eef7a361bd7... :: | `gateware/alinx_ax7101.bit` | `f0725eef7a361bd7dc6d692c369868f25e5d4f49f6b7267562a0b5f94
+  OUTSIDE line=78 aaece32fc6c84f79... :: | bitstream payload (3,825,788 B after the 204 B header) | `aaece32fc6c84f790273878350f674
+  OUTSIDE line=79 9b077636b1d42aca... :: | `aem_desc.bin` (7,352 B) | `9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d1621
+  OUTSIDE line=80 69322600bc9dc40a... :: | `software/bios/bios.bin` | `69322600bc9dc40a698ed30d125d29d2723f51cc1b26c0f1c3abc96acb39
+  OUTSIDE line=81 71e798fc401ed3fb... :: | `flashboot_layout.json` | `71e798fc401ed3fbaac4cd43a299f23498beafa466aaa17d6773590a62fa9
+  OUTSIDE line=82 4db0e6da9c9c910a... :: | `csr.csv` | `4db0e6da9c9c910a5ee00e56c25908c190c380799e44c846bcfb4ffc7dc045a7` |
+  OUTSIDE line=129 33f0e7f9e86fe482... :: - **Peer firmware identity.** The ENTITY `firmware_version` field holds seven octets. The 
+  OUTSIDE line=203 bc41ab03e64198b1... :: | UART grader | `scripts/baremetal_uart_smoke.py` at `ede8d48e`, SHA-256 `bc41ab03e64198b1
+CHECK raw-artifact-rows-resolve-as-original PASS rows=74 unresolved=[]
+INFO raw_rows=74 rows_naming_redacted=29 unique_redacted_hashes=29
+  REDACTED-ROW line=551 Run A tap capture -> bench-a200/bench/runA/tap-runA.pcap
+  REDACTED-ROW line=555 Run B tap capture -> bench-a200/bench/runB/tap-runB.pcap
+  REDACTED-ROW line=558 Run C tap capture -> bench-a200/bench/runC/tap-runC.pcap
+  REDACTED-ROW line=562 Run C DUT entity model dump -> bench-a200/bench/runC/entity_0x020000fffe000001.json
+  REDACTED-ROW line=564 final tap capture -> bench-a200/bench/final/tap-final.pcap
+  REDACTED-ROW line=568 binding census, end -> bench-a200/bench/final/census-final.jsonl
+  REDACTED-ROW line=580 binding and settings census, start -> bench-a202/bench/census-start.jsonl
+  REDACTED-ROW line=581 binding and settings census, end -> bench-a202/bench/final/census-end.jsonl
+  REDACTED-ROW line=584 attempt 1: lock log -> bench-a202/bench/attempt1-aborted/lock.txt
+  REDACTED-ROW line=586 attempt 1: tap capture -> bench-a202/bench/attempt1-aborted/tap-c1.pcap
+  REDACTED-ROW line=587 cycle 1: tap capture -> bench-a202/bench/cycle1/tap-c1.pcap
+  REDACTED-ROW line=590 cycle 1: controller-host port capture -> bench-a202/bench/cycle1/pw1-c1.pcap
+  REDACTED-ROW line=592 cycle 1: analysis -> bench-a202/bench/cycle1/analysis.txt
+  REDACTED-ROW line=593 cycle 2: tap capture -> bench-a202/bench/cycle2/tap-c2.pcap
+  REDACTED-ROW line=596 cycle 2: controller-host port capture -> bench-a202/bench/cycle2/pw1-c2.pcap
+  REDACTED-ROW line=598 cycle 2: analysis -> bench-a202/bench/cycle2/analysis.txt
+  REDACTED-ROW line=599 cycle 3: tap capture -> bench-a202/bench/cycle3/tap-c3.pcap
+  REDACTED-ROW line=602 cycle 3: controller-host port capture -> bench-a202/bench/cycle3/pw1-c3.pcap
+  REDACTED-ROW line=604 cycle 3: analysis -> bench-a202/bench/cycle3/analysis.txt
+  REDACTED-ROW line=605 cycle 4: tap capture -> bench-a202/bench/cycle4/tap-c4.pcap
+  REDACTED-ROW line=608 cycle 4: controller-host port capture -> bench-a202/bench/cycle4/pw1-c4.pcap
+  REDACTED-ROW line=610 cycle 4: analysis -> bench-a202/bench/cycle4/analysis.txt
+  REDACTED-ROW line=611 cycle 5: tap capture -> bench-a202/bench/cycle5/tap-c5.pcap
+  REDACTED-ROW line=614 cycle 5: controller-host port capture -> bench-a202/bench/cycle5/pw1-c5.pcap
+  REDACTED-ROW line=616 cycle 5: analysis -> bench-a202/bench/cycle5/analysis.txt
+  REDACTED-ROW line=617 cycle 6: tap capture -> bench-a202/bench/cycle6/tap-c6.pcap
+  REDACTED-ROW line=620 cycle 6: controller-host port capture -> bench-a202/bench/cycle6/pw1-c6.pcap
+  REDACTED-ROW line=622 cycle 6: analysis -> bench-a202/bench/cycle6/analysis.txt
+  REDACTED-ROW line=624 final tap capture -> bench-a202/bench/final/tap-final.pcap
+INFO redacted_row_kinds={'capture': 18, 'entity': 1, 'census': 3, 'lock': 1, 'analysis': 6}
+CHECK page-count-29 PASS archive=29
+  TOOLPREFIX 652d6f83 table -> bench-a200/tools/console_read.py;bench-a202/tools/console_read.py
+  TOOLPREFIX 3a0de7d8 table -> bench-a200/tools/console_poll.py;bench-a202/tools/console_poll.py
+  TOOLPREFIX c5039d95 table -> bench-a200/tools/wire_summary.py;bench-a202/tools/wire_summary.py
+  TOOLPREFIX 6ac03a87 table -> bench-a200/tools/analyze_run.py
+  TOOLPREFIX 9d2e8629 table -> bench-a200/tools/stream_timeline.py
+  TOOLPREFIX 790e6b7c table -> bench-a200/tools/pdelay_turnaround.py;bench-a202/tools/pdelay_turnaround.py
+  TOOLPREFIX 17283696 table -> bench-a200/tools/avdecc_ro.py;bench-a202/tools/avdecc_ro.py
+  TOOLPREFIX 29b4ac46 table -> bench-a200/tools/crf_bind_window.py
+  TOOLPREFIX 95d64fd5 table -> NOT-IN-ARCHIVE
+  TOOLPREFIX 8ef4b008 table -> NOT-IN-ARCHIVE
+  TOOLPREFIX ad579e18 table -> NOT-IN-ARCHIVE
+  TOOLPREFIX 0e9faf30 table -> NOT-IN-ARCHIVE
+  TOOLPREFIX 2d8950f5 table -> bench-a200/tools/a200_enum.cpp
+  TOOLPREFIX 8c9f2885 table -> bench-a200/tools/a200_enum.bin REDACTED
+  TOOLPREFIX 04d128bb table -> bench-a200/tools/expected_crc.py;bench-a202/tools/expected_crc.py
+  TOOLPREFIX 45889a7d table -> bench-a202/tools/run_cycle.sh REDACTED
+  TOOLPREFIX c4ef8c9a table -> bench-a202/tools/cycle_locked.sh REDACTED
+  TOOLPREFIX b2f1593e table -> bench-a202/tools/powerstrip_cycle.sh
+  TOOLPREFIX 644bcfb8 table -> bench-a202/tools/console_alive.py
+  TOOLPREFIX 48c248b2 table -> bench-a202/tools/a202_watch.py
+  TOOLPREFIX d7912881 table -> bench-a202/tools/census.sh
+  TOOLPREFIX 950533ca table -> bench-a202/tools/clock_offset.py
+  TOOLPREFIX bdd228a1 table -> bench-a202/tools/analyze_cycle.py REDACTED
+  TOOLPREFIX d6f53575 table -> bench-a202/tools/summarize.py
+  TOOLPREFIX 40424c61 table -> bench-a202/tools/census_compare.py
+CHECK tool-table-redacted-quoted-is-four PASS redacted quoted prefixes=['8c9f2885', '45889a7d', 'c4ef8c9a', 'bdd228a1']
+RESULT fails=0
