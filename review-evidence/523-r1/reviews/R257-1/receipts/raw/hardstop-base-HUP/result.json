@@ -1,0 +1,46 @@
+{
+ "signal": "HUP",
+ "driver": "scratch/base/run_all_suites.sh",
+ "tree_before_signal": {
+  "4071376": [
+   "17624822",
+   "S",
+   "bash $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP input [523]/scripts/run_all_sui"
+  ],
+  "4071403": [
+   "17624842",
+   "S",
+   "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP input [523]/tb/"
+  ],
+  "4071404": [
+   "17624842",
+   "S",
+   "python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/bin/make -C /data/mi"
+  ],
+  "4071405": [
+   "17624845",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py"
+  ],
+  "4071406": [
+   "17624848",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py c"
+  ]
+ },
+ "caller_status": -1,
+ "caller_output_at_death": "shard: 0/1   selected suites: 2\n",
+ "survivors_after_caller_death": {
+  "4071403": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP input [523]/tb/",
+  "4071404": "python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/bin/make -C /data/mi",
+  "4071405": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py",
+  "4071406": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-2lygwfe3/hardstop-HUP-control/worker.py c"
+ },
+ "output_after_caller_death": "",
+ "later_suite_started": false,
+ "completed_summary_after_death": false,
+ "suite_logs": [
+  "alpha.log"
+ ],
+ "lock_owner_left": false
+}

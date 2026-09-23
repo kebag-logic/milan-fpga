@@ -1,0 +1,22 @@
+hardstop-HUP: {"caller_status": -1, "later_suite_started": true}
+{
+ "signal": "HUP",
+ "caller_status": -1,
+ "survivors_after_caller_death": {
+  "4071170": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/tb/",
+  "4071172": "python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/bin/make -C /data/mi",
+  "4071173": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py",
+  "4071177": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py c",
+  "4071097": "bash $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/scripts/run_all_sui"
+ },
+ "later_suite_started": true,
+ "completed_summary_after_death": true
+}
+output after caller death:
+PASS     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 2   failed: 0   timed out: 0
+checks: 2   in-suite failures: 0
+logs: $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/logs
+

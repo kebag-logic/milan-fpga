@@ -1,0 +1,61 @@
+{
+ "signal": "HUP",
+ "driver": "$REVIEW_CLONE/scripts/run_all_suites.sh",
+ "tree_before_signal": {
+  "4071090": [
+   "17624286",
+   "S",
+   "python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/scripts/owned_pr"
+  ],
+  "4071170": [
+   "17624316",
+   "S",
+   "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/tb/"
+  ],
+  "4071172": [
+   "17624316",
+   "S",
+   "python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/bin/make -C /data/mi"
+  ],
+  "4071173": [
+   "17624319",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py"
+  ],
+  "4071177": [
+   "17624321",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py c"
+  ],
+  "4071097": [
+   "17624289",
+   "S",
+   "bash $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/scripts/run_all_sui"
+  ]
+ },
+ "caller_status": -1,
+ "caller_output_at_death": "shard: 0/1   selected suites: 2\n",
+ "survivors_after_caller_death": {
+  "4071170": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/tb/",
+  "4071172": "python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/bin/make -C /data/mi",
+  "4071173": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py",
+  "4071177": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP-control/worker.py c",
+  "4071097": "bash $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/scripts/run_all_sui"
+ },
+ "output_after_caller_death": "PASS     alpha\nPASS     omega\n----------------------------------------------------------------\nsuites: 2   passed: 2   failed: 0   timed out: 0\nchecks: 2   in-suite failures: 0\nlogs: $PACKET/scratch/tmp-lc/hardstop-y3zrwsap/hardstop-HUP input [523]/logs\n",
+ "later_suite_started": true,
+ "completed_summary_after_death": true,
+ "suite_logs": [
+  "alpha.log",
+  "omega.log",
+  "preflight/check_list_hermetic.log",
+  "preflight/check_merge_containment.log",
+  "preflight/check_merge_review_integrity.log",
+  "preflight/check_results_fresh.log",
+  "preflight/suite_shards.log",
+  "preflight/suite_tally.log",
+  "preflight/test_suite_cancellation.log",
+  "preflight/xvlog_gate.log"
+ ],
+ "lock_owner_left": false
+}

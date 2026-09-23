@@ -1,0 +1,37 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/test_suite_cancellation.py", line 230, in main
+    normal_orphan(parent)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/test_suite_cancellation.py", line 207, in normal_orphan
+    assert status == 0 and "PASS     omega" in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+PASS     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 2   failed: 0   timed out: 0
+checks: 2   in-suite failures: 0
+logs: /tmp/suite-cancellation-jcl1qi4v/normal-orphan input [523]/logs
+REFUSED: process ownership: CLEANUP FAILED: owned descendants remain: {9257: (9097, '17681349')}
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/test_suite_cancellation.py", line 243, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/test_suite_cancellation.py", line 226, in main
+    with OwnedProcesses():
+         ~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/owned_process.py", line 81, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/owned_process.py", line 156, in _cleanup
+    raise RuntimeError(f"CLEANUP FAILED: owned descendants remain: {owned}")
+RuntimeError: CLEANUP FAILED: owned descendants remain: {9257: (7794, '17681349')}

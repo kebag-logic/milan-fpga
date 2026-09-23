@@ -1,0 +1,39 @@
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "mode"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "untracked"}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M03-no-unknown-refusal/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 288, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M03-no-unknown-refusal/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 270, in main
+    refusal(parent, kind)
+    ~~~~~~~^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/M03-no-unknown-refusal/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 197, in refusal
+    assert status == 2 and "REFUSED:" in output, output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught by "launch: the reconstruction is the launch instant"
+[ ok ] crossing_latency_off_by_one: caught by "launch: the reconstruction is the launch instant"
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught by "credit: the engine is held off at the reserve"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 0
+RESULT: PASS
+

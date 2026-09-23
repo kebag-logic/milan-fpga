@@ -1,0 +1,245 @@
+{
+ "M01-hardlink-copy": {
+  "detected": true,
+  "exit": 1,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 16.1,
+  "tail": [
+   "    assert private != root and snapshot(root) == before",
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M02-no-byte-mode-check": {
+  "detected": true,
+  "exit": 1,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 9.7,
+  "tail": [
+   "[note] cancellation_frees_the_entry: not separately observable here",
+   "controls: 9   failures: 8",
+   "RESULT: FAIL"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M03-no-unknown-refusal": {
+  "detected": true,
+  "exit": 1,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 11.3,
+  "tail": [
+   "[note] cancellation_frees_the_entry: not separately observable here",
+   "controls: 9   failures: 0",
+   "RESULT: PASS"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M04-no-linked-dir-refusal": {
+  "detected": false,
+  "exit": 0,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 35.3,
+  "tail": [
+   "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 3055, \"cwd\": \"/tmp/mutant-lifecycle-3s7acvo4/nested-SIGINT-control/gptp-shadow-mutants-qusquiw_/tb/verilator/gptp_shadow\", \"identities\": {\"3054\": [\"17679845\", \"S\"], \"3055\": [\"17679848\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 305",
+   "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 4006, \"cwd\": \"/tmp/mutant-lifecycle-3s7acvo4/nested-SIGTERM-control/gptp-shadow-mutants-hvae_3ow/tb/verilator/gptp_shadow\", \"identities\": {\"4005\": [\"17680222\", \"S\"], \"4006\": [\"17680224\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 4",
+   "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M05-no-git-env-refusal": {
+  "detected": false,
+  "exit": 0,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 35.9,
+  "tail": [
+   "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 3633, \"cwd\": \"/tmp/mutant-lifecycle-54n_oo5t/nested-SIGINT-control/gptp-shadow-mutants-r0guih50/tb/verilator/gptp_shadow\", \"identities\": {\"3617\": [\"17680072\", \"S\"], \"3633\": [\"17680074\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 361",
+   "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 4587, \"cwd\": \"/tmp/mutant-lifecycle-54n_oo5t/nested-SIGTERM-control/gptp-shadow-mutants-j_iydcyl/tb/verilator/gptp_shadow\", \"identities\": {\"4573\": [\"17680446\", \"S\"], \"4587\": [\"17680448\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 4",
+   "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M06-no-pin-check": {
+  "detected": false,
+  "exit": 0,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 34.3,
+  "tail": [
+   "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 4446, \"cwd\": \"/tmp/mutant-lifecycle-8jblbnpd/nested-SIGINT-control/gptp-shadow-mutants-swfig2hx/tb/verilator/gptp_shadow\", \"identities\": {\"4436\": [\"17680423\", \"S\"], \"4446\": [\"17680426\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 443",
+   "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 6299, \"cwd\": \"/tmp/mutant-lifecycle-8jblbnpd/nested-SIGTERM-control/gptp-shadow-mutants-g84ycvb6/tb/verilator/gptp_shadow\", \"identities\": {\"6285\": [\"17680775\", \"S\"], \"6299\": [\"17680777\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": 6",
+   "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M07-no-index-vs-head": {
+  "detected": false,
+  "exit": 0,
+  "file": "tb/verilator/gptp_shadow/private_inputs.py",
+  "planted": true,
+  "seconds": 35.5,
+  "tail": [
+   "nested-SIGINT: {\"exit\": 130, \"handshake\": {\"child\": 14687, \"cwd\": \"/tmp/mutant-lifecycle-uwtt2xik/nested-SIGINT-control/gptp-shadow-mutants-bg9m2m7a/tb/verilator/gptp_shadow\", \"identities\": {\"14672\": [\"17683412\", \"S\"], \"14687\": [\"17683414\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\": ",
+   "nested-SIGTERM: {\"exit\": 143, \"handshake\": {\"child\": 17546, \"cwd\": \"/tmp/mutant-lifecycle-uwtt2xik/nested-SIGTERM-control/gptp-shadow-mutants-bvz04_bh/tb/verilator/gptp_shadow\", \"identities\": {\"17526\": [\"17683789\", \"S\"], \"17546\": [\"17683791\", \"S\"]}, \"mutations\": [\"abort_counts_as_completion\"], \"pid\"",
+   "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, input refusals, INT/TERM/KILL, unsafe negative controls)"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M08-no-subreaper-sweep": {
+  "detected": true,
+  "exit": 1,
+  "file": "scripts/owned_process.py",
+  "planted": true,
+  "seconds": 3.5,
+  "tail": [
+   "    assert current is None or current[0] != previous[0], (pid, previous, current)",
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError: ('7722', ('17681018', 'S'), ('17681018', 'S'))"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M09-no-kill-escalation-sweep": {
+  "detected": true,
+  "exit": 1,
+  "file": "scripts/owned_process.py",
+  "planted": true,
+  "seconds": 11.5,
+  "tail": [
+   "  File \"$PACKET/scratch/mut/M09-no-kill-escalation-sweep/scripts/owned_process.py\", line 156, in _cleanup",
+   "    raise RuntimeError(f\"CLEANUP FAILED: owned descendants remain: {owned}\")",
+   "RuntimeError: CLEANUP FAILED: owned descendants remain: {9257: (7794, '17681349')}"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M10-no-identity-recheck-sweep": {
+  "detected": false,
+  "exit": 0,
+  "file": "scripts/owned_process.py",
+  "planted": true,
+  "seconds": 28.4,
+  "tail": [
+   "cancel-transition-SIGTERM: {\"exit\": 143, \"foreign_untouched\": true, \"handshake\": {\"child\": 14817, \"cwd\": \"/tmp/suite-cancellation-gc6x0fv1/cancel-transition-SIGTERM input [523]\", \"identities\": {\"14803\": [\"17683432\", \"S\"], \"14817\": [\"17683434\", \"S\"]}, \"pid\": 14803}, \"next_suite\": false, \"phase\": \"tra",
+   "unsafe-command-SIGTERM: {\"exit\": 1, \"foreign_untouched\": true, \"handshake\": {\"child\": 16825, \"cwd\": \"/tmp/suite-cancellation-gc6x0fv1/unsafe-command-SIGTERM input [523]\", \"identities\": {\"16781\": [\"17683683\", \"S\"], \"16825\": [\"17683686\", \"S\"]}, \"pid\": 16781}, \"next_suite\": true, \"phase\": \"command\", \"u",
+   "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M11-no-cancel-traps": {
+  "detected": true,
+  "exit": 1,
+  "file": "scripts/run_all_suites.sh",
+  "planted": true,
+  "seconds": 18.4,
+  "tail": [
+   "failing suites: alpha",
+   "logs: /tmp/suite-cancellation-esp4smuv/cancel-command-SIGINT input [523]/logs",
+   "CANCELLED: signal 2; partial logs retained; no completed sweep result"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M12-original-cleanup-trap": {
+  "detected": true,
+  "exit": 1,
+  "file": "scripts/run_all_suites.sh",
+  "planted": true,
+  "seconds": 18.2,
+  "tail": [
+   "failing suites: alpha",
+   "logs: /tmp/suite-cancellation-96aukcc8/cancel-command-SIGINT input [523]/logs",
+   "CANCELLED: signal 2; partial logs retained; no completed sweep result"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M13-no-stale-log-clear": {
+  "detected": true,
+  "exit": 1,
+  "file": "scripts/run_all_suites.sh",
+  "planted": true,
+  "seconds": 13.2,
+  "tail": [
+   "    assert not (root / \"logs/omega.log\").exists(), \"stale suite log survived\"",
+   "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+   "AssertionError: stale suite log survived"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M14-build-failure-counts": {
+  "detected": true,
+  "exit": 1,
+  "file": "tb/verilator/gptp_shadow/mutants.py",
+  "planted": true,
+  "seconds": 7.5,
+  "tail": [
+   "[note] cancellation_frees_the_entry: not separately observable here",
+   "controls: 9   failures: 0",
+   "RESULT: PASS"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ },
+ "M15-ignore-zombies-sweep": {
+  "detected": false,
+  "exit": 0,
+  "file": "scripts/owned_process.py",
+  "planted": true,
+  "seconds": 28.8,
+  "tail": [
+   "cancel-transition-SIGTERM: {\"exit\": 143, \"foreign_untouched\": true, \"handshake\": {\"child\": 30090, \"cwd\": \"/tmp/suite-cancellation-1qqibdv2/cancel-transition-SIGTERM input [523]\", \"identities\": {\"30079\": [\"17687206\", \"S\"], \"30090\": [\"17687209\", \"S\"]}, \"pid\": 30079}, \"next_suite\": false, \"phase\": \"tra",
+   "unsafe-command-SIGTERM: {\"exit\": 1, \"foreign_untouched\": true, \"handshake\": {\"child\": 31737, \"cwd\": \"/tmp/suite-cancellation-1qqibdv2/unsafe-command-SIGTERM input [523]\", \"identities\": {\"31708\": [\"17687463\", \"S\"], \"31737\": [\"17687466\", \"S\"]}, \"pid\": 31708}, \"next_suite\": true, \"phase\": \"command\", \"u",
+   "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M16-broad-mask-owner": {
+  "detected": true,
+  "exit": 2,
+  "file": "scripts/check_baremetal_only.py",
+  "planted": true,
+  "seconds": 2.5,
+  "tail": [
+   "  - [owned_process-wrong-context] planted defect not caught"
+  ],
+  "test": "python3 scripts/check_baremetal_only.py --selftest"
+ },
+ "M17-unanchored-mask-support": {
+  "detected": false,
+  "exit": 0,
+  "file": "scripts/check_baremetal_only.py",
+  "planted": true,
+  "seconds": 2.5,
+  "tail": [
+   "baremetal-only selftest: PASS (354 arm(s))"
+  ],
+  "test": "python3 scripts/check_baremetal_only.py --selftest"
+ },
+ "M18-no-stop-on-cancel-sweep": {
+  "detected": false,
+  "exit": 0,
+  "file": "scripts/owned_process.py",
+  "planted": true,
+  "seconds": 28.1,
+  "tail": [
+   "cancel-transition-SIGTERM: {\"exit\": 143, \"foreign_untouched\": true, \"handshake\": {\"child\": 36903, \"cwd\": \"/tmp/suite-cancellation-19rku5a2/cancel-transition-SIGTERM input [523]\", \"identities\": {\"36895\": [\"17688097\", \"S\"], \"36903\": [\"17688100\", \"S\"]}, \"pid\": 36895}, \"next_suite\": false, \"phase\": \"tra",
+   "unsafe-command-SIGTERM: {\"exit\": 1, \"foreign_untouched\": true, \"handshake\": {\"child\": 38745, \"cwd\": \"/tmp/suite-cancellation-19rku5a2/unsafe-command-SIGTERM input [523]\", \"identities\": {\"38727\": [\"17688346\", \"S\"], \"38745\": [\"17688349\", \"S\"]}, \"pid\": 38727}, \"next_suite\": true, \"phase\": \"command\", \"u",
+   "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, next-suite sentinel, ordinary/masked/timeout, unsafe negative control)"
+  ],
+  "test": "python3 scripts/test_suite_cancellation.py"
+ },
+ "M19-no-mutation-restore-private": {
+  "detected": true,
+  "exit": 1,
+  "file": "tb/verilator/gptp_shadow/mutants.py",
+  "planted": true,
+  "seconds": 2.2,
+  "tail": [
+   "[note] cancellation_frees_the_entry: not separately observable here",
+   "controls: 9   failures: 7",
+   "RESULT: FAIL"
+  ],
+  "test": "python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py"
+ }
+}

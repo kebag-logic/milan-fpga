@@ -1,0 +1,22 @@
+hardstop-KILL: {"caller_status": -9, "later_suite_started": true}
+{
+ "signal": "KILL",
+ "caller_status": -9,
+ "survivors_after_caller_death": {
+  "4070720": "bash $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL input [523]/scripts/run_all_su",
+  "4070785": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL-control/worker.py ",
+  "4070772": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL input [523]/tb",
+  "4070773": "python3 $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL-control/bin/make -C /data/m",
+  "4070781": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL-control/worker.py"
+ },
+ "later_suite_started": true,
+ "completed_summary_after_death": true
+}
+output after caller death:
+PASS     alpha
+PASS     omega
+----------------------------------------------------------------
+suites: 2   passed: 2   failed: 0   timed out: 0
+checks: 2   in-suite failures: 0
+logs: $PACKET/scratch/tmp-lc/hardstop-19q1dvj4/hardstop-KILL input [523]/logs
+

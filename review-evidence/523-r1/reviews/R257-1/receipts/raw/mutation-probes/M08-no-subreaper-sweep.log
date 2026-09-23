@@ -1,0 +1,19 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M08-no-subreaper-sweep/scripts/test_suite_cancellation.py", line 243, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M08-no-subreaper-sweep/scripts/test_suite_cancellation.py", line 230, in main
+    normal_orphan(parent)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "$PACKET/scratch/mut/M08-no-subreaper-sweep/scripts/test_suite_cancellation.py", line 208, in normal_orphan
+    assert_reaped(data)
+    ~~~~~~~~~~~~~^^^^^^
+  File "$PACKET/scratch/mut/M08-no-subreaper-sweep/scripts/process_test_support.py", line 192, in assert_reaped
+    assert current is None or current[0] != previous[0], (pid, previous, current)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('7722', ('17681018', 'S'), ('17681018', 'S'))

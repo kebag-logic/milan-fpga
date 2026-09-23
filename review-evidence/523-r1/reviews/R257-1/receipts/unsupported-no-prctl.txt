@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "$PACKET/scripts/probe_unsupported.py", line 21, in <module>
+    runpy.run_path(os.path.join(checkout, "scripts/owned_process.py"), run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "$REVIEW_CLONE/scripts/owned_process.py", line 249, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEW_CLONE/scripts/owned_process.py", line 236, in main
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$REVIEW_CLONE/scripts/owned_process.py", line 63, in __enter__
+    if self.libc.prctl(37, ctypes.byref(self.previous_subreaper), 0, 0, 0):
+       ^^^^^^^^^^^^^^^
+AttributeError: 'NoPrctl' object has no attribute 'prctl'
+status 1

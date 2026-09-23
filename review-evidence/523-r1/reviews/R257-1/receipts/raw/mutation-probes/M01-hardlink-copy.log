@@ -1,0 +1,30 @@
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "mode"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "untracked"}
+extra: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "extra"}
+symlink: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "symlink"}
+parent-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "parent-link"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency"}
+off-pin: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "off-pin"}
+pin-index: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "pin-index"}
+dependency-link: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "dependency-link"}
+git-env: {"exit": 2, "input_unchanged": true, "make_started": false, "refusal": "git-env"}
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M01-hardlink-copy/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 288, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M01-hardlink-copy/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 275, in main
+    interrupted(parent, signum)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/M01-hardlink-copy/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 130, in interrupted
+    assert private != root and snapshot(root) == before
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

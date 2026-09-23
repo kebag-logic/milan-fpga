@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/mut/M19-no-mutation-restore-private/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 288, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/mut/M19-no-mutation-restore-private/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 263, in main
+    normal(parent, "detect", repeat=True)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/mut/M19-no-mutation-restore-private/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 93, in normal
+    assert status == (0 if mode == "detect" else 1), output
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[FAIL] no_generation_check: no completed suite tally (make exit 1)
+[FAIL] no_tag_check: no completed suite tally (make exit 1)
+[FAIL] age_never_expires: no completed suite tally (make exit 1)
+[FAIL] observer_latency_off_by_one: no completed suite tally (make exit 1)
+[FAIL] crossing_latency_off_by_one: no completed suite tally (make exit 1)
+[FAIL] no_fence: no completed suite tally (make exit 1)
+[FAIL] unseal_without_echo: no completed suite tally (make exit 1)
+[ ok ] credit_never_withheld: caught by "credit: the engine is held off at the reserve"
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 7
+RESULT: FAIL
+

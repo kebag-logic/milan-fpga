@@ -1,0 +1,46 @@
+{
+ "signal": "KILL",
+ "driver": "scratch/base/run_all_suites.sh",
+ "tree_before_signal": {
+  "4071268": [
+   "17624587",
+   "S",
+   "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL input [523]/tb"
+  ],
+  "4071269": [
+   "17624587",
+   "S",
+   "python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/bin/make -C /data/m"
+  ],
+  "4071270": [
+   "17624589",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/worker.py"
+  ],
+  "4071271": [
+   "17624592",
+   "S",
+   "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/worker.py "
+  ],
+  "4071240": [
+   "17624566",
+   "S",
+   "bash $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL input [523]/scripts/run_all_su"
+  ]
+ },
+ "caller_status": -9,
+ "caller_output_at_death": "shard: 0/1   selected suites: 2\n",
+ "survivors_after_caller_death": {
+  "4071268": "timeout 1800 make -C $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL input [523]/tb",
+  "4071269": "python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/bin/make -C /data/m",
+  "4071270": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/worker.py",
+  "4071271": "/usr/bin/python3 $PACKET/scratch/tmp-lc/hardstop-_regz2wi/hardstop-KILL-control/worker.py "
+ },
+ "output_after_caller_death": "",
+ "later_suite_started": false,
+ "completed_summary_after_death": false,
+ "suite_logs": [
+  "alpha.log"
+ ],
+ "lock_owner_left": true
+}

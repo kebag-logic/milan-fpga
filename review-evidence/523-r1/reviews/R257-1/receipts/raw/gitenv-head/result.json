@@ -1,0 +1,68 @@
+{
+ "none": {
+  "exit": 0,
+  "controls_run": 9,
+  "caller_unchanged": true,
+  "last_lines": [
+   "controls: 9   failures: 0",
+   "RESULT: PASS"
+  ]
+ },
+ "GIT_PAGER=cat": {
+  "exit": 0,
+  "controls_run": 9,
+  "caller_unchanged": true,
+  "last_lines": [
+   "controls: 9   failures: 0",
+   "RESULT: PASS"
+  ]
+ },
+ "GIT_EDITOR=vi": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_EDITOR"
+  ]
+ },
+ "GIT_ASKPASS=/bin/true": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_ASKPASS"
+  ]
+ },
+ "GIT_AUTHOR_NAME=Someone": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_AUTHOR_NAME"
+  ]
+ },
+ "GIT_SSH_COMMAND=ssh": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_SSH_COMMAND"
+  ]
+ },
+ "GIT_INDEX_FILE=@ROOT@/.git/index": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_INDEX_FILE"
+  ]
+ },
+ "GIT_DIR=@ROOT@/.git": {
+  "exit": 2,
+  "controls_run": 0,
+  "caller_unchanged": true,
+  "last_lines": [
+   "REFUSED: Git environment overrides are not accepted: GIT_DIR"
+  ]
+ }
+}
