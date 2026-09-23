@@ -1,0 +1,5 @@
+id=28_inventory_base_eq
+exit=0
+seconds=0
+cwd=<clone>
+command=rm -rf <packet>/scratch/base-archive && mkdir -p <packet>/scratch/base-archive && git archive 483a133ed08867ea0d300d2b4a027b5b48a4282f | tar -x -C <packet>/scratch/base-archive && diff <(<packet>/scratch/base-archive/syn/yosys/run.sh --list) <(syn/yosys/run.sh --list) && echo "INVENTORY-IDENTICAL tops=$(syn/yosys/run.sh --list | wc -l)"

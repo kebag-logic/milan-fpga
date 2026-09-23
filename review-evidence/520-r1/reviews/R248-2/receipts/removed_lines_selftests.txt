@@ -1,0 +1,14 @@
+-Every arm runs the shipping script; nothing here models it.
+-    return proc.returncode, proc.stdout + proc.stderr
+-    """Run result_cache.py's own self-test, then the five live arms."""
+-    with tempfile.TemporaryDirectory(prefix="cache-selftest.") as tmp:
+-        arms(Path(tmp), problems)
+-    print(f"cache selftest: {'OK' if not problems else 'FAIL'} (unit self-test + 5 live arms on {TOP})")
+-the Yosys binary and the sv2v version string. Any of those moving is a miss.
+-<inputs> = --top T --mode M --sv2v-file F --program P --yosys-version V --yosys-bin B --sv2v-version W
+-SCHEMA = "milan-yosys-result-cache/1"
+-                "yosys_sha256", "sv2v_version")
+-                  yosys_sha256=args.yosys_bin_sha256, sv2v_version=args.sv2v_version)
+-    """The seven inputs every sub-command names."""
+-                  yosys_version="Yosys 0.66", yosys_sha256="ab" * 32, sv2v_version="v0.0.12")
+-          f"(7 key arms, 12 hit-rule and trust arms)")

@@ -1,0 +1,30 @@
+id                                  exit   secs  command
+01_gen_toc_check                       0      1  python3 scripts/gen_toc.py --check
+02_gen_toc_anchors                     0      1  python3 scripts/gen_toc.py --verify-anchors
+03_gen_toc_selftest                    0      1  python3 scripts/gen_toc.py --selftest
+04_docs_check                          0      4  python3 scripts/docs_check.py
+05_docs_check_selftest                 0      1  python3 scripts/docs_check.py --selftest
+06_doc_style                           0      0  python3 scripts/check_doc_style.py
+07_doc_style_selftest                  0      0  python3 scripts/check_doc_style.py --selftest
+08_em_dash_base_483a133e               0      2  python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+09_em_dash_base_28e350b9               0      2  python3 scripts/check_em_dash.py --base 28e350b99ac240a750326b762c6d029f0653362c
+10_em_dash_selftest                    0      2  python3 scripts/check_em_dash.py --selftest
+11_ci_events_check                     0      0  python3 scripts/ci_events.py --check
+12_ci_events_selftest                  0      7  python3 scripts/ci_events.py --selftest
+13_fail_fast_check                     0      1  python3 scripts/measure_fail_fast.py --check
+14_fail_fast_selftest                  0      1  python3 scripts/measure_fail_fast.py --selftest
+15_ci_scope_selftest                   0      2  python3 scripts/ci_scope.py --selftest
+16_hygiene_check                       0      0  python3 scripts/check_hygiene.py --check
+17_hygiene_selftest                    0      0  python3 scripts/check_hygiene.py --selftest
+18_doc_paths                           0      0  python3 scripts/check_doc_paths.py
+19_feature_status                      0      0  python3 scripts/check_feature_status.py
+20_diff_check_base                     0      0  git diff --check 483a133ed08867ea0d300d2b4a027b5b48a4282f d253f86e410e301d146d4bd4e74d027f00cfb462
+21_diff_check_delta                    0      0  git diff --check 28e350b99ac240a750326b762c6d029f0653362c d253f86e410e301d146d4bd4e74d027f00cfb462
+22_result_cache_selftest               0      0  python3 syn/yosys/result_cache.py --selftest
+23_yosys_tally_selftest                0      0  python3 scripts/yosys_tally.py --selftest
+24_py_idiom                            0      3  python3 scripts/check_py_idiom.py
+25_sh_idiom                            0      0  python3 scripts/check_sh_idiom.py
+26_bash_n_run_sh                       0      0  bash -n syn/yosys/run.sh
+27_inventory_head                      0      0  syn/yosys/run.sh --list
+28_inventory_base_eq                   0      0  rm -rf <packet>/scratch/base-archive && mkdir -p <packet>/scratch/base-archive && git archive 483a133ed08867ea0d300d2b4a027b5b48a4282f | tar -x -C <packet>/scratch/base-archive && diff <(<packet>/scratch/base-archive/syn/yosys/run.sh --list) <(syn/yosys/run.sh --list) && echo "INVENTORY-IDENTICAL tops=$(syn/yosys/run.sh --list | wc -l)"
+29_pp_srcs_check                       0      0  python3 scripts/pp_srcs.py --check

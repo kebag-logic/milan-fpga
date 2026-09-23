@@ -1,0 +1,31 @@
+# Focused static/docs/workflow-reader commands at the reviewed head.
+# Base 483a133e = PR base (live-dev source base); 28e350b9 = parent of the delta.
+01_gen_toc_check|python3 scripts/gen_toc.py --check
+02_gen_toc_anchors|python3 scripts/gen_toc.py --verify-anchors
+03_gen_toc_selftest|python3 scripts/gen_toc.py --selftest
+04_docs_check|python3 scripts/docs_check.py
+05_docs_check_selftest|python3 scripts/docs_check.py --selftest
+06_doc_style|python3 scripts/check_doc_style.py
+07_doc_style_selftest|python3 scripts/check_doc_style.py --selftest
+08_em_dash_base_483a133e|python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+09_em_dash_base_28e350b9|python3 scripts/check_em_dash.py --base 28e350b99ac240a750326b762c6d029f0653362c
+10_em_dash_selftest|python3 scripts/check_em_dash.py --selftest
+11_ci_events_check|python3 scripts/ci_events.py --check
+12_ci_events_selftest|python3 scripts/ci_events.py --selftest
+13_fail_fast_check|python3 scripts/measure_fail_fast.py --check
+14_fail_fast_selftest|python3 scripts/measure_fail_fast.py --selftest
+15_ci_scope_selftest|python3 scripts/ci_scope.py --selftest
+16_hygiene_check|python3 scripts/check_hygiene.py --check
+17_hygiene_selftest|python3 scripts/check_hygiene.py --selftest
+18_doc_paths|python3 scripts/check_doc_paths.py
+19_feature_status|python3 scripts/check_feature_status.py
+20_diff_check_base|git diff --check 483a133ed08867ea0d300d2b4a027b5b48a4282f d253f86e410e301d146d4bd4e74d027f00cfb462
+21_diff_check_delta|git diff --check 28e350b99ac240a750326b762c6d029f0653362c d253f86e410e301d146d4bd4e74d027f00cfb462
+22_result_cache_selftest|python3 syn/yosys/result_cache.py --selftest
+23_yosys_tally_selftest|python3 scripts/yosys_tally.py --selftest
+24_py_idiom|python3 scripts/check_py_idiom.py
+25_sh_idiom|python3 scripts/check_sh_idiom.py
+26_bash_n_run_sh|bash -n syn/yosys/run.sh
+27_inventory_head|syn/yosys/run.sh --list
+28_inventory_base_eq|rm -rf <packet>/scratch/base-archive && mkdir -p <packet>/scratch/base-archive && git archive 483a133ed08867ea0d300d2b4a027b5b48a4282f | tar -x -C <packet>/scratch/base-archive && diff <(<packet>/scratch/base-archive/syn/yosys/run.sh --list) <(syn/yosys/run.sh --list) && echo "INVENTORY-IDENTICAL tops=$(syn/yosys/run.sh --list | wc -l)"
+29_pp_srcs_check|python3 scripts/pp_srcs.py --check
