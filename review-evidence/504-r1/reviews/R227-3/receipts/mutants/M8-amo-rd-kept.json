@@ -1,0 +1,20 @@
+{
+ "id": "M8-amo-rd-kept",
+ "reverts": "R227-2-F2: an AMO's rd keeps its old value",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "an AMO writing its base register",
+ "last_error_line": "AssertionError: after an AMO writing its base register the RV32 resolver still placed the next store ([2147487744, 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "            #: ordinary spelling.\n            state.set(args[0], None)\n",
+   "new": "            #: ordinary spelling.\n            pass\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

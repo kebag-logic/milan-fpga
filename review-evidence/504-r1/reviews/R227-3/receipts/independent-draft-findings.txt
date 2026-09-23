@@ -1,0 +1,26 @@
+R227-3 independent draft, written BEFORE reading any prior review report on PR #521.
+Exact head 97aa1ec943ac740a27b942210a248f6512ae3ff6, tree 4a12a545bdb478083d711a8f319d3c6d70c1b1d9.
+
+F1 MINOR Robustness+Docs: frame-slot sub-word LOAD reads the whole modelled word
+  (sw/builder/test_builder.py:1483-1484) while statics read only on lw
+  (:1469-1482). A union half-word or byte read of a parked non-window word
+  places a later store outside the window while the real store is ADP_CTRL
+  (0x90000600): resolver alone and the complete gate ACCEPT a pre-AEM enable
+  (receipts/mutants/P-plants.plants.json; receipts/literal-probes-head.json).
+  Pre-existing on base 574c29fa (receipts/literal-probes-base-574c29fa.json).
+  The page lists the behaviour under "does NOT observe" without its consequence;
+  the gate's printed claim (a) and NOT-proved line omit it.
+
+F2 MINOR Tests: _rv32_forget_overlap() low boundary (:1507-1508) has no failing
+  control. M15 (>= to >) passes every literal control and the complete compiled
+  gate (C4 exit 0), and under M15 a union byte store into a parked word's TOP
+  byte passes the whole gate (P-plants-M15), refused at head (P-plants).
+
+S1 SUGGESTION Tests: M16/M17 boundaries (misaligned-only spellings) survive; M4
+  shows the slot-mirror's first term is redundant with its memory-operand term.
+S2 SUGGESTION Docs: a small constant-size __builtin_memset is expanded inline and
+  refused (P-plants doc-memset); the bullet's memset example holds only where GCC
+  emits a call.
+
+Resolutions verified by own controls (killed): M1 M2 M3 M5 M45 M6 M7 M7b M8 M9
+M10 M11 M12 M13 M14 M18 M21; compiled C1 C2 C3; installer I1-I16; workflow W1-W8.

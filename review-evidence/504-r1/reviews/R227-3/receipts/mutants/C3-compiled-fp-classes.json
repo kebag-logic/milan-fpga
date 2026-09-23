@@ -1,0 +1,40 @@
+{
+ "id": "C3-compiled-fp-classes",
+ "reverts": "pre-R228-F1 classes (no fsw/fsd, no fallback), literal controls neutralised",
+ "mode": "compiled",
+ "exit": 1,
+ "elapsed_s": 5,
+ "verdict": "KILLED",
+ "expected": "the resolver accepted the",
+ "last_error_line": "AssertionError: the resolver accepted the float struct-overlay store through a paged base, which writes the entity-enable word through a paged base: that store class is open on every instrument",
+ "edits": [
+  {
+   "old": "RV32_STORE_BYTES = {\"sb\": 1, \"sh\": 2, \"sw\": 4,\n                    \"fsh\": 2, \"fsw\": 4, \"fsd\": 8, \"fsq\": 16}\n",
+   "new": "RV32_STORE_BYTES = {\"sb\": 1, \"sh\": 2, \"sw\": 4,\n                    \"fsh\": 2, \"fsq\": 16}\n"
+  },
+  {
+   "old": "    if rv32_memory_operand(args) and not rv32_is_load(mnem):\n        _rv32_forget_symbols(state)\n        return (\"store\", (Rv32Where(\"unclassified\", f\"{mnem} {ops}\"), None))\n",
+   "new": ""
+  },
+  {
+   "old": "        assert reported == words, \\\n",
+   "new": "        assert True or reported == words, \\\n"
+  },
+  {
+   "old": "        assert any(csr_base <= word < csr_base + csr_size\n",
+   "new": "        assert True or any(csr_base <= word < csr_base + csr_size\n"
+  },
+  {
+   "old": "    assert all(len(stores) == 1 and isinstance(stores[0], Rv32Where) and\n",
+   "new": "    assert True or all(len(stores) == 1 and isinstance(stores[0], Rv32Where) and\n"
+  },
+  {
+   "old": "        assert placed == [want] and start + 63 < csr_base == want.hi, \\\n",
+   "new": "        assert True or placed == [want] and start + 63 < csr_base == want.hi, \\\n"
+  },
+  {
+   "old": "        assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed",
+   "new": "        assert True or reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed"
+  }
+ ]
+}

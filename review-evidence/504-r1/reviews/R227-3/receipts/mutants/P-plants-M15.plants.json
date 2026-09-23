@@ -1,0 +1,106 @@
+{
+ "adp_window_address": "0x90000600",
+ "byte_parked": "0x12345606",
+ "csr_base": "0x90000000",
+ "csr_size": "0x10000",
+ "parked": "0x12340600",
+ "plants": {
+  "byte-read-of-frame-slot": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "callee-writes-caller-frame": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "control-whole-word-read": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled control-whole-word-read STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT ",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   }
+  },
+  "doc-64bit-atomic-exchange": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "doc-memset": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": "the compiled doc-memset STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   },
+   "whole_gate": {
+    "reason": "the compiled firmware STORES into the Milan CSR window (0x90000000..0x90010000) from configure_fabric(), at 0x90000600. Every control-register store must go through the address helper so the bit-0 census can place it; this is the RESOLVED store address, so no cast, typedef, member access, subscript or shift-and-or address arithmetic changes the answer, and the address helper is NOT exempt",
+    "verdict": "REFUSED"
+   }
+  },
+  "half-word-read-of-frame-slot": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "top-byte-store-frame": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  },
+  "top-byte-store-static": {
+   "emits_lbu_frame": true,
+   "emits_lhu_frame": true,
+   "resolver_alone": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   },
+   "whole_gate": {
+    "reason": null,
+    "verdict": "ACCEPTED"
+   }
+  }
+ },
+ "top_parked": "0x12000600"
+}

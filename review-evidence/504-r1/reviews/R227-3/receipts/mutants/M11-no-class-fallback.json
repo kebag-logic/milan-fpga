@@ -1,0 +1,20 @@
+{
+ "id": "M11-no-class-fallback",
+ "reverts": "R228-F1: memory-addressing unknown mnemonics are stepped over",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "UNCLASSIFIED store",
+ "last_error_line": "AssertionError: an instruction that addresses memory and is neither a recognised load nor a recognised store came back as [[], [], []], not as one UNCLASSIFIED store: the classifier's class default must fail closed",
+ "edits": [
+  {
+   "old": "    if rv32_memory_operand(args) and not rv32_is_load(mnem):\n        _rv32_forget_symbols(state)\n        return (\"store\", (Rv32Where(\"unclassified\", f\"{mnem} {ops}\"), None))\n",
+   "new": ""
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+{
+ "id": "M17-footprint-boundary",
+ "reverts": "boundary: last byte computed one short",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "SURVIVED",
+ "expected": null,
+ "last_error_line": "",
+ "edits": [
+  {
+   "old": "((address + width - 1) & ~3) + 4",
+   "new": "((address + width - 2) & ~3) + 4"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

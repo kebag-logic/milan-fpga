@@ -1,0 +1,17 @@
+Compiler mode: absent cross tools
+Compiler audit: $REVIEW_OUT/scratch/mut/M12-no-other-loads.argv.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEW_OUT/scratch/mut/M12-no-other-loads/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEW_OUT/scratch/mut/M12-no-other-loads/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEW_OUT/scratch/mut/M12-no-other-loads/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEW_OUT/scratch/mut/M12-no-other-loads/sw/builder/test_builder.py", line 5238, in test_baremetal_profile_contract
+    assert loads_reported == [], \
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: the RV32 resolver reported a load as a store: [unclassified(flw fa5,0(a4)), unclassified(fld fa4,0(a4)), unclassified(lr.w.aqrl a3,0(a4))]

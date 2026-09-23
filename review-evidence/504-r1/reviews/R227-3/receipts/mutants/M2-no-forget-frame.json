@@ -1,0 +1,20 @@
+{
+ "id": "M2-no-forget-frame",
+ "reverts": "R227-2-F1/R228-F5: a store through a stack address forgets no slot",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "through a pointer to a frame slot",
+ "last_error_line": "AssertionError: after an integer store through a pointer to a frame slot the RV32 resolver still placed the next store ([stack(-), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "            _rv32_forget_frame(state)\n            return (\"store\", (Rv32Where(\"stack\"), value))\n",
+   "new": "            return (\"store\", (Rv32Where(\"stack\"), value))\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

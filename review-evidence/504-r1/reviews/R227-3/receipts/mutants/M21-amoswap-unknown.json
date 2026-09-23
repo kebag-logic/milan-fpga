@@ -1,0 +1,20 @@
+{
+ "id": "M21-amoswap-unknown",
+ "reverts": "positive arm: amoswap no longer leaves its rs2",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "stale-word probes cannot tell a rewrite",
+ "last_error_line": "AssertionError: after an amoswap.w into a static the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places anything",
+ "edits": [
+  {
+   "old": "    if mnem == \"sw\" or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n",
+   "new": "    if mnem == \"sw\":\n        return state.get(args[-2])\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

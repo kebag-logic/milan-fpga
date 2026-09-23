@@ -1,0 +1,20 @@
+{
+ "id": "M1-subword-keeps-value",
+ "reverts": "R227-2-F1: sb/sh store their register as the slot's whole word",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "at a frame slot's own offset",
+ "last_error_line": "AssertionError: after a byte store at a frame slot's own offset the RV32 resolver still placed the next store ([0]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "    if mnem == \"sw\" or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n",
+   "new": "    if mnem in (\"sw\", \"sh\", \"sb\") or mnem.startswith(\"amoswap.\"):\n        return state.get(args[-2])\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

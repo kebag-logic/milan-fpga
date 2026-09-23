@@ -1,0 +1,20 @@
+{
+ "id": "C2-compiled-pointer-rewrite",
+ "reverts": "M2 with its literal control neutralised: the compiled pointer mutants must still refuse",
+ "mode": "compiled",
+ "exit": 1,
+ "elapsed_s": 333,
+ "verdict": "KILLED",
+ "expected": "mutation passed the boot-contract gate",
+ "last_error_line": "AssertionError: entity enabled through a local rewritten by an integer store through a pointer to it mutation passed the boot-contract gate",
+ "edits": [
+  {
+   "old": "            _rv32_forget_frame(state)\n            return (\"store\", (Rv32Where(\"stack\"), value))\n",
+   "new": "            return (\"store\", (Rv32Where(\"stack\"), value))\n"
+  },
+  {
+   "old": "        assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed",
+   "new": "        assert True or reported[-1:] and isinstance(reported[-1], Rv32Where) and \\\n            reported[-1].kind == \"unplaced\", \\\n            f\"after {label} the RV32 resolver still placed"
+  }
+ ]
+}

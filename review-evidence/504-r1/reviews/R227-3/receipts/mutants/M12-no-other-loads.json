@@ -1,0 +1,20 @@
+{
+ "id": "M12-no-other-loads",
+ "reverts": "R228-F1: FP and LR loads no longer recognised as loads",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "reported a load as a store",
+ "last_error_line": "AssertionError: the RV32 resolver reported a load as a store: [unclassified(flw fa5,0(a4)), unclassified(fld fa4,0(a4)), unclassified(lr.w.aqrl a3,0(a4))]",
+ "edits": [
+  {
+   "old": "    r\"^(?:fl[hwdq]|lr\\.w(?:\\.(?:aq|rl|aqrl))?)$\")\n",
+   "new": "    r\"^(?!)$\")\n"
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}

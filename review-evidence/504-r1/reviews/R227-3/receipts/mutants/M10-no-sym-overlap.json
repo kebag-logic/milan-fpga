@@ -1,0 +1,20 @@
+{
+ "id": "M10-no-sym-overlap",
+ "reverts": "R228-F4: a static store forgets no overlapped word",
+ "mode": "literal",
+ "exit": 1,
+ "elapsed_s": 1,
+ "verdict": "KILLED",
+ "expected": "the RV32 resolver still placed the next store",
+ "last_error_line": "AssertionError: after a byte store into a static's word the RV32 resolver still placed the next store ([sym(probe_static), sym(probe_static), 2147487744]): a word the store rewrote was read back as a placed address the census accepts",
+ "edits": [
+  {
+   "old": "            _rv32_forget_overlap(state.mem, (\"sym\", held.name), at, width)\n",
+   "new": ""
+  },
+  {
+   "old": "    range_control_note = (\n",
+   "new": "    raise SystemExit('R227-3-PROBE-STOP literal resolver controls passed')\n    range_control_note = (\n"
+  }
+ ]
+}
