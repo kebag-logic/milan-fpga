@@ -1,0 +1,11 @@
+base gen_toc sha256 ffdd8207a438d9fbb79905dc61d25665bf8d216387d1ee0e66b8ca86ce9d6eb3
+head gen_toc sha256 03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb
+corpus: 2070 generated pages (scripts/gen_corpus.py); walks differ on 654 ; all 654 rendered with GitHub gfm
+classes: {'fix': 360, 'REGRESSION': 252, 'both-disagree-differently': 42}
+regressions: 252 + modulo documented family-two headings: 18
+  live item paragraph (in-item block never closes): 63 (head lists a heading GitHub renders as code: 21)
+    prefixes: ['bullet', 'empty item gains', 'ordered', 'task item']
+  non-paragraph hold read as live paragraph: 207 (head lists a heading GitHub renders as code: 69)
+    prefixes: ['lazy after nested quote', 'nested bullet', 'nested footnote', 'nested ordered', 'nested quote', 'ordered nested quote', 'quote-first item', 'resumed nested quote', 'setext in item', 'star nested quote', 'table in item', 'table rows in item']
+  tag columns: {'2': 126, '3': 144}
+  followers: {'fence in item': 90, 'pre in item': 90, 'fence then real fence': 90}

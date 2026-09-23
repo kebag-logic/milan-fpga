@@ -1,0 +1,44 @@
+KILLED  M1 no content-column continuation (opening_para override removed): toc=1 emdash=2
+      FAIL [I437 R238 C01]
+      FAIL [I437 R238 C02]
+      FAIL [I437 R238 C03]
+      FAIL [I437 R238 C04]
+KILLED  M2 no PARAGRAPH->HELD inside the item: toc=1 emdash=2
+      FAIL [I437 two spaces]
+      FAIL [I437 three spaces]
+      FAIL [I437 star item]
+      FAIL [I437 ordered item]
+KILLED  M3 no rendered-comment hiding: toc=1 emdash=2
+      FAIL [I437 rendered #516 first tag column 0 open]
+      FAIL [I437 rendered #516 first tag column 0 close]
+      FAIL [I437 rendered #516 first tag column 0 attribute]
+      FAIL [I437 rendered #516 first tag column 1 open]
+KILLED  M4 abrupt empty comments not complete: toc=1 emdash=2
+      FAIL [I437 rendered abrupt empty comment in a block]
+      FAIL [I437 rendered abrupt dash comment in a block]
+      FAIL [I437 rendered abrupt empty comment line]
+      FAIL [I437 rendered abrupt empty comment inline]
+KILLED  M5 dedented quote/footnote keeps item context: toc=1 emdash=2
+      FAIL [I437 R238 D01]
+      FAIL [I437 R238 D02]
+      FAIL [I437 R238 D03]
+      FAIL [I437 R238 D04]
+KILLED  M6 empty item survives a blank: toc=1 emdash=2
+      FAIL [I437 empty item ends at blank]
+      FAIL [I437 empty padded item ends at blank]
+    TOC selftest: FAIL (1089/1091 arm(s))
+KILLED  M7 wide padding keeps the padded column: toc=1 emdash=2
+      FAIL [I437 code padding uses one]
+    TOC selftest: FAIL (1090/1091 arm(s))
+KILLED  M8 lazy line releases item: toc=1 emdash=2
+      FAIL [I437 lazy line retains item]
+      FAIL [I437 R238 C07]
+      FAIL [I437 lazy resumed paragraph]
+    TOC selftest: FAIL (1088/1091 arm(s))
+KILLED  M9 rendered comment ignores raw HTML lines: toc=1 emdash=2
+      FAIL [I437 rendered #516 first tag column 0 open]
+      FAIL [I437 rendered #516 first tag column 0 close]
+      FAIL [I437 rendered #516 first tag column 0 attribute]
+      FAIL [I437 rendered #516 first tag column 1 open]
+SURVIVED M10 continuation also for empty-item context: toc=0 emdash=0
+restored gen_toc.py sha256 03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb; survivors 1

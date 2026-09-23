@@ -1,0 +1,542 @@
+{
+ "base": "483a133ed08867ea0d300d2b4a027b5b48a4282f",
+ "base_gen_toc_sha256": "ffdd8207a438d9fbb79905dc61d25665bf8d216387d1ee0e66b8ca86ce9d6eb3",
+ "head": "4741498f3b2b4f67f431037d327c96cf65691278",
+ "head_gen_toc_sha256": "03a63f4248c0177eb859676305dcd6cbc2cdb0c3bcf1edae9f15c72c3f85dadb",
+ "rows": [
+  {
+   "name": "attribute value opener, type 6",
+   "page": "<div title=\"<!--\">\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv title=\\\"\\u003c!--\\\"\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "ff4f6e415dff3e513a3d329238096950f52e87eace510667168d0b402a177295",
+   "response_bytes": "<div title=\"&lt;!--\" dir=\"auto\">\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2></div>",
+   "response_sha256": "abfe882c0d32708c69f9b2f4d66a539b52e5e20e82dbe65671aef87eb4e2a9c0",
+   "recorded_utc": "2026-09-23T06:31:43Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "attribute value opener, type 7",
+   "page": "<span title=\"<!--\">\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cspan title=\\\"\\u003c!--\\\"\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "e319e2b4012bc83cb8b5125f24eb4c7d56588346b6eaf654307101ca3d80b433",
+   "response_bytes": "<span title=\"&lt;!--\">\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2></span>",
+   "response_sha256": "acbc4de5a28d8d6c84b5dd995993accbdc91d00ef19842e070ed02e3fb9972fe",
+   "recorded_utc": "2026-09-23T06:31:44Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "attribute value opener inside block",
+   "page": "<div>\n<img alt=\"<!-- x\">\n</div>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003cimg alt=\\\"\\u003c!-- x\\\"\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "a1a3da342a349731f6086ae877f41b0c428257f9ff3d27152942d964462f95b3",
+   "response_bytes": "<div dir=\"auto\">\n<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"\"><img alt=\"&lt;!-- x\" style=\"max-width: 100%;\"></a>\n</div>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "a4ba0575016102e2c7f5272462c748c5ff2c94596d8fe8c869e7244c424539ff",
+   "recorded_utc": "2026-09-23T06:31:44Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "bang closer in block",
+   "page": "<div>\n<!-- a --!>\n</div>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!-- a --!\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "9347a66af9b392cf0bf4edd491327e21627a7d074451bc661e64d87e059620c9",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "dce5ab45715b2c9cd78724c1fa002055e93ca989791602d94f443cfb16dfc4bb",
+   "recorded_utc": "2026-09-23T06:31:44Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "inline tag closer after block comment, no heading between",
+   "page": "<div>\n<!--\n</div>\n\ntext <a title=\"-->\"> more\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!--\\n\\u003c/div\\u003e\\n\\ntext \\u003ca title=\\\"--\\u003e\\\"\\u003e more\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "eec02ea3e11ded8fb869200baf225f82a9f00992383d176bd3f19432f5302564",
+   "response_bytes": "<div dir=\"auto\">\n\"&gt; more<p dir=\"auto\"></p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2></div>",
+   "response_sha256": "4e3591a4f60ca22be5de99d24071bfea179eec560830a261dfd97c42bb28488c",
+   "recorded_utc": "2026-09-23T06:31:45Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "flat item HTML then code-span opener",
+   "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\ntext `\\u003c!--` more\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "45354dd0bfee244becbb8c39df96bfdd279310435e4a3762cc4721e233421d38",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<p dir=\"auto\">text <code class=\"notranslate\">&lt;!--</code> more</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "52a240a0e93c6ebe8eabc5bf619b352f1f6e37428a5b2301cd3ef66107c9a844",
+   "recorded_utc": "2026-09-23T06:31:45Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "flat item HTML then escaped opener",
+   "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\ntext \\\\\\u003c!-- more\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "acfb90e866ea2e26f6a05f736f75b75e032bd0cbc37c28c8916c9d24166afedf",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<p dir=\"auto\">text &lt;!-- more</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "f2b3c9b7a1a6605c2a4b43fd3f954f5445c8aa19acd709c0f1349260e629dd30",
+   "recorded_utc": "2026-09-23T06:31:46Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "flat item HTML then attribute opener",
+   "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\ntext \\u003ca title=\\\"\\u003c!--\\\"\\u003e more\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "07f9085b7a261950921da024b19c18d3067fe2f31b07907d9d8c92f6526ceffd",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<p dir=\"auto\">text  more</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "8038c22d77e91803e338666f2eeba59956f9eb010a99fb8650ec21a5ed1129f0",
+   "recorded_utc": "2026-09-23T06:31:46Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "control: flat item HTML then heading",
+   "page": "- item\n\n  <div>\ntext more\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n  \\u003cdiv\\u003e\\ntext more\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "da97dc15e714c364e46758b0ff0331de9142be8fed49d31f46d685e5e8a51320",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n<div dir=\"auto\">\n</div></li>\n</ul>\n<p dir=\"auto\">text more</p>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "9ac5e10a4fa03856195ea0ba3de027579834140a371d601e75c2684b2a492b7e",
+   "recorded_utc": "2026-09-23T06:31:46Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "agree-both",
+   "base_direction": "",
+   "head_direction": ""
+  },
+  {
+   "name": "cdata opener in block",
+   "page": "<div>\n<![CDATA[<!--]]>\n</div>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c![CDATA[\\u003c!--]]\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "916102d2bf32521b901e73544dccc650d24e059ed9589ed87208b7b103f82a3b",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "dce5ab45715b2c9cd78724c1fa002055e93ca989791602d94f443cfb16dfc4bb",
+   "recorded_utc": "2026-09-23T06:31:47Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "textarea opener",
+   "page": "<textarea>\n<!--\n</textarea>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003ctextarea\\u003e\\n\\u003c!--\\n\\u003c/textarea\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "4bd550ec16a05f215ca29df7f3ceba22c3e0bd9be9c69eb43910fae0df0d6bb5",
+   "response_bytes": "&lt;textarea&gt;\n",
+   "response_sha256": "84ece4735d1d88f9b03a5d8cead49a7e682a235bda72167a4c10453505a835a6",
+   "recorded_utc": "2026-09-23T06:31:47Z",
+   "rendered": [],
+   "class": "fix",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": ""
+  },
+  {
+   "name": "style opener",
+   "page": "<style>\n<!--\n</style>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cstyle\\u003e\\n\\u003c!--\\n\\u003c/style\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "76b98526643f57d9d6979922eed3e05c36e1ea889ba2df139f4dc0d181e24cca",
+   "response_bytes": "&lt;style&gt;\n",
+   "response_sha256": "a56b6b951e794e441b45e47082ce58aeb3af5a5ac3bd81dca43f4f2504b80806",
+   "recorded_utc": "2026-09-23T06:31:48Z",
+   "rendered": [],
+   "class": "fix",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": ""
+  },
+  {
+   "name": "bang closer after opener line, block",
+   "page": "<div>\n<!--\n--!>\n</div>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!--\\n--!\\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "1cf8813330775fb5d5cdc80a24f060b4f39da0e5a6a29f261f9dbc15849def95",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">Old</h2>\n<h2 dir=\"auto\">Real</h2>",
+   "response_sha256": "dce5ab45715b2c9cd78724c1fa002055e93ca989791602d94f443cfb16dfc4bb",
+   "recorded_utc": "2026-09-23T06:31:48Z",
+   "rendered": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "class": "REGRESSION",
+   "base_direction": "",
+   "head_direction": "WITHHOLD omits [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "comment then dash-dash-space-gt",
+   "page": "<div>\n<!-- a -- >\n</div>\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!-- a -- \\u003e\\n\\u003c/div\\u003e\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "2e991446cc0c9f3a398bf3e680f4966e3d53172b5ec7c30618c8a24f1ba929e0",
+   "response_bytes": "<div dir=\"auto\">\n</div>",
+   "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+   "recorded_utc": "2026-09-23T06:31:48Z",
+   "rendered": [],
+   "class": "fix",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": ""
+  },
+  {
+   "name": "raw comment closed in later paragraph code span",
+   "page": "<div>\n<!--\n</div>\n\n`-->` text\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"\\u003cdiv\\u003e\\n\\u003c!--\\n\\u003c/div\\u003e\\n\\n`--\\u003e` text\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "e15e71ec38c3717a3cc223ee98ad7c7c2bca433c0e37fd50b02aceb7cf344682",
+   "response_bytes": "<div dir=\"auto\">\n</div>",
+   "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+   "recorded_utc": "2026-09-23T06:31:49Z",
+   "rendered": [],
+   "class": "fix",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": ""
+  },
+  {
+   "name": "item tag at 4 columns comment opener",
+   "page": "- item\n\n    <!--\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n    \\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "5fbef6a82c63d08c38c66887f9f82cc7ddc0fbaa853d1f4ad7e79e34ee470985",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n  </li></ul>",
+   "response_sha256": "723ec4f71c22e4763334ef3f54127d74a92b2e645f26897a3bcfad87d87cec52",
+   "recorded_utc": "2026-09-23T06:31:49Z",
+   "rendered": [],
+   "class": "both-disagree-same",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]"
+  },
+  {
+   "name": "item html at 4 columns with comment",
+   "page": "- item\n\n    <div><!--\n\n## Old\n\n## Real\n",
+   "base_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_walk": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"- item\\n\\n    \\u003cdiv\\u003e\\u003c!--\\n\\n## Old\\n\\n## Real\\n\"}",
+   "request_sha256": "b6a6f671940e86583dee9dc422fa6c21a405284b9812d69bccc148bf707bdc06",
+   "response_bytes": "<ul dir=\"auto\">\n<li>\n<p dir=\"auto\">item</p>\n  <div dir=\"auto\"></div></li></ul>",
+   "response_sha256": "9a346da52cf2f9225fcb76e60093f3f484e4a5dd8e5a167305270eb0dc231115",
+   "recorded_utc": "2026-09-23T06:31:50Z",
+   "rendered": [],
+   "class": "both-disagree-same",
+   "base_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]",
+   "head_direction": "ESCAPE lists [[2, 'Old'], [2, 'Real']]"
+  }
+ ]
+}
