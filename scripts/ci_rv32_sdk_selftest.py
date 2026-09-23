@@ -7,9 +7,12 @@ gate must also run, with no replacement of the production digest.
 """
 
 import contextlib
+import hashlib
 import io
 import json
+import os
 from pathlib import Path
+import platform
 import shutil
 import tarfile
 import tempfile
@@ -19,6 +22,44 @@ from unittest.mock import patch
 import ci_rv32_sdk as sdk
 
 
+#: The provenance fields a receipt binds, spelled HERE rather than read back
+#: from the installer, so dropping one from provenance() cannot also drop
+#: the check for it (R228-F3 on PR #521).
+PROVENANCE_FIELDS = {"archive_url", "archive_sha256", "release",
+                     "installer_revision", "installer_sha256", "host",
+                     "destination"}
+FIXTURE_TOOL = ("#!/bin/sh\nset -eu\n"
+                'root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"\n'
+                'case "$1" in\n'
+                '  --version) echo "fixture GCC 14.3.0" ;;\n'
+                '  -dumpfullversion) echo 14.3.0 ;;\n'
+                '  -dumpmachine) echo riscv32-buildroot-linux-gnu ;;\n'
+                '  -print-sysroot) echo "$root/sysroot" ;;\n'
+                '  *) exit 9 ;;\nesac\n')
+
+
+def fixture_archive(root: Path, name: str, relocation: str,
+                    arcname: str = sdk.RELEASE) -> Path:
+    """A well-formed SDK fixture archive, with `relocation` as its script."""
+    source = root / f"{name}-tree"
+    (source / "bin").mkdir(parents=True)
+    (source / "sysroot").mkdir()
+    (source / "share/buildroot/sdk-location").parent.mkdir(parents=True)
+    (source / "share/buildroot/sdk-location").write_text("/old/prefix\n")
+    for tool_name in ("fixture-gcc", "fixture-gcc-twin"):
+        tool = source / "bin" / tool_name
+        tool.write_text(FIXTURE_TOOL)
+        tool.chmod(0o755)
+    (source / sdk.COMPILER).symlink_to("fixture-gcc")
+    script = source / "relocate-sdk.sh"
+    script.write_text(relocation)
+    script.chmod(0o755)
+    archive = root / f"{name}.tar.xz"
+    with tarfile.open(archive, "w:xz") as stream:
+        stream.add(source, arcname=arcname)
+    return archive
+
+
 class InstallerTests(unittest.TestCase):
     """Exercise installation, cache validation, and refusal before execution."""
 
@@ -26,32 +67,18 @@ class InstallerTests(unittest.TestCase):
         """Construct a self-contained SDK with a real relocation step."""
         self.tmp = tempfile.TemporaryDirectory(prefix="rv32-installer-test-")
         self.addCleanup(self.tmp.cleanup)
-        root = Path(self.tmp.name)
-        self.destination = root / "installed"
-        source = root / sdk.RELEASE
-        (source / "bin").mkdir(parents=True)
-        (source / "sysroot").mkdir()
-        (source / "share/buildroot/sdk-location").parent.mkdir(parents=True)
-        (source / "share/buildroot/sdk-location").write_text("/old/prefix\n")
-        tool = source / "bin/fixture-gcc"
-        tool.write_text("#!/bin/sh\nset -eu\n"
-                        'root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"\n'
-                        'case "$1" in\n'
-                        '  --version) echo "fixture GCC 14.3.0" ;;\n'
-                        '  -dumpfullversion) echo 14.3.0 ;;\n'
-                        '  -dumpmachine) echo riscv32-buildroot-linux-gnu ;;\n'
-                        '  -print-sysroot) echo "$root/sysroot" ;;\n'
-                        '  *) exit 9 ;;\nesac\n')
-        tool.chmod(0o755)
-        (source / sdk.COMPILER).symlink_to("fixture-gcc")
-        relocation = source / "relocate-sdk.sh"
-        relocation.write_text('#!/bin/sh\nset -eu\npwd > share/buildroot/sdk-location\n')
-        relocation.chmod(0o755)
-        self.archive = root / "fixture.tar.xz"
-        with tarfile.open(self.archive, "w:xz") as stream:
-            stream.add(source, arcname=sdk.RELEASE)
+        self.root = Path(self.tmp.name)
+        self.destination = self.root / "installed"
+        self.archive = fixture_archive(
+            self.root, "fixture",
+            '#!/bin/sh\nset -eu\npwd > share/buildroot/sdk-location\n')
         self.addCleanup(patch.stopall)
         patch.object(sdk, "ARCHIVE_SHA256", sdk.digest(self.archive)).start()
+
+    def serve(self, payload: bytes) -> object:
+        """Stand in for the hosted download: `payload` is what arrives."""
+        return patch.object(sdk.urllib.request, "urlopen",
+                            side_effect=lambda *_a, **_k: io.BytesIO(payload))
 
     def install(self) -> None:
         """Install the checksum-verified synthetic fixture."""
@@ -89,10 +116,57 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(receipt, self.read_receipt())
 
     def test_bad_archive(self) -> None:
-        """A wrong download never reaches tar or creates an installation."""
+        """A wrong offline --archive never reaches tar or creates an installation."""
         self.archive.write_bytes(b"not the pinned archive")
         self.refuses_without_execution("archive digest mismatch")
         self.assertFalse(self.destination.exists())
+
+    def test_download_path(self) -> None:
+        """The hosted path, with no --archive, installs what the pin names."""
+        with self.serve(self.archive.read_bytes()) as download:
+            self.install_downloaded()
+        download.assert_called_once_with(sdk.ARCHIVE_URL, timeout=120)
+        self.assertTrue((self.destination / sdk.RECEIPT).is_file())
+
+    def install_downloaded(self) -> None:
+        """Install exactly as the hosted jobs do: no offline archive."""
+        with contextlib.redirect_stdout(io.StringIO()):
+            sdk.install(self.destination)
+
+    def test_download_path_refuses_unpinned_bytes(self) -> None:
+        """A wrong download is refused before tar reads it or anything runs.
+
+        The hosted jobs pass no --archive, so the digest check inside
+        extract() is the only authentication on their path (R228-F2 on PR
+        #521). The first payload is a WELL-FORMED SDK archive with the
+        pinned root: with that check gone it would extract, run its own
+        relocation script, and earn a verified receipt. The last payload is
+        the fixture itself under a pin one hex digit away from its digest,
+        so a comparison of any prefix of the digest is refused too.
+        """
+        marker = self.root / "unpinned-relocation-ran"
+        unpinned = fixture_archive(
+            self.root, "unpinned",
+            f'#!/bin/sh\nset -eu\ntouch "{marker}"\n'
+            'pwd > share/buildroot/sdk-location\n')
+        pinned, pin = self.archive.read_bytes(), sdk.ARCHIVE_SHA256
+        near_pin = pin[:-1] + ("1" if pin[-1] == "0" else "0")
+        for label, payload, expected in (
+                ("well-formed but unpinned", unpinned.read_bytes(), pin),
+                ("truncated", pinned[:len(pinned) // 2], pin),
+                ("empty", b"", pin),
+                ("pinned one hex digit away", pinned, near_pin)):
+            with self.subTest(payload=label), self.serve(payload) as download, \
+                    patch.object(sdk, "ARCHIVE_SHA256", expected), \
+                    patch.object(sdk.tarfile, "open", wraps=sdk.tarfile.open) as tar, \
+                    patch.object(sdk.subprocess, "run", wraps=sdk.subprocess.run) as run:
+                with self.assertRaisesRegex(ValueError, "archive digest mismatch"):
+                    self.install_downloaded()
+                download.assert_called_once()
+                tar.assert_not_called()
+                run.assert_not_called()
+                self.assertFalse(self.destination.exists())
+                self.assertFalse(marker.exists())
 
     def test_bad_archive_with_cache(self) -> None:
         """Explicit offline inputs are checked even beside a valid cache."""
@@ -130,12 +204,81 @@ class InstallerTests(unittest.TestCase):
         """Every cache input is bound, including the whole digest and prefix."""
         self.install()
         original = self.read_receipt()
-        for key in original["provenance"]:
+        self.assertEqual(set(original["provenance"]), PROVENANCE_FIELDS)
+        for key in sorted(PROVENANCE_FIELDS):
             with self.subTest(key=key):
                 receipt = json.loads(json.dumps(original))
                 receipt["provenance"][key] = "wrong"
                 self.write_receipt(receipt)
                 self.refuses_without_execution("provenance mismatch")
+
+    def test_provenance_values(self) -> None:
+        """The installer digest and host are the ones measured here, independently."""
+        self.install()
+        provenance = self.read_receipt()["provenance"]
+        installer = Path(sdk.__file__).resolve()
+        self.assertEqual(provenance["installer_sha256"],
+                         hashlib.sha256(installer.read_bytes()).hexdigest())
+        self.assertEqual(provenance["host"], {"os": platform.system(),
+                                              "architecture": platform.machine()})
+        self.assertEqual(provenance["destination"], str(self.destination))
+
+    def test_changed_installer(self) -> None:
+        """A cache made by other installer bytes is refused before its tools run."""
+        self.install()
+        changed = self.root / "ci_rv32_sdk.py"
+        changed.write_bytes(Path(sdk.__file__).read_bytes() + b"# changed\n")
+        with patch.object(sdk, "__file__", str(changed)):
+            self.refuses_without_execution("provenance mismatch")
+
+    def test_retargeted_symlink(self) -> None:
+        """Pointing the selector at another installed tool is cache drift."""
+        self.install()
+        selector = self.destination / sdk.COMPILER
+        selector.unlink()
+        selector.symlink_to("fixture-gcc-twin")
+        self.refuses_without_execution("inventory mismatch")
+
+    def test_escaping_compiler(self) -> None:
+        """A compiler whose realpath leaves the prefix is never executed."""
+        self.install()
+        outside = self.root / "outside-gcc"
+        outside.write_text(FIXTURE_TOOL)
+        outside.chmod(0o755)
+        selector = self.destination / sdk.COMPILER
+        selector.unlink()
+        selector.symlink_to(outside)
+        with patch.object(sdk.subprocess, "run") as run:
+            with self.assertRaisesRegex(ValueError, "realpath escapes"):
+                sdk.identify(self.destination)
+            run.assert_not_called()
+
+    def test_archive_root(self) -> None:
+        """An authenticated archive with another root is still not extracted."""
+        wrong_root = fixture_archive(
+            self.root, "wrong-root",
+            '#!/bin/sh\nset -eu\npwd > share/buildroot/sdk-location\n',
+            arcname="another-release")
+        with patch.object(sdk, "ARCHIVE_SHA256", sdk.digest(wrong_root)):
+            with patch.object(sdk.subprocess, "run") as run:
+                with self.assertRaisesRegex(ValueError, "archive root mismatch"):
+                    sdk.install(self.destination, wrong_root)
+                run.assert_not_called()
+        self.assertFalse(self.destination.exists())
+
+    def test_special_file(self) -> None:
+        """A FIFO planted in the cache is refused before any tool runs."""
+        self.install()
+        os.mkfifo(self.destination / "sysroot/planted-fifo")
+        self.refuses_without_execution("unexpected SDK entry")
+
+    def test_extra_receipt_section(self) -> None:
+        """A receipt carrying an unexpected section is malformed."""
+        self.install()
+        receipt = self.read_receipt()
+        receipt["extra"] = {}
+        self.write_receipt(receipt)
+        self.refuses_without_execution("malformed SDK provenance")
 
     def test_incomplete_and_corrupt_tree(self) -> None:
         """Deletion, replacement, mode change and extra files all refuse."""

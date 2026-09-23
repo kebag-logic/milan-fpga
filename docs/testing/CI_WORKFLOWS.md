@@ -1067,6 +1067,13 @@ Logs identify the compiler realpath, version, target, and relocated sysroot.
 GitHub cache scoping supplies trust; receipts detect cache drift.
 Receipts are not independent signatures over hostile cache contents.
 
+The installer self-test drives the hosted path, which passes no `--archive`.
+It serves unpinned, truncated, empty and near-pin archives as the download.
+Each is refused before tar reads it or any script runs.
+The self-test pins the provenance field set and installer digest itself.
+It also retargets an installed symlink and plants an escaping compiler.
+Each of those refusals fails if its guard is removed.
+
 Both builder calls pass `--require-rv32`.
 A missing compiler therefore fails, rather than weakening hosted coverage.
 An alternate compiler cannot satisfy the required selector adoption.
