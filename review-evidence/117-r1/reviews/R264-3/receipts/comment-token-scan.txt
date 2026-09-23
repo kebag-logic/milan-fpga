@@ -1,0 +1,10 @@
+COMMENT 5561827955 2026-09-06T20:05:29Z A10 :: P1(peer product stem)
+COMMENT 5671142462 2026-09-14T21:36:26Z A122 :: S1(switch product)
+COMMENT 5679315674 2026-09-15T11:19:29Z A10 :: S1(switch product)
+COMMENT 5683544692 2026-09-15T16:00:01Z A10 :: S1(switch product)
+COMMENT 5684363031 2026-09-15T16:51:36Z A10 :: P1(peer product stem)
+COMMENT 5684364339 2026-09-15T16:51:41Z A10 :: S1(switch product)
+# Classification (context window of 30 characters each side, token removed):
+# 5561827955 P1 PROSE (a public issue comment names the reference peer's product)
+# 5671142462 5679315674 5683544692 5684364339 S1 and 5684363031 P1: the match sits inside a
+# base64 archive block (random substring of encoded bytes), not prose.

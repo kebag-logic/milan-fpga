@@ -1,0 +1,27 @@
+SCOPE pr-531-three-commits-full-trees revs=c3eb95fa9ac86a3f20b45f94057d6c011127db08,0abf147f726721f4a323ee6a32095a02363fe2dc,8016f7ac843b0ae6764dc4ec0140cda5ac7d6cc1 prefix=(whole tree) unique_blobs=852 blob_bytes=26284898 commit_objects=3 tokens=12 total_hits=11
+  HIT L4 (board serial) enc=hex count=1 files=1
+      avdecc/aem_rom.json
+  HIT L4 (board serial) enc=raw count=6 files=5
+      avdecc/aem_specs.py
+      configs/endstation_arty_current.yaml
+      configs/endstation_ax7101_1x1_tdm8.yaml
+      configs/endstation_ax7101_8x8.yaml
+      scripts/entity_shape_selftest.py
+  HIT V2 (vendor mark) enc=raw count=3 files=3
+      aem-and-aecp.pdf
+      docs/DOC_MAP.png
+      docs/history/v1/diagrams/timesync_chain.png
+  HIT V2 (vendor mark) enc=raw-spaced count=1 files=1
+      docs/diagrams/egress_queue_map.png
+GRAND_TOTAL_HITS 11
+SCOPE pr-531-docs-subtree-three-commits revs=c3eb95fa9ac86a3f20b45f94057d6c011127db08,0abf147f726721f4a323ee6a32095a02363fe2dc,8016f7ac843b0ae6764dc4ec0140cda5ac7d6cc1 prefix=docs unique_blobs=182 blob_bytes=9775416 commit_objects=3 tokens=12 total_hits=3
+  HIT V2 (vendor mark) enc=raw count=2 files=2
+      docs/DOC_MAP.png
+      docs/history/v1/diagrams/timesync_chain.png
+  HIT V2 (vendor mark) enc=raw-spaced count=1 files=1
+      docs/diagrams/egress_queue_map.png
+GRAND_TOTAL_HITS 3
+# V2 classification: docs/DOC_MAP.png offset=304695 container=IDAT
+# V2 classification: docs/history/v1/diagrams/timesync_chain.png offset=177318 container=IDAT
+# V2 classification: docs/diagrams/egress_queue_map.png offset=54279 container=IDAT
+# V2 classification: aem-and-aecp.pdf offset=686892 container=inside-stream
