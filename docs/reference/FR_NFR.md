@@ -85,6 +85,12 @@ this ledger is what it currently does. **No requirement has been deleted or
 downgraded to make the page look green** — several are simply not met, and
 say so.
 
+One row changed level by a recorded decision, not to look green. FR-MVU-02
+now carries the RECOMMENDED level that Milan v1.2 itself gives its four
+commands ([owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089),
+2026-09-23). Those commands still answer `NOT_IMPLEMENTED`, and Section 2.3
+says so.
+
 On 2026-08-13 this repository's own ADP advertiser, ACMP talker and listener,
 AECP/AEM engine and lwSRP applicant were **deleted** and replaced by the
 pinned `protocol-processor` submodule (architecture of record v2.0), wrapped
@@ -140,7 +146,7 @@ These repeated claims are checked against the
 | **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
 | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
 | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
-| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`. Its `features_flags` REDUNDANCY bit reads zero because this is a declared non-redundant end station ([decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)). The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
+| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **FR-MVU-01 and FR-MVU-03 MET; FR-MVU-02 (SHOULD) NOT SERVED BY DECISION** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`. Its `features_flags` REDUNDANCY bit reads zero because this is a declared non-redundant end station ([decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)). `SET/GET_SYSTEM_UNIQUE_ID` and `SET/GET_MEDIA_CLOCK_REFERENCE_INFO` are RECOMMENDED by Milan v1.2 Sections 5.4.4.2 to 5.4.4.5 and stay outside the served inventory by the [decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089): each answers MVU `NOT_IMPLEMENTED` (Milan Table 5.19) with the command echoed. Implementation moves to P4 (#416) if the conformance lab requires it |
 | **FR-CONN-01/02** (ACMP connect/disconnect/state, program the datapath) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_acmp_talker` + the listener half; the bind record and the talker declaration reach the fabric as class-D wires, and the CBS/classifier programming follows the reservation |
 | **FR-CONN-03/04** (fast-connect, nonvolatile connection state) | **NOT MET** | The persistence journal and the bind-restore port are structural zeros: writes are accepted, nothing is restored, **no binding survives a power cycle**. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
 | **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
@@ -185,7 +191,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-MVU-01 | The entity MUST implement the MVU protocol (`protocol_id 00-1B-C5-0A-C1-00`) and answer `GET_MILAN_INFO` with `protocol_version`, `features_flags`, `certification_version`. | M | T |
-| FR-MVU-02 | `GET/SET_SYSTEM_UNIQUE_ID` and `GET/SET_MEDIA_CLOCK_REFERENCE_INFO` MUST be supported. | M | T |
+| FR-MVU-02 | `GET/SET_SYSTEM_UNIQUE_ID` and `GET/SET_MEDIA_CLOCK_REFERENCE_INFO` SHOULD be supported: Milan v1.2 Sections 5.4.4.2 to 5.4.4.5 (with Section 7.6) mark them a recommendation that a future revision will make a requirement. Directed limitation for the October release ([owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089), 2026-09-23): not served, so each answers MVU `NOT_IMPLEMENTED` (Milan Table 5.19) with the command echoed. Revisit: implementation moves to P4 (#416) if the conformance lab requires it. | S | T |
 | FR-MVU-03 | `features_flags` bit 31 `REDUNDANCY` (Milan v1.2 Table 5.20) MUST report 0. Directed limitation: this is a declared non-redundant end station with one AVB_INTERFACE on one cabled port. Milan v1.2 Section 8 seamless network redundancy is optional (Sections 4.2.5 and 8.1) and out of scope for the October release ([owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478), 2026-09-23). Revisit with the P4/P5 PCB (#416/#417). | M | I |
 
 ### 2.4 Connection management  -  ACMP  *(1722.1-2021 Section 8; Milan v1.2 Section 5.5)*
@@ -407,7 +413,7 @@ the completed PS-to-fabric migration plan (#259, in git history).
 |------|--------|-----------|--------------|----------------|
 | Discovery | FR-DISC-\* | Section 5.2 | `adp`, ENTITY | M-B2 -- processor (Section 2.0) |
 | Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus the builder-generated image copied by bare-metal firmware; the served inventory and mandatory gaps are listed in Section 2.0 |
-| MVU | FR-MVU-\* | Section 5.4.3 | `milan_mvu` | M-B3 -- **NOT IMPLEMENTED**, no `protocol_id` recognised (Section 2.0) |
+| MVU | FR-MVU-\* | Sections 5.4.3 and 5.4.4 | `milan_mvu` | M-B3 -- `GET_MILAN_INFO` served; the RECOMMENDED system-unique-id and media-clock-reference commands of FR-MVU-02 answer `NOT_IMPLEMENTED` by the #510 decision, P4 (#416) if the conformance lab requires them (Section 2.0) |
 | Connection | FR-CONN-\* | Section 5.5 | STREAM_\*, CBS CSR | M-B4 -- processor; fast-connect/persistence **NOT MET** |
 | MAAP/SRP | FR-MAAP/SRP | Section 5.6 | STREAM_\*, classifier/CBS | M-B5 -- MAAP in fabric, SRP on the processor |
 | Time/clock | FR-CLK-\* | Section 5.7 | CLOCK_DOMAIN/SOURCE, CRF | M-A5, M-B4 |

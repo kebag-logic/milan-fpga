@@ -133,8 +133,8 @@ input, are silently refused.
 | Clause | Command | Level | Status |
 |---|---|---|---|
 | 5.4.4.1 | GET_MILAN_INFO | SHALL | implemented |
-| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a — tracked, not a gap |
-| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a — tracked, not a gap |
+| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a: tracked, not a gap. Not served for the October release by the [owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089) (2026-09-23; FR-MVU-02 is SHOULD). MVU `0x0001`/`0x0002` answer `NOT_IMPLEMENTED` (Table 5.19) with the command echoed: PP pp_top M4 grades `0x0002` byte-exact, and the engine's one non-echo MVU arm is `GET_MILAN_INFO`. Implementation moves to P4 (#416) if the conformance lab requires it |
+| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a: tracked, not a gap. Same decision and fallback: MVU `0x0003`/`0x0004` reach the same `NOT_IMPLEMENTED` echo (no per-command PP arm yet). Section 7.6 media-clock management, which these commands serve, is RECOMMENDED too. P4 (#416) if the conformance lab requires it |
 
 ### 1.5 Unsolicited notifications and controller liveness (Section 5.4.5)
 

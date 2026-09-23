@@ -108,5 +108,6 @@ Imported prose never defines root runtime behavior.
 |---|---|
 | Protocol interface guide shows word-wide RX | Landed processor receives bytes |
 | Protocol interface guide shows RX backpressure | Landed processor has no RX ready |
+| Protocol overview F01.5 lists `P-EN-MVU-SUID` / `P-EN-MVU-MCR` at 1 / 1 | Landed processor has neither parameter and serves neither command pair; #510 keeps both unserved, and [donor issue 77](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/77) owns the prose |
 
 Track donor repairs separately.
