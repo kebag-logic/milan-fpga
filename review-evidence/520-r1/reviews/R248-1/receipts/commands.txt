@@ -1,0 +1,46 @@
+R248-1 command list (paths: <clone> = exact-head review clone, <packet> = this packet,
+<scratch> = <packet>/scratch, never published). Tools: Yosys 0.66, sv2v v0.0.13, Python 3.14.
+Parallelism never exceeded 8 jobs (mutation campaign 6 workers + at most 3 probe drivers,
+not overlapping with the campaign's peak).
+
+1. Integrity, before and after (review clone untouched throughout):
+   python3 scripts/integrity.py <clone> 28e350b99ac240a750326b762c6d029f0653362c \
+     d17c117db03128e444b7b44742fe82f10746cb28 third_party/verilog-axis protocol-processor gptp-processor
+   -> receipts/integrity-before.txt, receipts/integrity-after.txt
+
+2. Disposable exact-head copy: cp -a <clone> <scratch>/head (integrity OK on the copy).
+
+3. Named self-tests at exact head (in <scratch>/head):
+   python3 syn/yosys/result_cache.py --selftest           -> receipts/head-result-cache-selftest.txt
+   python3 syn/yosys/cache_selftest.py --logs <scratch>/head-logs -> receipts/head-cache-selftest.txt
+   ROM-bank run table from the retained receipts          -> receipts/head-rom-bank-summary.txt
+
+4. Mutation campaign (each mutant on its own copy of <scratch>/head; anchors must match once):
+   python3 scripts/mutate.py <scratch>/head <scratch>/mut receipts/mutation-results.json
+   -> receipts/mutation-summary.txt, receipts/mutation-results.json
+
+5. Real-gate generated-ROM probes (generator-only change in disposable copies; BASE copies have
+   syn/yosys/run.sh and result_cache.py checked out from 483a133ed08867ea0d300d2b4a027b5b48a4282f):
+   python3 scripts/real_rom_probe.py <scratch>/probe-head-gptp <scratch>/probe-base-gptp <scratch>/probe-work-gptp KL_gptp_shadow gptp
+   python3 scripts/real_rom_probe.py <scratch>/probe-head-ltn  <scratch>/probe-base-ltn  <scratch>/probe-work-ltn  KL_pp_shadow ltn
+   python3 scripts/real_rom_probe.py <scratch>/probe-head-ucode NONE <scratch>/probe-work-ucode KL_pp_shadow ucode --head-only
+   -> receipts/real-probe-{gptp,ltn,ucode}-probe-*.json, receipts/real-probe-*-driver.log
+
+6. CLI edge probes: bash scripts/cli_edge_probe.sh <scratch>/static <scratch>/cli-edge
+   -> receipts/cli-edge-probe.txt
+
+7. Focused static gates in a fresh exact-head copy (<scratch>/static):
+   python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+   python3 scripts/check_py_idiom.py ; python3 scripts/check_sh_idiom.py ; python3 scripts/docs_check.py
+   bash -n syn/yosys/run.sh ; python3 -m py_compile (the three changed Python files)
+   -> receipts/static-focused.txt
+   python3 scripts/gen_toc.py --check  (exit 0; also used for the F1 disposable separator experiment,
+   file restored afterwards)
+
+8. Inventory/program parity base vs head (run.sh --list, --emit for four tops, program_key templates)
+   -> receipts/inventory-program-parity.txt
+
+9. Hosted exact-head evidence, read-only (gh run view --log for jobs 106885141217, 106885253989,
+   106885253940, 106885253937, 106885254556) -> receipts/hosted-extract.txt
+
+10. Packet finalisation: bash scripts/finalize_packet.sh <packet> <clone>

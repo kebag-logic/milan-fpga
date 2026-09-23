@@ -1,0 +1,28 @@
+cmd: python3 scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+check_em_dash: 0 finding(s) over 49 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]
+exit=0
+
+cmd: python3 scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+exit=0
+
+cmd: python3 scripts/check_sh_idiom.py
+  shebang without the executable bit: 0
+  no strict mode: 5 <= 5
+  unquoted expansion: 3 <= 3
+  top-heavy long script: 0 <= 0
+exit=0
+
+cmd: python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 163 md files + 828 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+
+cmd: bash -n syn/yosys/run.sh
+exit=0
+
+cmd: python3 -m py_compile syn/yosys/result_cache.py syn/yosys/rom_cache_selftest.py syn/yosys/cache_selftest.py
+exit=0
+

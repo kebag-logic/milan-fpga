@@ -1,0 +1,16 @@
+Hosted exact-head evidence extract (read-only inspection), head 28e350b99ac240a750326b762c6d029f0653362c
+rtl-fast run 35768810385 conclusion=success; job yosys-elaboration 106885141217:
+2026-09-22T18:47:31.6619991Z ##[group]Run python3 syn/yosys/cache_selftest.py
+2026-09-22T18:48:03.0950068Z ROM cache controls: OK (3 images, 2 modes, 2 selected tops, head/seed, generation and schema refusals)
+2026-09-22T18:48:03.0950443Z cache selftest: OK (unit self-test + 5 original live arms on cdc_pulse + ROM controls)
+
+rtl-full run 35768811088 conclusion=success; Yosys shard jobs (cache restored from the dev lineage, pre-fix schema):
+job 106885253989: Cache restored from key: yosys-results-v0.66-shard0-483a133ed08867ea0d300d2b4a027b5b48a4282f | PASS=1 FAIL=0 '(result cache)' hits=0 refusals=0
+2026-09-22T18:46:48.3777718Z   [PASS] milan_datapath         cells=1631301
+job 106885253940: Cache restored from key: yosys-results-v0.66-shard1-483a133ed08867ea0d300d2b4a027b5b48a4282f | PASS=1 FAIL=0 '(result cache)' hits=0 refusals=0
+2026-09-22T18:45:27.7654966Z   [PASS] KL_pp_shadow           cells=1141365
+job 106885253937: Cache restored from key: yosys-results-v0.66-shard2-483a133ed08867ea0d300d2b4a027b5b48a4282f | PASS=26 FAIL=0 '(result cache)' hits=0 refusals=0
+2026-09-22T18:42:47.3577925Z   [PASS] KL_gptp_shadow         cells=206752
+job 106885254556: Cache restored from key: yosys-results-v0.66-shard3-483a133ed08867ea0d300d2b4a027b5b48a4282f | PASS=26 FAIL=0 '(result cache)' hits=0 refusals=0
+
+Physical gPTP (nightly and manual) job 106885255963: skipped (not an executed job; no hardware claim)
