@@ -564,6 +564,11 @@ class NxnDatapathHarness {
     unsigned long pp_ctr_evt_sout_seen = 0;
     bool pp_ctr_evt_avb_seen = false;
     bool pp_ctr_evt_ckd_seen = false;
+    //! every delivery none of the four records above can hold: another
+    //! descriptor type, or an index they keep no bit for. With it the five
+    //! account for every tuple, so a window can be required to have
+    //! delivered one tuple and nothing else.
+    unsigned long pp_ctr_evt_other_n = 0;
     //! The width of the two sticky bitmaps above: an index at or past it has
     //! no bit to set, and shifting into one would be undefined.
     static constexpr unsigned kSeenBits = 8 * sizeof(unsigned long);
@@ -582,6 +587,8 @@ class NxnDatapathHarness {
                 pp_ctr_evt_avb_seen = true;
             else if (ty == 0x0024 && ix == 0)
                 pp_ctr_evt_ckd_seen = true;
+            else
+                pp_ctr_evt_other_n++;
         }
     }
 
@@ -1059,7 +1066,7 @@ class NxnDatapathHarness {
     //  compressed through PP_TIM_DIV_US_P / PP_TIM_DIV_MS_P so one processor
     //  millisecond is MS_CYC_TB = 100 fabric cycles and a minute is runnable):
     //  the GET_COUNTERS one-per-descriptor-per-second limit measured as a
-    //  withheld push RELEASED after >= 1000 ms and then silent while nothing
+    //  withheld push RELEASED about 1000 ms later and then silent while nothing
     //  changes, and the 5.4.5.3 departing-
     //  controller monitor - CONTROLLER_AVAILABLE 30 to 60 s after the last
     //  command, exactly one retry, then a targeted DEREGISTER notification.
@@ -1323,6 +1330,8 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
         ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
            "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
+        ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+               notify_last(0x0029, CTL_A, 0x0005, ix), g, 38)), 1);
 
         //! a second edge inside the same processor second: withheld, then
         //! released once, when the row's limiter opens
@@ -3465,11 +3474,24 @@ class NxnDatapathHarness {
     //! Stream Input changes its state from not bound to bound". The edge
     //! wipes the seeded row, which is a wire-visible change, so it must also
     //! reach the Table 5.22 arbiter as {STREAM_INPUT, N} and as nothing else.
+    //! All five of step()'s delivery records are cleared first, and between
+    //! them they hold every {type, index} the arbiter can hand over. So the
+    //! CRF output's STREAM_OUTPUT row at the same N, AVB_INTERFACE 0,
+    //! CLOCK_DOMAIN 0, another STREAM_INPUT, or any other tuple fails here.
     void prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit() {
         pp_ctr_evt_sin_seen = 0;
+        pp_ctr_evt_sout_seen = 0;
+        pp_ctr_evt_avb_seen = false;
+        pp_ctr_evt_ckd_seen = false;
+        pp_ctr_evt_other_n = 0;
         crf_lever(true);
         ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
            pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+        ck("[CTRS-CRF] ...and as no STREAM_OUTPUT row", pp_ctr_evt_sout_seen, 0);
+        ck("[CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0",
+           static_cast<unsigned long>(pp_ctr_evt_avb_seen) + pp_ctr_evt_ckd_seen, 0);
+        ck("[CTRS-CRF] ...nor any tuple of another type or index",
+           pp_ctr_evt_other_n, 0);
         const std::vector<uint8_t> r = crf_ctrs(0x4402);
         ck("[CTRS-CRF] after the bind edge: counters_valid still 0xF3F",
            ctr_word(r, 32), CRF_CTR_MASK);
