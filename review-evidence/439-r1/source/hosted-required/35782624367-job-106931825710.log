@@ -1,0 +1,343 @@
+﻿2026-09-22T20:48:47.5660308Z Current runner version: '2.337.0'
+2026-09-22T20:48:47.5685329Z ##[group]Runner Image Provisioner
+2026-09-22T20:48:47.5686355Z Hosted Compute Agent
+2026-09-22T20:48:47.5686942Z Version: 20260828.587
+2026-09-22T20:48:47.5687787Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T20:48:47.5688597Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T20:48:47.5689282Z Worker ID: {2cdfa1ca-c51d-4e12-acd7-ea2b90044f83}
+2026-09-22T20:48:47.5690122Z Azure Region: westus
+2026-09-22T20:48:47.5690706Z ##[endgroup]
+2026-09-22T20:48:47.5692185Z ##[group]Operating System
+2026-09-22T20:48:47.5692937Z Ubuntu
+2026-09-22T20:48:47.5693471Z 24.04.5
+2026-09-22T20:48:47.5694051Z LTS
+2026-09-22T20:48:47.5694590Z ##[endgroup]
+2026-09-22T20:48:47.5695139Z ##[group]Runner Image
+2026-09-22T20:48:47.5695802Z Image: ubuntu-24.04
+2026-09-22T20:48:47.5696406Z Version: 20260907.300.1
+2026-09-22T20:48:47.5698210Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T20:48:47.5699773Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T20:48:47.5700799Z ##[endgroup]
+2026-09-22T20:48:47.5702044Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T20:48:47.5704070Z Contents: read
+2026-09-22T20:48:47.5704683Z Metadata: read
+2026-09-22T20:48:47.5705322Z Packages: read
+2026-09-22T20:48:47.5705909Z ##[endgroup]
+2026-09-22T20:48:47.5708513Z Secret source: Actions
+2026-09-22T20:48:47.5709577Z Cache mode: write
+2026-09-22T20:48:47.5710271Z Prepare workflow directory
+2026-09-22T20:48:47.6122961Z Prepare all required actions
+2026-09-22T20:48:47.6171071Z Getting action download info
+2026-09-22T20:48:47.9921530Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T20:48:48.1857480Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-09-22T20:48:48.3735008Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-09-22T20:48:48.6494456Z Complete job name: Verilator shard 2/5
+2026-09-22T20:48:48.7330902Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:48.7340108Z ##[group]Run actions/checkout@v4
+2026-09-22T20:48:48.7340854Z with:
+2026-09-22T20:48:48.7341317Z   repository: kebag-logic/milan-fpga
+2026-09-22T20:48:48.7345326Z   token: ***
+2026-09-22T20:48:48.7345759Z   ssh-strict: true
+2026-09-22T20:48:48.7346196Z   ssh-user: git
+2026-09-22T20:48:48.7346637Z   persist-credentials: true
+2026-09-22T20:48:48.7347356Z   clean: true
+2026-09-22T20:48:48.7347810Z   sparse-checkout-cone-mode: true
+2026-09-22T20:48:48.7348336Z   fetch-depth: 1
+2026-09-22T20:48:48.7348767Z   fetch-tags: false
+2026-09-22T20:48:48.7349210Z   show-progress: true
+2026-09-22T20:48:48.7349673Z   lfs: false
+2026-09-22T20:48:48.7350125Z   submodules: false
+2026-09-22T20:48:48.7350571Z   set-safe-directory: true
+2026-09-22T20:48:48.7351074Z   allow-unsafe-pr-checkout: false
+2026-09-22T20:48:48.7351847Z env:
+2026-09-22T20:48:48.7352263Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:48.7352754Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:48.7353283Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:48.7353882Z ##[endgroup]
+2026-09-22T20:48:48.8390297Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T20:48:48.8392353Z ##[group]Getting Git version info
+2026-09-22T20:48:48.8393136Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:48.8394183Z [command]/usr/bin/git version
+2026-09-22T20:48:49.0466567Z git version 2.55.0
+2026-09-22T20:48:49.0490221Z ##[endgroup]
+2026-09-22T20:48:49.0508133Z Temporarily overriding HOME='/home/runner/work/_temp/8febd390-b0e3-40b1-ba39-30c48ed0477d' before making global git config changes
+2026-09-22T20:48:49.0510956Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:48:49.0514643Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:49.0957738Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:49.1033174Z ##[group]Initializing the repository
+2026-09-22T20:48:49.1034758Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:49.1922997Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T20:48:49.1925097Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T20:48:49.1927654Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T20:48:49.1929364Z hint: call:
+2026-09-22T20:48:49.1930245Z hint:
+2026-09-22T20:48:49.1931379Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T20:48:49.1932450Z hint:
+2026-09-22T20:48:49.1933577Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T20:48:49.1935229Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T20:48:49.1937973Z hint:
+2026-09-22T20:48:49.1938931Z hint: 	git branch -m <name>
+2026-09-22T20:48:49.1939870Z hint:
+2026-09-22T20:48:49.1941081Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T20:48:49.1942804Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T20:48:49.1945664Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:49.2371475Z ##[endgroup]
+2026-09-22T20:48:49.2373387Z ##[group]Disabling automatic garbage collection
+2026-09-22T20:48:49.2376536Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T20:48:49.2415817Z ##[endgroup]
+2026-09-22T20:48:49.2417525Z ##[group]Setting up auth
+2026-09-22T20:48:49.2423853Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:48:49.2460547Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:48:49.5352843Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:48:49.5400375Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:48:49.5635873Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:49.5675029Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:48:49.5905391Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T20:48:49.5944896Z ##[endgroup]
+2026-09-22T20:48:49.5947626Z ##[group]Fetching the repository
+2026-09-22T20:48:49.5956267Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +aa91e1adc299ccb979022981bafd07e8d8d1756a:refs/remotes/pull/525/merge
+2026-09-22T20:48:51.0860823Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:51.0861965Z  * [new ref]         aa91e1adc299ccb979022981bafd07e8d8d1756a -> pull/525/merge
+2026-09-22T20:48:51.0890486Z ##[endgroup]
+2026-09-22T20:48:51.0898670Z ##[group]Determining the checkout info
+2026-09-22T20:48:51.0899935Z ##[endgroup]
+2026-09-22T20:48:51.0900617Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T20:48:51.1235324Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T20:48:51.1285341Z ##[group]Checking out the ref
+2026-09-22T20:48:51.1291949Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/525/merge
+2026-09-22T20:48:51.2678588Z Note: switching to 'refs/remotes/pull/525/merge'.
+2026-09-22T20:48:51.2679552Z 
+2026-09-22T20:48:51.2679985Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T20:48:51.2680790Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T20:48:51.2681591Z state without impacting any branches by switching back to a branch.
+2026-09-22T20:48:51.2682074Z 
+2026-09-22T20:48:51.2682376Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T20:48:51.2683110Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T20:48:51.2683556Z 
+2026-09-22T20:48:51.2683729Z   git switch -c <new-branch-name>
+2026-09-22T20:48:51.2684013Z 
+2026-09-22T20:48:51.2684184Z Or undo this operation with:
+2026-09-22T20:48:51.2684478Z 
+2026-09-22T20:48:51.2684641Z   git switch -
+2026-09-22T20:48:51.2684857Z 
+2026-09-22T20:48:51.2685248Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T20:48:51.2685826Z 
+2026-09-22T20:48:51.2686411Z HEAD is now at aa91e1a Merge f01f237d4b48c7b1ed59c80aca51430901791624 into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T20:48:51.2699032Z ##[endgroup]
+2026-09-22T20:48:51.2749590Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T20:48:51.2779763Z aa91e1adc299ccb979022981bafd07e8d8d1756a
+2026-09-22T20:48:51.2993712Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+2026-09-22T20:48:51.2994539Z [36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor[0m
+2026-09-22T20:48:51.3035922Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:51.3036211Z env:
+2026-09-22T20:48:51.3036432Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:51.3036692Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:51.3036977Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:51.3037628Z ##[endgroup]
+2026-09-22T20:48:51.3402442Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-09-22T20:48:51.3405657Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-09-22T20:48:51.3410591Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-09-22T20:48:51.3439101Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-09-22T20:48:52.0517502Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-09-22T20:48:52.9682389Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-09-22T20:48:53.6626496Z Submodule path 'gptp-processor': checked out 'c1b617435824929a790739ea8585c3fe1a328cc0'
+2026-09-22T20:48:53.7176828Z Submodule path 'protocol-processor': checked out '424c688fa2205b934a7689a58f2aa766420f2326'
+2026-09-22T20:48:53.7379705Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-09-22T20:48:53.7436915Z ##[group]Run set -euo pipefail
+2026-09-22T20:48:53.7437468Z [36;1mset -euo pipefail[0m
+2026-09-22T20:48:53.7437734Z [36;1mhead="$(git rev-parse HEAD)"[0m
+2026-09-22T20:48:53.7438112Z [36;1mif [ "$head" != "$GITHUB_SHA" ] || [ "$GITHUB_SHA" != "$TARGET_SHA" ]; then[0m
+2026-09-22T20:48:53.7438686Z [36;1m  echo "checkout $head, GITHUB_SHA $GITHUB_SHA and gate target $TARGET_SHA must be one SHA" >&2[0m
+2026-09-22T20:48:53.7439157Z [36;1m  exit 1[0m
+2026-09-22T20:48:53.7439354Z [36;1mfi[0m
+2026-09-22T20:48:53.7439577Z [36;1mmkdir -p "$RUNNER_TEMP/suite-logs"[0m
+2026-09-22T20:48:53.7439970Z [36;1mprintf '%s\n' "$GITHUB_SHA" > "$RUNNER_TEMP/suite-logs/TARGET_SHA"[0m
+2026-09-22T20:48:53.7440353Z [36;1mecho "target_sha=$GITHUB_SHA"[0m
+2026-09-22T20:48:53.7478323Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:53.7478589Z env:
+2026-09-22T20:48:53.7478794Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:53.7479036Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:53.7479569Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:53.7479948Z   TARGET_SHA: aa91e1adc299ccb979022981bafd07e8d8d1756a
+2026-09-22T20:48:53.7480265Z ##[endgroup]
+2026-09-22T20:48:53.7568795Z target_sha=aa91e1adc299ccb979022981bafd07e8d8d1756a
+2026-09-22T20:48:53.7666776Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:53.7668761Z ##[group]Run actions/cache@v4
+2026-09-22T20:48:53.7669014Z with:
+2026-09-22T20:48:53.7669217Z   path: /opt/verilator
+2026-09-22T20:48:53.7669451Z   key: verilator-v5.050-Linux
+2026-09-22T20:48:53.7669707Z   enableCrossOsArchive: false
+2026-09-22T20:48:53.7669962Z   fail-on-cache-miss: false
+2026-09-22T20:48:53.7670239Z   lookup-only: false
+2026-09-22T20:48:53.7670471Z   save-always: false
+2026-09-22T20:48:53.7670667Z env:
+2026-09-22T20:48:53.7670857Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:53.7671085Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:53.7671432Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:53.7671818Z ##[endgroup]
+2026-09-22T20:48:53.8735029Z (node:2452) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:53.8736081Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:54.1716195Z Cache hit for: verilator-v5.050-Linux
+2026-09-22T20:48:54.1837276Z (node:2452) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:48:55.4731715Z Received 4194304 of 92153557 (4.6%), 4.0 MBs/sec
+2026-09-22T20:48:56.2942702Z Received 92153557 of 92153557 (100.0%), 48.3 MBs/sec
+2026-09-22T20:48:56.2987998Z Cache Size: ~88 MB (92153557 B)
+2026-09-22T20:48:56.3079795Z [command]/usr/bin/tar -xf /home/runner/work/_temp/fb3340fe-ee38-464c-ab5d-f6f2ff6a737e/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:48:56.5284967Z Cache restored successfully
+2026-09-22T20:48:56.5411211Z Cache restored from key: verilator-v5.050-Linux
+2026-09-22T20:48:56.5571615Z ##[group]Run echo "/opt/verilator/bin" >> "$GITHUB_PATH"
+2026-09-22T20:48:56.5572060Z [36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"[0m
+2026-09-22T20:48:56.5572413Z [36;1m/opt/verilator/bin/verilator --version[0m
+2026-09-22T20:48:56.5572845Z [36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"[0m
+2026-09-22T20:48:56.5609402Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:56.5609671Z env:
+2026-09-22T20:48:56.5609889Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:56.5610146Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:56.5610432Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:56.5610777Z ##[endgroup]
+2026-09-22T20:48:56.8434949Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:48:56.8991973Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:48:56.9035490Z ##[group]Run set -euo pipefail
+2026-09-22T20:48:56.9035836Z [36;1mset -euo pipefail[0m
+2026-09-22T20:48:56.9036140Z [36;1mpython3 scripts/suite_shards.py --selftest[0m
+2026-09-22T20:48:56.9036587Z [36;1mscripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list \[0m
+2026-09-22T20:48:56.9036981Z [36;1m  > "$RUNNER_TEMP/owned-suites"[0m
+2026-09-22T20:48:56.9037637Z [36;1mecho "Shard $SHARD owns:"[0m
+2026-09-22T20:48:56.9037949Z [36;1msed 's/^/  /' "$RUNNER_TEMP/owned-suites"[0m
+2026-09-22T20:48:56.9038265Z [36;1mcase "$SHARD" in[0m
+2026-09-22T20:48:56.9038570Z [36;1m  1) grep -Fx tsn_fuzz "$RUNNER_TEMP/owned-suites" ;;[0m
+2026-09-22T20:48:56.9038989Z [36;1m  3) grep -Fx chmap_capture "$RUNNER_TEMP/owned-suites" ;;[0m
+2026-09-22T20:48:56.9039611Z [36;1m  4) test "$(cat "$RUNNER_TEMP/owned-suites")" = milan_dp ;;[0m
+2026-09-22T20:48:56.9039949Z [36;1mesac[0m
+2026-09-22T20:48:56.9079542Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:56.9079807Z env:
+2026-09-22T20:48:56.9080054Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:56.9080312Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:56.9080591Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:56.9080905Z   SHARD: 2
+2026-09-22T20:48:56.9081100Z   SHARDS: 5
+2026-09-22T20:48:56.9081286Z ##[endgroup]
+2026-09-22T20:48:56.9511887Z   ok    1 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9512640Z   ok    2 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9513334Z   ok    4 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9514003Z   ok    5 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9514648Z   ok    7 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9515320Z   ok   23 shard(s): complete=True disjoint=True deterministic=True
+2026-09-22T20:48:56.9515991Z   ok    2 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-09-22T20:48:56.9516687Z   ok    4 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-09-22T20:48:56.9517794Z   ok    5 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-09-22T20:48:56.9518480Z   ok    7 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-09-22T20:48:56.9519142Z   ok   23 shard(s): dedicated alone=True hashed owners unchanged=True
+2026-09-22T20:48:56.9520117Z   ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+2026-09-22T20:48:56.9521405Z   ok   five-worker runtime landmarks: {'milan_dp': 4, 'pp_shadow': 1, 'mmcm_servo': 2, 'tsn_fuzz': 1, 'chmap_capture': 3}
+2026-09-22T20:48:56.9522553Z   ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+2026-09-22T20:48:56.9523312Z   ok   reject ''
+2026-09-22T20:48:56.9523628Z   ok   reject '1'
+2026-09-22T20:48:56.9523949Z   ok   reject '-1/4'
+2026-09-22T20:48:56.9524290Z   ok   reject '01/4'
+2026-09-22T20:48:56.9524617Z   ok   reject '4/4'
+2026-09-22T20:48:56.9524950Z   ok   reject '5/4'
+2026-09-22T20:48:56.9525267Z   ok   reject '0/0'
+2026-09-22T20:48:56.9525583Z   ok   reject 'a/4'
+2026-09-22T20:48:56.9525915Z selftest: PASS
+2026-09-22T20:48:56.9985016Z Shard 2 owns:
+2026-09-22T20:48:56.9998380Z   aaf
+2026-09-22T20:48:56.9999000Z   aaf_audio_loop
+2026-09-22T20:48:56.9999384Z   aes3
+2026-09-22T20:48:56.9999618Z   chmap_render
+2026-09-22T20:48:56.9999837Z   crf_tx
+2026-09-22T20:48:57.0000033Z   mmcm_servo
+2026-09-22T20:48:57.0000271Z   ptp_sync
+2026-09-22T20:48:57.0000469Z   ptp_ts
+2026-09-22T20:48:57.0000664Z   render_setpoint
+2026-09-22T20:48:57.0000881Z   shaper_core
+2026-09-22T20:48:57.0078386Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-09-22T20:48:57.0078908Z [36;1mscripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \[0m
+2026-09-22T20:48:57.0079289Z [36;1m  --shard "2/5"[0m
+2026-09-22T20:48:57.0115291Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:57.0115552Z env:
+2026-09-22T20:48:57.0115763Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:57.0116018Z   YOSYS_VERSION: v0.66
+2026-09-22T20:48:57.0116308Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:48:57.0116643Z ##[endgroup]
+2026-09-22T20:49:00.5278294Z shard: 2/5   selected suites: 10
+2026-09-22T20:49:19.6486520Z PASS     aaf
+2026-09-22T20:49:25.4772535Z PASS     aaf_audio_loop
+2026-09-22T20:49:31.3435871Z PASS     aes3
+2026-09-22T20:49:36.8628718Z PASS     chmap_render
+2026-09-22T20:49:42.7021436Z PASS     crf_tx
+2026-09-22T20:50:42.4836452Z PASS     mmcm_servo
+2026-09-22T20:50:53.2576938Z PASS     ptp_sync
+2026-09-22T20:50:58.8421359Z PASS     ptp_ts
+2026-09-22T20:52:33.4186302Z PASS     render_setpoint
+2026-09-22T20:52:39.5935510Z PASS     shaper_core
+2026-09-22T20:52:39.5936137Z ----------------------------------------------------------------
+2026-09-22T20:52:39.5937604Z suites: 10   passed: 10   failed: 0   timed out: 0
+2026-09-22T20:52:39.6525995Z checks: 1522423   in-suite failures: 0
+2026-09-22T20:52:39.6578716Z logs: /home/runner/work/_temp/suite-logs
+2026-09-22T20:52:39.6666234Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:52:39.6667854Z ##[group]Run actions/upload-artifact@v4
+2026-09-22T20:52:39.6668122Z with:
+2026-09-22T20:52:39.6668314Z   name: suite-logs-2
+2026-09-22T20:52:39.6668561Z   path: /home/runner/work/_temp/suite-logs
+2026-09-22T20:52:39.6668866Z   if-no-files-found: error
+2026-09-22T20:52:39.6669103Z   retention-days: 3
+2026-09-22T20:52:39.6669316Z   compression-level: 6
+2026-09-22T20:52:39.6669537Z   overwrite: false
+2026-09-22T20:52:39.6669776Z   include-hidden-files: false
+2026-09-22T20:52:39.6670008Z env:
+2026-09-22T20:52:39.6670195Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:52:39.6670428Z   YOSYS_VERSION: v0.66
+2026-09-22T20:52:39.6670717Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-09-22T20:52:39.6671022Z ##[endgroup]
+2026-09-22T20:52:39.8380708Z (node:5657) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:52:39.8382034Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:52:39.8470638Z With the provided path, there will be 11 files uploaded
+2026-09-22T20:52:39.8471995Z Artifact name is valid!
+2026-09-22T20:52:39.8472616Z Root directory input is valid!
+2026-09-22T20:52:40.2425332Z Beginning upload of artifact content to blob storage
+2026-09-22T20:52:40.2810728Z (node:5657) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:52:40.6257332Z Uploaded bytes 28157
+2026-09-22T20:52:40.7031117Z Finished uploading artifact content to blob storage!
+2026-09-22T20:52:40.7032355Z SHA256 digest of uploaded artifact zip is 921678e5e1234fe7ea86147009f466c25edeec9424f72e72b24b66b3ad62df3d
+2026-09-22T20:52:40.7033693Z Finalizing artifact upload
+2026-09-22T20:52:40.9464407Z Artifact suite-logs-2.zip successfully finalized. Artifact ID 10718342970
+2026-09-22T20:52:40.9466247Z Artifact suite-logs-2 has been successfully uploaded! Final size is 28157 bytes. Artifact ID is 10718342970
+2026-09-22T20:52:40.9473386Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/35782624367/artifacts/10718342970
+2026-09-22T20:52:40.9645707Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:52:40.9647006Z Post job cleanup.
+2026-09-22T20:52:41.0797864Z Cache hit occurred on the primary key verilator-v5.050-Linux, not saving cache.
+2026-09-22T20:52:41.0800545Z (node:5670) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:52:41.0802346Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:52:41.0948475Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:52:41.0949786Z Post job cleanup.
+2026-09-22T20:52:41.1853017Z [command]/usr/bin/git version
+2026-09-22T20:52:41.1903504Z git version 2.55.0
+2026-09-22T20:52:41.1950435Z Temporarily overriding HOME='/home/runner/work/_temp/815e34d0-8606-4116-8860-98508616505e' before making global git config changes
+2026-09-22T20:52:41.1951923Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:52:41.1956897Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:52:41.2002031Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:52:41.2041752Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:52:41.2283441Z Entering 'gptp-processor'
+2026-09-22T20:52:41.2490913Z Entering 'protocol-processor'
+2026-09-22T20:52:41.2542370Z Entering 'third_party/verilog-axis'
+2026-09-22T20:52:41.2608015Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:52:41.2641433Z http.https://github.com/.extraheader
+2026-09-22T20:52:41.2653211Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T20:52:41.2694493Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:52:41.2942961Z Entering 'gptp-processor'
+2026-09-22T20:52:41.2990009Z Entering 'protocol-processor'
+2026-09-22T20:52:41.3034319Z Entering 'third_party/verilog-axis'
+2026-09-22T20:52:41.3095702Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:52:41.3135193Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:52:41.3356226Z Entering 'gptp-processor'
+2026-09-22T20:52:41.3377609Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-09-22T20:52:41.3396350Z Entering 'protocol-processor'
+2026-09-22T20:52:41.3416159Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-09-22T20:52:41.3434802Z Entering 'third_party/verilog-axis'
+2026-09-22T20:52:41.3454380Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-09-22T20:52:41.3491433Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:52:41.3532332Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:52:41.3567354Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:52:41.3775000Z Cleaning up orphan processes
+2026-09-22T20:52:41.4086573Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

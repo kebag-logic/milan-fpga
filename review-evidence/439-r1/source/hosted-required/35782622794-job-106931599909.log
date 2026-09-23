@@ -1,0 +1,1028 @@
+﻿2026-09-22T20:48:08.1302140Z Current runner version: '2.337.0'
+2026-09-22T20:48:08.1331795Z ##[group]Runner Image Provisioner
+2026-09-22T20:48:08.1332774Z Hosted Compute Agent
+2026-09-22T20:48:08.1333634Z Version: 20260828.587
+2026-09-22T20:48:08.1334422Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-22T20:48:08.1335445Z Build Date: 2026-08-28T16:44:25Z
+2026-09-22T20:48:08.1336318Z Worker ID: {e4c6b651-cd8b-4e44-9d48-59386110b211}
+2026-09-22T20:48:08.1337338Z Azure Region: eastus
+2026-09-22T20:48:08.1338181Z ##[endgroup]
+2026-09-22T20:48:08.1339890Z ##[group]Operating System
+2026-09-22T20:48:08.1340749Z Ubuntu
+2026-09-22T20:48:08.1341396Z 24.04.5
+2026-09-22T20:48:08.1341999Z LTS
+2026-09-22T20:48:08.1342773Z ##[endgroup]
+2026-09-22T20:48:08.1343444Z ##[group]Runner Image
+2026-09-22T20:48:08.1344327Z Image: ubuntu-24.04
+2026-09-22T20:48:08.1345014Z Version: 20260907.300.1
+2026-09-22T20:48:08.1346671Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260907.300/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-22T20:48:08.1348833Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260907.300
+2026-09-22T20:48:08.1350079Z ##[endgroup]
+2026-09-22T20:48:08.1351462Z ##[group]GITHUB_TOKEN Permissions
+2026-09-22T20:48:08.1353866Z Contents: read
+2026-09-22T20:48:08.1354545Z Metadata: read
+2026-09-22T20:48:08.1355319Z Packages: read
+2026-09-22T20:48:08.1356031Z ##[endgroup]
+2026-09-22T20:48:08.1359147Z Secret source: Actions
+2026-09-22T20:48:08.1360356Z Cache mode: write
+2026-09-22T20:48:08.1361356Z Prepare workflow directory
+2026-09-22T20:48:08.1801137Z Prepare all required actions
+2026-09-22T20:48:08.1859063Z Getting action download info
+2026-09-22T20:48:08.3768711Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-09-22T20:48:08.4888004Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-09-22T20:48:08.6121429Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-09-22T20:48:08.9236326Z Complete job name: elaborate
+2026-09-22T20:48:09.0042045Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:09.0049526Z ##[group]Run actions/checkout@v4
+2026-09-22T20:48:09.0050065Z with:
+2026-09-22T20:48:09.0050396Z   fetch-depth: 0
+2026-09-22T20:48:09.0050760Z   repository: kebag-logic/milan-fpga
+2026-09-22T20:48:09.0053844Z   token: ***
+2026-09-22T20:48:09.0054186Z   ssh-strict: true
+2026-09-22T20:48:09.0054529Z   ssh-user: git
+2026-09-22T20:48:09.0054871Z   persist-credentials: true
+2026-09-22T20:48:09.0055252Z   clean: true
+2026-09-22T20:48:09.0055603Z   sparse-checkout-cone-mode: true
+2026-09-22T20:48:09.0056005Z   fetch-tags: false
+2026-09-22T20:48:09.0056368Z   show-progress: true
+2026-09-22T20:48:09.0056754Z   lfs: false
+2026-09-22T20:48:09.0057372Z   submodules: false
+2026-09-22T20:48:09.0057734Z   set-safe-directory: true
+2026-09-22T20:48:09.0058138Z   allow-unsafe-pr-checkout: false
+2026-09-22T20:48:09.0058736Z env:
+2026-09-22T20:48:09.0059060Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:09.0059434Z ##[endgroup]
+2026-09-22T20:48:09.0903130Z Syncing repository: kebag-logic/milan-fpga
+2026-09-22T20:48:09.0905191Z ##[group]Getting Git version info
+2026-09-22T20:48:09.0906052Z Working directory is '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:09.0907536Z [command]/usr/bin/git version
+2026-09-22T20:48:09.1411751Z git version 2.55.0
+2026-09-22T20:48:09.1431935Z ##[endgroup]
+2026-09-22T20:48:09.1445201Z Temporarily overriding HOME='/home/runner/work/_temp/643936b6-13a2-43da-a049-c02fa51ba651' before making global git config changes
+2026-09-22T20:48:09.1447324Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:48:09.1450265Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:09.1511820Z Deleting the contents of '/home/runner/work/milan-fpga/milan-fpga'
+2026-09-22T20:48:09.1516802Z ##[group]Initializing the repository
+2026-09-22T20:48:09.1521805Z [command]/usr/bin/git init /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:48:09.1650307Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-22T20:48:09.1651617Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-22T20:48:09.1652728Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-22T20:48:09.1653670Z hint: call:
+2026-09-22T20:48:09.1654238Z hint:
+2026-09-22T20:48:09.1655044Z hint: 	git config --global init.defaultBranch <name>
+2026-09-22T20:48:09.1655588Z hint:
+2026-09-22T20:48:09.1656054Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-22T20:48:09.1656776Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-22T20:48:09.1657595Z hint:
+2026-09-22T20:48:09.1657933Z hint: 	git branch -m <name>
+2026-09-22T20:48:09.1658316Z hint:
+2026-09-22T20:48:09.1658813Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-22T20:48:09.1659722Z Initialized empty Git repository in /home/runner/work/milan-fpga/milan-fpga/.git/
+2026-09-22T20:48:09.1662376Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:09.1711401Z ##[endgroup]
+2026-09-22T20:48:09.1712296Z ##[group]Disabling automatic garbage collection
+2026-09-22T20:48:09.1715997Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-22T20:48:09.1747326Z ##[endgroup]
+2026-09-22T20:48:09.1747959Z ##[group]Setting up auth
+2026-09-22T20:48:09.1753851Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:48:09.1788570Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:48:09.2074071Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:48:09.2106615Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:48:09.2303129Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:48:09.2334591Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:48:09.2530758Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-22T20:48:09.2566769Z ##[endgroup]
+2026-09-22T20:48:09.2567849Z ##[group]Fetching the repository
+2026-09-22T20:48:09.2576050Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +aa91e1adc299ccb979022981bafd07e8d8d1756a:refs/remotes/pull/525/merge
+2026-09-22T20:48:16.1999019Z From https://github.com/kebag-logic/milan-fpga
+2026-09-22T20:48:16.2001360Z  * [new branch]        116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+2026-09-22T20:48:16.2003810Z  * [new branch]        117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+2026-09-22T20:48:16.2005870Z  * [new branch]        120-sound-card-option                    -> origin/120-sound-card-option
+2026-09-22T20:48:16.2008295Z  * [new branch]        129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+2026-09-22T20:48:16.2011253Z  * [new branch]        129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+2026-09-22T20:48:16.2014124Z  * [new branch]        130-prune-behavioural                    -> origin/130-prune-behavioural
+2026-09-22T20:48:16.2017380Z  * [new branch]        145-rebased-on-170                       -> origin/145-rebased-on-170
+2026-09-22T20:48:16.2021509Z  * [new branch]        154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+2026-09-22T20:48:16.2027251Z  * [new branch]        159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+2026-09-22T20:48:16.2030982Z  * [new branch]        159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+2026-09-22T20:48:16.2035183Z  * [new branch]        160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit -> origin/160-dev-fails-its-own-docs_check-gate-13-findings-from-the-agentsmd-commit
+2026-09-22T20:48:16.2039023Z  * [new branch]        162-boot-gate-instruments                -> origin/162-boot-gate-instruments
+2026-09-22T20:48:16.2041924Z  * [new branch]        163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+2026-09-22T20:48:16.2044747Z  * [new branch]        167-shard-github-verilator-ci            -> origin/167-shard-github-verilator-ci
+2026-09-22T20:48:16.2047416Z  * [new branch]        207-gptp-drop-counters-csr               -> origin/207-gptp-drop-counters-csr
+2026-09-22T20:48:16.2049722Z  * [new branch]        211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+2026-09-22T20:48:16.2052160Z  * [new branch]        219-pathtrace-cap-edge                   -> origin/219-pathtrace-cap-edge
+2026-09-22T20:48:16.2057219Z  * [new branch]        246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+2026-09-22T20:48:16.2062426Z  * [new branch]        260-pps-output                           -> origin/260-pps-output
+2026-09-22T20:48:16.2064326Z  * [new branch]        270-shorten-ci-feedback                  -> origin/270-shorten-ci-feedback
+2026-09-22T20:48:16.2066938Z  * [new branch]        286-yosys-single-process-bench           -> origin/286-yosys-single-process-bench
+2026-09-22T20:48:16.2071969Z  * [new branch]        287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real -> origin/287-task-pin-the-yosys-the-portability-gate-is-certified-with-and-make-its-cells=-record-real
+2026-09-22T20:48:16.2079274Z  * [new branch]        292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid -> origin/292-task-act_cipy-refuses-every-pr-whose-base-moved-after-it-was-opened-it-compares-the-live-dev-tip-with-githubs-frozen-baserefoid
+2026-09-22T20:48:16.2090904Z  * [new branch]        295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check -> origin/295-task-pin-the-gate-steps-of-the-non-rtl-required-contexts-step-level-if-continue-on-error-||-true-on-docs-checks-ci_events-step-wire-accountabilitys-gate-step-docs-check-no-gits-single-step-and-elaborates-scope-step-pass-check
+2026-09-22T20:48:16.2099476Z  * [new branch]        296-documentation-audience-guides-wavedrom -> origin/296-documentation-audience-guides-wavedrom
+2026-09-22T20:48:16.2102453Z  * [new branch]        297-test-aggregate-standalone-litex-simulations -> origin/297-test-aggregate-standalone-litex-simulations
+2026-09-22T20:48:16.2106022Z  * [new branch]        300-tooling-replace-the-legacy-teroshdl-dependency-graph -> origin/300-tooling-replace-the-legacy-teroshdl-dependency-graph
+2026-09-22T20:48:16.2109080Z  * [new branch]        303-rework-fpga-gptp-docs                -> origin/303-rework-fpga-gptp-docs
+2026-09-22T20:48:16.2111921Z  * [new branch]        304-docs-archive-the-closed-throughput-campaign -> origin/304-docs-archive-the-closed-throughput-campaign
+2026-09-22T20:48:16.2116776Z  * [new branch]        309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way -> origin/309-the-ooc-area-instrument-must-measure-the-shape-the-gate-proves-and-the-shape-include-must-resolve-one-way
+2026-09-22T20:48:16.2122378Z  * [new branch]        311-workflow-align-clean-review-verdict-syntax-with-integrity-audit -> origin/311-workflow-align-clean-review-verdict-syntax-with-integrity-audit
+2026-09-22T20:48:16.2125716Z  * [new branch]        312-docs-compliance-matrix-and-hygiene   -> origin/312-docs-compliance-matrix-and-hygiene
+2026-09-22T20:48:16.2129229Z  * [new branch]        314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows -> origin/314-milan_dp-readme-measured-count-table-is-stale-on-five-of-nine-rows
+2026-09-22T20:48:16.2133395Z  * [new branch]        315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path -> origin/315-bug-local-act-docs-jobs-race-on-the-shared-python-tool-cache-path
+2026-09-22T20:48:16.2138257Z  * [new branch]        316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger -> origin/316-bug-pr-310-merge-record-lacks-a-conforming-final-verdict-and-exact-head-lens-ledger
+2026-09-22T20:48:16.2141903Z  * [new branch]        317-make-consumer-filenames              -> origin/317-make-consumer-filenames
+2026-09-22T20:48:16.2144076Z  * [new branch]        334-harden-act-ci-sigint-cleanup         -> origin/334-harden-act-ci-sigint-cleanup
+2026-09-22T20:48:16.2146378Z  * [new branch]        337-act-action-cache-serialisation       -> origin/337-act-action-cache-serialisation
+2026-09-22T20:48:16.2148827Z  * [new branch]        337-live-boundary-negative-control       -> origin/337-live-boundary-negative-control
+2026-09-22T20:48:16.2151102Z  * [new branch]        340-repair-act-ci-trusted-runner         -> origin/340-repair-act-ci-trusted-runner
+2026-09-22T20:48:16.2153499Z  * [new branch]        345-rule12-idiom-gates-wiring            -> origin/345-rule12-idiom-gates-wiring
+2026-09-22T20:48:16.2155538Z  * [new branch]        350-yosys-result-cache                   -> origin/350-yosys-result-cache
+2026-09-22T20:48:16.2157894Z  * [new branch]        351-check-merge-containment-git-minimum  -> origin/351-check-merge-containment-git-minimum
+2026-09-22T20:48:16.2160134Z  * [new branch]        358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+2026-09-22T20:48:16.2162164Z  * [new branch]        358-gptp-latency-correction              -> origin/358-gptp-latency-correction
+2026-09-22T20:48:16.2164121Z  * [new branch]        359-ax7101-boot-stall                    -> origin/359-ax7101-boot-stall
+2026-09-22T20:48:16.2167277Z  * [new branch]        360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay -> origin/360-gptp-tx-timestamps-precede-mac-buffering-and-include-queueing-delay
+2026-09-22T20:48:16.2170348Z  * [new branch]        362-build-hash-seed                      -> origin/362-build-hash-seed
+2026-09-22T20:48:16.2172165Z  * [new branch]        363-docs-clock-domains                   -> origin/363-docs-clock-domains
+2026-09-22T20:48:16.2174115Z  * [new branch]        365-ax1x1-simulation-baseline            -> origin/365-ax1x1-simulation-baseline
+2026-09-22T20:48:16.2176219Z  * [new branch]        366-flashpair-first-boot-restart         -> origin/366-flashpair-first-boot-restart
+2026-09-22T20:48:16.2178483Z  * [new branch]        367-ax1x1-gptp-on-simulation             -> origin/367-ax1x1-gptp-on-simulation
+2026-09-22T20:48:16.2180472Z  * [new branch]        372-bound-axis-assertions                -> origin/372-bound-axis-assertions
+2026-09-22T20:48:16.2182328Z  * [new branch]        372-review-evidence                      -> origin/372-review-evidence
+2026-09-22T20:48:16.2184266Z  * [new branch]        373-testing-submodule-command            -> origin/373-testing-submodule-command
+2026-09-22T20:48:16.2186509Z  * [new branch]        374-link-guard-settle-comments           -> origin/374-link-guard-settle-comments
+2026-09-22T20:48:16.2188710Z  * [new branch]        375-latency-scratch-wording              -> origin/375-latency-scratch-wording
+2026-09-22T20:48:16.2190744Z  * [new branch]        376-act-selftest-zombie-drain            -> origin/376-act-selftest-zombie-drain
+2026-09-22T20:48:16.2192765Z  * [new branch]        377-one-dut-acceptance-docs              -> origin/377-one-dut-acceptance-docs
+2026-09-22T20:48:16.2194597Z  * [new branch]        378-em-dash-gate                         -> origin/378-em-dash-gate
+2026-09-22T20:48:16.2196383Z  * [new branch]        386-tdm-render-setpoint                  -> origin/386-tdm-render-setpoint
+2026-09-22T20:48:16.2198487Z  * [new branch]        389-truthful-clock-sources               -> origin/389-truthful-clock-sources
+2026-09-22T20:48:16.2200322Z  * [new branch]        390-ring-one-grid                        -> origin/390-ring-one-grid
+2026-09-22T20:48:16.2202230Z  * [new branch]        398-boot-policy-declarations             -> origin/398-boot-policy-declarations
+2026-09-22T20:48:16.2204279Z  * [new branch]        399-clock-plan-declarations              -> origin/399-clock-plan-declarations
+2026-09-22T20:48:16.2206213Z  * [new branch]        400-403-declaration-truth                -> origin/400-403-declaration-truth
+2026-09-22T20:48:16.2208137Z  * [new branch]        400-403-review-evidence                  -> origin/400-403-review-evidence
+2026-09-22T20:48:16.2210129Z  * [new branch]        401-descriptor-name-declarations         -> origin/401-descriptor-name-declarations
+2026-09-22T20:48:16.2212307Z  * [new branch]        402-build-sh-sources-generated-argv      -> origin/402-build-sh-sources-generated-argv
+2026-09-22T20:48:16.2214316Z  * [new branch]        404-builder-doc-key-map                  -> origin/404-builder-doc-key-map
+2026-09-22T20:48:16.2216191Z  * [new branch]        406-pin-rtl-job-step-lists               -> origin/406-pin-rtl-job-step-lists
+2026-09-22T20:48:16.2218153Z  * [new branch]        407-ac5-probe                            -> origin/407-ac5-probe
+2026-09-22T20:48:16.2219891Z  * [new branch]        407-carrier-script-pins                  -> origin/407-carrier-script-pins
+2026-09-22T20:48:16.2221692Z  * [new branch]        408-409-465-boot-gate                    -> origin/408-409-465-boot-gate
+2026-09-22T20:48:16.2223609Z  * [new branch]        410-origin-probe-call-value-eval         -> origin/410-origin-probe-call-value-eval
+2026-09-22T20:48:16.2225900Z  * [new branch]        411-clarify-ptp-scratch-and-test-readback -> origin/411-clarify-ptp-scratch-and-test-readback
+2026-09-22T20:48:16.2228068Z  * [new branch]        412-em-dash-residue                      -> origin/412-em-dash-residue
+2026-09-22T20:48:16.2229996Z  * [new branch]        413-type7-html-heading-exemption         -> origin/413-type7-html-heading-exemption
+2026-09-22T20:48:16.2233039Z  * [new branch]        418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+2026-09-22T20:48:16.2235851Z  * [new branch]        419-design-evidence                      -> origin/419-design-evidence
+2026-09-22T20:48:16.2237841Z  * [new branch]        419-snapshot-ownership-adr               -> origin/419-snapshot-ownership-adr
+2026-09-22T20:48:16.2239896Z  * [new branch]        422-strict-gptp-tx-flags                 -> origin/422-strict-gptp-tx-flags
+2026-09-22T20:48:16.2241871Z  * [new branch]        423-readiness-evidence                   -> origin/423-readiness-evidence
+2026-09-22T20:48:16.2243771Z  * [new branch]        423-retained-redundant-replay            -> origin/423-retained-redundant-replay
+2026-09-22T20:48:16.2245611Z  * [new branch]        423-review-evidence                      -> origin/423-review-evidence
+2026-09-22T20:48:16.2247807Z  * [new branch]        424-integrate-nvm-completion-ownership   -> origin/424-integrate-nvm-completion-ownership
+2026-09-22T20:48:16.2250289Z  * [new branch]        426-complete-review-histories            -> origin/426-complete-review-histories
+2026-09-22T20:48:16.2252312Z  * [new branch]        437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+2026-09-22T20:48:16.2254164Z  * [new branch]        437-review-evidence                      -> origin/437-review-evidence
+2026-09-22T20:48:16.2256049Z  * [new branch]        438-containment-selftest-cleanup         -> origin/438-containment-selftest-cleanup
+2026-09-22T20:48:16.2258020Z  * [new branch]        439-review-evidence                      -> origin/439-review-evidence
+2026-09-22T20:48:16.2259816Z  * [new branch]        439-rtl-script-content-pins              -> origin/439-rtl-script-content-pins
+2026-09-22T20:48:16.2261652Z  * [new branch]        440-markdown-closers                     -> origin/440-markdown-closers
+2026-09-22T20:48:16.2263384Z  * [new branch]        440-review-evidence                      -> origin/440-review-evidence
+2026-09-22T20:48:16.2265243Z  * [new branch]        444-milan-dp-shard-and-ci-trims          -> origin/444-milan-dp-shard-and-ci-trims
+2026-09-22T20:48:16.2267305Z  * [new branch]        445-render-phase-observation             -> origin/445-render-phase-observation
+2026-09-22T20:48:16.2269164Z  * [new branch]        447-tdm-master-render                    -> origin/447-tdm-master-render
+2026-09-22T20:48:16.2270918Z  * [new branch]        452-bclk-iob-packable                    -> origin/452-bclk-iob-packable
+2026-09-22T20:48:16.2272697Z  * [new branch]        452-tdm8-fsync-launch-edge               -> origin/452-tdm8-fsync-launch-edge
+2026-09-22T20:48:16.2274567Z  * [new branch]        453-deploy-render-interface              -> origin/453-deploy-render-interface
+2026-09-22T20:48:16.2276381Z  * [new branch]        462-463-descriptor-truth                 -> origin/462-463-descriptor-truth
+2026-09-22T20:48:16.2278267Z  * [new branch]        464-aem-store-selftest                   -> origin/464-aem-store-selftest
+2026-09-22T20:48:16.2280090Z  * [new branch]        464-review-evidence                      -> origin/464-review-evidence
+2026-09-22T20:48:16.2281953Z  * [new branch]        466-deploy-shape-in-docs-check           -> origin/466-deploy-shape-in-docs-check
+2026-09-22T20:48:16.2283778Z  * [new branch]        471-472-srp-status-words                 -> origin/471-472-srp-status-words
+2026-09-22T20:48:16.2285475Z  * [new branch]        475-fail-unpacked-iob                    -> origin/475-fail-unpacked-iob
+2026-09-22T20:48:16.2287283Z  * [new branch]        478-audio-unit-rate-bound                -> origin/478-audio-unit-rate-bound
+2026-09-22T20:48:16.2288996Z  * [new branch]        478-review-evidence                      -> origin/478-review-evidence
+2026-09-22T20:48:16.2290753Z  * [new branch]        484-snapshot-ownership-impl              -> origin/484-snapshot-ownership-impl
+2026-09-22T20:48:16.2292500Z  * [new branch]        498-review-evidence                      -> origin/498-review-evidence
+2026-09-22T20:48:16.2294239Z  * [new branch]        500-d3-materialization-adr               -> origin/500-d3-materialization-adr
+2026-09-22T20:48:16.2295955Z  * [new branch]        500-design-evidence                      -> origin/500-design-evidence
+2026-09-22T20:48:16.2297680Z  * [new branch]        503-review-evidence                      -> origin/503-review-evidence
+2026-09-22T20:48:16.2299390Z  * [new branch]        504-hosted-rv32-compiler                 -> origin/504-hosted-rv32-compiler
+2026-09-22T20:48:16.2301113Z  * [new branch]        504-readiness-evidence                   -> origin/504-readiness-evidence
+2026-09-22T20:48:16.2302776Z  * [new branch]        504-review-evidence                      -> origin/504-review-evidence
+2026-09-22T20:48:16.2304390Z  * [new branch]        505-review-evidence                      -> origin/505-review-evidence
+2026-09-22T20:48:16.2306107Z  * [new branch]        517-bounded-simulation-pool              -> origin/517-bounded-simulation-pool
+2026-09-22T20:48:16.2308040Z  * [new branch]        517-review-evidence                      -> origin/517-review-evidence
+2026-09-22T20:48:16.2309643Z  * [new branch]        520-review-evidence                      -> origin/520-review-evidence
+2026-09-22T20:48:16.2311377Z  * [new branch]        520-yosys-rom-cache-identity             -> origin/520-yosys-rom-cache-identity
+2026-09-22T20:48:16.2313295Z  * [new branch]        523-isolate-mutation-cancellation        -> origin/523-isolate-mutation-cancellation
+2026-09-22T20:48:16.2315248Z  * [new branch]        69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+2026-09-22T20:48:16.2317185Z  * [new branch]        70-firmware-flash-writer                 -> origin/70-firmware-flash-writer
+2026-09-22T20:48:16.2318932Z  * [new branch]        70-flat-names-allocation                 -> origin/70-flat-names-allocation
+2026-09-22T20:48:16.2320533Z  * [new branch]        70-nvm-backend                           -> origin/70-nvm-backend
+2026-09-22T20:48:16.2322078Z  * [new branch]        70-nvm-persistence                       -> origin/70-nvm-persistence
+2026-09-22T20:48:16.2324238Z  * [new branch]        74-media-clock-select-crf-and-align-the-audio-grid -> origin/74-media-clock-select-crf-and-align-the-audio-grid
+2026-09-22T20:48:16.2326410Z  * [new branch]        75-lwsrp-restart-bound                   -> origin/75-lwsrp-restart-bound
+2026-09-22T20:48:16.2328299Z  * [new branch]        chore/cpp-core-guidelines-idiom          -> origin/chore/cpp-core-guidelines-idiom
+2026-09-22T20:48:16.2329888Z  * [new branch]        dev                                      -> origin/dev
+2026-09-22T20:48:16.2331397Z  * [new branch]        finish-259-116                           -> origin/finish-259-116
+2026-09-22T20:48:16.2332754Z  * [new branch]        main                                     -> origin/main
+2026-09-22T20:48:16.2334369Z  * [new branch]        pin-gptp-processor-to-donor-main         -> origin/pin-gptp-processor-to-donor-main
+2026-09-22T20:48:16.2336332Z  * [new branch]        pp102-review-evidence                    -> origin/pp102-review-evidence
+2026-09-22T20:48:16.2338277Z  * [new branch]        pp46-lstn-reg-state-whole-project        -> origin/pp46-lstn-reg-state-whole-project
+2026-09-22T20:48:16.2340312Z  * [new branch]        pp51-sampling-rate-whole-project         -> origin/pp51-sampling-rate-whole-project
+2026-09-22T20:48:16.2342280Z  * [new branch]        pp90-nvm-exports-whole-project           -> origin/pp90-nvm-exports-whole-project
+2026-09-22T20:48:16.2344044Z  * [new branch]        repin-gptp-09af9fc                       -> origin/repin-gptp-09af9fc
+2026-09-22T20:48:16.2345811Z  * [new branch]        repin-gptp-after-donor-rewrite           -> origin/repin-gptp-after-donor-rewrite
+2026-09-22T20:48:16.2347784Z  * [new branch]        repin-gptp-bacf812                       -> origin/repin-gptp-bacf812
+2026-09-22T20:48:16.2349454Z  * [new branch]        shape-include-ambiguity                  -> origin/shape-include-ambiguity
+2026-09-22T20:48:16.2351205Z  * [new branch]        validation/478-candidate2                -> origin/validation/478-candidate2
+2026-09-22T20:48:16.2352782Z  * [new ref]           aa91e1adc299ccb979022981bafd07e8d8d1756a -> pull/525/merge
+2026-09-22T20:48:16.2355543Z ##[endgroup]
+2026-09-22T20:48:16.2356623Z ##[group]Determining the checkout info
+2026-09-22T20:48:16.2357931Z ##[endgroup]
+2026-09-22T20:48:16.2358668Z [command]/usr/bin/git sparse-checkout disable
+2026-09-22T20:48:16.2360889Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-22T20:48:16.2363301Z ##[group]Checking out the ref
+2026-09-22T20:48:16.2364407Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/525/merge
+2026-09-22T20:48:16.3446903Z Note: switching to 'refs/remotes/pull/525/merge'.
+2026-09-22T20:48:16.3448279Z 
+2026-09-22T20:48:16.3449140Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-22T20:48:16.3450607Z changes and commit them, and you can discard any commits you make in this
+2026-09-22T20:48:16.3452431Z state without impacting any branches by switching back to a branch.
+2026-09-22T20:48:16.3453230Z 
+2026-09-22T20:48:16.3453829Z If you want to create a new branch to retain commits you create, you may
+2026-09-22T20:48:16.3455151Z do so (now or later) by using -c with the switch command. Example:
+2026-09-22T20:48:16.3455899Z 
+2026-09-22T20:48:16.3456262Z   git switch -c <new-branch-name>
+2026-09-22T20:48:16.3456769Z 
+2026-09-22T20:48:16.3457222Z Or undo this operation with:
+2026-09-22T20:48:16.3457700Z 
+2026-09-22T20:48:16.3458016Z   git switch -
+2026-09-22T20:48:16.3458402Z 
+2026-09-22T20:48:16.3459050Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-22T20:48:16.3459924Z 
+2026-09-22T20:48:16.3460941Z HEAD is now at aa91e1ad Merge f01f237d4b48c7b1ed59c80aca51430901791624 into 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T20:48:16.3464575Z ##[endgroup]
+2026-09-22T20:48:16.3504471Z [command]/usr/bin/git log -1 --format=%H
+2026-09-22T20:48:16.3539843Z aa91e1adc299ccb979022981bafd07e8d8d1756a
+2026-09-22T20:48:16.3753391Z ##[group]Run set -euo pipefail
+2026-09-22T20:48:16.3754339Z [36;1mset -euo pipefail[0m
+2026-09-22T20:48:16.3755407Z [36;1m# ci_scope.py arrives with PR #176. Until that lands this file may[0m
+2026-09-22T20:48:16.3756812Z [36;1m# not exist, and the safe answer to "is this change RTL relevant"[0m
+2026-09-22T20:48:16.3758252Z [36;1m# when the classifier is absent is yes.[0m
+2026-09-22T20:48:16.3759237Z [36;1mif [ ! -f scripts/ci_scope.py ]; then[0m
+2026-09-22T20:48:16.3760195Z [36;1m  echo "rtl=true" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T20:48:16.3761385Z [36;1m  echo "no scripts/ci_scope.py yet: elaborating unconditionally"[0m
+2026-09-22T20:48:16.3762494Z [36;1m  exit 0[0m
+2026-09-22T20:48:16.3763166Z [36;1mfi[0m
+2026-09-22T20:48:16.3763895Z [36;1mpython3 scripts/ci_scope.py --selftest[0m
+2026-09-22T20:48:16.3764903Z [36;1mif [ "$EVENT_NAME" != pull_request ]; then[0m
+2026-09-22T20:48:16.3765904Z [36;1m  echo "rtl=true" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T20:48:16.3766831Z [36;1m  exit 0[0m
+2026-09-22T20:48:16.3767624Z [36;1mfi[0m
+2026-09-22T20:48:16.3768287Z [36;1mif [ -n "$PR_BASE_SHA" ] \[0m
+2026-09-22T20:48:16.3769326Z [36;1m   && git cat-file -e "$PR_BASE_SHA^{commit}" 2>/dev/null; then[0m
+2026-09-22T20:48:16.3770667Z [36;1m  git diff --no-renames --name-only "$PR_BASE_SHA" "$GITHUB_SHA" \[0m
+2026-09-22T20:48:16.3771822Z [36;1m    > "$RUNNER_TEMP/changed"[0m
+2026-09-22T20:48:16.3772624Z [36;1melse[0m
+2026-09-22T20:48:16.3773350Z [36;1m  git ls-files > "$RUNNER_TEMP/changed"[0m
+2026-09-22T20:48:16.3774234Z [36;1mfi[0m
+2026-09-22T20:48:16.3775590Z [36;1mecho "rtl=$(python3 scripts/ci_scope.py < "$RUNNER_TEMP/changed")" >> "$GITHUB_OUTPUT"[0m
+2026-09-22T20:48:16.3813332Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:16.3814122Z env:
+2026-09-22T20:48:16.3814757Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:16.3815522Z   EVENT_NAME: pull_request
+2026-09-22T20:48:16.3816396Z   PR_BASE_SHA: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+2026-09-22T20:48:16.3817573Z ##[endgroup]
+2026-09-22T20:48:18.4706415Z   ok   ['docs/testing/CI_WORKFLOWS.md']: rtl=False
+2026-09-22T20:48:18.4707236Z   ok   ['README.md', 'AGENTS.md']: rtl=False
+2026-09-22T20:48:18.4707711Z   ok   ['LICENSES/CERN-OHL-W-2.0.txt']: rtl=False
+2026-09-22T20:48:18.4708342Z   ok   ['docs/diagrams/x.drawio', 'docs/diagrams/x.svg', 'docs/diagrams/x.png']: rtl=False
+2026-09-22T20:48:18.4708959Z   ok   ['hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T20:48:18.4709469Z   ok   ['hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T20:48:18.4709993Z   ok   ['docs/reference/REGISTER_MAP.md']: rtl=True
+2026-09-22T20:48:18.4712219Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-09-22T20:48:18.4712816Z   ok   ['docs/reference/TRACE_EVENTS.md']: rtl=True
+2026-09-22T20:48:18.4713328Z   ok   ['docs/traceability/gen_module_matrix.py']: rtl=True
+2026-09-22T20:48:18.4714489Z   ok   ['docs/diagrams/PNG_MANIFEST.json']: rtl=True
+2026-09-22T20:48:18.4715039Z   ok   ['docs/traceability/untested.budget']: rtl=True
+2026-09-22T20:48:18.4715540Z   ok   ['docs/notes.txt']: rtl=True
+2026-09-22T20:48:18.4715986Z   ok   ['tb/verilator/milan_dp/README.md']: rtl=True
+2026-09-22T20:48:18.4716956Z   ok   ['hdl/ieee1722/aaf/doc/x.svg']: rtl=True
+2026-09-22T20:48:18.4717594Z   ok   ['cdc_census.drawio']: rtl=True
+2026-09-22T20:48:18.4717860Z   ok   ['cdc_census.svg']: rtl=True
+2026-09-22T20:48:18.4718177Z   ok   ['docs/x.md', 'hdl/ieee1722/avtp/doc/TEST_RESULTS.md']: rtl=True
+2026-09-22T20:48:18.4718657Z   ok   ['docs/testing/MILAN_V12_AUDIT_2026-10-01.md', 'docs/testing/MILAN_V12_AUDIT_2026-08-16.md']: rtl=True
+2026-09-22T20:48:18.4719144Z   ok   ['docs/design/KL_pp_shadow.md', 'hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-09-22T20:48:18.4719524Z   ok   ['hdl/milan/KL_pp_shadow.sv']: rtl=True
+2026-09-22T20:48:18.4719848Z   ok   ['.github/ISSUE_TEMPLATE/task.yml']: rtl=True
+2026-09-22T20:48:18.4720155Z   ok   ['LICENSE']: rtl=True
+2026-09-22T20:48:18.4720414Z   ok   ['notes.rst']: rtl=True
+2026-09-22T20:48:18.4721156Z   ok   ['docs/x.md', 'hdl/ieee1722/aaf/doc/x.svg.in']: rtl=True
+2026-09-22T20:48:18.4721482Z   ok   ['requirements.txt']: rtl=True
+2026-09-22T20:48:18.4721760Z   ok   ['hdl/milan/milan_datapath.sv']: rtl=True
+2026-09-22T20:48:18.4722050Z   ok   ['scripts/lint_rtl.py']: rtl=True
+2026-09-22T20:48:18.4722485Z   ok   ['.github/workflows/rtl.yml']: rtl=True
+2026-09-22T20:48:18.4722869Z   ok   ['docs/x.md', 'tb/verilator/cdc/Makefile']: rtl=True
+2026-09-22T20:48:18.4723215Z   ok   []: rtl=True
+2026-09-22T20:48:18.4723450Z   ok   ['gptp-processor']: rtl=True
+2026-09-22T20:48:18.4723711Z   ok   ['protocol-processor']: rtl=True
+2026-09-22T20:48:18.4723975Z   ok   ['external']: rtl=True
+2026-09-22T20:48:18.4724234Z   ok   ['third_party/verilog-axis']: rtl=True
+2026-09-22T20:48:18.4724509Z   ok   ['.gitmodules']: rtl=True
+2026-09-22T20:48:18.4724774Z   ok   ['docs/x.md', 'gptp-processor']: rtl=True
+2026-09-22T20:48:18.4725081Z   ok   submodule rule names protocol-processor
+2026-09-22T20:48:18.4725383Z   ok   submodule rule names gptp-processor
+2026-09-22T20:48:18.4725668Z   ok   submodule rule names external
+2026-09-22T20:48:18.4725956Z   ok   submodule rule names third_party/verilog-axis
+2026-09-22T20:48:18.4726246Z   ok   submodule rule names .gitmodules
+2026-09-22T20:48:18.4726703Z   ok   gate-read page docs/reference/REGISTER_MAP.md (named at tests/steps/counters_contract_steps.py:38) is relevant
+2026-09-22T20:48:18.4727496Z   ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+2026-09-22T20:48:18.4728139Z   ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+2026-09-22T20:48:18.4728730Z   ok   a new reader spelt as a whole path literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4729269Z   ok   a new reader spelt as a pathlib join of literals names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4729839Z   ok   a new reader spelt as os.path.join of its pieces names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4730391Z   ok   a new reader spelt as a docs directory constant joined later names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4730965Z   ok   a new reader spelt as an f-string over a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4731529Z   ok   a new reader spelt as an f-string over a literal directory names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4732045Z   ok   a new reader spelt as a relative literal names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4732554Z   ok   a new reader spelt as a join wrapped over two lines names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4733093Z   ok   a new reader spelt as a bare file name handed to a helper names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4733622Z   ok   a new reader spelt as a top-level page as a whole literal names ['QUICKSTART.md']
+2026-09-22T20:48:18.4734338Z   ok   a new reader spelt as a recipe reading it through a directory variable names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4734954Z   ok   a new reader spelt as a recipe reading its whole path names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4735479Z   ok   a new reader spelt as a shell line reading it names ['docs/reference/EGRESS_QUEUE_MAP.md']
+2026-09-22T20:48:18.4735901Z   ok   a new reader spelt as a comment naming it names nothing
+2026-09-22T20:48:18.4736241Z   ok   a new reader spelt as a message naming it names nothing
+2026-09-22T20:48:18.4736597Z   ok   a new reader spelt as a reader docs-check runs too names nothing
+2026-09-22T20:48:18.4736976Z   ok   mutation: gptp-processor filed as docs-only is rejected
+2026-09-22T20:48:18.4738394Z   ok   mutation: protocol-processor filed as docs-only is rejected
+2026-09-22T20:48:18.4738756Z   ok   mutation: external filed as docs-only is rejected
+2026-09-22T20:48:18.4739350Z   ok   mutation: third_party/verilog-axis filed as docs-only is rejected
+2026-09-22T20:48:18.4739760Z   ok   mutation: .gitmodules filed as docs-only is rejected
+2026-09-22T20:48:18.4740178Z   ok   mutation: .github/ISSUE_TEMPLATE/ filed as docs-only is rejected
+2026-09-22T20:48:18.4740571Z   ok   mutation: LICENSE filed as docs-only is rejected
+2026-09-22T20:48:18.4740975Z   ok   mutation: .rst filed as docs-only is rejected
+2026-09-22T20:48:18.4741328Z   ok   mutation: docs/ filed as docs-only is rejected
+2026-09-22T20:48:18.4741727Z   ok   mutation: hdl/ieee1722/avtp/doc/ filed as docs-only is rejected
+2026-09-22T20:48:18.4742192Z   ok   mutation: hdl/ieee8021as/gptp_plane/doc/ filed as docs-only is rejected
+2026-09-22T20:48:18.4742594Z   ok   mutation: tb/ filed as docs-only is rejected
+2026-09-22T20:48:18.4742948Z   ok   mutation: .py filed as docs-only is rejected
+2026-09-22T20:48:18.4743302Z   ok   mutation: .json filed as docs-only is rejected
+2026-09-22T20:48:18.4743662Z   ok   mutation: .svg filed as docs-only is rejected
+2026-09-22T20:48:18.4744123Z   ok   mutation: gate-read docs/reference/REGISTER_MAP.md filed as docs-only is rejected
+2026-09-22T20:48:18.4744684Z   ok   mutation: the scan still names docs/reference/REGISTER_MAP.md once the table drops it
+2026-09-22T20:48:18.4745235Z   ok   mutation: gate-read docs/reference/TRACE_EVENTS.md filed as docs-only is rejected
+2026-09-22T20:48:18.4745781Z   ok   mutation: the scan still names docs/reference/TRACE_EVENTS.md once the table drops it
+2026-09-22T20:48:18.4746364Z   ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+2026-09-22T20:48:18.4746978Z   ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+2026-09-22T20:48:18.4747842Z selftest: PASS
+2026-09-22T20:48:18.5224987Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+2026-09-22T20:48:18.5225632Z [36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor[0m
+2026-09-22T20:48:18.5260046Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:18.5260297Z env:
+2026-09-22T20:48:18.5260512Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:18.5260746Z ##[endgroup]
+2026-09-22T20:48:18.5518162Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-09-22T20:48:18.5521076Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-09-22T20:48:18.5524420Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-09-22T20:48:18.5546101Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-09-22T20:48:18.9233392Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-09-22T20:48:19.4502655Z Cloning into '/home/runner/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-09-22T20:48:19.7666711Z Submodule path 'gptp-processor': checked out 'c1b617435824929a790739ea8585c3fe1a328cc0'
+2026-09-22T20:48:19.8129115Z Submodule path 'protocol-processor': checked out '424c688fa2205b934a7689a58f2aa766420f2326'
+2026-09-22T20:48:19.8289802Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-09-22T20:48:19.8330103Z ##[group]Run set -euo pipefail
+2026-09-22T20:48:19.8330374Z [36;1mset -euo pipefail[0m
+2026-09-22T20:48:19.8330570Z [36;1mver=v0.0.12[0m
+2026-09-22T20:48:19.8330857Z [36;1msha256=ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00[0m
+2026-09-22T20:48:19.8331303Z [36;1murl="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"[0m
+2026-09-22T20:48:19.8331659Z [36;1mcurl -fsSL "$url" -o /tmp/sv2v.zip[0m
+2026-09-22T20:48:19.8331961Z [36;1mecho "${sha256}  /tmp/sv2v.zip" | sha256sum -c -[0m
+2026-09-22T20:48:19.8332259Z [36;1munzip -q -o /tmp/sv2v.zip -d /tmp/sv2v[0m
+2026-09-22T20:48:19.8332576Z [36;1msudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \[0m
+2026-09-22T20:48:19.8332874Z [36;1m  /usr/local/bin/sv2v[0m
+2026-09-22T20:48:19.8333073Z [36;1msv2v --version[0m
+2026-09-22T20:48:19.8364792Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:19.8364998Z env:
+2026-09-22T20:48:19.8365165Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:19.8365399Z ##[endgroup]
+2026-09-22T20:48:20.0069721Z /tmp/sv2v.zip: OK
+2026-09-22T20:48:20.1011230Z sv2v v0.0.12
+2026-09-22T20:48:20.1182989Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:20.1185521Z ##[group]Run actions/setup-python@v5
+2026-09-22T20:48:20.1185985Z with:
+2026-09-22T20:48:20.1186356Z   python-version: 3.12
+2026-09-22T20:48:20.1186877Z   check-latest: false
+2026-09-22T20:48:20.1191503Z   token: ***
+2026-09-22T20:48:20.1191884Z   update-environment: true
+2026-09-22T20:48:20.1192262Z   allow-prereleases: false
+2026-09-22T20:48:20.1192631Z   freethreaded: false
+2026-09-22T20:48:20.1192996Z env:
+2026-09-22T20:48:20.1193277Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:20.1193700Z ##[endgroup]
+2026-09-22T20:48:20.2271843Z ##[group]Installed versions
+2026-09-22T20:48:20.2337531Z (node:2243) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:20.2338464Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:20.2338995Z Successfully set up CPython (3.12.14)
+2026-09-22T20:48:20.2339603Z ##[endgroup]
+2026-09-22T20:48:20.3010654Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:20.3011748Z ##[group]Run actions/cache@v4
+2026-09-22T20:48:20.3011949Z with:
+2026-09-22T20:48:20.3012110Z   path: ~/.cache/pip
+2026-09-22T20:48:20.3012451Z   key: elaborate-pip-Linux-4f2135aa3d03386ae9fcb56f88207b63f6a04571d861d464a13c692b319e9684
+2026-09-22T20:48:20.3012838Z   restore-keys: elaborate-pip-Linux-
+2026-09-22T20:48:20.3013064Z   enableCrossOsArchive: false
+2026-09-22T20:48:20.3013280Z   fail-on-cache-miss: false
+2026-09-22T20:48:20.3013472Z   lookup-only: false
+2026-09-22T20:48:20.3013645Z   save-always: false
+2026-09-22T20:48:20.3013810Z env:
+2026-09-22T20:48:20.3013967Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:20.3014255Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.3014624Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:20.3015162Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.3015466Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.3015758Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.3016050Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:20.3016309Z ##[endgroup]
+2026-09-22T20:48:20.3881428Z (node:2263) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:20.3882296Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:20.4524198Z Cache hit for: elaborate-pip-Linux-4f2135aa3d03386ae9fcb56f88207b63f6a04571d861d464a13c692b319e9684
+2026-09-22T20:48:20.4608706Z (node:2263) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:48:20.6423886Z Received 6759619 of 6759619 (100.0%), 45.1 MBs/sec
+2026-09-22T20:48:20.6424678Z Cache Size: ~6 MB (6759619 B)
+2026-09-22T20:48:20.6449854Z [command]/usr/bin/tar -xf /home/runner/work/_temp/369372e3-5949-4798-bc03-5fae978e889d/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:48:20.6710381Z Cache restored successfully
+2026-09-22T20:48:20.6775786Z Cache restored from key: elaborate-pip-Linux-4f2135aa3d03386ae9fcb56f88207b63f6a04571d861d464a13c692b319e9684
+2026-09-22T20:48:20.6869325Z ##[group]Run python3 -m pip install --quiet pyyaml
+2026-09-22T20:48:20.6869659Z [36;1mpython3 -m pip install --quiet pyyaml[0m
+2026-09-22T20:48:20.6869967Z [36;1mpython3 -m pip install --quiet -r sw/litex/litex_pins.txt[0m
+2026-09-22T20:48:20.6906724Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:20.6906950Z env:
+2026-09-22T20:48:20.6907297Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:20.6907558Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.6907940Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:20.6908284Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.6908589Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.6908890Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:20.6909199Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:20.6909458Z ##[endgroup]
+2026-09-22T20:48:42.6357473Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:42.6358493Z ##[group]Run actions/cache@v4
+2026-09-22T20:48:42.6358701Z with:
+2026-09-22T20:48:42.6358882Z   path: ~/.cache/coursier
+~/.sbt
+~/.ivy2
+
+2026-09-22T20:48:42.6359127Z   key: elaborate-sbt-Linux
+2026-09-22T20:48:42.6359337Z   restore-keys: elaborate-sbt-
+2026-09-22T20:48:42.6359547Z   enableCrossOsArchive: false
+2026-09-22T20:48:42.6359751Z   fail-on-cache-miss: false
+2026-09-22T20:48:42.6359943Z   lookup-only: false
+2026-09-22T20:48:42.6360136Z   save-always: false
+2026-09-22T20:48:42.6360302Z env:
+2026-09-22T20:48:42.6360466Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:42.6360714Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:42.6361106Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:42.6361497Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:42.6361813Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:42.6362127Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:42.6362442Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:42.6362709Z ##[endgroup]
+2026-09-22T20:48:42.7249459Z (node:2784) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:42.7250265Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:42.7894918Z Cache hit for: elaborate-sbt-Linux
+2026-09-22T20:48:42.7975952Z (node:2784) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:48:43.7785817Z Received 229922107 of 229922107 (100.0%), 228.6 MBs/sec
+2026-09-22T20:48:43.7787313Z Cache Size: ~219 MB (229922107 B)
+2026-09-22T20:48:43.7844084Z [command]/usr/bin/tar -xf /home/runner/work/_temp/14cfe3b2-d3de-4ea5-aa73-bcc5187f2211/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:48:44.1095412Z Cache restored successfully
+2026-09-22T20:48:44.1252398Z Cache restored from key: elaborate-sbt-Linux
+2026-09-22T20:48:44.2031409Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:48:44.2032460Z ##[group]Run actions/cache@v4
+2026-09-22T20:48:44.2032683Z with:
+2026-09-22T20:48:44.2032861Z   path: ~/vexii-netlist-args
+2026-09-22T20:48:44.2033224Z   key: elaborate-vexii-2bde2c81064bf8744d7af0116b65d8ccfebf8f44a633c54de10ddcd3f2005590
+2026-09-22T20:48:44.2033615Z   enableCrossOsArchive: false
+2026-09-22T20:48:44.2033837Z   fail-on-cache-miss: false
+2026-09-22T20:48:44.2034052Z   lookup-only: false
+2026-09-22T20:48:44.2034237Z   save-always: false
+2026-09-22T20:48:44.2034411Z env:
+2026-09-22T20:48:44.2034584Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:44.2034835Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.2035231Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:44.2035585Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.2035898Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.2036204Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.2036515Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:44.2036785Z ##[endgroup]
+2026-09-22T20:48:44.2966251Z (node:2813) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:48:44.2966981Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:48:44.3541512Z Cache hit for: elaborate-vexii-2bde2c81064bf8744d7af0116b65d8ccfebf8f44a633c54de10ddcd3f2005590
+2026-09-22T20:48:44.3624247Z (node:2813) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:48:44.4463315Z Received 447 of 447 (100.0%), 0.0 MBs/sec
+2026-09-22T20:48:44.4463780Z Cache Size: ~0 MB (447 B)
+2026-09-22T20:48:44.4484847Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8969d808-b0a8-4389-a497-1e5df6e31c37/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:48:44.4527918Z Cache restored successfully
+2026-09-22T20:48:44.4586967Z Cache restored from key: elaborate-vexii-2bde2c81064bf8744d7af0116b65d8ccfebf8f44a633c54de10ddcd3f2005590
+2026-09-22T20:48:44.4663823Z ##[group]Run sbt --version >/dev/null 2>&1 && exit 0
+2026-09-22T20:48:44.4664171Z [36;1msbt --version >/dev/null 2>&1 && exit 0[0m
+2026-09-22T20:48:44.4664450Z [36;1mcurl -fsSL --retry 3 -o /tmp/sbt.tgz \[0m
+2026-09-22T20:48:44.4664818Z [36;1m  https://github.com/sbt/sbt/releases/download/v1.10.7/sbt-1.10.7.tgz[0m
+2026-09-22T20:48:44.4665165Z [36;1msudo tar xzf /tmp/sbt.tgz -C /opt[0m
+2026-09-22T20:48:44.4665581Z [36;1mecho /opt/sbt/bin >> "$GITHUB_PATH"[0m
+2026-09-22T20:48:44.4697742Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:44.4697969Z env:
+2026-09-22T20:48:44.4698157Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:44.4698433Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.4698801Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:44.4699158Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.4699472Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.4699820Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:44.4700139Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:44.4700422Z ##[endgroup]
+2026-09-22T20:48:45.7053778Z ##[group]Run python3 scripts/ci_litex_env.py
+2026-09-22T20:48:45.7054108Z [36;1mpython3 scripts/ci_litex_env.py[0m
+2026-09-22T20:48:45.7054372Z [36;1mmkdir -p ~/vexii-netlist-args[0m
+2026-09-22T20:48:45.7054646Z [36;1mcp -n ~/vexii-netlist-args/*.py \[0m
+2026-09-22T20:48:45.7055015Z [36;1m  "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \[0m
+2026-09-22T20:48:45.7055388Z [36;1m  2>/dev/null || true[0m
+2026-09-22T20:48:45.7087462Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:45.7087707Z env:
+2026-09-22T20:48:45.7087893Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:45.7088166Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:45.7088526Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:45.7088878Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:45.7089194Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:45.7089547Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:45.7089870Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:45.7090148Z ##[endgroup]
+2026-09-22T20:48:45.8135996Z VexiiRiscv pin (read from LiteX): 235753e24f2d960e49a0852205bae1400bf22c19 on dev of https://github.com/SpinalHDL/VexiiRiscv.git
+2026-09-22T20:48:45.8137477Z target: /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv
+2026-09-22T20:48:45.8155321Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv'...
+2026-09-22T20:48:46.3906398Z HEAD is now at 235753e Merge pull request #143 from project-inochi/litex/isamap
+2026-09-22T20:48:46.4405650Z Submodule 'ext/NaxSoftware' (https://github.com/SpinalHDL/NaxSoftware.git) registered for path 'ext/NaxSoftware'
+2026-09-22T20:48:46.4409104Z Submodule 'ext/SpinalHDL' (https://github.com/SpinalHDL/SpinalHDL.git) registered for path 'ext/SpinalHDL'
+2026-09-22T20:48:46.4879766Z Submodule 'ext/riscv-isa-sim' (https://github.com/SpinalHDL/riscv-isa-sim.git) registered for path 'ext/riscv-isa-sim'
+2026-09-22T20:48:46.4883187Z Submodule 'ext/rvls' (https://github.com/SpinalHDL/rvls.git) registered for path 'ext/rvls'
+2026-09-22T20:48:46.4910632Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/NaxSoftware'...
+2026-09-22T20:48:46.7716222Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL'...
+2026-09-22T20:48:47.4638150Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/riscv-isa-sim'...
+2026-09-22T20:48:48.5326991Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/rvls'...
+2026-09-22T20:48:49.9758384Z Submodule path 'ext/NaxSoftware': checked out 'ae0c08016d0581b9ac79a4feb166e7a532369bd4'
+2026-09-22T20:48:50.6276925Z Submodule path 'ext/SpinalHDL': checked out '1097c1df52f6b4ac532e42ff35a9c610f8e9a07c'
+2026-09-22T20:48:50.6297196Z Submodule 'tester/src/test/python/cocotblib' (https://github.com/SpinalHDL/CocotbLib.git) registered for path 'ext/SpinalHDL/tester/src/test/python/cocotblib'
+2026-09-22T20:48:50.6324009Z Cloning into '/opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/tester/src/test/python/cocotblib'...
+2026-09-22T20:48:51.0225781Z Submodule path 'ext/SpinalHDL/tester/src/test/python/cocotblib': checked out 'a98830423924fc89bfebae84cb802fc90d352602'
+2026-09-22T20:48:51.8686618Z Submodule path 'ext/riscv-isa-sim': checked out '924941a37ba7e591a1e87542cc0466262f476a4e'
+2026-09-22T20:48:52.0333460Z Submodule path 'ext/rvls': checked out '94f850e5f7c9a36e5aceb3810d658fffae55b497'
+2026-09-22T20:48:52.0370149Z VexiiRiscv ready at 235753e24f2d960e49a0852205bae1400bf22c19
+2026-09-22T20:48:52.0824196Z ##[group]Run sw/litex/patches/apply.sh
+2026-09-22T20:48:52.0824683Z [36;1msw/litex/patches/apply.sh[0m
+2026-09-22T20:48:52.0870843Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:52.0871167Z env:
+2026-09-22T20:48:52.0871429Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:52.0871860Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.0872476Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:52.0873053Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.0873576Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.0874092Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.0874610Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:52.0875048Z ##[endgroup]
+2026-09-22T20:48:52.1990656Z [patches] 0002-liteeth-gmii-tx-clk-invert.patch -> /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages
+2026-09-22T20:48:52.2017589Z [patches]   applied.
+2026-09-22T20:48:52.2545485Z [patches] 0004-vexiiriscv-baremetal-variant.patch -> /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages
+2026-09-22T20:48:52.2577199Z [patches]   applied.
+2026-09-22T20:48:52.2818367Z [patches] 0005-vexiiriscv-cacheless-litex.patch -> /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages
+2026-09-22T20:48:52.2851891Z [patches]   applied.
+2026-09-22T20:48:52.2852186Z [patches] series applied (3 patches).
+2026-09-22T20:48:52.2882324Z ##[group]Run python3 sw/builder/test_builder.py --require-elaboration
+2026-09-22T20:48:52.2882787Z [36;1mpython3 sw/builder/test_builder.py --require-elaboration[0m
+2026-09-22T20:48:52.2914510Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:48:52.2914738Z env:
+2026-09-22T20:48:52.2914938Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:48:52.2915209Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.2915567Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:48:52.2915920Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.2916249Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.2916569Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:48:52.2916895Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:48:52.2917365Z ##[endgroup]
+2026-09-22T20:51:40.8960435Z test_all_configs_build:
+2026-09-22T20:51:40.8962999Z   [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+2026-09-22T20:51:40.8963775Z   [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+2026-09-22T20:51:40.8964395Z   [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+2026-09-22T20:51:40.8965019Z   [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+2026-09-22T20:51:40.8965685Z   [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+2026-09-22T20:51:40.8966226Z test_baremetal_profile_contract:
+2026-09-22T20:51:40.8966680Z   [gate 1b] 5 product configs and 11 refusal arms pass
+2026-09-22T20:51:40.8971361Z   [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS #408 AND #409 ADD ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- and so are the instrument-level acceptance and refusal measurements taken with them. WHAT GRADED THIS RUN is every text rule this gate has ever had, unchanged and in force: the conditional-reach ban, the token-joining splice ban, the paste/digraph/trigraph ban, the pointer-cast, pointer-store and inline-asm sets and the directory pin. NOTHING IS RETIRED ONTO THE INSTRUMENTS, here or on a machine that has them, so this run refuses exactly what dev refuses and a run with a compiler refuses more; the six edits #408 and #409 would retire are refused here as mutations, as they are everywhere
+2026-09-22T20:51:40.8975555Z   [gate 1b] SKIP: the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+2026-09-22T20:51:40.8976809Z   [gate 1b] SKIP: RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+2026-09-22T20:51:40.8986567Z   [gate 1b] TEXT RULES ONLY (no candidate here is the RV32 target, so the -E comparison, the -H measurement and the resolved store census stood down and the text refusals graded alone, which is exactly what dev refuses): bounded boot-contract model: the PHC CSR output, datapath binding and PHC-crossing consumer are direct, and comment-blanked CSR, MAC, PHC, both RXFILT_P-arm, shadow and TX-mux facts are direct in their inspected generate arms and free of comment, preprocessor and static-generate decoys; PHC/gPTP are live from reset TO THE ptp_csr_sync/ts_counter PORTS and independent of AEM, which is where this gate's measurement stops: a tie-off INSIDE those modules still elaborates and is milan_dp's to catch; the milan_reg()/milan_read()/milan_write() bodies pin address and value provenance, the firmware identity offset and magic equal RTL A_ID's address and default, and recognised whole-firmware milan_write() calls set PP_CTRL (CSR 0x920)[0] then ADP_CTRL (CSR 0x600)[0] only after the AEM verdict, censused by ADDRESS off the RTL decode table so a second #define is the same register. The source and compiled instruments run together; the source-only uncovered store class and the census stand-down consequence are named below; 135/135 non-RTL mutations rejected on the safety property they break; the structurally rejected RTL variants are excluded from this mutation count; RTL mutation elaboration STOOD DOWN for all 46 RTL variants because Verilator is unavailable on this runner; they remain reason-pinned structural rejections but are not claimed as elaborated mutation evidence here; the phase-2 splice mutants are reason-pinned but their compile proof is SKIPPED here because no RV32 compiler is available; (the MAKEFLAGS += -e entry is SKIPPED on this machine: its make does not honour -e from inside a makefile, so the construct does nothing to detect here) (26 entries are SKIPPED on this machine: they are the shapes ONLY the compiled census and the resolver catch, and both stood down for want of an RV32 compiler. To be precise, the census did not run for ANYTHING on this machine, the shipping firmware and every other mutant and accepted case included, so its whole contribution is absent and not just those entries) 4/4 equivalent reset spellings and 20/20 equivalent object-list spellings accepted; and 17/17 legitimate firmware edits and 4/4 legitimate Makefile edits accepted; all 6 RETIREMENT CANDIDATES of #408 and #409 were refused here as mutations, on every machine, each on its own text rule's sentence -- nothing is retired by this gate and no edit it used to refuse is legal now -- while the instrument-level acceptance and refusal measurements did NOT run here, for want of a compiler to ask; the accepted edits until this round were prose in a PR body and are now the only executable statement this gate has of what a legitimate edit IS; deterministic host-only and 64-bit-candidate stand-down execution/wording self-tests passed, the RV32 probe decided all three candidate shapes (already RV32, 64-bit with an rv32 multilib, 64-bit only) against a stub, and the census arch check accepted rv32 assembly, refused rv64 assembly and reported unattributed assembly as unstated; NOT measured on this run: no candidate here is the RV32 target, so there was no live invocation to re-probe at 64 bits and no census assembly to read an arch attribute out of; the reason pin refused a wrong `because`; the exempted-helper blindness control did NOT run here, because the census stood down, so on this runner those two mutants are refused by the cast set with that measurement absent
+2026-09-22T20:51:40.9000491Z   [gate 1b] ... and the text this reads is the text that runs, by TEXT RULES and by TOOLS together, because each has been measured to miss what the other holds. The text rules bound address formation: only milan_reg() may use the CSR base or a CSR pointer cast, the pointer-cast set, the pointer-store set and the inline-asm set are pinned, no conditional reaches the boot path or carries a definition, no backslash-newline joins two tokens and no ##, %: or ?? appears at all. Every one of those grades on EVERY machine, here as on dev. Beside them, and never instead of them (#408): NOT measured on this runner: the -E and -H instruments take the census's compiler, so its stand-down stands them down too, and the TEXT RULES THEY RUN BESIDE -- every one of which is in force on every machine -- are what graded this run. MAKE bounds what gets built: its whole -Bn plan is read, not the lines carrying a sentinel, so one source, one object, no link step, one added flag, and the same plan again under a hostile environment
+2026-09-22T20:51:40.9004614Z   [gate 1b] ... and the COMPILER is asked as well, as an ADDITION and not a replacement: no function but milan_reg() may materialise an address in the Milan CSR window (0x90000000..0x90010000) in the compiled output, which catches a typedef'd pointer, a register-access macro, a struct overlay and an -> store that no rule above recognises. It does NOT subsume the rules above: it exempts the address helper by name, it cannot see an address built with slli/ori, and it matches one asm spelling, all three measured. Those three are the RESOLVER's, which exempts nobody and resolves the value. This run: STOOD DOWN: cc compiler is not the RV32 target and no flag set here drives it as one, so the compiled census did not run and the text rules above carry this on their own
+2026-09-22T20:51:40.9011635Z   [gate 1b] ... and the resolving half (#153), which is what the boot contract is actually PROVED by: an RV32 abstract interpreter over that same emitted assembly computes the store addresses, the call operands, the compared values and the CFG edges, so (a) no function -- the address helper included, it is NOT exempt -- stores to a resolved address in the CSR window, which answers a paged base built with slli/ori that prints no window immediate, and EVERY OTHER STORE IS CLASSIFIED rather than filtered out: a stack address, one of this unit's own statics and the address helper's own return (which exactly one function may store through) are proved outside or accounted for, and anything else is refused unless the declared residual below names it; (b) the only resolved milan_write() asserting bit 0 of PP_CTRL or ADP_CTRL is inside entity_advertise(), taken from the emitted operands so a macro body or a preprocessor arm cannot move it out of view; (c) removing the edge entity_advertise() takes on a non-zero verdict removes every control-register write it reaches; and (d) the verifier's CRC is taken over MILAN_AEM_DESC_BASE for MILAN_AEM_IMAGE_BYTES, the compared value is tracked from the crc32() call that produced it, and removing the CRC-equality edge leaves every reachable return resolved to zero; and (e) the choke point is neither exported nor address-taken, this unit transfers control through no register at all, entity_advertise() is entered exactly once and only from milan_init(), and the value that edge hands it is tracked from the load_aem_image() call that produced it -- so the dominance in (c) is proved for the argument the firmware really passes and not only for a synthetic one. Verifier CFG reachability and CRC provenance are therefore MEASURED, not open. It resolves what the compiler emitted for THIS translation unit at the census's flags, and reports 'cannot say' as a REFUSAL wherever the property needs an answer. It did NOT run on this runner: it reads the assembly the census compiles, so the census's stand-down stands it down too
+2026-09-22T20:51:40.9018785Z   [gate 1b] ... plus the rules that are NOT parsing questions: the firmware's directive set and include resolution, the Makefile's include set (make can only plan fragments that exist), no preprocessor conditional reaching the boot path or carrying a definition and no token-joining backslash-newline, outside the QSPI-slot group whose BOTH arms the verifier's return rule classifies, no label/goto/switch in milan_init() or entity_advertise() and the three boot steps plus the unmodified CSR identity sample and check unconditional at its top level, one PP and one ADP enable inside the choke point and exactly one call to it carrying the verdict, no pointer to the verdict, and every non-zero return of the verifier placed after the CRC refusal by source position and preprocessor arm
+2026-09-22T20:51:40.9024892Z   [gate 1b] ... and the RTL integration facts, which are the checked part: o_ptp_enable is driven directly from PTP_CTRL[0]; the milan_csr instance binds it directly to cfg_ptp_enable and the ptp_csr_sync/ts_counter pair consumes that net with direct clocks, resets, PHC controls and readback; external MAC RX traverses the pre-filter tap, both RXFILT_P arms and the fabric-gPTP shadow directly; shadow TX/timestamp feedback, the control mux, MAC-boundary mux and external MAC TX handshake also have direct data, clock and reset connections. Comments and nested static generate arms cannot supply a decoy connection, and no directive at any column may select an inactive arm; none of those seams carries an AEM/ADP/PP gate; ADP_CTRL (CSR 0x600) and PP_CTRL (CSR 0x920) are each written from exactly ONE decode arm, each driving its enable port from bit 0, and each reset with that bit CLEAR, read over BOTH assignment operators so a blocking reset cannot pass by leaving the rule nothing to check
+2026-09-22T20:51:40.9044439Z   [gate 1b] COSTS, and NOT ONE of them is retired by this round: the 6 edits #408 and #409 would retire are refused here, on every machine, and are counted in the mutation tally above rather than in the accepted set. What this round adds is the measurement a later retirement lane needs, taken beside them. STILL RED, by the value-resolving census's text sets (#409): a fifth store through a pointer, a fifth cast to a pointer, a fifth inline-asm statement, and REORDERING two existing functions -- the cast and store sets are compared as ORDERED lists, so moving code with nothing added or removed is refused. STILL RED by the preprocessor rules (#408): a C backslash-newline that JOINS two tokens, an #ifdef reaching milan_init(), configure_fabric(), entity_advertise() or the three CSR accessors, and ##, %: or ?? anywhere in the file. STILL RED by the directory pin (#408): any new file in the firmware's directory, a README included. Also RED: an #ifdef carrying a #define/#undef/#include wherever it sits (the address model reads every definition as unconditional text, and no comparison of two texts answers that, so this one is a cost no instrument can buy back), a twelfth #include even of <string.h> -- a name that names no existing file cannot be RESOLVED at all, so the name pin is what refuses one -- any #pragma/#line/#error/#undef, a fourth Makefile include, an OBJECTS ?= (make says the environment can override it), any new CFLAGS token including -Os and -DFOO, an RTL reset hoisted to a named constant, an RTL enable port or write address respelled, and a SystemVerilog CSR or datapath directive other than that file's shipped includes and paired `default_nettype directives, moving a checked item into a nested or implicit conditional-generate arm, and a renamed boot-path function, which names the property instead of raising a bare ValueError. Two more, measured and previously undisclosed: renaming the verdict aem_loaded, and a read-only #define accessor that wraps milan_read() (remedy: add the name to the firmware's #define table so constant_value() can resolve it). And two ordinary refactors one step outside the accepted set: FACTORING the CSR accessors (a milan_set(offset, bits) helper is refused, because the census places writes by RESOLVED address and an `offset` parameter has none), and hoisting the enable mask to a named constant. Under the recipe-set pin, any change to the two commands make runs is refused too, a benign AR += v or CC += -Wall included: that is the price of a rule with no list of spellings to fall behind. Remedy for that one: add the changed command to expected_recipes and a mutation entry beside it. From the computed-name refusal (#162, the round before this one): a computed variable reference -- $($(X)), $(CFLAGS_$(VARIANT)) -- is RED anywhere in the Makefile, a never-run recipe included, where a plain undefined name like $(CTAGS) stays green there; the scan is textual and deliberately wider than the origin closure, because the NAME itself is deferred and modelling it is not possible. NEW THIS ROUND (#410), three refusals of the same width and the same kind of cost, each RED anywhere in the Makefile with a never-run recipe included: an $(eval ...) that is not a whole-line literal assignment, so a benign $(eval $(call tmpl,...)) or $(eval $(HOOK)) idiom is refused (remedy: write the assignment as $(eval NAME op VALUE) on a line of its own, or as a plain assignment line); a $(call ...) whose first argument names a make BUILT-IN -- $(call eval,...), $(call file,...), $(call shell,...), and a $(call subst,...) or $(call filter,...) written to map a built-in over a list -- because make dispatches it to that built-in and no scan for the built-in's own token can see it (remedy: spell the built-in directly, $(subst a,b,$(TEXT))); and a parsed $(eval NAME op VALUE) whose value reads a name this Makefile gives a multi-line value, because make parses the EXPANSION and such a value adds lines -- an `include` among them -- that the walker reads as one assignment (remedy: keep the newline idiom out of an eval's value). AND ONE MORE (#410, round-four review), the widest of them: an $(eval NAME op VALUE) whose assignment the walker cannot BIND is refused even though the shape reads as benign -- an eval in a define body or a recipe, whose value is bound where the define or the rule is reached and not where it is written, and a top-level eval whose value reads a positional parameter ($(1), ${1}, $1), a single-character $M, a computed name, an escaped $$ that the eval's own expansion turns into a live reference, or a value that ENDS in a bare $, which make carries into that expansion the same way, at any remove through this Makefile's own assignments. The COST is the widest too, and it is the point: a template that EVALs its argument is refused where the same template RETURNING that argument through $(call) stays green, because the call site's argument is text the closure walks and the eval's is not (remedy: return the value and assign it, `CFLAGS += $(call tmpl,$(NAME))`, or write the assignment at top level where its names are this file's to bind). AND ONE MORE (#410, the review of round ten's head), the narrowest of them and the companion of the computed name: a read whose LITERAL name is outside [A-Za-z_][A-Za-z0-9_]* is refused too -- $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), a $(NAME:sub) whose colon opens no substitution, $(MILAN-EXTRA), a $(call MILAN-TMPL) token and (the review of round eleven's head) a NAMED positional lookup such as $(value 1) or a $(call 1) token -- because make reads those names and that class is THIS GATE's vocabulary: it is the name format of the $(origin) request and of every assignment the closure records, so the walker cannot say where such a value came from. It is NOT a rule of make's assignment grammar, which ends a name at whitespace, #, an assignment operator or a : opening none, so MILAN-EXTRA = ready and NAME,x = ready are ordinary definitions make binds. The walker used to answer about the identifier the span starts with, which is a different variable, or to drop the read with no refusal at all. The COST is stated rather than argued away: a make-defined special such as $(.DEFAULT_GOAL), and every name make would let this file bind, are refused with the rest, while a PLAIN $(1) and $(@D) keep their recorded treatment (remedy: spell the read with the complete identifier, $(value NAME) or $(NAME), and give the variable a name in that vocabulary). RETIRED this round by the entity-advertise choke point and the resolver (#153), each with an accepted case measured GREEN instead of a claim: an extra statement between the two enables, an #ifdef in a UART command handler, and a multi-line #define. The refusals they replace are gone, not narrowed by exception: what carries them now is a measurement over resolved values
+2026-09-22T20:51:40.9061682Z   [gate 1b] ... and what the make plan DID give back, which survives this round: every Makefile variable and rule shape the old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is GREEN. Two refusals stay retired: a vpath cannot move this build's compiled file because vpath is consulted only for a prerequisite that does not exist and this one always does
+2026-09-22T20:51:40.9064810Z   [gate 1b] NOT PROVED on every supported runner: The compiled census and the resolver both stood down with the compiler they share, so the cast, store and asm SETS are the only rules that graded address formation here -- every one of them in force, exactly as on dev. What no ACTIVE rule reaches in this condition is what none of them ever reached: a cast with no * plus an -> or subscript store, and a store behind a brace-less `if`, which the store set is measured blind to (#495). So `((milan_adp_blk)0x90000600u)->ctrl = 1u;` creates a durable pre-AEM entity advertise and passes this gate, and so does a non-zero verdict reached past the CRC comparison, since the CFG measurement needs the same compile. Closing those two on the runners that grade a merge is what an RV32-capable compiler there would buy, and it is the precondition #408 and #409 retire behind. Closing the unconditional property remains tracked on #153 and #162
+2026-09-22T20:51:40.9072253Z   [gate 1b] ... and the second blind spot of that cause, CLOSED this round (#162): the recipe pin reads what make PRINTS, which is already expanded, so a name this Makefile references and nothing defines expands to nothing and the pinned commands come out identical. `CFLAGS += $(MILAN_EXTRA_CFLAGS)` used to pass here while MILAN_EXTRA_CFLAGS='-include ../shadow.h' in the environment added the include to the real compile, and the hostile double-run perturbs three fixed names so it measurably cannot see a deferral to a fourth. The origin probe answers it: every name reaching the pinned recipe chain -- the unexpanded $(value compile) plus the Makefile assignment closure of CFLAGS/OBJECTS/LIBMILAN_BAREMETAL_DIRECTORY/compile -- must report a make $(origin) that is neither 'undefined' nor 'environment', refused by name, and the deferral above is a mutation in the table. The scope is the caveat made executable: the accepted tags: case references $(CTAGS), undefined on this make, in a recipe the plan never runs, and it stays GREEN because recipe-only references are outside the closure. ROUND TWO (this PR's adversarial pass) measured two spellings walking past that closure to the real compile line and closed both, each a permanent mutation: a computed reference -- CFLAGS += $($(X)) -- defers the NAME itself and is REFUSED outright, since no origin enumeration can cover a name the environment picks; and a define body -- `define EXTRA` carrying $(MILAN_EXTRA_CFLAGS) -- now PARSES as the assignment it is, so its references are walked and probed like any RHS
+2026-09-22T20:51:40.9090261Z   [gate 1b] ... and outside what ANY recipe pin can reach, as EXAMPLES of the kind and not as a closed set: export CPATH and COMPILER_PATH, which GCC reads from the environment; SHELL, which changes what executes the printed command; .EXPORT_ALL_VARIABLES; $(shell ...), which runs at parse time during this gate's own plan run, before a recipe is printed; $(file >frag,TEXT), which writes at parse time the fragment a pinned -include then reads, so the deferred reference appears in no walked text (measured on this round's review); $(guile ...), which this make advertises in .FEATURES and which injects the same way through gmk-eval and gmk-expand. A variable name outside [A-Za-z_][A-Za-z0-9_]*, MILAN-EXTRA, was recorded here until the review of round ten's head and is RULED on now: make reads that name, this walker has no way to spell it in an $(origin) request or in its assignment closure -- though make itself would bind MILAN-EXTRA = ready -- and the read is refused by name. FOUR MORE, measured on round four's review and recorded the same way because each is a PLAIN reference or a computed parse rather than an eval this round rules on: an unbracketed $M on an ordinary right-hand side, which the braced reference readers never see; a conditional -- ifdef MILAN_SHADOW, or an $(if ...) in an assignment's own NAME -- where the environment decides WHETHER a literal flag is added rather than what a name's value is, which no $(origin) enumeration answers; a recipe prefix or prerequisite the file COMPUTES ($(MILAN_E)-built .RECIPEPREFIX, .SECONDEXPANSION behind $$), which moves the eval token out of every text reader here; and the one that needs no Makefile edit at all, an environment variable NAMED 1, which LiteX's own `define compile` reads as $(1) and this Makefile reaches through a plain $(compile), measured putting -include ../shadow.h on the compile line of the UNMODIFIED tree. Recorded rather than ruled against, because no pin over printed commands can see them. Two more, measured OPEN by the round-two adversarial pass, are CLOSED this round (#410), each a permanent mutation reproduced pre-fix at the real compile line: a $(call NAME)/$(value NAME) first argument is now READ as the name it is and walked into the closure, so the deferral hits the origin refusal, and a computed first argument, $(call $(X)), is refused as the computed name it is; a top-level $(eval ...) line is PARSED when its whole argument is a literal `NAME op VALUE` assignment on a line of its own, walked like any RHS, and REFUSED outright anywhere else -- an eval of a called template, of a plain reference, or nested in another expansion -- because make parses the EXPANSION, which no walk over the file can enumerate; the cost is the computed name's: such an eval is RED anywhere in the Makefile, a never-run recipe included. That claim was measured FALSE for one spelling by this round's review and is made true here rather than reworded: `call` DISPATCHES to a make built-in when its first argument names one, so $(call eval,TEXT) IS an eval that no scan for the $(eval token sees, and on a line of its own it reached the real compile line while this gate reported every mutation rejected and exited 0. Every built-in reached through $(call) is now REFUSED, in both bracket spellings, with any padding, and wherever it sits -- including the right-hand side the pinned closure never walks, which is where the escape was -- and $(call file,...) is a permanent mutation beside $(call eval,...). The DIRECT spellings above are not closed by that and stay recorded. The parsed shape's bound is narrower than it was written, too: it is that every literal reference in the eval's TEXT is walked, not that expansion cannot change the shape -- a value expanding to a NEWLINE adds a line, an `include` among them, so an eval whose value reads a name this Makefile gives a multi-line value is refused as well, which is what keeps the include-set pin exact against evals. The accepted cases, a $(call) of a define the Makefile carries and an $(eval) of a literal assignment, are measured GREEN in the accepted-Makefile loop. ROUND FOUR's review measured the OTHER half of that dichotomy open, and it is closed here the same way -- by what the construct REACHES, not by its spelling. `Parsed` was doing work `refused outright` had to do: an eval read as a benign `NAME op VALUE` can still assign a value this file does not fix. A define body's eval is expanded where the define is REACHED, so $(1)..$(9) are that $(call)'s arguments -- `$(eval CFLAGS += $(1))` under `$(call TMPL,$(MILAN_EXTRA_CFLAGS))` put -include ../shadow.h on the real compile line with the name merely exported while this gate exited 0 -- and a $(foreach) or $(let) over that call REBINDS even a name the Makefile pins and the origin probe reports `file` for, while an $(if) or a conditional prerequisite decides from the environment whether a literal eval runs at all. So an eval is walked ONLY at global scope, and only when every name its value reads is one this file binds: never a positional parameter in any bracket or position, never an unbracketed $M, never a computed name, never an escaped $$ the eval's expansion makes live, and none of them at any remove through this Makefile's assignments. Nineteen permanent mutations pin it, the review's own plant among them, each reproduced pre-fix at the real compile line. What is NOT closed and is recorded instead: a recipe prefix or a prerequisite the file COMPUTES rather than writes (a $(MILAN_E)-built .RECIPEPREFIX, a .SECONDEXPANSION prerequisite behind $$), which hides the eval token from every text reader here, and the plain non-eval channels below
+2026-09-22T20:51:40.9110814Z   [gate 1b] ... and the SCOPE that sentence rests on is now read the way make PARSES a file rather than one line at a time, which its round-four review measured wrong in both directions: 64 pure-parser controls hold over the eval SCOPE reader, which is what the refusal above rests on, 19 more hold the define reader to the same body, 15 hold make's assignment-before-directive precedence from the binding side, 9 hold the rule reader to the same directive TOKEN the scope reader uses and 6 pin where a `#` is cut at all: a recipe-prefixed `endef` is define BODY text and does not end the body (that eval used to read `global` and be walked), a recipe-prefixed `define` in a rule context is recipe text and opens no body (a real global eval used to read `define` and be refused), a bare `define` token nests inside a body and a modifier before one does not (the same two directions, at the delimiter make spells differently from the opener), `endef#literal` and `define#literal` are body TEXT while a blank-separated `endef #done` still closes the body (the same two directions again, from cutting every `#` before the body was read at all), an ordinary assignment named `define` binds a variable and opens no body while the same spelling inside a body nests -- in every one of make's seven assignment operators, `:::=` included -- a literal target named `ifdef:`, `define:` or `include-labels:` opens a rule whose next line is a RECIPE while a genuine conditional or include opens none (that recipe eval used to read `global` and be walked), a directive keyword ends at make's whole whitespace class and a body delimiter at its BLANK pair -- `ifdef<VT>LABEL` and `ifeq<FF>(x,x)` are genuine conditionals that leave a pending recipe open, while `endef<VT>done` and `define<FF>inner` are body TEXT that delimits nothing (the recipe eval of the first pair used to read `global` and be walked, and one class for both stages would move that miss to the second pair), the run make CONSUMES is that same wide class at every reader that consumes one -- `define<VT>helper` opens a body, and so does `<VT>define helper`, while `<VT>define inner` nests one and `<VT>ifeq` leaves a pending recipe open (all four used to read `global` and be walked) -- the assignment precedence still decides the opener, so `define<VT>= ready` and `define<VT>MILAN_TMPL =` are assignments to the names those bytes form while `define MILAN_TMPL <VT>=` is a real opener, a built-in's NAME ends at that wide class too so `$(eval<VT>...)`, `$(call<VT>NAME,...)` and `$(value<FF>NAME)` are the hook and the reads their blank-separated spellings are -- and a value ending in a bare `$` is refused by name instead of raising IndexError out of the diagnostic reader. Each is a CLASSIFICATION result; where a row expects no refusal it also says whether make reads that text as a makefile at all, so a clear scan is never read as make accepting a file
+2026-09-22T20:51:40.9124389Z   [gate 1b] ... and the ARGUMENT each of those functions names is read by that function's own rule rather than by one shared with the others, which the review of round nine's head measured wrong in the missing direction at two more positions: 89 more pure-parser controls hold the call/value ARGUMENT readers to make's own, over the whole path a name travels: the closure that puts it to $(origin) and all six pre-plan refusals. A first argument ends where make ends a TOKEN, so `$(call HELPER<VT>,ready)` and `$(call HELPER junk,ready)` read HELPER and `$(call eval<VT>,TEXT)` is the built-in it dispatches to (the closure held neither name and the refusal was absent for both); the run BEFORE a computed argument is consumed the same way, so `$(call<VT> $(PICK))` is the computed name `$(call $(PICK))` is and is refused rather than read as a reference to a name ending in that byte. `value` does NOT read its argument that way -- it looks the whole argument up -- so `$(value NAME<VT>)` names the variable those bytes spell, which this walker cannot put to $(origin) and therefore refuses by name, while `$(call NAME<VT>)` calls NAME and is covered; the rows carry both against each other. A plain `$(NAME)` ends at its close bracket, so `$(callable)` is an ordinary read and `$(FOO<VT>$(X))` is still a computed name. The same rows now also hold the two boundaries the review of round eleven's head measured: a NAMED positional lookup, `$(value 1)` or a `$(call 1)` token, is refused by that name rather than skipped as make's own, because `value` makes no argument scope and `call` reads its target before it pushes one, while a PLAIN `$(1)` in a called define body and a recipe's `$@` keep their recorded treatment; and a substitution reference is read from the COMPLETE reference, so `$(MILAN_EXTRA:$(PAT)=.d)` and its brace and mixed spellings keep MILAN_EXTRA in the closure and raise no refusal, while a colon whose `=` only an expansion could supply and a name that itself expands stay computed-name refusals. The rows added for the review of round twelve's head hold WHICH `=` makes a substitution: make looks for it in the text it has already expanded, so one a nested substitution, a nested function or make's one-character `$=` reference CONSUMES is not a separator -- `$(MILAN_EXTRA:$(PAT:.o=.d))`, `$(MILAN_EXTRA:$(subst =,,x))`, `$(MILAN_EXTRA:$(PAT)$(if ,=,x))` and `$(MILAN_EXTRA:$=)` are the computed names they are rather than answers about MILAN_EXTRA, which make does not read there. A separator OUTSIDE the nesting does survive it and an escaped `$$` consumes nothing, so `$(MILAN_EXTRA:$(PAT:.o=.d)=.x)`, `$(MILAN_EXTRA:$(PAT)$(subst =,,x)=.d)` and `$(MILAN_EXTRA:$$=.d)` keep their literal name and raise no refusal, and a surviving separator in front of a name this walker cannot spell still reaches that name's own refusal
+2026-09-22T20:52:06.6196734Z   [gate 1b] ... and WHICH NAME each of those reads is, is now one reader's answer rather than three patterns', which the review of round ten's head measured disagreeing: make looks a plain reference up by its COMPLETE span and a $(value ...) by its WHOLE argument, commas included, while $(call ...) takes the TOKEN it cuts out -- so $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), $(NAME:sub) and $(MILAN-EXTRA) name variables this walker cannot spell and are REFUSED by name instead of being answered about the identifier they start with or dropped without a refusal, and a later expansion inside any of those spans -- $(value NAME,$(PICK)), $(value NAME $(PICK)), $(NAME $(PICK)), $(NAME,$(PICK)) -- reaches the computed-name refusal it always belonged to. The eval binder asks the same reader, so an eval reading one of them is no longer classified bindable on the strength of the identifier prefix. The complete reads stay COVERED -- $(value NAME), $(NAME), $(NAME:.o=.d) and the $(call NAME,...) token -- and a PLAIN $(1) and $(@D) keep their recorded treatment, bound by the call site this closure walks or per rule by make. TWO BOUNDARIES of that reader were wrong and are corrected (#410, the review of round eleven's head): those same bytes as a $(value ...) argument or a $(call ...) token are a NAMED lookup of a variable nothing here binds -- value makes no argument scope and call reads its target before it pushes one -- so $(value 1), $(call 1) and $(value @D) are refused by name instead of inheriting the plain reference's exemption and leaving the closure with no entry and no refusal; and a SUBSTITUTION reference is read from the complete reference make counts out, so $(NAME:$(PAT)=.d), its brace and mixed spellings and $(NAME:$(PAT)=$(REP)) keep NAME in the closure and raise no refusal, where ending the span at the first close bracket hid the `=` and refused a supported idiom as a computed name. A colon whose `=` only an expansion could supply, and a name that itself expands, stay computed-name refusals. WHICH `=` makes that reference a substitution is the boundary corrected next (#410, the review of round twelve's head): make looks for the separator in the text it has ALREADY expanded, so an `=` a nested substitution or function takes with it, or the one make's one-character $= reference reads a variable by, is not one. $(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), $(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) were answered about NAME while make reads NAME:.d, NAME:x, NAME:.ox and NAME: -- a different variable, covered by no origin request and refused by nothing on a right-hand side -- and are the computed names they are. The eval binder parts the same spellings rather than grouping them: the first three it classified bindable on that identifier, directly and one assignment away, and now refuses by the reference each reads, while the $= one it already refused, for the sibling $= read, and that standing refusal now names the enclosing reference instead. A separator OUTSIDE the nesting survives it and an escaped $$ consumes nothing, so $(NAME:$(PAT:.o=.d)=.x), $(NAME:$(PAT)$(subst =,,x)=.d) and $(NAME:$$=.d) stay covered reads of NAME. 25 pure-parser controls hold the eval binder to that same reader, over the closure and its own verdict: an eval reading $(value NAME,x), $(value NAME<SP>), $(NAME<SP>), $(NAME,x), $(NAME junk), $(value 1), $(call 1), a colon whose `=` only an expansion could supply or one whose `=` an expansion CONSUMES -- $(NAME:$(PAT:.o=.d)), $(NAME:$(subst =,,x)), $(NAME:$(PAT)$(subst =,,x)) and $(NAME:$=) -- directly or one assignment away, is REFUSED by the reference it reads, while an eval reading the complete $(value NAME), $(NAME), a $(call NAME) token, a read behind $(strip ...), a substitution whose PATTERN is a nested reference or one whose separator SURVIVES the nesting, $(NAME:$(PAT:.o=.d)=.x) and $(NAME:$(PAT)$(subst =,,x)=.d), stays bindable and puts both names in the closure, so the correction cannot be met by refusing every eval
+2026-09-22T20:52:06.6215625Z   [gate 1b] NOT proved here: the values the build's -D set and the generated headers supply (image bytes, CRC, entity ids - gate 28 owns those), that crc32() is a CRC, and anything about an interrupt vector, which is REFUSED by the no-label check rather than modelled
+2026-09-22T20:52:06.6219907Z   [gate 1b] TRUSTED, not proved: the census compiles against STUB headers whose every address is asserted outside the CSR window, and the make plan runs against a STUB LiteX environment whose values are sentinels, so both bound what THIS repository's firmware and Makefile add, not what LiteX supplies. Resolution is pinned for all 12 include names by the NAME set and the directory beside the firmware; the -H measurement of which FILE each name reached did NOT run here, for want of a compiler to ask; the CONTENT behind each resolved name is trusted, and of those <generated/csr.h>, <generated/mem.h>, <generated/soc.h> are written by this repository's own builder
+2026-09-22T20:52:06.6225846Z   [gate 1b] CLOSED this round (#153), and each measured as a mutation rather than argued: the source rule tying the comparison to a real CRC is still an EXISTENCE test and still proves nothing, but the resolver now answers all four shapes it left open -- a constant assigned to the compared local between the crc32() call and the comparison, a CRC over the QSPI source instead of MILAN_AEM_DESC_BASE, a `goto` past the comparison to the non-zero return, and the structured do/break bypass that showed banning `goto` was not a proof. What REMAINS joint with #162 is the Makefile half: a second translation unit is a second place a CSR store can live, and no instrument here reads it
+2026-09-22T20:52:06.6230168Z   [gate 1b] shipping AX: fabric gPTP option on with config-derived 1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache args, retired audio-ring surfaces or host clusters; deploy keeps the plane option on
+2026-09-22T20:52:06.6231830Z   [gate 1b] gPTP ROM changes with each YAML-owned input: station MAC, priority1 and fabric clock
+2026-09-22T20:52:06.6232883Z   [gate 1b] the 7 engine-pinned gptp fields REFUSE a divergent config value, naming field, both values and gen_gptp_ucode.py as the authority
+2026-09-22T20:52:06.6234030Z   [gate 1b] 8/8 incompatible CPU/cache/flash profiles rejected before SoC generation
+2026-09-22T20:52:06.6234628Z test_gptp_product_default_and_legacy_option:
+2026-09-22T20:52:06.6235115Z   [gate 1c] fabric ownership is the only product configuration
+2026-09-22T20:52:06.6235586Z test_gptp_launch_observer_seam:
+2026-09-22T20:52:06.6236672Z   [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+2026-09-22T20:52:06.6238058Z test_qspi_owner_transition_completed_write_prefixes:
+2026-09-22T20:52:06.6240734Z   [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O
+2026-09-22T20:52:06.6243367Z test_gptp_plane_reaches_the_instance:
+2026-09-22T20:52:06.6244687Z   [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+2026-09-22T20:52:06.6246026Z test_gptp_plane_instance_gate_bites:
+2026-09-22T20:52:06.6246613Z   [gate 1e mutation] 6/6 owner-carrier cuts rejected
+2026-09-22T20:52:06.6247152Z test_current_shape_matches_sweep_flags:
+2026-09-22T20:52:06.6247623Z   [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+2026-09-22T20:52:06.6248335Z   [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+2026-09-22T20:52:06.6248977Z test_current_shape_matches_gen_aem_store:
+2026-09-22T20:52:06.6249648Z   [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+2026-09-22T20:52:06.6250284Z test_capability_marks:
+2026-09-22T20:52:06.6250847Z   [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+2026-09-22T20:52:06.6251709Z   [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+2026-09-22T20:52:06.6252599Z   [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+2026-09-22T20:52:06.6253487Z   [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+2026-09-22T20:52:06.6254675Z   [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+2026-09-22T20:52:06.6255535Z test_bad_configs_rejected:
+2026-09-22T20:52:06.6255929Z   [gate 5] 7/7 invalid configs rejected with ConfigError
+2026-09-22T20:52:06.6256374Z test_port_layout_invariants:
+2026-09-22T20:52:06.6256868Z   [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+2026-09-22T20:52:06.6257656Z   [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+2026-09-22T20:52:06.6258291Z   [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+2026-09-22T20:52:06.6258803Z test_both_policies_valid:
+2026-09-22T20:52:06.6259175Z   [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+2026-09-22T20:52:06.6259699Z   [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+2026-09-22T20:52:06.6260353Z   [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+2026-09-22T20:52:06.6261089Z   [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+2026-09-22T20:52:06.6261616Z test_model_id_hashing:
+2026-09-22T20:52:06.6262645Z   [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000005
+2026-09-22T20:52:06.6263599Z test_sweep_opts_fragments:
+2026-09-22T20:52:06.6264085Z   [gate 9] arty: generated OPTS/L2 byte-match sweep.sh inline table (322 chars)
+2026-09-22T20:52:06.6264777Z   [gate 9] ax7101: generated OPTS/L2 byte-match sweep.sh inline table (470 chars)
+2026-09-22T20:52:06.6265344Z   [gate 9] sh -n clean: sweep.sh + both fragments
+2026-09-22T20:52:06.6265762Z test_gen_aem_store_consumes_overlay:
+2026-09-22T20:52:06.6266821Z   [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (40979 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+2026-09-22T20:52:06.6268185Z   [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+2026-09-22T20:52:06.6268721Z test_resource_calibration:
+2026-09-22T20:52:06.6269763Z   [gate 11] SKIP: real report not on disk (/home/runner/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+2026-09-22T20:52:06.6270834Z test_resource_determinism:
+2026-09-22T20:52:06.6271252Z   [gate 12] resource estimate + plan deterministic across builds
+2026-09-22T20:52:06.6271716Z test_resource_verdicts:
+2026-09-22T20:52:06.6272203Z   [gate 13] arty_4x4: verdict OVER (worst LUT 84.9%, fits the part, shared-engine rows)
+2026-09-22T20:52:06.6272939Z   [gate 13] ax7101_8x8: verdict OVER (worst LUT 85.4%, fits the part, shared-engine rows)
+2026-09-22T20:52:06.6273908Z   [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current verdict OVER (worst LUT 81.7%), no upper-bound rows
+2026-09-22T20:52:06.6274579Z test_milan_723_crf_output_rule:
+2026-09-22T20:52:06.6275458Z   [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes rejected without crf_output (error cites 7.2.3); optional at 1 listener, format defaults to 0x041060010000BB80
+2026-09-22T20:52:06.6276388Z test_crf_output_overlay_structure:
+2026-09-22T20:52:06.6277221Z   [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+2026-09-22T20:52:06.6278303Z   [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+2026-09-22T20:52:06.6279142Z   [gate 15] arty_current: no CRF output (deployed shape untouched)
+2026-09-22T20:52:06.6279626Z test_gen_aem_store_crf_output_overlay:
+2026-09-22T20:52:06.6280546Z   [gate 16] all 10 STREAM_INPUT/OUTPUT descriptors are 1722.1-2021 Table 7-8: formats_offset 138, redundant_offset 138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear
+2026-09-22T20:52:06.6282075Z   [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM 6249 B structurally valid; STREAM_OUTPUT[4] = CRF (domain 0, flags 0x0003, 0x041060010000BB80), CONFIGURATION count 5, 4 output ports
+2026-09-22T20:52:06.6283560Z   [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + 5-in/5-out reference + WB-addr arrays match the directory (CRF flags/formats in the right rows)
+2026-09-22T20:52:06.6284440Z test_clock_sources_follow_the_fabric:
+2026-09-22T20:52:06.6285897Z   [gate 33] 5/5 configs advertise INTERNAL + CRF only (overlay, header and model shape agree); input_stream refused by the config loader AND by spec_from_overlay (CLI included), crf-without-a-sink refused by the loader with internal-only accepted beside it, and the overlay arm bites
+2026-09-22T20:52:06.6287457Z test_dynamic_map_topology_reaches_shape_header:
+2026-09-22T20:52:06.6288177Z   [gate 16c] dynamic-map input keys, physical projections and output CSRC tables match both AX7101 entity models
+2026-09-22T20:52:30.3951641Z test_shipping_channel_map_table:
+2026-09-22T20:52:30.3952475Z   [gate 16d] 8 published channel-map rows match the generated shape header, the AEM overlay, the 2-based TDM lane table and the platform pin (J11.5, ball A20); a wrong key and a dropped row both refused
+2026-09-22T20:52:30.3953374Z test_dynamic_audio_map_overlay:
+2026-09-22T20:52:30.3953933Z   [gate 17] dynamic audio map: listeners[0] map_mode dynamic -> port n_maps=0, input AUDIO_MAP dropped (output renumbered to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=[2]
+2026-09-22T20:52:30.3954801Z   [gate 17] tracked entity definition is owned by endstation_ax7101_1x1_tdm8 (read from its own `Source : marker); it declares a dynamic port, so its svh must be `AEM_DYNMAP-bearing - and is
+2026-09-22T20:52:30.3955518Z   [gate 17] a Milan input owner requires `AEM_DYNMAP PRESENT and the candidate pair carries it
+2026-09-22T20:52:30.3955985Z   [gate 17] MUTATION rejected: owner declares a dynamic port, tracked ROM has no engine
+2026-09-22T20:52:30.3956510Z             (/tmp/tmphux7llkx/broken.svh: `AEM_DYNMAP absent but its owner tmpe5jp4flu (/tmp/tmpe5jp4flu.yaml) de)
+2026-09-22T20:52:30.3956992Z   [gate 17] MUTATION rejected: shape include names a config that does not exist
+2026-09-22T20:52:30.3957601Z             (/tmp/tmphux7llkx/current/adp_shape_defaults.svh: `Source : configs/endstation_ghost.yaml` names no c)
+2026-09-22T20:52:30.3958243Z   [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): 4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases 0/4/8/12, CRF sink flagged unmappable
+2026-09-22T20:52:30.3959174Z   [gate 17c] AEM_DMAP_PHYS_C 10 == milan_datapath CHMAP_PHYS_C 10 = lanes {'i2s': (0, 2), 'tdm': (2, 8)}, mirrored by endstation_builder and aem_assemble; RPHYS validity and full-width physical-depth gates protect both render-map write arms
+2026-09-22T20:52:30.3960025Z   [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28
+2026-09-22T20:52:30.3961056Z   [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), reserved source 3 absent (#259), loopback templates emitted fabric-disabled (13'h05xx) and protocol-mappable
+2026-09-22T20:52:30.3961789Z   [gate 17e] lane ON: loopback valid (13'h1500), primary_role/INIT move onto it (6'h21..6'h28) - declaring the lane hands the pool back
+2026-09-22T20:52:30.3962532Z   [gate 17f] dynamic legacy-policy output: explicit physical/virtual source pool accepted; missing/empty topology refused by descriptor, model, and ADP consumers
+2026-09-22T20:52:30.3963306Z   [gate 17] reject paths: static input, disagreeing input pages, mixed output map modes, and missing dynamic-output source topology raise ConfigError
+2026-09-22T20:52:30.3963788Z test_lwsrp_reset_words_match_rtl:
+2026-09-22T20:52:30.3964394Z   [gate 18a] arty_current lwSRP reset words == the generated lwsrp_csr_defaults.svh == the symbols milan_csr's reset block and csr_default table use == the REGISTER_MAP Reset column (6 registers, 6 offsets)
+2026-09-22T20:52:30.3964999Z test_lwsrp_class_constants_match_rtl:
+2026-09-22T20:52:30.3965555Z   [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row and an unclamped 4ch AAF row both compose to the clause's kb/s, and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)
+2026-09-22T20:52:30.3966556Z   [gate 18b] PriorityAndRank == the generated symbol milan_csr drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference lwsrp_table.svh still carries the words the CSR subset was cut from, and no hdl/ieee8021q/srp tree was recreated
+2026-09-22T20:52:30.3967326Z test_lwsrp_tspec_and_params:
+2026-09-22T20:52:30.3967722Z   [gate 18c] arty_current: TSpec derived, 7360000 bps = 7.36% of the port (ceiling 75%), ctx rows 2 needed / 2 available
+2026-09-22T20:52:30.3968260Z   [gate 18c] arty_4x4: TSpec derived, 47360000 bps = 47.36% of the port (ceiling 75%), ctx rows 9 needed / 9 available
+2026-09-22T20:52:30.3968790Z   [gate 18c] ax7101_8x8: TSpec derived, 138240000 bps = 13.82% of the port (ceiling 75%), ctx rows 17 needed / 17 available
+2026-09-22T20:52:30.3969315Z   [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) contexts) marked planned; 1x1 supported
+2026-09-22T20:52:30.3969657Z test_lwsrp_rejects:
+2026-09-22T20:52:30.3970157Z   [gate 18d] 7/7 contradictory reservations rejected with ConfigError (incl. a 213 Mb/s class-A request on a 100 Mb/s port)
+2026-09-22T20:52:30.3970597Z test_platform_gateware_shape:
+2026-09-22T20:52:30.3971005Z   [gate 19] 5 gateware memory reservations contain only pp_mem; unknown/retired/unaligned inputs are refused
+2026-09-22T20:52:30.3971399Z test_csr_defaults_header_consumed:
+2026-09-22T20:52:30.3972259Z   [gate 20a] milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh; 6 reset words + PriorityAndRank == the FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: 0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals left in the RTL, 7 constants agree with the emitted lwSRP table, 4 consumers carry the include dir
+2026-09-22T20:52:30.3973090Z test_csr_defaults_rejects:
+2026-09-22T20:52:30.3973444Z   [gate 20b] 3/3 malformed LWSRP_CTRL sources rejected with ConfigError; en+talker+q4 emits 0x00000013
+2026-09-22T20:52:30.3973817Z test_aes3_interface_switch:
+2026-09-22T20:52:30.3974483Z   [gate 21a] 6 aes3/spdif shapes: one core, CONSUMER_P picks the dialect, WORD_BITS_P 16/20/24, serial clock 128x4x rate = an exact PLL divide; RTL defaults (OVERSAMPLE_P=4, LOCK_BLOCKS_P=2, 192 frames/block) parsed from the modules themselves
+2026-09-22T20:52:30.3975139Z test_aes3_rejects:
+2026-09-22T20:52:30.3975543Z   [gate 21b] 3/3 unclockable AES3 shapes rejected with ConfigError; 48 kHz AES3 rides the shipping 24.576 MHz audio PLL exactly (divide 1)
+2026-09-22T20:52:30.3975993Z test_cbs_reset_table_single_source:
+2026-09-22T20:52:30.3976734Z   [gate 22] CBS reset table single-sourced: 5 queues, sum(IDLE_SLOPE_1G) = 725 Mb/s (72.5 % <= 75 %), SR A+B = 600 Mb/s; milan_csr CBS_*_RST == the package (credits re-derived, not copied), CBS_EN_RST = 5'b00000, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree row for row
+2026-09-22T20:52:30.3977937Z test_optional_blocks_default_present:
+2026-09-22T20:52:30.3978703Z   [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+2026-09-22T20:52:30.3979442Z test_optional_block_gates_bite:
+2026-09-22T20:52:30.3979933Z   [gate 23b] 8/8 contradictory prune configs REFUSED with ConfigError; 4/4 honest prunes accepted and their --no-* flags reach the soc argv
+2026-09-22T20:52:30.3980414Z test_optional_block_prune_accounting:
+2026-09-22T20:52:30.3981010Z   [gate 23c] all-pruned ax7101_8x8: estimate -4595 LUT / -11097 FF (banked rows -4207 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+2026-09-22T20:52:30.3981582Z test_optional_block_names_reach_the_rtl:
+2026-09-22T20:52:30.3983942Z   [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+2026-09-22T20:52:30.3986750Z   [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+2026-09-22T20:52:30.3987697Z test_optional_block_consumption_gate_bites:
+2026-09-22T20:52:30.3988271Z   [gate 23d mutation] 7/7 disconnected --no-* handoffs rejected by block name
+2026-09-22T20:52:30.3988983Z   [gate 23d mutation] 6/6 dedicated keywords MilanSoC.__init__ never declares rejected by block name (LiteX warns and ignores; the bitstream ships unpruned)
+2026-09-22T20:52:30.3990113Z   [gate 23d chain] 10/10 cut links between main() and `dp_params[f"p_{param}"] = 0` rejected, the three that would prune an UNFLAGGED build included
+2026-09-22T20:52:30.3990818Z test_optional_blocks_reach_the_instance:
+2026-09-22T20:52:30.3992659Z   [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 6 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (16 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+2026-09-22T20:52:30.3993983Z test_optional_block_instance_gate_bites:
+2026-09-22T20:52:56.6844490Z   [gate 23f mutation] 8/8 broken links of the argv -> Instance chain rejected in 12 s: a dropped CLI handoff, two dropped constructor keywords, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, and both prune polarities inverted; gate 1e separately owns the profile-aware gPTP chain
+2026-09-22T20:52:56.6846145Z test_clock_plan_reaches_the_instance:
+2026-09-22T20:52:56.6848159Z   [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 3 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+2026-09-22T20:52:56.6849870Z test_clock_plan_instance_gate_bites:
+2026-09-22T20:52:56.6850815Z   [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 10 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+2026-09-22T20:52:56.6851720Z test_every_recipe_elaborates:
+2026-09-22T20:52:56.6852645Z   [gate 23g] 5/5 shipped recipes reach Instance("milan_datapath") in 4 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+2026-09-22T20:52:56.6853536Z test_recipe_smoke_gate_bites:
+2026-09-22T20:52:56.6854006Z   [gate 23g mutation] 2/2 recipes stripped of --entity-gen-dir refused to elaborate, which is #156 item 1 replayed on the recipes that shipped it
+2026-09-22T20:52:56.6854503Z test_recipe_skip_classifier_bites:
+2026-09-22T20:52:56.6855385Z   [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+2026-09-22T20:52:56.6856276Z test_build_sh_argv_follows_the_config:
+2026-09-22T20:52:56.6856967Z   [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 34 with build.sh unedited; the other 26 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+2026-09-22T20:52:56.6857816Z test_build_sh_grades_its_own_bindings:
+2026-09-22T20:52:56.6858201Z   [gate 23i-b] 3 build.sh recipes keep their own bindings with BUILD_CFG=endstation_ax7101_8x8.yaml exported
+2026-09-22T20:52:56.6858597Z test_build_sh_dry_run_leaves_the_tracked_tree:
+2026-09-22T20:52:56.6859343Z   [gate 23j] a dry run whose builder run would rewrite lwsrp_csr_defaults.svh exited 2 with no launch line, left the tracked bytes as it found them and left no configs/generated/gate23j_planted behind
+2026-09-22T20:52:56.6859964Z test_build_sh_refuses_a_preservation_it_cannot_complete:
+2026-09-22T20:52:56.6861348Z   [gate 23k] over lwsrp_csr_defaults.svh: a refused temporary directory, a copy that failed, one short and loud, one short and silent, the first as a real launch, a failed put-back, one short and reporting success, and an absent file each refused with no launch line, no provenance line, the bytes on disk untouched or named with the copy kept for them, and no include directory left behind; and over adp_shape_defaults.svh the bound config's own absent include refused the same way, with its artefact not rewritten
+2026-09-22T20:52:56.6862664Z test_toolchain_patches_are_applied:
+2026-09-22T20:52:56.6864081Z   [gate 23h] the 3 patches in sw/litex/patches are the 3 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 3 installed files byte for byte, including 0 that two patches share and must therefore compose on ({}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+2026-09-22T20:52:56.6865457Z test_toolchain_patch_gate_bites:
+2026-09-22T20:52:56.6866332Z   [gate 23h mutation] 3/3 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 3 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+2026-09-22T20:52:56.6867483Z test_tdm_master_binding_reaches_the_pins:
+2026-09-22T20:52:56.6868128Z   [gate 24] TDM master L1 binding: 2 parameters name-matched into milan_datapath, KL_tdm_capture_master instantiated on clk_tdm_i, 5 signals RTL-port -> SoC -> AX7101 J11 ball, collision-free, loose-requested
+2026-09-22T20:52:56.6868740Z test_tdm_master_binding_gate_bites:
+2026-09-22T20:52:56.6869236Z   [gate 24b] 7/7 binding mutations REJECTED (name mismatch, wrong clock, slave-instead-of-master, unbound pad, unrouted pin, default-on, strict request)
+2026-09-22T20:52:56.6869736Z test_front_end_routing_per_board:
+2026-09-22T20:52:56.6870537Z   [gate 24c] per-board front-end routing: tdm routed {'arty': True, 'ax7101': True}; 3 configs checked at BOTH tdm_bus_wired() states; the refusal runs before the platform is built; o_i2s_mclk_o binds only to i2s_pads[0] (pmoda:4 D13) or tdm_pads; Arty pad record re-derived from litex_boards
+2026-09-22T20:52:56.6871321Z test_front_end_routing_gate_bites:
+2026-09-22T20:52:57.0456610Z   [gate 24d] 9/9 routing mutations REJECTED (arty tdm8/16/32 re-declared, i2s_mclk off the Pmod, refusal deleted / mis-keyed / late / undefended, a routed header losing its pins, a kind added on one side only, and the argv itself selecting TDM for the Arty in BOTH tree states)
+2026-09-22T20:52:57.0457670Z test_i2s_pair_blend_binding:
+2026-09-22T20:52:57.0917259Z   [gate 24e] 8.3b blend: 6 bindings held; arty_4x4 supplies 5 pairs (I2S at slot 0), AX7101 stays solo
+2026-09-22T20:52:57.0917681Z test_i2s_pair_blend_gate_bites:
+2026-09-22T20:52:57.0990285Z   [gate 24e-b] 6/6 blend-binding mutations REJECTED
+2026-09-22T20:52:57.0990748Z test_firmware_version_derived_from_rtl:
+2026-09-22T20:52:57.3542833Z   [gate 24] firmware_version DERIVED from milan_csr VERSION 0x0002_0060 -> '2.96.0': 3/3 configs derive it and declare none, it lands zero-padded at ENTITY+116 in all 3 ROMs (1722.1 7.2.1 Table 7-2), no entity_model_id moves with it (6.2.2.8 exclusion; arty_current still pinned 0x001BC50AC1000005), firmware_rev 7 -> 2.96.7 with the same id, 4/4 bad declarations refused
+2026-09-22T20:52:57.3543949Z test_d8_role_pools:
+2026-09-22T20:52:57.5115658Z   [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+2026-09-22T20:52:57.6194576Z   [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough)
+2026-09-22T20:52:57.8135619Z   [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, exceeds the 16-bit AEM store address space, is marked rather than emitted, and --write-rtl REFUSES it (D6 is the owner)
+2026-09-22T20:52:57.9747588Z   [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+2026-09-22T20:52:57.9749635Z test_d8_role_pools_reject:
+2026-09-22T20:52:58.1515868Z   [gate 24b] 8/8 contradictory pool configs REFUSED with ConfigError
+2026-09-22T20:52:58.1516424Z test_prune_guard_hop_gate_bites:
+2026-09-22T20:52:58.2004553Z   [gate 23d one-hop] 2 positive site(s) resolved, 4 mutations refused, inert else arm present at the followed site
+2026-09-22T20:52:58.2005300Z test_d10_cluster_names:
+2026-09-22T20:52:58.7462413Z   [gate 24c] every cluster named for its ROLE; renaming leaves entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a pool width moves it; pre-D8 hashes stay explicitly pinned to their current model
+2026-09-22T20:52:58.7463446Z test_d10_cluster_namer_paths:
+2026-09-22T20:52:58.9372498Z   [gate 24d] empty-rx loopback names by offset (and by source when a receive space exists), an unknown role is refused by name, every primary role in PRIMARY_ROLE_ORDER has a namer, and 97 cluster names across 2 configs match the tracked golden name for name
+2026-09-22T20:52:58.9373436Z test_d10_names_reach_the_rom:
+2026-09-22T20:52:59.1274513Z   [gate 24d] role names reach the descriptor bytes; the tracked shape include matches its OWNER (endstation_ax7101_1x1_tdm8) byte for byte (aem_golden.h comparand DELETED with the aecp suite)
+2026-09-22T20:52:59.1275563Z test_gptp_domain_is_one_source:
+2026-09-22T20:52:59.2323646Z   [gate 26] gptp.domain 3 REFUSED with the 802.1AS-2011 8.1 clause; legal domain 0 reaches fabric configuration; CSR readback and protocol output are structural 0 in both shapes; the chain reaches the advertising plane's gptp_domain_i
+2026-09-22T20:52:59.2324939Z test_gptp_dataset_matches_engine_announce:
+2026-09-22T20:52:59.3282684Z   [gate 26b] AVB_INTERFACE == wire Announce for all 5 configs: priority2 248, clockQuality 0xF8FE436A, log intervals -3/0/0; omitted keys fill from the engine; the parser refuses a missing or twice-declared constant ([R-parallel] on #228)
+2026-09-22T20:52:59.3283909Z test_pp_window_contract:
+2026-09-22T20:52:59.7309828Z   [gate 27] 5 processor-memory windows are single-sourced
+2026-09-22T20:52:59.7310341Z test_image_identity_is_baked:
+2026-09-22T20:52:59.7475829Z   [gate 28] ax7101_1x1_tdm8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC5C40236BA0E, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 2 source(s)/0x4801 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+2026-09-22T20:52:59.7592871Z   [gate 28] arty_current: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC50AC1000005, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 1 source(s)/0x4001 + 2 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+2026-09-22T20:52:59.7762139Z   [gate 28] arty_4x4: image ENTITY carries entity_id 0x020000FFFE000002, entity_model_id 0x001BC557FC6ABBC8, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 5 source(s)/0x4801 + 5 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:02 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+2026-09-22T20:52:59.7994580Z   [gate 28] ax7101_8x8: image ENTITY carries entity_id 0x020000FFFE000001, entity_model_id 0x001BC572F79BC5D1, entity_capabilities 0x0000C588 (AEM_SUPPORTED set), 9 source(s)/0x4801 + 9 sink(s)/0x4801, AVB_INTERFACE the station MAC 02:00:00:00:00:01 and its 802.1AS clock_identity - all equal to what ADP advertises (Table 7-2)
+2026-09-22T20:52:59.7996088Z test_image_name_table_matches_descriptors:
+2026-09-22T20:52:59.8204279Z   [gate 28b] arty_current: all 28 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.8336666Z   [gate 28b] arty_4x4: all 51 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.8503286Z   [gate 28b] arty_8ch: all 83 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.8718611Z   [gate 28b] ax7101_8x8: all 99 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.8868532Z   [gate 28b] ax7101_1x1_tdm8: all 38 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.8980225Z   [gate 28b] schema_12_declared: all 38 writable names map byte-exactly to their READ_DESCRIPTOR fields
+2026-09-22T20:52:59.9002790Z test_schema_12_keys_reach_the_image:
+2026-09-22T20:53:00.1292231Z   [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 10 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C40236BA0E -> 0x123456C40236BA0E: OUI only); 10/10 single-key mutants named alone
+2026-09-22T20:53:00.1293730Z test_schema_12_refusals:
+2026-09-22T20:53:00.4469462Z   [gate 25b] 19 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+2026-09-22T20:53:00.4470826Z test_schema_11_configs_accepted_unchanged:
+2026-09-22T20:53:00.6955494Z   [gate 25c] 5 tracked configs declare 1.2.0 and load, re-declared 1.1.0, to the same argv, model id and image bytes; 2.0.0 refused
+2026-09-22T20:53:00.6956278Z test_milan_base_formats_are_rate_complete:
+2026-09-22T20:53:00.6957279Z   [gate 29] the builder's aaf_pcm32 derivation reproduces all 15 Milan Table 6.2 Base format strings (3 rates x 5 channel counts) and the AVTP I.2.4 ut bit of each
+2026-09-22T20:53:00.7641096Z   [gate 29] arty_current: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 1 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000, 96000, 192000]
+2026-09-22T20:53:00.8455697Z   [gate 29] arty_4x4: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+2026-09-22T20:53:00.9286988Z   [gate 29] arty_8ch: 4 Base Stream Input(s) complete at [48000] Hz (4 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+2026-09-22T20:53:01.0178679Z   [gate 29] ax7101_8x8: 8 Base Stream Input(s) complete at [48000] Hz (8 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+2026-09-22T20:53:01.0984376Z   [gate 29] ax7101_1x1_tdm8: 1 Base Stream Input(s) complete at [48000] Hz (1 rate famil(ies) x 5 channel counts), 2 CRF stream(s) carrying only 0x041060010000BB80, AUDIO_UNIT rates [48000]
+2026-09-22T20:53:01.0985214Z   [gate 29] longest STREAM descriptor 154 octets (ax7101_8x8 STREAM_INPUT[7] ('Stream In 7')), 422 clear of the 576-octet line buffer
+2026-09-22T20:53:01.0985714Z test_per_row_format_facts_are_per_row:
+2026-09-22T20:53:01.1305574Z test_builder_doc_key_map:
+2026-09-22T20:53:01.1933098Z   [gate 32] 109 loader keys == 109 keys across 60 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+2026-09-22T20:53:01.4543353Z   [gate 32] census: 17 untaken loader arms, where a key read is not recorded: endstation_builder.py:1435 endstation_builder.py:1510 endstation_builder.py:1514 endstation_builder.py:1877 endstation_builder.py:1881 endstation_builder.py:3109 endstation_builder.py:3207 endstation_builder.py:3307 endstation_builder.py:3539 endstation_builder.py:3548 endstation_builder.py:3596 endstation_builder.py:3616 endstation_builder.py:3653 endstation_builder.py:4001 endstation_builder.py:4097 endstation_builder.py:4124 endstation_builder.py:4284
+2026-09-22T20:53:01.4544874Z test_boot_policy_follows_the_declaration:
+2026-09-22T20:53:01.6040113Z   [gate 35] the writer's waits are generated AND pinned beside their bounds: MILAN_NVM_HEARTBEAT_MS 250 ms, MILAN_NVM_DEBOUNCE_MS 1000 ms, MILAN_NVM_ERASE_TIMEOUT_MS 3500 ms, MILAN_NVM_PROGRAM_TIMEOUT_MS 50 ms, MILAN_NVM_RESTORE_TIMEOUT_MS 3000 ms; both publication loops in milan_soc.py have their complete bodies pinned; 5/5 planted defects refused: the literal NVM_MS(250) planted back; the heartbeat moved to 300 ms, inside its own bound; the publication loop substituting the CRF boot word; the fabric loop overwriting the CRF boot word; the firmware loop overwriting the heartbeat wait
+2026-09-22T20:53:03.4796204Z   [gate 35] arty_current: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:03.6880197Z   [gate 35] arty_4x4: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:04.0486892Z   [gate 35] arty_8ch: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:04.2510448Z   [gate 35] ax7101_8x8: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:04.4758347Z   [gate 35] ax7101_1x1_tdm8: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x3 for crf_output declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:04.8139887Z   [gate 35] ax7101_1x1_tdm8, crf_output off: configure_fabric() wrote the 14 pinned CSR words in order, CRFT_CTRL <- 0x0 for crf_output not declared, no ADP_CAPS (0x614) write
+2026-09-22T20:53:05.6569328Z   [gate 35] 4/4 planted defects refused for the rule each breaks: the literal 3 back in CRFT_CTRL; a derivation that ignores the declaration; the 0x8588 ADP_CAPS write back; the LWSRP_VID write dropped
+2026-09-22T20:53:05.6571902Z test_gptp_latency_corrections_are_declared_and_carried:
+2026-09-22T20:53:05.7989967Z test_audio_unit_rates_loader_contract:
+2026-09-22T20:53:05.8799948Z   [gate 36a] eight distinct entries and defaults pass; distinct ninth, duplicates, empty and missing-current lists refused by cause
+2026-09-22T20:53:05.8800474Z test_audio_unit_shipping_rates:
+2026-09-22T20:53:05.8907721Z   [gate 36a] arty_current: image advertises [48000, 96000, 192000], offset 144
+2026-09-22T20:53:05.9035183Z   [gate 36a] arty_4x4: image advertises [48000], offset 144
+2026-09-22T20:53:05.9172822Z   [gate 36a] arty_8ch: image advertises [48000], offset 144
+2026-09-22T20:53:05.9357931Z   [gate 36a] ax7101_8x8: image advertises [48000], offset 144
+2026-09-22T20:53:05.9479485Z   [gate 36a] ax7101_1x1_tdm8: image advertises [48000], offset 144
+2026-09-22T20:53:05.9479907Z test_pp_shadow_audio_unit_rates_match_config:
+2026-09-22T20:53:05.9592148Z   [gate 36a] pp_shadow AU_RATES_C matches YAML; five independent value/order/length/initializer/declaration controls refused
+2026-09-22T20:53:05.9592858Z test_descriptor_fields_name_this_device:
+2026-09-22T20:53:06.0525541Z   [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+2026-09-22T20:53:06.0526409Z 
+2026-09-22T20:53:06.0526996Z 4 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+2026-09-22T20:53:06.0530708Z   - [gate 1b] the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS #408 AND #409 ADD ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- and so are the instrument-level acceptance and refusal measurements taken with them. WHAT GRADED THIS RUN is every text rule this gate has ever had, unchanged and in force: the conditional-reach ban, the token-joining splice ban, the paste/digraph/trigraph ban, the pointer-cast, pointer-store and inline-asm sets and the directory pin. NOTHING IS RETIRED ONTO THE INSTRUMENTS, here or on a machine that has them, so this run refuses exactly what dev refuses and a run with a compiler refuses more; the six edits #408 and #409 would retire are refused here as mutations, as they are everywhere
+2026-09-22T20:53:06.0534802Z   - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+2026-09-22T20:53:06.0536240Z   - [gate 1b] RTL mutation elaboration: no Verilator on this runner, so all 46 RTL mutation variants counted as structural rejections only, and the deliberately malformed-RTL self-test that proves the elaborator can refuse did not run
+2026-09-22T20:53:06.0537388Z   - [gate 11] real report not on disk (/home/runner/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+2026-09-22T20:53:06.0538000Z ALL GATES PASS EXCEPT 4 NOT RUN
+2026-09-22T20:53:06.0538687Z --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+2026-09-22T20:53:06.0881868Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:53:06.0882851Z ##[group]Run actions/cache@v4
+2026-09-22T20:53:06.0883068Z with:
+2026-09-22T20:53:06.0883240Z   path: /opt/verilator
+2026-09-22T20:53:06.0883442Z   key: verilator-v5.050-Linux
+2026-09-22T20:53:06.0883652Z   enableCrossOsArchive: false
+2026-09-22T20:53:06.0883861Z   fail-on-cache-miss: false
+2026-09-22T20:53:06.0884064Z   lookup-only: false
+2026-09-22T20:53:06.0884254Z   save-always: false
+2026-09-22T20:53:06.0884431Z env:
+2026-09-22T20:53:06.0884603Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:53:06.0884868Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.0885249Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:53:06.0885600Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.0885922Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.0886230Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.0886545Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:53:06.0886815Z ##[endgroup]
+2026-09-22T20:53:06.1751391Z (node:6065) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:53:06.1752153Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:53:06.2379083Z Cache hit for: verilator-v5.050-Linux
+2026-09-22T20:53:06.2458683Z (node:6065) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-09-22T20:53:06.6423666Z Received 92153557 of 92153557 (100.0%), 235.6 MBs/sec
+2026-09-22T20:53:06.6424059Z Cache Size: ~88 MB (92153557 B)
+2026-09-22T20:53:06.6448655Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f1a41da8-9cab-4237-919f-a77ead9e076b/cache.tzst -P -C /home/runner/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-09-22T20:53:06.8010558Z Cache restored successfully
+2026-09-22T20:53:06.8107963Z Cache restored from key: verilator-v5.050-Linux
+2026-09-22T20:53:06.8268897Z ##[group]Run set -euo pipefail
+2026-09-22T20:53:06.8269191Z [36;1mset -euo pipefail[0m
+2026-09-22T20:53:06.8269448Z [36;1mecho "/opt/verilator/bin" >> "$GITHUB_PATH"[0m
+2026-09-22T20:53:06.8269746Z [36;1m/opt/verilator/bin/verilator --version[0m
+2026-09-22T20:53:06.8270105Z [36;1m/opt/verilator/bin/verilator --version | grep -F "${VERILATOR_VERSION#v}"[0m
+2026-09-22T20:53:06.8302434Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:53:06.8302663Z env:
+2026-09-22T20:53:06.8302845Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:53:06.8303118Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.8303481Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:53:06.8303976Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.8304295Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.8304606Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:06.8304951Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:53:06.8305234Z ##[endgroup]
+2026-09-22T20:53:06.9628567Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:53:07.0067179Z Verilator 5.050 2026-07-01 rev v5.050
+2026-09-22T20:53:07.0096959Z ##[group]Run scripts/run_litex_sims.sh --selftest
+2026-09-22T20:53:07.0097480Z [36;1mscripts/run_litex_sims.sh --selftest[0m
+2026-09-22T20:53:07.0097808Z [36;1mscripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"[0m
+2026-09-22T20:53:07.0129648Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:53:07.0129874Z env:
+2026-09-22T20:53:07.0130066Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:53:07.0130343Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:07.0130724Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:53:07.0131081Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:07.0131405Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:07.0131721Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:53:07.0132045Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:53:07.0132325Z ##[endgroup]
+2026-09-22T20:53:07.1001153Z   [ok]   green control: a sandbox where everything passes exits 0
+2026-09-22T20:53:07.1684186Z   [ok]   a planted failing simulation turns the aggregate red, named
+2026-09-22T20:53:07.2395392Z   [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+2026-09-22T20:53:07.2971393Z   [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+2026-09-22T20:53:07.3675030Z   [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+2026-09-22T20:53:07.3865720Z   [ok]   no usable interpreter: every member a declared skip, exit 90
+2026-09-22T20:53:07.4020202Z   [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+2026-09-22T20:53:07.4741573Z   [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+2026-09-22T20:53:07.4754491Z   [ok]   a member-declared skip is not counted as a pass
+2026-09-22T20:53:08.5343035Z   [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+2026-09-22T20:53:08.5343343Z 
+2026-09-22T20:53:08.5343505Z run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+2026-09-22T20:53:08.5343779Z RESULT: PASS
+2026-09-22T20:53:51.0158609Z PASS     test_cpu_memory_port_cdc
+2026-09-22T20:54:42.0951575Z PASS     test_gptp_tx_timestamp
+2026-09-22T20:55:00.3892455Z PASS     test_pp_boot_bus_freeze
+2026-09-22T20:55:07.2067874Z PASS     test_pp_mem_bridge
+2026-09-22T20:55:07.2068349Z ----------------------------------------------------------------
+2026-09-22T20:55:07.2068737Z simulations: 4   passed: 4   failed: 0   skipped: 0   timed out: 0
+2026-09-22T20:55:07.2069092Z logs: /home/runner/work/_temp/litex-sim-logs
+2026-09-22T20:55:07.2109204Z ##[group]Run cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
+2026-09-22T20:55:07.2109808Z [36;1mcp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \[0m
+2026-09-22T20:55:07.2110224Z [36;1m  ~/vexii-netlist-args/ 2>/dev/null || true[0m
+2026-09-22T20:55:07.2142512Z shell: /usr/bin/bash -e {0}
+2026-09-22T20:55:07.2142744Z env:
+2026-09-22T20:55:07.2142927Z   VERILATOR_VERSION: v5.050
+2026-09-22T20:55:07.2143195Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:55:07.2143574Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-22T20:55:07.2143927Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:55:07.2144249Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:55:07.2144571Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-22T20:55:07.2145069Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-22T20:55:07.2145344Z ##[endgroup]
+2026-09-22T20:55:07.2528766Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.2529737Z Post job cleanup.
+2026-09-22T20:55:07.3424723Z Cache hit occurred on the primary key verilator-v5.050-Linux, not saving cache.
+2026-09-22T20:55:07.3426252Z (node:6479) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:55:07.3427311Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:55:07.4073523Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.4074579Z Post job cleanup.
+2026-09-22T20:55:07.4962553Z Cache hit occurred on the primary key elaborate-vexii-2bde2c81064bf8744d7af0116b65d8ccfebf8f44a633c54de10ddcd3f2005590, not saving cache.
+2026-09-22T20:55:07.4963852Z (node:6499) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:55:07.4964392Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:55:07.5052600Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.5053580Z Post job cleanup.
+2026-09-22T20:55:07.5977836Z Cache hit occurred on the primary key elaborate-sbt-Linux, not saving cache.
+2026-09-22T20:55:07.5980668Z (node:6507) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:55:07.5981734Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:55:07.6527483Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.6528509Z Post job cleanup.
+2026-09-22T20:55:07.7436570Z Cache hit occurred on the primary key elaborate-pip-Linux-4f2135aa3d03386ae9fcb56f88207b63f6a04571d861d464a13c692b319e9684, not saving cache.
+2026-09-22T20:55:07.7437914Z (node:6526) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:55:07.7438545Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:55:07.7561473Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.7562459Z Post job cleanup.
+2026-09-22T20:55:07.8540246Z (node:6534) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-09-22T20:55:07.8540865Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-09-22T20:55:07.8711064Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-09-22T20:55:07.8712281Z Post job cleanup.
+2026-09-22T20:55:07.9447961Z [command]/usr/bin/git version
+2026-09-22T20:55:07.9486130Z git version 2.55.0
+2026-09-22T20:55:07.9514646Z Temporarily overriding HOME='/home/runner/work/_temp/56bae9c8-50fd-4d7e-bb10-b8117c3e3a2e' before making global git config changes
+2026-09-22T20:55:07.9515766Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-22T20:55:07.9518877Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/milan-fpga/milan-fpga
+2026-09-22T20:55:07.9554088Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-22T20:55:07.9584837Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-22T20:55:07.9814678Z Entering 'gptp-processor'
+2026-09-22T20:55:07.9866291Z Entering 'protocol-processor'
+2026-09-22T20:55:07.9916958Z Entering 'third_party/verilog-axis'
+2026-09-22T20:55:07.9974831Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-22T20:55:08.0001089Z http.https://github.com/.extraheader
+2026-09-22T20:55:08.0010624Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-09-22T20:55:08.0063196Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-22T20:55:08.0281392Z Entering 'gptp-processor'
+2026-09-22T20:55:08.0321068Z Entering 'protocol-processor'
+2026-09-22T20:55:08.0360049Z Entering 'third_party/verilog-axis'
+2026-09-22T20:55:08.0413372Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:55:08.0447180Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-22T20:55:08.0632371Z Entering 'gptp-processor'
+2026-09-22T20:55:08.0648946Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-09-22T20:55:08.0664443Z Entering 'protocol-processor'
+2026-09-22T20:55:08.0680640Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-09-22T20:55:08.0696673Z Entering 'third_party/verilog-axis'
+2026-09-22T20:55:08.0712889Z file:/home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-09-22T20:55:08.0741678Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:55:08.0772649Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:55:08.0800258Z [command]/usr/bin/git config --file /home/runner/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-22T20:55:08.0955385Z Cleaning up orphan processes
+2026-09-22T20:55:08.1230751Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
