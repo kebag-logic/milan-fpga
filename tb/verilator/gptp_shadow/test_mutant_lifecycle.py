@@ -18,7 +18,8 @@ ROOT = HERE.parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
 from owned_process import OwnedProcesses  # noqa: E402
 from process_test_support import (  # noqa: E402
-    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, commit, git, install, snapshot, write,
+    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, commit, eventually, git, identity, install,
+    parent as parent_of, running, snapshot, write,
 )
 from mutants import MUTATIONS, NOT_SEPARATELY_OBSERVABLE  # noqa: E402
 
@@ -214,6 +215,8 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
         assert copied == expected, (copied, expected)
         for relative in [SOURCE, *json.loads((probe.control / "private-writes.json").read_text())]:
             assert not (root / relative).samefile(private / relative)
+    make = parent_of(data["pid"])
+    make_start = identity(make)[0]
     probe.signal(signum)
     status, output = probe.finish()
     changed = snapshot(root) != before
@@ -221,6 +224,8 @@ def interrupted(parent: Path, signum: int, unsafe: bool = False) -> None:
     assert "RESULT: PASS" not in output and "controls:" not in output, output
     if signum == signal.SIGKILL:
         assert status == -signal.SIGKILL, output
+        # No cleanup ran, but the make it had started cannot outlive it.
+        eventually(lambda: not running(make, make_start), 5, "make outlived the killed driver")
     else:
         assert status == 128 + signum, output
         assert_reaped(data)
@@ -286,6 +291,10 @@ def prepare_refusal(root: Path, probe: Probe, kind: str) -> str:
     if kind == "pin-index":
         git(root, "update-index", "--force-remove", "gptp-processor")
         return "required dependency gitlinks differ from HEAD"
+    if kind == "copied-dependency":
+        # The layout a plain copy leaves: pinned files, but no submodule `.git`.
+        shutil.rmtree(dependency / ".git")
+        return "required dependency is not at its pin: gptp-processor"
     if kind == "git-garbage":
         write(probe.control / "bin/git", GARBLED_GIT, executable=True)
         return "unreadable Git identity record"
@@ -378,7 +387,8 @@ if "-C" in sys.argv:
 
 REFUSALS = ("dirty", "staged", "assume", "skip", "mode", "dirty-input", "dirty-header", "dirty-anchor",
             "untracked", "undeclared-target", "symlink", "parent-link", "dependency", "off-pin",
-            "pin-index", "dependency-link", "git-garbage") + tuple("git-env-" + name for name in REDIRECTS)
+            "pin-index", "copied-dependency", "dependency-link", "git-garbage")
+REFUSALS += tuple("git-env-" + name for name in REDIRECTS)
 
 
 def main() -> int:

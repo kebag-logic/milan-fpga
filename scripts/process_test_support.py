@@ -11,6 +11,7 @@ import signal
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 PROC = Path("/proc")
@@ -132,6 +133,14 @@ def running(pid: int, start: str) -> bool:
     return current is not None and current[0] == start and current[1] != "Z"
 
 
+def eventually(condition: Callable[[], bool], seconds: float, what: str) -> None:
+    """Wait for an observable condition; the deadline only bounds a failure."""
+    deadline = time.monotonic() + seconds
+    while not condition():
+        assert time.monotonic() < deadline, what
+        time.sleep(0.02)
+
+
 def snapshot(root: Path) -> dict:
     """Record tracked bytes, kinds, full modes and index, recursively at pins."""
     indexed = git(root, "ls-files", "--stage", "-z")
@@ -143,7 +152,9 @@ def snapshot(root: Path) -> dict:
         name = os.fsdecode(raw_name)
         path = root / name
         if metadata.startswith(b"160000"):
-            result["files"][name] = snapshot(path)
+            # A gitlink with no checkout of its own would otherwise read the
+            # superproject again; record that state instead.
+            result["files"][name] = snapshot(path) if (path / ".git").exists() else ["no checkout"]
             continue
         if not path.exists() and not path.is_symlink():
             result["files"][name] = ["absent"]

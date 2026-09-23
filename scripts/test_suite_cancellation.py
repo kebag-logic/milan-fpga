@@ -10,14 +10,12 @@ import signal
 import subprocess
 import sys
 import tempfile
-import time
-from collections.abc import Callable
 from pathlib import Path
 
 from owned_process import OwnedProcesses
 from process_test_support import (
-    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, identity, install, parent as parent_of,
-    running, write,
+    FACILITY_MODES, FACILITY_SITE, Probe, assert_reaped, eventually, identity, install,
+    parent as parent_of, running, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
@@ -218,14 +216,6 @@ def normal_orphan(parent: Path) -> None:
 def summarised(text: str) -> bool:
     """Does this transcript carry the completed sweep's summary line?"""
     return re.search(r"^suites: ", text, re.M) is not None
-
-
-def eventually(condition: Callable[[], bool], seconds: float, what: str) -> None:
-    """Wait for an observable condition; the deadline only bounds a failure."""
-    deadline = time.monotonic() + seconds
-    while not condition():
-        assert time.monotonic() < deadline, what
-        time.sleep(0.02)
 
 
 def sweep_shell(pid: int, entry: int) -> int:
