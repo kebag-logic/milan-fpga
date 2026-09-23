@@ -1,0 +1,40 @@
+# R258 failover probe on cbccf22 (sim_main.cpp copy patched by scripts/probe_failover.py), 2026-09-23T15:32:11Z
+# Verilator 5.050 2026-07-01 rev v5.050
+PROBE r258 failover: gm before 00c0c0fffe00000c, sync-ok before 1
+PROBE r258 failover: sync-ok fell at the receipt timeout: 1
+PROBE r258 failover: gm after 00d0d0fffe00000d, flags 05
+PROBE r258 failover +50 us: offset published 50000 ns, step pulses 1, addend pulses 1, sync-ok after 1
+PROBE r258 failover +50 us: step value -50000 ns
+1207 checks: 1207 PASS, 0 FAIL
+run_rc=0
+# control: same probe binary, image from the head generator with the SRTO and BECOME S_LOCK writes removed (link-up on an asCapable rise only)
+PROBE r258 failover: gm before 00c0c0fffe00000c, sync-ok before 1
+PROBE r258 failover: sync-ok fell at the receipt timeout: 1
+PROBE r258 failover: gm after 00d0d0fffe00000d, flags 05
+PROBE r258 failover +50 us: offset published 50000 ns, step pulses 0, addend pulses 1, sync-ok after 1
+1192 checks: 1169 PASS, 23 FAIL
+run_rc=1
+# failing checks under this control:
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000fffc28f4
+FAIL link-up -15 us: addend matches the mirror got 0000000000051ebc exp 00000000000b8525
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend matches the mirror got 000000000013333f exp 0000000000000001
+FAIL link-up -25 us: the step writes the bare estimate got 000000000013333f exp 0000000000000001
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8517 exp 00000000ffeb8516
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c34 exp 00000000000f5c33
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffeb84d5 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000000f5c67 exp 0000000000000002
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000000f5c67 exp 0000000000000002
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000008 exp 000000000000000c
+FAIL locked +110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+FAIL locked -110 us: addend matches the mirror got 0000000000000005 exp 0000000000000003
+FAIL link-up after become, +25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after become, +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000fff4c9a6
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000ffee633d exp 00000000fff4c9a6
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000ffeb50cd exp 00000000fff1b736
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000ffec56f2

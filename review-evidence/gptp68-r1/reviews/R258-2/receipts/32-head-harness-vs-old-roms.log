@@ -1,0 +1,89 @@
+# head harness binary (built from cbccf22 by make run) against older ROM images, 2026-09-23T15:38:23Z
+== image from the base generator: dee031848c5410d4
+1207 checks: 1146 PASS, 61 FAIL
+exit=1
+failing check groups (by phase tag):
+      4 warm-reset link-up
+      3 long slew, master -90 us
+      3 long slew, master +90 us
+      3 GM change, +50 us
+      2 locked -90 us
+      2 locked +90 us
+      2 locked -100 us
+      2 locked +100 us
+      2 GM change, -5 ms
+      1 slew addend matches the PI mirror got 00
+      1 paired FU steers as the mirror got 00000
+      1 matching FU steers as the mirror got 000
+      1 long slew
+      1 locked -110 us
+      1 locked +110 us
+      1 locked -100 us - 1 ns
+      1 locked +100 us + 1 ns
+      1 locked
+      1 link-up after become, +25 us
+      1 link-up after asCapable returns, -25 us
+      1 integrator survives the step got 0000000
+      1 GM change
+      1 consumer envelope
+      1 closed loop pair 9
+      1 closed loop pair 8
+      1 closed loop pair 7
+      1 closed loop pair 6
+      1 closed loop pair 5
+      1 closed loop pair 4
+      1 closed loop pair 3
+      1 closed loop pair 23
+      1 closed loop pair 22
+      1 closed loop pair 21
+      1 closed loop pair 20
+      1 closed loop pair 2
+      1 closed loop pair 19
+      1 closed loop pair 18
+      1 closed loop pair 17
+      1 closed loop pair 16
+      1 closed loop pair 15
+== image from the reviewed generator: 1e52fb26135da782
+1171 checks: 1087 PASS, 84 FAIL
+exit=1
+failing check groups (by phase tag):
+      4 warm-reset link-up
+      4 long slew, master +90 us
+      4 link-up +25 us
+      4 link-up +20 us + 1 ns
+      4 GM change, -5 ms
+      3 long slew, master -90 us
+      3 locked +110 us
+      3 locked +100 us + 1 ns
+      3 link-up after asCapable returns, -25 us
+      3 link-up -25 us
+      3 link-up -20 us - 1 ns
+      2 locked +90 us
+      2 locked -110 us
+      2 locked -100 us - 1 ns
+      2 locked +100 us
+      2 link-up after become, +25 us
+      2 link-up +20 us
+      2 link-up +15 us
+      2 consumer envelope
+      1 sync flags 0208/0008
+      1 sync flags 0200/0000
+      1 sync flags 0000/0200
+      1 slew addend matches the PI mirror got 00
+      1 paired FU steers as the mirror got 00000
+      1 padded Sync (74) pairs
+      1 padded Sync (60) pairs
+      1 matching FU steers as the mirror got 000
+      1 locked -90 us
+      1 locked -100 us
+      1 locked
+      1 link-up -20 us
+      1 link-up -15 us
+      1 link-up
+      1 late FU never steers         got 0000000
+      1 integrator survives the step got 0000000
+      1 GM change, +50 us
+      1 GM change
+      1 complete Follow_Up re-bases the phc got 
+      1 closed loop pair 9
+      1 closed loop pair 8
