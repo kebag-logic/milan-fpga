@@ -1,0 +1,18 @@
+P00 SURVIVED (selftest rc 0): no-op control: a comment word changes
+P01 SURVIVED (selftest rc 0): isolation: the slot's internet reachability is no longer required
+P02 SURVIVED (selftest rc 0): slot-0 collision: any refusal counts, not act's global names
+P03 SURVIVED (selftest rc 0): complete: a run that printed every PASS counts whatever its exit status
+P04 SURVIVED (selftest rc 0): complete: a run whose FAILED line is followed by any exit status counts
+P05 SURVIVED (selftest rc 0): verify_runner: the recorded digest is not compared
+P06 SURVIVED (selftest rc 0): verify_runner: a writable runner install is accepted
+P07 SURVIVED (selftest rc 0): verify_runner: a non-empty log directory is accepted
+P08 KILLED (selftest rc 1): isolation: the host-side reachability of both targets is not required (expected KILLED)
+     FAIL the isolation target is dead: exit 0, wanted 1 with 'FAIL isolation slot 1'
+P09 KILLED (selftest rc 1): overlap: neither run is required to be still unended (expected KILLED)
+     FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+P10 KILLED (selftest rc 1): collide: a rival refused after the holder ended still counts (expected KILLED)
+     FAIL the rival is refused only after the holder left: exit 0, wanted 1 with 'FAIL collision slot 1'
+P11 SURVIVED (selftest rc 0): remove_target: a surviving target network is not reported
+P12 SURVIVED (selftest rc 0): parse_arguments: slot A may equal slot B or be slot 0
+P13 SURVIVED (selftest rc 0): interrupt gate: the runner's PASS line is not required
+SUMMARY P00=SURVIVED P01=SURVIVED P02=SURVIVED P03=SURVIVED P04=SURVIVED P05=SURVIVED P06=SURVIVED P07=SURVIVED P08=KILLED P09=KILLED P10=KILLED P11=SURVIVED P12=SURVIVED P13=SURVIVED
