@@ -1,0 +1,8 @@
+[
+ {"name": "glued bogus declaration then item comment", "prefix": "- <!X y\n- <!--\n\n"},
+ {"name": "glued bogus PI then item comment", "prefix": "- <? x\n- <!--\n\n"},
+ {"name": "PI block then prose comment line", "prefix": "<? x\n- <!--\n"},
+ {"name": "PI block then empty comment", "prefix": "<? x\n<!-->\n"},
+ {"name": "tag inside declaration block (withholding)", "prefix": "<!X y\n<b>\n"},
+ {"name": "tag inside PI block (withholding)", "prefix": "<? x\n<span>\n?>\n"}
+]

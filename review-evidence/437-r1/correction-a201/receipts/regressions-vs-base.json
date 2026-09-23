@@ -1,0 +1,733 @@
+[
+ {
+  "sweep": "sweep201-",
+  "name": "s201-001624",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "\n## H1\n1.\n-     x <b title='-->'>\n  <div><!--\n## H2\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "5dc5bb39681e46d9c6033387ffa51fa012b196473f012f0bce18942a0b90dd39",
+  "response_sha256": "280e17fa37bab4f35d6e34b7e10b5311a6136d29c0f07b12357ebcbd073bdfe1"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-002461",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base: `<!-->` opens a comment that covers a fence GitHub opens; a `-->` in the fence ends it",
+  "page": "-     ![<b title='-->'>](u)\n  ```\n<!-->\n\n ~~~\n## H1\n\t~~~\n     [r]: /u '<b title=\"-->\">'\n## H2\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "request_sha256": "f75a1348bc85d307282cf8ac191e3eb200637e225779d0f7bb365534bbe62b8c",
+  "response_sha256": "1f6ab42724688a390e9493c50cceb5d2353e7dd319f92c2dfd793ba20ae5cf33"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-005955",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "- <div title='\n    <!x\n  ~~~\n## H1\n>     > a\n> > \t<p>\n>  |---|---|\n## H2\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "request_sha256": "b005bac94f99006b7feddd64be9939dacb1d778e33d51e8f4132515a84cea87a",
+  "response_sha256": "6f45896d621a1ff66c67a81e9bd7f32bdd1c5a6663d19a3bedc63edd487dd160"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-007493",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "- </pre>\n  ~~~~\n-  <div title='\n## H1\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "ad6182aedde97c195bf0e858643dc4baa2c8df73fd673605a207e87d9ec40a3c",
+  "response_sha256": "2dd0cf6071d2389fe50d8a7aeef732215585dff353d27840d816d06e4835895f"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-008793",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "## H1\n>  <pre>\n- <div title='\n  <span>\n## H2\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "request_sha256": "0990be69c1d37d27be2e309de499a4afb1869e786905cf36e00863ebd71ccad9",
+  "response_sha256": "149b52e4abc86d468374b32853546a8674c8465480cebf5f1a2be44d0302317a"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-011539",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "- 1. a\n  <div>\n   <!-- a\n## H1\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "0c8be21b7619277e2931c4f4d59b3bd401cc1ebf5ed35c2a4041a2a3c11401eb",
+  "response_sha256": "3f0a16249632cd40260b0f483129829a42f584762c952f9157dfa8a55410e79b"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-013515",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "## H1\n## H2\n-     a\n  <div title='\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "9dc90113982a390a0f1610ab4d9372f7056d85890b68f82397eddc3acb29f6fd",
+  "response_sha256": "53d585c2218f76a3bc4fa190399339990e886da9524a757f979cd129302b49a1"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-021315",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": ">      1.\n## H1\n- <svg>\n\n  <div title='\n## H2\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "4c995afa0997c4132822766c6785577f15ad9ec4b8495a0b21d80fa8f4b41aed",
+  "response_sha256": "c46358d7370f369bbbb62d85f96fccb0e4682de56436e5f2d444bdf892f50217"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-021836",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener behind a bogus comment in a raw HTML block in an item",
+  "page": "## H1\n## H2\n## H3\n>  > > a\n>      ````\n## H4\n-\n  <b>\n    <?x > <!-- ?>\n## H5\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ],
+   [
+    2,
+    "H4"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ],
+   [
+    2,
+    "H4"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ],
+   [
+    2,
+    "H4"
+   ],
+   [
+    2,
+    "H5"
+   ]
+  ],
+  "request_sha256": "4c11d48b57bc80d19c0ed323271d551bc6981dd16fc0742efb6b5a5bd820efb8",
+  "response_sha256": "1024f99714850042c063bfa365f23fecf2803451df8440d262ade2923796dde5"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-023491",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "1.      a --> b\n## H1\n-      ````\n     <custom-x>\n  -\ta\n  <div title='\n## H2\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "request_sha256": "646d5f3fedd736eab0d7d2518c4f58fdb80a8807345039058f771ee6777af393",
+  "response_sha256": "d3c86f64e821f837a2c7781b17e03e31f7f302f25c5739b8e0b853c7e3e42563"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-025590",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "HTML parse, shared with the base: raw HTML in an item ends inside an open quoted value",
+  "page": "## H1\n       <!-->\n- <div title='\n  <div><!--\n     ``` x\n## H2\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "request_sha256": "70a59d23a3ea2687a7e4ccf52365789afb1305c437f4c9ff815e1d756a201c5d",
+  "response_sha256": "aab5a8c7fad5b60bff53f658508d9d0a49576c8a7db83248324b6805e1964ff9"
+ },
+ {
+  "sweep": "sweep201-",
+  "name": "s201-026367",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "## H1\n- <custom-x>\n  <div><!--\n## H2\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "37cc6541078af531ec4a3e09c8847572a6579cab2a2c0cee0293da35b927e17b",
+  "response_sha256": "3400bfcd92938cb8b8a3dac3fa3e56b4b8c4a91d717c374a29ccbc692453278c"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-003045",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: comment block ended by its quote, closer printed as text",
+  "page": "> \t<!--\n> -   a\n  - - -\n>> a\n>  <details>\nt -->\n   <noscript>\n## H1\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "c9c794ddea7c17972bacc1a897877a05bf4e99e63f2e775518927be9a64f1f65",
+  "response_sha256": "c363ea3cbfb07fbf7a70c31cd1338158ac5697ff7670da5c8a99e3ce1831875d"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-004587",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": ">      >\n    10. a\n     >\n## H1\n## H2\n-\n     -     a\n   <div><!--\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "2fca9883dfe05c5dee7306612efc9a01614729a68328357933c90072a7353903",
+  "response_sha256": "010a3ee9c8173e0c620ec54f75a5514023d1f83813b20ebafe6b9b87f30530e1"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-005357",
+  "direction": "WITHHOLD",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base (withhold): an opener in an attribute of inline HTML in an item",
+  "page": "  1.\n<!-- x -->\n## H1\n+ a\n  <span title='<!--'>\n\n## H2\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "662b8460df97e24c0249e557029ec86888d03289b44e37ffa4c0a03e8ca406e3",
+  "response_sha256": "52a3114daf6900d28d930f9e053435a55f5bcbd0b58cb2379a3abc1a5d803156"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-007707",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "## H1\n- 1.\n  <span title='<!--'>\n  <div><!--\n-   > [^2]: n\n## H2\n## H3\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "request_sha256": "2276fe9a8507247136f6c6d431e65ec761f268e2b932aaf28a94c6ba2ab5c348",
+  "response_sha256": "c17510cca8b868c4654a63807e3645255b1aa5e04b47444a6f1832e52d71ca2a"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-019680",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "## H1\n> > a\n\n> t <span>\n## H2\n## H3\n -     a\n   </div>\n    <!--\n## H4\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "H3"
+   ],
+   [
+    2,
+    "H4"
+   ]
+  ],
+  "request_sha256": "039b7657466ed1da9e4383ef13559abc9d22e90a3003e233ac272c7da677aa4d",
+  "response_sha256": "738276b6747a6161faca7a425ec7daf344ceef709a40e249d3ebfc4c20e16580"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-020957",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "<!-- -- -->\n-      ```\n  <div><!--\n>lazy\n\t``` x\n> ===\n## H1\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "3ef80dee23b78f25847ee4f9e63b703517f4cedbbf55b306707bb2636143f45a",
+  "response_sha256": "f1cba0366ed15a014b4779d053ca89a6f678f446f1edee619a93562bd5eb672d"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-022100",
+  "direction": "ESCAPE",
+  "reviewed_head": "AGREE",
+  "class": "#516 unclosed comment: opener in a raw HTML block in an item",
+  "page": "<details>\n\n\n     <table>\n- >\n\t<!-- x -->\n  <b>\n  <!-- a\n>    lazy\n## H1\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "7b6972aa9f5a7781c557f3b32fa1eeedb7d2d37fc0f73ead0755de6c644f4c71",
+  "response_sha256": "dd67c1f4b78da1e353a923b59beb96922cd8031e4fe31a228b1337c439cdcd35"
+ },
+ {
+  "sweep": "sweep2011",
+  "name": "s2011-027091",
+  "direction": "WITHHOLD",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base (withhold): an escaped opener after raw HTML ended with its item",
+  "page": "## H1\n- *emph <!--*\n       x <!-- y --> z\n  </p>\n- b -->\n> >   \\<!--\n\n>===\n## H2\n",
+  "github": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "base": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "this_head": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "request_sha256": "2b880bd106bf668a239c15c3662669eabdc0e698e7c8b8cd3283ae9a4194aea7",
+  "response_sha256": "c9328d590108517ff1f136b1611312934e4cd889f85c579e72706cea710edb35"
+ },
+ {
+  "sweep": "R237-3 prior_findings",
+  "name": "R237-2 F2 probes | flat item HTML then code-span opener",
+  "direction": "WITHHOLD",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base (withhold): opener in a code span after raw HTML ended with its item (R237-2 F2 row)",
+  "page": "- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n",
+  "github": [
+   "Old",
+   "Real"
+  ],
+  "base": [
+   "Old",
+   "Real"
+  ],
+  "this_head": []
+ },
+ {
+  "sweep": "R237-3 prior_findings",
+  "name": "R237-2 F2 probes | flat item HTML then escaped opener",
+  "direction": "WITHHOLD",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base (withhold): escaped opener after raw HTML ended with its item (R237-2 F2 row)",
+  "page": "- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n",
+  "github": [
+   "Old",
+   "Real"
+  ],
+  "base": [
+   "Old",
+   "Real"
+  ],
+  "this_head": []
+ },
+ {
+  "sweep": "R237-3 prior_findings",
+  "name": "R237-2 F2 probes | flat item HTML then attribute opener",
+  "direction": "WITHHOLD",
+  "reviewed_head": "AGREE",
+  "class": "comment reading as at the base (withhold): opener in an attribute after raw HTML ended with its item (R237-2 F2 row)",
+  "page": "- item\n\n  <div>\ntext <a title=\"<!--\"> more\n\n## Old\n\n## Real\n",
+  "github": [
+   "Old",
+   "Real"
+  ],
+  "base": [
+   "Old",
+   "Real"
+  ],
+  "this_head": []
+ },
+ {
+  "sweep": "R238-2 fuzz_seed238_complete.jsonl",
+  "name": "fuzz_seed238_complete#668",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "types 3 to 5 labelled prose (#413), reached after raw HTML ended with its item (R238-2 F1 row)",
+  "page": "* <![CDATA[\n  <script>\n<? x\n- > a <!-- b\nc --> d\n## Z\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   "Z"
+  ]
+ },
+ {
+  "sweep": "R238-2 fuzz_seed238_complete.jsonl",
+  "name": "fuzz_seed238_complete#672",
+  "direction": "ESCAPE",
+  "reviewed_head": "ESCAPE",
+  "class": "types 3 to 5 labelled prose (#413), reached after raw HTML ended with its item (R238-2 F1 row)",
+  "page": "- - item\n   <div title=\"x\">\n* ===\n<? x\n>---\n## X5\n<!-->\n## Z\n",
+  "github": [],
+  "base": [],
+  "this_head": [
+   "X5"
+  ]
+ }
+]

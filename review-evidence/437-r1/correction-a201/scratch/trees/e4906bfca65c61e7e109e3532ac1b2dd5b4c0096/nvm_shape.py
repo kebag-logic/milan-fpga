@@ -1,0 +1,234 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""nvm_shape.py - one config's persisted shape, and the inventory it implies.
+
+Between the contract and the checks: run the generators for a config, read the
+shape back out of what they produced, and expand it into the inventory rows
+(`Record`) every later check is expressed over. The donor RTL is read here too
+- REC_ID_BASE_P and LAYOUT_VER_P are taken from `KL_acmp_nvm_shadow.sv`
+rather than mirrored, which is why this half needs the source list and the
+codec half does not.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+import re
+import struct
+import subprocess
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from nvm_contract import (                                    # noqa: E402
+    ALLOC, FIXED, FLASH_PAGE, LEDGER, MAP_ENTRY, NAME_BYTES, NAME_SLOTS, PAY,
+    ROOT, SPI_HZ, T_PP_MAX_MS, T_SE_MAX_MS, Donor, Record, Shape)
+
+
+SHADOW_STEM = "KL_acmp_nvm_shadow"
+BASE_RE = re.compile(r"parameter\s+logic\s*\[7:0\]\s+REC_ID_BASE_P\s*=\s*8'h([0-9A-Fa-f]{2})")
+LAYOUT_RE = re.compile(r"parameter\s+logic\s*\[7:0\]\s+LAYOUT_VER_P\s*=\s*8'h([0-9A-Fa-f]{2})")
+
+
+def shadow_path() -> Path:
+    """Locate the ACMP NVM shadow through the derived submodule source list."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import pp_srcs
+    hits = [s for s in pp_srcs.pp_sources()
+            if Path(s).stem == SHADOW_STEM]
+    if len(hits) != 1:
+        sys.exit(f"FATAL: expected exactly one {SHADOW_STEM} source in the "
+                 f"derived submodule list, found {len(hits)}. The donor "
+                 f"renamed or duplicated it and this gate must be re-pointed, "
+                 f"not relaxed.")
+    return ROOT / hits[0]
+
+
+def binding_base() -> int:
+    """Read REC_ID_BASE_P out of the donor RTL rather than mirroring it."""
+    shadow = shadow_path()
+    m = BASE_RE.search(shadow.read_text())
+    if not m:
+        sys.exit(f"FATAL: REC_ID_BASE_P not found in {shadow.name}; the donor "
+                 f"moved the parameter and this gate must be re-pointed, not "
+                 f"relaxed.")
+    return int(m.group(1), 16)
+
+
+def layout_version() -> int:
+    """Read LAYOUT_VER_P out of the donor RTL, for the same reason as the
+    binding base: it is already fixed in landed gateware, and every record this
+    gate frames has to carry the value the port will check."""
+    shadow = shadow_path()
+    m = LAYOUT_RE.search(shadow.read_text())
+    if not m:
+        sys.exit(f"FATAL: LAYOUT_VER_P not found in {shadow.name}; the donor "
+                 f"moved the parameter and this gate must be re-pointed, not "
+                 f"relaxed.")
+    return int(m.group(1), 16)
+
+
+def build(cfg: Path, out: Path) -> tuple[int, dict, list, list]:
+    """Build one config and return (writable names, descriptor counts, ports)."""
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+                    str(cfg), "-o", str(out)],
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+    stem = cfg.stem
+    overlay = out / stem / "aem_overlay.json"
+    img = out / f"{stem}.img.bin"
+    subprocess.run([sys.executable, str(ROOT / "avdecc/gen_aemi_image.py"),
+                    "--overlay", str(overlay), "-o", str(img),
+                    "--line-bytes", "576"],
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+    blob = img.read_bytes()
+    _, names = struct.unpack_from(">HH", blob, 8)
+    o = json.loads(overlay.read_text())
+    ports = o["stream_ports"]
+    return names, o["descriptor_counts"], ports["input"], ports["output"]
+
+
+def expected_names(dc: dict) -> int:
+    """Re-derive the writable-name count from the descriptor shape alone.
+
+    This is the SECOND derivation of a number the AEMI image header also
+    carries. Grading the inventory against it catches an inventory that drops
+    the name class, and grading it against the header catches a builder that
+    changes one without the other.
+    """
+    return sum(dc.get(t, 0) * slots for t, slots in NAME_SLOTS.items())
+
+
+def expected_records(dc: dict) -> dict:
+    """The mandatory group -> cardinality ledger for one shape."""
+    return {g: rule(dc) for g, (_cls, _clause, rule) in LEDGER.items()}
+
+
+def conformant_floor(names: int, dc: dict) -> int:
+    """The record count ANY allocation obeying the donor's F07.8 rule needs.
+
+    F07.8 is "one record per item group and index", so the count is fixed by
+    the shape and no allocation can do better. A perfectly packed allocation
+    would place them at ids 0 .. floor-1, so `floor > FIXED.ID_SPACE` is an
+    impossibility proof rather than a property of the layout in ALLOC.
+    """
+    return sum(expected_records(dc).values()) + names
+
+
+def commit_worst_ms(image: int) -> float:
+    """Worst-case flash transaction time for one whole-image A/B commit."""
+    pages = math.ceil(image / FLASH_PAGE)
+    readback_ms = image * 8 * 1000.0 / SPI_HZ
+    return T_SE_MAX_MS + pages * T_PP_MAX_MS + readback_ms
+
+
+#: The channel-map tables the firmware loads into the backend and the record
+#: set it enumerates are both indexed by STREAM_PORT ordinal; the backend's
+#: tables hold sixteen ports per direction (csr_addr_i[3:0]), so the constant
+#: set always names sixteen and a shape's absent ports carry zero clusters.
+FW_MAP_PORTS = 16
+
+#: The writer's five waits in milliseconds, which the firmware scales to
+#: nanoseconds (#398). Each comment cites what
+#: docs/design/SAVED_STATE_FASTCONNECT.md says, and those citations are
+#: BOUNDS: a bound is a range and a wait is a value, so four of these five
+#: could move with every gate green until #465. The values themselves are
+#: pinned in `sw/builder/test_builder.py` (`_WRITER_WAIT_MS`, gate 35) beside
+#: the bound each answers to, which is what makes moving one a decision
+#: rather than an edit.
+WRITER_TIMING_MS = {
+    # 9.4: the heartbeat period is at most T-NVM-WRITER-ALIVE / 4 = 500 ms,
+    # so four heartbeats fit the 2,000 ms liveness deadline; this is half
+    # that maximum.
+    "MILAN_NVM_HEARTBEAT_MS": 250,
+    # 14: T-NVM-DEBOUNCE is not decided there, being a wear-versus-loss trade
+    # that needs a bench; the firmware ships 1,000 ms as the provisional
+    # value, and section 13 states the loss window it opens.
+    "MILAN_NVM_DEBOUNCE_MS": 1000,
+    # 9.4: one sector erase takes at most tSE = 3 s (N25Q128 Table 32) and a
+    # commit must be acknowledged within T-NVM-COMMIT-TIMEOUT = 8,000 ms; the
+    # erase wait is longer than the first and fits inside the second.
+    "MILAN_NVM_ERASE_TIMEOUT_MS": 3500,
+    # 9.4: one page program of up to 256 bytes takes at most tPP = 5 ms; this
+    # is the wait for one page.
+    "MILAN_NVM_PROGRAM_TIMEOUT_MS": 50,
+    # 10, item 6: the firmware starts the restore walk through PP_CTRL[1] and
+    # waits for it. The page sets no bound on that wait: this is the
+    # firmware's own ceiling, and the firmware heartbeats while it waits.
+    "MILAN_NVM_RESTORE_TIMEOUT_MS": 3000,
+}
+
+
+def firmware_constants(shape: Shape, donor: Donor) -> dict[str, int]:
+    """The generated constants the bare-metal writer derives its record set
+    and its five waits (`WRITER_TIMING_MS`) from: `MILAN_NVM_*` in the LiteX
+    `generated/soc.h`.
+
+    ONE derivation for two consumers. `sw/litex/milan_soc.py` publishes these
+    for the firmware it links, and the firmware host test publishes the same
+    dict into its stub header, so the C enumeration is graded against the
+    Python inventory of the SAME shape and never against a second reading of
+    the overlay. Counts only, never sums: the record area's length and every
+    record's offset are the firmware's to derive, exactly as the backend
+    derives them from its parameters, and the host test is where the three
+    derivations meet.
+    """
+    dc = shape.dc
+    out = {
+        "MILAN_NVM_N_STREAM_IN": dc["STREAM_INPUT"],
+        "MILAN_NVM_N_STREAM_OUT": dc["STREAM_OUTPUT"],
+        "MILAN_NVM_N_SPORT_IN": dc["STREAM_PORT_INPUT"],
+        "MILAN_NVM_N_SPORT_OUT": dc["STREAM_PORT_OUTPUT"],
+        "MILAN_NVM_N_AUDIO_UNIT": dc["AUDIO_UNIT"],
+        "MILAN_NVM_N_CLK_DOM": dc["CLOCK_DOMAIN"],
+        "MILAN_NVM_N_NAME": shape.names,
+        "MILAN_NVM_BIND_BASE": donor.base,
+        "MILAN_NVM_REC_LAYOUT": donor.layout,
+    }
+    for label, ports in (("IN", shape.spi), ("OUT", shape.spo)):
+        clusters = {p["index"]: p["clusters"] for p in ports}
+        for k in range(FW_MAP_PORTS):
+            out[f"MILAN_NVM_MAP{label}_CLUSTERS_{k}"] = clusters.get(k, 0)
+    out.update(WRITER_TIMING_MS)
+    return out
+
+
+def inventory(shape: Shape, base: int) -> list[Record]:
+    """Return the record list: (group, index, id, payload_bytes)."""
+    names, dc = shape.names, shape.dc
+    recs = []
+
+    def add(group: str, index: int, payload: int) -> None:
+        """Append one row, with an id only when the group's block reaches
+        this index; a row with no id is check 1's finding, not an error."""
+        b, block = ALLOC[group]
+        if group == "BINDING":
+            b = base
+        if index >= block:
+            recs.append((group, index, None, payload, block))
+        else:
+            recs.append((group, index, b + index, payload, block))
+
+    add("CFG_IDX", 0, PAY["CFG_IDX"])
+    add("SUID", 0, PAY["SUID"])
+    for u in range(dc["AUDIO_UNIT"]):
+        add("RATE", u, PAY["RATE"])
+    for d in range(dc["CLOCK_DOMAIN"]):
+        add("CLKSRC", d, PAY["CLKSRC"])
+        add("MCR", d, PAY["MCR"])
+    for k in range(dc["STREAM_INPUT"]):
+        add("BINDING", k, PAY["BINDING"])
+        add("FMT_IN", k, PAY["FMT_IN"])
+    for i in range(dc["STREAM_OUTPUT"]):
+        add("FMT_OUT", i, PAY["FMT_OUT"])
+        add("PT_OFS", i, PAY["PT_OFS"])
+    for p in shape.spi:
+        add("MAPS_IN", p["index"], p["clusters"] * MAP_ENTRY)
+    for p in shape.spo:
+        add("MAPS_OUT", p["index"], p["clusters"] * MAP_ENTRY)
+
+    for n in range(names):
+        add("NAME", n, NAME_BYTES)
+    return recs

@@ -1,0 +1,52 @@
+pre-merge head: e4906bfca65c61e7e109e3532ac1b2dd5b4c0096
+dev: ede8d48ecd7c7f589a14b957951f040d92c99c70
+merge-base before: 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+issue paths (574c29fa..HEAD):
+CONTRIBUTING.md
+docs/DOC_GENERATION.md
+scripts/check_em_dash.py
+scripts/gen_toc.py
+scripts/gen_toc_cases.py
+scripts/gen_toc_comment_shapes.json
+scripts/gen_toc_container_cases.py
+scripts/gen_toc_container_walk.json
+scripts/gen_toc_containers.py
+scripts/gen_toc_family_one.json
+scripts/gen_toc_html.py
+dev paths (574c29fa..dev):
+.github/workflows/rtl.yml
+CONTRIBUTING.md
+docs/testing/CI_WORKFLOWS.md
+scripts/check_merge_containment.py
+scripts/merge_containment_git.py
+scripts/merge_containment_replay.py
+scripts/merge_containment_selftest.py
+scripts/merge_containment_selftest_content.py
+scripts/merge_containment_selftest_locale.py
+scripts/merge_containment_selftest_mutations.py
+scripts/merge_containment_selftest_replay.py
+scripts/merge_containment_selftest_retention.py
+syn/yosys/README.md
+syn/yosys/cache_selftest.py
+syn/yosys/result_cache.py
+syn/yosys/rom_cache_selftest.py
+syn/yosys/run.sh
+intersection:
+CONTRIBUTING.md
+issue patch-id before: a71c48c986c10bc39c51fc3d1cd8271b266692b5 0000000000000000000000000000000000000000
+merge commit: 070ef51e7f21506368c30247c40749ba2023e5b2
+parents: e4906bfca65c61e7e109e3532ac1b2dd5b4c0096 ede8d48ecd7c7f589a14b957951f040d92c99c70
+issue patch-id after (vs dev): a71c48c986c10bc39c51fc3d1cd8271b266692b5 0000000000000000000000000000000000000000
+CONTRIBUTING 6.1 hunk only:
+ CONTRIBUTING.md                     |   25 +
+ docs/DOC_GENERATION.md              |    4 +-
+ scripts/check_em_dash.py            |    4 +-
+ scripts/gen_toc.py                  |  116 +++-
+ scripts/gen_toc_cases.py            |   23 +-
+ scripts/gen_toc_comment_shapes.json |  559 ++++++++++++++++
+ scripts/gen_toc_container_cases.py  |  337 ++++++++++
+ scripts/gen_toc_container_walk.json | 1228 +++++++++++++++++++++++++++++++++++
+ scripts/gen_toc_containers.py       |  251 +++++++
+ scripts/gen_toc_family_one.json     |  969 +++++++++++++++++++++++++++
+ scripts/gen_toc_html.py             |  139 ++++
+ 11 files changed, 3606 insertions(+), 49 deletions(-)

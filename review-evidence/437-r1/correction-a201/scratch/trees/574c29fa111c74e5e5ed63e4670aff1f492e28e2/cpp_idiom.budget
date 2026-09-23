@@ -1,0 +1,14 @@
+# Rule 11 ratchets - the C and C++ idiom debt this tree still carries.
+# EVERY NUMBER MAY ONLY GO DOWN. Regenerate with
+#   python3 scripts/check_cpp_idiom.py --write-budget
+# which refuses to raise one. What each entry counts, and why it is a
+# ratchet rather than a refusal, is in the gate's own docstring and in
+# docs/development/CODE_QUALITY.md's Rule 11.
+
+c-style cast                 = 0
+file-scope mutable           = 0
+macro constant               = 0
+unnamed enum block           = 0
+multi-declarator declaration = 0
+long function                = 0
+build without warnings       = 0

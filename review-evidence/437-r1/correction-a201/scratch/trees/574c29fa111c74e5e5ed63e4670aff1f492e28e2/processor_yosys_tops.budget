@@ -1,0 +1,18 @@
+# Modules declared under protocol-processor/hdl that the processor's OWN Yosys
+# portability gate (protocol-processor/syn/yosys/run.sh, the `tops` array) does
+# not elaborate as a top, by NAME. Read by scripts/check_rtl_source_lists.py.
+#
+# Its hdl/README.md rule 2 says every module must elaborate; these six are
+# drift at pin 3770ae02, not helper-module exceptions - each elaborates when
+# asked. The fix is upstream (name them in the tops array); the pin bump that
+# brings it in deletes the line here, because a name that has become a top is
+# refused as STALE, and an omission that is not on this list is refused
+# outright. Entries are never added to hide new drift.
+#
+# <module>  <reason>
+KL_acmp_nvm_shadow      drift at pin 3770ae02: declared in hdl/acmp, absent from the tops array
+KL_mrp_strip            drift at pin 3770ae02: declared in hdl/top, absent from the tops array
+KL_pp_dispatch_fifo     drift at pin 3770ae02: declared in hdl/packet_engine, absent from the tops array
+KL_srp_admission        drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+KL_srp_top              drift at pin 3770ae02: declared in hdl/srp, absent from the tops array
+protocol_processor_top  drift at pin 3770ae02: declared in hdl/top, absent from the tops array

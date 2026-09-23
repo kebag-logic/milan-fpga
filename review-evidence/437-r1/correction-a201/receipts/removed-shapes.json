@@ -1,0 +1,272 @@
+[
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt empty comment line",
+  "page": "<!-->\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_comment_shapes.json",
+  "name": "abrupt empty comment inline",
+  "page": "text <!--> more\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lazy indented comment opener is prose",
+  "page": "> quote\n    <!-- x\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "indented comment opener continues a paragraph",
+  "page": "text\n    <!-- x\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "lowercase declaration is no block",
+  "page": "<!x a > <!--\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a prose opener",
+  "page": "text <!--\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a code-span opener",
+  "page": "text `<!--` more\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "heading after a table-cell opener",
+  "page": "| a <!-- |\n| - |\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "list item after a prose opener",
+  "page": "text <!--\n- item\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ },
+ {
+  "fixture": "gen_toc_container_walk.json",
+  "name": "blank after an opener in an item",
+  "page": "- item <!--\n\n## Old\n\n## Real\n",
+  "github": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "base": [],
+  "reviewed_head": [
+   [
+    2,
+    "Old"
+   ],
+   [
+    2,
+    "Real"
+   ]
+  ],
+  "this_head": []
+ }
+]
