@@ -1977,7 +1977,8 @@ code's live behaviour is proved with an independently audited install:
     refused for neither the tool cache nor a job volume.
 
   Two guards have no case. The ten-`PASS` count behind `PROVED` is a backstop
-  that no case reaches, because every check records a `PASS` or a `FAIL`. The
+  that no case reaches, because a check is skipped only after another has
+  recorded a `FAIL` (the isolation control after a failed overlap). The
   install check's refusal of a runner the non-root invoker can write although
   no write bit is set is not staged, because an unprivileged scratch
   directory cannot produce such a file. Run the self-test before the live
