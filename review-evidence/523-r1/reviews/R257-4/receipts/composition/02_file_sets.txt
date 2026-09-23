@@ -1,0 +1,61 @@
+## PR side files (MB..P2)
+M	CONTRIBUTING.md
+M	docs/testing/TESTING.md
+M	scripts/check_baremetal_only.py
+M	scripts/measure_test_evidence.py
+A	scripts/owned_process.py
+A	scripts/process_test_support.py
+M	scripts/run_all_suites.sh
+A	scripts/test_suite_cancellation.py
+M	tb/verilator/gptp_shadow/Makefile
+M	tb/verilator/gptp_shadow/README.md
+M	tb/verilator/gptp_shadow/mutants.py
+A	tb/verilator/gptp_shadow/private_inputs.py
+A	tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+
+## dev side files (MB..P1)
+M	.github/workflows/rtl.yml
+M	CONTRIBUTING.md
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/check_merge_containment.py
+M	scripts/ci_events.py
+A	scripts/merge_containment_git.py
+A	scripts/merge_containment_replay.py
+M	scripts/merge_containment_selftest.py
+M	scripts/merge_containment_selftest_content.py
+A	scripts/merge_containment_selftest_locale.py
+A	scripts/merge_containment_selftest_mutations.py
+A	scripts/merge_containment_selftest_replay.py
+A	scripts/merge_containment_selftest_retention.py
+M	syn/yosys/README.md
+M	syn/yosys/cache_selftest.py
+M	syn/yosys/result_cache.py
+A	syn/yosys/rom_cache_selftest.py
+M	syn/yosys/run.sh
+
+## per dev first-parent merge
+### 574c29fa Merge PR #525: pin remaining RTL workflow scripts and the full-ci-gate SHA assertion
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/ci_events.py
+### 016ce423 Merge PR #519: prove retained replay across one exact redundant merge
+M	CONTRIBUTING.md
+M	scripts/check_merge_containment.py
+A	scripts/merge_containment_git.py
+A	scripts/merge_containment_replay.py
+M	scripts/merge_containment_selftest.py
+M	scripts/merge_containment_selftest_content.py
+A	scripts/merge_containment_selftest_locale.py
+A	scripts/merge_containment_selftest_mutations.py
+A	scripts/merge_containment_selftest_replay.py
+A	scripts/merge_containment_selftest_retention.py
+### ede8d48e Merge PR #522: bind Yosys cache evidence to generated ROM bytes
+M	.github/workflows/rtl.yml
+M	docs/testing/CI_WORKFLOWS.md
+M	syn/yosys/README.md
+M	syn/yosys/cache_selftest.py
+M	syn/yosys/result_cache.py
+A	syn/yosys/rom_cache_selftest.py
+M	syn/yosys/run.sh
+
+## intersection (paths changed on both sides)
+CONTRIBUTING.md

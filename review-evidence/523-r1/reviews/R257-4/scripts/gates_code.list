@@ -1,0 +1,27 @@
+test_evidence_check|python3 scripts/measure_test_evidence.py --check
+test_evidence_selftest|python3 scripts/measure_test_evidence.py --selftest
+fail_fast_check|python3 scripts/measure_fail_fast.py --check
+fail_fast_selftest|python3 scripts/measure_fail_fast.py --selftest
+baremetal_check|python3 scripts/check_baremetal_only.py --check
+baremetal_selftest|python3 scripts/check_baremetal_only.py --selftest
+py_idiom|python3 scripts/check_py_idiom.py
+py_idiom_selftest|python3 scripts/check_py_idiom.py --selftest
+sh_idiom|python3 scripts/check_sh_idiom.py
+sh_idiom_selftest|python3 scripts/check_sh_idiom.py --selftest
+hygiene_check|python3 scripts/check_hygiene.py --check
+hygiene_selftest|python3 scripts/check_hygiene.py --selftest
+todo_ownership|python3 scripts/check_todo_ownership.py
+todo_ownership_selftest|python3 scripts/check_todo_ownership.py --selftest
+naming_check|python3 scripts/measure_naming.py --check
+control_flow_selftest|python3 scripts/measure_control_flow.py --selftest
+cohesion_selftest|python3 scripts/measure_cohesion.py --selftest
+ci_scope_selftest|python3 scripts/ci_scope.py --selftest
+ci_scope_candidate_vs_dev|git diff --name-only ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD | python3 scripts/ci_scope.py
+ci_scope_candidate_vs_mb|git diff --name-only 776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d HEAD | python3 scripts/ci_scope.py
+pp_srcs_check_selftest|python3 scripts/pp_srcs.py --check --selftest
+suite_tally_selftest|python3 scripts/suite_tally.py --selftest
+suite_shards_selftest|python3 scripts/suite_shards.py --selftest
+bash_n_sweep|bash -n scripts/run_all_suites.sh
+make_n_gptp_shadow|make -n -C tb/verilator/gptp_shadow
+diff_check_dev_parent|git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD
+diff_check_pr_parent|git diff --check 015edd9ab2248289ff000f6ef14890be1812ba7b HEAD

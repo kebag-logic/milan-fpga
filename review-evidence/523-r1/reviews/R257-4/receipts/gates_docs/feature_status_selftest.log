@@ -1,0 +1,52 @@
+command: python3 scripts/check_feature_status.py --self-test
+exit: 0
+seconds: 0.6
+----
+  PASS  clean
+  PASS  status conflict
+  PASS  duplicate identifier
+  PASS  unknown status
+  PASS  non-string status
+  PASS  unknown reference
+  PASS  header text in value
+  PASS  fenced claim ignored
+  PASS  fenced example ignored
+  PASS  unmarked claim rejected
+  PASS  operation inventory drift
+  PASS  missing operation inventory
+  PASS  obsolete banner
+  PASS  archive path
+  PASS  source facts
+  PASS  source version drift
+  PASS  source inventory drift
+  PASS  commented source ignored
+  PASS  version drift
+  PASS  version drift names every file
+  PASS  historic marker accepted
+  PASS  historic marker still needs a live claim
+  PASS  historic marker on the current value
+  PASS  retired major is history
+  PASS  minor-only spelling is history
+  PASS  version presence
+  PASS  count drift
+  PASS  numeral spelling accepted
+  PASS  mvu count drift
+  PASS  count in a fence ignored
+  PASS  an adjective is not a count
+  PASS  claim wrapped across lines
+  PASS  wrapped version claim still read
+  PASS  claim inside a block quote
+  PASS  count in a fact block ignored
+  PASS  documented order reversed
+  PASS  order block required
+  PASS  order block unregistered
+  PASS  boot order source tie
+  PASS  boot order reversed in firmware
+  PASS  boot step absent
+  PASS  commented boot call ignored
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)

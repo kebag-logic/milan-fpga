@@ -1,0 +1,18 @@
+## dev-side changed code: signal/session/process-group/terminal use
+files scanned:
+scripts/check_merge_containment.py
+scripts/ci_events.py
+scripts/merge_containment_git.py
+scripts/merge_containment_replay.py
+scripts/merge_containment_selftest.py
+scripts/merge_containment_selftest_content.py
+scripts/merge_containment_selftest_locale.py
+scripts/merge_containment_selftest_mutations.py
+scripts/merge_containment_selftest_replay.py
+scripts/merge_containment_selftest_retention.py
+syn/yosys/cache_selftest.py
+syn/yosys/result_cache.py
+syn/yosys/rom_cache_selftest.py
+syn/yosys/run.sh
+matches:
+syn/yosys/run.sh:457:  trap 'rm -rf "$TMP"' EXIT

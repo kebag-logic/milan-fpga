@@ -1,0 +1,54 @@
+command: python3 scripts/check_sh_idiom.py --selftest
+exit: 0
+seconds: 0.2
+----
+[PASS] a backtick substitution is a finding
+[PASS] a $( ) substitution is not a finding
+[PASS] a backtick in a comment is not a finding
+[PASS] a backtick inside single quotes is not a finding
+[PASS] an escaped backtick is not a finding
+[PASS] a backtick inside double quotes is still a finding
+[PASS] a multi-line single-quoted program keeps its backticks literal
+[PASS] a bare cd without set -e is a finding
+[PASS] a cd with || exit is not a finding
+[PASS] a bare cd under set -e is not a finding
+[PASS] a bare cd under set -e alone is not a finding
+[PASS] a bare cd under set -u alone is a finding
+[PASS] branching on $? is a finding
+[PASS] a chained $? test is not a finding
+[PASS] passing $? on with exit is not a finding
+[PASS] testing the command directly is not a finding
+[PASS] a shebang without the executable bit is a finding
+[PASS] a shebang with the executable bit is not a finding
+[PASS] a file with no shebang is not a finding
+[PASS] a script without strict mode is a finding
+[PASS] set -euo pipefail is strict mode
+[PASS] set -u alone is not strict mode
+[PASS] the three flags set separately are strict mode
+[PASS] an unquoted expansion is a finding
+[PASS] a quoted expansion is not a finding
+[PASS] an assignment does not word-split
+[PASS] an assignment behind `if !` does not word-split
+[PASS] an assignment sharing a line with another statement does not word-split
+[PASS] a real split after an assignment on the same line is still a finding
+[PASS] both halves of a two-statement line are judged separately
+[PASS] a separator inside quotes does not split the statement
+[PASS] a command behind `if !` still word-splits its arguments
+[PASS] a [[ ]] test does not word-split
+[PASS] a deliberate split carrying a shellcheck directive is not a finding
+[PASS] an expansion inside a comment is not a finding
+[PASS] a long top-level script is a finding
+[PASS] a long decomposed script is not a finding
+[PASS] a short top-level script is not a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] the scan reaches the tracked shell
+[PASS] the live population is complete
+[PASS] an empty population is refused
+[PASS] generated shell is out of scope
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+48 checks: 48 PASS, 0 FAIL

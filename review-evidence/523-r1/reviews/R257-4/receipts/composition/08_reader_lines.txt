@@ -1,0 +1,31 @@
+## dev-changed readers: lines naming PR-changed files
+scripts/check_merge_containment.py:85:#! built was left behind -- housekeeping, which run_all_suites.sh reports and
+scripts/merge_containment_selftest.py:365:        #! failure returns: run_all_suites.sh reaches eight scattered FAILs.
+scripts/ci_events.py:228:                            'selected="$(scripts/run_all_suites.sh --physical-gptp --list)"\n'
+scripts/ci_events.py:235:                            '  scripts/run_all_suites.sh "$RUNNER_TEMP/physical-gptp-logs" '
+scripts/ci_events.py:966:             'python3 scripts/check_baremetal_only.py --check',
+scripts/ci_events.py:967:             'python3 scripts/check_baremetal_only.py --selftest',
+scripts/ci_events.py:1018:             'python3 scripts/measure_test_evidence.py --check',
+scripts/ci_events.py:1019:             'python3 scripts/measure_test_evidence.py --selftest',
+scripts/ci_events.py:1852:    expected_run = ('scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" '
+scripts/ci_events.py:1872:    'scripts/run_all_suites.sh --shard "$SHARD/$SHARDS" --list > '
+scripts/ci_events.py:2121:             'scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" --shard "${{ matrix.shard '
+scripts/ci_events.py:2269:             'KL_pp_shadow --top KL_gptp_shadow',
+scripts/ci_events.py:7068:         (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
+scripts/ci_events.py:7083:         _m_step_key_any(DOCS, "docs-check", "check_baremetal_only", "if", False),
+syn/yosys/README.md:218:on `KL_gptp_shadow`).
+syn/yosys/run.sh:232:  GPTP_DP_SRCS="$GPTP_ENGINE_SRCS $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
+syn/yosys/run.sh:247:    "KL_gptp_shadow|$GPTP_ENGINE_SRCS $A/axis_fifo.v $R/hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
+docs/testing/CI_WORKFLOWS.md:31:  `KL_gptp_shadow` when RTL or its tooling changes;
+docs/testing/CI_WORKFLOWS.md:153:`scripts/run_all_suites.sh`. The measured hosted worst case plus a stated
+docs/testing/CI_WORKFLOWS.md:167:worker fails. `scripts/measure_test_evidence.py` pins the table.
+docs/testing/CI_WORKFLOWS.md:189:VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/physical-logs --physical-gptp
+docs/testing/CI_WORKFLOWS.md:1688:scripts/run_all_suites.sh "$suite_logs"
+docs/testing/CI_WORKFLOWS.md:1695:scripts/run_all_suites.sh --shard 0/5 --list
+docs/testing/CI_WORKFLOWS.md:1696:scripts/run_all_suites.sh --shard 4/5 --list   # milan_dp alone
+docs/testing/CI_WORKFLOWS.md:1720:  --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow
+## CI_WORKFLOWS.md exit-status statements
+docs/testing/CI_WORKFLOWS.md:166:short of the end. A timeout stays a red context: the driver exits 92 and the
+docs/testing/CI_WORKFLOWS.md:1049:(exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
+docs/testing/CI_WORKFLOWS.md:1586:conventional `128 + signal` exit status after cleanup (`130` for `SIGINT`). The
+docs/testing/CI_WORKFLOWS.md:1594:to avoid both APIs, return 130, and print its attributable post-cleanup

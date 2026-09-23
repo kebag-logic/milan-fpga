@@ -1,0 +1,41 @@
+command: python3 scripts/check_hygiene.py --selftest
+exit: 0
+seconds: 0.3
+----
+[PASS] trailing whitespace is caught
+[PASS] a trailing tab is trailing whitespace too
+[PASS] a whitespace-only line is not trailing whitespace
+[PASS] a missing EOF newline is caught
+[PASS] a present EOF newline is not
+[PASS] CRLF is caught
+[PASS] a BOM is caught
+[PASS] a tab in SystemVerilog is caught
+[PASS] the line-length candidate counts the 101st character, not a tab's width
+[PASS] a Vivado block-design banner marks a generated file
+[PASS] a docstring that quotes a banner is not a banner
+[PASS] a comment that reaches the phrase mid-sentence is prose
+[PASS] the fixer clears every mechanical finding
+[PASS] the fixer preserves the content
+[PASS] the fixer is idempotent
+[PASS] a byte that is not UTF-8 comes out exactly as it went in
+[PASS] a file with no finding is not rewritten
+[PASS] a project-submodule file is reported upstream and never written
+[PASS] a repaired line inside a triple-quoted string is reported as content
+[PASS] whitespace after a closing quote is formatting
+[PASS] a repaired line whose quotes do not balance is reported
+[PASS] a make variable's value is reported, a make comment is not
+[PASS] a superproject finding does not ride in a processor's free slot
+[PASS] a processor finding at its own ratchet passes
+[PASS] a budget without a population's section is a missing ratchet
+[PASS] a population with no file is refused
+[PASS] a processor off its pin is refused before anything is read
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches both project processor submodules
+[PASS] generated files are actually being skipped
+[PASS] the hand-written gate the R2 review found exempt is scanned
+[PASS] a tab in a tracked makefile is not judged
+[PASS] a CRLF in that makefile is
+[PASS] trailing whitespace in a tracked .xdc is caught
+[PASS] the budget carries every population
+
+35 checks: 35 PASS, 0 FAIL

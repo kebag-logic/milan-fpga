@@ -1,0 +1,111 @@
+## CONTRIBUTING.md blobs
+776bc77d1b06bf57f9c64ac8ac08ea37cab06e7d c8d4508401424b2049acee9826e95f6906fe93b2
+ede8d48ecd7c7f589a14b957951f040d92c99c70 0aa31c729c5e0221d950a2cdba933120a5574fc5
+015edd9ab2248289ff000f6ef14890be1812ba7b 9c90a07fd6862ca7e4e21e8c7bc6ebd4e7d427c9
+18271bebbd1a4abf2e32e7783477573114e2a5fa 117c372f0b57dc3f47aead475e917d534fd23372
+## PR side (MB..P2) CONTRIBUTING.md
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index c8d45084..9c90a07f 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -7,7 +7,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
+ ## Contents
+ 
+ - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** -- The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
+-- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
++- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: never symlink or copy a submodule into a worktree (initialise it at its pin), and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+ - **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
+ - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Three rules paid for on hardware: ≥ 8 min AX boot probes, dump a QSPI slot before overwriting it, and regenerate every window map from `csr.csv` on any gateware block-set change.
+ - **[5. Code quality](#5-code-quality)** -- The numbered cross-language maintainability contract: the Boy Scout rule that keeps cleanup out of functional changes, and the rules that give each cleanup wording, examples, exceptions and a measurement instead of a taste argument.
+@@ -285,9 +285,11 @@ Two board rules that go with it:
+ ### 2.2 Lanes and traps
+ 
+ - **One lane = one worktree = one branch = one PR** (`~/milan-avb-multiwork`
+-  pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —
+-  a symlink escapes to the main repo and builds silently stale RTL; then
+-  delete the copied submodule's `.git` file.
++  pattern). Never symlink `third_party/` or a processor into a worktree: a
++  symlink escapes to the main repo and builds silently stale RTL. Never copy
++  one in either: a copied tree without its submodule `.git` has no pin anyone
++  can verify, and the gates that prove pins refuse it. Initialise the pinned
++  submodules instead, as the next rule says.
+ - **A fresh worktree inherits no submodules, and the honest local bar needs
+   three of them.** `git worktree add` does not initialise submodules, so before
+   any local gate run, in one command:
+@@ -299,7 +301,9 @@ Two board rules that go with it:
+   same way -- but against the **gitlink** and then against the pinned **bytes**,
+   so a standalone clone dropped at the path, a checkout moved off the pin, and a
+   local edit the index has been told to keep quiet about are all refused, not
+-  counted. Lint now REFUSES (exit 2, not the
++  counted. The gPTP shadow mutation campaign proves its gPTP processor and
++  axis inputs against their gitlinks and pinned blobs too, and refuses a copied
++  or off-pin tree. Lint now REFUSES (exit 2, not the
+   ratchet-tighten exit 1) rather
+   than under-count when one is absent (#186): a count over an incomplete
+   resolution set drops findings and would invite a tighten to a number the real
+## dev side (MB..P1) CONTRIBUTING.md
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+index c8d45084..0aa31c72 100644
+--- a/CONTRIBUTING.md
++++ b/CONTRIBUTING.md
+@@ -205,6 +205,60 @@ flowchart LR
+    the release that added `git patch-id --verbatim`; an older Git is refused
+    by name before any verdict, and so is the script's self-test.
+ 
++   Ancestry and linear replay prove historical landing.
++   Later reversions do not revoke those existing proofs.
++   Linear retention policy belongs to Issue #514.
++
++   [Issue #423's decision](https://github.com/kebag-logic/milan-fpga/issues/423#issuecomment-5777210218)
++   adds one final fallback after every existing arm declines:
++
++   - **G1, exact shape:** exactly one source-only merge, two ordered parents.
++     The second parent's sole parent must be the first.
++     The merge tree must equal the second parent's tree.
++     Additional merges, distant parents, octopus and resolution work remain excluded.
++   - **H, historical replay:** every non-merge source commit needs a distinct replay.
++     Existing whitespace-exact patch identities and touched-path postimages must match.
++   - **T, current retention:** require exactly one merge base.
++     Examine raw entries on the source's net-changed paths, unfolding renames.
++     Identity requires matching mode, kind and object ID, including absence.
++     Otherwise, tip and source must both be regular blobs.
++     The ancestor must be absent or a regular blob.
++     Regular modes are `100644` and `100755`.
++     Tip mode must equal source mode.
++     Alternatively, source mode must equal ancestor mode.
++     Raw three-way merge must finish without conflicts.
++     Its output must equal tip bytes exactly.
++     Attributes, drivers, textconv and normalization provide no proof.
++     Symlinks, gitlinks and other types require exact tip/source identity.
++
++   G1/H rejection preserves the existing verdict.
++   Historical replay without T reports `UNKNOWN`, naming unproved current paths.
++   Measurement failures also remain `UNKNOWN`; neither result clears containment.
++   Exit codes remain 0/1/2, plus self-test cleanup status 3.
++   Actual gPTP processor PR62 and published adjacent extension remain unresolved.
++   This arm cannot prove arbitrary later semantic rewrites preserve work.
++   Repeated-block controls provide bounded evidence, without a general alignment proof.
++   The default self-test owns these controls and guard mutations.
++   Git filenames and patches reach Git again as their original bytes.
++   Other Git output that does not re-encode exactly counts as a failed command.
++   Diagnostics quote filenames as ASCII byte literals in every locale.
++   An in-process Big5 codec exercises this transport on every host.
++   Big5 is not injective: it re-encodes `a1 fe` as `a2 41`.
++   Fresh processes repeat it under UTF-8 mode, ASCII, Latin-1 and Big5.
++   A fifth uses a strict UTF-8 locale; each prints a report through a real stdout.
++   Latin-1, Big5 and strict UTF-8 use installed data or a disposable `localedef` output.
++   Missing locale support is reported as `NOT RUN`.
++   That notice supplies no validation evidence for that encoding.
++
++   Reproduce the decision's patch hashes from exact raw diffs:
++
++   ```bash
++   git diff --no-ext-diff --no-textconv --no-renames <parent> <commit>
++   ```
++
++   Hash those output bytes with SHA-256.
++   The decision records both original/replay pairs and their hashes.
++
+    It exits non-zero and names the count when commits are left behind. Replayed
+    against the two merge points in step 6 it reports **3** stranded commits for
+    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed

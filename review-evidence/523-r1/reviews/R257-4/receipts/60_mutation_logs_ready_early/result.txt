@@ -1,0 +1,5 @@
+mutant test exit=1 seconds=9
+16:    cancel_report(output, root, signum, prepared=phase != "selection")
+18:  File "<packet>/scratch/mut-logs-ready-early/scripts/test_suite_cancellation.py", line 125, in cancel_report
+21:AssertionError: CANCELLED: INT; no completed sweep result
+unmodified export control exit=0 seconds=40

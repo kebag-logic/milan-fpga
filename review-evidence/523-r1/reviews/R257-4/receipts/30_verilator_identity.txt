@@ -1,0 +1,10 @@
+## selector file
+755  <scoped-tool-bin>/verilator  319B
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  <scoped-tool-bin>/verilator
+--- content
+#!/bin/sh
+exec env VERILATOR_ROOT=<tool-image-root>/usr/share/verilator <tool-image-root>/usr/bin/verilator "$@"
+--- version
+Verilator 5.050 2026-07-01 rev v5.050
+--- getenv VERILATOR_ROOT
+<tool-image-root>/usr/share/verilator
