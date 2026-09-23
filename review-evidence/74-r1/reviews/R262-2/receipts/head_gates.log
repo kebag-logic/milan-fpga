@@ -1,0 +1,83 @@
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+===== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+===== python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 54 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+===== python3 scripts/check_em_dash.py --base 553edeb86b9144f7b15721255fbe5ad11ef1fe36
+check_em_dash: 0 finding(s) over 24 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [553edeb8..HEAD]
+rc=0
+===== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+===== python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+===== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 144 existing cross-page fragment links reproduced
+rc=0
+===== python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+===== python3 scripts/check_doc_paths.py
+doc path gate: OK (834 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+===== python3 scripts/check_hygiene.py --check
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 718 file(s))
+rc=0
+===== python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+===== python3 scripts/measure_naming.py --check
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: nvm_unflushed_o — documented in cycles, not named for it: per-sink UNFLUSHED binding state, the manager's own dirty vector (KL_acmp_nvm_shadow dirty_r, a clk_i register read combinationally). Bit k rises on the cycle the manager ACCEPTS a changed persisted set for sink k — two clk_i cycles after cap_wr_i, because the capture is pipelined one stage and the accept is the compare against the shadow, so a write-back that changes no persisted field never raises it — and falls on the cycle its commit reports done, or, on retry exhaustion, on the same cycle nvm_alarm_o rises. A tainted commit (a capture that hit the sink mid-flush) holds it: the burst re-serializes fresh data. An integrator publishing a "saved state pending" bit ORs this vector with aecp_dyn_dirty_o; without it a binding taken inside the manager's debounce window reads durable.
+protocol-processor/hdl/top/protocol_processor_top.sv:protocol_processor_top: srp_acc_latency_o — documented in ns, not named for it: per-sink registered accumulated_latency, ns, RAW — the consumer adds its own ingress delay
+
+tree                 files  ports params documented undocumented unit-named matches excluded mismatched candidates
+gptp-processor           6    124      6        106           24          7      26       25          0          1
+protocol-processor      42   1550    265       1695          120         99     184      162          1         22
+superproject            72   1902    316       1978          240        142     292      219          3         73
+total                  120   3576    587       3779          384        248     502      406          4         96
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 587 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+rc=0
+===== python3 scripts/check_port_contracts.py
+port contract gate: OK (3576 first-party port(s): hdl 1902, gptp-processor 124, protocol-processor 1550; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 101 open and 51 literal-bound named connection(s), 65 without a local rationale (all recorded; none may be added); 99 test-only hierarchical observation(s)
+  the ratchet can be lowered - regenerate with --write-budget; 3 recorded connection(s) gained a rationale or left
+rc=0
+===== python3 scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 768 first-party file(s) read)
+rc=0
+===== python3 scripts/lint_rtl.py --check
+  hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:280:54: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 7 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:170:21: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:200:37: WIDTHEXPAND  Operator GTE expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+rc=0
+===== git diff --check ede8d48ecd7c7f589a14b957951f040d92c99c70 HEAD
+rc=0
+===== git diff --check HEAD~1 HEAD
+rc=0

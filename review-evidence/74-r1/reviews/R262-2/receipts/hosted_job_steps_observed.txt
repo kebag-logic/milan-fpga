@@ -1,0 +1,42 @@
+== job 107250658698
+rtl-fast run=35880160831 attempt=1 success
+  1 success Set up job
+  2 success Require every applicable fast gate to pass
+  3 success Complete job
+== job 107246395948
+Yosys shard 0/4 run=35880160346 attempt=1 success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Fetch RTL dependencies
+  4 success Record the tree this worker validates
+  5 success Cache the pinned Yosys build
+  6 skipped Build Yosys from source on cache miss
+  7 success Install the pinned Yosys and prove the version
+  8 success Install the pinned sv2v release
+  9 success Restore the portability result cache seeded from dev
+  10 success Run this weighted portability shard
+  11 success Upload per-top and structural evidence
+  20 success Post Restore the portability result cache seeded from dev
+  21 success Post Cache the pinned Yosys build
+  22 success Post Run actions/checkout@v4
+  23 success Complete job
+== job 107260656374
+yosys-portability run=35880160346 attempt=1 success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Download every shard's evidence
+  4 success Require every shard to have validated this run's SHA
+  5 success Reconcile the live inventory and structural gates
+  6 success Require every Yosys worker to pass
+  12 success Post Run actions/checkout@v4
+  13 success Complete job
+== job 107260589569
+verilator-suites run=35880160346 attempt=1 success
+  1 success Set up job
+  2 success Run actions/checkout@v4
+  3 success Download every shard's logs
+  4 success Require every shard to have validated this run's SHA
+  5 success Prove exhaustive ownership and tally every log
+  6 success Require every Verilator worker to pass
+  12 success Post Run actions/checkout@v4
+  13 success Complete job
