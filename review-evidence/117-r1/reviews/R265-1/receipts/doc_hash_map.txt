@@ -1,0 +1,111 @@
+L77 full f0725eef7a361bd7 -> NO-MATCH | | `gateware/alinx_ax7101.bit` | `f0725eef7a361bd7dc6d692c369868f25e5d4f49f6b7267562a0b5f94
+L78 full aaece32fc6c84f79 -> NO-MATCH | | bitstream payload (3,825,788 B after the 204 B header) | `aaece32fc6c84f790273878350f674
+L79 full 9b077636b1d42aca -> NO-MATCH | | `aem_desc.bin` (7,352 B) | `9b077636b1d42aca660b16dce8eafa06f1e3cac842134e51ba65930d1621
+L80 full 69322600bc9dc40a -> NO-MATCH | | `software/bios/bios.bin` | `69322600bc9dc40a698ed30d125d29d2723f51cc1b26c0f1c3abc96acb39
+L81 full 71e798fc401ed3fb -> NO-MATCH | | `flashboot_layout.json` | `71e798fc401ed3fbaac4cd43a299f23498beafa466aaa17d6773590a62fa9
+L82 full 4db0e6da9c9c910a -> NO-MATCH | | `csr.csv` | `4db0e6da9c9c910a5ee00e56c25908c190c380799e44c846bcfb4ffc7dc045a7` |
+L120 full 33f0e7f9e86fe482 -> NO-MATCH | - **Peer firmware identity.** The ENTITY `firmware_version` field holds seven octets. The 
+L194 full bc41ab03e64198b1 -> NO-MATCH | | UART grader | `scripts/baremetal_uart_smoke.py` at `ede8d48e`, SHA-256 `bc41ab03e64198b1
+L195 prefix 652d6f83 -> bench-a200/tools/console_read.py, bench-a202/tools/console_read.py | | Console readers | `console_read.py` `652d6f83...` (adds `mem_read` to the earlier read-o
+L195 prefix 3a0de7d8 -> bench-a200/tools/console_poll.py, bench-a202/tools/console_poll.py | | Console readers | `console_read.py` `652d6f83...` (adds `mem_read` to the earlier read-o
+L196 prefix c5039d95 -> bench-a200/tools/wire_summary.py, bench-a202/tools/wire_summary.py | | Tap decoder and correlation | `wire_summary.py` `c5039d95...`, `analyze_run.py` `6ac03a8
+L196 prefix 6ac03a87 -> bench-a200/tools/analyze_run.py | | Tap decoder and correlation | `wire_summary.py` `c5039d95...`, `analyze_run.py` `6ac03a8
+L196 prefix 9d2e8629 -> bench-a200/tools/stream_timeline.py | | Tap decoder and correlation | `wire_summary.py` `c5039d95...`, `analyze_run.py` `6ac03a8
+L197 prefix 790e6b7c -> bench-a200/tools/pdelay_turnaround.py, bench-a202/tools/pdelay_turnaround.py | | Pdelay turnaround script | `pdelay_turnaround.py` `790e6b7c...`, unchanged from the 2026
+L198 prefix 17283696 -> bench-a200/tools/avdecc_ro.py, bench-a202/tools/avdecc_ro.py | | Raw AVDECC reader | `avdecc_ro.py` `17283696...`; joins `91:E0:F0:01:00:00`; AECP contro
+L199 prefix 29b4ac46 -> bench-a200/tools/crf_bind_window.py | | CRF bind window | `crf_bind_window.py` `29b4ac46...`; one fixed pair; refuses unless the
+L200 prefix 95d64fd5 -> NO-MATCH | | la_avdecc | 4.3.1-beta1 built from tag `v4.3.1.1` (`6d61a92e7f264c69f23cdc38f50d31114e56
+L200 prefix 8ef4b008 -> NO-MATCH | | la_avdecc | 4.3.1-beta1 built from tag `v4.3.1.1` (`6d61a92e7f264c69f23cdc38f50d31114e56
+L201 prefix ad579e18 -> NO-MATCH | | la_avdecc counters probe | `target-counters-probe` `ad579e18...` from source `0e9faf30..
+L201 prefix 0e9faf30 -> NO-MATCH | | la_avdecc counters probe | `target-counters-probe` `ad579e18...` from source `0e9faf30..
+L202 prefix 2d8950f5 -> bench-a200/tools/a200_enum.cpp | | la_avdecc enumerator | `a200_enum.cpp` `2d8950f5...`, binary `8c9f2885...`, g++ 16.1.1, 
+L202 prefix 8c9f2885 -> bench-a200/tools/a200_enum.bin | | la_avdecc enumerator | `a200_enum.cpp` `2d8950f5...`, binary `8c9f2885...`, g++ 16.1.1, 
+L204 prefix 652d6f83 -> bench-a200/tools/console_read.py, bench-a202/tools/console_read.py | | Step 3 reused unchanged | `console_read.py` `652d6f83...`, `console_poll.py` `3a0de7d8..
+L204 prefix 3a0de7d8 -> bench-a200/tools/console_poll.py, bench-a202/tools/console_poll.py | | Step 3 reused unchanged | `console_read.py` `652d6f83...`, `console_poll.py` `3a0de7d8..
+L204 prefix 17283696 -> bench-a200/tools/avdecc_ro.py, bench-a202/tools/avdecc_ro.py | | Step 3 reused unchanged | `console_read.py` `652d6f83...`, `console_poll.py` `3a0de7d8..
+L204 prefix c5039d95 -> bench-a200/tools/wire_summary.py, bench-a202/tools/wire_summary.py | | Step 3 reused unchanged | `console_read.py` `652d6f83...`, `console_poll.py` `3a0de7d8..
+L204 prefix 04d128bb -> bench-a200/tools/expected_crc.py, bench-a202/tools/expected_crc.py | | Step 3 reused unchanged | `console_read.py` `652d6f83...`, `console_poll.py` `3a0de7d8..
+L205 prefix 45889a7d -> bench-a202/tools/run_cycle.sh | | Step 3 cycle | `run_cycle.sh` `45889a7d...`, `cycle_locked.sh` `c4ef8c9a...`, `powerstri
+L205 prefix c4ef8c9a -> bench-a202/tools/cycle_locked.sh | | Step 3 cycle | `run_cycle.sh` `45889a7d...`, `cycle_locked.sh` `c4ef8c9a...`, `powerstri
+L205 prefix b2f1593e -> bench-a202/tools/powerstrip_cycle.sh | | Step 3 cycle | `run_cycle.sh` `45889a7d...`, `cycle_locked.sh` `c4ef8c9a...`, `powerstri
+L205 prefix 644bcfb8 -> bench-a202/tools/console_alive.py | | Step 3 cycle | `run_cycle.sh` `45889a7d...`, `cycle_locked.sh` `c4ef8c9a...`, `powerstri
+L206 prefix 48c248b2 -> bench-a202/tools/a202_watch.py | | Step 3 controller host | `a202_watch.py` `48c248b2...` (carrier, ADP, AECP polls, the bo
+L206 prefix d7912881 -> bench-a202/tools/census.sh | | Step 3 controller host | `a202_watch.py` `48c248b2...` (carrier, ADP, AECP polls, the bo
+L207 prefix 950533ca -> bench-a202/tools/clock_offset.py | | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd2
+L207 prefix bdd228a1 -> bench-a202/tools/analyze_cycle.py | | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd2
+L207 prefix d6f53575 -> bench-a202/tools/summarize.py | | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd2
+L207 prefix 40424c61 -> bench-a202/tools/census_compare.py | | Step 3 timebase and analysis | `clock_offset.py` `950533ca...`, `analyze_cycle.py` `bdd2
+L509 full 60bdd7d3f54db8bc -> bench-a200/identity/console-identity.txt | | identity console transcript | `60bdd7d3f54db8bc7aa3c58a0670cb5a0ae21bef0324ff0ff0045e7f4
+L510 full 0aad30446e7e7142 -> bench-a200/identity/uart-smoke-identity.log | | identity grader transcript | `0aad30446e7e71427f59860152c0cac5e73f32b80c56bb372e324582d8
+L511 full c8916b01af28e168 -> bench-a200/identity/expected-crc.txt, bench-a202/identity/expected-crc.txt | | reference CRC table (three seeds and the replaced image) | `c8916b01af28e1682bd03b153ddf
+L512 full 26c4529a7d0dd4e3 -> bench-a200/bench/runA/tap-runA.pcap | | Run A tap capture | `26c4529a7d0dd4e335af3073aa8080072dfbb4642042c5de66f487fafb56fc43` |
+L513 full 4118f0fb3082b96d -> bench-a200/bench/runA/console.txt | | Run A console transcript | `4118f0fb3082b96d3454d2fff01ae2724d442ebf0bdbae001c40f2fcb713
+L514 full 33478b3a9cfbaec9 -> bench-a200/bench/runA/pw1-watch.jsonl | | Run A controller poll | `33478b3a9cfbaec9964153be0d83524c12cba896131b01027164177a59f7ec0
+L515 full 5082dcfadc74dfb4 -> bench-a200/bench/runA/pdelay-turnaround.txt | | Run A Pdelay turnaround output | `5082dcfadc74dfb4c4ee2db5bef386f2599f47113b851571256145
+L516 full febe8a1643e88c5b -> bench-a200/bench/runB/tap-runB.pcap | | Run B tap capture | `febe8a1643e88c5b0b12eb3f0fa837b17e9330fcb5cd33998c7a9b30701d029b` |
+L517 full d956745df61c4423 -> bench-a200/bench/runB/console.txt | | Run B console transcript | `d956745df61c4423f3f13e8e73fce66bcf2d4fa0db8dab73df3667f00ae6
+L518 full 392307147da1a8a7 -> bench-a200/bench/runB/pw1-bind.jsonl | | Run B bind window log | `392307147da1a8a7edc1727578d43abdec2523fa6c204e93c11adca89d05bdf
+L519 full f07b7230a8535d47 -> bench-a200/bench/runC/tap-runC.pcap | | Run C tap capture | `f07b7230a8535d470168d5c0547561d69b3cf353982035e8d93baa57493aa80c` |
+L520 full f1ffd611d3562a6d -> bench-a200/bench/runC/counters-probe-020000fffe000001.log | | Run C counters probe, DUT | `f1ffd611d3562a6d923a964328af054b7d55472a2c581cfa5d67e80ea9d
+L521 full 3ab650224f321d23 -> bench-a200/bench/runC/counters-probe-3cc0c60102030000.log | | Run C counters probe, reference peer | `3ab650224f321d2347523babd8cbd9f67fbd8b81fd121ee3
+L522 full bdb4e3b253e5bfa1 -> bench-a200/bench/runC/a200-enum.log | | Run C enumeration log | `bdb4e3b253e5bfa1e54744a590187e043d7078a4abbd3464d777bef3018f6cd
+L523 full be48dca9d507922a -> bench-a200/bench/runC/entity_0x020000fffe000001.json | | Run C DUT entity model dump | `be48dca9d507922adc72fab0bebebd1c69c65af035aa3eb66fabd7eb4
+L524 full 9847b8e1d55ec85d -> bench-a200/bench/runC/dut-output-counters-raw.jsonl | | DUT stream counters, raw | `9847b8e1d55ec85dccb0b08aa53c88f70c2e6b872bd946579448a4cb5d0e
+L525 full 66ad849afd8be73e -> bench-a200/bench/final/tap-final.pcap | | final tap capture | `66ad849afd8be73ecf15a97e97bdbcdc16264e357e23eff5a890081b5685d54c` |
+L526 full a9ba578178a7224f -> bench-a200/bench/final/console-final.txt | | final console transcript | `a9ba578178a7224f007b2ed96a2a6c522bba0e63013eada386077b51dae7
+L527 full 25bc03e190d4781b -> bench-a200/bench/final/uart-smoke-final.log | | final grader transcript | `25bc03e190d4781b95794d540cf15d443f264f22a22645b77058d6f8754a0
+L528 full fdc55f2fee850484 -> bench-a200/bench/census-start.jsonl | | binding census, start | `fdc55f2fee850484661703a24a0137d814140755ab5e542ad22e2c8c79ea591
+L529 full 1a0e025cc565e48e -> bench-a200/bench/final/census-final.jsonl | | binding census, end | `1a0e025cc565e48e2bc2bc47df272f406e52cf85d622fb4dfcfdf6ec07d3acbf`
+L536 full caa36a384cdf2e6e -> bench-a202/identity/console-identity.txt | | identity 2 console transcript | `caa36a384cdf2e6ea7b0cad380cabd5ec1387cd2c520765d532d7cc
+L537 full 7538e887a1373ca9 -> bench-a202/identity/uart-smoke-identity.log | | identity 2 grader transcript | `7538e887a1373ca9d44e8d2b1fac86f24485d8cb154ecd44dc92ea2e
+L538 full c8916b01af28e168 -> bench-a200/identity/expected-crc.txt, bench-a202/identity/expected-crc.txt | | reference CRC table, recomputed (byte-identical to the one above) | `c8916b01af28e1682bd
+L539 full 4c1d74f395c8c1e4 -> bench-a202/bench/powerstrip/status-start.txt | | power-strip status, start | `4c1d74f395c8c1e4000156c24d0c3a9f20dbe80bc0fe9c0429aa07d2594
+L540 full 070bf31964d5c263 -> bench-a202/bench/powerstrip/status-end.txt | | power-strip status, end | `070bf31964d5c263e0792806a867dd38febf0f7c261feed36d104c52a7caf
+L541 full cb185107bd2eb26d -> bench-a202/bench/census-start.jsonl | | binding and settings census, start | `cb185107bd2eb26d71dea220cb694f621cef6d6965fd20e98e
+L542 full c45572d9502dcc8b -> bench-a202/bench/final/census-end.jsonl | | binding and settings census, end | `c45572d9502dcc8b69a70b764a1d9db9fe7b38fb81aed0f863d2
+L543 full 2dfecb1baea1d9f5 -> bench-a202/bench/final/census-compare.txt | | census comparison | `2dfecb1baea1d9f5fd906df20819da21ac8c7bfede2073a8f447263fde5dcd6b` |
+L544 full dec14c0b01b9b26c -> bench-a202/bench/attempt1-aborted/powerstrip.txt | | attempt 1: power-strip log | `dec14c0b01b9b26cb142c1c56dac9e9195838a7874630597ef0efab8bb
+L545 full 909699f5d1aeb001 -> bench-a202/bench/attempt1-aborted/lock.txt | | attempt 1: lock log | `909699f5d1aeb001b046e91a4903b818f9ca3238e1dbf629eaebc734be649654`
+L546 full f6f0ecf0f799e4e2 -> bench-a202/bench/attempt1-aborted/pw1-watch.jsonl | | attempt 1: controller-host watcher | `f6f0ecf0f799e4e28992f1b5f4e1bbb25bf1cae29c7c99960b
+L547 full 7f4b2bd3cbad5d7b -> bench-a202/bench/attempt1-aborted/tap-c1.pcap | | attempt 1: tap capture | `7f4b2bd3cbad5d7bdf7bc5297c7eb761da855209bd7d416758e7a173ab82b8
+L548 full b154802f6dbede16 -> bench-a202/bench/cycle1/tap-c1.pcap | | cycle 1: tap capture | `b154802f6dbede16219ff8eab109aea54ec4610888660776ea2adadad2e79f8e
+L549 full 59d7dd4f0ed449c8 -> bench-a202/bench/cycle1/console.txt | | cycle 1: console transcript | `59d7dd4f0ed449c8d0178779975704549aede9c7722318faced754ede
+L550 full 42e0fb537a546528 -> bench-a202/bench/cycle1/pw1-watch.jsonl | | cycle 1: controller-host watcher | `42e0fb537a546528ae3683fd816da967ade6de42b378799e59f4
+L551 full 3212ffc4543efb0f -> bench-a202/bench/cycle1/pw1-c1.pcap | | cycle 1: controller-host port capture | `3212ffc4543efb0f2853fd9660ceb1659f6606c932a743d
+L552 full 2e97281d5c93946f -> bench-a202/bench/cycle1/powerstrip.txt | | cycle 1: power-strip log | `2e97281d5c93946f43d00caf583161402aa4228cac3f472b1ec4a031a6d4
+L553 full cdbdc542aa481f63 -> bench-a202/bench/cycle1/analysis.txt | | cycle 1: analysis | `cdbdc542aa481f63d6c75b9b71a83254835e977d7709efd37f9625df8d91963c` |
+L554 full 1e892cf350e6e889 -> bench-a202/bench/cycle2/tap-c2.pcap | | cycle 2: tap capture | `1e892cf350e6e88996e65b9a6d7a000d655bc6fc652cac907cb076a153e4409b
+L555 full b913fc92e0d3cdb2 -> bench-a202/bench/cycle2/console.txt | | cycle 2: console transcript | `b913fc92e0d3cdb215a189f7c88a200cdb3f883846fcf7c5c11470bef
+L556 full 209781f6cfd339ab -> bench-a202/bench/cycle2/pw1-watch.jsonl | | cycle 2: controller-host watcher | `209781f6cfd339ab2e86debcd8698d256ff03f4505cdb65caf3a
+L557 full ff9e16f2090c7248 -> bench-a202/bench/cycle2/pw1-c2.pcap | | cycle 2: controller-host port capture | `ff9e16f2090c724819ae5289eb6959ae84370a43e46bf9e
+L558 full be0725f7463646a4 -> bench-a202/bench/cycle2/powerstrip.txt | | cycle 2: power-strip log | `be0725f7463646a42ea7bc7cb384a5880a03fd72ad53586158dd74a2f1f6
+L559 full b36027bcc88ba30e -> bench-a202/bench/cycle2/analysis.txt | | cycle 2: analysis | `b36027bcc88ba30e7d83a934c3bb27439ae689367dc6f4906304765ee2bde641` |
+L560 full 12b8c263871d4ffb -> bench-a202/bench/cycle3/tap-c3.pcap | | cycle 3: tap capture | `12b8c263871d4ffbf203b30d8963d79f472576c0484617802340f06b8a2398b1
+L561 full a4dc7683b374b00c -> bench-a202/bench/cycle3/console.txt | | cycle 3: console transcript | `a4dc7683b374b00c39053a433ca78c9cd3f9de19517a8149003c27b12
+L562 full cea282b0bee69f6a -> bench-a202/bench/cycle3/pw1-watch.jsonl | | cycle 3: controller-host watcher | `cea282b0bee69f6a2e1b27aaa6607d46a669b471ea18d960436e
+L563 full 816249e43cbb2684 -> bench-a202/bench/cycle3/pw1-c3.pcap | | cycle 3: controller-host port capture | `816249e43cbb2684118dac3bef127c7f51d66ddc070bd40
+L564 full 06b09ca4686898c7 -> bench-a202/bench/cycle3/powerstrip.txt | | cycle 3: power-strip log | `06b09ca4686898c7687baf1af57f108bd403b120fba13291b8d0f64d651b
+L565 full 12448e4a7fc69d53 -> bench-a202/bench/cycle3/analysis.txt | | cycle 3: analysis | `12448e4a7fc69d53e787a29b2131b55059ab36ae67577273d5234c1add1c4e8d` |
+L566 full b4b110d0ff7969c3 -> bench-a202/bench/cycle4/tap-c4.pcap | | cycle 4: tap capture | `b4b110d0ff7969c39d8b5010563e71d352d59d128e3185e414baba9e6fde7fc2
+L567 full e66a11f685326289 -> bench-a202/bench/cycle4/console.txt | | cycle 4: console transcript | `e66a11f685326289f41a84ce3ca8b15f4493f93ed7808abf41f6a2f95
+L568 full 499588c787cfda88 -> bench-a202/bench/cycle4/pw1-watch.jsonl | | cycle 4: controller-host watcher | `499588c787cfda885d75b67fbb74b0fc265614cae0762fda1fcc
+L569 full 71c40df9af5aba12 -> bench-a202/bench/cycle4/pw1-c4.pcap | | cycle 4: controller-host port capture | `71c40df9af5aba12690697098724969e848169ae8758418
+L570 full fa162ec8a3b6a49f -> bench-a202/bench/cycle4/powerstrip.txt | | cycle 4: power-strip log | `fa162ec8a3b6a49f6829e1e6bbb049e15816d68b14ef4026916b34ae2bb7
+L571 full 0bfdc6e8bfbaa04c -> bench-a202/bench/cycle4/analysis.txt | | cycle 4: analysis | `0bfdc6e8bfbaa04c246518e8d1581bb9412a91e1e3d77ca6d985772775f75087` |
+L572 full acebedfdf38fe804 -> bench-a202/bench/cycle5/tap-c5.pcap | | cycle 5: tap capture | `acebedfdf38fe8043b9f101fcca7baa1af6111e7579055a8a7aeb669307de79b
+L573 full c8167b24aff28033 -> bench-a202/bench/cycle5/console.txt | | cycle 5: console transcript | `c8167b24aff280339a33c2c5405a04cbf8401f319d120e61e0af2f4f4
+L574 full 86b81a207ae68fb0 -> bench-a202/bench/cycle5/pw1-watch.jsonl | | cycle 5: controller-host watcher | `86b81a207ae68fb009fa06d815a506adff944602cd913d72d824
+L575 full 8dadb45ccb339660 -> bench-a202/bench/cycle5/pw1-c5.pcap | | cycle 5: controller-host port capture | `8dadb45ccb339660d3730f6e73857c2cd19d6c8cfb7ea07
+L576 full 2ab825b61ac6ed55 -> bench-a202/bench/cycle5/powerstrip.txt | | cycle 5: power-strip log | `2ab825b61ac6ed55b4907f51c4ac43f93d6cec0ae228a692fae95c927eae
+L577 full 353d222b6764c0d8 -> bench-a202/bench/cycle5/analysis.txt | | cycle 5: analysis | `353d222b6764c0d8ca256b46733af53674e5e8a796e9317792f8692fc08dc59c` |
+L578 full 6b4f090a04feb89c -> bench-a202/bench/cycle6/tap-c6.pcap | | cycle 6: tap capture | `6b4f090a04feb89c22e5e5061453e80a06d372215412894d9fa262c356a7753e
+L579 full 5a16a9bf2d517031 -> bench-a202/bench/cycle6/console.txt | | cycle 6: console transcript | `5a16a9bf2d5170311df4a804654de6d02a1bd6937e09760a215e89bda
+L580 full 9ca7e270732274d8 -> bench-a202/bench/cycle6/pw1-watch.jsonl | | cycle 6: controller-host watcher | `9ca7e270732274d8abe246efd2351a6703b0a07cb57a948092ac
+L581 full 1576b4550b6656ba -> bench-a202/bench/cycle6/pw1-c6.pcap | | cycle 6: controller-host port capture | `1576b4550b6656ba004fc5abd9dc9454a802c6784c23423
+L582 full 66a6b6a50bdbea4c -> bench-a202/bench/cycle6/powerstrip.txt | | cycle 6: power-strip log | `66a6b6a50bdbea4c1ccc204260a3bc7ecb35e76f9f25ecf6de13a858c13c
+L583 full a3256a0b130fdf9d -> bench-a202/bench/cycle6/analysis.txt | | cycle 6: analysis | `a3256a0b130fdf9ddd18c9d5fbb052a03cac0925c3984d3810c95deda9f022d5` |
+L584 full 4e750d619e90bef4 -> bench-a202/bench/summary.txt | | per-cycle summary | `4e750d619e90bef47c0a170d0cdf26b28f088ef6d0321d80993bf45bd7d39198` |
+L585 full f508377309320ffc -> bench-a202/bench/final/tap-final.pcap | | final tap capture | `f508377309320ffcb1848d4f2fb880081711783757c3fa5d08d5d7a08aa49e98` |
+L586 full bbb2e801a71d35d6 -> bench-a202/bench/final/console-final.txt | | final console transcript | `bbb2e801a71d35d65afa4b6847bf1f7c1ddcbdf6cee5834b80f93806bd6a
+L587 full df57bad1e4c121b0 -> bench-a202/bench/final/uart-smoke-final.log | | final grader transcript | `df57bad1e4c121b0d524ee72950c166f9074df83a4c5a80fbd19964d47872
+L588 full c09c026880d41ecb -> bench-a202/bench/final/hosts-cleanup.txt | | host cleanup record | `c09c026880d41ecb3083f1325edd7855a621c00b37f1d9aece888028a90fc19d`

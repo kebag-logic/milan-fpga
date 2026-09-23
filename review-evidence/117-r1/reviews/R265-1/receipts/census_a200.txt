@@ -1,0 +1,8 @@
+keys start 33 end 35
+ONLY-END ('aem', 'GET_CONFIGURATION', '3cc0c60102030000', '00000000')
+ONLY-END ('aem', 'READ_DESCRIPTOR', '3cc0c60102030000', '0000000000000000')
+DIFF ('acmp', 'get_tx_state', '020000fffe000001', 1) 
+   start {'status': 0, 'stream_id': '0200000000010001', 'talker': '020000fffe000001', 'listener': '0000000000000000', 'talker_uid': 1, 'conn_count': 0, 'flags': '0x0000', 'dmac': '000000000000', 'vlan': 2} 
+   end   {'status': 0, 'stream_id': '0200000000010001', 'talker': '020000fffe000001', 'listener': '0000000000000000', 'talker_uid': 1, 'conn_count': 0, 'flags': '0x0000', 'dmac': '91e0f0008d6f', 'vlan': 2}
+acmp states 18 bound at start [] bound at end []
+RESULT DIFFERENT

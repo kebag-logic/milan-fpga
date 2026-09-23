@@ -1,0 +1,42 @@
+head 0abf147f726721f4a323ee6a32095a02363fe2dc
+== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 148 existing cross-page fragment links reproduced
+rc=0
+== python3 scripts/gen_toc.py --selftest
+TOC selftest: PASS (707/707 arm(s))
+rc=0
+== python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 630 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+== python3 scripts/check_baremetal_only.py --check
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:149: [S] retired target-audio surface 'host capture': '| Cycles 1 to 6 | 13:53:17 to 14:12:05 | each: tap capture, controller-host capture and watcher, 0.1' (#259: no dormant host capture/playback lane)
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:401: [R] prohibited target runtime/service surface 'software gPTP owner': '- No software gPTP owner exists on the image.' (#259: no target OS or retired helper-service plane)
+baremetal-only: FAIL (3 finding(s) across 839 scanned file(s))
+rc=1
+== python3 scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (342 arm(s))
+rc=0
+== python3 scripts/check_doc_paths.py
+doc path gate: OK (836 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 scripts/check_archive.py
+archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+rc=0
+== python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+== python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+== python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
