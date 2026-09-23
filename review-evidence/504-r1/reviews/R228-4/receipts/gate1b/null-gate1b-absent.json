@@ -1,0 +1,21 @@
+{
+ "id": "null-gate1b-absent",
+ "kind": "gate1b-absent",
+ "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+ "models": "pristine head, compiler absent",
+ "edits": [],
+ "returncode": 0,
+ "stop_hook_reached": false,
+ "verdict": "SURVIVED",
+ "expected": "SURVIVED",
+ "as_expected": true,
+ "killing_probe": [],
+ "first_failure": [],
+ "gate_summary": [
+  "NOT RUN [gate 1b]: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS #408 AND #409 ADD ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- and so are the instrument-level acceptance and refusal measurements taken with them. WHAT GRADED THIS RUN is every text rule this gate has ever had, unchanged and in force: the conditional-reach ban, the token-joining splice ban, the paste/digraph/trigraph ban, the pointer-cast, pointer-store and inline-asm sets and the directory pin. NOTHING IS RETIRED ONTO THE INSTRUMENTS, here or on a machine that has them, so this run refuses exactly what dev refuses and a run with a compiler refuses more; the six edits #408 and #409 would retire are refused here as mutations, as they are everywhere",
+  "GATE 1b PASS; 1 NOT RUN; 0 actual firmware compiler invocations"
+ ],
+ "seconds": 272.2,
+ "restored_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+ "restored": true
+}

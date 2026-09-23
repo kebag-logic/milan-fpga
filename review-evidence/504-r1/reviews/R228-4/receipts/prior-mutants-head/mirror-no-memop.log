@@ -1,0 +1,19 @@
+Compiler mode: absent cross tools
+Compiler audit: $PACKET/receipts/prior-mutants-head/mirror-no-memop.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$PACKET/scratch/t0/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$PACKET/scratch/t0/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/t0/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$PACKET/scratch/t0/sw/builder/test_builder.py", line 5446, in test_baremetal_profile_contract
+    assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reported[-1].kind == "unplaced", \
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: with an amocas.w through a pointer to the slot between the slot's load and the bltu, the loop body's store came back as [[0x40000000..0x40000042]]: the refinement crossed a store that rewrote the slot and bounded a word the slot no longer holds

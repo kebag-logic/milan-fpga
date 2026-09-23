@@ -1,0 +1,23 @@
+{
+ "id": "hb-lt",
+ "kind": "literal",
+ "tree_head": "4876423d4cf8e89b820c56f8339f230abefb4827",
+ "models": "a word starting at the store's last byte is kept (R228-S8)",
+ "edits": [
+  [
+   "key[-1] <= start + width - 1 and",
+   "key[-1] < start + width - 1 and"
+  ]
+ ],
+ "returncode": 0,
+ "stop_hook_reached": true,
+ "verdict": "SURVIVED",
+ "expected": "SURVIVED",
+ "as_expected": true,
+ "killing_probe": [],
+ "first_failure": [],
+ "gate_summary": [],
+ "seconds": 1.0,
+ "restored_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+ "restored": true
+}

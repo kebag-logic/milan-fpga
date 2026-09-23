@@ -1,0 +1,612 @@
+{
+ "tree": "<tree>",
+ "sound": 50,
+ "total": 50,
+ "unsound": [],
+ "documented_limits_unsound": [
+  "frame: lbu from the slot reads the whole modelled word",
+  "frame: lhu from the slot reads the whole modelled word",
+  "frame: sp-keyed store aliasing an s0-keyed slot (-20(s0) == 28(sp))",
+  "frame: slot survives a call that was handed its address",
+  "frame: slot survives a store through a resolved number"
+ ],
+ "results": [
+  {
+   "group": "stale",
+   "label": "frame: sb at the slot's LAST byte (+3)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsb zero,-17(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sb at +1",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsb zero,-19(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sb at +2",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsb zero,-18(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sh at +2 (upper half)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsh zero,-18(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: misaligned sw from below (-22)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsw zero,-22(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: misaligned sw from above (-18)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsw zero,-18(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: fsd at the slot's own offset",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tfsd fa5,-20(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: fsd over the NEXT slot (-16) from -20",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-16(s0)\n\tfsd fa5,-20(s0)\n\tlw a4,-16(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: fsq from -32 covering -20",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tfsq fa5,-32(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: fsh at +2",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tfsh fa5,-18(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: amoswap via a pointer (stack base)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\taddi a3,s0,-20\n\tli a2,7\n\tamoswap.w t0,a2,0(a3)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "stack(-)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sc.w at the slot through s0",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsc.w t0,a5,0(s0)\n\tlw a4,0(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sb through a pointer to the slot",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\taddi a3,s0,-17\n\tsb zero,0(a3)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "stack(-)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sw through a pointer formed from sp",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\taddi a3,sp,28\n\tsw zero,0(a3)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "stack(-)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "frame: sw through a stack pointer parked in another slot",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\taddi a3,s0,-20\n\tsw a3,-24(s0)\n\tlw a3,-24(s0)\n\tsw zero,0(a3)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "stack(-)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: sb at byte 3",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tsb zero,3(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: sh at +2",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tsh zero,2(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: fsd from -4 covering word 0",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tfsd fa5,-4(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: misaligned sw at +2",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tsw zero,2(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: amoxor",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tamoxor.w t0,a5,0(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: amomaxu.w.aqrl",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tamomaxu.w.aqrl t0,a5,0(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: sc.w.aqrl",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tsc.w.aqrl t0,a5,0(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: unclassified memory writer (cbo.zero) over it",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tcbo.zero (a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "unclassified(cbo.zero (a3))",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: a store through an unresolved pointer",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tlw a1,0(a0)\n\tsw zero,0(a1)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "unplaced(None)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "static: a call between",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,0(a3)\n\tcall helper\n\tlla a3,probe_static\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "atomic: rd receives old memory (amoswap rd=a4)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tli a4,0\n\tlla a3,probe_static\n\tamoswap.w a4,a5,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "stale",
+   "label": "atomic: unreadable amo operand clears rd",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tmv a4,a5\n\tamoor.w a4,a5,probe_static\n",
+   "reported": [
+    "unreadable(amoor.w a4,a5,probe_static)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "documented-limit",
+   "label": "frame: lbu from the slot reads the whole modelled word",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tlbu a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "sound answer would be unplaced; page states this is not modelled",
+   "sound": false
+  },
+  {
+   "group": "documented-limit",
+   "label": "frame: lhu from the slot reads the whole modelled word",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tlhu a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "sound answer would be unplaced; page states this is not modelled",
+   "sound": false
+  },
+  {
+   "group": "documented-limit",
+   "label": "frame: sp-keyed store aliasing an s0-keyed slot (-20(s0) == 28(sp))",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsw zero,28(sp)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "sound answer would be unplaced; page states this is not modelled",
+   "sound": false
+  },
+  {
+   "group": "documented-limit",
+   "label": "frame: slot survives a call that was handed its address",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\taddi a0,s0,-20\n\tcall helper\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "sound answer would be unplaced; page states this is not modelled",
+   "sound": false
+  },
+  {
+   "group": "documented-limit",
+   "label": "frame: slot survives a store through a resolved number",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tli a3,0x10000\n\tsw zero,0(a3)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x00010000",
+    "0x80001000"
+   ],
+   "expected": "sound answer would be unplaced; page states this is not modelled",
+   "sound": false
+  },
+  {
+   "group": "kept",
+   "label": "frame: sw keeps",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "kept",
+   "label": "frame: sw at -16 survives sb at -20 (disjoint)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-16(s0)\n\tsb zero,-20(s0)\n\tlw a4,-16(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "kept",
+   "label": "frame: sw at -20 survives sh at -22 (disjoint below)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsh zero,-22(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "kept",
+   "label": "frame: sw at -20 survives sw at -24 (adjacent)",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tsw a5,-20(s0)\n\tsw zero,-24(s0)\n\tlw a4,-20(s0)\n",
+   "reported": [
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "kept",
+   "label": "static: amoswap.w.aqrl keeps rs2",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tamoswap.w.aqrl t0,a5,0(a3)\n\tlw a4,0(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "kept",
+   "label": "static: word 4 survives sb at word 0",
+   "body": "\taddi sp,sp,-48\n\tsw ra,44(sp)\n\tsw s0,40(sp)\n\taddi s0,sp,48\n\tli a5,-2147479552\n\tlla a3,probe_static\n\tsw a5,4(a3)\n\tsb zero,3(a3)\n\tlw a4,4(a3)\n",
+   "reported": [
+    "sym(probe_static)",
+    "sym(probe_static)",
+    "0x80001000"
+   ],
+   "expected": "final store placed at 0x80001000",
+   "sound": true
+  },
+  {
+   "group": "footprint",
+   "label": "fsq straddling into the window from -12",
+   "body": "\tli a4,-1879048204\n\tfsq fa5,0(a4)\n",
+   "reported": [
+    "0x8ffffff4",
+    "0x8ffffff8",
+    "0x8ffffffc",
+    "0x90000000"
+   ],
+   "expected": [
+    "0x8ffffff4",
+    "0x8ffffff8",
+    "0x8ffffffc",
+    "0x90000000"
+   ],
+   "sound": true
+  },
+  {
+   "group": "footprint",
+   "label": "misaligned fsw from -1",
+   "body": "\tli a4,-1879048193\n\tfsw fa5,0(a4)\n",
+   "reported": [
+    "0x8fffffff",
+    "0x90000000"
+   ],
+   "expected": [
+    "0x8fffffff",
+    "0x90000000"
+   ],
+   "sound": true
+  },
+  {
+   "group": "footprint",
+   "label": "sh straddling from -1",
+   "body": "\tli a4,-1879048193\n\tsh a5,0(a4)\n",
+   "reported": [
+    "0x8fffffff",
+    "0x90000000"
+   ],
+   "expected": [
+    "0x8fffffff",
+    "0x90000000"
+   ],
+   "sound": true
+  },
+  {
+   "group": "footprint",
+   "label": "fsd wrapping at 2^32",
+   "body": "\tli a4,-4\n\tfsd fa5,0(a4)\n",
+   "reported": [
+    "0xfffffffc",
+    "0x00000000"
+   ],
+   "expected": [
+    "0xfffffffc",
+    "0x00000000"
+   ],
+   "sound": true
+  },
+  {
+   "group": "footprint",
+   "label": "negative displacement",
+   "body": "\tli a4,-1879048184\n\tfsd fa5,-12(a4)\n",
+   "reported": [
+    "0x8ffffffc",
+    "0x90000000"
+   ],
+   "expected": [
+    "0x8ffffffc",
+    "0x90000000"
+   ],
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "positive: nothing between",
+   "body": "",
+   "reported": [
+    "[0x40000000..0x40000042]"
+   ],
+   "expected": "[0x40000000..0x40000042]",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: sb over the slot",
+   "body": "\tsb zero,-20(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: sw to another slot",
+   "body": "\tsw zero,-24(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: fsd over the slot",
+   "body": "\tfsd fa5,-24(s0)\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: sc.w through a pointer",
+   "body": "\taddi a3,s0,-20\n\tsc.w t0,a5,0(a3)\n",
+   "reported": [
+    "stack(-)",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: cbo.zero through a pointer",
+   "body": "\taddi a3,s0,-20\n\tcbo.zero (a3)\n",
+   "reported": [
+    "unclassified(cbo.zero (a3))",
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "stop: a call",
+   "body": "\tcall helper\n",
+   "reported": [
+    "unplaced(None)"
+   ],
+   "expected": "final store unplaced",
+   "sound": true
+  },
+  {
+   "group": "mirror",
+   "label": "no stop: an ALU op between",
+   "body": "\tli a2,5\n",
+   "reported": [
+    "[0x40000000..0x40000042]"
+   ],
+   "expected": "[0x40000000..0x40000042]",
+   "sound": true
+  },
+  {
+   "group": "load",
+   "label": "flh fa5,0(a4)",
+   "body": "flh fa5,0(a4)",
+   "reported": [],
+   "expected": "no store",
+   "sound": true
+  },
+  {
+   "group": "load",
+   "label": "flq fa5,0(a4)",
+   "body": "flq fa5,0(a4)",
+   "reported": [],
+   "expected": "no store",
+   "sound": true
+  },
+  {
+   "group": "load",
+   "label": "lr.w.aq a3,(a4)",
+   "body": "lr.w.aq a3,(a4)",
+   "reported": [],
+   "expected": "no store",
+   "sound": true
+  },
+  {
+   "group": "load",
+   "label": "lhu a3,2(a4)",
+   "body": "lhu a3,2(a4)",
+   "reported": [],
+   "expected": "no store",
+   "sound": true
+  }
+ ]
+}
