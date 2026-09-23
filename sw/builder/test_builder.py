@@ -741,7 +741,52 @@ RV32_MEM_RE = re.compile(
 RV32_BRANCHES = ("beq", "bne", "blt", "bge", "bltu", "bgeu", "beqz", "bnez",
                  "blez", "bgez", "bltz", "bgtz", "bgt", "ble", "bgtu", "bleu")
 RV32_LOADS = ("lw", "lh", "lhu", "lb", "lbu")
-RV32_STORES = ("sw", "sh", "sb")
+#: Loads the value lattice does not model: an FP destination is not an
+#: integer register, and a reservation's value is the memory it reads.
+#: Recognised so the fail-closed default in rv32_step() does not read them
+#: as stores; their destination simply becomes unknown.
+RV32_OTHER_LOAD_RE = re.compile(
+    r"^(?:fl[hwdq]|lr\.w(?:\.(?:aq|rl|aqrl))?)$")
+#: EVERY instruction class that WRITES memory, with the bytes it writes
+#: (R228-F1 on PR #521). The census compiles at the adopted compiler's
+#: default ISA, and the #504 SDK's is rv32imafd, so `fsw` and `fsd` are
+#: ordinary output and a list of the integer stores alone let a float
+#: overlay store into ADP_CTRL pass the whole gate. Atomics write memory
+#: too: AMO and SC carry `rd, rs2, (rs1)`. The memory operand is the LAST
+#: operand of every class, and anything else that carries one and is not
+#: a load above is refused as `unclassified` by rv32_step(), so a class
+#: missing from this table fails closed rather than going unreported.
+RV32_STORE_BYTES = {"sb": 1, "sh": 2, "sw": 4,
+                    "fsh": 2, "fsw": 4, "fsd": 8, "fsq": 16}
+RV32_ATOMIC_STORE_RE = re.compile(
+    r"^(?:amo(?:swap|add|xor|and|or|min|max|minu|maxu)|sc)\.w"
+    r"(?:\.(?:aq|rl|aqrl))?$")
+
+
+def rv32_store_bytes(mnem: str) -> int | None:
+    """The bytes `mnem` writes to memory, or None when it is not a store."""
+    if mnem in RV32_STORE_BYTES:
+        return RV32_STORE_BYTES[mnem]
+    return 4 if RV32_ATOMIC_STORE_RE.match(mnem) else None
+
+
+def rv32_is_load(mnem: str) -> bool:
+    """True for every load class this reader recognises."""
+    return mnem in RV32_LOADS or bool(RV32_OTHER_LOAD_RE.match(mnem))
+
+
+RV32_MEM_BASE_RE = re.compile(r"\(\s*([a-z0-9]+)\s*\)$")
+
+
+def rv32_memory_operand(args: list[str]) -> bool:
+    """True when any operand addresses memory through a register, however
+    its displacement is spelled: `0(a4)`, `(a4)` and `%pcrel_lo(.L1)(a4)`
+    all count, and `%lo(sym)` does not, because `sym` is no register."""
+    for arg in args:
+        base = RV32_MEM_BASE_RE.search(arg)
+        if base and base.group(1) in RV32_REG_NAMES:
+            return True
+    return False
 RV32_DATA_EMIT_RE = re.compile(
     r"\.(?:word|4byte|long|byte|half|short|2byte|8byte|dword|quad|string|"
     r"asci[iz]|zero|space|float|double)\b")
@@ -1264,7 +1309,8 @@ def _rv32_slot_mirror(insns, reg):
                 return (place.group(2), _rv32_s32(offset)) \
                     if offset is not None else None
             return None
-        if mnem in RV32_STORES or \
+        if rv32_store_bytes(mnem) is not None or \
+                (rv32_memory_operand(args) and not rv32_is_load(mnem)) or \
                 mnem in ("call", "jal", "jalr", "tail", "jr", "ret"):
             return None
         if args and (args[0] == reg or args[0] in RV32_FRAME_REGS):
@@ -1440,44 +1486,106 @@ def _rv32_step_load(state, mnem, args, data):
     return _RV32_UNHANDLED
 
 
+def rv32_footprint_words(address: int, width: int) -> list[int]:
+    """`address` itself, then the start of every further aligned 32-bit
+    word that a `width`-byte store at `address` also writes.
+
+    A narrow store inside one word is reported exactly as it always was.
+    An `fsd` writes two words and a misaligned `sw` can straddle two, and
+    the window test is a test of each word written, not of the first
+    byte alone."""
+    further = range((address & ~3) + 4, ((address + width - 1) & ~3) + 4, 4)
+    return [address & RV32_MASK] + [word & RV32_MASK for word in further]
+
+
+def _rv32_forget_overlap(mem, prefix, start, width):
+    """Every OTHER modelled word keyed `prefix + (offset,)` that the
+    footprint `[start, start + width)` overlaps becomes "cannot say": a
+    byte store into the middle of a word slot, or an `fsd` across two,
+    leaves no whole word this lattice may still read back. The word the
+    store starts at is the caller's to set, from _rv32_store_value()."""
+    for key in [key for key in mem if key[:-1] == prefix and
+                key[-1] <= start + width - 1 and key[-1] + 3 >= start]:
+        mem[key] = None
+
+
+def _rv32_store_value(state, mnem, args):
+    """The WHOLE word a store leaves at its own address, when this lattice
+    holds it: `sw` writes its source register and `amoswap` its `rs2`.
+    Everything else is "cannot say" (R227-2-F1 on PR #521): a byte or
+    half-word store leaves a word that is part old and part new, an FP
+    register is outside the lattice, every other AMO writes a function of
+    memory, and an SC may not write at all. Both slot models store exactly
+    this, so a frame slot and a static cannot disagree about one store."""
+    if mnem == "sw" or mnem.startswith("amoswap."):
+        return state.get(args[-2])
+    return None
+
+
 def _rv32_step_store(state, mnem, ops, args):
-    """The store family - EVERY store is reported - or _RV32_UNHANDLED."""
-    if mnem in RV32_STORES:
+    """The store family - EVERY store of EVERY class is reported - or
+    _RV32_UNHANDLED."""
+    width = rv32_store_bytes(mnem)
+    if width is not None:
         #: EVERY store is reported, classified by the base it goes through.
         #: The two silent drops that used to live here -- an operand this
         #: regex cannot read, and a base that resolved to nothing -- are
         #: what let a store leave the census without ever being asked about
         #: ([R0] BLOCKER on PR #241). A store the resolver cannot read is
         #: the one it must refuse hardest, so it is reported as `unreadable`
-        #: rather than skipped.
-        place = RV32_MEM_RE.match(args[1]) if len(args) == 2 else None
+        #: rather than skipped. The third drop was the CLASS: only `sw`,
+        #: `sh` and `sb` were stores here, so an `fsw` into ADP_CTRL left no
+        #: observation at all (R228-F1 on PR #521).
+        atomic = RV32_ATOMIC_STORE_RE.match(mnem) is not None
+        place = RV32_MEM_RE.match(args[-1]) \
+            if len(args) == (3 if atomic else 2) else None
         if place is None:
             _rv32_forget_symbols(state)
+            if atomic and args:
+                state.set(args[0], None)
             return ("store", (Rv32Where("unreadable", f"{mnem} {ops}"), None))
         raw_off, base = place.group(1), place.group(2)
-        held, value = state.get(base), state.get(args[0])
+        held, value = state.get(base), _rv32_store_value(state, mnem, args)
+        if atomic:
+            #: `rd` receives the old memory word, or the SC status: neither
+            #: is a value this lattice holds. Cleared only once the base and
+            #: the value are read, because `amoswap.w a5,a5,0(a4)` is the
+            #: ordinary spelling.
+            state.set(args[0], None)
         offset = 0 if not raw_off or raw_off.startswith("%lo(") \
             else _rv32_s32(_rv32_imm(raw_off) or 0)
         if isinstance(held, int):
-            return ("store", ((held + offset) & RV32_MASK, value))
+            words = rv32_footprint_words((held + offset) & RV32_MASK, width)
+            if len(words) == 1:
+                return ("store", (words[0], value))
+            return ("stores", tuple((word, value) for word in words))
         if isinstance(held, Rv32Range):
-            #: A store to a BOUNDED range is reported as the range itself,
-            #: so the census can judge it by address the way it judges a
-            #: resolved number.  Conservative on both sides: a displacement
-            #: that could wrap makes it unplaced, and the symbol slots drop
-            #: because a ranged store may cover one of this unit's statics.
+            #: A store to a BOUNDED range is reported as the range its
+            #: footprint covers, so the census can judge it by address the
+            #: way it judges a resolved number.  Conservative on both sides:
+            #: a displacement that could wrap makes it unplaced, and the
+            #: symbol slots drop because a ranged store may cover one of this
+            #: unit's statics.
             _rv32_forget_symbols(state)
-            placed = _rv32_range_add(held, offset)
+            placed = _rv32_range_bounded(held.lo + offset,
+                                         held.hi + offset + width - 1)
             if placed is not None:
                 return ("store", (placed, value))
             return ("store", (Rv32Where("unplaced", repr(held)), value))
         if isinstance(held, Rv32Sym):
-            state.mem[("sym", held.name, held.offset + offset)] = \
-                value if mnem == "sw" else None
+            at = held.offset + offset
+            _rv32_forget_overlap(state.mem, ("sym", held.name), at, width)
+            state.mem[("sym", held.name, at)] = value
             return ("symstore", (held.name, value))
         if isinstance(held, Rv32Stack):
+            #: A stack address may be any frame slot this function models:
+            #: `q = (T *)&v; q->w = x;` rewrites `v` through a base that is
+            #: no frame register (R227-2-F1 and R228-F5 on PR #521), so every
+            #: frame slot is "cannot say" after it.
+            _rv32_forget_frame(state)
             return ("store", (Rv32Where("stack"), value))
         if base in RV32_FRAME_REGS and held is None:
+            _rv32_forget_overlap(state.mem, (base,), offset, width)
             state.mem[(base, offset)] = value
             return None
         if isinstance(held, Rv32Tag) and held.what.startswith("call:"):
@@ -1491,7 +1599,7 @@ def _rv32_step_store(state, mnem, ops, args):
 def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
               tags: dict[str, Rv32Tag]) -> tuple[str, Any] | None:
     """Interpret one instruction.  Returns an observation for the caller
-    (`store`, `call`, `ret`, `branch`, `symstore`) or None."""
+    (`store`, `stores`, `call`, `ret`, `branch`, `symstore`) or None."""
     args = [part.strip() for part in ops.split(",")] if ops else []
     moved = _rv32_step_move(state, mnem, args)
     if moved is not _RV32_UNHANDLED:
@@ -1529,6 +1637,15 @@ def rv32_step(state: Rv32State, mnem: str, ops: str, data: dict[str, int],
     for arg in args[:1]:
         if arg not in ("zero", "x0") and RV32_MEM_RE.match(arg) is None:
             state.set(arg, None)
+    #: The fail-closed default for the CLASS, as `unreadable` is for the
+    #: operand: an instruction that addresses memory and is neither a load
+    #: nor a store class RV32_STORE_BYTES names may write it, so it is
+    #: reported rather than stepped over. A compressed `c.sw` in an asm
+    #: template, or a store class a later ISA adds, lands here and is
+    #: refused by rule 1b as a store this gate cannot place.
+    if rv32_memory_operand(args) and not rv32_is_load(mnem):
+        _rv32_forget_symbols(state)
+        return ("store", (Rv32Where("unclassified", f"{mnem} {ops}"), None))
     return None
 
 
@@ -1612,6 +1729,10 @@ def rv32_run(body: Rv32Body, data: dict[str, int],
                 name, value = payload
                 seen["symstores"].add(name)
                 seen["stores"].append((block, (Rv32Where("sym", name), value)))
+            elif kind == "stores":
+                #: One store whose footprint spans several words, reported
+                #: once per word so each is judged by address.
+                seen["stores"].extend((block, word) for word in payload)
             else:
                 seen[{"branch": "branches"}.get(kind, kind + "s")].append(
                     (block, payload))
@@ -1666,6 +1787,16 @@ def _rv32_forget_symbols(state):
     class -- statics are symbolic in this model and the stack is a different
     object -- so those two leave the slots alone."""
     for key in [key for key in state.mem if key[0] == "sym"]:
+        del state.mem[key]
+
+
+def _rv32_forget_frame(state):
+    """Drop every frame slot the state holds.
+
+    Called for a store through a stack address, which may land on any of
+    them. A store that does not resolve at all is refused by rule 1b,
+    and a callee's stores are not stepped here, so neither reaches this."""
+    for key in [key for key in state.mem if key[0] in RV32_FRAME_REGS]:
         del state.mem[key]
 
 
@@ -3856,8 +3987,8 @@ def test_baremetal_profile_contract() -> None:
     #: the boot-path comparison, `-H` for the include-resolution
     #: measurement, and the emitted assembly for the resolved store census.
     #: So a machine with no RV32-capable compiler stands all three down at
-    #: once -- and that is every hosted runner this repository uses today,
-    #: not a hypothetical box.
+    #: once. #504 provisions the two hosted builder jobs; the deliberately
+    #: compiler-absent control continues to exercise this weaker path.
     #:
     #: Which is why NOTHING IS RETIRED HERE. At PR #498's first head six
     #: text refusals were retired onto these instruments; on a runner with
@@ -3874,8 +4005,8 @@ def test_baremetal_profile_contract() -> None:
     #: run with a compiler refuses strictly MORE than `dev`, a run without
     #: one refuses exactly what `dev` refuses and says which instruments did
     #: not grade. Retirement is the remaining scope of #408 and #409 and
-    #: belongs in one later lane together with installing an RV32-capable
-    #: compiler on the hosted runners. What it would buy is measured on
+    #: remains separate from #504's hosted compiler installation. What it
+    #: would buy is measured on
     #: every live run, in the instrument-level acceptance table beside the
     #: mutations, rather than claimed.
     def instruments_stood_down() -> bool:
@@ -3978,6 +4109,17 @@ def test_baremetal_profile_contract() -> None:
     #: Decided ONCE, here: a run that probed the compiler twice could report
     #: one arm and grade with the other.
     instruments_down = instruments_stood_down()
+    if "--require-rv32" in sys.argv:
+        assert not instruments_down, \
+            "--require-rv32: the hosted firmware instruments must run"
+        assert census_used["compiler"] == census_compilers[0], \
+            "--require-rv32: the provisioned absolute SDK selector must be adopted"
+    if not instruments_down:
+        compiler = census_used["compiler"]
+        version = subprocess.run([compiler, "--version"], check=True,
+                                 capture_output=True, text=True).stdout.splitlines()[0]
+        print(f"  [gate 1b] compiler argv[0]={compiler} "
+              f"version={version} driver={census_used['flags']}")
     #: THE DECLARED RESIDUAL, and the reason it exists ([R0] BLOCKER on PR
     #: #241).
     #:
@@ -5043,10 +5185,173 @@ def test_baremetal_profile_contract() -> None:
         "the RV32 resolver dropped a store whose operand it cannot read " \
         f"({unreadable_run['stores']}): an unreadable store is the one it " \
         "must refuse hardest, so it may not be the one that vanishes"
+    #: ---- and every store CLASS, on literal assembly, on every machine
+    #: (R228-F1 on PR #521). The adopted SDK compiles the census at
+    #: rv32imafd, where a float overlay store is `fsw`, and a classifier
+    #: that knew only `sw`, `sh` and `sb` reported nothing for it, so the
+    #: whole gate accepted an ADP_CTRL write. The compiled mutants below
+    #: exercise these classes only on a compiler whose ISA emits them;
+    #: this control does not depend on which compiler, or none, answered.
+    #: Each probe holds a resolved base in a4 and makes ONE store; each
+    #: must come back at EVERY 32-bit word it writes.
+    window_word = csr_base + 0x600
+    class_probes = (
+        ("sw", window_word, "sw a5,0(a4)", [window_word]),
+        ("sh", window_word, "sh a5,2(a4)", [window_word + 2]),
+        ("sb", window_word, "sb a5,3(a4)", [window_word + 3]),
+        ("fsh", window_word, "fsh fa5,0(a4)", [window_word]),
+        ("fsw", window_word, "fsw fa5,0(a4)", [window_word]),
+        ("fsd", window_word, "fsd fa5,0(a4)",
+         [window_word, window_word + 4]),
+        ("fsq", window_word, "fsq fa5,0(a4)",
+         [window_word + 4 * word for word in range(4)]),
+        ("amoswap.w.aqrl", window_word, "amoswap.w.aqrl a5,a5,0(a4)",
+         [window_word]),
+        ("amoor.w", window_word, "amoor.w zero,a5,0(a4)", [window_word]),
+        ("amoadd.w", window_word, "amoadd.w a3,a5,(a4)", [window_word]),
+        ("sc.w.rl", window_word, "sc.w.rl a0,a5,0(a4)", [window_word]),
+        ("fsd below the window", csr_base - 4, "fsd fa5,0(a4)",
+         [csr_base - 4, csr_base]),
+        ("misaligned sw below the window", csr_base - 2, "sw a5,0(a4)",
+         [csr_base - 2, csr_base]),
+    )
+
+    def rv32_probe(body: str) -> list[int | Rv32Range | Rv32Where]:
+        """The store addresses the resolver reports for one probe body."""
+        run = rv32_run(rv32_functions(f"probe:\n{body}\tret\n")["probe"], {})
+        return [address for _at, (address, _v) in run["stores"]]
+
+    for label, base, insn, words in class_probes:
+        reported = rv32_probe(f"\tli a4,{_rv32_s32(base)}\n\t{insn}\n")
+        assert reported == words, \
+            f"the RV32 resolver reported {reported} for `{insn}` through a " \
+            f"base resolved to 0x{base:08x}, not the words it writes " \
+            f"({[hex(word) for word in words]}): the {label} store class " \
+            "must be judged by address like every other store, or a store " \
+            "into the Milan CSR window leaves the census unasked"
+        assert any(csr_base <= word < csr_base + csr_size
+                   for word in reported), \
+            f"the {label} store-class probe never reaches the window"
+    loads_reported = rv32_probe(
+        f"\tli a4,{_rv32_s32(window_word)}\n\tflw fa5,0(a4)\n"
+        "\tfld fa4,0(a4)\n\tlr.w.aqrl a3,0(a4)\n\tlw a2,0(a4)\n")
+    assert loads_reported == [], \
+        f"the RV32 resolver reported a load as a store: {loads_reported}"
+    #: The class fail-closed default: a mnemonic that addresses memory and
+    #: is in neither table is refused, not stepped over. `cbo.zero (a4)`
+    #: spells its operand with no displacement, which a reading that
+    #: wanted `N(reg)` would miss (R228-S4 on PR #521).
+    unclassified = [rv32_probe(f"\tli a4,{_rv32_s32(window_word)}\n\t{insn}\n")
+                    for insn in ("c.sw a5,0(a4)", "amocas.w a3,a5,0(a4)",
+                                 "cbo.zero (a4)")]
+    assert all(len(stores) == 1 and isinstance(stores[0], Rv32Where) and
+               stores[0].kind == "unclassified" for stores in unclassified), \
+        "an instruction that addresses memory and is neither a recognised " \
+        f"load nor a recognised store came back as {unclassified}, not as " \
+        "one UNCLASSIFIED store: the classifier's class default must fail " \
+        "closed"
+    #: ... and what a store leaves BEHIND. A word a later load reads back
+    #: must not survive a store that rewrites it without leaving a whole
+    #: word this lattice holds: each probe parks an address OUTSIDE the
+    #: window (or hands one to an AMO), rewrites the word, reloads it and
+    #: stores through it. The only sound answer is a store this gate cannot
+    #: place; the stale reading is 0x80001000, a placed store the census
+    #: would ACCEPT. Beside the FP, byte and AMO overwrites the classifier
+    #: brought (R228-F1 on PR #521), these are the ones its review found
+    #: open or uncontrolled: a byte and a half-word store at a frame slot's
+    #: OWN offset, where a union overwrite of a parked ADP_CTRL address
+    #: passed the whole gate (R227-2-F1); a store through a pointer to the
+    #: slot, `q = (T *)&v; q->w = x;` (R227-2-F1, R228-F5); an AMO other
+    #: than a swap and an SC, whose written word is not their rs2
+    #: (R227-2-F2); an `fsd` over a static's first word reloaded at the
+    #: SECOND word it also covers (R228-F4); and a byte store at a word's
+    #: LAST byte, the top byte of a parked little-endian address, which only
+    #: the overlap test's low boundary reaches (R227-3 and R228-F6).
+    outside = 0x8000_1000
+    frame = ("\taddi sp,sp,-32\n\tsw s0,28(sp)\n\taddi s0,sp,32\n"
+             f"\tli a5,{_rv32_s32(outside)}\n")
+    static = frame + "\tlla a3,probe_static\n"
+    stale_probes = (
+        ("an fsd over a frame slot",
+         frame + "\tsw a5,-20(s0)\n\tfsd fa5,-24(s0)\n\tlw a4,-20(s0)\n"),
+        ("a byte store at a frame slot's own offset",
+         frame + "\tsw a5,-20(s0)\n\tsb zero,-20(s0)\n\tlw a4,-20(s0)\n"),
+        ("a half-word store at a frame slot's own offset",
+         frame + "\tsw a5,-20(s0)\n\tsh zero,-20(s0)\n\tlw a4,-20(s0)\n"),
+        ("a byte store at a frame slot's last byte",
+         frame + "\tsw a5,-20(s0)\n\tsb zero,-17(s0)\n\tlw a4,-20(s0)\n"),
+        ("an integer store through a pointer to a frame slot",
+         frame + "\tsw a5,-20(s0)\n\taddi a3,s0,-20\n\tsw zero,0(a3)\n"
+         "\tlw a4,-20(s0)\n"),
+        ("an FP store through a pointer to a frame slot",
+         frame + "\tsw a5,-20(s0)\n\taddi a3,s0,-20\n\tfsw fa5,0(a3)\n"
+         "\tlw a4,-20(s0)\n"),
+        ("an amoor.w into a frame slot, handed a placed address",
+         frame + "\tamoor.w t0,a5,(s0)\n\tlw a4,0(s0)\n"),
+        ("an fsw over a static's word",
+         static + "\tsw a5,0(a3)\n\tfsw fa5,0(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store into a static's word",
+         static + "\tsw a5,0(a3)\n\tsb zero,1(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store at a static's own offset",
+         static + "\tsw a5,0(a3)\n\tsb zero,0(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store at a static word's last byte",
+         static + "\tsw a5,0(a3)\n\tsb zero,3(a3)\n\tlw a4,0(a3)\n"),
+        ("an fsd over a static's first word, reloaded at its second",
+         static + "\tsw a5,4(a3)\n\tfsd fa5,0(a3)\n\tlw a4,4(a3)\n"),
+        ("an amoadd.w into a static, handed a placed address",
+         static + "\tamoadd.w t0,a5,0(a3)\n\tlw a4,0(a3)\n"),
+        ("an sc.w into a static, handed a placed address",
+         static + "\tsc.w t0,a5,0(a3)\n\tlw a4,0(a3)\n"),
+        ("an AMO writing its base register",
+         frame + "\tmv a4,a5\n\tamoswap.w a4,a5,0(a4)\n"),
+    )
+    for label, body in stale_probes:
+        reported = rv32_probe(body + "\tli a2,1\n\tsw a2,0(a4)\n")
+        assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \
+            reported[-1].kind == "unplaced", \
+            f"after {label} the RV32 resolver still placed the next store " \
+            f"({reported}): a word the store rewrote was read back as a " \
+            "placed address the census accepts"
+    #: ... and the POSITIVE arm of the same shapes, so "unplaced" above is
+    #: the rewrite's doing and not the probe's: a whole-word integer store
+    #: and an AMO swap leave exactly the word they write, and the next
+    #: store is placed there. A byte store one past a word's last byte
+    #: leaves that word too, so the last-byte probes above are pinned to
+    #: the overlap boundary from both sides.
+    kept_probes = (
+        ("a word store into a frame slot",
+         frame + "\tsw a5,-20(s0)\n\tlw a4,-20(s0)\n"),
+        ("a word store into a static's second word",
+         static + "\tsw a5,4(a3)\n\tlw a4,4(a3)\n"),
+        ("an amoswap.w into a static",
+         static + "\tamoswap.w t0,a5,0(a3)\n\tlw a4,0(a3)\n"),
+        ("a byte store one past a frame slot's last byte",
+         frame + "\tsw a5,-20(s0)\n\tsb zero,-16(s0)\n\tlw a4,-20(s0)\n"),
+        ("a byte store one past a static word's last byte",
+         static + "\tsw a5,0(a3)\n\tsb zero,4(a3)\n\tlw a4,0(a3)\n"),
+    )
+    for label, body in kept_probes:
+        reported = rv32_probe(body + "\tli a2,1\n\tsw a2,0(a4)\n")
+        assert reported[-1:] == [outside], \
+            f"after {label} the RV32 resolver reported the next store as " \
+            f"{reported[-1:]}, not at the 0x{outside:08x} it wrote: the " \
+            "stale-word probes cannot tell a rewrite from a probe that " \
+            "never places anything"
     store_classes_note = (
         "the store classifier's fail-closed default was measured on a store "
         "operand the resolver cannot read (`sw a5,pr241_target,a4`), which "
-        f"it reported as {unreadable_stores[0]!r} rather than dropping")
+        f"it reported as {unreadable_stores[0]!r} rather than dropping; "
+        f"all {len(class_probes)} store-class probes (integer, "
+        "floating-point and atomic, an fsd and a misaligned sw straddling "
+        "the window's first word among them) were reported at every word "
+        f"they write, {len(unclassified)} memory-writing mnemonics no table "
+        "names were refused as UNCLASSIFIED, four loads were reported as "
+        f"none, {len(stale_probes)} rewrites of a parked word (FP, byte and "
+        "half-word at the slot's own offset, a byte at the word's last byte, "
+        "a store through a pointer to the slot, AMO, SC, and an fsd "
+        "reloaded at the second word it covers) left no stale word for a "
+        f"later store to be placed by, while {len(kept_probes)} stores that "
+        "write the word whole or miss it by one byte left exactly theirs")
 
     #: ---- and the DEGENERATE cases for the branch-refined range class,
     #: in both directions: the refinement must actually produce the bound
@@ -5056,7 +5361,8 @@ def test_baremetal_profile_contract() -> None:
     #: one firmware), and a bounded index on a base whose sum can WRAP
     #: must come back unplaced, because no firmware here exercises the
     #: wrap arm and an unexercised fail-closed branch is a claim.
-    def rv32_range_probe(base: int) -> dict[str, Any]:
+    def rv32_range_probe(base: int,
+                         store: str = "sb zero,0(a5)") -> dict[str, Any]:
         """The resolved run of a bltu-bounded copy loop writing through
         `base` - the shape the AEM copy store's placement rests on, and,
         at a wrapping base, the shape the range class must refuse."""
@@ -5066,7 +5372,7 @@ def test_baremetal_profile_contract() -> None:
             f"\tli a4,{_rv32_s32(base)}\n\tsw a4,-24(s0)\n"
             "\tsw zero,-20(s0)\n\tj .L2\n"
             ".L3:\n\tlw a4,-24(s0)\n\tlw a5,-20(s0)\n\tadd a5,a4,a5\n"
-            "\tsb zero,0(a5)\n"
+            f"\t{store}\n"
             "\tlw a5,-20(s0)\n\taddi a5,a5,1\n\tsw a5,-20(s0)\n"
             ".L2:\n\tlw a4,-20(s0)\n\tli a5,64\n\tbltu a4,a5,.L3\n"
             "\tlw s0,24(sp)\n\taddi sp,sp,32\n\tret\n")["ranged"], {})
@@ -5085,10 +5391,74 @@ def test_baremetal_profile_contract() -> None:
         "a bounded index on a base whose sum can WRAP 32 bits must come " \
         f"back unplaced, not as an invented range ({wrapped}): the range " \
         "class is only sound while it fails closed on wrap"
+    #: ... and a ranged store's FOOTPRINT (R227-2-F2 and R228-F4 on PR
+    #: #521). The range runs to the last byte the widest placement writes,
+    #: so each base below leaves every FIRST byte the loop writes under the
+    #: window while its last store's final byte is the window's first. A
+    #: range judged by first bytes alone is placed outside the window, and
+    #: rule 1 would accept a store into the window's first word.
+    footprints = []
+    for store, width in (("sw zero,0(a5)", 4), ("fsd fa5,0(a5)", 8)):
+        start = csr_base - 64 - (width - 2)
+        want = Rv32Range(start, start + 63 + width - 1)
+        placed = [address for _at, (address, _v)
+                  in rv32_range_probe(start, store)["stores"]
+                  if isinstance(address, Rv32Range)]
+        assert placed == [want] and start + 63 < csr_base == want.hi, \
+            f"a bltu-bounded `{store}` loop from 0x{start:08x} came back as " \
+            f"{placed}, not as its footprint {want!r}: the loop's last " \
+            "store writes the window's first byte, so a range that stops " \
+            "at its first byte places a CSR store outside the window"
+        footprints.append(f"`{store.split()[0]}` to {want!r}")
+    #: ---- and the branch refinement's MIRROR, which refines the frame slot
+    #: a compared register was just loaded from. It may do so only while
+    #: nothing since that load could have rewritten the slot (R227-2-F2 on
+    #: PR #521): an FP store over it, an AMO through a pointer to it and a
+    #: memory-writing instruction no table names each rewrite it, and a
+    #: refinement across them bounds a word the loop body then reads as a
+    #: range it never held. Each must leave the body's store unplaced; the
+    #: same loop with nothing in between is the positive arm.
+    mirror_range = Rv32Range(0x4000_0000, 0x4000_0000 + 63 + 3)
+
+    def rv32_mirror_probe(between: str) -> list[int | Rv32Range | Rv32Where]:
+        """The stores of a bltu-guarded body that reads back the compared
+        slot, with `between` placed after the slot's load."""
+        return rv32_probe(
+            "\taddi sp,sp,-32\n\tsw s0,28(sp)\n\taddi s0,sp,32\n"
+            "\tlw a4,0(a1)\n\tsw a4,-20(s0)\n\tlw a4,-20(s0)\n"
+            f"{between}\tli a5,64\n\tbltu a4,a5,.L3\n\tj .L9\n"
+            f".L3:\n\tlw a3,-20(s0)\n\tli a2,{_rv32_s32(mirror_range.lo)}\n"
+            "\tadd a3,a2,a3\n\tsw zero,0(a3)\n.L9:\n")
+
+    mirrored = rv32_mirror_probe("")
+    assert mirrored[-1:] == [mirror_range], \
+        f"the bltu-guarded body's store came back as {mirrored[-1:]}, not " \
+        f"at {mirror_range!r}: the mirror probes below cannot tell a " \
+        "stopped refinement from one that never refines"
+    mirror_stops = (
+        ("an fsw over the slot", "\tfsw fa5,-20(s0)\n"),
+        ("an amoor.w through a pointer to the slot",
+         "\taddi a3,s0,-20\n\tamoor.w t0,a5,0(a3)\n"),
+        ("an amocas.w through a pointer to the slot",
+         "\taddi a3,s0,-20\n\tamocas.w t0,a5,0(a3)\n"),
+    )
+    for label, between in mirror_stops:
+        reported = rv32_mirror_probe(between)
+        assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \
+            reported[-1].kind == "unplaced", \
+            f"with {label} between the slot's load and the bltu, the loop " \
+            f"body's store came back as {reported[-1:]}: the refinement " \
+            "crossed a store that rewrote the slot and bounded a word the " \
+            "slot no longer holds"
     range_control_note = (
         "the range class's own degenerate cases held: a bltu-bounded loop "
-        f"store was placed at {ranged_placed[0]!r} and the same loop on a "
-        "wrapping base came back unplaced")
+        f"store was placed at {ranged_placed[0]!r}, the same loop on a "
+        "wrapping base came back unplaced, and ranged stores whose first "
+        "bytes all lie under the window were placed to their footprints' "
+        "last byte, the window's first (" + ", ".join(footprints) + "); "
+        f"and the branch refinement bounded a mirrored slot to "
+        f"{mirror_range!r} with nothing between its load and the bltu, "
+        f"but stopped at {len(mirror_stops)} non-integer rewrites of it")
 
     # Force the non-target branch without depending on which compilers the
     # machine happens to have. If stand-down ever invokes the compiler, the
@@ -10864,6 +11234,111 @@ def test_baremetal_profile_contract() -> None:
         "typedef volatile uint32_t *milan_csr_page_p;\n"
         f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
         "static int aem_loaded;", "brace-less if typedef")
+    #: ---- the store CLASSES the adopted compiler emits (R228-F1 on PR
+    #: #521). The #504 SDK compiles the census at rv32imafd, so the paged
+    #: struct overlay above with a `float` member is an `fsw` and with a
+    #: `double` member an `fsd`: both passed the whole gate while the
+    #: classifier knew only `sw`, `sh` and `sb`, and the `uint32_t` one did
+    #: not. Each value sets bit 0 of the word at ADP_CTRL. The atomic
+    #: builtins are AMO and SC stores where the census ISA carries the A
+    #: extension, and calls into the C library where it does not, which is
+    #: why those three are registered only where the census declares `a`.
+    #: Each entry is `(label, mutation, emitted class, ISA extension)`.
+    atomic_page_typedef = (
+        "typedef volatile uint32_t *milan_atomic_p;\n"
+        f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
+        "static int aem_loaded;")
+    atomic_page_word = f"(milan_atomic_p)((csr_page << 16) | {adp_name})"
+    store_class_mutations = tuple(
+        (f"{kind} struct-overlay store through a paged base",
+         replace_once(
+             stored_before_aem(
+                 f"((milan_{kind}_blk)((csr_page << 16) | {adp_name}))"
+                 f"->ctrl = {value};",
+                 f"{kind} struct-overlay store through a paged base"),
+             "static int aem_loaded;",
+             f"typedef struct {{ volatile {kind} ctrl; }} *milan_{kind}_blk;\n"
+             f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
+             "static int aem_loaded;", f"paged {kind} struct overlay typedef"),
+         mnemonic, extension)
+        for kind, value, mnemonic, extension in (
+            ("float", "1.0000001f", "fsw", "f"),
+            ("double", "1.0000000000000002", "fsd", "d"))) + tuple(
+        (f"{label} through a paged base",
+         replace_once(stored_before_aem(statement, f"{label} store"),
+                      "static int aem_loaded;", atomic_page_typedef,
+                      f"{label} typedef"),
+         mnemonic, "a")
+        for label, statement, mnemonic in (
+            ("atomic exchange",
+             f"(void)__atomic_exchange_n({atomic_page_word}, 1u, "
+             "__ATOMIC_SEQ_CST);", "amoswap.w"),
+            ("atomic fetch-or",
+             f"(void)__atomic_fetch_or({atomic_page_word}, 1u, "
+             "__ATOMIC_RELAXED);", "amoor.w"),
+            ("atomic compare-exchange",
+             "{\n\t\tuint32_t expected = 0u;\n\t\t"
+             f"(void)__atomic_compare_exchange_n({atomic_page_word}, "
+             "&expected, 1u, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);\n\t}",
+             "sc.w")))
+    #: ---- and the local REWRITES the frame-slot model read back stale
+    #: (R227-2-F1 and R228-F5 on PR #521). Each parks a word in a local,
+    #: rewrites the local so that it holds ADP_CTRL's window address, and
+    #: stores through it at the end of configure_fabric(): a byte and a
+    #: half-word written through a union at the word's own offset, which
+    #: leave the parked ADP_CTRL address as it was, and an integer and a
+    #: float written through a pointer to the local, which replace a parked
+    #: 0x80001000. The float is computed at run time from a static whose
+    #: word is not a window word, so no immediate or data word reveals it.
+    #: Each passed the whole gate while a frame slot kept the value its
+    #: first store wrote; the only sound answer is a store this gate cannot
+    #: place, so each is pinned on the unplaced store in configure_fabric().
+    adp_float = struct.unpack("<f", struct.pack("<I", adp_window_address))[0]
+    half_float = struct.unpack("<f", struct.pack("<f", adp_float / 2))[0]
+    half_word = struct.unpack("<I", struct.pack("<f", half_float))[0]
+    assert half_float * 2 == adp_float and \
+        not csr_base <= half_word < csr_base + csr_size, \
+        "the float local-rewrite mutant needs a static whose doubled value " \
+        f"is ADP_CTRL's window word 0x{adp_window_address:08x} and whose own " \
+        f"word 0x{half_word:08x} is outside the window"
+    slot_blk = "typedef struct { volatile uint32_t ctrl; } *milan_slot_blk;\n"
+    slot_page = f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n"
+    slot_rewrite_mutations = tuple(
+        (label, replace_once(
+            stored_before_aem("{\n\t\t" + "\n\t\t".join(body) + "\n\t}",
+                              f"{label} store"),
+            "static int aem_loaded;",
+            slot_blk + typedefs + slot_page + "\nstatic int aem_loaded;",
+            f"{label} typedef"))
+        for label, typedefs, body in (
+            ("local rewritten by a union byte store at its own offset", "",
+             ("union { uint32_t word; uint8_t low; } milan_slot;",
+              f"milan_slot.word = (csr_page << 16) | {adp_name};",
+              f"milan_slot.low = 0x{adp_window_address & 0xFF:02x}u;",
+              "((milan_slot_blk)milan_slot.word)->ctrl = 1u;")),
+            ("local rewritten by a union half-word store at its own offset",
+             "",
+             ("union { uint32_t word; uint16_t low; } milan_slot;",
+              f"milan_slot.word = (csr_page << 16) | {adp_name};",
+              f"milan_slot.low = 0x{adp_window_address & 0xFFFF:04x}u;",
+              "((milan_slot_blk)milan_slot.word)->ctrl = 1u;")),
+            ("local rewritten by an integer store through a pointer to it",
+             "typedef struct { uint32_t word; } *milan_slot_word_p;\n",
+             ("uint32_t milan_slot = 0x80001000u;",
+              "milan_slot_word_p milan_alias = (milan_slot_word_p)&milan_slot;",
+              f"milan_alias->word = (csr_page << 16) | {adp_name};",
+              "((milan_slot_blk)milan_slot)->ctrl = 1u;")),
+            ("local rewritten by a float store through a pointer to it",
+             "typedef struct { float word; } *milan_slot_float_p;\n"
+             f"static float milan_slot_half = {float.hex(half_float)}f;\n",
+             ("uint32_t milan_slot = 0x80001000u;",
+              "milan_slot_float_p milan_alias = "
+              "(milan_slot_float_p)&milan_slot;",
+              "milan_alias->word = milan_slot_half * 2.0f;",
+              "((milan_slot_blk)milan_slot)->ctrl = 1u;"))))
+    census_arch = baseline_census_verdict.get("arch") or ""
+    census_isa = set(re.findall(r"(?:^rv32|_)([a-z][a-z0-9]*?)\d+p\d+",
+                                census_arch))
     #: ---- #465: the two boot words gate 35 cannot see, because it enters
     #: the firmware through configure_fabric() alone. Both reviewers of PR
     #: #459 planted the first of these and measured gate 35, gate 1b and
@@ -10944,6 +11419,37 @@ def test_baremetal_profile_contract() -> None:
                 "the cast set nor the store set recognises the spelling, so "
                 "that shape would be open on every instrument but the "
                 "caller rule's regex")
+    #: ... and the store-class mutants measured on the resolver ALONE, so
+    #: the table entries below are known to exercise the class they name:
+    #: where the census ISA declares the extension, the compiled mutant
+    #: must actually emit that class, and the resolver must refuse it on
+    #: the resolved window address rather than on something incidental.
+    store_class_compiled = []
+    if baseline_census_verdict["ran"]:
+        for label, mutation, mnemonic, extension in store_class_mutations:
+            if extension == "a" and "a" not in census_isa:
+                continue
+            _taken = census_take(mutation, label)
+            emitted = re.search(
+                rf"(?m)^\s+{re.escape(mnemonic)}(?:\.[a-z]+)*\s", _taken["text"])
+            assert emitted or extension not in census_isa, \
+                f"the census ISA ({census_arch}) declares the '{extension}' " \
+                f"extension, yet the {label} mutant emitted no " \
+                f"`{mnemonic}`: this control would not exercise the store " \
+                "class it is registered for"
+            try:
+                assert_resolved_boot_flow(_taken["text"], source_model, label)
+            except AssertionError as exc:
+                assert RESOLVER_STORE_PIN in str(exc), \
+                    f"the resolver refused the {label} for the wrong " \
+                    f"reason: {exc}"
+            else:
+                raise AssertionError(
+                    f"the resolver accepted the {label}, which writes the "
+                    "entity-enable word through a paged base: that store "
+                    "class is open on every instrument")
+            store_class_compiled.append(mnemonic if emitted else
+                                        f"{label} as integer stores")
     #: ---- and the verifier's CONTROL and DATA flow, which no positional
     #: rule reaches: two ways to the success return that never take the
     #: comparison, the comparison made against a value crc32() never
@@ -12686,6 +13192,28 @@ def test_baremetal_profile_contract() -> None:
         ("the retired ADP_CAPS write planted back outside configure_fabric()",
          caps_write_in_choke, docs_source, csr_source, RESOLVER_BOOT_WORD_PIN),
     )
+    #: ---- the store CLASSES the adopted compiler emits (R228-F1 on PR
+    #: #521): float, double and atomic stores into ADP_CTRL through the
+    #: same paged base. The two FP entries are refusals on every ISA, as FP
+    #: stores or as integer ones; the atomic three are filtered out below
+    #: where the census ISA carries no A extension.
+    store_class_entries = tuple(
+        (f"entity enabled by {'an' if label[0] in 'aeiou' else 'a'} {label}",
+         mutation, docs_source, csr_source, RESOLVER_STORE_PIN)
+        for label, mutation, _mnemonic, _extension in store_class_mutations)
+    atomic_store_mutations = tuple(
+        entry for entry, (_label, _mutation, _mnemonic, extension)
+        in zip(store_class_entries, store_class_mutations) if extension == "a")
+    resolver_only_mutations += store_class_entries
+    #: ---- and the local rewrites (R227-2-F1 and R228-F5 on PR #521),
+    #: each pinned on the one store it leaves unplaced in configure_fabric().
+    slot_rewrite_pin = (f"{RESOLVER_UNPLACED_PIN} and that no declared "
+                        "residual accounts for: configure_fabric() through "
+                        "unplaced")
+    resolver_only_mutations += tuple(
+        (f"entity enabled through a {label}", mutation, docs_source,
+         csr_source, slot_rewrite_pin)
+        for label, mutation in slot_rewrite_mutations)
     #: The label names the INSTRUMENT, because the rule that fires and the
     #: rule the function name suggests are not the same one and the reason
     #: pin is the honest half: rule 5 (the cast set) runs before rule 6 (the
@@ -12716,7 +13244,21 @@ def test_baremetal_profile_contract() -> None:
          csr_source, LISTING_PIN, MutantFiles(listing=accepted_beside)),
     )
     if baseline_census_verdict["ran"]:
-        mutations += census_only_mutations + resolver_only_mutations
+        mutations += census_only_mutations + tuple(
+            entry for entry in resolver_only_mutations
+            if "a" in census_isa or entry not in atomic_store_mutations)
+        if "a" not in census_isa:
+            #: Registered for the MAKEFLAGS reason below: the census ran,
+            #: but on an ISA with no A extension these builtins compile to
+            #: library calls, so the entries would have no store to detect.
+            #: The literal-assembly store-class control above still graded
+            #: AMO and SC on this run.
+            skip("gate 1b",
+                 f"the {len(atomic_store_mutations)} atomic-store mutations: "
+                 f"the census assembly declares {census_arch or 'no arch'}, "
+                 "with no A extension, so the compiler emits library calls "
+                 "rather than AMO or SC stores and the entries would have "
+                 "no store to detect")
     #: `MAKEFLAGS += -e` only lets the environment override on a make that
     #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
     #: say so where it does not, rather than ship a mutant whose verdict
@@ -12879,8 +13421,12 @@ def test_baremetal_profile_contract() -> None:
             "taken over, by bounding the loop index with the emitted bltu "
             "-- the residual entry that used to stand for that store bound "
             "neither base nor value and is RETIRED"
-            "; " + store_classes_note + "; " + range_control_note +
-            "; and " + join_control_note)
+            "; " + store_classes_note +
+            f"; the census ISA is {census_arch or 'unstated'}, and the "
+            "compiled store-class mutants reached the resolver as "
+            + ", ".join(store_class_compiled) +
+            ", each refused on the resolved store address"
+            "; " + range_control_note + "; and " + join_control_note)
     else:
         helper_blind_note = (
             "; the exempted-helper blindness control did NOT run here, "
@@ -13046,7 +13592,11 @@ def test_baremetal_profile_contract() -> None:
           "edges, so (a) no function -- the address helper included, it is "
           "NOT exempt -- stores to a resolved address in the CSR window, "
           "which answers a paged base built with slli/ori that prints no "
-          "window immediate, and EVERY OTHER STORE IS CLASSIFIED rather "
+          "window immediate, for a store instruction of EVERY class the ISA "
+          "has (integer, floating-point, and RV32A AMO and SC, judged at "
+          "every 32-bit word it writes, and any other memory-writing "
+          "mnemonic refused as unclassified), and EVERY OTHER STORE IS "
+          "CLASSIFIED rather "
           "than filtered out: a stack address, one of this unit's own "
           "statics and the address helper's own return (which exactly one "
           "function may store through) are proved outside or accounted "
@@ -13441,9 +13991,14 @@ def test_baremetal_profile_contract() -> None:
           eval_binding_control_note)
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
-          "owns those), that crc32() is a CRC, and anything about an "
+          "owns those), that crc32() is a CRC, anything about an "
           "interrupt vector, which is REFUSED by the no-label check rather "
-          "than modelled")
+          "than modelled, and a store made inside a called function: the "
+          "resolver records a call's arguments without judging them, so a "
+          "memset or libatomic call handed a window pointer, and a callee's "
+          "write into its caller's frame, are not observed "
+          "(docs/integration/BAREMETAL_FIRMWARE.md names what the census "
+          "does NOT observe)")
     print("  [gate 1b] TRUSTED, not proved: the census compiles against "
           "STUB headers whose every address is asserted outside the CSR "
           "window, and the make plan runs against a STUB LiteX environment "

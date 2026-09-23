@@ -600,6 +600,10 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it stages three engine defects and requires failure",
     "protocol-processor/tb/nvm_port/measure_figures.py":
         "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+    "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
+        "orchestration lifecycle fixture; it identifies the planted mutation and "
+        "compares caller bytes/modes/index across interruption. Synthetic commands "
+        "grade isolation and cleanup only; RTL behavior still requires the real suite",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
