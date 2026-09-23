@@ -1,0 +1,212 @@
+[
+ {
+  "family": "walk",
+  "name": "a type-6 block INTERRUPTS a paragraph, where a type-7 block may not",
+  "page": "text\n<div>\n## Alpha\n</div>\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a comment opened after visible text leaves that line alone",
+  "page": "## Head <!-- note\n-->\n## B\n"
+ },
+ {
+  "family": "walk",
+  "name": "a second comment opened on a closing line stays open",
+  "page": "<!-- first --> <!-- second\n## Contents\n-->\ntext\n"
+ },
+ {
+  "family": "walk",
+  "name": "a comment closed and reopened inside a span stays open",
+  "page": "<!--\nx --> y <!-- z\n## Contents\n-->\ntext\n"
+ },
+ {
+  "family": "walk",
+  "name": "a line of spaces and tabs does end one",
+  "page": "<span>\n \t\n## Alpha\n"
+ },
+ {
+  "family": "walk",
+  "name": "a self-closing type-1 name opens a type-7 block instead, which the blank line ends",
+  "page": "<pre/>\n## Alpha\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a type-6 name the renderer carries interrupts a paragraph",
+  "page": "text\n<source>\n## Alpha\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a type-6 name that ends its line opens the block",
+  "page": "text\n<div\n>\n## Alpha\n</div>\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a self-closing type-6 tag opens it too",
+  "page": "text\n<div/>\n## Alpha\n</div>\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a type-6 name a form feed follows opens the block, interrupting a paragraph",
+  "page": "text\n<div\f>\n## Alpha\n</div>\n\n## Real\n"
+ },
+ {
+  "family": "walk",
+  "name": "a type-6 name in capitals opens the block",
+  "page": "text\n<DIV>\n## Alpha\n</DIV>\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a name of letters, digits and hyphens after its first letter opens a type-7 block",
+  "page": "## Head\n<AbC0-9>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with an attribute name carrying every character the grammar allows after its first opens a type-7 block",
+  "page": "## Head\n<x a0_.:-E>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a tab between attributes, and tabs around an equals sign opens a type-7 block",
+  "page": "## Head\n<x\ta=1\tb\t=\t2>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a quoted value that is empty opens a type-7 block",
+  "page": "## Head\n<x a='' b=\"\">\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with blanks between the last attribute and the self-closing slash opens a type-7 block",
+  "page": "## Head\n<x a=\"1\" \t/>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with blanks after the closing angle bracket opens a type-7 block",
+  "page": "## Head\n<x> \t\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with blanks inside a CLOSING tag opens a type-7 block",
+  "page": "## Head\n</b \t>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with an attribute name that starts with a capital opens a type-7 block",
+  "page": "## Head\n<x Ab>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a CLOSING tag name of letters, digits and hyphens after its first letter opens a type-7 block",
+  "page": "## Head\n</AbC0-9>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a line tabulation between the tag name and an attribute opens a type-7 block",
+  "page": "## Head\n<x\u000ba=1>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a form feed between the tag name and an attribute opens a type-7 block",
+  "page": "## Head\n<x\fa=1>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with line tabulations around an equals sign opens a type-7 block",
+  "page": "## Head\n<x a\u000b=\u000b1>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with form feeds around an equals sign opens a type-7 block",
+  "page": "## Head\n<x a\f=\f1>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a line tabulation before the self-closing slash opens a type-7 block",
+  "page": "## Head\n<x a=\"1\"\u000b/>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a form feed before the self-closing slash opens a type-7 block",
+  "page": "## Head\n<x a=\"1\"\f/>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a line tabulation inside a CLOSING tag opens a type-7 block",
+  "page": "## Head\n</b\u000b>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a form feed inside a CLOSING tag opens a type-7 block",
+  "page": "## Head\n</b\f>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a form feed after the closing angle bracket opens a type-7 block",
+  "page": "## Head\n<x>\f\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a single-quoted value carrying everything but its own quote opens a type-7 block",
+  "page": "## Head\n<x a='b c\t\u000b\f=<>`\"dé'>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with a double-quoted value carrying everything but its own quote opens a type-7 block",
+  "page": "## Head\n<x a=\"b c\t\u000b\f=<>`'dé\">\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "tag",
+  "name": "a lone tag with an unquoted value carrying every character that does not end it opens a type-7 block",
+  "page": "## Head\n<x a=b/c#d:e.fé>\n## Old\n\n## Real\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under a setext underline hides the heading it wraps",
+  "page": "Alpha\n===\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under an ATX heading indented three spaces hides the heading it wraps",
+  "page": "text\n   # H\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under an empty ATX heading hides the heading it wraps",
+  "page": "text\n##\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under a setext underline indented one space hides the heading it wraps",
+  "page": "text\n =\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under a setext underline ending in a space hides the heading it wraps",
+  "page": "text\n= \n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under a setext underline ending in a tab hides the heading it wraps",
+  "page": "text\n=\t\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag directly under an indented code line under a setext underline hides the heading it wraps",
+  "page": "Alpha\n===\n    code\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "predecessor",
+  "name": "a lone tag under a plain line after a setext underline of one hyphen continues it, so the heading renders",
+  "page": "text\n-\nlazy\n<span>\n## Old\n</span>\n\n## Beta\n"
+ },
+ {
+  "family": "I440",
+  "name": "I440-F-invalid '```' U+000D",
+  "page": "```\n```\r\n## Probe\n"
+ },
+ {
+  "family": "I440",
+  "name": "I440-F-invalid '~~~' U+000D",
+  "page": "~~~\n~~~\r\n## Probe\n"
+ }
+]
