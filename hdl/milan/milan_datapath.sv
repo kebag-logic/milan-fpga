@@ -1787,11 +1787,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] crf_pducnt_w;
   wire [31:0] crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
+  //! ...and the seven with no CSR slice. Their one reader is the
+  //! GET_COUNTERS row for STREAM_INPUT N_STREAMS (#529), which serves all ten
+  wire [31:0] crf_lockcnt_w, crf_unlockcnt_w, crf_intrcnt_w;
+  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
+  //! the CRF Media Clock Input's Table 5.22 counter-change pulse (gh #60 F2),
+  //! consumed by the descriptor arbiter in front of KL_pp_shadow
+  wire        crf_dirty_p_w;
   //! IEEE 1722-2016 10.4.3 restart echo: the received mr bit TOGGLED on an
   //! accepted PDU of the followed CRF stream (gh #62 H2a)
   wire        crf_mr_toggle_p_w;
-  //! the four Table 5.6 interval tallies the CRF sink used to advertise as
-  //! valid and never move (traceability AVTP-5t)
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
   wire [63:0] cfg_crft_sid;
@@ -3304,9 +3309,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! answer, which is the same class of lie as an advertised zero. The guard
   //! is the reason the index is qualified before it is narrowed.
   //!
-  //! N_STREAMS is the monitor's N_LISTENERS_P. A CRF sink appended after the
-  //! AAF inputs has no monitor context and so reports an empty mask, which is
-  //! true: this build keeps no Table 5.6 counters for it.
+  //! N_STREAMS is the monitor's N_LISTENERS_P. The CRF sink appended after the
+  //! AAF inputs has no monitor context, so this guard stops below it; its row
+  //! is KL_crf_rx's and is served by ctr_crf_w further down.
   //! -------------------------------------------------------------------
   //! REGISTERED ANSWER SERVER (USER 2026-08-15: pipeline the failing
   //! endpoints). The v48 route failed at WNS -1.7 on ONE cone: the engine's
@@ -3503,9 +3508,44 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     endcase
   end
 
+  //! THE CRF MEDIA CLOCK INPUT (#529). The shape appends it as the Stream
+  //! Input at CRF_SNK_IDX_C = N_STREAMS, and Milan 5.3.8.10 owes it the
+  //! Table 5.6 counters "for each Stream Input" with no CRF exemption, so
+  //! Table 5.16 applies to it as to any AAF input. Its ten tallies are
+  //! KL_crf_rx's, 32-bit and wrapping (gh #61). Milan keeps the IEEE Table
+  //! 7-157 offsets for a Stream Input (only Table 5.17 compacts, and only for
+  //! Stream Outputs), so the quadlets below are the AAF rows' and only the
+  //! mask differs. 0xF3F claims the ten and leaves TIMESTAMP_VALID and
+  //! TIMESTAMP_NOT_VALID (quadlets 6 and 7) unclaimed: the CRF engine keeps
+  //! no tally for them, and claiming a counter nothing moves is the lie this
+  //! face exists to prevent. A shape that declares no CRF sink has no such
+  //! row, and the guard keeps the neighbouring index from answering for it.
+  localparam logic [31:0] CTR_VALID_CRF_C = 32'h0000_0F3F;
+  wire ctr_crf_w = (ACMP_SINKS_C > N_STREAMS)
+                && (ctrq_type_r == DESC_STREAM_INPUT_C)
+                && (32'(ctrq_index_r) == CRF_SNK_IDX_C);
+  logic [31:0] ctr_crf_blk_w;
+  always_comb begin : ctr_crf_block
+    unique case (ctrq_word_r)
+      6'd0    : ctr_crf_blk_w = crf_lockcnt_w;   // @0   MEDIA_LOCKED
+      6'd1    : ctr_crf_blk_w = crf_unlockcnt_w; // @4   MEDIA_UNLOCKED
+      6'd2    : ctr_crf_blk_w = crf_intrcnt_w;   // @8   STREAM_INTERRUPTED
+      6'd3    : ctr_crf_blk_w = crf_seqerr_w;    // @12  SEQ_NUM_MISMATCH
+      6'd4    : ctr_crf_blk_w = crf_mrcnt_w;     // @16  MEDIA_RESET
+      6'd5    : ctr_crf_blk_w = crf_tucnt_w;     // @20  TIMESTAMP_UNCERTAIN
+      6'd8    : ctr_crf_blk_w = crf_fmterr_w;    // @32  UNSUPPORTED_FORMAT
+      6'd9    : ctr_crf_blk_w = crf_latecnt_w;   // @36  LATE_TIMESTAMP
+      6'd10   : ctr_crf_blk_w = crf_earlycnt_w;  // @40  EARLY_TIMESTAMP
+      6'd11   : ctr_crf_blk_w = crf_pducnt_w;    // @44  FRAMES_RX
+      6'd32   : ctr_crf_blk_w = CTR_VALID_CRF_C; //      counters_valid
+      default : ctr_crf_blk_w = 32'd0;  // @24/@28 unclaimed, @48.. reserved
+    endcase
+  end : ctr_crf_block
+
   //! Everything else, including ENTITY and out-of-range indices, answers zero data
   //! AND an empty mask on the same term, so the two can never disagree.
   assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+                       : ctr_crf_w ? ctr_crf_blk_w
                        : ctr_sout_w ? ctr_sout_blk_w
                        : ctr_avb_w ? ctr_avb_blk_w
                        : ctr_ckd_w ? ctr_ckd_blk_w
@@ -5391,10 +5431,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   // ==========================================================================
   //  CRF Media Clock Input engine (Milan 7.3.2) - measurement half: parses
   //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
-  //  produces the phase/frequency error the media-clock servo consumes and
-  //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
-  //  remaining CRF integration gaps are recorded in
-  //  docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4.
+  //  produces the phase/frequency error the media-clock servo consumes, and
+  //  keeps the Table 5.16 counters this Stream Input serves over
+  //  GET_COUNTERS and pushes through Table 5.22 (#529).
   // ==========================================================================
   KL_crf_rx #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
@@ -5443,22 +5482,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
-    //! Milan Table 5.16's CRF Media Clock Input counters are not connected to
-    //! the current solicited gather face. Leave the unserved outputs open rather
-    //! than create a shadow with no reader. The three values that do reach local
-    //! software keep their CSR window below (0x738: pdu, fmt_err, seq_err).
-    .mr_cnt_o    (),
-    .tu_cnt_o    (),
-    .late_cnt_o  (),
-    .early_cnt_o (),
+    //! Milan Table 5.16's CRF Media Clock Input bank, whole: these seven and
+    //! the three above are the GET_COUNTERS row for STREAM_INPUT N_STREAMS
+    //! (ctr_crf_block). Only pdu, fmt_err and seq_err also have a CSR slice
+    //! (CRF_STATUS 0x74C), truncated there and full-width on the wire.
+    .mr_cnt_o    (crf_mrcnt_w),
+    .tu_cnt_o    (crf_tucnt_w),
+    .late_cnt_o  (crf_latecnt_w),
+    .early_cnt_o (crf_earlycnt_w),
     .locked_o    (crf_locked_w),
-    .cnt_locked_o   (),
-    .cnt_unlocked_o (),
-    .cnt_intr_o     (),
-    //! The CRF sink's Table 5.22 dirty source is also unconnected. The
-    //! processor has registration support, but the rate-limited counter-change
-    //! scheduler does not yet consume this source.
-    .dirty_p_o      ()
+    .cnt_locked_o   (crf_lockcnt_w),
+    .cnt_unlocked_o (crf_unlockcnt_w),
+    .cnt_intr_o     (crf_intrcnt_w),
+    //! ...and that row's Table 5.22 source: the descriptor arbiter in front
+    //! of KL_pp_shadow delivers it as {STREAM_INPUT, N_STREAMS} to the
+    //! processor's rate-limited counter-change scheduler
+    .dirty_p_o      (crf_dirty_p_w)
   );
 
   // ==========================================================================
@@ -7148,18 +7187,34 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! only has to hand over every changed tuple at least once. The sources
   //! are the per-descriptor pulses of the blocks whose counters the
   //! GET_COUNTERS face above serves: one bit per STREAM_INPUT (the rx
-  //! monitor), one per STREAM_OUTPUT (the talker diag, CRF output
-  //! included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0 (the edge terms named
-  //! beside their counters). Each source bit stays PENDING until the
-  //! round-robin selects it, so simultaneous changes are all delivered and
-  //! a continuously changing low index cannot starve a higher one; a
+  //! monitor, KL_crf_rx for the CRF input), one per STREAM_OUTPUT (the
+  //! talker diag, CRF output included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0
+  //! (the edge terms named beside their counters). Each source bit stays
+  //! PENDING until the round-robin selects it, so simultaneous changes are
+  //! all delivered and a continuously changing low index cannot starve a
+  //! higher one; a
   //! re-pulse while pending is absorbed (the processor re-reads current
   //! state, never history). Reviewed on PR 121 (its R1 mutation checks:
   //! dropped accumulation and a lossy clear-all picker both red).
-  localparam int unsigned PP_CTR_EVT_N_C = N_STREAMS + ACMP_SRC_C + 2;
+  //!
+  //! THE STREAM_INPUT ROWS ARE THE SERVED ONES: the AAF inputs, then the CRF
+  //! Media Clock Input at N_STREAMS when the shape declares it (#529), whose
+  //! source is KL_crf_rx's dirty pulse. The processor keeps one dirty bit per
+  //! declared sink (N_STREAM_IN_P = ACMP_SINKS_C), so that row is already
+  //! there to receive it. A shape without the CRF sink drops the pulse here:
+  //! it has no descriptor to notify about.
+  localparam int unsigned PP_CTR_SIN_N_C = N_STREAMS
+                                         + ((ACMP_SINKS_C > N_STREAMS) ? 1 : 0);
+  localparam int unsigned PP_CTR_EVT_N_C = PP_CTR_SIN_N_C + ACMP_SRC_C + 2;
   localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
                                          ? $clog2(PP_CTR_EVT_N_C) : 1;
-  logic [N_STREAMS-1:0]  pp_ctr_sin_pend_r,  pp_ctr_sin_pend_n;
+  wire  [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+  if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
+  end else begin : g_ctr_no_crf_dirty
+    assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+  end
+  logic [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
   logic [ACMP_SRC_C-1:0] pp_ctr_sout_pend_r, pp_ctr_sout_pend_n;
   logic pp_ctr_avb_pend_r, pp_ctr_avb_pend_n;
   logic pp_ctr_ckd_pend_r, pp_ctr_ckd_pend_n;
@@ -7182,13 +7237,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
       if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
         pp_ctr_evt_valid_w = 1'b1;
-        if (pick < N_STREAMS) begin
+        if (pick < PP_CTR_SIN_N_C) begin
           pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
           pp_ctr_evt_index_w = 16'(pick);
-        end else if (pick < (N_STREAMS + ACMP_SRC_C)) begin
+        end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
           pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
-          pp_ctr_evt_index_w = 16'(pick - N_STREAMS);
-        end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
+        end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
           pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
         end else begin
           pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
@@ -7198,11 +7253,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : pp_ctr_event_pick
 
   always_comb begin : pp_ctr_event_next
-    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | avtprx_dirty_p_w;
+    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
     pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
-    for (int unsigned s = 0; s < N_STREAMS; s++) begin
+    for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
       if (pp_ctr_evt_valid_w
           && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
           && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
@@ -7237,10 +7292,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
           pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
         else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
-          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C
                                         + 32'(pp_ctr_evt_index_w) + 1);
         else
-          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS + ACMP_SRC_C + 1);
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C + ACMP_SRC_C + 1);
       end
     end
   end : pp_ctr_event_queue
