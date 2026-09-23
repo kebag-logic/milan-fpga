@@ -1,0 +1,54 @@
+source: 532-review-evidence ed7ac220 review-evidence/532-r1/correction-a213/bin/proof-mutants.py sha256=082c416e6984c02e535d179c188b49715199cb25e5399898193fe768dedeed02
+stage: plain copy of the lane's scripts/act_slot_proof.sh at 317a158d
+stage act_slot_proof.sh sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7
+control comment: SURVIVED rc=0
+F3 a run that never completed counts: KILLED rc=1
+    FAIL every run refuses after taking its slot: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+    FAIL a run stops before its last workflow: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+    FAIL a run passes every workflow and is then refused: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+F3 interrupt gate graded on its exit status and PASS line only: KILLED rc=1
+    FAIL the interrupt gate ignores its slot: exit 0, wanted 1 with 'FAIL interrupt self-test in slot 1'
+F3 no-isolation collision (slot 0) dropped: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+    FAIL the shared daemon does not collide: exit 1, wanted 1 with 'FAIL collision slot 0'
+    FAIL the slot-0 rival is refused for neither the tool cache nor a job volume: exit 1, wanted 1 with 'FAIL collision slot 0'
+F3 serial reference check dropped: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+    FAIL every run refuses after taking its slot: exit 1, wanted 1 with 'FAIL serial-a did not complete'
+    FAIL a run stops before its last workflow: exit 1, wanted 1 with 'FAIL serial-a did not complete'
+F3 parallel verdict equality dropped: KILLED rc=1
+    FAIL a slot changes a verdict: exit 1, wanted 1 with 'FAIL parallel-a != serial-a'
+F3 overlap not required: KILLED rc=1
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+    FAIL a run is refused before the other slot is taken: exit 1, wanted 1 with 'FAIL overlap'
+F3 a run that already ended still counts as holding its slot: KILLED rc=1
+    FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+    FAIL a run is refused before the other slot is taken: exit 1, wanted 1 with 'FAIL overlap'
+    FAIL the rival is refused only after the holder left: exit 0, wanted 1 with 'FAIL collision slot 1'
+F3 rival may be refused after the holder left: KILLED rc=1
+    FAIL the rival is refused only after the holder left: exit 0, wanted 1 with 'FAIL collision slot 1'
+F3 rival refusal reason unchecked: KILLED rc=1
+    FAIL the rival is refused for another reason: exit 0, wanted 1 with 'FAIL collision slot 1'
+    FAIL the slot-0 rival is refused for neither the tool cache nor a job volume: exit 0, wanted 1 with 'FAIL collision slot 0'
+F3 collision holder verdict unchecked: KILLED rc=1
+    FAIL the collision holder changes its verdict: exit 0, wanted 1 with 'FAIL collision slot 1'
+    FAIL a collision holder refuses like its serial reference: exit 1, wanted 1 with 'FAIL collision slot 1'
+F1 slot-side refusal not required: KILLED rc=1
+    FAIL a slot reaches the default daemon's container: exit 0, wanted 1 with 'FAIL isolation slot 1'
+    FAIL a slot reaches the container's published port: exit 0, wanted 1 with 'FAIL isolation slot 1'
+    FAIL a slot cannot reach the probe name: exit 0, wanted 1 with 'FAIL isolation slot 1'
+F1 host-side differential dropped: KILLED rc=1
+    FAIL the isolation target is dead: exit 0, wanted 1 with 'FAIL isolation slot 1'
+    FAIL the host cannot reach the container: exit 0, wanted 1 with 'FAIL isolation slot 1'
+    FAIL the host cannot reach the published port while the container answers: exit 0, wanted 1 with 'FAIL isolation slot 1'
+F1 published port not probed: KILLED rc=1
+    FAIL honest, where PR B fails its second workflow: exit 1, wanted 0 with 'PROVED every slot proof held'
+F1 target absence not proved: KILLED rc=1
+    FAIL the isolation container survives removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+    FAIL the isolation network survives removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+    FAIL the isolation target cannot be queried after removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+restored sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7 EXACT
+
+real	6m30.347s
+user	0m0.052s
+sys	0m0.057s

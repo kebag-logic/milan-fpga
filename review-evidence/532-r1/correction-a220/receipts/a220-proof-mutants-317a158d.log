@@ -1,0 +1,29 @@
+lane act_slot_proof.sh sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7
+A00 control: comment only: SURVIVED rc=0
+A01 parallel comparison: completion not required: KILLED rc=1
+    FAIL a parallel run refuses like its serial reference: exit 1, wanted 1 with 'FAIL parallel-a did not complete'
+A02 collision holder: completion not required: KILLED rc=1
+    FAIL a collision holder refuses like its serial reference: exit 1, wanted 1 with 'FAIL collision slot 1'
+A03 interrupt gate: exit status ignored: KILLED rc=1
+    FAIL the interrupt gate passes and is then refused: exit 0, wanted 1 with 'FAIL interrupt self-test in slot 1'
+A04 PROVED despite a FAIL record when ten checks passed: KILLED rc=1
+    FAIL the isolation container survives removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+    FAIL the isolation network survives removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+    FAIL the isolation target cannot be queried after removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+A05 isolation target: a failed start goes unrecorded: KILLED rc=1
+    FAIL the isolation target cannot be started: exit 1, wanted 1 with 'FAIL isolation target: it could not be started'
+A06 isolation target: an unanswerable container query reads as absent: KILLED rc=1
+    FAIL the isolation target cannot be queried after removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+A07 slots: a non-number is accepted: KILLED rc=1
+    FAIL slot A is not a number: exit 1, wanted 2 with 'slots are numbers: one'
+A08 interrupt gate: its slot line not required: KILLED rc=1
+    FAIL the interrupt gate ignores its slot: exit 0, wanted 1 with 'FAIL interrupt self-test in slot 1'
+A09 isolation: slot-side refusal of the published port not required: KILLED rc=1
+    FAIL a slot reaches the container's published port: exit 0, wanted 1 with 'FAIL isolation slot 1'
+A10 isolation: slot-side refusal of the container not required: KILLED rc=1
+    FAIL a slot reaches the default daemon's container: exit 0, wanted 1 with 'FAIL isolation slot 1'
+lane file after run sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7 EXACT
+
+real	4m55.623s
+user	0m0.044s
+sys	0m0.046s

@@ -1,0 +1,15 @@
+reviewed act_slot_proof.sh sha256=84d1777f5719f270e851d78f50e2e011ca2115ef38c4c4f972c398f3ab63a7cb
+control: comment only: SURVIVED rc=0
+M1 isolation: slot-side internet reachability not required: SURVIVED rc=0
+M2 slot-0 collision: refusal reason unchecked: SURVIVED rc=0
+M3 runner digest unchecked: SURVIVED rc=0
+M4 runner write bits unchecked: SURVIVED rc=0
+M5 non-empty log directory accepted: SURVIVED rc=0
+M6 ended ignores a refusal: SURVIVED rc=0
+M7 collision: rival exit status unchecked: SURVIVED rc=0
+M8 isolated holder marker is the workflow start, not the slot: SURVIVED rc=0
+M9 PASS-count guard dropped: SURVIVED rc=0
+M10 slot-A collision: refusal reason unchecked: KILLED rc=1
+    FAIL the rival is refused for another reason: exit 0, wanted 1 with 'FAIL collision slot 1'
+M11 isolation: host-side reach of the published port not required: SURVIVED rc=0
+reviewed file after run sha256=84d1777f5719f270e851d78f50e2e011ca2115ef38c4c4f972c398f3ab63a7cb EXACT

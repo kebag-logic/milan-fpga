@@ -1,0 +1,13 @@
+kernel 7.2.6-arch2-1
+$ systemd-run --user --scope --quiet --unit=r267-memcap-oom-2881699 --property=MemoryMax=128M --property=MemorySwapMax=0 --property=OOMPolicy=continue /usr/bin/python3 -I <packet>/scripts/memcap_probe.py --work oom <packet>/scratch/memcap/oom
+rc=0
+oom: memory.max=134217728 child exit=-9 events.local={'low': 0, 'high': 0, 'max': 38, 'oom': 1, 'oom_kill': 1, 'oom_group_kill': 0, 'sock_throttled': 0}
+
+$ systemd-run --user --scope --quiet --unit=r267-memcap-capped-2881699 --property=MemoryMax=128M --property=MemorySwapMax=0 --property=OOMPolicy=continue /usr/bin/python3 -I <packet>/scripts/memcap_probe.py --work thrash <packet>/scratch/memcap/capped
+rc=0
+thrash: memory.max=134217728 passes=6 over 192 MiB with 100 MiB anon held: 0.45 s; events.local before={'low': 0, 'high': 0, 'max': 172, 'oom': 0, 'oom_kill': 0, 'oom_group_kill': 0, 'sock_throttled': 0} after={'low': 0, 'high': 0, 'max': 5361, 'oom': 0, 'oom_kill': 0, 'oom_group_kill': 0, 'sock_throttled': 0}; memory.pressure full total +86592 us; memory.peak=134217728
+
+$ systemd-run --user --scope --quiet --unit=r267-memcap-uncapped-2881699 --property=MemoryMax=infinity --property=MemorySwapMax=0 --property=OOMPolicy=continue /usr/bin/python3 -I <packet>/scripts/memcap_probe.py --work thrash <packet>/scratch/memcap/uncapped
+rc=0
+thrash: memory.max=max passes=6 over 192 MiB with 100 MiB anon held: 0.06 s; events.local before={'low': 0, 'high': 0, 'max': 0, 'oom': 0, 'oom_kill': 0, 'oom_group_kill': 0, 'sock_throttled': 0} after={'low': 0, 'high': 0, 'max': 0, 'oom': 0, 'oom_kill': 0, 'oom_group_kill': 0, 'sock_throttled': 0}; memory.pressure full total +0 us; memory.peak=320077824
+
