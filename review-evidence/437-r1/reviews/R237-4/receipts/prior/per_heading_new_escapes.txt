@@ -1,0 +1,15 @@
+unique recorded pages: 6687
+pages with a heading newly ESCAPED at head (GitHub hides, base did not list): 9 | of which carry `<!--`: 9
+pages with a heading newly WITHHELD at head (GitHub shows, base listed): 3 | of which carry `<!--`: 3
+  ESC R238-2 fuzz_seed238_complete | fuzz_seed238_complete#668 | '* <![CDATA[\n  <script>\n<? x\n- > a <!-- b\nc --> d\n## Z\n' | new: [[2, 'Z']]
+  ESC R238-2 fuzz_seed238_complete | fuzz_seed238_complete#672 | '- - item\n   <div title="x">\n* ===\n<? x\n>---\n## X5\n<!-->\n## Z\n' | new: [[2, 'X5']]
+  ESC R238-2 fuzz_seed238_complete | fuzz_seed238_complete#727 | '2. <!--\n## X1\n+ x --> y\n  </div>\n## X4\n  <!-->\n- ---\n## Z\n' | new: [[2, 'X4']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 0 <span> | comment | '- item\n\n  text\n<span>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 0 </span> | comment | '- item\n\n  text\n</span>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 0 <custom-tag> | comment | '- item\n\n  text\n<custom-tag>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 1 <span> | comment | '- item\n\n  text\n <span>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 1 </span> | comment | '- item\n\n  text\n </span>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  ESC R238-2 matrix_base_vs_head | resumed bullet | col 1 <custom-tag> | comment | '- item\n\n  text\n <custom-tag>\n<!--\n\n## Old\n-->\n\n## Real\n' | new: [[2, 'Old']]
+  WH  R238-2 batch4_prior | R237-2 F2 flat item code span | '- item\n\n  <div>\ntext `<!--` more\n\n## Old\n\n## Real\n' | lost: [[2, 'Old'], [2, 'Real']]
+  WH  R238-2 batch4_prior | R237-2 F2 flat item escape | '- item\n\n  <div>\ntext \\<!-- more\n\n## Old\n\n## Real\n' | lost: [[2, 'Old'], [2, 'Real']]
+  WH  R238-2 batch4_prior | R237-2 F2 flat item attr | '- item\n\n  <div>\ntext <a title="<!--"> more\n\n## Old\n\n## Real\n' | lost: [[2, 'Old'], [2, 'Real']]

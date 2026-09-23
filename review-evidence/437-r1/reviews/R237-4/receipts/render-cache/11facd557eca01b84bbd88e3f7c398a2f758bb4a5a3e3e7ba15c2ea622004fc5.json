@@ -1,0 +1,9 @@
+{
+ "exit": 0,
+ "request_bytes": "{\"text\": \"- a\\n  - b\\n    <![CDATA[\\n\\n## Old\\n]]>\\n\\n## Real\\n\", \"mode\": \"gfm\", \"context\": \"kebag-logic/milan-fpga\"}",
+ "request_sha256": "11facd557eca01b84bbd88e3f7c398a2f758bb4a5a3e3e7ba15c2ea622004fc5",
+ "response_bytes": "<ul dir=\"auto\">\n<li>a\n<ul dir=\"auto\">\n<li>b\n\n</li></ul>\n</li>\n</ul>\n<h2 dir=\"auto\">Old</h2>\n<p dir=\"auto\">]]&gt;</p>\n<h2 dir=\"auto\">Real</h2>",
+ "response_sha256": "01e92984d498e365a1c104ae6f0ccb372ab42f21db3ba94cdc2c7f4d57c7e75f",
+ "stderr": "",
+ "utc": "2026-09-23T14:19:50.457654+00:00"
+}

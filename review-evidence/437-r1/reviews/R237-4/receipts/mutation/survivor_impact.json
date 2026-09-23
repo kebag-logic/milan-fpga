@@ -1,0 +1,1005 @@
+{
+ "footnote-whitespace-continues-guarded": [],
+ "link-definition-title-any-token-guarded": [
+  {
+   "page": "- [a]: /u x\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- [a]: /u x\n\n\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- [a]: /u 't'\n\n\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u 't'\n\n\n  <div>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u 't'\n\n\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u 't'\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u 't'\n\n\n  <pre>\n## Old\n</pre>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u 't'\n\n\n   ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u 't'\n\n\n   <div>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u 't'\n\n\n   <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u 't'\n\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u 't'\n\n\n   <pre>\n## Old\n</pre>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": false,
+   "mutant_agrees": true,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u \"t\\\"x\"\n\n\n  ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- [a]: /u \"t\\\"x\"\n\n\n  <div>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- [a]: /u \"t\\\"x\"\n\n\n  <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "- [a]: /u \"t\\\"x\"\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "- [a]: /u \"t\\\"x\"\n\n\n  <pre>\n## Old\n</pre>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "1. [a]: /u \"t\\\"x\"\n\n\n   ```\n## Old\n```\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "1. [a]: /u \"t\\\"x\"\n\n\n   <div>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "1. [a]: /u \"t\\\"x\"\n\n\n   <span>\n## Old\n  </span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  },
+  {
+   "page": "1. [a]: /u \"t\\\"x\"\n\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "1. [a]: /u \"t\\\"x\"\n\n\n   <pre>\n## Old\n</pre>\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": true
+  }
+ ],
+ "inline-comment-opens-block": [
+  {
+   "page": "text <!-- c\nmore -->\n<span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text <!-- c\nmore -->\n</span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text <!-- c\nmore -->\n<custom-tag>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text <!-- c\n\nmore -->\n<span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text <!-- c\n\nmore -->\n</span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text <!-- c\n\nmore -->\n<custom-tag>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text\n    <!-- c\n-->\n</span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text\n    <!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  }
+ ],
+ "inline-comment-after-text-only": [
+  {
+   "page": "text\n    <!-- c\n-->\n<span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text\n    <!-- c\n-->\n</span>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  },
+  {
+   "page": "text\n    <!-- c\n-->\n<custom-tag>\n## Old\n\n## Real\n",
+   "github": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head": [
+    [
+     2,
+     "Old"
+    ],
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "mutant": [
+    [
+     2,
+     "Real"
+    ]
+   ],
+   "head_agrees": true,
+   "mutant_agrees": false,
+   "mutant_escape": false
+  }
+ ]
+}

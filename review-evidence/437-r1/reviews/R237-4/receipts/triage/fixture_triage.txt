@@ -1,0 +1,15 @@
+per fixture/class: [(('gen_toc_comment_shapes.json', 'agree-both'), 7), (('gen_toc_comment_shapes.json', 'regress'), 6), (('gen_toc_comment_shapes.json', 'wrong-both'), 25), (('gen_toc_container_walk.json', 'agree-both'), 46), (('gen_toc_container_walk.json', 'fix'), 12), (('gen_toc_container_walk.json', 'regress'), 6), (('gen_toc_container_walk.json', 'wrong-both'), 22), (('gen_toc_family_one.json', 'agree-both'), 36), (('gen_toc_family_one.json', 'fix'), 15)]
+disagreeing head answers without a limitation mark: 0
+limitation marks inconsistent with measured walk/base: 0
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 0 open | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 0 close | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 0 attribute | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 1 open | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 1 close | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_comment_shapes.json | #516 resumed tag column 1 attribute | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item block ends before a code span | dir withhold | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item block ends before an escape | dir withhold | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item block ends before an inline attribute | dir withhold | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item end uncovers an open quoted value | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item end uncovers a type-3 block | dir escape | owner #516 | open-comment-in-html False
+REGRESS gen_toc_container_walk.json | item end uncovers a comment over a fence | dir escape | owner #516 | open-comment-in-html False

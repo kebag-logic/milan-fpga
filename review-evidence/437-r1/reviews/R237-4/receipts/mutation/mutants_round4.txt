@@ -1,0 +1,5 @@
+CONTROL toc 0 ['TOC selftest: PASS (1269/1269 arm(s))'] em 0 ['check_em_dash selftest: PASS (429 arm(s))']
+lazy-hr-lazy                       SURVIVED toc=0 em=0 | 
+lazy-item-lazy                     KILLED toc=1 em=2 |   FAIL [I437 sibling replaces boundary]
+lazy-block-open-lazy               KILLED toc=1 em=2 |   FAIL [a lone tag directly under a list item hides the heading it wraps]
+empty-item-content-at-marker       KILLED toc=1 em=2 |   FAIL [I437 empty item ignores padding]

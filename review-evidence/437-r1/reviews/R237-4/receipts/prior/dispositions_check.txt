@@ -1,0 +1,131 @@
+R238-2 seed-238 rows with verdict=regression at e4906bfc: 303 | replayed: 303 | at this head: {'agree-both': 301, 'regress': 2}
+   still regress: '* <![CDATA[\n  <script>\n<? x\n- > a <!-- b\nc --> d\n## Z\n' [] [] [[2, 'Z']]
+   still regress: '- - item\n   <div title="x">\n* ===\n<? x\n>---\n## X5\n<!-->\n## Z\n' [] [] [[2, 'X5']]
+
+R237-3 minimal/minimal2 E and control rows at this head:
+  E1 inline PI carrying > then <!--                            class=agree-both gh=[] base=[] head=[]
+  E1b inline PI, heading directly after                        class=agree-both gh=[] base=[] head=[]
+  E2 inline CDATA carrying > then <!--                         class=agree-both gh=[] base=[] head=[]
+  E2b inline PI in a list item                                 class=agree-both gh=[] base=[] head=[]
+  E3 image alt carries the closer                              class=wrong-both gh=[] base=['Old'] head=['Old']
+  E4 link reference title carries the closer                   class=wrong-both gh=[] base=['Old'] head=['Old']
+  E5 type 4 block exposed by an empty comment                  class=agree-both gh=[] base=[] head=[]
+  E5b type 3 block after a prose comment                       class=agree-both gh=[] base=[] head=[]
+  E6 open quoted value after a prose comment                   class=agree-both gh=[] base=[] head=[]
+  E6b open quoted value after a code span                      class=agree-both gh=[] base=[] head=[]
+  E7 reference-only item ends at the second blank              class=agree-both gh=['Old'] base=['Old'] head=['Old']
+  E7b reference-only item, one blank                           class=wrong-both gh=[] base=['Old'] head=['Old']
+  E7c ordinary item, two blanks                                class=wrong-both gh=[] base=['Old'] head=['Old']
+  C1 control: comment in a type 6 block                        class=wrong-both gh=[] base=['Old'] head=['Old']
+  C2 control: closer in inline HTML                            class=agree-both gh=['Old'] base=['Old'] head=['Old']
+  C3 control: prose comment then heading                       class=wrong-both gh=['Old'] base=[] head=[]
+  Q1 blank line ends a quote and its fence                     class=agree-both gh=[] base=[] head=[]
+  Q2 blank line ends a quote and its fence (heading control)   class=agree-both gh=['Old'] base=['Old'] head=['Old']
+  E8 inline PI in a heading                                    class=wrong-both gh=['A'] base=['A <?p > <!-- ?>'] head=['A <?p > <!-- ?>']
+  E9 inline PI in a table cell                                 class=agree-both gh=[] base=[] head=[]
+  E10 inline PI opens a quoted value                           class=wrong-both gh=[] base=['Old'] head=['Old']
+  E11 inline PI across lines                                   class=agree-both gh=[] base=[] head=[]
+  E12 comment closed early by --!>                             class=wrong-both gh=[] base=['Old'] head=['Old']
+  C4 control: inline PI without >                              class=wrong-both gh=['Old'] base=[] head=[]
+
+R238-2 batch1/batch2/batch3 rows at this head:
+  batch1 PI gt then opener                                          class=agree-both gh=[] base=[] head=[]
+  batch1 PI opener no gt                                            class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch1 CDATA gt then opener                                       class=agree-both gh=[] base=[] head=[]
+  batch1 PI gt then opener two lines                                class=agree-both gh=[] base=[] head=[]
+  batch1 PI gt then opener in item                                  class=agree-both gh=[] base=[] head=[]
+  batch1 PI gt then opener heading next line                        class=agree-both gh=[] base=[] head=[]
+  batch1 declaration then opener                                    class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch1 prose unclosed opener                                      class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch1 prose opener closed later                                  class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then inline dashdash comment                      class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then inline empty comment                         class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch1 raw open then inline dash-empty comment                    class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch1 raw open then inline ok comment                            class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then link destination closer                      class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then tag named a--                                class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then lowercase decl                               class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch1 raw open then no-ws decl                                   class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch1 lazy tag after item                                        class=agree-both gh=['Y'] base=['Y'] head=['Y']
+  batch1 lazy tag after quote                                       class=agree-both gh=['Y'] base=['Y'] head=['Y']
+  batch1 lazy tag after nested quote item                           class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 noscript                                                   class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 select                                                     class=wrong-both gh=['Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 template                                                   class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 svg                                                        class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 math                                                       class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 svg cdata opener                                           class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch1 option                                                     class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch2 glued bogus declaration then item comment                  class=agree-both gh=[] base=[] head=[]
+  batch2 glued bogus PI then item comment                           class=agree-both gh=[] base=[] head=[]
+  batch2 glued bogus CDATA then quote comment                       class=agree-both gh=[] base=[] head=[]
+  batch2 glued unclosed end tag then item comment                   class=agree-both gh=[] base=[] head=[]
+  batch2 control ended declaration then item comment                class=agree-both gh=[] base=[] head=[]
+  batch2 tag inside declaration block                               class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch2 tag inside PI block                                        class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch2 tag inside CDATA block                                     class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch2 control text inside PI block                               class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch2 PI block then prose comment line                           class=agree-both gh=[] base=[] head=[]
+  batch2 PI block then empty comment                                class=agree-both gh=[] base=[] head=[]
+  batch2 CDATA block then quoted comment                            class=agree-both gh=[] base=[] head=[]
+  batch2 control PI block then heading                              class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch3 C17 multi-line PI ends then raw comment                    class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch3 C17 multi-line declaration ends then raw comment           class=wrong-both gh=[] base=['X', 'Y'] head=['X', 'Y']
+  batch3 H06 raw PI line carrying an opener                         class=wrong-both gh=['X', 'Y'] base=[] head=[]
+  batch3 H06 PI line inside div block                               class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch3 H10 opener inside a quoted value across raw lines          class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+  batch3 H10 opener inside a tag across raw lines                   class=agree-both gh=['X', 'Y'] base=['X', 'Y'] head=['X', 'Y']
+
+R237-2 comment-rule rows at this head:
+  attribute value opener, type 6                               class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  attribute value opener, type 7                               class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  attribute value opener inside block                          class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  bang closer in block                                         class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  inline tag closer after block comment, no heading between    class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  flat item HTML then code-span opener                         class=regress    gh=['Old', 'Real'] base=['Old', 'Real'] head=[]
+  flat item HTML then escaped opener                           class=regress    gh=['Old', 'Real'] base=['Old', 'Real'] head=[]
+  flat item HTML then attribute opener                         class=regress    gh=['Old', 'Real'] base=['Old', 'Real'] head=[]
+  control: flat item HTML then heading                         class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  cdata opener in block                                        class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  textarea opener                                              class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+  style opener                                                 class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+  bang closer after opener line, block                         class=agree-both gh=['Old', 'Real'] base=['Old', 'Real'] head=['Old', 'Real']
+  comment then dash-dash-space-gt                              class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+  raw comment closed in later paragraph code span              class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+  item tag at 4 columns comment opener                         class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+  item html at 4 columns with comment                          class=wrong-both gh=[] base=['Old', 'Real'] head=['Old', 'Real']
+
+R238-2 batch4_prior (published shapes of every earlier finding) at this head:
+   ('R237-2 F1', 'agree-both') 3
+   ('R237-2 F2', 'agree-both') 7
+   ('R237-2 F2', 'regress') 3
+   ('R237-2 F3', 'agree-both') 2
+   ('R237-2 S1', 'wrong-both') 2
+   ('R237-r1 F1', 'agree-both') 9
+   ('R237-r1 F1', 'fix') 6
+   ('R237-r1 F3', 'agree-both') 3
+   ('R238-r1 C01', 'agree-both') 1
+   ('R238-r1 C02', 'agree-both') 1
+   ('R238-r1 C03', 'agree-both') 1
+   ('R238-r1 C04', 'agree-both') 1
+   ('R238-r1 C05', 'agree-both') 1
+   ('R238-r1 C06', 'agree-both') 1
+   ('R238-r1 C07', 'agree-both') 1
+   ('R238-r1 C08', 'agree-both') 1
+   ('R238-r1 D01', 'agree-both') 1
+   ('R238-r1 D02', 'agree-both') 1
+   ('R238-r1 D03', 'agree-both') 1
+   ('R238-r1 D04', 'agree-both') 1
+   ('R238-r1 D05', 'agree-both') 1
+   ('R238-r1 D06', 'fix') 1
+   ('R238-r1 D07', 'agree-both') 1
+   ('R238-r1 F09-like', 'fix') 1
+   ('R238-r1 P01', 'fix') 1
+   ('R238-r1 P02', 'fix') 1
+   ('R238-r1 P03', 'fix') 1
+   ('R238-r1 P04', 'fix') 1
+   regress | R237-2 F2 flat item code span | gh ['Old', 'Real'] base ['Old', 'Real'] prev ['Old', 'Real'] head []
+   regress | R237-2 F2 flat item escape | gh ['Old', 'Real'] base ['Old', 'Real'] prev ['Old', 'Real'] head []
+   regress | R237-2 F2 flat item attr | gh ['Old', 'Real'] base ['Old', 'Real'] prev ['Old', 'Real'] head []
+   wrong-both | R237-2 S1 four-column opener | gh [] base ['Old', 'Real'] prev [] head ['Old', 'Real']
+   wrong-both | R237-2 S1 four-column div opener | gh [] base ['Old', 'Real'] prev [] head ['Old', 'Real']
