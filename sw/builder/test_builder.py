@@ -2458,6 +2458,87 @@ def test_baremetal_profile_contract() -> None:
 
     c_raw_prefixes = ("R", "u8R", "uR", "UR", "LR")
 
+    def c_logical(source: str, at: int) -> int:
+        """`at`, past every splice that starts there."""
+        while at < len(source) and source[at] == "\\":
+            splice = c_splice_re.match(source, at)
+            if not splice:
+                break
+            at = splice.end()
+        return at
+
+    def c_before(source: str, at: int) -> int:
+        """The logical character before `at`, splices stepped over
+        backwards, or -1."""
+        at -= 1
+        while at >= 0 and source[at] in "\r\n":
+            back = at - 1 if source[at - 1:at + 1] == "\r\n" else at
+            back -= 1
+            while back >= 0 and source[back] in " \t\f\v\0":
+                back -= 1
+            if back < 0 or source[back] != "\\":
+                break
+            at = back - 1
+        return at
+
+    def c_spliced_end(source: str, at: int) -> bool:
+        """Whether the line end at `at` belongs to a splice."""
+        back = at - 1
+        while back >= 0 and source[back] in " \t\f\v\0":
+            back -= 1
+        return back >= 0 and source[back] == "\\"
+
+    def c_comment_end(source: str, at: int) -> int:
+        """The end of the comment whose second character is at `at`, or of
+        the file when a block comment is never closed."""
+        n = len(source)
+        if source[at] == "/":
+            for end in c_line_end_re.finditer(source, at):
+                if not c_spliced_end(source, end.start()):
+                    return end.start()
+            return n
+        at = c_logical(source, at + 1)
+        while at < n:
+            star = source.find("*", at)
+            if star < 0:
+                return n
+            close = c_logical(source, star + 1)
+            if close < n and source[close] == "/":
+                return close + 1
+            at = close
+        return n
+
+    def c_literal_end(source: str, at: int, quote: str) -> tuple[int, bool]:
+        """`(end, closed)` for the literal whose body starts at `at`: one
+        past its closing quote, or the line end GCC stops it at."""
+        n = len(source)
+        while at < n and source[at] not in "\r\n" and source[at] != quote:
+            escaped = source[at] == "\\"
+            at = c_logical(source, at + 1)
+            if escaped and at < n and source[at] not in "\r\n":
+                at = c_logical(source, at + 1)
+        closed = at < n and source[at] == quote
+        return (at + 1 if closed else at), closed
+
+    def c_raw_prefixed(source: str, at: int) -> bool:
+        """Whether the `"` at `at` opens a raw literal: one of the raw
+        prefixes, as a whole token, right before it."""
+        word, back = "", c_before(source, at)
+        while back >= 0 and (source[back].isalnum() or
+                             source[back] in "_$") and len(word) < 4:
+            word, back = source[back] + word, c_before(source, back)
+        if back >= 0 and (source[back].isalnum() or source[back] in "_$"):
+            return False
+        return word in c_raw_prefixes
+
+    def c_raw_end(source: str, at: int) -> int:
+        """The end of the raw literal whose quote is at `at`: phases 1 and 2
+        are undone inside one, so it is found in the raw text."""
+        opened = source.find("(", at)
+        closing = ")" + source[at + 1:opened] + '"'
+        close = source.find(closing, opened) if opened >= 0 else -1
+        return len(source) if close < 0 else close + len(closing)
+
     def c_lexed(source: str) -> tuple[str, list[tuple[str, int]]]:
         """`(view, findings)`: `source` as GCC lexes it, the SAME LENGTH so
         every offset still indexes the original, and each place GCC lexes a
@@ -2472,102 +2553,22 @@ def test_baremetal_profile_contract() -> None:
         lines; nothing here reads a line number off the view. The findings
         are `("unterminated", offset)` for a literal no quote closes before
         its logical line ends, and `("raw", offset)` for a raw literal."""
-        n, out, findings = len(source), list(source), []
-
-        def logical(at: int) -> int:
-            """`at`, past every splice that starts there."""
-            while at < n and source[at] == "\\":
-                splice = c_splice_re.match(source, at)
-                if not splice:
-                    break
-                at = splice.end()
-            return at
-
-        def before(at: int) -> int:
-            """The logical character before `at`, splices stepped over
-            backwards, or -1."""
-            at -= 1
-            while at >= 0 and source[at] in "\r\n":
-                back = at - 1 if source[at - 1:at + 1] == "\r\n" else at
-                back -= 1
-                while back >= 0 and source[back] in " \t\f\v\0":
-                    back -= 1
-                if back < 0 or source[back] != "\\":
-                    break
-                at = back - 1
-            return at
-
-        def spliced_end(at: int) -> bool:
-            """Whether the line end at `at` belongs to a splice."""
-            back = at - 1
-            while back >= 0 and source[back] in " \t\f\v\0":
-                back -= 1
-            return back >= 0 and source[back] == "\\"
-
-        def comment_end(at: int) -> int:
-            """The end of the comment whose second character is at `at`, or
-            of the file when a block comment is never closed."""
-            if source[at] == "/":
-                for end in c_line_end_re.finditer(source, at):
-                    if not spliced_end(end.start()):
-                        return end.start()
-                return n
-            at = logical(at + 1)
-            while at < n:
-                star = source.find("*", at)
-                if star < 0:
-                    return n
-                close = logical(star + 1)
-                if close < n and source[close] == "/":
-                    return close + 1
-                at = close
-            return n
-
-        def literal_end(at: int, quote: str) -> tuple[int, bool]:
-            """`(end, closed)` for the literal whose body starts at `at`:
-            one past its closing quote, or the line end GCC stops it at."""
-            while at < n and source[at] not in "\r\n" and source[at] != quote:
-                escaped = source[at] == "\\"
-                at = logical(at + 1)
-                if escaped and at < n and source[at] not in "\r\n":
-                    at = logical(at + 1)
-            closed = at < n and source[at] == quote
-            return (at + 1 if closed else at), closed
-
-        def raw_prefixed(at: int) -> bool:
-            """Whether the `"` at `at` opens a raw literal: one of the raw
-            prefixes, as a whole token, right before it."""
-            word, back = "", before(at)
-            while back >= 0 and (source[back].isalnum() or
-                                 source[back] in "_$") and len(word) < 4:
-                word, back = source[back] + word, before(back)
-            if back >= 0 and (source[back].isalnum() or source[back] in "_$"):
-                return False
-            return word in c_raw_prefixes
-
-        def raw_end(at: int) -> int:
-            """The end of the raw literal whose quote is at `at`: phases 1
-            and 2 are undone inside one, so it is found in the raw text."""
-            opened = source.find("(", at)
-            closing = ")" + source[at + 1:opened] + '"'
-            close = source.find(closing, opened) if opened >= 0 else -1
-            return n if close < 0 else close + len(closing)
-
-        i = 0
+        n, out, findings, i = len(source), list(source), [], 0
         while (hit := c_lex_stop_re.search(source, i)) is not None:
             i, char = hit.start(), hit.group(0)
             if char == "/":
-                follow = logical(i + 1)
-                stop = comment_end(follow) \
+                follow = c_logical(source, i + 1)
+                stop = c_comment_end(source, follow) \
                     if follow < n and source[follow] in "*/" else i + 1
                 if stop > i + 1:
                     out[i:stop] = " " * (stop - i)
-            elif char == '"' and raw_prefixed(i):
+            elif char == '"' and c_raw_prefixed(source, i):
                 findings.append(("raw", i))
-                stop = raw_end(i)
+                stop = c_raw_end(source, i)
                 out[i + 1:stop - 1] = " " * max(stop - i - 2, 0)
             elif char in "\"'":
-                stop, closed = literal_end(logical(i + 1), char)
+                stop, closed = c_literal_end(
+                    source, c_logical(source, i + 1), char)
                 if not closed:
                     findings.append(("unterminated", i))
                 out[i + 1:stop - closed] = " " * (stop - closed - i - 1)
@@ -2746,7 +2747,14 @@ def test_baremetal_profile_contract() -> None:
     #: compiled census and the resolver wherever a compiler answers. Whatever
     #: the product's headers select, the product builds one of the firmwares
     #: graded here, so no arm is ever read in one state and compiled in
-    #: another. That also closes what the comparison's arm BOUND could not:
+    #: another. BOUNDED, and the bound is measured: that holds for every
+    #: conditional the readers find, and they find one exactly where the
+    #: pinned GCC does for every spelling in the lexer corpus
+    #: (assert_lexer_matches_compiler(), re-measured wherever the compiler
+    #: answers), for text lexed as GCC lexes it -- the two lexings no edit
+    #: means, a literal GCC ends at its line end and a raw string, and any
+    #: trigraph, are refused before any reader runs ([R272] F1 and F4 on
+    #: PR #535). That also closes what the comparison's arm BOUND could not:
     #: `if (\n#ifdef CSR_UART_BASE\n0 &&\n#endif\n!verified)` names nothing
     #: this file defines, moves no token and no statement, and advertises
     #: an unverified entity in the one tree the census never compiles.
@@ -4168,6 +4176,14 @@ def test_baremetal_profile_contract() -> None:
     #: answers, each retired rule's replacement is a registered NOT RUN, its
     #: mutations are counted as skipped rather than rejected, and the
     #: closing verdict names it. Compiler absence is never coverage.
+    #:
+    #: Two bans are NARROWED rather than retired, and are not a fallback arm
+    #: either, since they refuse on every machine alike: the token-joining
+    #: splice and the `##` paste inside the six boot-path bodies. The text
+    #: rules reading those bodies key on names as written, and the `-E`
+    #: comparison compares only the boot tokens there, so a splice or a
+    #: paste rebuilding any other name they read had no replacement at all
+    #: ([R272] F2 on PR #535).
     def instruments_stood_down() -> bool:
         """True when no candidate here is the RV32 target, which is exactly
         when every #408/#409 instrument declines and only the text rules
@@ -4193,10 +4209,11 @@ def test_baremetal_profile_contract() -> None:
     #: Every mutant that reaches a control register outside milan_reg()
     #: fails on this one sentence, whatever spelled it.
     CENSUS_PIN = "materialises one elsewhere"
-    #: ... and the sentence the PREPROCESSED unit answers on (#408). Every
-    #: mutant that makes this gate read a boot path the compiler does not
-    #: compile fails on it, whether a conditional, a token-joining splice or
-    #: a paste spelled it.
+    #: ... and the sentence the PREPROCESSED unit answers on (#408): a
+    #: mutant whose six boot-path bodies hold, after preprocessing, another
+    #: ORDER of boot tokens or another count of statements than the text
+    #: this gate reads -- a macro erasing a boot step, say. A splice or a
+    #: paste there is refused before it, by the bans kept in those bodies.
     PREPROCESSED_PIN = "is not the boot path the compiler COMPILES"
     #: ... and the three sentences the RESOLVER answers on, one per
     #: question it asks. Every mutant that reaches a control register by
@@ -4415,9 +4432,14 @@ def test_baremetal_profile_contract() -> None:
     #: (phase 2 deletes the pair before tokens exist) and no `##` (a pasted
     #: call name). Both are questions about what the PREPROCESSOR produces,
     #: so this ASKS it -- the same compiler, under the same flags, with `-E`
-    #: -- and both refusals are RETIRED onto the answer. The third, the
-    #: conditional-reach ban, is retired onto arm_selections(), which hands
-    #: this comparison each arm selection as a firmware of its own.
+    #: -- and both refusals were retired onto the answer. That retirement
+    #: is NARROWED ([R272] F2 on PR #535): the answer compares the boot
+    #: tokens, and the text rules in these bodies read other names too (the
+    #: identity sample, the verdict), so inside the six bodies both bans are
+    #: KEPT (assert_boot_path_is_spelled()) and outside them the resolved
+    #: census answers by effect. The third refusal, the conditional-reach
+    #: ban, is retired onto arm_selections(), which hands this comparison
+    #: each arm selection as a firmware of its own.
     #:
     #: THE RULE IT CARRIES. For every boot-path function, three texts must
     #: agree on the body's SHAPE:
@@ -4428,8 +4450,9 @@ def test_baremetal_profile_contract() -> None:
     #:      here and two in row 1;
     #:   3. the body the compiler compiles, from `-E`.
     #:
-    #: Rows 1 and 3 disagree when a splice or a paste changes a call name
-    #: the compiler compiles. Shape is CONTENT, not a pair of counts -- the
+    #: Rows 1 and 3 disagree when a macro changes a boot token the compiler
+    #: compiles, a splice or a paste included where the bans above did not
+    #: reach. Shape is CONTENT, not a pair of counts -- the
     #: ordered sequence of boot tokens and the number of statements they sit
     #: in ([R213] MAJOR on 1540fe97) -- so a boot step moved within a body,
     #: or a macro that expands into a statement the text does not show, is a
@@ -4877,8 +4900,9 @@ def test_baremetal_profile_contract() -> None:
                 kind = directive.group(1)
                 name = re.match(r"[ \t]*(\w*)",
                                 text_read[directive.end():]).group(1)
-                assert kind == "else" or kind in lexer_conditions, \
-                    f"the lexer corpus spells a #{kind} this reads no condition of"
+                if kind != "else" and kind not in lexer_conditions:
+                    # a condition no corpus entry spells: a misread name
+                    return (f"#{kind} {name}, which no corpus entry spells",)
                 holds = kind == "else" or \
                     (name in defined) == lexer_conditions[kind]
                 if taken is None and holds:
@@ -4968,11 +4992,14 @@ def test_baremetal_profile_contract() -> None:
         COMPILES, in both readings of `reads`, and the preprocessed unit
         carries no directive at all.
 
-        This is the instrument the token-joining splice ban and the `##`
-        paste ban are RETIRED onto (#408): it answers by measurement what
-        each of them refused by construction, for the six bodies the text
-        rules read. Outside those bodies what a splice or a paste builds is
-        compiled, and the resolved census answers it by effect.
+        It answers by measurement, for the six bodies the text rules read,
+        whether the boot tokens and statements those rules read are the
+        compiled ones. The token-joining splice ban and the `##` paste ban
+        were retired onto it and are NARROWED instead (#408, [R272] F2 on PR
+        #535): it compares the boot tokens, not every name those rules read,
+        so both bans are kept inside the six bodies. Outside them what a
+        splice or a paste builds is compiled, and the resolved census
+        answers it by effect.
 
         What it could never answer, whatever the runner: a conditional
         carrying a definition. The address model reads `#define` bodies out
@@ -5001,9 +5028,10 @@ def test_baremetal_profile_contract() -> None:
                 f"the boot path this gate READS ({label}) is not the boot " \
                 f"path the compiler COMPILES: {differ}. The preprocessed " \
                 "unit is the compiler's own answer, so a conditional " \
-                "selecting boot code, a backslash-newline joining two " \
-                "tokens and a `##` pasting a call name are all this one " \
-                "disagreement, whichever spelled it"
+                "selecting boot code and a macro erasing or moving a boot " \
+                "step are this one disagreement, whichever spelled it (a " \
+                "splice or a paste in these bodies is refused before this, " \
+                "by the bans kept there)"
 
     def assert_compiled_census_is_clean(firmware: str, label: str = "firmware",
                                         selection: dict[str, Any] | None = None,
@@ -10142,13 +10170,23 @@ def test_baremetal_profile_contract() -> None:
              "the -E comparison of the boot path this gate reads against the "
              "one the compiler compiles, the -H include-resolution "
              "measurement and the resolved store census -- so on this "
-             "runner NOTHING refuses what the token-joining splice ban, the "
-             "## paste ban, the directory pin and the ordered pointer-cast, "
-             "pointer-store and inline-asm sets used to refuse, and every "
-             "mutation pinned on those instruments is SKIPPED, not counted. "
-             "WHAT STILL GRADED is every text rule that survives, the "
-             "per-selection grading of each conditional included (its text "
-             "half), and the hosted builder jobs require this compiler")
+             "runner NOTHING refuses what those instruments carry: a "
+             "token-joining splice or a ## paste OUTSIDE the six boot-path "
+             "bodies, a file beside the firmware, a cast, store or asm the "
+             "resolver would place in the window, and the COMPILER half of "
+             "the retired conditional-reach ban -- an arm only one build "
+             "compiles whose defect no text rule reads, such as `0 &&` in "
+             "the choke point's verdict test, is graded here by the text "
+             "rules alone, which do not refuse it -- and every mutation "
+             "pinned on those instruments is SKIPPED, not counted. WHAT "
+             "STILL GRADED is every text rule that survives: the splice and "
+             "## bans KEPT inside the six boot-path bodies, one #define per "
+             "name (which is what refuses a read hidden in a second "
+             "definition of the identity magic), the macro-body rule, the "
+             "literal and trigraph refusals, the directive readers as the "
+             "lexer corpus recorded them (not re-measured), and the "
+             "per-selection grading of each conditional (its text half); "
+             "and the hosted builder jobs require this compiler")
 
     def replace_once(source: str, old: str, new: str, label: str) -> str:
         """`source` with the FIRST `old` replaced, refusing a mutation that
@@ -14257,8 +14295,10 @@ def test_baremetal_profile_contract() -> None:
             f"compared row for row against the {len(boot_path_anchors)} "
             "boot-path function(s) of that unit -- each row the ORDERED "
             f"sequence of the {len(boot_path_tokens)} macro-invariant "
-            "tokens a splice or a paste would move, plus the statement "
-            "count -- read BOTH as this gate reads it and after translation "
+            "tokens a macro would move, plus the statement count (a splice "
+            "or a paste inside those bodies is refused outright, by the "
+            "bans kept there) -- read BOTH as this gate reads it and after "
+            "translation "
             "phases 1 and 2, in every arm selection graded, and no "
             "directive survived into the unit; include RESOLUTION was "
             f"measured with -H, which answered all {len(firmware_includes)} "
@@ -14289,9 +14329,11 @@ def test_baremetal_profile_contract() -> None:
         "TEXT RULES ONLY, AND WEAKER (no candidate here is the RV32 target, "
         "so the -E comparison, the -H measurement and the resolved store "
         "census stood down, and what the retired text rules used to refuse "
-        "-- a token-joining splice, a ## paste, a file beside the firmware, "
-        "a cast, store or asm the resolver would place in the window -- is "
-        "NOT RUN here, not covered): ")
+        "-- a token-joining splice or a ## paste outside the six boot-path "
+        "bodies, a file beside the firmware, a cast, store or asm the "
+        "resolver would place in the window, and an arm only one build "
+        "compiles whose defect no text rule reads, such as `0 &&` in the "
+        "choke point's verdict test -- is NOT RUN here, not covered): ")
     print("  [gate 1b] " + arm_note + "bounded boot-contract model: "
           "the PHC CSR output, "
           "datapath binding and PHC-crossing consumer are direct, and "
@@ -14371,13 +14413,19 @@ def test_baremetal_profile_contract() -> None:
           "and #409: only milan_reg() may use the CSR base or a CSR pointer "
           "cast, no macro body hides milan_write() or milan_reg(), no "
           "conditional left ungraded carries a definition, the verifier's "
-          "no-QSPI arm holds only a literal printf and `return 0;`, and no "
-          "%: or ?? appears at all; every conditional is graded ONE ARM "
-          "SELECTION AT A TIME, each selection as a firmware of its own. "
-          "RETIRED onto the tools (#408, #409): the conditional-reach ban, "
-          "the token-joining splice ban, the ## paste ban, the directory "
-          "pin and the ordered pointer-cast, pointer-store and inline-asm "
-          f"sets. The -E and -H tools: {preprocessed_note}. MAKE bounds "
+          "no-QSPI arm holds only a literal printf and `return 0;`, no %: "
+          "or ?? in code and no trigraph anywhere, no token-joining splice "
+          "and no ## paste reaching the six boot-path bodies, one #define "
+          "per name, and no literal GCC ends at a line end and no raw "
+          "string; every conditional the pinned GCC reads is graded ONE ARM "
+          "SELECTION AT A TIME, each selection as a firmware of its own, "
+          "and the readers that find those conditionals read a directive "
+          f"where that GCC does ({lexer_note}). RETIRED onto the tools "
+          "(#408, #409): the conditional-reach ban, the token-joining "
+          "splice and ## paste bans OUTSIDE the six boot-path bodies, the "
+          "directory pin and the ordered pointer-cast, pointer-store and "
+          f"inline-asm sets. The -E and -H tools: {preprocessed_note}. "
+          "MAKE bounds "
           "what gets built: its whole -Bn plan is read, not the lines "
           "carrying a sentinel, so one source, one object, no link step, one "
           "added flag, and the same plan again under a hostile environment")
@@ -14470,30 +14518,53 @@ def test_baremetal_profile_contract() -> None:
           "narrowed by exception: a conditional reaching milan_init(), "
           "configure_fabric(), entity_advertise() or the three CSR accessors "
           "(every arm selection is graded as the firmware it builds), a C "
-          "backslash-newline that JOINS two tokens and a ## paste (the -E "
-          "boot-path comparison and the resolved census), a new file beside "
+          "backslash-newline that JOINS two tokens and a ## paste OUTSIDE "
+          "the six boot-path bodies (the resolved census), a new file beside "
           "the firmware, a README included (the -H include-resolution "
           "measurement), and a fifth pointer cast, a fifth pointer store, a "
           "fifth inline-asm statement and REORDERING two functions (the "
           "resolved store census) -- and where no RV32 compiler answers "
           "those replacements are a registered NOT RUN, not coverage. "
-          "NARROWED: the macro-body rule refuses a macro hiding milan_write() "
-          "or milan_reg(), and a read-only accessor over milan_read() is "
-          "GREEN (every rule that reads a read fails closed when it is "
-          "hidden); and a conditional carrying a #define/#include is refused "
+          "NARROWED: the token-joining splice ban and the ## paste ban, to "
+          "the six boot-path bodies and every macro they name at any depth, "
+          "because the text rules reading those bodies read names as "
+          "written and the -E comparison compares only the boot tokens "
+          "there ([R272] F2 on PR #535); the macro-body rule refuses a "
+          "macro hiding milan_write() or milan_reg(), and a read-only "
+          "accessor over milan_read() is GREEN (each rule that reads a read "
+          "fails closed when it is hidden, and the identity magic, defined "
+          "once, must equal the RTL readback default); and a conditional "
+          "carrying a #define/#include is refused "
           "only in the groups left ungraded, the verifier's QSPI-slot group "
           "and the #error guards, so an #ifdef/#else choosing a #define "
           "elsewhere is GREEN (in a graded group each arm's definition is "
           "unconditional in the firmware that arm builds). KEPT, at the cost "
-          "stated: %: or ?? anywhere in the file (nothing but a digraph or a "
-          "trigraph spells either outside a literal, so it costs no edit "
-          "anybody writes, and the address model's #define reader does not "
-          "translate them); any statement in the verifier's no-QSPI arm "
+          "stated: %: or ?? in code (nothing but a digraph or a trigraph "
+          "spells either outside a literal, so it costs no edit anybody "
+          "writes), and a trigraph ANYWHERE, a comment's `what??!` "
+          "included (the pinned GCC ignores it at -std=gnu99 and a strict "
+          "-std replaces it before comments exist, so the two read "
+          "different lines); any statement in the verifier's no-QSPI arm "
           "beyond a literal printf and `return 0;` (no selection compiles "
           "that arm); more than "
           f"{MAX_ARM_SELECTIONS} arm selections in the whole firmware, "
           "and a disabled `#if 0` block, which is graded as the code it "
-          "would be. Also RED: a "
+          "would be. NEW THIS ROUND (#408, PR #535 round two), each a "
+          "refusal on every machine: a second #define of any name, an "
+          "identical one included (the address model reads a name by one "
+          "definition, the compiler every later use by the last; remedy: "
+          "define it once, or in the two arms of one graded group); a "
+          "character or string literal no quote closes on its line, an "
+          "apostrophe in the text of an `#if 0` block included (GCC ends "
+          "it at the line end with only a warning), and a raw string "
+          "literal; a macro body continued across lines that names "
+          "milan_write() or milan_reg(), which the rule used to read one "
+          "line at a time; and a helper split across two conditionals whose "
+          "conditions are not both a bare `defined` test of one macro, "
+          "which are graded in every combination, one with the call and "
+          "without the definition included (remedy: test the one macro "
+          "with #ifdef/#ifndef/#if defined(...) in both, which are graded "
+          "as the builds that exist). Also RED: a "
           "twelfth #include even of <string.h> -- a name that names no "
           "existing file cannot be RESOLVED at all, so the name pin is what "
           "refuses one -- any "
