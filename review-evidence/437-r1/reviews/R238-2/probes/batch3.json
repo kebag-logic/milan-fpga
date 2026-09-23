@@ -1,0 +1,26 @@
+[
+ {
+  "name": "C17 multi-line PI ends then raw comment",
+  "page": "<? x\n?>\n<div>\n<!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "C17 multi-line declaration ends then raw comment",
+  "page": "<!X y\n>\n<div>\n<!--\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "H06 raw PI line carrying an opener",
+  "page": "<? a <!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "H06 PI line inside div block",
+  "page": "<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "H10 opener inside a quoted value across raw lines",
+  "page": "<div title=\"a\n<!--\nb\">\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "H10 opener inside a tag across raw lines",
+  "page": "<div\ntitle=\"<!--\">\n\n## X\n\n## Y\n"
+ }
+]

@@ -1,0 +1,105 @@
+family-one shapes: 51
+'bullet at column, inline tag outside'                                 kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='`- item` + blank + `  text` (two spaces)'
+    page '- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'bullet at column, inline tag inside'                                  kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n'
+'bullet at column, unknown tag outside'                                kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '- item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'bullet at column, unknown tag inside'                                 kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n  text\n  <custom-tag>\n## Old\n  </custom-tag>\n\n## Real\n'
+'bullet past column, inline tag outside'                               kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='the same at three spaces'
+    page '- item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n'
+'bullet past column, inline tag inside'                                kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n'
+'bullet past column, unknown tag outside'                              kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '- item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'bullet past column, unknown tag inside'                               kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n'
+'star at column, inline tag outside'                                   kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with `*`'
+    page '* item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'star at column, inline tag inside'                                    kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '* item\n\n  text\n  <span>\n## Old\n  </span>\n\n## Real\n'
+'star at column, unknown tag outside'                                  kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '* item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'star at column, unknown tag inside'                                   kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '* item\n\n  text\n  <custom-tag>\n## Old\n  </custom-tag>\n\n## Real\n'
+'star past column, inline tag outside'                                 kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '* item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n'
+'star past column, inline tag inside'                                  kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '* item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n'
+'star past column, unknown tag outside'                                kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '* item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'star past column, unknown tag inside'                                 kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '* item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n'
+'ordered at column, inline tag outside'                                kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with `1. item` + `   text`'
+    page '1. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n'
+'ordered at column, inline tag inside'                                 kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n   text\n   <span>\n## Old\n   </span>\n\n## Real\n'
+'ordered at column, unknown tag outside'                               kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5=None
+    page '1. item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'ordered at column, unknown tag inside'                                kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n   text\n   <custom-tag>\n## Old\n   </custom-tag>\n\n## Real\n'
+'ordered past column, inline tag outside'                              kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n'
+'ordered past column, inline tag inside'                               kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n    text\n    <span>\n## Old\n    </span>\n\n## Real\n'
+'ordered past column, unknown tag outside'                             kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'ordered past column, unknown tag inside'                              kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '1. item\n\n    text\n    <custom-tag>\n## Old\n    </custom-tag>\n\n## Real\n'
+'two-digit ordered at column, inline tag outside'                      kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n'
+'two-digit ordered at column, inline tag inside'                       kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n    text\n    <span>\n## Old\n    </span>\n\n## Real\n'
+'two-digit ordered at column, unknown tag outside'                     kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'two-digit ordered at column, unknown tag inside'                      kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n    text\n    <custom-tag>\n## Old\n    </custom-tag>\n\n## Real\n'
+'two-digit ordered past column, inline tag outside'                    kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n     text\n<span>\n## Old\n</span>\n\n## Real\n'
+'two-digit ordered past column, inline tag inside'                     kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n     text\n     <span>\n## Old\n     </span>\n\n## Real\n'
+'two-digit ordered past column, unknown tag outside'                   kind='resumed paragraph, tag outside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n     text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'two-digit ordered past column, unknown tag inside'                    kind='resumed paragraph, tag inside the item' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n     text\n     <custom-tag>\n## Old\n     </custom-tag>\n\n## Real\n'
+'two-digit ordered below column, inline tag outside'                   kind='boundary: below the wider column' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n   text\n<span>\n## Old\n</span>\n\n## Real\n'
+'two-digit ordered below column, unknown tag outside'                  kind='boundary: below the wider column' base=ok prev=ok head=ok r86_5=None
+    page '10. item\n\n   text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'bullet two paragraphs, inline tag outside'                            kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with two container paragraphs'
+    page '- item\n\n  first\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'task at column, inline tag outside'                                   kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with a task item'
+    page '- [ ] item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'interrupting bullet at column, inline tag outside'                    kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with a list that follows a paragraph'
+    page 'text\n- item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'bullet at column, b tag outside'                                      kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with `<b>` in place of `<span>`'
+    page '- item\n\n  text\n<b>\n## Old\n</b>\n\n## Real\n'
+'bullet after two blanks, inline tag outside'                          kind='resumed paragraph, tag outside the item' base=DIFF prev=ok head=ok r86_5='with two blank lines'
+    page '- item\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary one space, inline tag'                                       kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary one space, unknown tag'                                      kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'boundary four spaces, inline tag'                                     kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary four spaces, unknown tag'                                    kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'boundary block quote, inline tag'                                     kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '> item\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary block quote, unknown tag'                                    kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '> item\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'boundary footnote definition two spaces, inline tag'                  kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '[^1]: note\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary footnote definition two spaces, unknown tag'                 kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '[^1]: note\n\n  text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'boundary footnote definition four spaces, inline tag'                 kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '[^1]: note\n\n    text\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary footnote definition four spaces, unknown tag'                kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '[^1]: note\n\n    text\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+'boundary tab, inline tag'                                             kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n\ttext\n<span>\n## Old\n</span>\n\n## Real\n'
+'boundary tab, unknown tag'                                            kind='boundary that already agreed' base=ok prev=ok head=ok r86_5=None
+    page '- item\n\n\ttext\n<custom-tag>\n## Old\n</custom-tag>\n\n## Real\n'
+agreed at base but not at head: []
+r86_5 mapped: ['`- item` + blank + `  text` (two spaces)', 'the same at three spaces', 'with `*`', 'with `1. item` + `   text`', 'with `<b>` in place of `<span>`', 'with a list that follows a paragraph', 'with a task item', 'with two blank lines', 'with two container paragraphs']

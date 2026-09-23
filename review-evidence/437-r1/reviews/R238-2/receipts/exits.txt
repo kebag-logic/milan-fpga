@@ -1,0 +1,22 @@
+0 toc_selftest :: python3 -B scripts/gen_toc.py --selftest
+0 toc_check :: python3 -B scripts/gen_toc.py --check
+0 toc_anchors :: python3 -B scripts/gen_toc.py --verify-anchors
+0 toc_sites :: python3 -B scripts/gen_toc.py --sites
+0 emdash_selftest :: python3 -B scripts/check_em_dash.py --selftest
+0 emdash_base_574 :: python3 -B scripts/check_em_dash.py --base 574c29fa111c74e5e5ed63e4670aff1f492e28e2
+0 emdash_base_88e :: python3 -B scripts/check_em_dash.py --base 88e9276b2a220c716f64a843f7e1eb8f9265e896
+0 docs_check :: python3 -B scripts/docs_check.py
+0 docs_check_selftest :: python3 -B scripts/docs_check.py --selftest
+0 doc_style :: python3 -B scripts/check_doc_style.py
+0 doc_style_selftest :: python3 -B scripts/check_doc_style.py --selftest
+0 doc_paths :: python3 -B scripts/check_doc_paths.py
+0 py_idiom :: python3 -B scripts/check_py_idiom.py
+0 py_idiom_selftest :: python3 -B scripts/check_py_idiom.py --selftest
+0 hygiene :: python3 -B scripts/check_hygiene.py --check
+0 hygiene_selftest :: python3 -B scripts/check_hygiene.py --selftest
+0 test_evidence :: python3 -B scripts/measure_test_evidence.py --check
+0 fail_fast :: python3 -B scripts/measure_fail_fast.py --check
+0 cohesion_selftest :: python3 -B scripts/measure_cohesion.py --selftest
+0 control_flow_selftest :: python3 -B scripts/measure_control_flow.py --selftest
+0 todo_ownership :: python3 -B scripts/check_todo_ownership.py
+0 diff_check :: git diff --check 574c29fa111c74e5e5ed63e4670aff1f492e28e2 HEAD

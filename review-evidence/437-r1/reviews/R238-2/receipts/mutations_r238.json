@@ -1,0 +1,904 @@
+[
+ {
+  "mutation": "C01 quote never consumes its optional space",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  FAIL [I437 rendered a quote's optional space leaves a raw opener]",
+    "  FAIL [I437 rendered a continued quote's optional space leaves a raw opener]",
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 4 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  - [I437 recorded a quote's optional space leaves a raw opener] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded a quote's optional space leaves a raw opener] absent base heading was not the refusal reason",
+    "  - [I437 recorded a continued quote's optional space leaves a raw opener] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "C02 blank line continues an empty item",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1241/1244 arm(s))"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  FAIL [I437 empty item ends at blank]",
+    "  FAIL [I437 empty padded item ends at blank]",
+    "  FAIL [I437 rendered empty item ended by a shorter blank]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  - [I437 empty item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page26.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 empty padded item ends at blank] expected findings/exempt (0, 1), got 1/0: ['page27.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded empty item ended by a shorter blank] expected findings/exempt (0, 1), got 1/0: ['page309.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C03 whitespace-only line continues a footnote",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1244/1244 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  },
+  "em_dash": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (416 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  }
+ },
+ {
+  "mutation": "C04 footnote continues at two columns",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1237/1244 arm(s))"
+   ],
+   "failing_lines": 8,
+   "first": [
+    "  FAIL [I437 footnote two spaces]",
+    "  FAIL [I437 R238 D02]",
+    "  FAIL [I437 R238 D04]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 8 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 8,
+   "first": [
+    "  - [I437 footnote two spaces] expected findings/exempt (0, 1), got 1/0: ['page14.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 R238 D02] expected findings/exempt (0, 1), got 1/0: ['page53.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 R238 D04] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "C05 indented line is never lazy",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered lazy indented comment opener is prose]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded lazy indented comment opener is prose] expected findings/exempt (0, 1), got 1/0: ['page311.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C06 type 3-5 opener is lazy",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1244/1244 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  },
+  "em_dash": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (416 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  }
+ },
+ {
+  "mutation": "C07 footnote opener is lazy",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1240/1244 arm(s))"
+   ],
+   "failing_lines": 5,
+   "first": [
+    "  FAIL [I437 R238 D02]",
+    "  FAIL [I437 R238 D04]",
+    "  FAIL [I437 footnote column 0 releases iff dedented]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 5 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 5,
+   "first": [
+    "  - [I437 R238 D02] expected findings/exempt (0, 1), got 1/0: ['page53.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 R238 D04] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 R238 D04] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "C08 four columns of padding make code",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 four padding columns]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 four padding columns] expected findings/exempt (0, 1), got 1/0: ['page24.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C09 empty item keeps its padding",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  FAIL [I437 empty item ignores padding]",
+    "  FAIL [I437 rendered empty item ended by a shorter blank]",
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  - [I437 empty item ignores padding] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 empty item ignores padding] absent base heading was not the refusal reason",
+    "  - [I437 recorded empty item ended by a shorter blank] expected findings/exempt (0, 1), got 1/0: ['page309.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C10 any item interrupts a paragraph",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1241/1244 arm(s))"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  FAIL [a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [a lone tag under an empty item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [I437 noninterrupting ordinal is no item]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C11 any ordinal interrupts a paragraph",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  FAIL [a lone tag under an ordered item that cannot interrupt a paragraph continues it, so the heading renders]",
+    "  FAIL [I437 noninterrupting ordinal is no item]",
+    "TOC selftest: FAIL (1242/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 noninterrupting ordinal is no item] expected findings/exempt (0, 1), got 1/0: ['page40.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C12 no lazy continuation",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1236/1244 arm(s))"
+   ],
+   "failing_lines": 9,
+   "first": [
+    "  FAIL [a lone tag directly under a plain line lazily continuing a list item hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps]",
+    "  FAIL [a lone tag directly under a plain line lazily continuing an item that interrupted a paragraph hides the heading it wraps]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 4 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  - [I437 lazy line retains item] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 lazy line retains item] absent base heading was not the refusal reason",
+    "  - [I437 recorded lazy line after nested quote, tag opens HTML] expected findings/exempt (0, 1), got 1/0: ['page296.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C13 footnote content read in place",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered footnote content is read at the page end]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  - [I437 recorded footnote content is read at the page end] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded footnote content is read at the page end] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "C14 indented comment opener starts a block",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered indented comment opener continues a paragraph]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded indented comment opener continues a paragraph] expected findings/exempt (0, 1), got 1/0: ['page312.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C15 types 3-5 not raw",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1241/1244 arm(s))"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  FAIL [I437 rendered type-5 block]",
+    "  FAIL [I437 rendered type-3 block]",
+    "  FAIL [I437 rendered type-4 block]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 6 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 6,
+   "first": [
+    "  - [I437 recorded type-5 block] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded type-5 block] absent base heading was not the refusal reason",
+    "  - [I437 recorded type-3 block] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "C16 tabs expand to eight",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 tab padding columns]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 tab padding columns] expected findings/exempt (0, 1), got 1/0: ['page25.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "C17 types 3-5 never end",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1244/1244 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  },
+  "em_dash": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (416 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  }
+ },
+ {
+  "mutation": "C18 blank line never continues an item",
+  "file": "gen_toc_containers.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1181/1244 arm(s))"
+   ],
+   "failing_lines": 64,
+   "first": [
+    "  FAIL [I437 two spaces]",
+    "  FAIL [I437 three spaces]",
+    "  FAIL [I437 star item]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 111 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 111,
+   "first": [
+    "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 two spaces] absent base heading was not the refusal reason",
+    "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "H01 only --> closes",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1240/1244 arm(s))"
+   ],
+   "failing_lines": 5,
+   "first": [
+    "  FAIL [I437 rendered --!> closes on its line]",
+    "  FAIL [I437 rendered --!> closes on a later line]",
+    "  FAIL [I437 rendered attribute bang closer closes]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 4 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  - [I437 recorded --!> closes on its line] expected findings/exempt (0, 1), got 1/0: ['page320.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded --!> closes on a later line] expected findings/exempt (0, 1), got 1/0: ['page321.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded attribute bang closer closes] expected findings/exempt (0, 1), got 1/0: ['page349.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "H02 no abrupt empty comment",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1241/1244 arm(s))"
+   ],
+   "failing_lines": 4,
+   "first": [
+    "  FAIL [I437 rendered abrupt empty comment in a block]",
+    "  FAIL [I437 rendered abrupt dash comment in a block]",
+    "  FAIL [I437 rendered abrupt empty comment line]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 3 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 3,
+   "first": [
+    "  - [I437 recorded abrupt empty comment in a block] expected findings/exempt (0, 1), got 1/0: ['page268.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded abrupt dash comment in a block] expected findings/exempt (0, 1), got 1/0: ['page269.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded abrupt empty comment line] expected findings/exempt (0, 1), got 1/0: ['page270.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "H03 tag filter ignored",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered tag filter leaves the attribute as text]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  - [I437 recorded tag filter leaves the attribute as text] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded tag filter leaves the attribute as text] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "H04 quoted attribute value not skipped",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered a quoted value hides a greater-than]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded a quoted value hides a greater-than] expected findings/exempt (0, 1), got 1/0: ['page317.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "H05 declaration is no bogus comment",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered CDATA is a bogus comment]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded CDATA is a bogus comment] expected findings/exempt (0, 1), got 1/0: ['page319.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "H06 processing instruction is no bogus comment",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1244/1244 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  },
+  "em_dash": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (416 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  }
+ },
+ {
+  "mutation": "H07 code span not skipped",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered code span hides the tag]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  - [I437 recorded code span hides the tag] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded code span hides the tag] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "H08 escape not honoured",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered escape hides the tag]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  - [I437 recorded escape hides the tag] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded escape hides the tag] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "H09 every line its own paragraph",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered tag across lines closes]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded tag across lines closes] expected findings/exempt (0, 1), got 1/0: ['page345.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "H10 raw run read per line",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 0,
+   "tail": [
+    "TOC selftest: PASS (1244/1244 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  },
+  "em_dash": {
+   "exit": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (416 arm(s))"
+   ],
+   "failing_lines": 0,
+   "first": []
+  }
+ },
+ {
+  "mutation": "H11 lowercase declaration is inline HTML",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered lowercase declaration is text]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  - [I437 recorded lowercase declaration is text] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded lowercase declaration is text] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "H12 raw lines never hide",
+  "file": "gen_toc_html.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1184/1244 arm(s))"
+   ],
+   "failing_lines": 61,
+   "first": [
+    "  FAIL [I437 rendered #516 first tag column 0 open]",
+    "  FAIL [I437 rendered #516 first tag column 0 close]",
+    "  FAIL [I437 rendered #516 first tag column 0 attribute]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 82 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 82,
+   "first": [
+    "  - [I437 recorded #516 first tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded #516 first tag column 0 open] absent base heading was not the refusal reason",
+    "  - [I437 recorded #516 first tag column 0 close] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "B01 no container end for blocks",
+  "file": "gen_toc.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1235/1244 arm(s))"
+   ],
+   "failing_lines": 10,
+   "first": [
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence]",
+    "  FAIL [I437 rendered live bullet paragraph, in-item fence would escape]",
+    "  FAIL [I437 rendered live ordered paragraph, in-item pre]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 14 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 14,
+   "first": [
+    "  - [I437 recorded live bullet paragraph, in-item fence] expected findings/exempt (0, 1), got 1/0: ['page298.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded live bullet paragraph, in-item fence would escape] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded live bullet paragraph, in-item fence would escape] absent base heading was not the refusal reason"
+   ]
+  }
+ },
+ {
+  "mutation": "B02 prose comment never ends early",
+  "file": "gen_toc.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1235/1244 arm(s))"
+   ],
+   "failing_lines": 10,
+   "first": [
+    "  FAIL [I437 rendered indented comment opener continues a paragraph]",
+    "  FAIL [I437 rendered item block ends before a code span]",
+    "  FAIL [I437 rendered item block ends before an escape]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 9 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 9,
+   "first": [
+    "  - [I437 recorded indented comment opener continues a paragraph] expected findings/exempt (0, 1), got 1/0: ['page312.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded item block ends before a code span] expected findings/exempt (0, 1), got 1/0: ['page323.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']",
+    "  - [I437 recorded item block ends before an escape] expected findings/exempt (0, 1), got 1/0: ['page324.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ },
+ {
+  "mutation": "B03 hidden lines not relabelled",
+  "file": "gen_toc.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1184/1244 arm(s))"
+   ],
+   "failing_lines": 61,
+   "first": [
+    "  FAIL [I437 rendered #516 first tag column 0 open]",
+    "  FAIL [I437 rendered #516 first tag column 0 close]",
+    "  FAIL [I437 rendered #516 first tag column 0 attribute]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 82 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 82,
+   "first": [
+    "  - [I437 recorded #516 first tag column 0 open] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 recorded #516 first tag column 0 open] absent base heading was not the refusal reason",
+    "  - [I437 recorded #516 first tag column 0 close] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "B04 container gate ignored",
+  "file": "gen_toc.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1186/1244 arm(s))"
+   ],
+   "failing_lines": 59,
+   "first": [
+    "  FAIL [I437 two spaces]",
+    "  FAIL [I437 three spaces]",
+    "  FAIL [I437 star item]"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 100 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 100,
+   "first": [
+    "  - [I437 two spaces] expected findings/exempt (1, 0), got 0/1: []",
+    "  - [I437 two spaces] absent base heading was not the refusal reason",
+    "  - [I437 three spaces] expected findings/exempt (1, 0), got 0/1: []"
+   ]
+  }
+ },
+ {
+  "mutation": "B05 empty comment opens",
+  "file": "gen_toc.py",
+  "toc": {
+   "exit": 1,
+   "tail": [
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ],
+   "failing_lines": 2,
+   "first": [
+    "  FAIL [I437 rendered abrupt empty comment line]",
+    "TOC selftest: FAIL (1243/1244 arm(s))"
+   ]
+  },
+  "em_dash": {
+   "exit": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 416 arm(s) did not hold"
+   ],
+   "failing_lines": 1,
+   "first": [
+    "  - [I437 recorded abrupt empty comment line] expected findings/exempt (0, 1), got 1/0: ['page270.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ]
+  }
+ }
+]

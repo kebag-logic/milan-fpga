@@ -1,0 +1,110 @@
+[
+ {
+  "name": "PI gt then opener",
+  "page": "text <? > <!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI opener no gt",
+  "page": "text <? <!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "CDATA gt then opener",
+  "page": "text <![CDATA[ > <!-- ]]>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI gt then opener two lines",
+  "page": "text <? >\n<!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI gt then opener in item",
+  "page": "- text <? > <!-- ?>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "PI gt then opener heading next line",
+  "page": "text <? > <!-- ?>\n## X\n\n## Y\n"
+ },
+ {
+  "name": "declaration then opener",
+  "page": "text <!DOCTYPE a <!-- >\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "prose unclosed opener",
+  "page": "text <!-- note\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "prose opener closed later",
+  "page": "text <!-- note\nmore -->\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then inline dashdash comment",
+  "page": "<div>\n<!--\n\ntext <!-- a -- b --> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then inline empty comment",
+  "page": "<div>\n<!--\n\ntext <!--> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then inline dash-empty comment",
+  "page": "<div>\n<!--\n\ntext <!---> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then inline ok comment",
+  "page": "<div>\n<!--\n\ntext <!-- a --> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then link destination closer",
+  "page": "<div>\n<!--\n\n[x](<a-->)\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then tag named a--",
+  "page": "<div>\n<!--\n\ntext <a--> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then lowercase decl",
+  "page": "<div>\n<!--\n\ntext <!x --> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "raw open then no-ws decl",
+  "page": "<div>\n<!--\n\ntext <!X--> end\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "lazy tag after item",
+  "page": "- a\n<span>\n## X\n</span>\n\n\n## Y\n"
+ },
+ {
+  "name": "lazy tag after quote",
+  "page": "> a\n<span>\n## X\n</span>\n\n\n## Y\n"
+ },
+ {
+  "name": "lazy tag after nested quote item",
+  "page": "> - a\n> <span>\n## X\n\n\n## Y\n"
+ },
+ {
+  "name": "noscript",
+  "page": "<noscript>\n\n## X\n\n</noscript>\n\n\n## Y\n"
+ },
+ {
+  "name": "select",
+  "page": "<select>\n\n## X\n\n</select>\n\n\n## Y\n"
+ },
+ {
+  "name": "template",
+  "page": "<template>\n\n## X\n\n</template>\n\n\n## Y\n"
+ },
+ {
+  "name": "svg",
+  "page": "<svg>\n\n## X\n\n</svg>\n\n\n## Y\n"
+ },
+ {
+  "name": "math",
+  "page": "<math>\n\n## X\n\n</math>\n\n\n## Y\n"
+ },
+ {
+  "name": "svg cdata opener",
+  "page": "<svg>\n<![CDATA[ <!-- ]]>\n</svg>\n\n## X\n\n## Y\n"
+ },
+ {
+  "name": "option",
+  "page": "<option>\n\n## X\n\n\n## Y\n"
+ }
+]

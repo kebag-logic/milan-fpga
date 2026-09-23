@@ -1,0 +1,6 @@
+[
+ {"name": "PI gt then opener heading next line", "prefix": "text <? > <!-- ?>\n"},
+ {"name": "glued bogus CDATA then quote comment", "prefix": "- <![CDATA[ x\n> <!--\n\n"},
+ {"name": "CDATA block then quoted comment", "prefix": "<![CDATA[\n> <!--\n"},
+ {"name": "tag inside CDATA block (withholding)", "prefix": "<![CDATA[\n<span>\n]]>\n"}
+]
