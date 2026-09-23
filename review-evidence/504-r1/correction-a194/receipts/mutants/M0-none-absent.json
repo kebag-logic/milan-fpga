@@ -1,0 +1,26 @@
+{
+  "probe": "M0-none-absent",
+  "source_tree": "$LANES/504-hosted-rv32-compiler",
+  "source_target_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+  "mutated_target_sha256": "4dc3dd612a4f394b600465f1b5756de7d41ea5a1b0afdda1186946452ea08342",
+  "edits": [
+    {
+      "old": "    store_classes_note = (\n",
+      "new": "    raise SystemExit('A194-STOP-MARKER: every literal resolver control up to here passed')\n    store_classes_note = (\n"
+    }
+  ],
+  "stop_marker_planted": true,
+  "sdk_destination": null,
+  "exit": 1,
+  "seconds": 1.0,
+  "verdict": "STOP",
+  "expected": "STOP",
+  "as_expected": true,
+  "expected_sentence": null,
+  "last_lines": [
+    "Compiler mode: absent cross tools",
+    "Compiler audit: $REVIEWS/504-a194-packet/scratch/work/M0-none-absent.audit.jsonl",
+    "  [gate 1b] 5 product configs and 11 refusal arms pass",
+    "A194-STOP-MARKER: every literal resolver control up to here passed"
+  ]
+}

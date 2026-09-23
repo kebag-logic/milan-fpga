@@ -1,0 +1,17 @@
+Compiler mode: absent cross tools
+Compiler audit: $REVIEWS/504-a194-packet/scratch/work/M2s-overlap-over-forget-static-arm-alone-absent.audit.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/504-a194-packet/scratch/work/M2s-overlap-over-forget-static-arm-alone-absent/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/504-a194-packet/scratch/work/M2s-overlap-over-forget-static-arm-alone-absent/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/504-a194-packet/scratch/work/M2s-overlap-over-forget-static-arm-alone-absent/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/504-a194-packet/scratch/work/M2s-overlap-over-forget-static-arm-alone-absent/sw/builder/test_builder.py", line 5333, in test_baremetal_profile_contract
+    assert reported[-1:] == [outside], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: after a byte store one past a static word's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places anything

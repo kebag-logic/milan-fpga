@@ -1,0 +1,32 @@
+{
+  "probe": "M1-overlap-last-byte-absent",
+  "source_tree": "$LANES/504-hosted-rv32-compiler",
+  "source_target_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+  "mutated_target_sha256": "01512e222f68a8cb9ec8f55e85394b337a6927cb746492f1ddecbd62e90883ce",
+  "edits": [
+    {
+      "old": "key[-1] <= start + width - 1 and key[-1] + 3 >= start]",
+      "new": "key[-1] <= start + width - 1 and key[-1] + 3 > start]"
+    },
+    {
+      "old": "    store_classes_note = (\n",
+      "new": "    raise SystemExit('A194-STOP-MARKER: every literal resolver control up to here passed')\n    store_classes_note = (\n"
+    }
+  ],
+  "stop_marker_planted": true,
+  "sdk_destination": null,
+  "exit": 1,
+  "seconds": 1.0,
+  "verdict": "KILLED",
+  "expected": "KILLED",
+  "as_expected": true,
+  "expected_sentence": "after a byte store at a frame slot's last byte the RV32 resolver still placed the next store",
+  "last_lines": [
+    "  File \"$REVIEWS/504-a194-packet/scratch/work/M1-overlap-last-byte-absent/sw/builder/test_builder.py\", line 5310, in test_baremetal_profile_contract",
+    "    assert reported[-1:] and isinstance(reported[-1], Rv32Where) and \\",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "        reported[-1].kind == \"unplaced\", \\",
+    "        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: after a byte store at a frame slot's last byte the RV32 resolver still placed the next store ([2147487744]): a word the store rewrote was read back as a placed address the census accepts"
+  ]
+}
