@@ -1,0 +1,40 @@
+# checker sha256 800cb5598e4a3a2a9378032db9bbad206fbb2501e930890b46bf2f8d2820c0ce
+0	ACCEPTED	0	full-ci-gate	2	Print the event and pin the one SHA this run validates	0	
+1	ACCEPTED	0	verilator-shards	2	Fetch RTL dependencies	0	
+2	ACCEPTED	0	verilator-shards	3	Record the tree this worker validates	0	
+3	ACCEPTED	0	verilator-shards	5	Build Verilator from source on cache miss	0	
+4	SPECIALIZED-PIN-ONLY	1	verilator-shards	6	Put Verilator on PATH and prove the version	1	.github/workflows/rtl.yml: recorded writer `Put Verilator on PATH and prove the version` in job `verilator-shards` script is not the canonical form: line 4 must be None (found 'echo maintained'); 3 line(s) expected, 4 fo
+5	SPECIALIZED-PIN-ONLY	1	verilator-shards	7	Prove specialized suite ownership	1	.github/workflows/rtl.yml: the `Prove specialized suite ownership` step script is not the canonical form: line 11 must be None (found 'echo maintained'); 10 line(s) expected, 11 found; its arms prove the specialized and 
+6	ACCEPTED	0	verilator-shards	9	Build Yosys from source on cache miss	0	
+7	ACCEPTED	0	verilator-shards	10	Install the pinned Yosys and prove the version	0	
+8	ACCEPTED	0	verilator-shards	11	Install sv2v for the netlist-level suite owner	0	
+9	SPECIALIZED-PIN-ONLY	1	verilator-shards	12	Build the pinned tsn-gen field oracle on its suite owner	1	.github/workflows/rtl.yml: recorded writer `Build the pinned tsn-gen field oracle on its suite owner` in job `verilator-shards` script is not the canonical form: line 9 must be None (found 'echo maintained'); 8 line(s) e
+10	SPECIALIZED-PIN-ONLY	1	verilator-shards	13	Run this exhaustive suite shard	1	.github/workflows/rtl.yml: default Verilator shards must use the pinned default inventory command
+11	SPECIALIZED-PIN-ONLY	1	verilator-suites	3	Require every shard to have validated this run's SHA	1	.github/workflows/rtl.yml: job `verilator-suites` verifier step script is not the canonical form derived from its download step and worker matrix: expected exactly ['shopt -s nullglob', 'roots=("$RUNNER_TEMP"/all-suite-l
+12	SPECIALIZED-PIN-ONLY	1	verilator-suites	4	Prove exhaustive ownership and tally every log	1	.github/workflows/rtl.yml: the `Prove exhaustive ownership and tally every log` step script of `verilator-suites` is not the canonical form: line 8 must be None (found 'echo maintained'); 7 line(s) expected, 8 found; it 
+13	SPECIALIZED-PIN-ONLY	1	verilator-suites	5	Require every Verilator worker to pass	1	.github/workflows/rtl.yml: the `Require every Verilator worker to pass` step script of `verilator-suites` is not the canonical form: line 6 must be None (found 'echo maintained'); 5 line(s) expected, 6 found; it alone ca
+14	ACCEPTED	0	yosys-shards	2	Fetch RTL dependencies	0	
+15	ACCEPTED	0	yosys-shards	3	Record the tree this worker validates	0	
+16	ACCEPTED	0	yosys-shards	5	Build Yosys from source on cache miss	0	
+17	ACCEPTED	0	yosys-shards	6	Install the pinned Yosys and prove the version	0	
+18	ACCEPTED	0	yosys-shards	7	Install the pinned sv2v release	0	
+19	ACCEPTED	0	yosys-shards	9	Run this weighted portability shard	0	
+20	SPECIALIZED-PIN-ONLY	1	yosys-portability	3	Require every shard to have validated this run's SHA	1	.github/workflows/rtl.yml: job `yosys-portability` verifier step script is not the canonical form derived from its download step and worker matrix: expected exactly ['shopt -s nullglob', 'roots=("$RUNNER_TEMP"/all-yosys-
+21	SPECIALIZED-PIN-ONLY	1	yosys-portability	4	Reconcile the live inventory and structural gates	1	.github/workflows/rtl.yml: the `Reconcile the live inventory and structural gates` step script of `yosys-portability` is not the canonical form: line 10 must be None (found 'echo maintained'); 9 line(s) expected, 10 foun
+22	SPECIALIZED-PIN-ONLY	1	yosys-portability	5	Require every Yosys worker to pass	1	.github/workflows/rtl.yml: the `Require every Yosys worker to pass` step script of `yosys-portability` is not the canonical form: line 6 must be None (found 'echo maintained'); 5 line(s) expected, 6 found; it alone carri
+23	ACCEPTED	0	verilator-lint	2	Fetch RTL dependencies	0	
+24	ACCEPTED	0	verilator-lint	4	Build Verilator from source on cache miss	0	
+25	SPECIALIZED-PIN-ONLY	1	verilator-lint	5	Run the ratcheted whole-tree lint gate	1	.github/workflows/rtl-fast.yml: recorded writer `Run the ratcheted whole-tree lint gate` in job `verilator-lint` script is not the canonical form: line 5 must be None (found 'echo maintained'); 4 line(s) expected, 5 foun
+26	ACCEPTED	0	verilator-lint	6	Prove protocol-processor source lists are derived	0	
+27	ACCEPTED	0	bdd-conformance	2	Fetch the processor model inputs	0	
+28	ACCEPTED	0	bdd-conformance	3	Install behave	0	
+29	ACCEPTED	0	bdd-conformance	4	Run the specification-facing suite	0	
+30	ACCEPTED	0	yosys-elaboration	2	Fetch RTL dependencies	0	
+31	ACCEPTED	0	yosys-elaboration	4	Build Yosys from source on cache miss	0	
+32	ACCEPTED	0	yosys-elaboration	5	Install the pinned Yosys and prove the version	0	
+33	ACCEPTED	0	yosys-elaboration	6	Install the pinned sv2v release	0	
+34	ACCEPTED	0	yosys-elaboration	7	Elaborate the integration-heavy tops	0	
+35	ACCEPTED	0	yosys-elaboration	8	Prove the OOC read sets come from run.sh and refuse a bad one	0	
+36	SPECIALIZED-PIN-ONLY	1	yosys-elaboration	9	Prove ooc.sh generates the ROMs and fails on a failed top	1	.github/workflows/rtl-fast.yml: exactly one step must run `python3 syn/yosys/ooc_selftest.py` verbatim in `yosys-elaboration` (found 0): it is the only hosted exercise of ooc.sh's refusals, and a neutralised or wrapped s
+37	ACCEPTED	0	yosys-elaboration	10	Prove the result cache refuses a planted entry	0	
+# steps=38 accepted=26 specialized_only=12 content_pin_refused=0

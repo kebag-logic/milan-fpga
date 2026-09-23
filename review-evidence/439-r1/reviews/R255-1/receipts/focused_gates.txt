@@ -1,0 +1,36 @@
+### python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 163 md files + 827 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### exit=0
+### python3 -B scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+check_em_dash: 0 finding(s) over 31 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]
+### exit=0
+### python3 -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (57 arm(s))
+### exit=0
+### python3 -B scripts/gen_toc.py --check
+TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### exit=0
+### python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 144 existing cross-page fragment links reproduced
+### exit=0
+### python3 -B scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+### exit=0
+### python3 -B scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (75 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 75
+### exit=0
+### python3 -B scripts/measure_fail_fast.py --check
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+### exit=0
+### python3 -B scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 756 first-party file(s) read)
+### exit=0
