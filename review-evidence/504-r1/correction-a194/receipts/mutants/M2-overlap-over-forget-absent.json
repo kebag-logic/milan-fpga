@@ -1,0 +1,32 @@
+{
+  "probe": "M2-overlap-over-forget-absent",
+  "source_tree": "$LANES/504-hosted-rv32-compiler",
+  "source_target_sha256": "daee153acb98e6cc41b28423461a26b8daa102daaef8b460c4a41b0a49648d71",
+  "mutated_target_sha256": "a2bc8c0700be30d0e49757052c733a2a9f84b7caefa08466d15c98b10cc0a54d",
+  "edits": [
+    {
+      "old": "key[-1] <= start + width - 1 and key[-1] + 3 >= start]",
+      "new": "key[-1] <= start + width - 1 and key[-1] + 4 >= start]"
+    },
+    {
+      "old": "    store_classes_note = (\n",
+      "new": "    raise SystemExit('A194-STOP-MARKER: every literal resolver control up to here passed')\n    store_classes_note = (\n"
+    }
+  ],
+  "stop_marker_planted": true,
+  "sdk_destination": null,
+  "exit": 1,
+  "seconds": 1.0,
+  "verdict": "KILLED",
+  "expected": "KILLED",
+  "as_expected": true,
+  "expected_sentence": "after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(",
+  "last_lines": [
+    "    builder.test_baremetal_profile_contract()",
+    "    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^",
+    "  File \"$REVIEWS/504-a194-packet/scratch/work/M2-overlap-over-forget-absent/sw/builder/test_builder.py\", line 5335, in test_baremetal_profile_contract",
+    "    assert reported[-1:] == [outside], \\",
+    "           ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "AssertionError: after a byte store one past a frame slot's last byte the RV32 resolver reported the next store as [unplaced(None)], not at the 0x80001000 it wrote: the stale-word probes cannot tell a rewrite from a probe that never places anything"
+  ]
+}
