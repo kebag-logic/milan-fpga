@@ -1,0 +1,41 @@
+## patch hashes: git diff --no-ext-diff --no-textconv --no-renames <parent> <commit> | sha256sum
+7fa64e99490b4648797374d3fdb1fedf08145e91 9790ac736e6d10301ad814ffdf73dbe37b59768b d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3  -
+7fa64e99490b4648797374d3fdb1fedf08145e91 20927af74752620b2ad0f973e8be3203994b5547 d3d164b309e376ea06a3734e8452dd5668c4721d0462dc0656af05d6b3c155b3  -
+f27b45500cb02a5277b5cb32cef408658c1f914e 3db86812096830fada2f5f276fa5f4d9f37d1d14 fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f  -
+377b8c428b226a796adde099fe07152151fd6c5d 5602e70bb4cf70c2e0e39e846e26925e27659e32 fa20a2516a4d866a859506c5396779fb98bbafe943e4de2651e9ec252bca996f  -
+## $MANAGEMENT/2026-09-23/423-a186/scratch/head-9dde/scripts/check_merge_containment.py --no-fetch --base target-f0f1c055 pr62
+  UNKNOWN    refs/heads/pr62: historical whitespace-exact replay in refs/heads/target-f0f1c055; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+## $MANAGEMENT/2026-09-23/423-a186/scratch/head-9dde/scripts/check_merge_containment.py --no-fetch --base target-c1b61743 pr62
+  UNKNOWN    refs/heads/pr62: historical whitespace-exact replay in refs/heads/target-c1b61743; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+## $MANAGEMENT/2026-09-23/423-a186/scratch/head-9dde/scripts/check_merge_containment.py --no-fetch --base target-f0f1c055 pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/target-f0f1c055 (1 not ancestors -- rebase merge)]
+rc=0
+## $MANAGEMENT/2026-09-23/423-a186/scratch/head-9dde/scripts/check_merge_containment.py --no-fetch --base target-c1b61743 pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/target-c1b61743 (1 not ancestors -- rebase merge)]
+rc=0
+## $MANAGEMENT/2026-09-23/423-a186/scratch/baseline-e1e0/scripts/check_merge_containment.py --no-fetch --base target-f0f1c055 pr62
+  UNKNOWN    refs/heads/pr62: historical whitespace-exact replay in refs/heads/target-f0f1c055; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+## $MANAGEMENT/2026-09-23/423-a186/scratch/baseline-e1e0/scripts/check_merge_containment.py --no-fetch --base target-c1b61743 pr62
+  UNKNOWN    refs/heads/pr62: historical whitespace-exact replay in refs/heads/target-c1b61743; current retention unproved on: 'tb/tsngen/mutants.py', 'tb/verilator/gaskets/mutants.py'
+
+1 tip(s) lack a containment proof; see UNKNOWN above.
+  Unresolved history or current retention is not a pass.
+rc=1
+## $MANAGEMENT/2026-09-23/423-a186/scratch/baseline-e1e0/scripts/check_merge_containment.py --no-fetch --base target-f0f1c055 pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/target-f0f1c055 (1 not ancestors -- rebase merge)]
+rc=0
+## $MANAGEMENT/2026-09-23/423-a186/scratch/baseline-e1e0/scripts/check_merge_containment.py --no-fetch --base target-c1b61743 pr61
+  contained  refs/heads/pr61  [every commit has a whitespace-exact equivalent in refs/heads/target-c1b61743 (1 not ancestors -- rebase merge)]
+rc=0

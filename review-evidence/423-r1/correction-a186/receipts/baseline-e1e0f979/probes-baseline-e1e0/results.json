@@ -1,0 +1,314 @@
+{
+ "A-merge-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5fx",
+  "rc": 0,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\n",
+  "stderr": ""
+ },
+ "A-merge-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\udca1\\udcfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-linear-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5lin",
+  "rc": 0,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]\n",
+  "stderr": ""
+ },
+ "A-linear-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 993, in main\n    return _report(targets, base)\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 902, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'utf-8' codec can't encode characters in position 89-90: surrogates not allowed\n"
+ },
+ "A-linear-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: other, \\xa1\\xfe.txt]\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n",
+  "stderr": "Traceback (most recent call last):\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 993, in main\n    return _report(targets, base)\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 902, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'utf-8' codec can't encode character '\\udcff' in position 93: surrogates not allowed\n"
+ },
+ "D-multitarget-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: plain, raw-\\xff, zz, \\xa1\\xfe.txt]\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: plain, raw-\\xff, zz, \\xa1\\xfe.txt]\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: plain, raw-\\xff, zz, \\xa1\\xfe.txt]\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n",
+  "stderr": "Traceback (most recent call last):\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 997, in <module>\n    sys.exit(main(sys.argv))\n             ~~~~^^^^^^^^^^\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 993, in main\n    return _report(targets, base)\n  File \"$REVIEWS/423-a186-packet/scratch/baseline-e1e0/scripts/check_merge_containment.py\", line 902, in _report\n    print(f\"  STRANDED   {label}: {ahead} commit(s) not in {base}\"\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n          + (f\"  [{note}]\" if note else \"\"))\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'big5' codec can't encode character '\\udcff' in position 93: illegal multibyte sequence\n"
+ },
+ "C-guards": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scripts/r244-probes/probe_guards.py",
+   "$REVIEWS/423-a186-packet/scratch/baseline-e1e0",
+   "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0/guards"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-baseline-e1e0",
+  "rc": 0,
+  "locale": {
+   "LC_ALL": null,
+   "PYTHONUTF8": null,
+   "LOCPATH": null
+  },
+  "stdout": "rename   head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'a.txt'\nrename   renames-folded     rc=0 contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\nrename   submodules-default rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'a.txt'\nrename   ancestor-regular   rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'a.txt'\ngitlink  head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'sub'\ngitlink  renames-folded     rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'sub'\ngitlink  submodules-default rc=0 contained  refs/heads/pr  [historical whitespace-exact replay across one redundant merge; raw no-op retention at refs/heads/main (3 not ancestors)]\ngitlink  ancestor-regular   rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'sub'\nsymlink  head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'p'\nsymlink  renames-folded     rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'p'\nsymlink  submodules-default rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'p'\nsymlink  ancestor-regular   rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'p'\n",
+  "stderr": ""
+ }
+}

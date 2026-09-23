@@ -1,0 +1,67 @@
+## identity
+9dde528c91599285c7b5ef63b5497483c31d317e
+82b57aaaf0dd8342616062387662a532373e26ae
+merge-base with origin/dev: 483a133ed08867ea0d300d2b4a027b5b48a4282f
+live dev 483a133e is an ancestor of HEAD
+reviewed head 4671e582 is an ancestor of HEAD
+## commits since reviewed head
+9dde528c91599285c7b5ef63b5497483c31d317e e4354566760a66ad1b4b9412561d54c7dabd4a87 Kill the retention guard and replay distinctness mutants with real-history controls
+e4354566760a66ad1b4b9412561d54c7dabd4a87 1a43ba80ef3bf011cbeceb0133a4e0d3520ddd3c Carry Git filename and patch bytes to Git without the filesystem codec
+1a43ba80ef3bf011cbeceb0133a4e0d3520ddd3c e1e0f97974180190c8e0c2a28877eb2b8f326c7d Copy mutation sources as bytes so an ASCII parent runs the self-test
+e1e0f97974180190c8e0c2a28877eb2b8f326c7d 4671e582cfa4bba4809b9e3a354ce5b6eb967f99 483a133ed08867ea0d300d2b4a027b5b48a4282f Merge live dev 483a133e into the issue 423 lane
+483a133ed08867ea0d300d2b4a027b5b48a4282f 52711029f374650dc93830d5ea28e81cb5c8f410 1496558d82cf35fc98dda0e781b2a1be643c301a Merge PR #512: bound AUDIO_UNIT rates to the PP contract
+1496558d82cf35fc98dda0e781b2a1be643c301a 2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 88e9276b2a220c716f64a843f7e1eb8f9265e896 Merge dev after Markdown closer validation
+2b2009488351f04f4cc4d2d316ad6d5f6f1e8ba7 d81a302760b84f32d2aa019643f57682bb6e052c docs: pin AUDIO_UNIT memory-map reference to processor commit
+d81a302760b84f32d2aa019643f57682bb6e052c 099e191137dd2797407fb8345a452bcc7a965608 ec34fcdee0ca9ffa63564a9af8ad70a3a618de29 Merge dev for AUDIO_UNIT rate-list validation
+099e191137dd2797407fb8345a452bcc7a965608 b17580b91deb11f3441dfc5d7f9fafe539d929b8 fix(builder): enforce AUDIO_UNIT rate-list contract
+## status/index
+worktree == index
+index == HEAD
+flagged index entries: 0
+stash entries: 0
+## gitlinks HEAD / reviewed head / live dev
+HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+4671e582cfa4bba4809b9e3a354ce5b6eb967f99:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+483a133ed08867ea0d300d2b4a027b5b48a4282f:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+## submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+## diff scope 483a133e..HEAD
+ CONTRIBUTING.md                                 |  54 +++
+ scripts/check_merge_containment.py              | 115 +++--
+ scripts/merge_containment_git.py                |  52 +++
+ scripts/merge_containment_replay.py             | 153 ++++++
+ scripts/merge_containment_selftest.py           |   6 +
+ scripts/merge_containment_selftest_content.py   |  23 +-
+ scripts/merge_containment_selftest_locale.py    | 325 +++++++++++++
+ scripts/merge_containment_selftest_mutations.py |  72 +++
+ scripts/merge_containment_selftest_replay.py    | 592 ++++++++++++++++++++++++
+ scripts/merge_containment_selftest_retention.py | 334 +++++++++++++
+ 10 files changed, 1655 insertions(+), 71 deletions(-)
+## diff scope 4671e582..HEAD (excluding dev merge paths)
+ CONTRIBUTING.md                                 |  13 +-
+ docs/ENDSTATION_BUILDER.md                      |   2 +-
+ scripts/check_merge_containment.py              |  58 +++--
+ scripts/merge_containment_git.py                |  52 +++++
+ scripts/merge_containment_replay.py             |  22 +-
+ scripts/merge_containment_selftest_content.py   |  23 +-
+ scripts/merge_containment_selftest_locale.py    | 267 ++++++++++++++++++------
+ scripts/merge_containment_selftest_mutations.py |  16 +-
+ scripts/merge_containment_selftest_retention.py | 100 +++++++--
+ sw/builder/endstation_builder.py                |  13 +-
+ sw/builder/test_builder.py                      | 123 +++++++++++
+ 11 files changed, 544 insertions(+), 145 deletions(-)

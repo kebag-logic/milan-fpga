@@ -1,0 +1,314 @@
+{
+ "A-merge-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-merge-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5fx",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: '\\xa1\\xfe.txt'\n\n1 tip(s) lack a containment proof; see UNKNOWN above.\n  Unresolved history or current retention is not a pass.\n",
+  "stderr": ""
+ },
+ "A-linear-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'other', '\\xa1\\xfe.txt']\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'other', '\\xa1\\xfe.txt']\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'other', '\\xa1\\xfe.txt']\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'other', '\\xa1\\xfe.txt']\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "A-linear-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "pr"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/big5lin",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'other', '\\xa1\\xfe.txt']\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-utf8-strict": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.UTF-8",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'plain', 'raw-\\xff', 'zz', '\\xa1\\xfe.txt']\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-utf8-mode": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "1",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'plain', 'raw-\\xff', 'zz', '\\xa1\\xfe.txt']\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-ascii": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "C",
+   "PYTHONUTF8": "0",
+   "LOCPATH": null
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'plain', 'raw-\\xff', 'zz', '\\xa1\\xfe.txt']\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-latin1": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "en_US.ISO-8859-1",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'plain', 'raw-\\xff', 'zz', '\\xa1\\xfe.txt']\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "D-multitarget-big5": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde/scripts/check_merge_containment.py",
+   "--no-fetch",
+   "--base",
+   "main",
+   "aa-ok",
+   "pr",
+   "zz-later"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/multitarget",
+  "rc": 1,
+  "locale": {
+   "LC_ALL": "zh_TW.BIG5",
+   "PYTHONUTF8": "0",
+   "LOCPATH": "$REVIEWS/423-a186-packet/scratch/locales"
+  },
+  "stdout": "  contained  refs/heads/aa-ok\n  STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'plain', 'raw-\\xff', 'zz', '\\xa1\\xfe.txt']\n  contained  refs/heads/zz-later\n\n1 branch tip(s) have work that refs/heads/main does not.\n  A merge that landed before the branch stopped moving leaves\n  the rest behind, and nothing else reports it. Open a\n  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1\n  step 7.\n",
+  "stderr": ""
+ },
+ "C-guards": {
+  "argv": [
+   "/usr/bin/python3",
+   "$REVIEWS/423-a186-packet/scripts/r244-probes/probe_guards.py",
+   "$REVIEWS/423-a186-packet/scratch/head-9dde",
+   "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c/guards"
+  ],
+  "cwd": "$REVIEWS/423-a186-packet/scratch/probes-head-9dde528c",
+  "rc": 0,
+  "locale": {
+   "LC_ALL": null,
+   "PYTHONUTF8": null,
+   "LOCPATH": null
+  },
+  "stdout": "rename   head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'a.txt'\nrename   renames-folded     rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\nrename   submodules-default rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\nrename   ancestor-regular   rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\ngitlink  head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'sub'\ngitlink  renames-folded     rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\ngitlink  submodules-default rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\ngitlink  ancestor-regular   rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\nsymlink  head               rc=1 UNKNOWN    refs/heads/pr: historical whitespace-exact replay in refs/heads/main; current retention unproved on: 'p'\nsymlink  renames-folded     rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\nsymlink  submodules-default rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\nsymlink  ancestor-regular   rc=1 y\", line 77, in <module>\n    from merge_containment_git import (  # noqa: E402\n        git_bytes as _git_raw, git_text as _git, path_label)\nModuleNotFoundError: No module named 'merge_containment_git'\n",
+  "stderr": ""
+ }
+}

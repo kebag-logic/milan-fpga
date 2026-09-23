@@ -1,0 +1,459 @@
+{
+ "control-default": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-utf8-mode-parent": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-utf8-strict-parent": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-ascii-parent": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-latin1-parent": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-big5-parent": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "lossy-git-bytes": {
+  "rc": 1,
+  "ok": 598,
+  "fail_count": 9,
+  "fails_first": [
+   "locale-big5-process",
+   "locale-big5-in-process-c3a92e747874-patch-bytes",
+   "locale-big5-in-process-7261772dff-patch-bytes",
+   "locale-big5-in-process-e282ac2e747874-patch-bytes",
+   "locale-big5-in-process-a1fe2e747874-linear-missing",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-enumerated-bytes",
+   "locale-big5-in-process-a1fe2e747874-postimage"
+  ],
+  "not_run": [],
+  "last": [
+   "       got [True, None], expected [False, None]"
+  ],
+  "stderr_tail": " File \"$REVIEWS/423-a186-packet/scratch/mut-mutations-head-bb4be4d3/lossy-git-bytes/scripts/merge_containment_replay.py\", line 70, in _tree_entry\n    raise _MeasurementError(\"invalid ls-tree path or object ID\")\nmerge_containment_replay._MeasurementError: invalid ls-tree path or object ID\n"
+ },
+ "restore-4671-replay-transport": {
+  "rc": 1,
+  "ok": 672,
+  "fail_count": 6,
+  "fails_first": [
+   "locale-big5-a1fe2e747874-merge-reverted",
+   "locale-big5-a1fe2e747874-unproved-path",
+   "locale-big5-in-process-c3a92e747874-merge-reverted",
+   "locale-big5-in-process-c3a92e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 6 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-4671-patch-transport": {
+  "rc": 1,
+  "ok": 626,
+  "fail_count": 52,
+  "fails_first": [
+   "locale-big5-c3a92e747874-linear-missing",
+   "locale-big5-c3a92e747874-unproved-path",
+   "locale-big5-c3a92e747874-merge-retained",
+   "locale-big5-c3a92e747874-retention-proof",
+   "locale-big5-c3a92e747874-patch-bytes",
+   "locale-big5-7261772dff-linear-missing",
+   "locale-big5-7261772dff-unproved-path",
+   "locale-big5-7261772dff-merge-retained",
+   "locale-big5-7261772dff-retention-proof",
+   "locale-big5-7261772dff-patch-bytes",
+   "locale-big5-e282ac2e747874-linear-missing",
+   "locale-big5-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 52 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "drop-lossy-output-guard": {
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-big5-in-process-git-lossy-output",
+   "locale-big5-in-process-git-lossy-head-branch"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-raw-differing-names": {
+  "rc": 1,
+  "ok": 663,
+  "fail_count": 15,
+  "fails_first": [
+   "retention-distinct-linear-path",
+   "retention-distinct-merge-path",
+   "locale-utf-8-stdout-verdicts",
+   "locale-utf-8-stdout-ascii-report",
+   "locale-utf-8-stdout-names",
+   "locale-ascii-stdout-verdicts",
+   "locale-ascii-stdout-ascii-report",
+   "locale-ascii-stdout-names",
+   "locale-utf-8-strict-stdout-verdicts",
+   "locale-utf-8-strict-stdout-names",
+   "locale-iso8859-1-stdout-verdicts",
+   "locale-iso8859-1-stdout-ascii-report"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 15 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-decoded-unknown-labels": {
+  "rc": 1,
+  "ok": 653,
+  "fail_count": 25,
+  "fails_first": [
+   "retention-literal-revert-'raw-\\udcff'-path",
+   "locale-utf-8-c3a92e747874-unproved-path",
+   "locale-utf-8-7261772dff-unproved-path",
+   "locale-utf-8-e282ac2e747874-unproved-path",
+   "locale-utf-8-a1fe2e747874-unproved-path",
+   "locale-ascii-c3a92e747874-unproved-path",
+   "locale-ascii-7261772dff-unproved-path",
+   "locale-ascii-e282ac2e747874-unproved-path",
+   "locale-ascii-a1fe2e747874-unproved-path",
+   "locale-utf-8-strict-c3a92e747874-unproved-path",
+   "locale-utf-8-strict-7261772dff-unproved-path",
+   "locale-utf-8-strict-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 25 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-text-source-copies": {
+  "rc": 1,
+  "ok": 147,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "  ok   replay-01-proof            the new arm proves retention after real historical replay"
+  ],
+  "stderr_tail": "ead()\n           ~~~~~~^^\n  File \"/usr/lib/python3.14/encodings/ascii.py\", line 26, in decode\n    return codecs.ascii_decode(input, self.errors)[0]\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\nUnicodeDecodeError: 'ascii' codec can't decode byte 0xc2 in position 4306: ordinal not in range(128)\n"
+ },
+ "single-base-dropped": {
+  "rc": 1,
+  "ok": 677,
+  "fail_count": 1,
+  "fails_first": [
+   "retention-merge-base-two-real-bases"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 1 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "retention-renames-folded": {
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "fails_first": [
+   "retention-hostile-rename-undone",
+   "retention-hostile-rename-undone-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "retention-submodules-default": {
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "fails_first": [
+   "retention-hostile-gitlink-reset",
+   "retention-hostile-gitlink-reset-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "ancestor-regular-guard": {
+  "rc": 1,
+  "ok": 676,
+  "fail_count": 2,
+  "fails_first": [
+   "retention-symlink-ancestor-clean-merge",
+   "retention-symlink-ancestor-clean-merge-path"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "distinct-replay-dropped": {
+  "rc": 1,
+  "ok": 675,
+  "fail_count": 3,
+  "fails_first": [
+   "retention-distinct-linear",
+   "retention-distinct-linear-path",
+   "retention-distinct-merge"
+  ],
+  "not_run": [],
+  "last": [
+   "selftest: 3 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "entry-name-check": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "entry-full-tree": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "conflict-style-override-dropped": {
+  "rc": 0,
+  "ok": 678,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "control-default-no-localedef": {
+  "rc": 0,
+  "ok": 564,
+  "fail_count": 0,
+  "fails_first": [],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: PASS"
+  ],
+  "stderr_tail": ""
+ },
+ "lossy-git-bytes-no-localedef": {
+  "rc": 1,
+  "ok": 541,
+  "fail_count": 8,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-patch-bytes",
+   "locale-big5-in-process-7261772dff-patch-bytes",
+   "locale-big5-in-process-e282ac2e747874-patch-bytes",
+   "locale-big5-in-process-a1fe2e747874-linear-missing",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-enumerated-bytes",
+   "locale-big5-in-process-a1fe2e747874-postimage"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "       got [True, None], expected [False, None]"
+  ],
+  "stderr_tail": "milan/reviews/423-a186-packet/scratch/mut-mutations-head-bb4be4d3/lossy-git-bytes-no-localedef/scripts/merge_containment_replay.py\", line 70, in _tree_entry\n    raise _MeasurementError(\"invalid ls-tree path or object ID\")\nmerge_containment_replay._MeasurementError: invalid ls-tree path or object ID\n"
+ },
+ "restore-4671-replay-transport-no-localedef": {
+  "rc": 1,
+  "ok": 560,
+  "fail_count": 4,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-merge-reverted",
+   "locale-big5-in-process-c3a92e747874-unproved-path",
+   "locale-big5-in-process-a1fe2e747874-merge-reverted",
+   "locale-big5-in-process-a1fe2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 4 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-4671-patch-transport-no-localedef": {
+  "rc": 1,
+  "ok": 539,
+  "fail_count": 25,
+  "fails_first": [
+   "locale-big5-in-process-c3a92e747874-linear-missing",
+   "locale-big5-in-process-c3a92e747874-unproved-path",
+   "locale-big5-in-process-c3a92e747874-merge-retained",
+   "locale-big5-in-process-c3a92e747874-retention-proof",
+   "locale-big5-in-process-c3a92e747874-patch-bytes",
+   "locale-big5-in-process-7261772dff-linear-missing",
+   "locale-big5-in-process-7261772dff-unproved-path",
+   "locale-big5-in-process-7261772dff-merge-retained",
+   "locale-big5-in-process-7261772dff-retention-proof",
+   "locale-big5-in-process-7261772dff-patch-bytes",
+   "locale-big5-in-process-e282ac2e747874-linear-missing",
+   "locale-big5-in-process-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 25 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "drop-lossy-output-guard-no-localedef": {
+  "rc": 1,
+  "ok": 562,
+  "fail_count": 2,
+  "fails_first": [
+   "locale-big5-in-process-git-lossy-output",
+   "locale-big5-in-process-git-lossy-head-branch"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 2 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-raw-differing-names-no-localedef": {
+  "rc": 1,
+  "ok": 554,
+  "fail_count": 10,
+  "fails_first": [
+   "retention-distinct-linear-path",
+   "retention-distinct-merge-path",
+   "locale-utf-8-stdout-verdicts",
+   "locale-utf-8-stdout-ascii-report",
+   "locale-utf-8-stdout-names",
+   "locale-ascii-stdout-verdicts",
+   "locale-ascii-stdout-ascii-report",
+   "locale-ascii-stdout-names",
+   "locale-utf-8-strict-stdout-verdicts",
+   "locale-utf-8-strict-stdout-names"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 10 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ },
+ "restore-decoded-unknown-labels-no-localedef": {
+  "rc": 1,
+  "ok": 547,
+  "fail_count": 17,
+  "fails_first": [
+   "retention-literal-revert-'raw-\\udcff'-path",
+   "locale-utf-8-c3a92e747874-unproved-path",
+   "locale-utf-8-7261772dff-unproved-path",
+   "locale-utf-8-e282ac2e747874-unproved-path",
+   "locale-utf-8-a1fe2e747874-unproved-path",
+   "locale-ascii-c3a92e747874-unproved-path",
+   "locale-ascii-7261772dff-unproved-path",
+   "locale-ascii-e282ac2e747874-unproved-path",
+   "locale-ascii-a1fe2e747874-unproved-path",
+   "locale-utf-8-strict-c3a92e747874-unproved-path",
+   "locale-utf-8-strict-7261772dff-unproved-path",
+   "locale-utf-8-strict-e282ac2e747874-unproved-path"
+  ],
+  "not_run": [
+   "NOT RUN locale-iso8859-1: localedef unavailable and no ISO-8859-1 locale installed",
+   "NOT RUN locale-big5: localedef unavailable and no BIG5 locale installed"
+  ],
+  "last": [
+   "selftest: 17 FAILURE(S)"
+  ],
+  "stderr_tail": ""
+ }
+}

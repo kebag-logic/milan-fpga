@@ -1,0 +1,58 @@
+[PASS] a bare except is a finding
+[PASS] a typed except is not a finding
+[PASS] a mutable default list is a finding
+[PASS] a mutable default from a call is a finding
+[PASS] an immutable default is not a finding
+[PASS] a None default is not a finding
+[PASS] shell=True is a finding
+[PASS] os.system is a finding
+[PASS] an argument-list subprocess call is not a finding
+[PASS] shadowing type is a finding
+[PASS] a parameter shadowing a builtin is a finding
+[PASS] an ordinary name is not a finding
+[PASS] a dataclass field named for a protocol field is not a finding
+[PASS] a method named set is not a finding
+[PASS] a local inside a method still shadows
+[PASS] a wildcard import is a finding
+[PASS] a recorded wildcard exception is not a finding
+[PASS] eval on a non-literal is a finding
+[PASS] eval on a literal is not a finding
+[PASS] a file that does not parse is a finding, not a skip
+[PASS] a function over the line limit is a finding
+[PASS] a short function is not a finding
+[PASS] a module over the line limit is a finding
+[PASS] an unannotated public function is a finding
+[PASS] a fully annotated public function is not a finding
+[PASS] a missing return annotation alone is a finding
+[PASS] a private function owes no signature
+[PASS] self does not need an annotation
+[PASS] an undocumented public function is a finding
+[PASS] a documented public function is not a finding
+[PASS] os.path is a finding
+[PASS] pathlib is not a finding
+[PASS] an unmanaged open is a finding
+[PASS] an open inside a with is not a finding
+[PASS] a nested open inside a with item is not a finding
+[PASS] a function over the parameter limit is a finding
+[PASS] a function at the parameter limit is not a finding
+[PASS] a global statement is a finding
+[PASS] an over-long line is a finding
+[PASS] a line at the limit is not a finding
+[PASS] a construct quoted in a docstring is not a finding
+[PASS] a count above its budget fails the ratchet
+[PASS] a count equal to its budget passes with no note
+[PASS] a count below its budget passes and names the lowerable value
+[PASS] a missing budget entry fails the ratchet
+[PASS] a malformed budget value is no entry
+[PASS] the scan reaches over 100 first-party modules
+[PASS] the scan reaches protocol-processor
+[PASS] the scan reaches gptp-processor
+[PASS] the live population is complete
+[PASS] an empty population is refused
+[PASS] a population missing a tree is refused
+[PASS] the ratcheted populations are non-empty
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL
+
+--stderr--
