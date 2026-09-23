@@ -1,0 +1,28 @@
+# blob ids of every file the PR touches, at base 483a133e, parent 28e350b9 and head d253f86e
+.github/workflows/rtl.yml          mode=100644 base=8510159e3b0f parent=8510159e3b0f head=67766752e267 CHANGED-IN-DELTA
+docs/testing/CI_WORKFLOWS.md       mode=100644 base=2823156c81c6 parent=5b075652064f head=5b075652064f same
+syn/yosys/README.md                mode=100644 base=c76a88a584fc parent=dfeacf6ec7db head=22d6966411c8 CHANGED-IN-DELTA
+syn/yosys/cache_selftest.py        mode=100755 base=3c32c4d3a45f parent=bc29a6ed75b6 head=bc29a6ed75b6 same
+syn/yosys/result_cache.py          mode=100755 base=b10b8229213d parent=416075cd38e3 head=416075cd38e3 same
+syn/yosys/rom_cache_selftest.py    mode=100644 base=absent parent=01b9462a68bb head=01b9462a68bb same
+syn/yosys/run.sh                   mode=100755 base=afa791331c91 parent=8850499639df head=8850499639df same
+
+# whole-tree delta 28e350b9..d253f86e (name-status)
+M	.github/workflows/rtl.yml
+M	syn/yosys/README.md
+
+# PR paths outside syn/yosys, docs, .github (expect none): hdl/ submodules tb/
+0
+# commits base..head
+d253f86e410e301d146d4bd4e74d027f00cfb462 28e350b99ac240a750326b762c6d029f0653362c Name the generated ROM bundle in the Yosys cache summaries
+28e350b99ac240a750326b762c6d029f0653362c 483a133ed08867ea0d300d2b4a027b5b48a4282f Bind Yosys result cache to generated ROM bytes
+Name the generated ROM bundle in the Yosys cache summaries$
+$
+0000020   t       c   a   c   h   e       t   o       g   e   n   e   r
+0000040   a   t   e   d       R   O   M       b   y   t   e   s  \n
+0000057
+1
+0000040       t   h   e       Y   o   s   y   s       c   a   c   h   e
+0000060       s   u   m   m   a   r   i   e   s  \n
+0000073
+1

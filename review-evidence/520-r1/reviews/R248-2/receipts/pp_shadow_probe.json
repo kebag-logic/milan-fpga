@@ -1,0 +1,122 @@
+{
+ "cold": {
+  "exit": 0,
+  "seconds": 170.155,
+  "cells": {
+   "KL_pp_shadow": 1141365
+  },
+  "hits": [],
+  "rom_sha256": "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+  "rom_images": [
+   {
+    "image": "ltn_rom.hex",
+    "bytes": 6138,
+    "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+   },
+   {
+    "image": "ucode.hex",
+    "bytes": 26624,
+    "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+   },
+   {
+    "image": "gptp_ucode.hex",
+    "bytes": 13312,
+    "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+   }
+  ]
+ },
+ "warm": {
+  "exit": 0,
+  "seconds": 3.766,
+  "cells": {
+   "KL_pp_shadow": 1141365
+  },
+  "hits": [
+   "KL_pp_shadow"
+  ],
+  "rom_sha256": "15ec9c1dd64eedd61359f5998cc78b029995d320229cdc6eb9885a64fda45e73",
+  "rom_images": [
+   {
+    "image": "ltn_rom.hex",
+    "bytes": 6138,
+    "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+   },
+   {
+    "image": "ucode.hex",
+    "bytes": 26624,
+    "sha256": "23605682298004274d80437a4ad83640c2d70e4fc161b23defb7c6eab6fa7144"
+   },
+   {
+    "image": "gptp_ucode.hex",
+    "bytes": 13312,
+    "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+   }
+  ]
+ },
+ "changed": {
+  "exit": 0,
+  "seconds": 169.668,
+  "cells": {
+   "KL_pp_shadow": 1122602
+  },
+  "hits": [],
+  "rom_sha256": "04b9b3bffbf630f5d56ac03ccc6523863acd8df847243b348d1f39ef3754bcaf",
+  "rom_images": [
+   {
+    "image": "ltn_rom.hex",
+    "bytes": 6138,
+    "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+   },
+   {
+    "image": "ucode.hex",
+    "bytes": 17,
+    "sha256": "ef5474dfdf8e052218a479ec0edec84b8ab1c057a0945e16e98b5e94f1802d53"
+   },
+   {
+    "image": "gptp_ucode.hex",
+    "bytes": 13312,
+    "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+   }
+  ]
+ },
+ "uncached": {
+  "exit": 0,
+  "seconds": 168.293,
+  "cells": {
+   "KL_pp_shadow": 1122602
+  },
+  "hits": [],
+  "rom_sha256": null,
+  "rom_images": [
+   {
+    "image": "ltn_rom.hex",
+    "bytes": 6138,
+    "sha256": "23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956"
+   },
+   {
+    "image": "ucode.hex",
+    "bytes": 17,
+    "sha256": "ef5474dfdf8e052218a479ec0edec84b8ab1c057a0945e16e98b5e94f1802d53"
+   },
+   {
+    "image": "gptp_ucode.hex",
+    "bytes": 13312,
+    "sha256": "83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939"
+   }
+  ]
+ },
+ "changed_vs_cold_differing_identity_fields": [
+  "rom_sha256"
+ ],
+ "cells_differ_changed_vs_cold": true,
+ "checks": {
+  "all_exit_0": true,
+  "cold_live": true,
+  "cold_lookup_equals_store": true,
+  "warm_hit_same_cells": true,
+  "changed_missed": true,
+  "changed_equals_uncached": true,
+  "changed_lookup_equals_store": true,
+  "only_rom_digest_differs": true
+ }
+}

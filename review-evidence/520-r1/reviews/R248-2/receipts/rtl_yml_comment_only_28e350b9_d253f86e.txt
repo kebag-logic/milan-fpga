@@ -1,0 +1,15 @@
+1 parsed-yaml-equal=True
+2 non-comment-lines-identical=True (old=530 new=530)
+3 changed-lines=9 non-comment-changed-lines=0
+   -      # THE RESULT CACHE (#350): a top whose staged sv2v output, Yosys
+   -      # program, Yosys binary and sv2v version match a verified PASS entry
+   -      # is skipped and reports the stored count; everything else runs as it
+   -      # always has. The trust boundary is GitHub's own cache scoping: a
+   +      # THE RESULT CACHE (#350): a top is skipped and reports the stored
+   +      # count only when every input its key binds, the generated ROM bundle
+   +      # (#520) included, matches a verified PASS entry; the key is defined
+   +      # in syn/yosys/README.md under "The result cache". Everything else
+   +      # runs as it always has. The trust boundary is GitHub's own cache scoping: a
+   run-bodies=32 added-comment-lines-found-in-run-bodies=0
+COMMENT-ONLY
+exit=0
