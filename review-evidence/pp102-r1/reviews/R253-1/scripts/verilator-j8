@@ -1,0 +1,5 @@
+#!/bin/sh
+# Cap Verilator build and verilate parallelism at 8. PINNED_VERILATOR names
+# the scoped Verilator 5.050 wrapper; --build-jobs/--verilate-jobs take
+# precedence over the suite's own `-j 0`.
+exec "${PINNED_VERILATOR:?set PINNED_VERILATOR}" --build-jobs 8 --verilate-jobs 8 "$@"

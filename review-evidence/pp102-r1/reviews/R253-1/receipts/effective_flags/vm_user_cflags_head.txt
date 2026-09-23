@@ -1,0 +1,7 @@
+VM_USER_CFLAGS = \
+  -std=c++17 -O2 -I<head-tree>/tb/pp_top -Wall -Wextra \
+  -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra \
+
+# User LDLIBS (from -LDFLAGS on Verilator command line)
+VM_USER_LDLIBS = \
+

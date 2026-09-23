@@ -1,0 +1,87 @@
+run 35772526304 event=push head=e0c43b03f31d6c1220dd05a110e4bb30029233a0 status=completed conclusion=success name=hdl attempt=1
+  job suites completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Cache the pinned Verilator build: success
+    step 4 Build Verilator v5.050: skipped
+    step 5 Lint (zero tolerance) + every suite: success
+    step 6 Traceability matrix no-drift + untested budget 0: success
+    step 7 nvm_port README figures agree with the tree: success
+    step 13 Post Cache the pinned Verilator build: success
+    step 14 Post Run actions/checkout@v4: success
+    step 15 Complete job: success
+  job docs-gates completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Link, matrix, wavedrom and staleness gates: success
+    step 6 Post Run actions/checkout@v4: success
+    step 7 Complete job: success
+  job portability completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Install yosys + sv2v: success
+    step 4 Elaborate every top off-vendor: success
+    step 8 Post Run actions/checkout@v4: success
+    step 9 Complete job: success
+run 35772531911 event=pull_request head=e0c43b03f31d6c1220dd05a110e4bb30029233a0 status=completed conclusion=success name=hdl attempt=1
+  job portability completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Install yosys + sv2v: success
+    step 4 Elaborate every top off-vendor: success
+    step 8 Post Run actions/checkout@v4: success
+    step 9 Complete job: success
+  job suites completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Cache the pinned Verilator build: success
+    step 4 Build Verilator v5.050: skipped
+    step 5 Lint (zero tolerance) + every suite: success
+    step 6 Traceability matrix no-drift + untested budget 0: success
+    step 7 nvm_port README figures agree with the tree: success
+    step 13 Post Cache the pinned Verilator build: success
+    step 14 Post Run actions/checkout@v4: success
+    step 15 Complete job: success
+  job docs-gates completed/success head=e0c43b03f31d
+    step 1 Set up job: success
+    step 2 Run actions/checkout@v4: success
+    step 3 Link, matrix, wavedrom and staleness gates: success
+    step 6 Post Run actions/checkout@v4: success
+    step 7 Complete job: success
+run 35772526304 suites job 106897467766
+run 35772531911 suites job 106897491378
+== push job 106897467766 exit=0 size=30512
+Verilator 5.050 2026-07-01 rev v5.050
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+PASS pp_top (1411 checks: 1411 PASS, 0 FAIL)
+suites: 14943 checks total, 0 failing
+matrix: OK (86 rows, 0 untested)
+  [ok ] pristine                   measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] page-buffered NOR          measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] lazy erase                 measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] lazy erase + page-buffered measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] coincident completion      measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+== pr job 106897491378 exit=0 size=31756
+Verilator 5.050 2026-07-01 rev v5.050
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+PASS pp_top (1411 checks: 1411 PASS, 0 FAIL)
+suites: 14943 checks total, 0 failing
+matrix: OK (86 rows, 0 untested)
+  [ok ] pristine                   measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] half-page                  measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] page-buffered NOR          measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] lazy erase                 measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] lazy erase + page-buffered measured=121 PASS, 1 FAIL  readme=(121, 1)
+  [ok ] coincident completion      measured=122 PASS, 0 FAIL  readme=(122, 0)
+  [ok ] T16 byte comparison                measured=pass FAIL FAIL FAIL FAIL
+  [ok ] T17 restore vs the record          measured=pass FAIL FAIL pass FAIL
+  [ok ] T17 restore vs the array           measured=pass pass FAIL pass pass
+  [ok ] T15 branch pin                     measured=pass pass FAIL pass FAIL
+PR-run synthetic merge e66e6eb9271ff045d9061449423331d47472ab12 tree=0547903adc17449dfb4f0c2610a23e6adb4ff6a2 parents=f70ba36ecb634467e4b1c3f0dbf1239d1e12af57,e0c43b03f31d6c1220dd05a110e4bb30029233a0

@@ -1,0 +1,18 @@
+## mutation: C++ fixture -D in the edited group set to 0x5A3D while RTL +define stays 16'h5A3C; expect the fixture build to FAIL
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1391 checks, 0 failures
+FAIL: DV1: class-D Domain out of reset is {3, 0xa3d, DEFAULTS}
+FAIL: DV1: snapshot word 10 carries the default, got 0x00030a3c
+FAIL: DV1: GET_DOMAIN answers the default, got 0x00030a3c
+FAIL: DV2: Domain New {6, 3, 0x5a3d} byte-exact
+FAIL: DV2: the wire SRclassVID is all 16 bits of the parameter, got 0x5a3c
+FAIL: DV2: class-D still the default
+FAIL: DV3: GET_TX_STATE_RESPONSE stream_vlan_id 0xa3d
+FAIL: DV4: Lv {6, 3, 0x5a3d} + New {6, 3, 5} byte-exact
+FAIL: DV5: LINK_DOWN restores {3, 0xa3d, DEFAULTS}
+FAIL: DV5: snapshot word 10 reverted, got 0x00030a3c
+FAIL: DV5: the default holds while down
+FAIL: DV6: LINK_UP re-declares Domain New {6, 3, 0x5a3d}
+FAIL: DV6: class-D is the default again
+[build fixture, SRP_DOM_DEF_VID_P 0x5a3d] 20 checks, 13 failures
+make: *** [Makefile:59: run] Error 1
+## exit=2

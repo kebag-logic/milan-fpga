@@ -1,0 +1,12 @@
+## git diff --check base head
+exit=0
+## changed line bytes (cat -A)
+^I    -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x$(SRP_VID_FIXTURE) -Wall -Wextra" \$
+## file mode base/head
+100644 blob 22fa1baeeb81e6e1c2e0780ddaae6f03aa6c8c69	tb/pp_top/Makefile
+100644 blob 70651784ac0a8ac2dd3dd2be46229117fcd64c60	tb/pp_top/Makefile
+## name-status
+M	tb/pp_top/Makefile
+## numstat
+1	1	tb/pp_top/Makefile
+## merge-base f70ba36 e0c43b0: f70ba36ecb634467e4b1c3f0dbf1239d1e12af57

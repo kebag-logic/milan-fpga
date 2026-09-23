@@ -1,0 +1,25 @@
+[base] recipe: VERILATOR_PLACEHOLDER --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/base/tb/pp_top -Wall -Wextra" "+define+PP_TOP_SRP_DOM_DEF_VID=16'h5A3C"     -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C"     --Mdir obj_vid ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_vid
+VM_USER_CFLAGS = \
+  -std=c++17 -O2 -I<base-tree>/tb/pp_top -Wall -Wextra \
+  -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C \
+
+# User LDLIBS (from -LDFLAGS on Verilator command line)
+VM_USER_LDLIBS = \
+
+[base] enabled warnings (-Q --help=warnings '[enabled]' rows): 183
+[head] recipe: VERILATOR_PLACEHOLDER --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<scratch>/head/tb/pp_top -Wall -Wextra" "+define+PP_TOP_SRP_DOM_DEF_VID=16'h5A3C"     -CFLAGS "-DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra"     --Mdir obj_vid ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_vid
+VM_USER_CFLAGS = \
+  -std=c++17 -O2 -I<head-tree>/tb/pp_top -Wall -Wextra \
+  -DPP_TOP_SRP_DOM_DEF_VID=0x5A3C -Wall -Wextra \
+
+# User LDLIBS (from -LDFLAGS on Verilator command line)
+VM_USER_LDLIBS = \
+
+[head] enabled warnings (-Q --help=warnings '[enabled]' rows): 183
+== diff of compiler flag lists (base -> head)
+26a27,28
+> -Wall
+> -Wextra
+== diff of enabled-warning tables (base -> head)
+IDENTICAL: the fixture build's effective warning set is unchanged
+exit=0

@@ -1,0 +1,12 @@
+## python3 -B scripts/check-links.py
+links: 807 checked, OK
+## exit=0
+## python3 -B scripts/check-matrix.py
+matrix: 115 REQ rows, 17 GAP findings, OK
+## exit=0
+## python3 -B scripts/gen_matrix.py --check
+matrix: OK (86 rows, 0 untested)
+## exit=0
+## python3 -B scripts/check_upc_map.py
+UPC MAP GATE: PASS (56 engine constants, 80 entry points, all agree)
+## exit=0
