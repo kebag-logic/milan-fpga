@@ -1,0 +1,7 @@
+{"baseline_exit": 0, "baseline": ["Ran 25 tests in 0.808s", "", "OK"]}
+{"mutant": "delete the extract() digest check", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}
+{"mutant": "compare only the first 8 hex digits", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}
+{"mutant": "warn instead of refusing", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}
+{"mutant": "compare the download with itself", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}
+{"mutant": "check only after tar extraction", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}
+{"mutant": "skip the check for the download file name only", "selftest_exit": 1, "verdict": "KILLED", "failing_tests": ["test_download_path_refuses_unpinned_bytes"]}

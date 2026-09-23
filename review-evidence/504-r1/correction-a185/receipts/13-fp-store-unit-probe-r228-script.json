@@ -1,0 +1,134 @@
+{
+ "compiler_version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0",
+ "sdk-default (gate 1b driver ())": {
+  "argv_tail": [
+   "-std=gnu99",
+   "-O0",
+   "-fno-inline",
+   "-S"
+  ],
+  "compile_exit": 0,
+  "arch": "rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0",
+  "functions": {
+   "int_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "sw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "float_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "fsw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "double_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "fsd"
+    ],
+    "stores_resolver_reported": [
+     "0x90000614",
+     "0x90000618"
+    ]
+   },
+   "float_arg": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "fsw",
+     "fsw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "amo_swap": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "amoswap.w"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   }
+  }
+ },
+ "ilp32 soft-float rv32ima": {
+  "argv_tail": [
+   "-march=rv32ima_zicsr",
+   "-mabi=ilp32",
+   "-std=gnu99",
+   "-O0",
+   "-fno-inline",
+   "-S"
+  ],
+  "compile_exit": 0,
+  "arch": "rv32i2p1_m2p0_a2p1_zicsr2p0",
+  "functions": {
+   "int_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "sw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "float_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "sw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "double_store": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "sw",
+     "sw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000614",
+     "0x90000618"
+    ]
+   },
+   "float_arg": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "sw",
+     "sw"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   },
+   "amo_swap": {
+    "store_mnemonics_in_asm": [
+     "sw",
+     "sw",
+     "amoswap.w"
+    ],
+    "stores_resolver_reported": [
+     "0x90000750"
+    ]
+   }
+  }
+ }
+}
