@@ -601,6 +601,17 @@ exemption:
   `Footnotes` heading that the pinned cmark-gfm does not emit, so no such
   heading is listed. This is the one recorded rendering the renderer does
   not reproduce.
+
+The recorded renderings are the Markdown API's `gfm` mode, which #437 names.
+GitHub renders a repository file through the API's `markdown` mode, and that
+mode reads some raw HTML differently. Measured on 2026-09-23 over the 352
+recorded pages and 700 generated ones, it differed from the renderer on 8,
+each involving a processing instruction (`<?`), a `<select>` or an `<xmp>`.
+On 2 the renderer lists headings after a processing instruction that carries
+a `<!--`, which a file view hides: an escape. On 4 it hides headings after a
+`<select>`, an `<xmp>` or an unclosed processing instruction that a file view
+shows: withholding. On 2 a heading carrying a processing instruction reads
+differently. No tracked page carries any of the three as raw HTML.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
