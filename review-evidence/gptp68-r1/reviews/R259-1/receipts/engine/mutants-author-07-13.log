@@ -1,0 +1,9 @@
+[PASS] control: pass
+[CAUGHT] 7 'lost response cancels the requester exchange' (caught, 3 FAIL lines; first: 'FAIL D2a lost response left the frozen pair alone value got 0000000000000259 exp 000000000') -- defends: a lost Pdelay_Resp result retires the response claim and nothing else
+[CAUGHT] 8 'a later response re-arms the frozen pair' (caught, 5 FAIL lines; first: 'FAIL D3a the pair computes from its own operands value got 00000000000312f3 exp 0000000000') -- defends: a complete pair keeps its own identity and operands until its t1
+[CAUGHT] 9 'the tail runs before its own t1' (caught, 19 FAIL lines; first: 'FAIL D2a the pair publishes nothing without its t1 got 00000000c04fce14 exp 00000000000002') -- defends: a delay is computed from this exchange's own t1, never a predecessor's
+[CAUGHT] 10 'a new request leaves the old pair live' (caught, 17 FAIL lines; first: 'FAIL D2a the pair publishes nothing without its t1 got 00000000c04fd423 exp 00000000000002') -- defends: a superseded exchange cannot pair with the new request's t1
+[CAUGHT] 11 'credit gate removed from the Pdelay_Req leg' (caught, 1 FAIL lines; first: 'FAIL D4 Pdelay_Req beats are withheld got 0000000000000001 exp 0000000000000000') -- defends: a Pdelay_Req beat is postponed while the transmit path has no credit
+[CAUGHT] 12 'credit gate removed from the Sync leg' (caught, 1 FAIL lines; first: 'FAIL D4 Sync beats are withheld   got 000000000000000a exp 0000000000000000') -- defends: a Sync beat is postponed while the transmit path has no credit
+[CAUGHT] 13 'credit gate removed from the Announce leg' (caught, 1 FAIL lines; first: 'FAIL D4 Announce beats are withheld got 0000000000000001 exp 0000000000000000') -- defends: an Announce beat is postponed while the transmit path has no credit
+slice result: ALL CAUGHT

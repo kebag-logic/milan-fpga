@@ -1,0 +1,9 @@
+[PASS] control: pass
+[CAUGHT] 0 'result face always ready' (caught, 42 FAIL lines; first: 'FAIL reset holds the result face closed got 0000000000000001 exp 0000000000000000') -- defends: a result already owed to the micro-code cannot be replaced by a later one
+[CAUGHT] 1 'result value taken without an accepted beat' (caught, 9 FAIL lines; first: 'FAIL D1 response keeps its own t3 got 0000000002627558 exp 0000000002625a00') -- defends: the accepted result keeps its own timestamp until its dispatch
+[CAUGHT] 2 'result tag taken without an accepted beat' (caught, 84 FAIL lines; first: 'FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001') -- defends: the accepted result keeps its own tag and outcome until its dispatch
+[CAUGHT] 3 'recorded t1 survives reset' (caught, 2 FAIL lines; first: 'FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000') -- defends: a t1 measured before a reset cannot pair with a later Follow_Up
+[CAUGHT] 4 'byte face advances without ready' (caught, 48 FAIL lines; first: 'FAIL raw-empty overload: only frozen A commits got 000000000000001e exp 000000000000001f') -- defends: a stalled byte, including the final one, waits for an accepted transfer
+[CAUGHT] 5 'lost t1 fabricates a time and a companion' (caught, 2 FAIL lines; first: 'FAIL D2c lost t1 publishes no delay got 0000000002fb09b8 exp 00000000000002bc') -- defends: a lost result writes no time and completes no exchange
+[CAUGHT] 6 'lost Sync cancels the requester exchange' (caught, 2 FAIL lines; first: 'FAIL D2b lost Sync left the recorded t1 alone value got 000000000000012d exp 0000000000000') -- defends: a lost Sync result retires the Sync claim and nothing else
+slice result: ALL CAUGHT

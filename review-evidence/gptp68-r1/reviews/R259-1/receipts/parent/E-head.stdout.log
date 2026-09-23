@@ -1,0 +1,10 @@
+gptp_ucode.hex: 1024 words, 993 real (97.0%), mac 02A1B2C3D4E5
+FAIL one adjtime re-base            got 0000000000000000 exp 0000000000000001
+FAIL re-base near +1 ms             got 0000000000000000 exp 0000000000000001
+FAIL measured offset locked         got 0000000000000000 exp 0000000000000001
+FAIL addend at the +100 ppm ideal   got 0000000000000000 exp 0000000000000001
+FAIL counter tracks the master      got 0000000000000000 exp 0000000000000001
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 7 frames, 0 wrong, expected 0x0000
+29 checks: 24 PASS, 5 FAIL

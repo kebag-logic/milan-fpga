@@ -1,0 +1,10 @@
+[PASS] control: pass
+[CAUGHT] r0 'R1 the sync receipt timeout keeps sync-ok' (caught, 39 FAIL lines; first: 'FAIL sync-ok falls on timeout     got 0000000000000000 exp 0000000000000001') -- defends: the receipt timeout makes the next pair first
+[SURVIVED] r1 'R2 becoming grandmaster keeps sync-ok' (pass, 0 FAIL lines; first: '') -- defends: taking the grandmaster role clears the verdict
+[CAUGHT] r2 'R3 saturation always picks +lim' (caught, 56 FAIL lines; first: 'FAIL -900 ms synchronized 0: addend matches the mirror got 00000000ffd70a35 exp 00000000ff') -- defends: an out-of-band negative input saturates to -lim
+[CAUGHT] r3 'R4 saturation always picks -lim' (caught, 57 FAIL lines; first: 'FAIL first sync under 1 s: one slew addend got 0000000000000000 exp 0000000000000001') -- defends: an out-of-band positive input saturates to +lim
+[CAUGHT] r4 'R6 the step writes +offset' (caught, 8 FAIL lines; first: 'FAIL +1.1 s first: step carries -offset got 000000004190ab00 exp ffffffffbe6f5500') -- defends: the step carries the negated offset
+[CAUGHT] r5 'R7 the step keeps the proportional term' (caught, 41 FAIL lines; first: 'FAIL +1.1 s first: addend matches the mirror got 0000000000051eaf exp 000000000019999a') -- defends: the step's addend is the bare integrator
+[CAUGHT] r6 'R10 every negative first offset steps' (caught, 38 FAIL lines; first: 'FAIL -1 s first: step pulses      got 0000000000000001 exp 0000000000000000') -- defends: a first offset in [-1 s, 0) slews
+[CAUGHT] r7 'R12 a same-grandmaster refresh clears sync-ok' (caught, 2 FAIL lines; first: 'FAIL no flicker on the switch     got 0000000000000000 exp 0000000000000008') -- defends: a new parent under the same grandmaster never makes a pair first
+slice result: 1 problem(s)

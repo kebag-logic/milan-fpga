@@ -1,0 +1,11 @@
+[PASS] control: pass
+[CAUGHT] 14 'a synchronized servo may step' (caught, 42 FAIL lines; first: 'FAIL +1.1 s synchronized: step pulses got 0000000000000001 exp 0000000000000000') -- defends: only a first synchronization may step
+[CAUGHT] 15 'the first-synchronization test inverted' (caught, 50 FAIL lines; first: 'FAIL +1.1 s first: step pulses    got 0000000000000000 exp 0000000000000001') -- defends: a first synchronization over one second steps
+[CAUGHT] 16 'every first synchronization steps' (caught, 52 FAIL lines; first: 'FAIL first sync under 1 s: no step pulse got 0000000000000001 exp 0000000000000000') -- defends: a first synchronization under one second slews
+[CAUGHT] 17 'the pre-#68 20 us threshold' (caught, 52 FAIL lines; first: 'FAIL first sync under 1 s: no step pulse got 0000000000000001 exp 0000000000000000') -- defends: the step threshold is one second
+[CAUGHT] 18 'exactly one second steps' (caught, 39 FAIL lines; first: 'FAIL +1 s first: step pulses      got 0000000000000001 exp 0000000000000000') -- defends: an offset of exactly one second does not exceed the threshold
+[CAUGHT] 19 'the step arm is unreachable' (caught, 27 FAIL lines; first: 'FAIL +1.1 s first: step pulses    got 0000000000000000 exp 0000000000000001') -- defends: a first synchronization over one second steps
+[CAUGHT] 20 'a grandmaster change keeps synchronization' (caught, 7 FAIL lines; first: 'FAIL GM change, +300 us: sync-ok low before the pair got 0000000000000008 exp 000000000000') -- defends: a grandmaster identity change makes the next pair first
+[CAUGHT] 21 'the slew input is not saturated' (caught, 62 FAIL lines; first: 'FAIL first sync under 1 s: one slew addend got 0000000000000000 exp 0000000000000001') -- defends: a large offset slews within the pre-#68 rate envelope
+[CAUGHT] 22 'the integrator is not clamped' (caught, 59 FAIL lines; first: 'FAIL padded Sync (74) pairs: steers the phc got 0000000000000000 exp 0000000000000001') -- defends: the integrator stays within +-200 ppm
+slice result: ALL CAUGHT
