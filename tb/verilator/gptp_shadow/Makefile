@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 0
 RTL_DIR    = ../../../hdl
 GPTP_DIR   = ../../../gptp-processor
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
+UCODE_GEN  = $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
 TOP        = gptp_shadow_wrap
-VFLAGS = --cc --exe --build -j 0 \
+VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          --top-module $(TOP) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
@@ -32,9 +34,9 @@ SRCS = gptp_shadow_wrap.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
 CPP  = sim_main.cpp
 
-.PHONY: all run mutants clean
+.PHONY: all run mutants lifecycle print-inputs clean
 
-all: mutants
+all: lifecycle mutants
 
 run: gptp_ucode.hex
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_shadow_sim
@@ -44,14 +46,24 @@ run: gptp_ucode.hex
 #: `mutants.py` plants one plane defect at a time - what a ledger entry is,
 #: when it may resolve, what a barrier destroys, what discharges a recovery
 #: demand, and which measured terms the reconstruction is made of - and
-#: requires this suite to notice, restoring the exact source afterwards. It
+#: requires this suite to notice, using disposable source/build copies. It
 #: is the default target, so the evidence comes from the command the sweep
 #: already runs.
+lifecycle:
+	python3 test_mutant_lifecycle.py
+
 mutants: run
 	python3 mutants.py
 
-gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+gptp_ucode.hex: $(UCODE_GEN)
 	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
+
+#: The tracked files `run` reads, relative to this directory. `mutants.py`
+#: verifies and copies exactly these (and the local headers they include)
+#: into its private build, so a file this build never reads cannot refuse
+#: the campaign. It asks make rather than parsing this file.
+print-inputs:
+	@echo Makefile $(SRCS) $(CPP) $(UCODE_GEN)
 
 clean:
 	rm -rf obj_dir gptp_ucode.hex

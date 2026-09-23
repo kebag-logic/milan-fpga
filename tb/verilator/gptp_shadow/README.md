@@ -80,3 +80,56 @@ make        # regenerates gptp_ucode.hex from the submodule, builds, runs
 ```
 
 Exit 0 = PASS; the tally line is the record.
+
+## Mutation isolation and cancellation
+
+The default `make` also owns `test_mutant_lifecycle.py` and `mutants.py`.
+The original nine mutations and six unobservable reasons remain.
+Named checks and completed failure tallies establish detection.
+Compilation failure alone never establishes detection.
+
+Every campaign gets fresh private source and build files.
+The population is exactly what the build reads.
+`make print-inputs` reports those files; local C++ includes join them.
+Mutation targets and anchor files must be among them.
+Required gPTP and axis dependency files are copied too.
+Copies contain no hardlinks or links into caller inputs.
+Git checks are read-only; caller sources are never restored.
+Committed bytes, executable modes, index records and pins must agree.
+Dirty, untracked, linked and index-hidden inputs are refused.
+Files the build never reads are neither checked nor copied.
+A regenerated `TEST_RESULTS.md` or unrelated work cannot refuse it.
+Generated objects and images are rebuilt inside that population.
+
+Required dependencies must be initialised submodules at their pins.
+A copied dependency tree without its submodule `.git` is refused.
+
+Git variables that redirect the checkout are refused by name.
+They are `GIT_DIR`, `GIT_WORK_TREE`, `GIT_COMMON_DIR` and `GIT_INDEX_FILE`.
+So are `GIT_OBJECT_DIRECTORY` and `GIT_ALTERNATE_OBJECT_DIRECTORIES`.
+So are `GIT_REPLACE_REF_BASE` and configuration injection.
+Injection means `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_COUNT`, `GIT_CONFIG_GLOBAL` or `GIT_CONFIG_SYSTEM`.
+Every other Git variable is accepted, such as an editor or pager.
+Identity commands run without any Git variable at all.
+Only Git's standard output is parsed; warnings never become records.
+An unreadable identity record is a refusal, exit 2.
+
+Normal completion and handled INT/TERM reap owned descendants.
+Private work is removed before a completed verdict is printed.
+Stubborn descendants receive bounded escalation through stable process handles.
+Cleanup failures produce diagnostics and refuse a successful result.
+KILL may leave scratch and children; caller sources remain unchanged.
+Its direct `make` child dies with it; deeper build steps may finish.
+An interrupted campaign has no completed mutation verdict.
+A missing process facility prints `REFUSED:` and exits 2.
+
+```sh
+python3 tb/verilator/gptp_shadow/test_mutant_lifecycle.py
+make -C tb/verilator/gptp_shadow VERILATOR_JOBS=4
+```
+
+Lifecycle fixtures execute the production drivers using command handshakes.
+They exercise source isolation and process cleanup, including nested sweeps.
+Unsafe controls restore caller mutation and must violate isolation.
+Synthetic commands establish orchestration behavior, not RTL correctness.
+The complete real `make` still owns all nine detections.
