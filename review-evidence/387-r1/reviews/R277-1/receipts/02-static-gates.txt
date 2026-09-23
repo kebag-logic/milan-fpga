@@ -1,0 +1,112 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+### exit 0: python3 scripts/docs_check.py
+
+### python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 117 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+### exit 0: python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+### exit 0: python3 scripts/check_doc_style.py
+
+### python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+### exit 0: python3 scripts/check_gptp_docs.py
+
+### python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+### exit 0: python3 scripts/check_gptp_docs.py --with-submodule
+
+### python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+### exit 0: python3 docs/diagrams/timesync_chain.gen.py --check
+
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+### exit 0: python3 docs/diagrams/submodule_boundaries.gen.py --check
+
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+### exit 0: python3 scripts/check_submodule_docs.py
+
+### python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+### exit 0: python3 scripts/check_diagram_pngs.py
+
+### python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+### exit 0: python3 scripts/check_feature_status.py
+
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (832 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+### exit 0: python3 scripts/check_doc_paths.py
+
+### python3 scripts/gen_toc.py --verify-anchors
+anchor check: 149 existing cross-page fragment links reproduced
+### exit 0: python3 scripts/gen_toc.py --verify-anchors
+
+### python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+### exit 0: python3 scripts/gen_toc.py --check
+
+### python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+### exit 0: python3 scripts/check_rtl_source_lists.py
+
+### python3 scripts/check_cpp_idiom.py
+cpp idiom: 147 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+### exit 0: python3 scripts/check_cpp_idiom.py
+
+### python3 scripts/check_hygiene.py --check
+
+                                superproject  protocol-processor      gptp-processor
+  trailing whitespace                      0                   0                   0
+  missing EOF newline                      0                   0                   0
+  CRLF line ending                         0                   0                   0
+  UTF-8 BOM                                0                   0                   0
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 727 file(s))
+### exit 0: python3 scripts/check_hygiene.py --check
+
+### python3 scripts/measure_test_evidence.py --check
+
+suite files using host wall-clock/process deadlines (3):
+   tb/verilator/tcam/mutants.py
+   tb/verilator/tsn_fuzz/cosim.py
+   tb/verilator/tsn_fuzz/tsn_model.py
+
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+### exit 0: python3 scripts/measure_test_evidence.py --check
+
+### python3 scripts/pp_srcs.py --check
+pp source list: 42 tracked source(s) derived; no build input carries a literal copy
+  prose    hdl/milan/KL_pp_shadow.sv: an RTL comment citing the submodule module it wraps
+  prose    scripts/pp_srcs.py: this generator: the table above quotes every literal it permits, and the docstring and self-test quote a source path
+  prose    sw/builder/test_builder.py: a gate citing submodule paths in its findings
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+### exit 0: python3 scripts/pp_srcs.py --check
+
+static_gates overall=0

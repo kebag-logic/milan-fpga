@@ -1,0 +1,126 @@
+make: Entering directory '$PACKET/scratch/head/tb/verilator/gptp_shadow'
+python3 test_mutant_lifecycle.py
+detect: {"exit": 0, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+detect: {"exit": 0, "iteration": 1, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld", "abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+survive: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+build: {"exit": 1, "iteration": 0, "mutations": ["abort_counts_as_completion", "no_generation_check", "no_tag_check", "age_never_expires", "observer_latency_off_by_one", "crossing_latency_off_by_one", "no_fence", "unseal_without_echo", "credit_never_withheld"], "scratch_removed": true, "source_unchanged": true}
+accept-unrelated: {"accepted": "unrelated", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-presentation: {"accepted": "presentation", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-scrubbed: {"accepted": "scrubbed", "controls": 9, "exit": 0, "source_unchanged": true}
+accept-git-stderr: {"accepted": "git-stderr", "controls": 9, "exit": 0, "source_unchanged": true}
+make-owner: {"exit": 2, "failure_propagated": true, "normal_make_owns_lifecycle": true}
+dirty: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "dirty"}
+staged: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "index differs from HEAD", "refusal": "staged"}
+assume: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "assume"}
+skip: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "skip"}
+mode: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode", "refusal": "mode"}
+dirty-input: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-u8vnd3ol/dirty-input input [523]/hdl/common/cdc_pulse.sv", "refusal": "dirty-input"}
+dirty-header: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-u8vnd3ol/dirty-header input [523]/tb/common/gptp_tx_flags.hpp", "refusal": "dirty-header"}
+dirty-anchor: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-u8vnd3ol/dirty-anchor input [523]/hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv", "refusal": "dirty-anchor"}
+untracked: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "index differs from HEAD", "refusal": "untracked"}
+undeclared-target: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "mutation target or anchor is not a build input: hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv", "refusal": "undeclared-target"}
+symlink: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input is not a regular file", "refusal": "symlink"}
+parent-link: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input directory is missing or linked", "refusal": "parent-link"}
+dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "modified input bytes/mode: /tmp/mutant-lifecycle-u8vnd3ol/dependency input [523]/gptp-processor/hdl/common/KL_gptp_timer.sv", "refusal": "dependency"}
+off-pin: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency is not at its pin: gptp-processor", "refusal": "off-pin"}
+pin-index: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency gitlinks differ from HEAD", "refusal": "pin-index"}
+copied-dependency: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "required dependency is not at its pin: gptp-processor", "refusal": "copied-dependency"}
+dependency-link: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "input directory is missing or linked", "refusal": "dependency-link"}
+git-garbage: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "unreadable Git identity record", "refusal": "git-garbage"}
+git-env-GIT_DIR: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_DIR", "refusal": "git-env-GIT_DIR"}
+git-env-GIT_WORK_TREE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_WORK_TREE", "refusal": "git-env-GIT_WORK_TREE"}
+git-env-GIT_COMMON_DIR: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_COMMON_DIR", "refusal": "git-env-GIT_COMMON_DIR"}
+git-env-GIT_INDEX_FILE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_INDEX_FILE", "refusal": "git-env-GIT_INDEX_FILE"}
+git-env-GIT_OBJECT_DIRECTORY: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_OBJECT_DIRECTORY", "refusal": "git-env-GIT_OBJECT_DIRECTORY"}
+git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_ALTERNATE_OBJECT_DIRECTORIES", "refusal": "git-env-GIT_ALTERNATE_OBJECT_DIRECTORIES"}
+git-env-GIT_REPLACE_REF_BASE: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_REPLACE_REF_BASE", "refusal": "git-env-GIT_REPLACE_REF_BASE"}
+git-env-GIT_CONFIG_PARAMETERS: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_PARAMETERS", "refusal": "git-env-GIT_CONFIG_PARAMETERS"}
+git-env-GIT_CONFIG_COUNT: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_COUNT", "refusal": "git-env-GIT_CONFIG_COUNT"}
+git-env-GIT_CONFIG_GLOBAL: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_GLOBAL", "refusal": "git-env-GIT_CONFIG_GLOBAL"}
+git-env-GIT_CONFIG_SYSTEM: {"exit": 2, "input_unchanged": true, "make_started": false, "reason": "Git environment redirects the checkout: GIT_CONFIG_SYSTEM", "refusal": "git-env-GIT_CONFIG_SYSTEM"}
+facility-no-prctl: {"exit": 2, "facility": "no-prctl", "make_started": false, "refused": true}
+facility-prctl-fails: {"exit": 2, "facility": "prctl-fails", "make_started": false, "refused": true}
+facility-no-pidfd-open: {"exit": 2, "facility": "no-pidfd-open", "make_started": false, "refused": true}
+facility-no-pidfd-signal: {"exit": 2, "facility": "no-pidfd-signal", "make_started": false, "refused": true}
+isolated-SIGINT: {"caller_changed": false, "cleanup_required": true, "exit": 130, "handshake": {"child": 36394, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGINT-control/gptp-shadow-mutants-2v5tem_j/tb/verilator/gptp_shadow", "identities": {"36383": ["24107224", "S"], "36394": ["24107227", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 36383, "private": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGINT-control/gptp-shadow-mutants-2v5tem_j"}, "signal": "SIGINT", "unsafe_control_detected": false}
+isolated-SIGTERM: {"caller_changed": false, "cleanup_required": true, "exit": 143, "handshake": {"child": 36539, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGTERM-control/gptp-shadow-mutants-nca47eu1/tb/verilator/gptp_shadow", "identities": {"36538": ["24107570", "S"], "36539": ["24107573", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 36538, "private": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGTERM-control/gptp-shadow-mutants-nca47eu1"}, "signal": "SIGTERM", "unsafe_control_detected": false}
+isolated-SIGKILL: {"caller_changed": false, "cleanup_required": false, "exit": -9, "handshake": {"child": 37025, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGKILL-control/gptp-shadow-mutants-ei5uk8v8/tb/verilator/gptp_shadow", "identities": {"37023": ["24107905", "S"], "37025": ["24107907", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 37023, "private": "/tmp/mutant-lifecycle-u8vnd3ol/isolated-SIGKILL-control/gptp-shadow-mutants-ei5uk8v8"}, "signal": "SIGKILL", "unsafe_control_detected": false}
+unsafe-SIGTERM: {"caller_changed": true, "cleanup_required": true, "exit": 143, "handshake": {"child": 37207, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/unsafe-SIGTERM input [523]/tb/verilator/gptp_shadow", "identities": {"37205": ["24108139", "S"], "37207": ["24108142", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 37205, "private": "/tmp/mutant-lifecycle-u8vnd3ol/unsafe-SIGTERM input [523]"}, "signal": "SIGTERM", "unsafe_control_detected": true}
+unsafe-SIGKILL: {"caller_changed": true, "cleanup_required": false, "exit": -9, "handshake": {"child": 37345, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/unsafe-SIGKILL input [523]/tb/verilator/gptp_shadow", "identities": {"37342": ["24108384", "S"], "37345": ["24108388", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 37342, "private": "/tmp/mutant-lifecycle-u8vnd3ol/unsafe-SIGKILL input [523]"}, "signal": "SIGKILL", "unsafe_control_detected": true}
+nested-SIGINT: {"exit": 130, "handshake": {"child": 37535, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/nested-SIGINT-control/gptp-shadow-mutants-3yxveq9x/tb/verilator/gptp_shadow", "identities": {"37533": ["24108750", "S"], "37535": ["24108753", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 37533, "private": "/tmp/mutant-lifecycle-u8vnd3ol/nested-SIGINT-control/gptp-shadow-mutants-3yxveq9x"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+nested-SIGTERM: {"exit": 143, "handshake": {"child": 37731, "cwd": "/tmp/mutant-lifecycle-u8vnd3ol/nested-SIGTERM-control/gptp-shadow-mutants-grggcnaw/tb/verilator/gptp_shadow", "identities": {"37729": ["24109122", "S"], "37731": ["24109125", "S"]}, "mutations": ["abort_counts_as_completion"], "pid": 37729, "private": "/tmp/mutant-lifecycle-u8vnd3ol/nested-SIGTERM-control/gptp-shadow-mutants-grggcnaw"}, "nested_driver": true, "next_suite": false, "scratch_removed": true, "source_unchanged": true}
+mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1016 PDREQ@900 TXLOST@103 TXT1OK@180
+$PINNED_BIN/verilator --cc --exe --build -j 8 --top-module gptp_shadow_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/gptp_shadow -Wall -Wextra" gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_shadow_sim
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_enable_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_arm_i'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_shadow_wrap.sv:257:5: Instance has missing pin: 'pps_target_ns_o'
+  257 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+make[1]: Entering directory '$PACKET/scratch/head/tb/verilator/gptp_shadow/obj_dir'
+g++  -I.  -MMD -I$TOOLROOT/usr/share/verilator/include -I$TOOLROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/gptp_shadow -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$TOOLROOT/usr/share/verilator/include -I$TOOLROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/gptp_shadow -Wall -Wextra   -c -o verilated.o $TOOLROOT/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$TOOLROOT/usr/share/verilator/include -I$TOOLROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/gptp_shadow -Wall -Wextra   -c -o verilated_threads.o $TOOLROOT/usr/share/verilator/include/verilated_threads.cpp
+python3 $TOOLROOT/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgptp_shadow_wrap.cpp Vgptp_shadow_wrap___024root__0.cpp Vgptp_shadow_wrap__ConstPool__0__Slow.cpp Vgptp_shadow_wrap___024root__Slow.cpp Vgptp_shadow_wrap___024root__0__Slow.cpp Vgptp_shadow_wrap__Syms__Slow.cpp > Vgptp_shadow_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I$TOOLROOT/usr/share/verilator/include -I$TOOLROOT/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/gptp_shadow -Wall -Wextra   -c -o Vgptp_shadow_wrap__ALL.o Vgptp_shadow_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_shadow_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_shadow_sim
+rm Vgptp_shadow_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '$PACKET/scratch/head/tb/verilator/gptp_shadow/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 2.812 MB sources in 18 modules, into 0.810 MB in 6 C++ files needing 0.002 MB
+- Verilator: Walltime 5.121 s (elab=0.023, cvt=0.089, bld=4.964); cpu 0.169 s on 8 threads; allocated 686.453 MB
+./obj_dir/Vgptp_shadow_sim
+TX flags Sync: 28 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+309 checks: 309 PASS, 0 FAIL
+python3 mutants.py
+[ ok ] abort_counts_as_completion: caught by "aborted episode: the demand survives it"
+[ ok ] no_generation_check: caught by "generation zero: the ledger refused it and raised a barrier"
+[ ok ] no_tag_check: caught by "foreign tag: the ledger refused it and raised a barrier"
+[ ok ] age_never_expires: caught by "aged head: the age expired and was counted"
+[ ok ] observer_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] crossing_latency_off_by_one: caught, though not by "launch: the reconstruction is the launch instant"; broke ['every measured result reconstructs its own launch']
+[ ok ] no_fence: caught by "torn frame: a frame was mid-egress when the fence closed"
+[ ok ] unseal_without_echo: caught by "echo: the seal outlasts it"
+[ ok ] credit_never_withheld: caught, though not by "credit: the engine is held off at the reserve"; broke ['aged head: a record is held back', 'aged head: an expiry is not a barrier', 'aged head: the late record still delivers its own frame']
+[note] abort_outranks_completion: not separately observable here
+[note] no_departure_predicate: not separately observable here
+[note] no_position_check: not separately observable here
+[note] delta_forced_not_measured: not separately observable here
+[note] eof_acceptance_unqualified: not separately observable here
+[note] cancellation_frees_the_entry: not separately observable here
+controls: 9   failures: 0
+RESULT: PASS
+make: Leaving directory '$PACKET/scratch/head/tb/verilator/gptp_shadow'

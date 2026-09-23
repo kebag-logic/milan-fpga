@@ -1,0 +1,16 @@
+phase sweep of the gmstep leg: 42 start offsets (one media tick is 41.67 cycles at 2 MHz); no RTL changed by the probe
+head: runs 42; checks per run [40]; render fill right after push (sawtooth max) [14]
+  fill at accept=9 failures=3 exit=1 delays=[0, 1, 2, 3, 4, 5, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+    failed: render: the GM change is one counted re-base event;restart: the outgoing mr toggles exactly once;restart: the talker's MEDIA_RESET counts exactly one;
+  fill at accept=10 failures=4 exit=1 delays=[6, 7, 8, 9, 10, 11]
+    failed: baseline: the fill at accept is inside the #386 law band;render: the GM change is one counted re-base event;restart: the outgoing mr toggles exactly once;restart: the talker's MEDIA_RESET counts exactly one;
+  fill at accept=10 failures=6 exit=1 delays=[12]
+    failed: baseline: the fill at accept is inside the #386 law band;baseline: the fill at accept is one constant;render: the GM change is one counted re-base event;render: the fill at accept holds its constant across the event;restart: the outgoing mr toggles exactly once;restart: the talker's MEDIA_RESET counts exactly one;
+edited: runs 42; checks per run [40]; render fill right after push (sawtooth max) [14]
+  fill at accept=9 failures=0 exit=0 delays=[0, 1, 2, 3, 4, 5, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+    failed: (none)
+  fill at accept=10 failures=1 exit=1 delays=[6, 7, 8, 9, 10, 11]
+    failed: baseline: the fill at accept is inside the #386 law band;
+  fill at accept=10 failures=3 exit=1 delays=[12]
+    failed: baseline: the fill at accept is inside the #386 law band;baseline: the fill at accept is one constant;render: the fill at accept holds its constant across the event;
+unparsed lines: 0
