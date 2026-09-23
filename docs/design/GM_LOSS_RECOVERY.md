@@ -122,9 +122,15 @@ Issue #387 decided its media reaction.
 | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
 | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
 
-A grandmaster change that also steps fires both render triggers.
+The render stage is timed from accept, not presentation time.
 
-The decided count for that change is still one.
+So a step leaves its fill where it was.
+
+Today a grandmaster change that steps counts two re-bases.
+
+The decided count for that change is one.
+
+The `milan_dp` gmstep leg measures all of this.
 
 The remaining datapath edit stays open on #387.
 
@@ -154,6 +160,7 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
+| `milan_dp` gmstep | A 1.5 s grandmaster step under CRF selection (not yet in the sweep) |
 | `media_grid_align` | Alignment, watchdog, and recovery |
 | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
 
