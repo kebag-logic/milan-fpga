@@ -1,0 +1,44 @@
+make: Entering directory '$LANES/437-validation/tb/verilator/ptp_sync'
+verilator --cc --exe --build -j 0 --top-module ptp_csr_sync -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_dir ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv sim_main.cpp -o Vptp_sync_sim
+make[1]: Entering directory '$LANES/437-validation/tb/verilator/ptp_sync/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/437-validation/tb/verilator/ptp_sync/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.018 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 5.980 MB
+verilator --cc --exe --build -j 0 --top-module ptp_csr_sync -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_pps -GPPS_P=1 \
+    -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DPTP_SYNC_PPS_P=1" \
+    ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv sim_main.cpp -o Vptp_sync_pps_sim
+make[1]: Entering directory '$LANES/437-validation/tb/verilator/ptp_sync/obj_pps'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/437-validation/tb/verilator/ptp_sync/obj_pps'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 8 threads; allocated 5.941 MB
+======================================================================
+./obj_dir/Vptp_sync_sim
+== ptp_csr_sync CDC harness ==
+  [PASS] settime: 1 pulse(s), payload=0x1122334455667788 (expect 0x1122334455667788)
+  [PASS] adjtime: 1 pulse(s), offset=0xffffffffffff0000
+  [PASS] back-to-back settime loads the current payload each time
+  [PASS] rate config (enable/incr/adj) synchronised through
+  [PASS] gettime snapshot returns 0x102030405060708 to aclk with one valid pulse
+  [PASS] pps arm: 0 pulse(s), target=0x0
+  [PASS] live pps target readback = 0x0 (PPS_P=0)
+--------------------------------------------------------------
+checks: 15   failures: 0
+RESULT: PASS
+======================================================================
+./obj_pps/Vptp_sync_pps_sim
+== ptp_csr_sync CDC harness ==
+  [PASS] settime: 1 pulse(s), payload=0x1122334455667788 (expect 0x1122334455667788)
+  [PASS] adjtime: 1 pulse(s), offset=0xffffffffffff0000
+  [PASS] back-to-back settime loads the current payload each time
+  [PASS] rate config (enable/incr/adj) synchronised through
+  [PASS] gettime snapshot returns 0x102030405060708 to aclk with one valid pulse
+  [PASS] pps arm: 1 pulse(s), target=0xb2d05e000
+  [PASS] live pps target readback = 0xc3c9c3800 (PPS_P=1)
+--------------------------------------------------------------
+checks: 15   failures: 0
+RESULT: PASS
+make: Leaving directory '$LANES/437-validation/tb/verilator/ptp_sync'

@@ -1,0 +1,33 @@
+make: Entering directory '$LANES/437-validation/tb/verilator/rx_filter'
+verilator --cc --exe --build -j 0 --top-module rx_mac_filter -Wall -Wno-fatal -Werror-USERERROR -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Werror-PINMISSING -Werror-UNDRIVEN -CFLAGS "-std=c++17 -O2 -Wall -Wextra" ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv sim_main.cpp -o Vrx_filter_sim
+======================================================================
+make[1]: Entering directory '$LANES/437-validation/tb/verilator/rx_filter/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/437-validation/tb/verilator/rx_filter/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 5.961 MB
+======================================================================
+./obj_dir/Vrx_filter_sim
+== rx_mac_filter harness ==
+--------------------------------------------------------------
+--------------------------------------------------------------
+--------------------------------------------------------------
+checks: 78   failures: 0
+RESULT: PASS
+======================================================================
+python3 binding_mutant.py
+[PASS] elaboration refused TDATA_WIDTH=32 with the contract's own diagnostic
+[PASS] elaboration refused TDATA_WIDTH=52 with the contract's own diagnostic
+[PASS] elaboration refused NUM_ENTRIES=0 with the contract's own diagnostic
+[PASS] elaboration refused ACTION_WIDTH=0 with the contract's own diagnostic
+[PASS] elaboration accepted the legal default shape
+
+5 checks: 5 PASS, 0 FAIL
+[PASS] missing lookup binding: refused at the build with %Error-PINMISSING
+[PASS] swapped key and mask bindings: the harness rejected it (5 of its 77 comparisons failed)
+[PASS] tied-off lookup key: the harness rejected it (11 of its 76 comparisons failed)
+[PASS] child lookup port declared output (direction-wrong binding): refused at the build with %Error-UNDRIVEN
+[PASS] DUT m_tready declared output (direction-wrong boundary): refused at the build with %Error-UNDRIVEN
+5 checks: 5 PASS, 0 FAIL
+make: Leaving directory '$LANES/437-validation/tb/verilator/rx_filter'
