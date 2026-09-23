@@ -1,0 +1,82 @@
+== KL_media_grid_align closed over KL_media_nco (#74) ==
+
+[G0] reset / deselected: no command, no engagement
+  [ ok ] G0: u_o stays 0 with sel_i low                       = 0
+  [ ok ] G0: engaged_o stays 0 with sel_i low                 = 0
+
+[G1] INTERNAL equivalence: deselected NCO is bit-exact nominal
+  [ ok ] G1: 4800 ticks in 10M cycles (exact 48 kHz)          = 4800
+
+[G2] select at the true Plan-A ratio: acquire, bound, hold
+  [ ok ] G2: loop engaged                                     = 1
+  [ ok ] G2: |err| peak over acquisition (cycles, <1 sample=2083) = 35 (in [0, 300])
+  [ ok ] G2: zero surplus ticks while engaged (junction law)  = 0
+  [ ok ] G2: zero surplus frames while engaged (junction law) = 0
+  [ ok ] G2: settled u (LSB of 1/16 ppm; plan needs ~-170)    = -172 (in [-200, -140])
+  [ ok ] G2: settled |err| (cycles)                           = 7 (in [0, 60])
+  [ ok ] G2: locked tick count tracks frame count (+/-1)      = 0 (in [-1, 1])
+
+[G3] the opposite direction: a +10.64 ppm fast feed
+  [ ok ] G3: zero surplus ticks (junction law)                = 0
+  [ ok ] G3: zero surplus frames (junction law)               = 0
+  [ ok ] G3: u flips sign with the rate (~+170 LSB)           = 175 (in [140, 200])
+
+[G4] feed watchdog: silence disengages, frames re-engage
+  [ ok ] G4: engaged_o falls on a dead feed                   = 0
+  [ ok ] G4: u_o returns to 0 on a dead feed                  = 0
+  [ ok ] G4: dead-feed NCO free-runs at exact 48 kHz          = 4800
+  [ ok ] G4: re-engaged after the feed returns                = 1
+  [ ok ] G4: reacquired u (~-170 LSB)                         = -176 (in [-200, -140])
+
+[G5] deselect mid-lock: INTERNAL free-run comes back untouched
+  [ ok ] G5: u_o drops to 0 on deselect                       = 0
+  [ ok ] G5: engaged_o drops on deselect                      = 0
+  [ ok ] G5: deselected NCO is bit-exact nominal again        = 4800
+
+[G6] beyond authority: a 400 ppm feed parks at the clamp,
+     slips honestly, and recovery is frames - not seconds
+  [ ok ] G6: u parked at the negative clamp                   = -3200
+  [ ok ] G6: slips stop after recovery (surplus ticks)        = 0
+  [ ok ] G6: slips stop after recovery (surplus frames)       = 0
+  [ ok ] G6: recovered u (~-170 LSB)                          = -152 (in [-200, -140])
+
+[G7] raced lock: the engaging frame lands ON a tick (#74 item 2)
+  [ ok ] G7: the loop engaged on that frame                   = 1
+  [ ok ] G7: the engaging frame raced onto the tick (phase)   = 0
+  acquisition: 0 junction dups, 0 skips
+  [ ok ] G7: still engaged after settling                     = 1
+  window 0: 0 junction dups, 0 skips, err 5 cycles
+  window 1: 0 junction dups, 0 skips, err 3 cycles
+  window 2: 0 junction dups, 0 skips, err 0 cycles
+  window 3: 0 junction dups, 0 skips, err 1 cycles
+  window 4: 0 junction dups, 0 skips, err 1 cycles
+  window 5: 0 junction dups, 0 skips, err 0 cycles
+  window 6: 0 junction dups, 0 skips, err 0 cycles
+  window 7: 0 junction dups, 0 skips, err 1 cycles
+  [ ok ] G7: zero junction dups over 8 x 0.2 s at the raced lock = 0
+  [ ok ] G7: zero junction skips over 8 x 0.2 s at the raced lock = 0
+  [ ok ] G7: marker clearance from every tick at lock (cycles) = 15 (in [12, 2083])
+  [ ok ] G7: a held frame is one junction dup                 = 1
+  [ ok ] G7: a held frame is no junction skip                 = 0
+  [ ok ] G7: a surplus frame is one junction skip             = 1
+  [ ok ] G7: a surplus frame is no junction dup               = 0
+  [ ok ] G7: the loop stayed engaged through both slips       = 1
+
+[G8] raced lock from below: the engaging frame lands just BEFORE a tick
+  [ ok ] G8: the loop engaged on that frame                   = 1
+  [ ok ] G8: the engaging frame raced the next tick (phase)   = 2082 (in [2081, 2083])
+  acquisition: 320 junction dups, 320 skips
+  [ ok ] G8: zero junction dups over 0.2 s at the lock        = 0
+  [ ok ] G8: zero junction skips over 0.2 s at the lock       = 0
+  [ ok ] G8: marker clearance from every tick at lock (cycles) = 14 (in [12, 2083])
+
+[G9] free-running: one slow passage across a tick is ONE slip, its way
+  [FAIL] G9: a slow grid's passage is one junction dup        = 11 (expected 1)
+  [FAIL] G9: a slow grid's passage is no junction skip        = 10 (expected 0)
+  [FAIL] G9: a fast grid's passage is one junction skip       = 11 (expected 1)
+  [FAIL] G9: a fast grid's passage is no junction dup         = 10 (expected 0)
+
+----------------------------------------------------------------------
+45 checks, 4 failures
+RESULT: FAIL
+exit=1

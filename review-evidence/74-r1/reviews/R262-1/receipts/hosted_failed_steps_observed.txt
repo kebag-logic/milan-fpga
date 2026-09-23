@@ -1,0 +1,57 @@
+hosted docs workflow run 35864125964 at head 6d1572d6caeb94cd3dd871b9df90e4c5298998b6 (observed 2026-09-23T14:05:22Z):
+  step 1 Set up job -> success
+  step 2 Run actions/checkout@v4 -> success
+  step 3 Build the validated HDL reference -> success
+  step 4 Upload the HDL reference HTML -> success
+  step 5 Install the python gate dependencies -> success
+  step 6 Install diagram gate dependencies -> success
+  step 7 Link health, wording, dead-reference and local-info gate -> success
+  step 8 Added-line em-dash gate -> success
+  step 9 Concise audience documentation gate -> success
+  step 10 Audience diagram no-drift gate -> success
+  step 11 Product solution source-fact gate -> success
+  step 12 Verified submodule documentation gate -> success
+  step 13 HDL timing diagram no-drift gate -> success
+  step 14 Published diagram PNG gate -> success
+  step 15 Milan feature-status consistency gate -> success
+  step 16 Traceability matrix no-drift gate -> failure
+  step 17 Fetch the builder source dependencies -> skipped
+  step 18 Imported gPTP documentation gate -> skipped
+  step 19 Code-quality measurement self-tests -> skipped
+  step 20 Install the pinned sv2v release -> skipped
+  step 21 Bare-metal scope gate -> skipped
+  step 22 End-station builder gates -> skipped
+  step 23 NVM record-space gate -> skipped
+  step 24 Saved-state writer gate -> skipped
+  step 25 SoC source-list gate (Vivado would fail 40 min in without this) -> skipped
+  step 26 RTL source-list drift gate -> skipped
+  step 27 Boundary-unit naming ratchet -> skipped
+  step 28 Port contract gate -> skipped
+  step 29 Fail-fast ratchet -> skipped
+  step 30 TODO ownership gate -> skipped
+  step 31 Test-evidence ratchet -> skipped
+  step 32 Mechanical hygiene ratchet -> skipped
+  step 33 SystemVerilog idiom gate -> skipped
+  step 34 C and C++ idiom gate -> skipped
+  step 35 Python idiom gate -> skipped
+  step 36 Shell idiom gate -> skipped
+  step 37 CI event and SHA contract gate -> skipped
+  step 38 Local act runner contract gate -> skipped
+  step 39 Doc cited-path gate -> skipped
+  step 40 Archive integrity gate -> skipped
+  step 41 Per-page contents gate -> skipped
+  step 42 AEM store generator self-test -> skipped
+  step 43 Sweep/build shape gate -> skipped
+  step 44 Deploy shape gate -> skipped
+  step 45 Entity shape gate -> skipped
+  step 90 Post Run actions/checkout@v4 -> success
+  step 91 Complete job -> success
+
+hosted rtl-full run 35864125892 non-success jobs/steps:
+  Verilator shard 1/5 -> cancelled
+     step 14 Run this exhaustive suite shard -> cancelled
+  Verilator shard 4/5 -> cancelled
+     step 14 Run this exhaustive suite shard -> cancelled
+  verilator-suites -> failure
+     step 5 Prove exhaustive ownership and tally every log -> failure
+     step 6 Require every Verilator worker to pass -> failure

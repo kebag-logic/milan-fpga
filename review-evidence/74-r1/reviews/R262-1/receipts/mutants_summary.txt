@@ -1,0 +1,19 @@
+built MA1_no_hi_clamp
+built MA2_no_lo_clamp
+built MA3_keepoff4
+built MC1_coin_pend1
+built MC2_coin_tickfirst
+built MC3_coin_markfirst
+MA1_no_hi_clamp      media_grid_align  45 checks, 3 failures | exit=1
+MA1_no_hi_clamp      chmap_capture     KL_chan_map_capture: 204 checks, 0 failures | exit=0
+MA2_no_lo_clamp      media_grid_align  45 checks, 7 failures | exit=1
+MA2_no_lo_clamp      chmap_capture     KL_chan_map_capture: 204 checks, 0 failures | exit=0
+MA3_keepoff4         media_grid_align  45 checks, 2 failures | exit=1
+MA3_keepoff4         chmap_capture     KL_chan_map_capture: 204 checks, 0 failures | exit=0
+MC1_coin_pend1       media_grid_align  45 checks, 3 failures | exit=1
+MC1_coin_pend1       chmap_capture     KL_chan_map_capture: 204 checks, 3 failures | exit=1
+MC2_coin_tickfirst   media_grid_align  45 checks, 4 failures | exit=1
+MC2_coin_tickfirst   chmap_capture     KL_chan_map_capture: 204 checks, 1 failures | exit=1
+MC3_coin_markfirst   media_grid_align  45 checks, 4 failures | exit=1
+MC3_coin_markfirst   chmap_capture     KL_chan_map_capture: 204 checks, 3 failures | exit=1
+elapsed=134s

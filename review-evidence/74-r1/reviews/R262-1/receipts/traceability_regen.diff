@@ -1,0 +1,22 @@
+--- ../head/docs/traceability/MODULE_MATRIX.md	2026-09-23 14:43:38.000000000 +0200
++++ docs/traceability/MODULE_MATRIX.md	2026-09-23 16:03:29.235419790 +0200
+@@ -68,7 +68,7 @@
+ | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰milan_dp_render · 🔬`make aaf` | -- |
+--- ../head/hdl/ieee1722/aaf/README-tests.md	2026-09-23 14:43:38.000000000 +0200
++++ hdl/ieee1722/aaf/README-tests.md	2026-09-23 16:03:29.235694682 +0200
+@@ -17,7 +17,7 @@
+ | ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+-| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `chmap_capture` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
++| ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `chmap_capture` · `media_grid_align` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_feed_mux` | `KL_i2s_feed_mux.sv` | `milan_dp` · ➰milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_i2s_playback` | `KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰milan_dp_render · 🔬`make aaf` | -- |

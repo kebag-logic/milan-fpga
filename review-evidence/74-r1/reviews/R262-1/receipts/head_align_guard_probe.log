@@ -1,0 +1,8 @@
+keepoff=16 verilator rc=0 :: 
+keepoff=1041 verilator rc=0 :: 
+keepoff=1042 verilator rc=0 :: LOCK_KEEPOFF_CYC_P=1042 leaves no lock target between the ticks of a 2083-cycle sample
+control existing U_LIM guard (KP_LOG2_P=6) rc=0 :: 
+37:			initial $display("Error [elaboration] $REVIEWS/74-r262-1-packet/scratch/head/hdl/ieee1722/crf/KL_media_grid_align.sv:141:5 - KL_media_grid_align.genblk2\n msg: ", "KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+--- appended: fatal-mode rerun
+keepoff=1042 (no -Wno-fatal): %Warning-USERERROR: $REVIEWS/74-r262-1-packet/scratch/head/hdl/ieee1722/crf/KL_media_grid_align.sv:145:5: KL_media_grid_align: LOCK_KEEPOFF_CYC_P=1042 leaves no lock target between the ticks of a 2083-cycle sample.
+control DIV<16 (no -Wno-fatal): %Warning-USERERROR: $REVIEWS/74-r262-1-packet/scratch/head/hdl/ieee1722/crf/KL_media_grid_align.sv:139:5: KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = 10 leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.
