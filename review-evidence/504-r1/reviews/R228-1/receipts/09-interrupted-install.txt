@@ -1,0 +1,48 @@
+=== delay 2
+$MANAGEMENT/2026-09-23/504-r228-1/scripts/probe_interrupt.sh: line 16: 3050995 Killed                     setsid python3 scripts/ci_rv32_sdk.py --destination "$dest" --archive "$archive" > "$root/interrupted-run.log" 2>&1
+interrupted-exit=137 after 2s (process group SIGKILL)
+remaining processes in group: 0
+prefix exists: no
+receipt exists: no
+sdk-location: absent
+entries before rerun: 0
+rerun-exit=0
+SDK fresh installation: verified
+rerun tool executions: 9
+entries after rerun: 5289
+=== delay 7
+$MANAGEMENT/2026-09-23/504-r228-1/scripts/probe_interrupt.sh: line 16: 3054837 Killed                     setsid python3 scripts/ci_rv32_sdk.py --destination "$dest" --archive "$archive" > "$root/interrupted-run.log" 2>&1
+interrupted-exit=137 after 7s (process group SIGKILL)
+remaining processes in group: 0
+prefix exists: yes
+receipt exists: no
+sdk-location: /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1
+entries before rerun: 4012
+rerun-exit=1
+ValueError: missing regular SDK provenance receipt; incomplete install
+rerun tool executions: 0
+entries after rerun: 4012
+=== delay 10
+$MANAGEMENT/2026-09-23/504-r228-1/scripts/probe_interrupt.sh: line 16: 3056283 Killed                     setsid python3 scripts/ci_rv32_sdk.py --destination "$dest" --archive "$archive" > "$root/interrupted-run.log" 2>&1
+interrupted-exit=137 after 10s (process group SIGKILL)
+remaining processes in group: 0
+prefix exists: yes
+receipt exists: no
+sdk-location: /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1
+entries before rerun: 5288
+rerun-exit=1
+ValueError: missing regular SDK provenance receipt; incomplete install
+rerun tool executions: 0
+entries after rerun: 5288
+=== delay 12
+$MANAGEMENT/2026-09-23/504-r228-1/scripts/probe_interrupt.sh: line 16: 3058694 Killed                     setsid python3 scripts/ci_rv32_sdk.py --destination "$dest" --archive "$archive" > "$root/interrupted-run.log" 2>&1
+interrupted-exit=137 after 12s (process group SIGKILL)
+remaining processes in group: 0
+prefix exists: yes
+receipt exists: no
+sdk-location: /builds/buildroot.org/toolchains-builder/build/riscv32-ilp32d--glibc--stable-2025.08-1
+entries before rerun: 5288
+rerun-exit=1
+ValueError: missing regular SDK provenance receipt; incomplete install
+rerun tool executions: 0
+entries after rerun: 5288

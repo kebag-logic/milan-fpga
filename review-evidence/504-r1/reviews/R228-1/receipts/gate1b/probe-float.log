@@ -1,0 +1,30 @@
+SDK argv: ["$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/toolchain-wrapper", "sysroot": "$MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+Compiler mode: mapped disposable SDK
+Compiler audit: $MANAGEMENT/2026-09-23/504-r228-1/receipts/gate1b/probe-float-argv.jsonl
+argv[0] mapping: $WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc -> $MANAGEMENT/2026-09-23/504-r228-1/sdk-fresh/host/bin/riscv32-linux-gcc
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+R228 PROBE planted: float overlay store, pinned on RESOLVER_STORE_PIN
+Traceback (most recent call last):
+  File "$MANAGEMENT/2026-09-23/504-r228-1/scratch-float/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$MANAGEMENT/2026-09-23/504-r228-1/scratch-float/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/504-r228-1/scratch-float/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$MANAGEMENT/2026-09-23/504-r228-1/scratch-float/sw/builder/test_builder.py", line 12780, in test_baremetal_profile_contract
+    assert_rejected("R228 PROBE: entity enabled by a FLOAT struct-overlay store through a paged base", r228_probe, docs_source, csr_source,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    RESOLVER_STORE_PIN)
+                    ^^^^^^^^^^^^^^^^^^^
+  File "$MANAGEMENT/2026-09-23/504-r228-1/scratch-float/sw/builder/test_builder.py", line 9438, in assert_rejected
+    raise AssertionError(f"{label} mutation passed the boot-contract gate")
+AssertionError: R228 PROBE: entity enabled by a FLOAT struct-overlay store through a paged base mutation passed the boot-contract gate

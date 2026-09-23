@@ -1,0 +1,23 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index e07373fd..aea22add 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -12768,6 +12768,18 @@ def test_baremetal_profile_contract() -> None:
+             "assert_rejected() accepted a mutation refused under a reason it "
+             "was never given, so every `because` above is decorative and the "
+             "mutation table proves only that something said no")
++    r228_probe = replace_once(
++        stored_before_aem(
++            f"((milan_adp_r228)((csr_page << 16) | {adp_name}))->ctrl = 1.0000000000000002;",
++            "R228 double struct-overlay store through a paged base"),
++        "static int aem_loaded;",
++        "typedef struct { volatile double ctrl; } *milan_adp_r228;\n"
++        f"static unsigned int csr_page = 0x{csr_base >> 16:04x}u;\n\n"
++        "static int aem_loaded;", "R228 paged double overlay typedef")
++    print("R228 PROBE planted: double overlay store, pinned on RESOLVER_STORE_PIN", flush=True)
++    assert_rejected("R228 PROBE: entity enabled by a DOUBLE struct-overlay store through a paged base", r228_probe, docs_source, csr_source,
++                    RESOLVER_STORE_PIN)
++    print("R228 PROBE REFUSED ON THE RESOLVER PIN: double", flush=True)
+     for mutation in mutations:
+         assert_rejected(*mutation)
+     if verilator:
