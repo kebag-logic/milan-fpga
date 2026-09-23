@@ -1,0 +1,31 @@
+# public evidence tree kebag-logic/milan-fpga@5e7eb3095061e5b03ee53e25b63236f3ea812181 review-evidence/pp106-r1/author/evidence
+# sha256sum -c runB.sha256 (run inside runB/):
+analysis.txt: OK
+console.txt: OK
+crf-details.txt: OK
+lock.txt: OK
+msrp-around-pauses.txt: OK
+pw1-bind.jsonl: OK
+stream-timeline.txt: OK
+tap-runB.pcap: FAILED
+tcpdump.log: FAILED
+timeline.txt: OK
+sha256sum: WARNING: 2 computed checksums did NOT match
+# actual:
+9c2144ec97d69304526c4f92250c887c88c4a58240d49238dc1ecdab9ae7d7a9  tap-runB.pcap
+2e2653690496c6725634eec86b722e7e9161df9f4123f9fdd5b687445a93d678  tcpdump.log
+# git blob ids (git hash-object):
+tap-runB.pcap a671e6c0fc5b94c2905a2c06e0817a6a9e431dd4
+tcpdump.log 2a61f2fab8d1be1dab513cd36ca95b054ef2ed05
+# the #117 archive branch 117-review-evidence @ 4165beb89afe217931bc52a8aaf800303e7bee1b, full history
+#   (not shallow, 2752 commits), holds ONE version of the capture path: added in c615dbba,
+#   blob a671e6c0fc5b94c2905a2c06e0817a6a9e431dd4, identical to the pp106-r1 copy
+# DECISION.md cites branch commit 160debeb and blob bf2e79ee: 160debeb is not a commit in that
+#   history; the blob id was not resolvable in this blob-filtered clone (inconclusive)
+# the reviewer's independent decode of the published capture (receipts/02_decode_runb.txt)
+#   reproduces every DECISION MSRP claim
+# RESOLUTION: review-evidence/pp106-r1/MANIFEST.json discloses both files as path-redacted:
+#   author/evidence/runB/tap-runB.pcap original_sha256=febe8a1643e88c5b0b12eb3f0fa837b17e9330fcb5cd33998c7a9b30701d029b published_sha256=9c2144ec97d69304526c4f92250c887c88c4a58240d49238dc1ecdab9ae7d7a9 path_redacted=True
+#   author/evidence/runB/tcpdump.log original_sha256=7aae3302e1ddd9dbcebb03a221900cab38b020521a9f11a592aee0a7ad74d218 published_sha256=2e2653690496c6725634eec86b722e7e9161df9f4123f9fdd5b687445a93d678 path_redacted=True
+# runB.sha256 carries the ORIGINAL sums (they equal original_sha256); the published copies
+#   match published_sha256. The mismatch is disclosed, not an error.
