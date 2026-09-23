@@ -1,0 +1,14 @@
+exists scripts/run_all_suites.sh
+exists scripts/suite_shards.py
+exists scripts/suite_tally.py
+exists scripts/yosys_tally.py
+exists scripts/pp_srcs.py
+exists scripts/lint_rtl.py
+exists syn/yosys/run.sh
+exists syn/yosys/ooc_selftest.py
+exists syn/yosys/cache_selftest.py
+exists syn/ooc/dp_srcs.py
+exists syn/ooc/ooc_tcl_selftest.py
+exists tests/features
+### python3 scripts/pp_srcs.py --check --selftest exit=0 ::   prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+### python3 scripts/suite_shards.py --selftest exit=0 :: selftest: PASS

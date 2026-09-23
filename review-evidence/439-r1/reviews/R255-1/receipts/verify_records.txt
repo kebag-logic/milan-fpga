@@ -1,0 +1,41 @@
+MATCH verilator-shards step 2 `Fetch RTL dependencies` lines=1 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 3 `Record the tree this worker validates` lines=9 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 5 `Build Verilator from source on cache miss` lines=9 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 6 `Put Verilator on PATH and prove the version` lines=3 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 7 `Prove specialized suite ownership` lines=10 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 9 `Build Yosys from source on cache miss` lines=12 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 10 `Install the pinned Yosys and prove the version` lines=8 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 11 `Install sv2v for the netlist-level suite owner` lines=9 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 12 `Build the pinned tsn-gen field oracle on its suite owner` lines=8 literal_tuple=True entry_name_match=True
+MATCH verilator-shards step 13 `Run this exhaustive suite shard` lines=1 literal_tuple=True entry_name_match=True
+MATCH verilator-suites step 3 `Require every shard to have validated this run's SHA` lines=3 literal_tuple=True entry_name_match=True
+MATCH verilator-suites step 4 `Prove exhaustive ownership and tally every log` lines=7 literal_tuple=True entry_name_match=True
+MATCH verilator-suites step 5 `Require every Verilator worker to pass` lines=5 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 2 `Fetch RTL dependencies` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 3 `Record the tree this worker validates` lines=9 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 5 `Build Yosys from source on cache miss` lines=12 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 6 `Install the pinned Yosys and prove the version` lines=8 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 7 `Install the pinned sv2v release` lines=9 literal_tuple=True entry_name_match=True
+MATCH yosys-shards step 9 `Run this weighted portability shard` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-portability step 3 `Require every shard to have validated this run's SHA` lines=3 literal_tuple=True entry_name_match=True
+MATCH yosys-portability step 4 `Reconcile the live inventory and structural gates` lines=9 literal_tuple=True entry_name_match=True
+MATCH yosys-portability step 5 `Require every Yosys worker to pass` lines=5 literal_tuple=True entry_name_match=True
+MATCH verilator-lint step 2 `Fetch RTL dependencies` lines=1 literal_tuple=True entry_name_match=True
+MATCH verilator-lint step 4 `Build Verilator from source on cache miss` lines=9 literal_tuple=True entry_name_match=True
+MATCH verilator-lint step 5 `Run the ratcheted whole-tree lint gate` lines=4 literal_tuple=True entry_name_match=True
+MATCH verilator-lint step 6 `Prove protocol-processor source lists are derived` lines=1 literal_tuple=True entry_name_match=True
+MATCH bdd-conformance step 2 `Fetch the processor model inputs` lines=1 literal_tuple=True entry_name_match=True
+MATCH bdd-conformance step 3 `Install behave` lines=1 literal_tuple=True entry_name_match=True
+MATCH bdd-conformance step 4 `Run the specification-facing suite` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 2 `Fetch RTL dependencies` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 4 `Build Yosys from source on cache miss` lines=12 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 5 `Install the pinned Yosys and prove the version` lines=6 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 6 `Install the pinned sv2v release` lines=9 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 7 `Elaborate the integration-heavy tops` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 8 `Prove the OOC read sets come from run.sh and refuse a bad one` lines=9 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 9 `Prove ooc.sh generates the ROMs and fails on a failed top` lines=1 literal_tuple=True entry_name_match=True
+MATCH yosys-elaboration step 10 `Prove the result cache refuses a planted entry` lines=1 literal_tuple=True entry_name_match=True
+MATCH full-ci-gate step 2 `Print the event and pin the one SHA this run validates` lines=8 literal_tuple=True entry_name_match=True
+scripts=38 normalized_lines=208
+out_of_scope_run_records(excluding physical-gptp)=[]
+exit=0

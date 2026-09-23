@@ -1,0 +1,77 @@
+R255-1 reproduction commands (issue #439 / PR #525, head f01f237d4b48c7b1ed59c80aca51430901791624)
+
+Placeholders:
+  $CLONE   detached clone at the exact head, tree ff1c54c52cbb196db754ce6999c661730a3d0e94,
+           with third_party/verilog-axis, protocol-processor and gptp-processor at their gitlinks
+  $PACKET  this packet directory
+  $BASE    $PACKET/scratch/base, made by:
+           git -C $CLONE archive 483a133ed08867ea0d300d2b4a027b5b48a4282f .github scripts docs/testing | tar -x -C $BASE
+  $VBIN    directory holding the scoped Verilator 5.050 wrapper ("Verilator 5.050 2026-07-01 rev v5.050")
+
+Pristine gate, head and base (receipts head_check.txt, head_selftest.txt, base_check.txt, base_selftest.txt):
+  cd $CLONE && python3 scripts/ci_events.py --check
+  cd $CLONE && python3 scripts/ci_events.py --selftest
+  cd $BASE  && python3 scripts/ci_events.py --check
+  cd $BASE  && python3 scripts/ci_events.py --selftest
+
+Independent literal-record audit (verify_records.txt):
+  python3 -B $PACKET/scripts/verify_records.py $CLONE
+
+Black-box workflow text mutations, head and base (probe_workflow_mutations*.tsv, probe_base_vs_head_summary.txt):
+  python3 -B $PACKET/scripts/probe_workflow_mutations.py $CLONE $PACKET/scratch/wf 8
+  python3 -B $PACKET/scripts/probe_workflow_mutations.py $BASE  $PACKET/scratch/wfbase 8
+
+Matching maintenance under the full check (probe_maintenance.tsv):
+  python3 -B $PACKET/scripts/probe_maintenance.py $CLONE $PACKET/scratch/mt 8
+
+Record faults under the full check (probe_record_faults.tsv):
+  python3 -B $PACKET/scripts/probe_record_faults.py $CLONE $PACKET/scratch/rf 8
+
+Weakened-checker controls (probe_weakened_checker.tsv; the template is built by the workflow probe):
+  python3 -B $PACKET/scripts/probe_weakened_checker.py $PACKET/scratch/wf/tmpl $PACKET/scratch/weak
+
+Source-level maintenance (srcmaint_*.txt): in a copy of scratch/wf/tmpl, append
+  'echo "pinned $GITHUB_SHA"' to the full-ci-gate SHA-pin record and workflow body, and
+  'behave --version' to the bdd-conformance "Install behave" record and body, then
+  python3 -B scripts/ci_events.py --check --root .   and   --selftest --root .
+
+SHA anchor-line maintenance, R255-S1 case A (sha_assertion_maintenance_*.txt): in a copy of the template,
+  rewrite 'if [ "$head" != "$GITHUB_SHA" ]; then' as 'if [ "$head" != "${GITHUB_SHA}" ]; then'
+  in both the RTL_SIBLING_STEP_LISTS record and rtl.yml, then run --check and --selftest with --root .
+
+Malformed pristine, R255-S1 case B (malformed_pristine_*.txt): in a copy of the template, replace
+  the space before "$GITHUB_SHA" on that if-line in rtl.yml with U+00A0, then run --check and --selftest with --root .
+
+Base-to-head table and constant comparison (compare_step_lists.txt):
+  python3 -B $PACKET/scripts/compare_step_lists.py $BASE $CLONE
+
+Focused gates (focused_gates.txt), from $CLONE:
+  python3 -B scripts/docs_check.py
+  python3 -B scripts/check_em_dash.py --base 483a133ed08867ea0d300d2b4a027b5b48a4282f
+  python3 -B scripts/check_em_dash.py --selftest
+  python3 -B scripts/gen_toc.py --check
+  python3 -B scripts/gen_toc.py --verify-anchors
+  python3 -B scripts/check_py_idiom.py
+  python3 -B scripts/measure_test_evidence.py --check
+  python3 -B scripts/measure_fail_fast.py --check
+  python3 -B scripts/check_todo_ownership.py
+
+Pinned lint gate under the scoped Verilator (lint_rtl_check_selftest.txt), from $CLONE:
+  PATH="$VBIN:$PATH" python3 -B scripts/lint_rtl.py --check --self-test
+
+Pinned command targets and two cheap self-tests (pinned_command_targets.txt), from $CLONE:
+  python3 -B scripts/pp_srcs.py --check --selftest
+  python3 -B scripts/suite_shards.py --selftest
+
+Self-test timing (selftest_timing.txt):
+  python3 -B <root>/scripts/ci_events.py --selftest --root <root>   for <root> in $BASE and $CLONE
+
+Hosted exact-head check runs, read-only (hosted_check_runs.tsv):
+  gh api --paginate repos/kebag-logic/milan-fpga/commits/f01f237d4b48c7b1ed59c80aca51430901791624/check-runs?per_page=100
+
+PR #521 two-file textual dry run, informational only (compose_521_dryrun.txt):
+  gh pr diff 521 --repo kebag-logic/milan-fpga, restricted to scripts/ci_events.py and
+  docs/testing/CI_WORKFLOWS.md, then  patch --dry-run -p1  onto those two files extracted at the head
+
+Post-probe clone integrity (integrity_post_probes.txt):
+  bash $PACKET/scripts/verify_integrity.sh $CLONE f01f237d4b48c7b1ed59c80aca51430901791624 ff1c54c52cbb196db754ce6999c661730a3d0e94

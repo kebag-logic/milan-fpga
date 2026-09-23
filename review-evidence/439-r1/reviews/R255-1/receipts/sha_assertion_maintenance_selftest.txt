@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 8430, in <module>
+    raise SystemExit(main(sys.argv))
+                     ~~~~^^^^^^^^^^
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 8423, in main
+    return selftest(args.root)
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 8295, in selftest
+    for found, arms in (_selftest_arms(pristine),
+                        ~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 7786, in _selftest_arms
+    misses = _run_mutations(real, pristine)
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 7771, in _run_mutations
+    for name, mutate, want in _mutations(pristine):
+                              ~~~~~~~~~~^^^^^^^^^^
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 7760, in _mutations
+    + _rtl_script_arms(pristine)
+      ~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$PACKET/scratch/shamaint/scripts/ci_events.py", line 7704, in _rtl_script_arms
+    start = lines.index('if [ "$head" != "$GITHUB_SHA" ]; then')
+ValueError: list.index(x): x not in list
+selftest exit=1
