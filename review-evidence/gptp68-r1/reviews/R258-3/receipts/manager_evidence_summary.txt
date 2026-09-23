@@ -1,0 +1,21 @@
+Public evidence named in the assignment: kebag-logic/milan-fpga 9c9922c4263dbca2640e0d4cf273ceb49ede8ba6 review-evidence/gptp68-r1
+  commit message: 'Archive A199 correction packet for FPGA-gPTP issue 68', committed 2026-09-23T14:16:25Z
+  manager-r1/donor-full: head 77c34e904eba2446755d13e1bf4763d1652c3ca7 (first round), make -j8 exit 0
+  manager-r1/parent-consumer: gitlink staged at 77c34e9
+  => the pinned public tree carries NO manager result for ba92681 (it predates this head's commit).
+Latest manager validation comment on PR #74: issuecomment-5796742550, at cbccf226 (manager-r2, evidence tree a45e04a1).
+
+Manager's local r3 receipts ($MANAGER_R3, summary fields only):
+  donor-full/complete.json: head ba9268100ebe92dfc61aed30e2910245fc8c97cf exit 0 finished 2026-09-23T19:40:42.624785+02:00
+  parent-consumer/complete.json: head 7aa069b9a7e985342e7bb2ef6860c544d9411e45 exit 0 finished 2026-09-23T19:47:04.405044+02:00
+  parent-consumer-staged-refused/complete.json: head 759da623072358afdb0e9d570a7b4b6a788492c9 exit 1 finished 2026-09-23T19:33:01.207760+02:00
+  donor-full: make -j8 exit 0
+  parent-consumer: python3 scripts/check_cpp_idiom.py exit 0
+  parent-consumer: python3 scripts/check_py_idiom.py exit 0
+  parent-consumer: python3 scripts/xvlog_gate.py --check exit 0
+  parent-consumer: python3 scripts/check_rtl_source_lists.py exit 0
+  parent-consumer: python3 sw/builder/test_builder.py exit 0
+  parent-consumer: make -C tb/verilator/gptp_shadow -j8 exit 0
+  parent-consumer note: parent live dev 759da623 + one LOCAL commit setting gptp-processor to ba9268100ebe92dfc61aed30e2910245fc8c97cf (the #523 mutants guard refuses a staged gitlink)
+
+Hosted contexts on Mister-M-alt/FPGA-gPTP at ba92681: see hosted_checks_head.txt (0 check runs, 0 statuses; the repository has no .github workflows).

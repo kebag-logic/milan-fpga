@@ -1,0 +1,18 @@
+mutants in this run: 7; build jobs 2
+  - result tag taken without an accepted beat
+  - lost Sync cancels the requester exchange
+  - a new request leaves the old pair live
+  - every pair uses the locked threshold
+  - a grandmaster change unlocks the servo
+  - asCapable's rise keeps the lock
+  - the integrator is not clamped
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+
+8 checks: 8 PASS, 0 FAIL

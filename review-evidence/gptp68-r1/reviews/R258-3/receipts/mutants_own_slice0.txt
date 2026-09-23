@@ -1,0 +1,18 @@
+mutants in this run: 7; build jobs 2
+  - result face always ready
+  - byte face advances without ready
+  - a later response re-arms the frozen pair
+  - credit gate removed from the Sync leg
+  - exactly the threshold steps
+  - becoming grandmaster unlocks the servo
+  - the whole trim is not clamped
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+
+8 checks: 8 PASS, 0 FAIL

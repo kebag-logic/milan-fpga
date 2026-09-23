@@ -1,0 +1,8 @@
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffe66666 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000028f93 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000028f93 exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 000000000000000b exp 000000000000000d
+1253 checks: 1246 PASS, 7 FAIL

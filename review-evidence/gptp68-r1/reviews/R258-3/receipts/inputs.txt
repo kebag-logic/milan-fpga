@@ -1,0 +1,20 @@
+PR #74 metadata read at review time (read-only):
+title: Step at link-up above 20 us and once locked above 100 us, clamping the whole trim to the 200 ppm envelope
+head: ba9268100ebe92dfc61aed30e2910245fc8c97cf
+base: main c1b617435824929a790739ea8585c3fe1a328cc0
+draft: False state: OPEN
+
+Parent authority files read at 759da623 (blob ids):
+  b9d500cc4a16d63103921c7aff1e7c5356eb3476  AGENTS.md
+  117c372f0b57dc3f47aead475e917d534fd23372  CONTRIBUTING.md
+  340a0eb1aeeb57d12340da12032ee3a73a28d701  REQUIREMENTS.md
+  e77227213b5d88deb1c89250d49cab5cfdd3d7f2  KL_gptp_txret.sv
+  (KL_gptp_txret.sv is hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv; PHC_ADJ_MAX_C at lines 303-305, the inclusive compare at 436)
+
+Parent gptp_plane probe inputs (blob ids verified equal to the parent tree at 759da623):
+  9b5b5f85c235d9cc7a215a827a6a865a35a7d9cd  tb/verilator/gptp_plane/gptp_plane_wrap.sv
+  c4e8ae7c41b6d7cbc738b6abc39d15b5d35f4275  tb/verilator/gptp_plane/sim_main.cpp
+  a288d7b094cdfb6a8003eb8ecaa2ad4e1326cb75  tb/verilator/gptp_plane/Makefile
+  6dca5b403c91ffb0e260c2eb97dbfecc63b87689  hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv
+  0b7485fb0bbb1908e61d253703025dca65a99100  tb/common/verilator_harness.hpp
+  e51a3d8cbcd6e4a7cc30dea3e16472b37fd7eb74  tb/common/gptp_tx_flags.hpp

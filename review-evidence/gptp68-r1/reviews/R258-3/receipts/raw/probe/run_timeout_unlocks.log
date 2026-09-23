@@ -1,0 +1,32 @@
+FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 0000000000000000 exp 00000000ffe66666
+FAIL receipt timeout, same GM, +50 us: no step pulse got 0000000000000009 exp 0000000000000008
+FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 0000000000000000 exp 00000000fff3332d
+FAIL receipt timeout, same GM, +150 us: one step pulse got 000000000000000a exp 0000000000000009
+FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c33 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL locked +110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL failover, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL failover, -50 us: addend matches the mirror got 0000000000019677 exp 000000000019999a
+FAIL failover, -50 us: no step pulse got 0000000000000015 exp 0000000000000014
+FAIL failover, +150 us: addend matches the mirror got 0000000000019677 exp 00000000000e634b
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000fff4c9a4 exp 0000000000019678
+FAIL PROBE PX1 lost-response bounce, +25 us (link-up): addend matches the mirror got 00000000fff4c9a4 exp 0000000000019678
+FAIL PROBE PX2 return after a bounce while GM, +25 us (link-up): addend matches the mirror got 00000000ffe7fcd1 exp 00000000fff4c9a5
+FAIL PROBE PX3 rise, mastership, return, +25 us (link-up): addend matches the mirror got 00000000ffe7fcd1 exp 00000000fff4c9a5
+FAIL PROBE PX5 timeout then GM change, exactly -100 us (locked): step pulses got 0000000000000001 exp 0000000000000000
+FAIL PROBE PX5 timeout then GM change, exactly -100 us (locked): addend matches the mirror got 00000000ffe66666 exp 000000000019999a
+FAIL PROBE PX6 re-lock pair, +3 us (locked): addend matches the mirror got 00000000ffe66666 exp 00000000fffced9d
+FAIL PROBE PX6 Sync gap, same GM, +90 us (locked): step pulses got 0000000000000001 exp 0000000000000000
+1003 checks: 972 PASS, 31 FAIL

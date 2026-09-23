@@ -1,0 +1,10 @@
+date: 2026-09-23T18:29:22Z
+exact head: ba9268100ebe92dfc61aed30e2910245fc8c97cf  tree 5a02fa35db15d9a773895f82bb17020b55cfa775
+base (main): c1b617435824929a790739ea8585c3fe1a328cc0; prior rounds: 77c34e904eba2446755d13e1bf4763d1652c3ca7, cbccf226068c107fb30764891c98b8d70c54d775
+parent live dev read for authorities and the gptp_plane probe: 759da623072358afdb0e9d570a7b4b6a788492c9
+Verilator wrapper: Verilator 5.050 2026-07-01 rev v5.050; sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+verilator_bin sha256 44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd
+system default Verilator (NOT used): Verilator 5.052 2026-09-05 rev v5.052
+python3: Python 3.14.7; g++: g++ (GCC) 16.2.1 20260810
+exports: git archive of each commit above into a disposable scratch directory; builds and probes ran there, never in the clone
+build parallelism: Verilator -j 8 (engine, probe, parent gptp_plane), -j 2 x 4 slices (mutation arm); <= 8 harness runs at once

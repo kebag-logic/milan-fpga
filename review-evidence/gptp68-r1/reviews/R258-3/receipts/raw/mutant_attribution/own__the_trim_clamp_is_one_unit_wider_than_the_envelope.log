@@ -1,0 +1,34 @@
+FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL receipt timeout, same GM, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL link-up +15 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL link-up +20 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked +90 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL locked +90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -90 us: addend matches the mirror got 000000000019999b exp 000000000019999a
+FAIL locked -90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL locked +100 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us: addend matches the mirror got 000000000019999b exp 000000000019999a
+FAIL locked -100 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: every addend matches the mirror got 000000000000000c exp 0000000000000000
+FAIL long slew, master +90 us: the trim never exceeds +200 ppm got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the trim rides its clamp got 000000000019999b exp 000000000019999a
+FAIL long slew, master +90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000005 exp 0000000000000000
+FAIL long slew, master -90 us: the trim never exceeds +200 ppm got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the trim never exceeds -200 ppm got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the trim rides its clamp got 000000000019999b exp 000000000019999a
+FAIL long slew, master -90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL GM change, +50 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL GM change, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL failover, -50 us: addend matches the mirror got 000000000019999b exp 000000000019999a
+FAIL failover, -50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL return from mastership, +50 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL return from mastership, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000ffe66665 exp 00000000ffe66666
+FAIL warm-reset link-up: locked +30 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL consumer envelope: no addend pulse outside +-200 ppm got 000000000000001c exp 0000000000000000
+FAIL consumer envelope: some addends sit exactly on it got 0000000000000000 exp 0000000000000001
+1259 checks: 1226 PASS, 33 FAIL

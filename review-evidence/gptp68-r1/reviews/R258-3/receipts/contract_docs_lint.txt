@@ -1,0 +1,16 @@
+== contract
+PHC interface contract: PASS
+exit 0
+== docs
+docs check: PASS (11 current pages, 17 historical pages)
+exit 0
+docs selftest: PASS (10 arms)
+exit 0
+== diagrams
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+exit 0
+== lint
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.403 MB sources in 7 modules, into 0.289 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.058 s (elab=0.007, cvt=0.035, bld=0.000); cpu 0.058 s on 1 threads; allocated 23.523 MB
+exit 0

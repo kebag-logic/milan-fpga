@@ -1,0 +1,16 @@
+== ucpu
+make: Entering directory '$PACKET/scratch/head/tb/verilator/ucpu'
+$PINNED_TOOLS/verilator --cc --exe --build -j 8 --top-module KL_gptp_ucpu -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -CFLAGS '-std=c++17 -O2 -I$PACKET/scratch/head/tb/verilator/ucpu -Wall -Wextra' ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv sim_main.cpp -o Vucpu_sim
+python3 $VERILATOR_PREFIX/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_ucpu.cpp VKL_gptp_ucpu___024root__0.cpp VKL_gptp_ucpu__ConstPool__0__Slow.cpp VKL_gptp_ucpu___024root__Slow.cpp VKL_gptp_ucpu___024root__0__Slow.cpp VKL_gptp_ucpu__Syms__Slow.cpp > VKL_gptp_ucpu__ALL.cpp
+rm VKL_gptp_ucpu__ALL.verilator_deplist.tmp
+./obj_dir/Vucpu_sim
+768 checks: 768 PASS, 0 FAIL
+make: Leaving directory '$PACKET/scratch/head/tb/verilator/ucpu'
+== tsngen
+make: Entering directory '$PACKET/scratch/head/tb/tsngen'
+$PINNED_TOOLS/verilator --cc --exe --build -j 8 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS '-std=c++17 -O2 -Wall -Wextra -I$PACKET/scratch/head/tb/tsngen' ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv tsngen_main.cpp -o Vtsngen
+python3 $VERILATOR_PREFIX/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_engine.cpp VKL_gptp_engine___024root__0.cpp VKL_gptp_engine__ConstPool__0__Slow.cpp VKL_gptp_engine___024root__Slow.cpp VKL_gptp_engine___024root__0__Slow.cpp VKL_gptp_engine__Syms__Slow.cpp > VKL_gptp_engine__ALL.cpp
+rm VKL_gptp_engine__ALL.verilator_deplist.tmp
+python3 run_tsngen.py
+288 checks: 288 PASS, 0 FAIL
+make: Leaving directory '$PACKET/scratch/head/tb/tsngen'

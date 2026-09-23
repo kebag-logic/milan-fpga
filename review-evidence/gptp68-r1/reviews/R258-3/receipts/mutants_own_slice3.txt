@@ -1,0 +1,16 @@
+mutants in this run: 6; build jobs 2
+  - recorded t1 survives reset
+  - lost response cancels the requester exchange
+  - credit gate removed from the Pdelay_Req leg
+  - every pair uses the link-up threshold
+  - a receipt timeout unlocks the servo
+  - becoming grandmaster keeps sync-ok
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+
+7 checks: 7 PASS, 0 FAIL

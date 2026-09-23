@@ -1,0 +1,40 @@
+FAIL link-up +20 us: step pulses  got 0000000000000001 exp 0000000000000000
+FAIL link-up +20 us: addend matches the mirror got 00000000fff3332e exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 000000000007ae1a exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 000000000000000e exp 000000000000000d
+FAIL locked +100 us: step pulses  got 0000000000000001 exp 0000000000000000
+FAIL locked +100 us: addend matches the mirror got 00000000fffd70af exp 00000000ffe66666
+FAIL locked +100 us + 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+FAIL locked -100 us - 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+FAIL locked: one step pulse per probe over 100 us got 0000000000000013 exp 0000000000000012
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got 000000000015c2a8 exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got 000000000011dcee exp 00000000fffad2a5
+FAIL closed loop pair 2: addend matches the mirror got 000000000010ebe4 exp 00000000fff9e19b
+FAIL closed loop pair 3: addend matches the mirror got 000000000010f815 exp 00000000fff9edcc
+FAIL closed loop pair 4: addend matches the mirror got 0000000000113b31 exp 00000000fffa30e8
+FAIL closed loop pair 5: addend matches the mirror got 0000000000117739 exp 00000000fffa6cf0
+FAIL closed loop pair 6: addend matches the mirror got 000000000011a333 exp 00000000fffa98ea
+FAIL closed loop pair 7: addend matches the mirror got 000000000011c05d exp 00000000fffab614
+FAIL closed loop pair 8: addend matches the mirror got 000000000011d242 exp 00000000fffac7f9
+FAIL closed loop pair 9: addend matches the mirror got 000000000011dcf1 exp 00000000fffad2a8
+FAIL closed loop pair 10: addend matches the mirror got 000000000011e2e8 exp 00000000fffad89f
+FAIL closed loop pair 11: addend matches the mirror got 000000000011e650 exp 00000000fffadc07
+FAIL closed loop pair 12: addend matches the mirror got 000000000011e87b exp 00000000fffade32
+FAIL closed loop pair 13: addend matches the mirror got 000000000011ea1f exp 00000000fffadfd6
+FAIL closed loop pair 14: addend matches the mirror got 000000000011ea85 exp 00000000fffae03c
+FAIL closed loop pair 15: addend matches the mirror got 000000000011eafb exp 00000000fffae0b2
+FAIL closed loop pair 16: addend matches the mirror got 000000000011eb2e exp 00000000fffae0e5
+FAIL closed loop pair 17: addend matches the mirror got 000000000011eb3f exp 00000000fffae0f6
+FAIL closed loop pair 18: addend matches the mirror got 000000000011eba4 exp 00000000fffae15b
+FAIL closed loop pair 19: addend matches the mirror got 000000000011eb61 exp 00000000fffae118
+FAIL closed loop pair 20: addend matches the mirror got 000000000011eb94 exp 00000000fffae14b
+FAIL closed loop pair 21: addend matches the mirror got 000000000011eb51 exp 00000000fffae108
+FAIL closed loop pair 22: addend matches the mirror got 000000000011eb84 exp 00000000fffae13b
+FAIL closed loop pair 23: addend matches the mirror got 000000000011eb84 exp 00000000fffae13b
+1259 checks: 1220 PASS, 39 FAIL

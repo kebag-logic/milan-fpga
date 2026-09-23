@@ -1,0 +1,95 @@
+FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+FAIL late FU never steers         got 0000000000000001 exp 0000000000000002
+FAIL complete Follow_Up re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (60) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (74) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL sync flags 0200/0000: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL sync flags 0208/0008: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL sync flags 0000/0200: pairs and steers got 0000000000000007 exp 000000000000000f
+FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 00000000ffd70a35 exp 00000000ffe66666
+FAIL receipt timeout, same GM, +50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 00000000ffd70a35 exp 00000000fff3332d
+FAIL receipt timeout, same GM, +150 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: one step pulse got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: addend matches the mirror got 00000000ffdae142 exp 00000000ffe66666
+FAIL link-up +15 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend matches the mirror got 00000000ffd70a35 exp 00000000ffef5c21
+FAIL link-up +25 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: the step writes the bare estimate got 00000000ffd70a35 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000fff5c297 exp 00000000fffeb852
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend matches the mirror got 00000000fffeb85f exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 00000000fffeb85f exp 00000000fff3332e
+FAIL link-up +20 us: addend matches the mirror got 00000000ffdae143 exp 00000000ffe66666
+FAIL link-up +20 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us: addend matches the mirror got 00000000fffeb860 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffdae144 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffdae144 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000fffeb861 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fffeb861 exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000000 exp 0000000000000004
+FAIL locked +90 us: addend matches the mirror got 00000000ffdae145 exp 00000000ffe66666
+FAIL locked +90 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -90 us: addend matches the mirror got 00000000fffeb862 exp 000000000019999a
+FAIL locked +110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked +110 us: addend matches the mirror got 00000000ffdae146 exp 00000000fffd70af
+FAIL locked +110 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: addend matches the mirror got 00000000fffeb863 exp 00000000fffd70af
+FAIL locked +100 us: addend matches the mirror got 00000000ffdae147 exp 00000000ffe66666
+FAIL locked +100 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us: addend matches the mirror got 00000000fffeb864 exp 000000000019999a
+FAIL locked +100 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us + 1 ns: addend matches the mirror got 00000000ffdae148 exp 000000000000000d
+FAIL locked +100 us + 1 ns: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: addend matches the mirror got 00000000fffeb865 exp 000000000000000d
+FAIL locked: one step pulse per probe over 100 us got 0000000000000000 exp 0000000000000004
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got 00000000ffee1486 exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got 0000000000028f72 exp 000000000019999a
+FAIL closed loop pair 2: addend matches the mirror got 000000000007ae2d exp 000000000019999a
+FAIL closed loop pair 3: addend matches the mirror got 00000000000ccce8 exp 000000000019999a
+FAIL closed loop pair 4: addend matches the mirror got 000000000011eba3 exp 000000000019999a
+FAIL closed loop pair 5: addend matches the mirror got 0000000000170a5e exp 000000000019999a
+FAIL closed loop pair 6: addend matches the mirror got 00000000001c2919 exp 000000000019999a
+FAIL closed loop pair 7: addend matches the mirror got 00000000002147d4 exp 000000000019999a
+FAIL closed loop pair 8: addend matches the mirror got 000000000026668f exp 000000000019999a
+FAIL closed loop pair 9: addend matches the mirror got 000000000025779d exp 000000000019999a
+FAIL long slew, master +90 us: every addend matches the mirror got 0000000000000005 exp 0000000000000000
+FAIL long slew, master +90 us: the trim never exceeds +200 ppm got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the trim rides its clamp got 000000000028f5cb exp 000000000019999a
+FAIL long slew, master +90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: the trim rides its clamp got 00000000000cccdf exp 000000000019999a
+FAIL long slew, master -90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL matching FU steers as the mirror got 00000000000d6a63 exp 00000000fff4b9ae
+FAIL paired FU steers as the mirror got 00000000000a3dce exp 00000000fff18d19
+FAIL GM change: the pair before it: addend matches the mirror got 00000000000c1578 exp 00000000fff364c3
+FAIL GM change, +50 us: addend matches the mirror got 00000000fff9e861 exp 00000000ffe66666
+FAIL GM change, -5 ms: step pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change, -5 ms: addend matches the mirror got 00000000001dbf7e exp 00000000ffe8e5c4
+FAIL GM change, -5 ms: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL GM change, -5 ms: one step pulse got 0000000000000001 exp 0000000000000002
+FAIL failover, -50 us: addend matches the mirror got 000000000022de39 exp 000000000019999a
+FAIL failover, -50 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: addend matches the mirror got 00000000ffff071d exp 00000000fff5b298
+FAIL failover, +150 us: one step pulse got 0000000000000001 exp 0000000000000002
+FAIL return from mastership, +50 us: addend matches the mirror got 00000000fff9e863 exp 00000000ffe66666
+FAIL link-up after asCapable returns, -25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000001dbf80 exp 00000000ffe8e5c5
+FAIL link-up after asCapable returns, -25 us: addend inside the envelope got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000000b50df exp 00000000ffe66666
+FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000fff923c8 exp 00000000ffe66666
+FAIL warm-reset link-up: +25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000fff4050e exp 00000000ffe66666
+FAIL consumer envelope: no addend pulse outside +-200 ppm got 000000000000001d exp 0000000000000000
+FAIL consumer envelope: some addends sit exactly on it got 0000000000000000 exp 0000000000000001
+1220 checks: 1126 PASS, 94 FAIL

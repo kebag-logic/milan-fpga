@@ -1,0 +1,18 @@
+mutants in this run: 7; build jobs 2
+  - result value taken without an accepted beat
+  - lost t1 fabricates a time and a companion
+  - the tail runs before its own t1
+  - credit gate removed from the Announce leg
+  - the step arm is unreachable
+  - the locked threshold is 200 us
+  - the trim clamp is one unit wider than the envelope
+[PASS] the unmutated engine still passes the harness
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+
+8 checks: 8 PASS, 0 FAIL

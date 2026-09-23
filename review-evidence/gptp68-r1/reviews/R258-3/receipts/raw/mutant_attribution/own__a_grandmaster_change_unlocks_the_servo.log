@@ -1,0 +1,17 @@
+FAIL GM change, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL GM change, +50 us: addend matches the mirror got 00000000000e634a exp 00000000ffe66666
+FAIL GM change, +50 us: no step pulse got 0000000000000013 exp 0000000000000012
+FAIL GM change, -5 ms: addend matches the mirror got 00000000000e634a exp 0000000000019677
+FAIL GM change, -5 ms: one step pulse got 0000000000000014 exp 0000000000000013
+FAIL failover, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL failover, -50 us: addend matches the mirror got 00000000000e634a exp 000000000019999a
+FAIL failover, -50 us: no step pulse got 0000000000000015 exp 0000000000000014
+FAIL failover, +150 us: addend matches the mirror got 00000000000e634a exp 00000000000e634b
+FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL return from mastership, +50 us: addend matches the mirror got 00000000000e634a exp 00000000ffe66666
+FAIL return from mastership, +50 us: no step pulse got 0000000000000017 exp 0000000000000016
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000000e634a exp 0000000000019678
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000000b50da exp 00000000fffe8408
+FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000ffeee64d exp 00000000ffe66666
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 000000000005f096 exp 00000000fff923c4
+1259 checks: 1243 PASS, 16 FAIL
