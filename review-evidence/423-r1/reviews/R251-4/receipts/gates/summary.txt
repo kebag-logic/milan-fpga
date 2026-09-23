@@ -1,0 +1,19 @@
+docs-check             rc=0   3.79s  docs_check: 0 finding(s) across 163 md files + 833 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em-dash                rc=0   0.96s  check_em_dash: 0 finding(s) over 54 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [483a133e..HEAD]
+em-dash-selftest       rc=0   0.94s  check_em_dash selftest: PASS (57 arm(s))
+doc-style              rc=0   0.05s  documentation style: OK (22 current documents)
+doc-paths              rc=0   0.06s  doc path gate: OK (824 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+gen-toc-check          rc=0   0.36s  TOC gate: OK (105 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+gen-toc-anchors        rc=0   0.39s  anchor check: 144 existing cross-page fragment links reproduced
+feature-status         rc=0   0.57s  feature_status: 0 finding(s)
+py-idiom               rc=2   0.09s  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-pro
+py-idiom-selftest      rc=2   0.10s  [PASS] a malformed budget value is no entry
+hygiene                rc=2   0.10s  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-pro
+hygiene-selftest       rc=2   0.10s  [PASS] a processor off its pin is refused before anything is read
+todo-ownership         rc=2   0.10s  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-c1b617435824929a790739ea8585c3fe1a328cc0 gptp-pro
+whitespace             rc=0   0.01s  
+py-idiom               rc=0   2.91s    over-long line: 0 <= 0
+py-idiom-selftest      rc=0   2.86s  54 checks: 54 PASS, 0 FAIL
+hygiene                rc=0   0.30s  HYGIENE RATCHET: PASS (3 population(s), 712 file(s))
+hygiene-selftest       rc=0   0.30s  35 checks: 35 PASS, 0 FAIL
+todo-ownership         rc=0   1.22s  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 762 first-party file
