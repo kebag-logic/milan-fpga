@@ -43,23 +43,27 @@ MUTATIONS = (
 def mutation_cases(fx: object, index: int) -> None:
     """Run each applicable weakened replica against this public fixture."""
     source_dir = Path(__file__).resolve().parent
-    checker = (source_dir / "check_merge_containment.py").read_text()
-    original = (source_dir / "merge_containment_replay.py").read_text()
+    #! Bytes, not text: the checker carries non-ASCII bytes, and a copy must
+    #! not depend on the parent's locale encoding (an ASCII parent crashed).
+    checker = (source_dir / "check_merge_containment.py").read_bytes()
+    original = (source_dir / "merge_containment_replay.py").read_bytes()
     for name, edits, cases in MUTATIONS:
         if index not in cases:
             continue
         mutated = original
         for before, after in edits:
+            before, after = before.encode("ascii"), after.encode("ascii")
             if mutated.count(before) != 1:
                 raise RuntimeError(f"mutation {name}: guard no longer has one source location")
             mutated = mutated.replace(before, after)
         with scratch(fx.leftovers) as directory:
             target = Path(directory)
-            (target / "checker.py").write_text(checker)
-            (target / "merge_containment_replay.py").write_text(mutated)
+            (target / "checker.py").write_bytes(checker)
+            (target / "merge_containment_replay.py").write_bytes(mutated)
             result = subprocess.run((sys.executable, "-B", "-I", str(target / "checker.py"),
                                      "--no-fetch", "--base", "main", "pr"),
-                                    capture_output=True, text=True)
+                                    capture_output=True, text=True,
+                                    errors="backslashreplace")
         lines = [line.split() for line in result.stdout.splitlines() if line.strip()]
         actual = (result.returncode, lines[0][0] if lines else result.stderr.strip())
         fx.case(f"mutation-{name}-{index:02d}", actual, cases[index],
