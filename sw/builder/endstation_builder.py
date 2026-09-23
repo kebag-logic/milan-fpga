@@ -1195,6 +1195,9 @@ def fmt_channels(fmt: str) -> int | None:
 #: SR = 48 kHz, NS = 12 for SR = 96 kHz, NS = 24 for SR = 192 kHz."
 #: {rate_hz: (nsr, samples_per_frame)}; nsr is IEEE 1722-2016 Table 11.
 BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
+#: Processor walk bound: protocol-processor/docs/architecture/07_memory_maps.md
+#: section 3.1, L10 (AUDIO_UNIT sampling_rates at offset 144).
+MAX_AUDIO_UNIT_RATES = 8
 #: Milan v1.2 6.2 / Table 6.1 - the ONLY channel counts that are Base formats.
 BASE_CHANNELS = (1, 2, 4, 6, 8)
 
@@ -3795,7 +3798,15 @@ def _load_clocking(cfg, path):
         audio_pll_hz=int(clk.get("audio_pll_hz", soc_audio_const(
             "AUDIO_CLK_HZ", 24_576_000))),
     )
-    if rate not in clocking["audio_unit_rates_hz"]:
+    rates = clocking["audio_unit_rates_hz"]
+    if len(rates) > MAX_AUDIO_UNIT_RATES:
+        raise ConfigError(
+            f"clocking.audio_unit_rates_hz has {len(rates)} entries; "
+            f"processor walk bound is {MAX_AUDIO_UNIT_RATES} (L10, "
+            "protocol-processor/docs/architecture/07_memory_maps.md section 3.1)")
+    if len(set(rates)) != len(rates):
+        raise ConfigError("clocking.audio_unit_rates_hz contains duplicate entries")
+    if rate not in rates:
         raise ConfigError("sampling_rate_hz must appear in audio_unit_rates_hz")
     # #399: the audio MMCM plan is FIXED. _CRG derives the audio clock from a
     # two-stage integer chain whose error is the achievable optimum from a
