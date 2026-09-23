@@ -1,0 +1,588 @@
+[
+ {
+  "arm": "TERM",
+  "caller_tracked_state_unchanged": true,
+  "census": {
+   "945635": {
+    "comm": "bash",
+    "sid": 945635,
+    "start": "18888901"
+   },
+   "949661": {
+    "comm": "timeout",
+    "sid": 945635,
+    "start": "18892842"
+   },
+   "949662": {
+    "comm": "make",
+    "sid": 945635,
+    "start": "18892842"
+   },
+   "954168": {
+    "comm": "python3",
+    "sid": 945635,
+    "start": "18899257"
+   },
+   "954183": {
+    "comm": "make",
+    "sid": 954183,
+    "start": "18899350"
+   },
+   "954185": {
+    "comm": "perl",
+    "sid": 954183,
+    "start": "18899357"
+   },
+   "954188": {
+    "comm": "verilator_bin",
+    "sid": 954183,
+    "start": "18899362"
+   },
+   "954197": {
+    "comm": "make",
+    "sid": 954183,
+    "start": "18899378"
+   },
+   "954199": {
+    "comm": "g++",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954200": {
+    "comm": "g++",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954201": {
+    "comm": "g++",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954204": {
+    "comm": "cc1plus",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954205": {
+    "comm": "cc1plus",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954206": {
+    "comm": "cc1plus",
+    "sid": 954183,
+    "start": "18899379"
+   },
+   "954208": {
+    "comm": "g++",
+    "sid": 954183,
+    "start": "18899381"
+   },
+   "954209": {
+    "comm": "cc1plus",
+    "sid": 954183,
+    "start": "18899381"
+   }
+  },
+  "census_comms": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "exit": 143,
+  "exit_seconds": 0.364,
+  "foreign_untouched": true,
+  "gptp_shadow_log_tail": "79); cpu 0.168 s on 8 threads; allocated 430.445 MB\n./obj_dir/Vgptp_shadow_sim\nTX flags Sync: 28 frames, 0 wrong, expected 0x0200\nTX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200\nTX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000\n309 checks: 309 PASS, 0 FAIL\npython3 mutants.py\nCANCELLED: signal 15; no mutation verdict\nmake: *** [Makefile:56: mutants] Error 143\n",
+  "lock_owner_file_left": false,
+  "output_after_exit": "",
+  "output_at_exit": "shard: 0/1   selected suites: 2\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/nested/nested-TERM/logs\nCANCELLED: signal 15; no completed sweep result\n",
+  "private": "$PACKET/scratch/nested/nested-TERM/probe/tmp/gptp-shadow-mutants-qdad1kq0",
+  "private_exists_after": false,
+  "problems": [],
+  "processes_referencing_private_after": {},
+  "sentinel_ran": false,
+  "shell_gone_within_5s": true,
+  "summary_printed": false,
+  "tmp_after": []
+ },
+ {
+  "arm": "INT",
+  "caller_tracked_state_unchanged": true,
+  "census": {
+   "954396": {
+    "comm": "bash",
+    "sid": 954396,
+    "start": "18899911"
+   },
+   "957245": {
+    "comm": "timeout",
+    "sid": 954396,
+    "start": "18903842"
+   },
+   "957246": {
+    "comm": "make",
+    "sid": 954396,
+    "start": "18903842"
+   },
+   "959866": {
+    "comm": "python3",
+    "sid": 954396,
+    "start": "18910274"
+   },
+   "959881": {
+    "comm": "make",
+    "sid": 959881,
+    "start": "18910366"
+   },
+   "959883": {
+    "comm": "perl",
+    "sid": 959881,
+    "start": "18910372"
+   },
+   "959886": {
+    "comm": "verilator_bin",
+    "sid": 959881,
+    "start": "18910377"
+   },
+   "959895": {
+    "comm": "make",
+    "sid": 959881,
+    "start": "18910392"
+   },
+   "959897": {
+    "comm": "g++",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959898": {
+    "comm": "g++",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959899": {
+    "comm": "g++",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959902": {
+    "comm": "cc1plus",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959903": {
+    "comm": "cc1plus",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959904": {
+    "comm": "cc1plus",
+    "sid": 959881,
+    "start": "18910393"
+   },
+   "959906": {
+    "comm": "g++",
+    "sid": 959881,
+    "start": "18910395"
+   },
+   "959907": {
+    "comm": "cc1plus",
+    "sid": 959881,
+    "start": "18910395"
+   }
+  },
+  "census_comms": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "exit": 130,
+  "exit_seconds": 0.364,
+  "foreign_untouched": true,
+  "gptp_shadow_log_tail": "56); cpu 0.167 s on 8 threads; allocated 366.449 MB\n./obj_dir/Vgptp_shadow_sim\nTX flags Sync: 28 frames, 0 wrong, expected 0x0200\nTX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200\nTX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000\n309 checks: 309 PASS, 0 FAIL\npython3 mutants.py\nCANCELLED: signal 15; no mutation verdict\nmake: *** [Makefile:56: mutants] Error 143\n",
+  "lock_owner_file_left": false,
+  "output_after_exit": "",
+  "output_at_exit": "shard: 0/1   selected suites: 2\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/nested/nested-INT/logs\nCANCELLED: signal 2; no completed sweep result\n",
+  "private": "$PACKET/scratch/nested/nested-INT/probe/tmp/gptp-shadow-mutants-bskeddan",
+  "private_exists_after": false,
+  "problems": [],
+  "processes_referencing_private_after": {},
+  "sentinel_ran": false,
+  "shell_gone_within_5s": true,
+  "summary_printed": false,
+  "tmp_after": []
+ },
+ {
+  "arm": "TERM-group",
+  "caller_tracked_state_unchanged": true,
+  "census": {
+   "959974": {
+    "comm": "bash",
+    "sid": 959974,
+    "start": "18910586"
+   },
+   "963051": {
+    "comm": "timeout",
+    "sid": 959974,
+    "start": "18914541"
+   },
+   "963052": {
+    "comm": "make",
+    "sid": 959974,
+    "start": "18914541"
+   },
+   "969200": {
+    "comm": "python3",
+    "sid": 959974,
+    "start": "18921159"
+   },
+   "969253": {
+    "comm": "make",
+    "sid": 969253,
+    "start": "18921249"
+   },
+   "969255": {
+    "comm": "perl",
+    "sid": 969253,
+    "start": "18921255"
+   },
+   "969258": {
+    "comm": "verilator_bin",
+    "sid": 969253,
+    "start": "18921262"
+   },
+   "969268": {
+    "comm": "make",
+    "sid": 969253,
+    "start": "18921278"
+   },
+   "969270": {
+    "comm": "g++",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969271": {
+    "comm": "g++",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969272": {
+    "comm": "g++",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969275": {
+    "comm": "cc1plus",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969276": {
+    "comm": "cc1plus",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969277": {
+    "comm": "cc1plus",
+    "sid": 969253,
+    "start": "18921279"
+   },
+   "969279": {
+    "comm": "g++",
+    "sid": 969253,
+    "start": "18921281"
+   },
+   "969280": {
+    "comm": "cc1plus",
+    "sid": 969253,
+    "start": "18921281"
+   }
+  },
+  "census_comms": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "exit": 143,
+  "exit_seconds": 0.364,
+  "foreign_untouched": true,
+  "gptp_shadow_log_tail": "60); cpu 0.185 s on 8 threads; allocated 686.445 MB\n./obj_dir/Vgptp_shadow_sim\nTX flags Sync: 28 frames, 0 wrong, expected 0x0200\nTX flags Follow_Up: 22 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000\nTX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200\nTX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000\n309 checks: 309 PASS, 0 FAIL\npython3 mutants.py\nCANCELLED: signal 15; no mutation verdict\nmake: *** [Makefile:56: mutants] Error 143\n",
+  "lock_owner_file_left": false,
+  "output_after_exit": "",
+  "output_at_exit": "shard: 0/1   selected suites: 2\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/nested/nested-TERM-group/logs\nCANCELLED: signal 15; no completed sweep result\n",
+  "private": "$PACKET/scratch/nested/nested-TERM-group/probe/tmp/gptp-shadow-mutants-3s88vzh5",
+  "private_exists_after": false,
+  "problems": [],
+  "processes_referencing_private_after": {},
+  "sentinel_ran": false,
+  "shell_gone_within_5s": true,
+  "summary_printed": false,
+  "tmp_after": []
+ },
+ {
+  "arm": "KILL",
+  "caller_tracked_state_unchanged": true,
+  "census": {
+   "969680": {
+    "comm": "bash",
+    "sid": 969680,
+    "start": "18921915"
+   },
+   "971919": {
+    "comm": "timeout",
+    "sid": 969680,
+    "start": "18925889"
+   },
+   "971920": {
+    "comm": "make",
+    "sid": 969680,
+    "start": "18925889"
+   },
+   "974953": {
+    "comm": "python3",
+    "sid": 969680,
+    "start": "18932314"
+   },
+   "975031": {
+    "comm": "make",
+    "sid": 975031,
+    "start": "18932410"
+   },
+   "975033": {
+    "comm": "perl",
+    "sid": 975031,
+    "start": "18932416"
+   },
+   "975036": {
+    "comm": "verilator_bin",
+    "sid": 975031,
+    "start": "18932421"
+   },
+   "975045": {
+    "comm": "make",
+    "sid": 975031,
+    "start": "18932437"
+   },
+   "975047": {
+    "comm": "g++",
+    "sid": 975031,
+    "start": "18932437"
+   },
+   "975048": {
+    "comm": "g++",
+    "sid": 975031,
+    "start": "18932437"
+   },
+   "975049": {
+    "comm": "g++",
+    "sid": 975031,
+    "start": "18932437"
+   },
+   "975052": {
+    "comm": "cc1plus",
+    "sid": 975031,
+    "start": "18932438"
+   },
+   "975053": {
+    "comm": "cc1plus",
+    "sid": 975031,
+    "start": "18932438"
+   },
+   "975054": {
+    "comm": "cc1plus",
+    "sid": 975031,
+    "start": "18932438"
+   },
+   "975056": {
+    "comm": "g++",
+    "sid": 975031,
+    "start": "18932440"
+   },
+   "975057": {
+    "comm": "cc1plus",
+    "sid": 975031,
+    "start": "18932440"
+   }
+  },
+  "census_comms": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "exit": -9,
+  "exit_seconds": 0.003,
+  "foreign_untouched": true,
+  "gptp_shadow_log_tail": "ately observable here\n[note] no_departure_predicate: not separately observable here\n[note] no_position_check: not separately observable here\n[note] delta_forced_not_measured: not separately observable here\n[note] eof_acceptance_unqualified: not separately observable here\n[note] cancellation_frees_the_entry: not separately observable here\ncontrols: 9   failures: 0\nRESULT: PASS\nmake: Leaving directory '$PACKET/scratch/nested/nested-KILL/repo/tb/verilator/gptp_shadow'\n",
+  "inflight_finished_within_420s": true,
+  "lock_owner_file_left": true,
+  "output_after_exit": "",
+  "output_at_exit": "shard: 0/1   selected suites: 2\n",
+  "private": "$PACKET/scratch/nested/nested-KILL/probe/tmp/gptp-shadow-mutants-c31ogip4",
+  "private_exists_after": false,
+  "problems": [],
+  "processes_referencing_private_after": {},
+  "sentinel_ran": false,
+  "shell_gone_within_5s": true,
+  "summary_printed": false,
+  "tmp_after": []
+ },
+ {
+  "arm": "HUP",
+  "caller_tracked_state_unchanged": true,
+  "census": {
+   "1163114": {
+    "comm": "bash",
+    "sid": 1163114,
+    "start": "18991078"
+   },
+   "1167458": {
+    "comm": "timeout",
+    "sid": 1163114,
+    "start": "18995020"
+   },
+   "1167459": {
+    "comm": "make",
+    "sid": 1163114,
+    "start": "18995020"
+   },
+   "1188082": {
+    "comm": "python3",
+    "sid": 1163114,
+    "start": "19001545"
+   },
+   "1188101": {
+    "comm": "make",
+    "sid": 1188101,
+    "start": "19001644"
+   },
+   "1188103": {
+    "comm": "perl",
+    "sid": 1188101,
+    "start": "19001650"
+   },
+   "1188106": {
+    "comm": "verilator_bin",
+    "sid": 1188101,
+    "start": "19001655"
+   },
+   "1188115": {
+    "comm": "make",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188117": {
+    "comm": "g++",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188118": {
+    "comm": "g++",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188119": {
+    "comm": "g++",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188122": {
+    "comm": "cc1plus",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188123": {
+    "comm": "cc1plus",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188124": {
+    "comm": "cc1plus",
+    "sid": 1188101,
+    "start": "19001671"
+   },
+   "1188127": {
+    "comm": "g++",
+    "sid": 1188101,
+    "start": "19001674"
+   },
+   "1188128": {
+    "comm": "cc1plus",
+    "sid": 1188101,
+    "start": "19001674"
+   }
+  },
+  "census_comms": [
+   "bash",
+   "cc1plus",
+   "g++",
+   "make",
+   "perl",
+   "python3",
+   "timeout",
+   "verilator_bin"
+  ],
+  "census_live_after": {},
+  "census_zombie_after": {},
+  "exit": -1,
+  "exit_seconds": 0.003,
+  "foreign_returncode": null,
+  "foreign_state": {
+   "comm": "python3",
+   "pgrp": 1163110,
+   "ppid": 1163091,
+   "sid": 1163110,
+   "start": "18991074",
+   "state": "S"
+  },
+  "foreign_timeline": [
+   [
+    0.0,
+    true
+   ],
+   [
+    214.14,
+    true
+   ]
+  ],
+  "foreign_untouched": true,
+  "gptp_shadow_log_tail": "rately observable here\n[note] no_departure_predicate: not separately observable here\n[note] no_position_check: not separately observable here\n[note] delta_forced_not_measured: not separately observable here\n[note] eof_acceptance_unqualified: not separately observable here\n[note] cancellation_frees_the_entry: not separately observable here\ncontrols: 9   failures: 0\nRESULT: PASS\nmake: Leaving directory '$PACKET/scratch/nested/nested-HUP/repo/tb/verilator/gptp_shadow'\n",
+  "inflight_finished_within_420s": true,
+  "lock_owner_file_left": true,
+  "output_after_exit": "",
+  "output_at_exit": "shard: 0/1   selected suites: 2\n",
+  "private": "$PACKET/scratch/nested/nested-HUP/probe/tmp/gptp-shadow-mutants-_xi9139t",
+  "private_exists_after": false,
+  "problems": [],
+  "processes_referencing_private_after": {},
+  "sentinel_ran": false,
+  "shell_gone_within_5s": true,
+  "summary_printed": false,
+  "tmp_after": []
+ }
+]

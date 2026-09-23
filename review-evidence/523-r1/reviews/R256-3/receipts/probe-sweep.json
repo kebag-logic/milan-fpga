@@ -1,0 +1,2374 @@
+{
+ "arms": [
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-command-SIGINT/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-command-SIGINT/probe/holder.py\" a1\nPARTIAL a1 started pid=1400098\nmake: *** [Makefile:2: all] Terminated\n",
+   "cancelled_line": true,
+   "census": {
+    "1400059": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-command-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523-",
+     "comm": "bash",
+     "pgrp": 1400059,
+     "sid": 1400059,
+     "start": "19181695"
+    },
+    "1400096": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/g-command-SIGINT/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1400096,
+     "sid": 1400059,
+     "start": "19181723"
+    },
+    "1400097": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/g-command-SIGINT/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1400096,
+     "sid": 1400059,
+     "start": "19181723"
+    },
+    "1400098": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-command-SIGINT/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1400096,
+     "sid": 1400059,
+     "start": "19181723"
+    },
+    "1400099": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1400096,
+     "sid": 1400059,
+     "start": "19181726"
+    },
+    "1400100": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-command-SIGINT/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1400100,
+     "sid": 1400100,
+     "start": "19181726"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.168,
+   "exit": 130,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-command-SIGINT",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-command-SIGINT/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-command-SIGTERM/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-command-SIGTERM/probe/holder.py\" a1\nPARTIAL a1 started pid=1400163\nmake: *** [Makefile:2: all] Terminated\n",
+   "cancelled_line": true,
+   "census": {
+    "1400120": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-command-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1400120,
+     "sid": 1400120,
+     "start": "19182256"
+    },
+    "1400161": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/g-command-SIGTERM/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1400161,
+     "sid": 1400120,
+     "start": "19182285"
+    },
+    "1400162": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/g-command-SIGTERM/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1400161,
+     "sid": 1400120,
+     "start": "19182285"
+    },
+    "1400163": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-command-SIGTERM/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1400161,
+     "sid": 1400120,
+     "start": "19182286"
+    },
+    "1400164": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1400161,
+     "sid": 1400120,
+     "start": "19182288"
+    },
+    "1400165": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-command-SIGTERM/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1400165,
+     "sid": 1400165,
+     "start": "19182288"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-command-SIGTERM",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-command-SIGTERM/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1400184": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1400184,
+     "sid": 1400184,
+     "start": "19182824"
+    },
+    "1400196": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1400184,
+     "sid": 1400184,
+     "start": "19182831"
+    },
+    "1400197": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1400184,
+     "sid": 1400184,
+     "start": "19182831"
+    },
+    "1400198": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1400184,
+     "sid": 1400184,
+     "start": "19182834"
+    },
+    "1400199": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1400184,
+     "sid": 1400184,
+     "start": "19182836"
+    },
+    "1400200": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1400200,
+     "sid": 1400200,
+     "start": "19182836"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.168,
+   "exit": 130,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-preflight-SIGINT",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-preflight-SIGINT/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1400221": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1400221,
+     "sid": 1400221,
+     "start": "19183366"
+    },
+    "1400233": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1400221,
+     "sid": 1400221,
+     "start": "19183373"
+    },
+    "1400234": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1400221,
+     "sid": 1400221,
+     "start": "19183373"
+    },
+    "1400235": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1400221,
+     "sid": 1400221,
+     "start": "19183375"
+    },
+    "1400236": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1400221,
+     "sid": 1400221,
+     "start": "19183378"
+    },
+    "1400237": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1400237,
+     "sid": 1400237,
+     "start": "19183378"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.167,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-preflight-SIGTERM",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-preflight-SIGTERM/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-transition-SIGINT/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/tb/verilator/a1'\n",
+   "cancelled_line": true,
+   "census": {
+    "1400254": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1400254,
+     "sid": 1400254,
+     "start": "19183909"
+    },
+    "1400295": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1400254,
+     "sid": 1400254,
+     "start": "19183941"
+    },
+    "1400296": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-r",
+     "comm": "python3",
+     "pgrp": 1400254,
+     "sid": 1400254,
+     "start": "19183941"
+    },
+    "1400297": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGINT/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1400254,
+     "sid": 1400254,
+     "start": "19183943"
+    },
+    "1400298": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1400254,
+     "sid": 1400254,
+     "start": "19183945"
+    },
+    "1400299": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGINT/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1400299,
+     "sid": 1400299,
+     "start": "19183946"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 130,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-transition-SIGINT",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-transition-SIGINT/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-transition-SIGTERM/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/tb/verilator/a1'\n",
+   "cancelled_line": true,
+   "census": {
+    "1401165": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+     "comm": "bash",
+     "pgrp": 1401165,
+     "sid": 1401165,
+     "start": "19184481"
+    },
+    "1401336": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+     "comm": "bash",
+     "pgrp": 1401165,
+     "sid": 1401165,
+     "start": "19184513"
+    },
+    "1401337": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-",
+     "comm": "python3",
+     "pgrp": 1401165,
+     "sid": 1401165,
+     "start": "19184513"
+    },
+    "1401358": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1401165,
+     "sid": 1401165,
+     "start": "19184515"
+    },
+    "1401377": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1401165,
+     "sid": 1401165,
+     "start": "19184518"
+    },
+    "1401378": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1401378,
+     "sid": 1401378,
+     "start": "19184518"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-transition-SIGTERM",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-transition-SIGTERM/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1401742": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-selection-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1401742,
+     "sid": 1401742,
+     "start": "19185053"
+    },
+    "1401745": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-selection-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1401742,
+     "sid": 1401742,
+     "start": "19185054"
+    },
+    "1401746": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-selection-SIGINT/root with space/scripts/suite_shards.py --suite-root $DATA/reviews/52",
+     "comm": "python3",
+     "pgrp": 1401742,
+     "sid": 1401742,
+     "start": "19185054"
+    },
+    "1401747": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-selection-SIGINT/probe/holder.py suite_shards ",
+     "comm": "python3",
+     "pgrp": 1401742,
+     "sid": 1401742,
+     "start": "19185056"
+    },
+    "1401748": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1401742,
+     "sid": 1401742,
+     "start": "19185058"
+    },
+    "1401749": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-selection-SIGINT/probe/holder.py suite_shards stubborn ",
+     "comm": "python3",
+     "pgrp": 1401749,
+     "sid": 1401749,
+     "start": "19185058"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 130,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-selection-SIGINT",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a2.log",
+    "preflight/old.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: INT; no completed sweep result\nlogs were not prepared for this invocation\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "selection",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": true,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1402370": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-selection-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1402370,
+     "sid": 1402370,
+     "start": "19185595"
+    },
+    "1402373": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-selection-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1402370,
+     "sid": 1402370,
+     "start": "19185595"
+    },
+    "1402374": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-selection-SIGTERM/root with space/scripts/suite_shards.py --suite-root $DATA/reviews/5",
+     "comm": "python3",
+     "pgrp": 1402370,
+     "sid": 1402370,
+     "start": "19185595"
+    },
+    "1402375": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-selection-SIGTERM/probe/holder.py suite_shards ",
+     "comm": "python3",
+     "pgrp": 1402370,
+     "sid": 1402370,
+     "start": "19185598"
+    },
+    "1402376": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1402370,
+     "sid": 1402370,
+     "start": "19185600"
+    },
+    "1402377": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-selection-SIGTERM/probe/holder.py suite_shards stubborn ",
+     "comm": "python3",
+     "pgrp": 1402377,
+     "sid": 1402377,
+     "start": "19185600"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-selection-SIGTERM",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a2.log",
+    "preflight/old.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: TERM; no completed sweep result\nlogs were not prepared for this invocation\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "selection",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": true,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1402879": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-lockwait-SIGINT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1402879,
+     "sid": 1402879,
+     "start": "19186137"
+    },
+    "1402885": {
+     "cmd": "flock 9 ",
+     "comm": "flock",
+     "pgrp": 1402879,
+     "sid": 1402879,
+     "start": "19186143"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.214,
+   "exit": 130,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-lockwait-SIGINT",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a2.log",
+    "preflight/old.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: INT; no completed sweep result\nlogs were not prepared for this invocation\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "lockwait",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": true,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1402954": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-lockwait-SIGTERM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1402954,
+     "sid": 1402954,
+     "start": "19186481"
+    },
+    "1402960": {
+     "cmd": "flock 9 ",
+     "comm": "flock",
+     "pgrp": 1402954,
+     "sid": 1402954,
+     "start": "19186487"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.214,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": false,
+   "label": "g-lockwait-SIGTERM",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a2.log",
+    "preflight/old.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "Terminated                 flock 9\nCANCELLED: TERM; no completed sweep result\nlogs were not prepared for this invocation\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "lockwait",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": true,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-command-SIGINT-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-command-SIGINT-group/probe/holder.py\" a1\nPARTIAL a1 started pid=1403133\nmake: *** [Makefile:2: all] Terminated\n",
+   "cancelled_line": true,
+   "census": {
+    "1403039": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-command-SIGINT-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/review",
+     "comm": "bash",
+     "pgrp": 1403039,
+     "sid": 1403039,
+     "start": "19186828"
+    },
+    "1403127": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/g-command-SIGINT-group/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1403127,
+     "sid": 1403039,
+     "start": "19186856"
+    },
+    "1403128": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/g-command-SIGINT-group/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1403127,
+     "sid": 1403039,
+     "start": "19186856"
+    },
+    "1403133": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-command-SIGINT-group/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1403127,
+     "sid": 1403039,
+     "start": "19186857"
+    },
+    "1403167": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1403127,
+     "sid": 1403039,
+     "start": "19186859"
+    },
+    "1403168": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-command-SIGINT-group/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1403168,
+     "sid": 1403168,
+     "start": "19186859"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.167,
+   "exit": 130,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-command-SIGINT-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-command-SIGINT-group/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-command-SIGTERM-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-command-SIGTERM-group/probe/holder.py\" a1\nPARTIAL a1 started pid=1404061\nmake: *** [Makefile:2: all] Terminated\n",
+   "cancelled_line": true,
+   "census": {
+    "1404008": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-command-SIGTERM-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/revie",
+     "comm": "bash",
+     "pgrp": 1404008,
+     "sid": 1404008,
+     "start": "19187389"
+    },
+    "1404053": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/g-command-SIGTERM-group/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1404053,
+     "sid": 1404008,
+     "start": "19187416"
+    },
+    "1404054": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/g-command-SIGTERM-group/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1404053,
+     "sid": 1404008,
+     "start": "19187416"
+    },
+    "1404061": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-command-SIGTERM-group/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1404053,
+     "sid": 1404008,
+     "start": "19187417"
+    },
+    "1404083": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1404053,
+     "sid": 1404008,
+     "start": "19187419"
+    },
+    "1404084": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-command-SIGTERM-group/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1404084,
+     "sid": 1404084,
+     "start": "19187419"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.167,
+   "exit": 143,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-command-SIGTERM-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nTerminated                 timeout \"$TMO\" make -C \"$d\" > \"$OUT/$suite.log\" 2>&1\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-command-SIGTERM-group/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1404761": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/revi",
+     "comm": "bash",
+     "pgrp": 1404761,
+     "sid": 1404761,
+     "start": "19187949"
+    },
+    "1404781": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/revi",
+     "comm": "bash",
+     "pgrp": 1404761,
+     "sid": 1404761,
+     "start": "19187956"
+    },
+    "1404782": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1404761,
+     "sid": 1404761,
+     "start": "19187956"
+    },
+    "1404784": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1404761,
+     "sid": 1404761,
+     "start": "19187958"
+    },
+    "1404786": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1404761,
+     "sid": 1404761,
+     "start": "19187961"
+    },
+    "1404787": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1404787,
+     "sid": 1404787,
+     "start": "19187961"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 130,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-preflight-SIGINT-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-preflight-SIGINT-group/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": true,
+   "census": {
+    "1405040": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/rev",
+     "comm": "bash",
+     "pgrp": 1405040,
+     "sid": 1405040,
+     "start": "19188497"
+    },
+    "1405053": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/rev",
+     "comm": "bash",
+     "pgrp": 1405040,
+     "sid": 1405040,
+     "start": "19188504"
+    },
+    "1405054": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1405040,
+     "sid": 1405040,
+     "start": "19188504"
+    },
+    "1405056": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1405040,
+     "sid": 1405040,
+     "start": "19188506"
+    },
+    "1405061": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1405040,
+     "sid": 1405040,
+     "start": "19188509"
+    },
+    "1405062": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1405062,
+     "sid": 1405062,
+     "start": "19188509"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 143,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-preflight-SIGTERM-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "CANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-preflight-SIGTERM-group/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-transition-SIGINT-group/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/tb/verilator/a1'\n",
+   "cancelled_line": true,
+   "census": {
+    "1405277": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/rev",
+     "comm": "bash",
+     "pgrp": 1405277,
+     "sid": 1405277,
+     "start": "19189045"
+    },
+    "1405317": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/rev",
+     "comm": "bash",
+     "pgrp": 1405277,
+     "sid": 1405277,
+     "start": "19189077"
+    },
+    "1405318": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/scripts/suite_tally.py --verdict $DATA/reviews",
+     "comm": "python3",
+     "pgrp": 1405277,
+     "sid": 1405277,
+     "start": "19189077"
+    },
+    "1405319": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGINT-group/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1405277,
+     "sid": 1405277,
+     "start": "19189080"
+    },
+    "1405320": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1405277,
+     "sid": 1405277,
+     "start": "19189082"
+    },
+    "1405321": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGINT-group/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1405321,
+     "sid": 1405321,
+     "start": "19189082"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.217,
+   "exit": 130,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-transition-SIGINT-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: INT; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-transition-SIGINT-group/root with space/logs\nCANCELLED: signal 2; no completed sweep result\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGINT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/g-transition-SIGTERM-group/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/tb/verilator/a1'\n",
+   "cancelled_line": true,
+   "census": {
+    "1405643": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/re",
+     "comm": "bash",
+     "pgrp": 1405643,
+     "sid": 1405643,
+     "start": "19189618"
+    },
+    "1405684": {
+     "cmd": "bash $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/re",
+     "comm": "bash",
+     "pgrp": 1405643,
+     "sid": 1405643,
+     "start": "19189650"
+    },
+    "1405685": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/scripts/suite_tally.py --verdict $DATA/review",
+     "comm": "python3",
+     "pgrp": 1405643,
+     "sid": 1405643,
+     "start": "19189650"
+    },
+    "1405686": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1405643,
+     "sid": 1405643,
+     "start": "19189653"
+    },
+    "1405715": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1405643,
+     "sid": 1405643,
+     "start": "19189655"
+    },
+    "1405723": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1405723,
+     "sid": 1405723,
+     "start": "19189655"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 2.218,
+   "exit": 143,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": true,
+   "group": true,
+   "label": "g-transition-SIGTERM-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/g-transition-SIGTERM-group/root with space/logs\nCANCELLED: signal 15; no completed sweep result\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py\" a1\nPARTIAL a1 started pid=1406042\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1406000": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1406000,
+     "sid": 1406000,
+     "start": "19190190"
+    },
+    "1406040": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1406040,
+     "sid": 1406000,
+     "start": "19190218"
+    },
+    "1406041": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1406040,
+     "sid": 1406000,
+     "start": "19190218"
+    },
+    "1406042": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1406040,
+     "sid": 1406000,
+     "start": "19190218"
+    },
+    "1406043": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1406040,
+     "sid": 1406000,
+     "start": "19190221"
+    },
+    "1406044": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1406044,
+     "sid": 1406044,
+     "start": "19190221"
+    }
+   },
+   "census_live_after": {
+    "1406044": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -9,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-command-SIGKILL",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGKILL",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1406040": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1 ",
+    "1406041": "make -C $PACKET/scratch/sweep-final/h-command-SIGKILL/root with space/tb/verilator/a1 ",
+    "1406042": "python3 $PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py a1 ",
+    "1406043": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1406044": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py\" a1\nPARTIAL a1 started pid=1407402\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1407363": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523-",
+     "comm": "bash",
+     "pgrp": 1407363,
+     "sid": 1407363,
+     "start": "19193536"
+    },
+    "1407400": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1407400,
+     "sid": 1407363,
+     "start": "19193564"
+    },
+    "1407401": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1407400,
+     "sid": 1407363,
+     "start": "19193564"
+    },
+    "1407402": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1407400,
+     "sid": 1407363,
+     "start": "19193565"
+    },
+    "1407403": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1407400,
+     "sid": 1407363,
+     "start": "19193567"
+    },
+    "1407404": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1407404,
+     "sid": 1407404,
+     "start": "19193567"
+    }
+   },
+   "census_live_after": {
+    "1407404": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -1,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-command-SIGHUP",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGHUP",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1407400": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1 ",
+    "1407401": "make -C $PACKET/scratch/sweep-final/h-command-SIGHUP/root with space/tb/verilator/a1 ",
+    "1407402": "python3 $PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py a1 ",
+    "1407403": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1407404": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py\" a1\nPARTIAL a1 started pid=1407768\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1407726": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1407726,
+     "sid": 1407726,
+     "start": "19196882"
+    },
+    "1407766": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1407766,
+     "sid": 1407726,
+     "start": "19196910"
+    },
+    "1407767": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1407766,
+     "sid": 1407726,
+     "start": "19196910"
+    },
+    "1407768": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1407766,
+     "sid": 1407726,
+     "start": "19196910"
+    },
+    "1407769": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1407766,
+     "sid": 1407726,
+     "start": "19196913"
+    },
+    "1407770": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1407770,
+     "sid": 1407770,
+     "start": "19196913"
+    }
+   },
+   "census_live_after": {
+    "1407770": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.164,
+   "exit": -3,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-command-SIGQUIT",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGQUIT",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1407766": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1 ",
+    "1407767": "make -C $PACKET/scratch/sweep-final/h-command-SIGQUIT/root with space/tb/verilator/a1 ",
+    "1407768": "python3 $PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py a1 ",
+    "1407769": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1407770": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGQUIT/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py\" a1\nPARTIAL a1 started pid=1408101\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1408062": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1408062,
+     "sid": 1408062,
+     "start": "19200242"
+    },
+    "1408099": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1408099,
+     "sid": 1408062,
+     "start": "19200270"
+    },
+    "1408100": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1408099,
+     "sid": 1408062,
+     "start": "19200270"
+    },
+    "1408101": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1408099,
+     "sid": 1408062,
+     "start": "19200270"
+    },
+    "1408102": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1408099,
+     "sid": 1408062,
+     "start": "19200273"
+    },
+    "1408103": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1408103,
+     "sid": 1408103,
+     "start": "19200273"
+    }
+   },
+   "census_live_after": {
+    "1408103": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -10,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-command-SIGUSR1",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGUSR1",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1408099": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1 ",
+    "1408100": "make -C $PACKET/scratch/sweep-final/h-command-SIGUSR1/root with space/tb/verilator/a1 ",
+    "1408101": "python3 $PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py a1 ",
+    "1408102": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1408103": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGUSR1/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py\" a1\nPARTIAL a1 started pid=1408437\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1408398": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/523",
+     "comm": "bash",
+     "pgrp": 1408398,
+     "sid": 1408398,
+     "start": "19203589"
+    },
+    "1408435": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1408435,
+     "sid": 1408398,
+     "start": "19203617"
+    },
+    "1408436": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1408435,
+     "sid": 1408398,
+     "start": "19203617"
+    },
+    "1408437": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1408435,
+     "sid": 1408398,
+     "start": "19203617"
+    },
+    "1408438": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1408435,
+     "sid": 1408398,
+     "start": "19203620"
+    },
+    "1408439": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1408439,
+     "sid": 1408439,
+     "start": "19203620"
+    }
+   },
+   "census_live_after": {
+    "1408439": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -14,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-command-SIGALRM",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGALRM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1408435": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1 ",
+    "1408436": "make -C $PACKET/scratch/sweep-final/h-command-SIGALRM/root with space/tb/verilator/a1 ",
+    "1408437": "python3 $PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py a1 ",
+    "1408438": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1408439": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGALRM/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py\" a1\nPARTIAL a1 started pid=1409381\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1409294": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/revie",
+     "comm": "bash",
+     "pgrp": 1409294,
+     "sid": 1409294,
+     "start": "19206934"
+    },
+    "1409379": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1409379,
+     "sid": 1409294,
+     "start": "19206963"
+    },
+    "1409380": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1409379,
+     "sid": 1409294,
+     "start": "19206963"
+    },
+    "1409381": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1409379,
+     "sid": 1409294,
+     "start": "19206963"
+    },
+    "1409383": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1409379,
+     "sid": 1409294,
+     "start": "19206965"
+    },
+    "1409384": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1409384,
+     "sid": 1409384,
+     "start": "19206965"
+    }
+   },
+   "census_live_after": {
+    "1409384": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -9,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": true,
+   "label": "h-command-SIGKILL-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGKILL",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1409379": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1 ",
+    "1409380": "make -C $PACKET/scratch/sweep-final/h-command-SIGKILL-group/root with space/tb/verilator/a1 ",
+    "1409381": "python3 $PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py a1 ",
+    "1409383": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1409384": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGKILL-group/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": false,
+   "census": {
+    "1410776": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-preflight-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1410776,
+     "sid": 1410776,
+     "start": "19210280"
+    },
+    "1410789": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-preflight-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1410776,
+     "sid": 1410776,
+     "start": "19210287"
+    },
+    "1410790": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1410776,
+     "sid": 1410776,
+     "start": "19210287"
+    },
+    "1410791": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1410776,
+     "sid": 1410776,
+     "start": "19210289"
+    },
+    "1410792": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1410776,
+     "sid": 1410776,
+     "start": "19210292"
+    },
+    "1410793": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1410793,
+     "sid": 1410793,
+     "start": "19210292"
+    }
+   },
+   "census_live_after": {
+    "1410793": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/probe/holder.py preflight stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -9,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-preflight-SIGKILL",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGKILL",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1410789": "bash $PACKET/scratch/sweep-final/h-preflight-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+    "1410790": "python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/root with space/scripts/test_suite_cancellation.py ",
+    "1410791": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/probe/holder.py preflight ",
+    "1410792": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1410793": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGKILL/probe/holder.py preflight stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1411321": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+     "comm": "bash",
+     "pgrp": 1411321,
+     "sid": 1411321,
+     "start": "19213608"
+    },
+    "1411368": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+     "comm": "bash",
+     "pgrp": 1411321,
+     "sid": 1411321,
+     "start": "19213639"
+    },
+    "1411369": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-",
+     "comm": "python3",
+     "pgrp": 1411321,
+     "sid": 1411321,
+     "start": "19213639"
+    },
+    "1411370": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1411321,
+     "sid": 1411321,
+     "start": "19213641"
+    },
+    "1411371": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1411321,
+     "sid": 1411321,
+     "start": "19213644"
+    },
+    "1411372": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1411372,
+     "sid": 1411372,
+     "start": "19213644"
+    }
+   },
+   "census_live_after": {
+    "1411372": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py suite_tally stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -9,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-transition-SIGKILL",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGKILL",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1411368": "bash $PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+    "1411369": "python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-",
+    "1411370": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py suite_tally ",
+    "1411371": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1411372": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGKILL/probe/holder.py suite_tally stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py\" a1\nPARTIAL a1 started pid=1413011\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1412906": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/review",
+     "comm": "bash",
+     "pgrp": 1412906,
+     "sid": 1412906,
+     "start": "19216959"
+    },
+    "1413009": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1413009,
+     "sid": 1412906,
+     "start": "19216988"
+    },
+    "1413010": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1413009,
+     "sid": 1412906,
+     "start": "19216988"
+    },
+    "1413011": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1413009,
+     "sid": 1412906,
+     "start": "19216988"
+    },
+    "1413012": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1413009,
+     "sid": 1412906,
+     "start": "19216991"
+    },
+    "1413013": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1413013,
+     "sid": 1413013,
+     "start": "19216991"
+    }
+   },
+   "census_live_after": {
+    "1413013": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py a1 stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -1,
+   "foreign_group_untouched": "group-signalled",
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": true,
+   "label": "h-command-SIGHUP-group",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGHUP",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1413009": "timeout 1800 make -C $PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1 ",
+    "1413010": "make -C $PACKET/scratch/sweep-final/h-command-SIGHUP-group/root with space/tb/verilator/a1 ",
+    "1413011": "python3 $PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py a1 ",
+    "1413012": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1413013": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-command-SIGHUP-group/probe/holder.py a1 stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": null,
+   "cancelled_line": false,
+   "census": {
+    "1414637": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-preflight-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1414637,
+     "sid": 1414637,
+     "start": "19220307"
+    },
+    "1414652": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-preflight-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+     "comm": "bash",
+     "pgrp": 1414637,
+     "sid": 1414637,
+     "start": "19220314"
+    },
+    "1414653": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/root with space/scripts/test_suite_cancellation.py ",
+     "comm": "python3",
+     "pgrp": 1414637,
+     "sid": 1414637,
+     "start": "19220314"
+    },
+    "1414654": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/probe/holder.py preflight ",
+     "comm": "python3",
+     "pgrp": 1414637,
+     "sid": 1414637,
+     "start": "19220316"
+    },
+    "1414655": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1414637,
+     "sid": 1414637,
+     "start": "19220319"
+    },
+    "1414656": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/probe/holder.py preflight stubborn ",
+     "comm": "python3",
+     "pgrp": 1414656,
+     "sid": 1414656,
+     "start": "19220319"
+    }
+   },
+   "census_live_after": {
+    "1414656": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/probe/holder.py preflight stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -1,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-preflight-SIGHUP",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "preflight/test_suite_cancellation.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "",
+   "phase": "preflight",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGHUP",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1414652": "bash $PACKET/scratch/sweep-final/h-preflight-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/52",
+    "1414653": "python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/root with space/scripts/test_suite_cancellation.py ",
+    "1414654": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/probe/holder.py preflight ",
+    "1414655": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1414656": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-preflight-SIGHUP/probe/holder.py preflight stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py\" a1\nPARTIAL a1 started (not the hold point)\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1417204": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1417204,
+     "sid": 1417204,
+     "start": "19223635"
+    },
+    "1417274": {
+     "cmd": "bash $PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+     "comm": "bash",
+     "pgrp": 1417204,
+     "sid": 1417204,
+     "start": "19223667"
+    },
+    "1417275": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-r",
+     "comm": "python3",
+     "pgrp": 1417204,
+     "sid": 1417204,
+     "start": "19223667"
+    },
+    "1417277": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py suite_tally ",
+     "comm": "python3",
+     "pgrp": 1417204,
+     "sid": 1417204,
+     "start": "19223670"
+    },
+    "1417281": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1417204,
+     "sid": 1417204,
+     "start": "19223672"
+    },
+    "1417282": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py suite_tally stubborn ",
+     "comm": "python3",
+     "pgrp": 1417282,
+     "sid": 1417282,
+     "start": "19223672"
+    }
+   },
+   "census_live_after": {
+    "1417282": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py suite_tally stubborn "
+   },
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 0.003,
+   "exit": -1,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "graceful_expected": false,
+   "group": false,
+   "label": "h-transition-SIGHUP",
+   "lock_free_after": true,
+   "lock_owner_file_left": true,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\n",
+   "phase": "transition",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGHUP",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {
+    "1417274": "bash $PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/5",
+    "1417275": "python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/root with space/scripts/suite_tally.py --verdict $DATA/reviews/523-r",
+    "1417277": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py suite_tally ",
+    "1417281": "/usr/bin/python3 -c import time; time.sleep(600) ",
+    "1417282": "/usr/bin/python3 $PACKET/scratch/sweep-final/h-transition-SIGHUP/probe/holder.py suite_tally stubborn "
+   },
+   "target": "entry"
+  },
+  {
+   "a1_hold_running_3s_after_inner_signal": true,
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/o-command-TERM-inner-shell/probe/holder.py\" a1\nPARTIAL a1 started pid=1419747\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/tb/verilator/a1'\n",
+   "cancelled_line": true,
+   "census": {
+    "1419703": {
+     "cmd": "bash $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/re",
+     "comm": "bash",
+     "pgrp": 1419703,
+     "sid": 1419703,
+     "start": "19226987"
+    },
+    "1419745": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1419745,
+     "sid": 1419703,
+     "start": "19227015"
+    },
+    "1419746": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1419745,
+     "sid": 1419703,
+     "start": "19227015"
+    },
+    "1419747": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1419745,
+     "sid": 1419703,
+     "start": "19227016"
+    },
+    "1419748": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1419745,
+     "sid": 1419703,
+     "start": "19227018"
+    },
+    "1419749": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1419749,
+     "sid": 1419749,
+     "start": "19227018"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 5.167,
+   "entry_running_3s_after_inner_signal": true,
+   "exit": 143,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "group": false,
+   "label": "o-command-TERM-inner-shell",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nCANCELLED: TERM; no completed sweep result\npartial logs: $PACKET/scratch/sweep-final/o-command-TERM-inner-shell/root with space/logs\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGTERM",
+   "stale_a2_log_present": false,
+   "summary_printed": false,
+   "survivors_right_after_exit": {},
+   "target": "shell"
+  },
+  {
+   "a1_log": "make: Entering directory '$PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/tb/verilator/a1'\npython3 \"$PACKET/scratch/sweep-final/o-command-PIPE-entry/probe/holder.py\" a1\nPARTIAL a1 started pid=1420182\n1 checks: 1 PASS, 0 FAIL\nmake: Leaving directory '$PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/tb/verilator/a1'\n",
+   "cancelled_line": false,
+   "census": {
+    "1420120": {
+     "cmd": "bash $PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/scripts/run_all_suites.sh --owned-sweep $DATA/reviews/",
+     "comm": "bash",
+     "pgrp": 1420120,
+     "sid": 1420120,
+     "start": "19227849"
+    },
+    "1420180": {
+     "cmd": "timeout 1800 make -C $PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/tb/verilator/a1 ",
+     "comm": "timeout",
+     "pgrp": 1420180,
+     "sid": 1420120,
+     "start": "19227877"
+    },
+    "1420181": {
+     "cmd": "make -C $PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/tb/verilator/a1 ",
+     "comm": "make",
+     "pgrp": 1420180,
+     "sid": 1420120,
+     "start": "19227877"
+    },
+    "1420182": {
+     "cmd": "python3 $PACKET/scratch/sweep-final/o-command-PIPE-entry/probe/holder.py a1 ",
+     "comm": "python3",
+     "pgrp": 1420180,
+     "sid": 1420120,
+     "start": "19227878"
+    },
+    "1420183": {
+     "cmd": "/usr/bin/python3 -c import time; time.sleep(600) ",
+     "comm": "python3",
+     "pgrp": 1420180,
+     "sid": 1420120,
+     "start": "19227880"
+    },
+    "1420184": {
+     "cmd": "/usr/bin/python3 $PACKET/scratch/sweep-final/o-command-PIPE-entry/probe/holder.py a1 stubborn ",
+     "comm": "python3",
+     "pgrp": 1420184,
+     "sid": 1420184,
+     "start": "19227880"
+    }
+   },
+   "census_live_after": {},
+   "census_zombie_after": {},
+   "entry_comm": "python3",
+   "entry_exit_seconds": 5.368,
+   "entry_running_3s_after_signal": true,
+   "exit": 0,
+   "foreign_group_untouched": true,
+   "foreign_session_untouched": true,
+   "group": false,
+   "label": "o-command-PIPE-entry",
+   "lock_free_after": true,
+   "lock_owner_file_left": false,
+   "logs": [
+    "a1.log",
+    "a2.log",
+    "a3.log",
+    "preflight/check_list_hermetic.log",
+    "preflight/check_merge_containment.log",
+    "preflight/check_merge_review_integrity.log",
+    "preflight/check_results_fresh.log",
+    "preflight/suite_shards.log",
+    "preflight/suite_tally.log",
+    "preflight/test_suite_cancellation.log",
+    "preflight/xvlog_gate.log"
+   ],
+   "output_after_exit": "",
+   "output_at_exit": "shard: 0/1   selected suites: 3\nPASS     a1\nPASS     a2\nPASS     a3\n----------------------------------------------------------------\nsuites: 3   passed: 3   failed: 0   timed out: 0\nchecks: 3   in-suite failures: 0\nlogs: $PACKET/scratch/sweep-final/o-command-PIPE-entry/root with space/logs\n",
+   "phase": "command",
+   "problems": [],
+   "sentinels": [
+    "ran-a2",
+    "ran-a3"
+   ],
+   "shell_gone_within_5s": true,
+   "shell_sid_differs_from_entry": true,
+   "signal": "SIGPIPE",
+   "stale_a2_log_present": false,
+   "summary_printed": true,
+   "survivors_right_after_exit": {},
+   "target": "entry-observe"
+  }
+ ],
+ "leftovers_under_workdir": []
+}

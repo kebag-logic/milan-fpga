@@ -1,0 +1,368 @@
+[
+ {
+  "arm": "none",
+  "env": [],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "bisect-run-like",
+  "env": [
+   "GIT_EDITOR",
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "rebase-x-like",
+  "env": [
+   "GIT_EDITOR",
+   "GIT_EXEC_PATH",
+   "GIT_PREFIX",
+   "GIT_SEQUENCE_EDITOR"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "author-identity",
+  "env": [
+   "GIT_AUTHOR_DATE",
+   "GIT_AUTHOR_EMAIL",
+   "GIT_AUTHOR_NAME",
+   "GIT_COMMITTER_EMAIL",
+   "GIT_COMMITTER_NAME"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "trace-to-stderr",
+  "env": [
+   "GIT_TRACE",
+   "GIT_TRACE_PERFORMANCE",
+   "GIT_TRACE_SETUP"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "trace2-file",
+  "env": [
+   "GIT_TRACE2_EVENT"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "ceiling-above-repo",
+  "env": [
+   "GIT_CEILING_DIRECTORIES"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "no-cross-fs",
+  "env": [
+   "GIT_DISCOVERY_ACROSS_FILESYSTEM"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "pathspec-glob",
+  "env": [
+   "GIT_GLOB_PATHSPECS"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "pathspec-icase",
+  "env": [
+   "GIT_ICASE_PATHSPECS"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "pathspec-noglob",
+  "env": [
+   "GIT_NOGLOB_PATHSPECS"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "optional-locks-off",
+  "env": [
+   "GIT_OPTIONAL_LOCKS"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "no-replace-objects",
+  "env": [
+   "GIT_NO_REPLACE_OBJECTS"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "config-nosystem",
+  "env": [
+   "GIT_CONFIG_NOSYSTEM"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "pager-editor-ssh",
+  "env": [
+   "GIT_ASKPASS",
+   "GIT_EDITOR",
+   "GIT_PAGER",
+   "GIT_SSH_COMMAND",
+   "GIT_TERMINAL_PROMPT"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "shallow-file",
+  "env": [
+   "GIT_SHALLOW_FILE"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "config-key-without-count",
+  "env": [
+   "GIT_CONFIG_KEY_0",
+   "GIT_CONFIG_VALUE_0"
+  ],
+  "exit": 0,
+  "outcome": "ACCEPTED",
+  "refusal": [],
+  "controls_graded": 9,
+  "result_line": [
+   "RESULT: PASS"
+  ],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "GIT_DIR-same-repo",
+  "env": [
+   "GIT_DIR"
+  ],
+  "exit": 2,
+  "outcome": "REFUSED",
+  "refusal": [
+   "REFUSED: Git environment redirects the checkout: GIT_DIR"
+  ],
+  "controls_graded": 0,
+  "result_line": [],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "GIT_INDEX_FILE-same-index",
+  "env": [
+   "GIT_INDEX_FILE"
+  ],
+  "exit": 2,
+  "outcome": "REFUSED",
+  "refusal": [
+   "REFUSED: Git environment redirects the checkout: GIT_INDEX_FILE"
+  ],
+  "controls_graded": 0,
+  "result_line": [],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "GIT_WORK_TREE-same-tree",
+  "env": [
+   "GIT_WORK_TREE"
+  ],
+  "exit": 2,
+  "outcome": "REFUSED",
+  "refusal": [
+   "REFUSED: Git environment redirects the checkout: GIT_WORK_TREE"
+  ],
+  "controls_graded": 0,
+  "result_line": [],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "GIT_CONFIG_PARAMETERS-harmless",
+  "env": [
+   "GIT_CONFIG_PARAMETERS"
+  ],
+  "exit": 2,
+  "outcome": "REFUSED",
+  "refusal": [
+   "REFUSED: Git environment redirects the checkout: GIT_CONFIG_PARAMETERS"
+  ],
+  "controls_graded": 0,
+  "result_line": [],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ },
+ {
+  "arm": "GIT_CONFIG_GLOBAL-devnull",
+  "env": [
+   "GIT_CONFIG_GLOBAL"
+  ],
+  "exit": 2,
+  "outcome": "REFUSED",
+  "refusal": [
+   "REFUSED: Git environment redirects the checkout: GIT_CONFIG_GLOBAL"
+  ],
+  "controls_graded": 0,
+  "result_line": [],
+  "traceback": false,
+  "caller_unchanged": true,
+  "tmp_left": []
+ }
+]
