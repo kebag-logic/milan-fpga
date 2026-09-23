@@ -1,0 +1,19 @@
+No interfaces with usable IPv6 routes
+IPv6: no external interface as template, use local mode
+Template interface: up0 (IPv4)
+Namespace interface: up0
+MAC:
+    host: 9a:55:9a:55:9a:55
+DHCP:
+    assign: 198.51.100.2
+    mask: 255.255.255.0
+    router: 198.51.100.1
+DNS:
+    <host nameserver redacted>
+NDP:
+    assign: ::
+    router: fe80::1
+    our link-local: fe80::1
+Inbound forwarding rules (HOST):
+Outbound forwarding rules (SPLICE):
+pasta pid 55 cgroup 0::/user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector

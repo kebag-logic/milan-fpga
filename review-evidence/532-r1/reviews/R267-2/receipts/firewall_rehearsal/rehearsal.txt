@@ -1,0 +1,29 @@
+kernel 7.2.6-arch2-1; pasta 2026_07_28.f8df3f1; nftables v1.1.7 (Commodore Bullmoose #8)
+selector: socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector"
+uplinks: "up0"
+slot routes: default via 198.51.100.1 dev up0 ;198.51.100.0/24 dev up0 proto kernel scope link ;198.51.100.0/24 dev up0 proto kernel scope link src 198.51.100.2 ;
+== no slot table
+slot: container=reached published=reached hostsvc=reached vmnet=reached lan=reached internet=reached
+host: container=reached published=reached hostsvc=reached vmnet=reached lan=reached internet=reached
+--- rules loaded (parent head a37af3c6 text, selector adapted):
+create table inet milan_act_slot_9
+add chain inet milan_act_slot_9 output { type filter hook output priority filter; policy accept; }
+add rule inet milan_act_slot_9 output socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" fib daddr type local counter reject
+== one rule (a37af3c6)
+slot: container=reached published=reached hostsvc=refused vmnet=reached lan=reached internet=reached
+host: container=reached published=reached hostsvc=reached vmnet=reached lan=reached internet=reached
+		socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" fib daddr type local counter packets 1 bytes 60 reject
+--- rules loaded (head f5497170 text, selector adapted):
+create table inet milan_act_slot_9
+add chain inet milan_act_slot_9 output { type filter hook output priority filter; policy accept; }
+add rule inet milan_act_slot_9 output socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" fib daddr type local counter reject
+add rule inet milan_act_slot_9 output socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" oifname != { "up0" } counter reject
+== two rules (f5497170)
+slot: container=refused published=refused hostsvc=refused vmnet=refused lan=reached internet=reached
+host: container=reached published=reached hostsvc=reached vmnet=reached lan=reached internet=reached
+--- counters after the two-rule phase:
+		socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" fib daddr type local counter packets 1 bytes 60 reject
+		socket cgroupv2 level 6 "user.slice/user-1000.slice/user@1000.service/app.slice/milan-532-r267-2.service/r267-slot-selector" oifname != "up0" counter packets 3 bytes 180 reject
+--- create over an existing table fails whole:
+/run/new.nft:1:19-34: Error: Could not process rule: File exists
+create table inet milan_act_slot_9

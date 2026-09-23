@@ -1,0 +1,381 @@
+2026-09-23T16:19:02.4970695Z ##[group]Run python3 scripts/act_ci.py --selftest
+2026-09-23T16:19:02.4970922Z python3 scripts/act_ci.py --selftest
+2026-09-23T16:19:02.5022018Z shell: /usr/bin/bash -e {0}
+2026-09-23T16:19:02.5022334Z ##[endgroup]
+2026-09-23T16:19:03.0378475Z   ok   ready event is selected for a non-draft PR
+2026-09-23T16:19:03.0379051Z   ok   event pins the exact head and base
+2026-09-23T16:19:03.0379369Z   ok   event names the repository default branch without private markers
+2026-09-23T16:19:03.0379717Z   ok   draft event uses synchronize and preserves draft=true
+2026-09-23T16:19:03.0380059Z   ok   a stale recorded base oid resolves to the live dev tip and proceeds
+2026-09-23T16:19:03.0380404Z   ok   the stale-base note prints the recorded and live base SHAs
+2026-09-23T16:19:03.0380743Z   ok   a recorded base oid matching the live tip resolves unchanged
+2026-09-23T16:19:03.0381046Z   ok   an invalid live-tip lookup result is refused
+2026-09-23T16:19:03.0381526Z   ok   a stale recorded base with a moved dev passes the fetch equality check against the resolved live tip
+2026-09-23T16:19:03.0382027Z   ok   a head moved between metadata lookup and fetch is refused naming the head
+2026-09-23T16:19:03.0382671Z   ok   dev moving between the invocation-time resolve and the fetch is refused naming both base SHAs
+2026-09-23T16:19:03.0383240Z   ok   the event carries the recorded base oid, so the local replica classifies the same file set hosted does
+2026-09-23T16:19:03.0383854Z   ok   and that is not the validation base, so the payload cannot be mistaken for the commit the trust checks read
+2026-09-23T16:19:03.0384403Z   ok   the normal validation path prints the resolved base and enters its Docker boundary
+2026-09-23T16:19:03.0384879Z   ok   the normal validation path leases the selected workflow's act job volumes
+2026-09-23T16:19:03.0385351Z   ok   dry-run prints the job bound and the bounded container options as one quoted argv word
+2026-09-23T16:19:03.0386058Z   ok   an isolated slot's PR run enters the slot with its own endpoint, creates and removes its boundary inside it, and prints act under that slot's namespace and CPUs
+2026-09-23T16:19:03.0386866Z   ok   a two-workflow run leases both, and gates, spawns, cleans containers, then reconciles volumes, once per workflow in that order
+2026-09-23T16:19:03.0387451Z   ok   volumes observed on a workflow's containers reach that workflow's reconciliation
+2026-09-23T16:19:03.0387890Z   ok   a job volume act left after a workflow refuses the run after removal
+2026-09-23T16:19:03.0388329Z   ok   a leftover container refuses the run only after that workflow's volumes were reconciled
+2026-09-23T16:19:03.0388945Z   ok   a boundary that does not lease the selected workflow refuses before act
+2026-09-23T16:19:03.0389485Z   ok   the action cache is populated exactly once per run, before the Docker boundary exists and before the first act launch
+2026-09-23T16:19:03.0389993Z   ok   two workflows sharing two actions produce one clone each, in sorted order
+2026-09-23T16:19:03.0390427Z   ok   the clones in the real sequence carry the run's own credential-free git environment
+2026-09-23T16:19:03.0390897Z   ok   a failing clone refuses the run naming the action, before any boundary or act launch
+2026-09-23T16:19:03.0391375Z   ok   a trusted worktree at the live tip is accepted while the recorded base oid is stale
+2026-09-23T16:19:03.0391948Z   ok   the runner's own bytes - that file, in the trusted root, at the validation base and not the recorded oid - are what is verified
+2026-09-23T16:19:03.0392360Z   ok   a trusted worktree at the stale recorded base is refused naming the loaded head and the live tip
+2026-09-23T16:19:03.0392739Z   ok   a dirty trusted worktree is refused for being dirty, before the base comparison and before any bytes are read
+2026-09-23T16:19:03.0393330Z   ok   a trusted worktree carrying replacement refs is refused for those, before the base comparison and before any bytes are read
+2026-09-23T16:19:03.0394262Z   ok   the fixture's validated base ref is the constant the fetch targets, so the resolve and the fetch name one ref
+2026-09-23T16:19:03.0394770Z   ok   production constructs the validated run exactly once, in the audited resolve, so no second construction can bind the recorded oid as the validation base
+2026-09-23T16:19:03.0395385Z   ok   the trusted-runner check defaults to reading the real checkout state and verifying real bytes
+2026-09-23T16:19:03.0395717Z   ok   the resolve defaults to the real remote lookup and a flushed note
+2026-09-23T16:19:03.0395967Z   ok   a validated run cannot be built on anything but a full commit SHA
+2026-09-23T16:19:03.0396312Z   ok   the resolve re-checks the repository name it interpolates, rather than inheriting the check from main's ordering
+2026-09-23T16:19:03.0396656Z   ok   and re-checks the base ref it interpolates, for the same reason
+2026-09-23T16:19:03.0396885Z   ok   a well-formed ls-remote reply yields the tip
+2026-09-23T16:19:03.0397081Z   ok   an ls-remote reply naming no ref is refused
+2026-09-23T16:19:03.0397279Z   ok   an ls-remote reply naming another ref is refused
+2026-09-23T16:19:03.0397598Z   ok   a ref merely ending in the wanted name is ignored, so one pushed branch or tag cannot refuse every run of the gate
+2026-09-23T16:19:03.0397932Z   ok   an ls-remote reply carrying the wanted ref twice is refused
+2026-09-23T16:19:03.0398163Z   ok   an ls-remote reply line carrying no ref at all is refused
+2026-09-23T16:19:03.0398386Z   ok   all selects each workflow once in stable order
+2026-09-23T16:19:03.0398724Z   ok   explicit workflow selection de-duplicates
+2026-09-23T16:19:03.0398943Z   ok   all plus another workflow is refused
+2026-09-23T16:19:03.0399118Z   ok   cross-repository candidate is refused
+2026-09-23T16:19:03.0399294Z   ok   non-open pull request is refused
+2026-09-23T16:19:03.0399460Z   ok   non-dev pull request is refused
+2026-09-23T16:19:03.0399629Z   ok   malformed GitHub metadata is refused
+2026-09-23T16:19:03.0399831Z   ok   act command selects the real strict exhaustive workflow
+2026-09-23T16:19:03.0400075Z   ok   candidate checkout is copied from immutable materialization
+2026-09-23T16:19:03.0400320Z   ok   job containers receive no Docker socket or host network
+2026-09-23T16:19:03.0400576Z   ok   artifact and cache servers bind only to the bridge gateway
+2026-09-23T16:19:03.0400915Z   ok   job container options are one argv word: the ownership label, the CPU set, then the memory and swap limits
+2026-09-23T16:19:03.0401254Z   ok   act starts at most 1 jobs of a stage at once, stated exactly once
+2026-09-23T16:19:03.0401504Z   ok   only an explicitly empty GitHub token reaches candidate jobs
+2026-09-23T16:19:03.0401759Z   ok   every ambient act input is replaced by an explicit empty file
+2026-09-23T16:19:03.0402003Z   ok   artifact uploads receive a real isolated listener port
+2026-09-23T16:19:03.0402261Z   ok   act reads the pre-populated per-head action cache offline, exactly once
+2026-09-23T16:19:03.0402537Z   ok   job containers get a cpuset of 0-<n-1> for n = min(host CPUs, 4)
+2026-09-23T16:19:03.0402867Z   ok   the CPU bound leaves the unpredictable ownership label in the same container options word
+2026-09-23T16:19:03.0403256Z   ok   job containers are held to 16g of memory and the same swap ceiling, one limit each, in Docker size syntax
+2026-09-23T16:19:03.0403687Z   ok   the container options word splits into exactly four tokens: label, cpuset, memory, memory-swap, in that order
+2026-09-23T16:19:03.0404035Z   ok   a boundary without a job-volume lease cannot build an act command
+2026-09-23T16:19:03.0404286Z   ok   artifact-server port zero is refused rather than advertised
+2026-09-23T16:19:03.0404521Z   ok   a missing bridge gateway cannot produce an act command
+2026-09-23T16:19:03.0404754Z   ok   a boundary without an exclusive tool cache cannot run act
+2026-09-23T16:19:03.0404983Z   ok   a boundary with an unseeded tool cache cannot run act
+2026-09-23T16:19:03.0405297Z   ok   the collector yields each remote action once, sorted, skipping local and docker:// steps
+2026-09-23T16:19:03.0405793Z   ok   an action is cloned into the directory act 0.2.89 derives from its uses: string, from act's exact clone URL
+2026-09-23T16:19:03.0406148Z   ok   a uses: string that is neither local, docker://, nor owner/repo@ref is refused
+2026-09-23T16:19:03.0406609Z   ok   the clone is a full credential-free HTTPS clone, a tag-first resolve, then a detached checkout of the resolved SHA
+2026-09-23T16:19:03.0407036Z   ok   every action git call runs with the runner's no-prompt, no-helper, HTTPS-only environment and no token
+2026-09-23T16:19:03.0407382Z   ok   a ref is resolved the way act duck-types it: tag, then origin branch, then SHA
+2026-09-23T16:19:03.0407628Z   ok   a failing clone is a Refusal naming the action
+2026-09-23T16:19:03.0407844Z   ok   dry-run prints the planned action set and clones nothing
+2026-09-23T16:19:03.0408209Z   ok   the materialiser re-checks each action against the audited set rather than inheriting the sandbox scan's position in the sequence
+2026-09-23T16:19:03.0408560Z   ok   and that refusal reaches git for nothing
+2026-09-23T16:19:03.0408926Z   ok   the materialiser defaults to the real tracked capture boundary
+2026-09-23T16:19:03.0409376Z   ok   the plants occupy every operator-environment name the boundary must withhold, each credential file carries the planted token, and both recorders are executable and silent
+2026-09-23T16:19:03.0409915Z   ok   no plant reaches the runner's git environment, act's environment, or the sudo prefix by construction
+2026-09-23T16:19:03.0410469Z   ok   the probe workflow passes the trusted sandbox, leases its own job-volume prefix, maps the token secret, reports every check in both states, and carries no plant but the token marker
+2026-09-23T16:19:03.0411222Z   ok   grading: an all-absent transcript passes the boundary arm and fails the leaky arm on the three discriminators; all-visible the reverse; an unreported check fails both; `other` fails the boundary arm
+2026-09-23T16:19:03.0411715Z   ok   the boundary command is refused as a leaky arm
+2026-09-23T16:19:03.0411933Z   ok   the leaky command is refused as a boundary arm
+2026-09-23T16:19:03.0412445Z   ok   the boundary command carries the empty token, the disabled socket and the owned network; the leaky command drops exactly those, sources the token from the environment, and keeps the ownership label and the event
+2026-09-23T16:19:03.0413047Z   ok   a boundary command that already lacks the owned network cannot be turned into a leaky arm
+2026-09-23T16:19:03.0413382Z   ok   a sudo boundary command that keeps the operator environment is refused
+2026-09-23T16:19:03.0413796Z   ok   under sudo the leaky command starts act from the planted environment, not an emptied one, and the boundary command without its `-i` is refused
+2026-09-23T16:19:03.0414214Z   ok   the transcript Popen appends the child's output where the grader reads it
+2026-09-23T16:19:03.6604834Z   ok   a failing child whose group drains within the grace yields its last stderr line
+2026-09-23T16:19:03.6605433Z   ok   a probe clone that succeeds is refused
+2026-09-23T16:19:03.6605774Z   ok   the zombie probe records its descendant and group
+2026-09-23T16:19:03.6606180Z   ok   an unreaped zombie in the probe group does not prevent draining
+2026-09-23T16:19:03.6606562Z   ok   the zombie probe is reaped after its drain check
+2026-09-23T16:19:03.6606782Z   ok   the live probe records its descendant and group
+2026-09-23T16:19:03.6607017Z   ok   a live grandchild that outlives the grace is refused and its group killed
+2026-09-23T16:19:03.6607301Z   ok   the scan inventory omits the new same-group child and its old parent is gone
+2026-09-23T16:19:03.6607595Z   ok   a child forked during inspection is refused after the grace and its group killed
+2026-09-23T16:19:03.6608088Z   ok   both changing foreign PIDs are confirmed nonmembers in their frozen inventories
+2026-09-23T16:19:03.6608568Z   ok   confirmed foreign churn drains a zombie-only probe within the unchanged grace
+2026-09-23T16:19:03.6609430Z   ok   the foreign-churn probe is reaped after its drain check
+2026-09-23T16:19:03.6609857Z   ok   proc parsing ignores a zombie even with parentheses and spaces in its name
+2026-09-23T16:19:03.6610285Z   ok   live members count only in their own probe group
+2026-09-23T16:19:03.6610868Z   ok   a PID vanishing between listing and reading is not a survivor or an error
+2026-09-23T16:19:03.6611287Z   ok   an unanswerable proc stat record is refused
+2026-09-23T16:19:03.6611611Z   ok   an unanswerable proc stat record is refused
+2026-09-23T16:19:03.6612034Z   ok   a proven foreign process is skipped before its inaccessible stat is read
+2026-09-23T16:19:03.6612494Z   ok   a PID gone before membership lookup is skipped without reading its stat
+2026-09-23T16:19:03.6612881Z   ok   an unreadable member stat record is refused
+2026-09-23T16:19:03.6613213Z   ok   an unanswerable membership lookup is refused
+2026-09-23T16:19:03.6613532Z   ok   an inspection refusal resumes the frozen group
+2026-09-23T16:19:03.6614001Z   ok   an unavailable proc inventory is refused
+2026-09-23T16:19:03.6614413Z   ok   a probe clone that has not finished within its timeout is killed and refused
+2026-09-23T16:19:03.6614856Z   ok   the labeled ephemeral act tool cache is accepted
+2026-09-23T16:19:03.6615253Z   ok   a tool-cache volume owned by another run is refused
+2026-09-23T16:19:03.6615692Z   ok   a pre-existing unowned tool cache is refused with label guidance
+2026-09-23T16:19:03.6616104Z   ok   rollback never removes an unowned tool-cache volume
+2026-09-23T16:19:03.6616397Z   ok   a rival winning the tool-cache create race is refused
+2026-09-23T16:19:03.6616625Z   ok   create-race rollback never removes the rival's volume
+2026-09-23T16:19:03.6616865Z   ok   tool-cache cleanup refuses when the volume survives removal
+2026-09-23T16:19:03.6617089Z   ok   surviving-volume control exercised the removal request
+2026-09-23T16:19:03.6617383Z   ok   a post-accept volume-create timeout is reconciled
+2026-09-23T16:19:03.6617750Z   ok   post-accept volume rollback removes and verifies its resource
+2026-09-23T16:19:03.6618161Z   ok   a failed setup rollback is surfaced rather than reported clean
+2026-09-23T16:19:03.6618753Z   ok   tool-cache failure cannot suppress independent network teardown
+2026-09-23T16:19:03.6619220Z   ok   a post-accept network-create timeout reconciles both resources
+2026-09-23T16:19:03.6619674Z   ok   network rollback failure is surfaced while cache cleanup continues
+2026-09-23T16:19:03.6620138Z   ok   a post-accept KeyboardInterrupt reconciles both resources
+2026-09-23T16:19:03.6620565Z   ok   a signal after cache return but before network create is reconciled
+2026-09-23T16:19:03.6621005Z   ok   the cold tool cache is seeded exactly once before sibling jobs
+2026-09-23T16:19:03.6621426Z   ok   an unpopulated seed refuses the boundary and reconciles it
+2026-09-23T16:19:03.6621805Z   ok   stable rollback catches delayed Docker daemon mutations
+2026-09-23T16:19:03.6622247Z   ok   no --slot selects slot 0, the default local daemon, which owns no slot resource
+2026-09-23T16:19:03.6622638Z   ok   replay slot -1 is outside 0-63 and refused
+2026-09-23T16:19:03.6622938Z   ok   replay slot 64 is outside 0-63 and refused
+2026-09-23T16:19:03.6623234Z   ok   replay slot True is outside 0-63 and refused
+2026-09-23T16:19:03.6623646Z   ok   an isolated slot without --sudo is refused: it starts its own daemon
+2026-09-23T16:19:03.6624108Z   ok   --slot-root with slot 0 is refused: the default daemon has no slot root
+2026-09-23T16:19:03.6624483Z   ok   slot 1 owns CPUs 4-7 on an 8-CPU host
+2026-09-23T16:19:03.6624802Z   ok   slot 2 on an 8-CPU host is refused: CPUs 8-11 do not exist
+2026-09-23T16:19:03.6625159Z   ok   an isolated slot derives every host name from its number
+2026-09-23T16:19:03.6625784Z   ok   no two slots share a namespace, unit, socket, slice, table, lock, data-root, address pool or CPU, and one slot's names are identical every time
+2026-09-23T16:19:03.6626460Z   ok   slot 0's controlled environment is unchanged: no Docker endpoint at all
+2026-09-23T16:19:03.6627058Z   ok   an isolated slot's environment adds exactly its own socket
+2026-09-23T16:19:03.6627647Z   ok   an isolated slot's sudo Docker and act prefixes enter its namespace identically, differing only in the executable
+2026-09-23T16:19:03.6628396Z   ok   slot 0's sudo prefix enters no namespace
+2026-09-23T16:19:03.6628895Z   ok   an isolated slot's endpoint without sudo is refused by the prefix
+2026-09-23T16:19:03.6629346Z   ok   a Docker endpoint that is no slot socket is refused: unix:///var/run/docker.sock
+2026-09-23T16:19:03.6629799Z   ok   the endpoint parser itself refuses unix:///var/run/docker.sock
+2026-09-23T16:19:03.6630311Z   ok   a Docker endpoint that is no slot socket is refused: tcp://127.0.0.1:2375
+2026-09-23T16:19:03.6630760Z   ok   the endpoint parser itself refuses tcp://127.0.0.1:2375
+2026-09-23T16:19:03.6631242Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-0/docker.sock
+2026-09-23T16:19:03.6631778Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-0/docker.sock
+2026-09-23T16:19:03.6632312Z   ok   a Docker endpoint that is no slot socket is refused: unix:///run/milan-act-slot-64/docker.sock
+2026-09-23T16:19:03.6632868Z   ok   the endpoint parser itself refuses unix:///run/milan-act-slot-64/docker.sock
+2026-09-23T16:19:03.6633371Z   ok   DOCKER_CONTEXT in the controlled environment is refused by the prefix
+2026-09-23T16:19:03.6633832Z   ok   DOCKER_CONFIG in the controlled environment is refused by the prefix
+2026-09-23T16:19:03.6634392Z   ok   an inherited DOCKER_CONFIG refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-09-23T16:19:03.6635059Z   ok   an inherited DOCKER_CONTEXT refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-09-23T16:19:03.6635736Z   ok   an inherited DOCKER_HOST refuses the PR run, dry run and both live self-tests before any collaborator runs
+2026-09-23T16:19:03.6636284Z   ok   the same modes in a clean environment reach their first collaborator
+2026-09-23T16:19:03.6636775Z   ok   the refusal names the replacement: --slot, never an inherited endpoint
+2026-09-23T16:19:03.6637164Z   ok   --selftest with --slot is a usage error
+2026-09-23T16:19:03.6637567Z   ok   --boundary-selftest in an isolated slot is refused before act is resolved
+2026-09-23T16:19:03.6638074Z   ok   a PR run in an isolated slot without --sudo is refused before any collaborator
+2026-09-23T16:19:03.6638570Z   ok   --slot-root without an isolated slot is refused before any collaborator
+2026-09-23T16:19:03.6639328Z   ok   the uplink is socket-level NAT in the slot namespace: no inbound or outbound port forward and no gateway mapped to host loopback
+2026-09-23T16:19:03.6640269Z   ok   the slot daemon runs in the slot namespace and slice with its own containerd, data-root, exec-root, socket, address pool, no host configuration and both labels
+2026-09-23T16:19:03.6641239Z   ok   the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses, created whole or not at all
+2026-09-23T16:19:03.6641862Z   ok   slot 0's container options are the pre-slot word: label, CPUs 0-3, memory, swap
+2026-09-23T16:19:03.6642373Z   ok   an isolated slot's act command differs from slot 0's only in its own CPUs
+2026-09-23T16:19:03.6642858Z   ok   a boundary planned for one slot is not created through another slot's daemon
+2026-09-23T16:19:03.6643289Z   ok   that refusal precedes every Docker call
+2026-09-23T16:19:03.6643608Z   ok   a boundary cannot be planned in slot 64
+2026-09-23T16:19:03.6644254Z   ok   acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+2026-09-23T16:19:03.6645034Z   ok   teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+2026-09-23T16:19:03.6645358Z   ok   the firewall loaded is exactly the slot's rules
+2026-09-23T16:19:03.6645728Z   ok   the namespace, memory cap, firewall and every teardown command are pinned word for word
+2026-09-23T16:19:03.6646137Z   ok   slot 0 runs no slot command and takes no lock
+2026-09-23T16:19:03.6646541Z   ok   an isolated slot whose context carries another slot's endpoint is refused before its lock
+2026-09-23T16:19:03.6647167Z   ok   an isolated slot whose context carries no endpoint is refused before its lock
+2026-09-23T16:19:03.6647619Z   ok   a slot another invocation holds is refused before any host command
+2026-09-23T16:19:03.6648050Z   ok   a host missing any slot tool is refused before the lock or any mutation
+2026-09-23T16:19:03.6648753Z   ok   a failed netns-add refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6649489Z   ok   a failed lo-up refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6650211Z   ok   a failed slice-cap refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6650984Z   ok   a failed uplink-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6651763Z   ok   a failed control-group refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6652545Z   ok   a failed firewall-create refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6653308Z   ok   a failed daemon-start refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6654122Z   ok   a failed docker-info refuses, removes exactly the resources attempted so far, leaves nothing and releases the lock
+2026-09-23T16:19:03.6654746Z   ok   a slot daemon reporting another invocation's token refuses and the slot is torn down
+2026-09-23T16:19:03.6919321Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:03.7122098Z act-ci: interrupted by SIGHUP after cleanup
+2026-09-23T16:19:03.8705593Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:03.8706011Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:03.8706695Z   ok   a slot daemon reporting another data-root refuses and the slot is torn down
+2026-09-23T16:19:03.8707241Z   ok   a slot daemon reporting malformed identity refuses and the slot is torn down
+2026-09-23T16:19:03.8707765Z   ok   an interrupt during the daemon start still tears the whole slot down and propagates the interrupt
+2026-09-23T16:19:03.8708440Z   ok   each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands and survives untouched
+2026-09-23T16:19:03.8709250Z   ok   a surviving daemon unit makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-09-23T16:19:03.8709775Z   ok   a surviving namespace makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-09-23T16:19:03.8710526Z   ok   a surviving firewall table makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-09-23T16:19:03.8711051Z   ok   a surviving memory cap makes teardown refuse, naming it and the recovery, while every other teardown step and the unlock still run
+2026-09-23T16:19:03.8711492Z   ok   a daemon stop that cannot even run still leaves the slice stop to end the daemon and proves the rest absent
+2026-09-23T16:19:03.8711833Z   ok   a table delete that cannot even run is still proved absent or reported
+2026-09-23T16:19:03.8712109Z   ok   unwritable firewall rules refuse the slot and roll back what was built
+2026-09-23T16:19:03.8712363Z   ok   a root-owned 0755 directory is an acceptable slot root
+2026-09-23T16:19:03.8712565Z   ok   a relative slot root is refused
+2026-09-23T16:19:03.8712735Z   ok   a slot root through '..' is refused
+2026-09-23T16:19:03.8713128Z   ok   a missing slot root is refused
+2026-09-23T16:19:03.8713285Z   ok   a symlinked slot root is refused
+2026-09-23T16:19:03.8713450Z   ok   a slot root owned by a user is refused
+2026-09-23T16:19:03.8713629Z   ok   a group-writable slot root is refused
+2026-09-23T16:19:03.8713928Z   ok   an other-writable slot root is refused
+2026-09-23T16:19:03.8714141Z   ok   a missing slot root's refusal names the one-time creation command
+2026-09-23T16:19:03.8714362Z   ok   a second acquisition of a held slot lock is refused
+2026-09-23T16:19:03.8714591Z   ok   a released slot lock is acquired again, and the file is only ever touched
+2026-09-23T16:19:03.8714815Z   ok   a slot lock owned by anyone but root is refused
+2026-09-23T16:19:03.8715005Z   ok   a slot lock path that is a symlink is not followed
+2026-09-23T16:19:03.8715326Z   ok   the slot lifecycle defaults to real privileged commands, path probes, the real lock, the real Docker CLI and the real clock
+2026-09-23T16:19:03.8715692Z   ok   two heads receive different writable action/workflow caches
+2026-09-23T16:19:03.8715919Z   ok   a cache entry written by head A is absent from head B
+2026-09-23T16:19:03.8716155Z   ok   controlled act environment drops tokens, agents, and runtime secrets
+2026-09-23T16:19:03.8716398Z   ok   a fake ambient Docker current context is excluded
+2026-09-23T16:19:03.8716620Z   ok   sudo Docker and act share the same explicit isolated environment
+2026-09-23T16:19:03.8716859Z   ok   sudo act groups are privileged-signalled from the first signal
+2026-09-23T16:19:03.8717093Z   ok   sudo process-group absence uses privileged kill zero
+2026-09-23T16:19:03.8717346Z   ok   Docker teardown waits through kill/inspection failure for PGID absence
+2026-09-23T16:19:03.8717614Z   ok   the first handled signal latches and repeats stay harmless
+2026-09-23T16:19:03.8717854Z   ok   SIGINT handler avoids the Python signal-mask race
+2026-09-23T16:19:03.8718070Z   ok   a first signal during cleanup is delivered only afterward
+2026-09-23T16:19:03.8718323Z   ok   worker threads cannot intercept a signal before cleanup finishes
+2026-09-23T16:19:03.8718567Z   ok   a first signal during monitor join waits for proven termination
+2026-09-23T16:19:03.8719025Z   ok   monitor start failure becomes a cleanup refusal
+2026-09-23T16:19:03.8719240Z   ok   registered monitor start failure is a cleanup refusal
+2026-09-23T16:19:03.8719482Z   ok   registered monitor start failure is reported without an invalid join
+2026-09-23T16:19:03.8719754Z   ok   a worker-thread CLI timeout kills its blocked-mask process group
+2026-09-23T16:19:03.8720018Z   ok   act configuration roots and invocation directory are per-run
+2026-09-23T16:19:03.8720230Z   ok   hostile private input actrc is refused
+2026-09-23T16:19:03.8720399Z   ok   hostile private input .actrc is refused
+2026-09-23T16:19:03.8720571Z   ok   hostile private input .actrc is refused
+2026-09-23T16:19:03.8720741Z   ok   hostile private input .env is refused
+2026-09-23T16:19:03.8720909Z   ok   hostile private input .secrets is refused
+2026-09-23T16:19:03.8721083Z   ok   hostile private input .vars is refused
+2026-09-23T16:19:03.8721254Z   ok   hostile private input .input is refused
+2026-09-23T16:19:03.8721426Z   ok   a nonempty explicit secret file is refused
+2026-09-23T16:19:03.8721654Z   ok   stopped boundary and container-network children are owned exactly
+2026-09-23T16:19:03.8721876Z   ok   unrelated containers are excluded from cleanup
+2026-09-23T16:19:03.8722103Z   ok   the live-container inspector verifies the effective tool-cache mount
+2026-09-23T16:19:03.8722379Z   ok   cancellation during the final container inspect stops the monitor inventory
+2026-09-23T16:19:03.8722648Z   ok   an owned container on a different tool-cache volume is refused
+2026-09-23T16:19:03.8722910Z   ok   the act job-volume name mirror reproduces a live act 0.2.89 volume name
+2026-09-23T16:19:03.8723182Z   ok   job workspace and environment volumes fall inside their workflow lease
+2026-09-23T16:19:03.8723443Z   ok   the tool cache, foreign act jobs, and near-miss names stay unleased
+2026-09-23T16:19:03.8723785Z   ok   workflow names sanitize the way act builds container names
+2026-09-23T16:19:03.8724021Z   ok   malformed job-volume lease prefix 'act-docs' is refused
+2026-09-23T16:19:03.8724345Z   ok   malformed job-volume lease prefix 'docs-' is refused
+2026-09-23T16:19:03.8724569Z   ok   malformed job-volume lease prefix 'act--docs-' is refused
+2026-09-23T16:19:03.8724794Z   ok   malformed job-volume lease prefix 'act-docs--' is refused
+2026-09-23T16:19:03.8725007Z   ok   malformed job-volume lease prefix '' is refused
+2026-09-23T16:19:03.8725210Z   ok   a workflow without a name cannot lease act job volumes
+2026-09-23T16:19:03.8725426Z   ok   a blank workflow name cannot lease act job volumes
+2026-09-23T16:19:03.8725684Z   ok   a pre-existing in-scope act job volume refuses acquisition before any mutation
+2026-09-23T16:19:03.8725956Z   ok   act job volumes outside the lease do not block acquisition
+2026-09-23T16:19:03.8726211Z   ok   a boundary without a job-volume lease cannot pass the acquisition gate
+2026-09-23T16:19:03.8726452Z   ok   a lone in-scope twin 237d234b refuses acquisition
+2026-09-23T16:19:03.8726657Z   ok   a lone in-scope twin 234b-env refuses acquisition
+2026-09-23T16:19:03.8726914Z   ok   the lease prefix is what act's own name builder produces for every leasable name
+2026-09-23T16:19:03.8727185Z   ok   a name whose separators act keeps doubled is unleasable
+2026-09-23T16:19:03.8727408Z   ok   the YAML null literal 'null' cannot lease act job volumes
+2026-09-23T16:19:03.8727625Z   ok   the YAML null literal 'NULL' cannot lease act job volumes
+2026-09-23T16:19:03.8727847Z   ok   the YAML null literal '~' cannot lease act job volumes
+2026-09-23T16:19:03.8728081Z   ok   a volume record is None only when Docker names the volume as missing
+2026-09-23T16:19:03.8728301Z   ok   a volume record for another name is refused
+2026-09-23T16:19:03.8728475Z   ok   a malformed volume record is refused
+2026-09-23T16:19:03.8728841Z   ok   a volume inspection failing for another reason is refused
+2026-09-23T16:19:03.8729140Z   ok   a malformed volume inventory refuses acquisition
+2026-09-23T16:19:03.8729394Z   ok   a lease never matches a name that merely contains or re-cases its prefix
+2026-09-23T16:19:03.8729809Z   ok   interrupt cleanup removes the observed job volumes and an in-scope orphan while rival, re-cased, embedding, and bystander volumes survive
+2026-09-23T16:19:03.8730254Z   ok   a bystander container and its volume are neither observed nor removed, and a bind mount is not a volume
+2026-09-23T16:19:03.8730567Z   ok   reconciliation never overrides the removal's absence window
+2026-09-23T16:19:03.8730835Z   ok   the absence window is the daemon constant for the real CLI and zero for fakes
+2026-09-23T16:19:03.8731121Z   ok   job-volume removal never forces and follows every container removal
+2026-09-23T16:19:03.8731392Z   ok   a job volume another container still holds is preserved and reported
+2026-09-23T16:19:03.8731693Z   ok   a job volume surviving its removal is reported rather than certified absent
+2026-09-23T16:19:03.8732064Z   ok   a volume an owned container mounted outside the lease is preserved and reported as lease drift, act-shaped or not
+2026-09-23T16:19:03.8732433Z   ok   an anonymous volume on an owned container is neither drift nor a target
+2026-09-23T16:19:03.8732727Z   ok   an absence probe that fails is reported as unverifiable, never as absent
+2026-09-23T16:19:03.8733023Z   ok   an in-scope volume the final inventory still lists is a reported survivor
+2026-09-23T16:19:03.8733335Z   ok   a failed volume inventory before reconciliation is reported, not skipped
+2026-09-23T16:19:03.8733654Z   ok   a failed volume inventory after reconciliation is reported, not certified
+2026-09-23T16:19:03.8733983Z   ok   a job volume reappearing inside the absence window is a reported survivor
+2026-09-23T16:19:03.8734266Z   ok   the absence window probed more than once before the volume reappeared
+2026-09-23T16:19:03.8734647Z   ok   a job volume absent for the whole window is certified removed
+2026-09-23T16:19:03.8734915Z   ok   malformed owned-container mount metadata fails container cleanup
+2026-09-23T16:19:03.8735215Z   ok   the job-volume name pattern is act's: no underscore, at most 63 stem bytes
+2026-09-23T16:19:03.8735591Z   ok   a workflow name whose prefix act would trim is refused
+2026-09-23T16:19:03.8735839Z   ok   a missing-volume report must name the volume it is about
+2026-09-23T16:19:03.8736220Z   ok   a job volume act left after a workflow is removed and reported as leftover; an observed name the daemon no longer holds is not
+2026-09-23T16:19:03.8736574Z   ok   reconciliation without a lease scope is refused
+2026-09-23T16:19:03.8736782Z   ok   act version parser accepts the tested version
+2026-09-23T16:19:03.8736976Z   ok   the audited act version is accepted
+2026-09-23T16:19:03.8737161Z   ok   an unaudited newer act version is refused
+2026-09-23T16:19:03.8737346Z   ok   unparseable act version is refused
+2026-09-23T16:19:03.8737597Z   ok   a signal after spawn but before Popen return terminates the stored group
+2026-09-23T16:19:03.8737879Z   ok   a successful act leader cannot leave a live process group
+2026-09-23T16:19:03.8738132Z   ok   a successful host-command leader cannot leave a live process group
+2026-09-23T16:19:03.8738414Z   ok   a repeat signal inside a tracked cleanup command cannot abort the tail
+2026-09-23T16:19:04.0385112Z act-ci: interrupted by SIGINT after cleanup
+2026-09-23T16:19:04.2411366Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:04.4436857Z act-ci: interrupted by SIGHUP after cleanup
+2026-09-23T16:19:04.6463282Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:04.8540422Z act-ci: interrupted by SIGINT after cleanup
+2026-09-23T16:19:05.0565208Z act-ci: interrupted by SIGTERM after cleanup
+2026-09-23T16:19:05.2590211Z act-ci: interrupted by SIGHUP after cleanup
+2026-09-23T16:19:05.3102525Z   ok   a timed-out sudo Docker CLI is contained before rollback begins
+2026-09-23T16:19:05.3103033Z   ok   spawned children inherit no cleanup-signal mask and honor SIGTERM
+2026-09-23T16:19:05.3103405Z   ok   process-directed SIGINT contains a captured child tree
+2026-09-23T16:19:05.3103743Z   ok   process-directed SIGTERM contains a captured child tree
+2026-09-23T16:19:05.3104102Z   ok   process-directed SIGHUP contains a captured child tree
+2026-09-23T16:19:05.3104460Z   ok   production main contains an interrupted early repository lookup
+2026-09-23T16:19:05.3104825Z   ok   process-directed SIGINT contains a Git remote-helper tree
+2026-09-23T16:19:05.3105186Z   ok   process-directed SIGTERM contains a Git remote-helper tree
+2026-09-23T16:19:05.3105530Z   ok   process-directed SIGHUP contains a Git remote-helper tree
+2026-09-23T16:19:05.3105889Z   ok   remote head SHA movement across an act process is refused
+2026-09-23T16:19:05.3106219Z   ok   remote state movement across an act process is refused
+2026-09-23T16:19:05.3106572Z   ok   remote draft state movement across an act process is refused
+2026-09-23T16:19:05.3106938Z   ok   remote base ref movement across an act process is refused
+2026-09-23T16:19:05.3107925Z act-ci: NOTE: recorded base oid moved from 1111111111111111111111111111111111111111 to 5555555555555555555555555555555555555555 during validation; the validation base is the live dev tip resolved at invocation and the unchanged exact-head evidence for 2222222222222222222222222222222222222222 remains valid
+2026-09-23T16:19:05.4750203Z   ok   recorded base oid movement is noted without discarding exact-head evidence
+2026-09-23T16:19:05.4750737Z   ok   a signal after run-directory creation reconciles the accepted path
+2026-09-23T16:19:05.4751124Z   ok   a post-create run-directory stat failure is reconciled
+2026-09-23T16:19:05.4751501Z   ok   the stat-failure path is absent after acquisition rollback
+2026-09-23T16:19:05.4751877Z   ok   sudo chown failure cannot report cleanup success
+2026-09-23T16:19:05.4752193Z   ok   sudo chown launch failure is a cleanup refusal
+2026-09-23T16:19:05.4753011Z   ok   content-pinned immutable runner installation is accepted
+2026-09-23T16:19:05.4753358Z   ok   installed runner with the wrong content pin is refused
+2026-09-23T16:19:05.4753704Z   ok   runner installed inside the candidate worktree is refused
+2026-09-23T16:19:05.4754236Z   ok   bootstrap install requires explicit repository and worktree
+2026-09-23T16:19:05.4754580Z   ok   bootstrap accepts both explicit identity arguments
+2026-09-23T16:19:05.4754925Z   ok   directory removal failure cannot report cleanup success
+2026-09-23T16:19:05.4755291Z   ok   broken replacement symlink cannot masquerade as completed cleanup
+2026-09-23T16:19:05.4755658Z   ok   assume-unchanged cannot hide selected workflow bytes
+2026-09-23T16:19:05.4755983Z   ok   skip-worktree cannot hide selected workflow bytes
+2026-09-23T16:19:05.4756291Z   ok   an index flag cannot hide a selected workflow symlink
+2026-09-23T16:19:05.4756649Z   ok   replacement object is refused even when HEAD text is unchanged
+2026-09-23T16:19:05.4757003Z   ok   the exact trusted submodule manifest is accepted
+2026-09-23T16:19:05.4757332Z   ok   candidate submodule URL changes are refused before fetch
+2026-09-23T16:19:05.4757697Z   ok   candidate submodule update commands are refused before fetch
+2026-09-23T16:19:05.4758064Z   ok   candidate gitlink path changes are refused before fetch
+2026-09-23T16:19:05.4758410Z   ok   Git disables every protocol except credential-free HTTPS
+2026-09-23T16:19:05.4758931Z   ok   self-hosted runner authority is refused
+2026-09-23T16:19:05.4759198Z   ok   a missing runner label is refused
+2026-09-23T16:19:05.4759450Z   ok   a nonliteral runner label is refused
+2026-09-23T16:19:05.4759707Z   ok   job container authority is refused
+2026-09-23T16:19:05.4759974Z   ok   service container authority is refused
+2026-09-23T16:19:05.4760235Z   ok   reusable workflow authority is refused
+2026-09-23T16:19:05.4760615Z   ok   step-level action docker://alpine:3.20 is refused before act
+2026-09-23T16:19:05.4760980Z   ok   step-level action example/setup@v1 is refused before act
+2026-09-23T16:19:05.4761337Z   ok   step-level action actions/checkout@v5 is refused before act
+2026-09-23T16:19:05.4761701Z   ok   step-level action ./local-action is refused before act
+2026-09-23T16:19:05.4762062Z   ok   a workflow without a declared name cannot lease act job volumes
+2026-09-23T16:19:05.4762466Z   ok   a workflow name that is a hyphen-prefix of another cannot share a lease
+2026-09-23T16:19:05.4762890Z   ok   either overlapping workflow alone still leases its own volumes
+2026-09-23T16:19:05.4763240Z   ok   workflow reads do not follow a candidate symlink
+2026-09-23T16:19:05.4763530Z   ok   workflow reads reject a FIFO without blocking
+2026-09-23T16:19:05.4763842Z   ok   workflow reads reject a host device before reading it
+2026-09-23T16:19:05.4764199Z   ok   workflow reads reject an oversized regular file before parsing
+2026-09-23T16:19:05.4764536Z   ok   shipping workflows satisfy the sandbox policy
+2026-09-23T16:19:05.4764856Z   ok   shipping workflows lease act job volumes by declared name
+2026-09-23T16:19:05.4765354Z   ok   no shipping workflow name is a hyphen-prefix of another, so a rival workflow's volumes stay outside every lease
+2026-09-23T16:19:05.4765776Z selftest: PASS
+2026-09-23T16:19:05.4997721Z ##[group]Run python3 scripts/check_doc_paths.py
