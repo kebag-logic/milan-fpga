@@ -1,0 +1,17 @@
+# F5c window against the next own MSRP LeaveAll (srp_top, working tree equal to 4f240356's tb/srp_top/sim_main.cpp)
+
+Method: temporary printf lines (not committed) printed now_ms_o at the own LeaveAll that each
+F5 step waits for, at the end of the new Talker Failed-only window, and at the next own MSRP
+LeaveAll MRPDU after it. The file was restored from a byte copy afterwards; `git diff` of
+tb/srp_top/sim_main.cpp was re-read and showed only the intended change. Simulator: CI pin 5.050.
+
+PROBE own LA step a at 35407 ms
+PROBE own LA step b at 48207 ms
+PROBE own LA step c at 59007 ms
+PROBE F5c window end at 66651 ms
+PROBE next own LA at 70807 ms (0)
+255 checks: 255 PASS, 0 FAIL
+
+Step (c) window: 66651 - 59007 = 7644 ms after the own LeaveAll it starts from.
+Next own LeaveAll: 70807 - 59007 = 11800 ms (T-MRP-LEAVEALL draw 10-15 s).
+Margin against the 10 s minimum: about 2.3 s.

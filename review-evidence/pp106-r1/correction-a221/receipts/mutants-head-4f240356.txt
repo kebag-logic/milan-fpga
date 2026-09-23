@@ -1,0 +1,66 @@
+# mutation probes at 4f2403566146fc5ccd92bccf6ebb70d3e5eb5f09
+
+## K0: control: no change (the export must pass)
+PASS srp_decoder (190 checks: 190 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+=> K0 CONTROL PASSES
+
+## K5: X7-class: gate re-armed at a malformed end or an unpadded clean end, never after a padded MRPDU
+planted c260df0cbfd6a167455dc81e30e47324a6ca87c28a786c3f55d0446af758774c  hdl/srp/KL_srp_decoder.sv
+FAIL srp_decoder (190 checks: 189 PASS, 1 FAIL)
+    FAIL: V3 padded MRPDU 1, re-armed after padding strobe order
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+=> K5 KILLED
+
+## K6: once-per-MRPDU gate remembers only the last type that fired (one register instead of one bit per type)
+planted 6987592c5d426490970da321c061c012af9411d68f99a9f0910b9b2f292cc788  hdl/srp/KL_srp_decoder.sv
+FAIL srp_decoder (190 checks: 188 PASS, 2 FAIL)
+    FAIL: V1 Listener and Domain lanes once each got 2 1 of 3
+    FAIL: V1 across a Domain message strobe order
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+=> K6 KILLED
+
+## K7: an unflagged VectorHeader of a type re-opens that type's gate
+planted e0250b9417acf0283bb73516735d169a60d998fd64cabefcc9df4cb0e8ac73a7  hdl/srp/KL_srp_decoder.sv
+FAIL srp_decoder (190 checks: 188 PASS, 2 FAIL)
+    FAIL: V2 Listener lane once, no other lane got 2 of 2
+    FAIL: V2 after an unflagged vector strobe order
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+=> K7 KILLED
+
+## K8: gate re-armed at every message whose AttributeType differs from the previous message's
+planted 3cc1a80fa2b2d026b9d4ad9c6f519899dea7ce930efb7e67175af880ee1338c3  hdl/srp/KL_srp_decoder.sv
+FAIL srp_decoder (190 checks: 188 PASS, 2 FAIL)
+    FAIL: V1 Listener and Domain lanes once each got 2 1 of 3
+    FAIL: V1 across a Domain message strobe order
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (255 checks: 255 PASS, 0 FAIL)
+=> K8 KILLED
+
+## K13: Domain participant also takes the Talker Advertise lane
+planted ee54f43ff1eb8e48fdd620f3efdab477938592f2834b8db68f6582e647279081  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (190 checks: 190 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+FAIL srp_top (255 checks: 254 PASS, 1 FAIL)
+    FAIL: F5c: a Talker Advertise LeaveAll never re-declares our Domain
+=> K13 KILLED
+
+## K14: Domain participant also takes the Talker Failed lane
+planted 19d20094a4d56e0b757df006af1b01fb04a447d52fe4466e7721d12101437985  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (190 checks: 190 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+FAIL srp_top (255 checks: 254 PASS, 1 FAIL)
+    FAIL: F5c: a Talker Failed-only LeaveAll never re-declares our Domain
+=> K14 KILLED
+

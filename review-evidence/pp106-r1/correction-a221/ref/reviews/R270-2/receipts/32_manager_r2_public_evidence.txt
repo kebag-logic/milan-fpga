@@ -1,0 +1,30 @@
+# manager-r2 public evidence, milan-fpga abd34a36 review-evidence/pp106-r1/manager-r2 (read-only)
+== donor-full: head 27763677d83d4df7237389ffc0945ef9e224aa31 base fbc1f7156d711e5b7f511da8a16d9494256b017b complete.exit_code=0
+  exit=0  env verilator --version
+  exit=0  env git fetch --no-tags origin refs/pull/13/head
+  exit=0  env bash scripts/lint_hdl.sh
+  exit=0  env bash scripts/run_suites.sh
+  exit=0  env make -j1 check
+  exit=0  env python3 scripts/gen_matrix.py --check
+  exit=0  env bash syn/yosys/run.sh
+  exit=0  env make -C tb/nvm_port figures
+  exit=0  env git diff --check fbc1f7156d711e5b7f511da8a16d9494256b017b HEAD
+== parent-consumer: head c088b4cf9ccd09a4a5fa653b5fed0738aad1c4ee base 26d855a9176d63625e6635a029a0c44e3d57ce9a complete.exit_code=0
+  exit=0  env python3 scripts/check_cpp_idiom.py
+  exit=0  env python3 scripts/check_py_idiom.py
+  exit=0  env python3 scripts/xvlog_gate.py --check
+  exit=0  env python3 scripts/check_rtl_source_lists.py
+  exit=0  env python3 scripts/pp_srcs.py --check --selftest
+  exit=0  env python3 sw/builder/test_builder.py
+  exit=0  env make -C tb/verilator/pp_shadow -j8
+== selected log lines
+  donor-full_04.log: suites: 15464 checks total, 0 failing
+  donor-full_08.log: all measured figures agree with the tree
+  parent-consumer_03.log: xvlog gate: 4 finding(s) across 4 module(s)
+  parent-consumer_03.log: xvlog gate: PASS (4 finding(s) == ratchet; 0 hdl/, 4 pinned processors)
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/06.log:73:  [gate 11] SKIP: real report not on disk (<calibration build report path redacted>) - the calibration gate needs the mf48 build tree
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/06.log:262:1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/06.log:263:  - [gate 11] real report not on disk (<calibration build report path redacted>) - the calibration gate needs the mf48 build tree
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/06.log:264:ALL GATES PASS EXCEPT 1 NOT RUN
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/07.log:450:pp_shadow: 371 checks, 0 failures
+$VALIDATION_STORAGE/pp106-manager-r2/parent-consumer/07.log:451:RESULT: PASS

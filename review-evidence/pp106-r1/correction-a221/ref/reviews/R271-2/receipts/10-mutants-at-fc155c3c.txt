@@ -1,0 +1,41 @@
+# mutation probes at fc155c3ca28b04c2220bf41ebea9214379210452
+
+## K0: control: no change (the export must pass)
+PASS srp_decoder (150 checks: 150 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (252 checks: 252 PASS, 0 FAIL)
+=> K0 CONTROL PASSES
+
+## K1: X1-class: every VectorHeader of a type closes its gate, flagged or not
+planted bff65905425b5702364ef646ea7850dfaa5b4bd06964051e530699290a44307f  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (150 checks: 150 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (252 checks: 252 PASS, 0 FAIL)
+=> K1 SURVIVED
+
+## K3: X7-class: gate re-armed only at a clean dual EndMark
+planted ee45971ff04e687992504a465490b13964755c5102fb544278c6c421b55db7a5  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (150 checks: 150 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (252 checks: 252 PASS, 0 FAIL)
+=> K3 SURVIVED
+
+## K10: X7-class: gate re-armed at a new MRPDU only when it is MSRP
+planted 9f2e52a66301e850db955168481145bcc82ffff5b81548123713e0a1ee80baab  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (150 checks: 150 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (252 checks: 252 PASS, 0 FAIL)
+=> K10 SURVIVED
+
+## K12: Domain participant also takes the Listener lane
+planted 0a16b76c1b7e5c3f30b5b7f9c2a69cdaf4e7462df52f02fce3b216f5351b223c  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (150 checks: 150 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (252 checks: 252 PASS, 0 FAIL)
+=> K12 SURVIVED
+

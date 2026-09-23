@@ -1,0 +1,18 @@
+# docs gates at 5f8cb1325312002c2c8bda45f30d98abc750ca7c
+## make check
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+wavedrom: 18 blocks checked, OK
+links: 810 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (86 rows, 0 untested)
+exit 0
+## python3 scripts/gen_matrix.py --check
+matrix: OK (86 rows, 0 untested)
+exit 0
+## python3 scripts/check-links.py
+links: 810 checked, OK
+exit 0
+## git diff --check fbc1f715..HEAD
+exit 0
+## U+2014 on lines added by 27763677..HEAD
+0

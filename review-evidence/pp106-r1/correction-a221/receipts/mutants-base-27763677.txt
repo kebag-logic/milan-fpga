@@ -1,0 +1,57 @@
+# mutation probes at 27763677d83d4df7237389ffc0945ef9e224aa31
+
+## K0: control: no change (the export must pass)
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K0 CONTROL PASSES
+
+## K5: X7-class: gate re-armed at a malformed end or an unpadded clean end, never after a padded MRPDU
+planted c260df0cbfd6a167455dc81e30e47324a6ca87c28a786c3f55d0446af758774c  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K5 SURVIVED
+
+## K6: once-per-MRPDU gate remembers only the last type that fired (one register instead of one bit per type)
+planted 6987592c5d426490970da321c061c012af9411d68f99a9f0910b9b2f292cc788  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K6 SURVIVED
+
+## K7: an unflagged VectorHeader of a type re-opens that type's gate
+planted e0250b9417acf0283bb73516735d169a60d998fd64cabefcc9df4cb0e8ac73a7  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K7 SURVIVED
+
+## K8: gate re-armed at every message whose AttributeType differs from the previous message's
+planted 3cc1a80fa2b2d026b9d4ad9c6f519899dea7ce930efb7e67175af880ee1338c3  hdl/srp/KL_srp_decoder.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K8 SURVIVED
+
+## K13: Domain participant also takes the Talker Advertise lane
+planted ee54f43ff1eb8e48fdd620f3efdab477938592f2834b8db68f6582e647279081  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K13 SURVIVED
+
+## K14: Domain participant also takes the Talker Failed lane
+planted 19d20094a4d56e0b757df006af1b01fb04a447d52fe4466e7721d12101437985  hdl/srp/KL_srp_top.sv
+PASS srp_decoder (177 checks: 177 PASS, 0 FAIL)
+PASS srp_encoder (556 checks: 556 PASS, 0 FAIL)
+PASS srp_stream_fsms (1068 checks: 1068 PASS, 0 FAIL)
+PASS srp_top (253 checks: 253 PASS, 0 FAIL)
+=> K14 SURVIVED
+

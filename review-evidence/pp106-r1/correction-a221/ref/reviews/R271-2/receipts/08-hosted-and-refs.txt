@@ -1,0 +1,62 @@
+# hosted check runs at 27763677d83d4df7237389ffc0945ef9e224aa31 (read-only API)
+check runs: 6
+  portability completed success 2026-09-23T20:15:35Z -> 2026-09-23T20:18:06Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914731568/job/107363212869
+  suites completed success 2026-09-23T20:15:36Z -> 2026-09-23T20:27:37Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914731568/job/107363212824
+  docs-gates completed success 2026-09-23T20:15:35Z -> 2026-09-23T20:15:46Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914731568/job/107363212383
+  suites completed success 2026-09-23T20:15:34Z -> 2026-09-23T20:23:21Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914728215/job/107363200335
+  portability completed success 2026-09-23T20:16:10Z -> 2026-09-23T20:19:08Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914728215/job/107363200202
+  docs-gates completed success 2026-09-23T20:15:33Z -> 2026-09-23T20:15:44Z 27763677d83d4df7237389ffc0945ef9e224aa31 https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/35914728215/job/107363199988
+run 35914731568 workflow=hdl event=pull_request head=27763677d83d4df7237389ffc0945ef9e224aa31 conclusion=success
+  docs-gates | 1 Set up job | success
+  docs-gates | 2 Run actions/checkout@v4 | success
+  docs-gates | 3 Link, matrix, wavedrom and staleness gates | success
+  docs-gates | 6 Post Run actions/checkout@v4 | success
+  docs-gates | 7 Complete job | success
+  suites | 1 Set up job | success
+  suites | 2 Run actions/checkout@v4 | success
+  suites | 3 Cache the pinned Verilator build | success
+  suites | 4 Build Verilator v5.050 | skipped
+  suites | 5 Lint (zero tolerance) + every suite | success
+  suites | 6 Traceability matrix no-drift + untested budget 0 | success
+  suites | 7 nvm_port README figures agree with the tree | success
+  suites | 13 Post Cache the pinned Verilator build | success
+  suites | 14 Post Run actions/checkout@v4 | success
+  suites | 15 Complete job | success
+  portability | 1 Set up job | success
+  portability | 2 Run actions/checkout@v4 | success
+  portability | 3 Install yosys + sv2v | success
+  portability | 4 Elaborate every top off-vendor | success
+  portability | 8 Post Run actions/checkout@v4 | success
+  portability | 9 Complete job | success
+run 35914728215 workflow=hdl event=push head=27763677d83d4df7237389ffc0945ef9e224aa31 conclusion=success
+  docs-gates | 1 Set up job | success
+  docs-gates | 2 Run actions/checkout@v4 | success
+  docs-gates | 3 Link, matrix, wavedrom and staleness gates | success
+  docs-gates | 6 Post Run actions/checkout@v4 | success
+  docs-gates | 7 Complete job | success
+  portability | 1 Set up job | success
+  portability | 2 Run actions/checkout@v4 | success
+  portability | 3 Install yosys + sv2v | success
+  portability | 4 Elaborate every top off-vendor | success
+  portability | 8 Post Run actions/checkout@v4 | success
+  portability | 9 Complete job | success
+  suites | 1 Set up job | success
+  suites | 2 Run actions/checkout@v4 | success
+  suites | 3 Cache the pinned Verilator build | success
+  suites | 4 Build Verilator v5.050 | skipped
+  suites | 5 Lint (zero tolerance) + every suite | success
+  suites | 6 Traceability matrix no-drift + untested budget 0 | success
+  suites | 7 nvm_port README figures agree with the tree | success
+  suites | 13 Post Cache the pinned Verilator build | success
+  suites | 14 Post Run actions/checkout@v4 | success
+  suites | 15 Complete job | success
+PP main tip: fbc1f7156d711e5b7f511da8a16d9494256b017b
+PR 107 head: 27763677d83d4df7237389ffc0945ef9e224aa31
+parent dev tip: 26d855a9176d63625e6635a029a0c44e3d57ce9a
+parent dev protocol-processor gitlink: 424c688fa2205b934a7689a58f2aa766420f2326
+## issue states (read-only API)
+#106 open: Signal LeaveAll for every registered attribute type so bridges that scope LeaveAll by type keep our registrations
+#108 open: Restart the leavealltimer and go Passive on a received LeaveAll (802.1Q-2014 Table 10-5, 10.6)
+#29 open: A received LeaveAll does not restart the local leavealltimer (802.1Q Table 10-5 damping)
+## parent docs/traceability/ieee8021q.md at dev 26d855a9, row MRP-5
+112:| MRP-5 | 10.7.9 | LeaveAll: on rx/tx LeaveAll, all registrations enter leave-pending and must be re-declared | processor timer service + SRP FSMs | 🔵 PROCESSOR — the LeaveAll turn and prompt re-declare were pinned by the deleted `lwsrp` suite | 10.7.9: mishandling the periodic bridge LeaveAll (~every 10 s) tears every stream down once per period. |
