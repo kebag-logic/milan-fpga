@@ -163,11 +163,12 @@ def _squash_and_error_cases(fx):
          "...and the conservative proof is named")
 
     # A failed proof-producing path enumeration is UNKNOWN, not a
-    # STRANDED verdict assembled from incomplete evidence.
-    saved_git = mc._git
-    mc._git = lambda *args: (
-        (128, "") if args and args[0] == "diff"
-        and "--name-only" in args else saved_git(*args))
+    # STRANDED verdict assembled from incomplete evidence.  Path
+    # measurements carry filename bytes, so they run through _git_raw.
+    saved_git_raw = mc._git_raw
+    mc._git_raw = lambda *args: (
+        (128, b"") if args and args[0] == "diff"
+        and "--name-only" in args else saved_git_raw(*args))
     try:
         rc, out = run(["--no-fetch", "--base", "squash-base",
                        "squash-feature"])
@@ -176,12 +177,12 @@ def _squash_and_error_cases(fx):
         case("path-enumeration-error-word", "UNKNOWN" in out, True,
              "...and is UNKNOWN rather than STRANDED")
     finally:
-        mc._git = saved_git
+        mc._git_raw = saved_git_raw
 
-    saved_git = mc._git
-    mc._git = lambda *args: (
-        (128, "") if args and args[0] == "--literal-pathspecs"
-        and "--quiet" in args else saved_git(*args))
+    saved_git_raw = mc._git_raw
+    mc._git_raw = lambda *args: (
+        (128, b"") if args and args[0] == "--literal-pathspecs"
+        and "--quiet" in args else saved_git_raw(*args))
     try:
         rc, out = run(["--no-fetch", "--base", "squash-base",
                        "squash-feature"])
@@ -190,7 +191,7 @@ def _squash_and_error_cases(fx):
         case("path-comparison-error-word", "UNKNOWN" in out, True,
              "...and is UNKNOWN rather than STRANDED")
     finally:
-        mc._git = saved_git
+        mc._git_raw = saved_git_raw
 
 
 def _rename_and_pathspec_cases(fx):
