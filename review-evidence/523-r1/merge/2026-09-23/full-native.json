@@ -1,0 +1,49 @@
+{
+  "cwd": "$LANES/523-cand-full-native",
+  "head": "18271bebbd1a4abf2e32e7783477573114e2a5fa",
+  "base": "ede8d48ecd7c7f589a14b957951f040d92c99c70",
+  "commands": [
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/523-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/523-candidate-0923/full-suite-logs",
+      "--wait"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/523-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "syn/yosys/run.sh",
+      "--results",
+      "$VALIDATION_STORAGE/523-candidate-0923/yosys-results"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/523-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "bash",
+      "-c",
+      "cd protocol-processor && bash scripts/run_suites.sh"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/523-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "make",
+      "-C",
+      "gptp-processor",
+      "all"
+    ],
+    [
+      "env",
+      "PATH=$VALIDATION_STORAGE/523-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+      "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+      "behave",
+      "tests/features"
+    ]
+  ]
+}
