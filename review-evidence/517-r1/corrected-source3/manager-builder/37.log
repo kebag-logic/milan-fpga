@@ -1,0 +1,100 @@
+parameterised modules with no elaboration contract (82 of 106):
+   gptp-processor/hdl/common/KL_gptp_timer.sv:KL_gptp_timer
+   gptp-processor/hdl/top/KL_gptp_engine.sv:KL_gptp_engine
+   gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv:KL_gptp_ucpu
+   gptp-processor/hdl/wire/KL_gptp_tx_slot.sv:KL_gptp_tx_slot
+   hdl/common/KL_link_guard.sv:KL_link_guard
+   hdl/common/axis_mux_rr_2in_1out.sv:axis_mux_rr_2in_1out
+   hdl/common/cdc_handshake.sv:cdc_handshake
+   hdl/common/cdc_pair_fifo.sv:cdc_pair_fifo
+   hdl/common/cdc_pulse.sv:cdc_pulse
+   hdl/common/csr/milan_csr.sv:milan_csr
+   hdl/common/eth_event_counter/KL_mac_rmon_events.sv:KL_mac_rmon_events
+   hdl/common/eth_event_counter/ethernet_events.sv:ethernet_events
+   hdl/common/eth_event_counter/event_counter.sv:event_counter
+   hdl/common/tx_ifg_gasket.sv:tx_ifg_gasket
+   hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv:KL_aaf_latency_tap_bank
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_chain
+   hdl/ieee1722/aaf/KL_aaf_latency_taps.sv:KL_aaf_latency_taps
+   hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:KL_aaf_rx_depacketizer
+   hdl/ieee1722/aaf/KL_aes3_rx.sv:KL_aes3_rx
+   hdl/ieee1722/aaf/KL_aes3_tx.sv:KL_aes3_tx
+   hdl/ieee1722/aaf/KL_chan_map_capture.sv:KL_chan_map_capture
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:KL_chan_map_render
+   hdl/ieee1722/aaf/KL_i2s_playback.sv:KL_i2s_playback
+   hdl/ieee1722/aaf/KL_lat_history_ring.sv:KL_lat_history_ring
+   hdl/ieee1722/aaf/KL_media_adv.sv:KL_media_adv
+   hdl/ieee1722/aaf/KL_pcm_route.sv:KL_pcm_route
+   hdl/ieee1722/aaf/KL_tdm_capture.sv:KL_tdm_capture
+   hdl/ieee1722/aaf/KL_tdm_render.sv:KL_tdm_render
+   hdl/ieee1722/aaf/KL_tone_gen.sv:KL_tone_gen
+   hdl/ieee1722/aaf/aaf_talker_i2s.sv:aaf_talker_i2s
+   hdl/ieee1722/avtp/KL_avtp_common_parser.sv:KL_avtp_common_parser
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv:KL_avtp_rx_monitor
+   hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:KL_avtp_rx_monitor_ctx
+   hdl/ieee1722/avtp/KL_stream_table.sv:KL_stream_table
+   hdl/ieee1722/avtp/avtp_stream_parser.sv:avtp_stream_parser
+   hdl/ieee1722/crf/KL_crf_rx.sv:KL_crf_rx
+   hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:KL_mmcm_drp_servo
+   hdl/ieee1722/maap/KL_maap.sv:KL_maap
+   hdl/ieee17221/adp/adp_tx_arbiter.sv:adp_tx_arbiter
+   hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:KL_ptp_clock_validity
+   hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:ptp_csr_sync
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv:ptp_ts_core
+   hdl/ieee8021as/ptp_timestamp/ptp_ts_top.sv:ptp_ts_top
+   hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:timestamp_counter
+   hdl/ieee8021q/filtering/tcam.sv:tcam
+   hdl/ieee8021q/ts/credit_based_shaper.sv:credit_based_shaper
+   hdl/ieee8021q/ts/traffic_class_map.sv:traffic_class_map
+   hdl/ieee8021q/ts/traffic_classifier.sv:traffic_classifier
+   hdl/ieee8021q/ts/traffic_controller_802_1q.sv:traffic_controller_802_1q
+   hdl/ieee8021q/ts/traffic_queues.sv:traffic_queues
+   hdl/ieee8021q/ts/traffic_shaping_core.sv:traffic_shaping_core
+   hdl/milan/KL_pp_maap_shim.sv:KL_pp_maap_shim
+   hdl/milan/KL_pp_shadow.sv:KL_pp_shadow
+   protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv:KL_acmp_nvm_shadow
+   protocol-processor/hdl/acmp/KL_acmp_talker.sv:KL_acmp_talker
+   protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv:KL_pp_acmp_listener
+   protocol-processor/hdl/adp/KL_adp_engine.sv:KL_adp_engine
+   protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv:KL_aecp_ca_originator
+   protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv:KL_aecp_dyn_state
+   protocol-processor/hdl/aecp/KL_aecp_notify.sv:KL_aecp_notify
+   protocol-processor/hdl/aecp/KL_aecp_ucpu.sv:KL_aecp_ucpu
+   protocol-processor/hdl/common/KL_pp_timer_service.sv:KL_pp_timer_service
+   protocol-processor/hdl/maap/KL_pp_maap.sv:KL_pp_maap
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch
+   protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv:KL_pp_dispatch_fifo
+   protocol-processor/hdl/packet_engine/KL_pp_event_router.sv:KL_pp_event_router
+   protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv:KL_pp_nvm_port
+   protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv:KL_pp_rx_slots
+   protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:KL_pp_rx_validator
+   protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv:KL_pp_scoreboard
+   protocol-processor/hdl/packet_engine/KL_pp_side_port.sv:KL_pp_side_port
+   protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv:KL_pp_trace_ring
+   protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv:KL_pp_tx_arbiter
+   protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv:KL_pp_tx_slots
+   protocol-processor/hdl/srp/KL_srp_admission.sv:KL_srp_admission
+   protocol-processor/hdl/srp/KL_srp_decoder.sv:KL_srp_decoder
+   protocol-processor/hdl/srp/KL_srp_domain.sv:KL_srp_domain
+   protocol-processor/hdl/srp/KL_srp_listener_fsm.sv:KL_srp_listener_fsm
+   protocol-processor/hdl/srp/KL_srp_talker_fsm.sv:KL_srp_talker_fsm
+   protocol-processor/hdl/srp/KL_srp_top.sv:KL_srp_top
+   protocol-processor/hdl/srp/KL_srp_vlan.sv:KL_srp_vlan
+   protocol-processor/hdl/top/KL_mrp_strip.sv:KL_mrp_strip
+
+measured shell population: 24 shell scripts, 5 workflow files, 96 Makefiles (recipe lines); Python and Tcl are not measured
+
+pipelines that discard their producer's exit code (4):
+   gptp-processor/syn/ooc/run.sh:34  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" ucpu_util.rpt | head -20
+   gptp-processor/syn/ooc/run.sh:36  grep -A2 "Slice LUTs\|Block RAM Tile\|DSPs" engine_util.rpt | head -20
+   tb/verilator/avtp_rxmon/Makefile:56  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+   tb/verilator/maap/Makefile:27  verilator_coverage --annotate cov_annotated --annotate-min 1 coverage.dat | tail -2
+
+captured verdicts whose exit status is discarded (0):
+
+waived by site, with a reason (2):
+   .github/workflows/rtl-fast.yml:104  the grep IS the version assertion; its status is the verdict
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
