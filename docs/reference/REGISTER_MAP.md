@@ -30,8 +30,9 @@ silently refused as required. The inventory is synchronized between
 
 The command-change notifications, root-observed Milan Table 5.22 triggers, and
 departing-controller monitor are live since 0x0055. Remaining gaps include the
-root-level IDENTIFY indication, saved-state persistence, the declared CRF
-Stream Input's counter bank, and commands outside the served inventory. Milan
+root-level IDENTIFY indication, saved-state persistence, and commands outside
+the served inventory. The declared CRF Stream Input's counter bank is served
+and pushed since #529 (see the `0x738` group). Milan
 Delta 7 `ACQUIRE_ENTITY` receives the command-specific `NOT_SUPPORTED`
 response with a zero owner.
 
@@ -868,31 +869,48 @@ undeclared index still answers NO_SUCH_DESCRIPTOR with the empty body.
 
 #### Closure criteria for the CRF Stream Input counter gap
 
-Closed by #529. Each criterion, with the evidence that closes it:
+Closed by #529. Each criterion is quoted as it was frozen, followed by the
+evidence that closes it. Every `[CTRS-CRF]` check named here runs on the
+4x4, divergent 4x4, 8x8 and shipping Arty 4x4 `tb/verilator/milan_dp` legs.
 
-1. **The complete `KL_crf_rx` Table 5.16 bank on the root solicited gather
-   face for STREAM_INPUT index `N_STREAMS`.** All ten outputs are connected.
-   `tb/verilator/milan_dp` `[CTRS-CRF]` seeds a distinct full-width signature
-   into each tally and reads every quadlet back through the processor's
-   response, on the 4x4, divergent 4x4, 8x8 and shipping Arty 4x4 legs.
-2. **The correct valid mask and counter words, and the empty response kept
-   for undeclared indices.** `[CTRS-CRF]` grades the SUCCESS response (cdl
-   148, mask `0xF3F`, every unclaimed quadlet zero) from reset and after the
-   not-bound to bound wipe. It drives the 32-bit wrap of FRAMES_RX (interval
-   law) and STREAM_INTERRUPTED (per-event law) with real PDUs, and requires
-   NO_SUCH_DESCRIPTOR with an empty body at `N_STREAMS + 1`.
-3. **The CRF dirty source on the rate-limited Table 5.22 scheduler.**
-   `[CTRS-CRF]` sees the bind edge reach the descriptor arbiter as
-   {STREAM_INPUT, `N_STREAMS`} and as nothing else. On the timed `obj_notify`
-   leg, `[NOTIFY-CRF]` sees the push reach both registered controllers,
-   byte-identical from the body on to the solicited answer, and a second
-   change withheld until the one-second limit releases it.
-4. **Root-wire tests for reset, wrap, descriptor isolation and controller
-   decoding.** The checks above fail under each recorded wiring mutation:
-   the row removed, two quadlets permuted, a 16-bit slice, a claimed tv pair,
-   the dirty source removed, the CRF row answering for the AAF inputs, the
-   AAF guard answering for the CRF input, and one tally unwired. Confirmation
-   by a Milan controller on silicon follows the merge (#117).
+1. *"Connect the complete `KL_crf_rx` Table 5.16 bank to the root solicited
+   gather face for STREAM_INPUT index `N_STREAMS`."* All ten outputs are
+   connected, and two `[CTRS-CRF]` arms grade the two halves of each path.
+   The signature arm writes a distinct full-width value into each root tally
+   wire by name and reads every quadlet back through the processor's
+   response. It grades the gather mux, wire to quadlet, and cannot see which
+   engine output drives a wire. The event arm seeds no tally. It moves each
+   of the ten through its own `KL_crf_rx` event to a count no other tally
+   shares: real PDUs of the followed stream, and for MEDIA_UNLOCKED the
+   engine's own 100 ms silence timeout (the harness advances that timeout
+   counter to its last millisecond, which runs for real). So each quadlet in
+   the table above is shown to carry the output it names.
+2. *"Return the correct compact valid mask and counter words for that
+   declared descriptor while preserving the empty response for undeclared
+   indices."* The compact mask is Milan Table 5.16 at the IEEE Table 7-157
+   offsets, `0xF3F` (above). `[CTRS-CRF]` grades the SUCCESS response (cdl
+   148) from reset, and the mask `0xF3F` with every unclaimed quadlet zero
+   from reset, after the not-bound to bound wipe and after the event arm. It
+   drives the 32-bit wrap of FRAMES_RX (interval law) and STREAM_INTERRUPTED
+   (per-event law) with real PDUs, and requires NO_SUCH_DESCRIPTOR with an
+   empty body at `N_STREAMS + 1`.
+3. *"Connect the CRF dirty source to the rate-limited Table 5.22
+   scheduler."* `[CTRS-CRF]` sees the bind edge reach the descriptor arbiter
+   as {STREAM_INPUT, `N_STREAMS`} and as nothing else. On the timed
+   `obj_notify` leg, `[NOTIFY-CRF]` sees the push reach both registered
+   controllers, byte-identical from the body on to the solicited answer. A
+   second change is withheld until the one-second limit releases it, and the
+   next two seconds without a change bring no further push.
+4. *"Add root-wire tests for reset, wrap, descriptor isolation, and
+   controller decoding before treating the CRF input counter duty as
+   closed."* The checks above cover each. Each of these wiring mutations
+   turns at least one of them red: the row removed, two quadlets permuted, a
+   16-bit slice, a claimed tv pair, the dirty source removed, the CRF row
+   answering for the AAF inputs, the AAF guard answering for the CRF input,
+   one tally unwired, and the row's pending bit never cleared. Each of the 45
+   pairwise exchanges of the ten `KL_crf_rx` output bindings at the instance
+   turns both of its quadlets red on the 4x4 and 8x8 legs. Confirmation by a
+   Milan controller on silicon follows the merge (#117).
 
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 

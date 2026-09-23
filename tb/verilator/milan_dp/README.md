@@ -504,22 +504,34 @@ that Stream Input at index `N_STREAMS`, and its ten Milan Table 5.16 counters
 are `KL_crf_rx`'s. On every broad `sim_nxn` leg, before the 5.3.8.7 section
 binds the sink, the section reads `GET_COUNTERS(STREAM_INPUT, N_STREAMS)`
 through the processor. It checks the full SUCCESS response from reset (cdl 148,
-mask `0xF3F`, ten zeros, every unclaimed quadlet zero). It seeds a distinct
-full-width signature into each tally and reads each quadlet back, with
-`CRF_STATUS` as the second reader of three of them. It proves that no AAF input
-carries a CRF quadlet or loses `0xFFF`, and that index `N_STREAMS + 1` is still
-NO_SUCH_DESCRIPTOR with the empty body. Raising the bench lever at `0x738` is
-the not-bound to bound edge. It must wipe the row and reach the descriptor
-arbiter as {STREAM_INPUT, `N_STREAMS`} alone. Real PDUs of the followed stream
-then carry FRAMES_RX (interval law) and STREAM_INTERRUPTED (per-event law)
-from `0xFFFFFFFF` through zero. The timed leg's `[NOTIFY-CRF]` raises the
-same edge with two controllers registered. The push must reach both
-controllers, byte-identical from the body on to the solicited answer, and a
-second edge inside the same processor second is withheld until the
-one-second limit releases it once. Each check fails under its wiring
-mutation: the row removed, two quadlets permuted, a 16-bit slice, a claimed tv
-pair, the dirty source removed, the CRF row answering for the AAF inputs, the
-AAF guard answering for the CRF input, and one tally unwired.
+mask `0xF3F`, ten zeros, every unclaimed quadlet zero). It writes a distinct
+full-width signature into each root tally wire by name and reads each quadlet
+back, with `CRF_STATUS` as the second reader of three of them. That arm grades
+the gather mux only: it cannot see which `KL_crf_rx` output drives a wire. It
+proves that no AAF input carries a CRF quadlet or loses `0xFFF`, and that index
+`N_STREAMS + 1` is still NO_SUCH_DESCRIPTOR with the empty body. Raising the
+bench lever at `0x738` is the not-bound to bound edge. It must wipe the row and
+reach the descriptor arbiter as {STREAM_INPUT, `N_STREAMS`} alone. Real PDUs
+of the followed stream then carry FRAMES_RX (interval law) and
+STREAM_INTERRUPTED (per-event law) from `0xFFFFFFFF` through zero. Last, in a
+fresh era and with no tally seeded, each of the ten is moved by its own engine
+event to a count no other tally shares. The events are rejected PDUs, sequence
+gaps of one and of two or more, two runs of eight clean PDUs that each lock,
+`mr` toggles, `tu` bits, timestamps in the past and beyond the early limit,
+and the engine's 100 ms silence timeout for the unlock. The harness advances
+that timeout counter to its last millisecond, which runs for real. This arm
+grades each `KL_crf_rx` output binding, not only the mux. The timed leg's
+`[NOTIFY-CRF]` raises the same edge with two controllers registered. The push
+must reach both controllers, byte-identical from the body on to the solicited
+answer. A second edge inside the same processor second is withheld until the
+one-second limit releases it, and the next two seconds without a change bring
+no further push. Each of these wiring mutations turns at least one of those
+checks red: the row removed, two quadlets permuted, a 16-bit slice, a claimed
+tv pair, the dirty source removed, the CRF row answering for the AAF inputs,
+the AAF guard answering for the CRF input, one tally unwired, and the row's
+pending bit never cleared. Each of the 45 pairwise exchanges of the ten
+`KL_crf_rx` output bindings turns both of its quadlets red on `obj_nxn` and
+`obj_nxn8`.
 
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
 `GET_AUDIO_MAP` succeeds on both Stream Port directions, and

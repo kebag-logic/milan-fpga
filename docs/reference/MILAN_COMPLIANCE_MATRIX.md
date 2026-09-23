@@ -123,7 +123,7 @@ input, are silently refused.
 | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
 | 5.4.2.23 | GET_AVB_INFO | implemented | propagation delay served from the measured word since 0x0055 (audit B8 closed) |
 | 5.4.2.24 | GET_AS_PATH | implemented | staged publish/cutover contract; option-off aliasing recorded in audit B6 |
-| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg |
+| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures through the gather mux, each counter moved by its own `KL_crf_rx` event to a distinct count, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg |
 | 5.4.2.26 | GET_AUDIO_MAP (both directions) | implemented | PP pp_top |
 | 5.4.2.27 / .28 | ADD/REMOVE_AUDIO_MAPPINGS | implemented | atomic validation, live datapath projection, lock checks, unsolicited updates (2026-08-17) |
 | 5.4.2.29 | GET_DYNAMIC_INFO (IEEE Section 7.4.76) | implemented | completed 2026-08-17; never answers `IN_PROGRESS`, satisfying Section 7.4.76's support rule |
