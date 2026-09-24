@@ -1,0 +1,30 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 141,
+ "seconds": 19.1,
+ "results": [
+  {
+   "label": "X1 verifier returns 1 before the CRC through a token-joining splice of `return`",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destination must be exactly one: the copy loop's store is the one store this unit makes whose address is a range, and a verifier whose copy this lattice can no longer bound is a verifier whose destination this gate cannot place, which is a REFUSAL, not a residual"
+  },
+  {
+   "label": "X2 verifier returns 1 before the CRC through a ## paste of `return`",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware resolves 0 bounded store(s) in load_aem_image() (none) where the AEM copy loop's destination must be exactly one: the copy loop's store is the one store this unit makes whose address is a range, and a verifier whose copy this lattice can no longer bound is a verifier whose destination this gate cannot place, which is a REFUSAL, not a residual"
+  },
+  {
+   "label": "X3 control: verifier returns 1 before the CRC, spelled plainly",
+   "verdict": "REFUSED",
+   "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "X4 identity sample forged through the libc header's __CONCAT paste (no firmware #define)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

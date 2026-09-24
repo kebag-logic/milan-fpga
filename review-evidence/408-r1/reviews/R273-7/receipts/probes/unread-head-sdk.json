@@ -1,0 +1,20 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 135,
+ "seconds": 9.6,
+ "results": [
+  {
+   "label": "U1 a `<%:` pair (punctuators `<%` and `:`) in a UART command handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment"
+  },
+  {
+   "label": "U0 control: shipping firmware",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

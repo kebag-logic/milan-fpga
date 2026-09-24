@@ -1,0 +1,108 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [
+  "<packet>/cases/disconnect-allowlist.patch.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 0,
+ "seconds": 77.9,
+ "results": [
+  {
+   "label": "the CSR identity sample forged by a paste whose #define sits behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "the CSR identity sample forged by a paste whose #define sits behind a byte-order mark mutation was rejected for the wrong reason: a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "a second source #included behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a second source #included behind a byte-order mark mutation was rejected for the wrong reason: the firmware's include set is pinned, and \"milan_bringup.c\" is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  },
+  {
+   "label": "a #line behind a byte-order mark",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a #line behind a byte-order mark mutation was rejected for the wrong reason: the firmware's preprocessing directives are pinned, and '#line' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head) mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head) mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head) mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head)",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head) mutation passed the boot-contract gate"
+  },
+  {
+   "label": "the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "the identity sample forged between two directive names GCC reads with U+00B7, in milan_init() mutation was rejected for the wrong reason: under the arm selection line 1442 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1443 `#if\u00b7x`: arm 1 of 1 taken; line 1446 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): CSR identity guard must consume the unmodified MILAN_ID sample: no assignment, increment or pointer write may replace the value between its CSR read and mismatch comparison"
+  },
+  {
+   "label": "a window store between two directive lines a no-break space leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a window store between two directive lines a no-break space leads mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a window store between two directive lines a control the readers do not model (FS) leads",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a window store between two directive lines a control the readers do not model (FS) leads mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a byte that is not UTF-8, in a comment",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a byte that is not UTF-8, in a comment mutation passed the boot-contract gate"
+  },
+  {
+   "label": "a UTF-8 byte-order mark at the start of the file, which round two accepted",
+   "pin": [
+    "spells a character outside the allowlist of S"
+   ],
+   "ok": false,
+   "said": "a UTF-8 byte-order mark at the start of the file, which round two accepted mutation passed the boot-contract gate"
+  }
+ ]
+}

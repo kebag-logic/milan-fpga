@@ -1,0 +1,8 @@
+block.c -E rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+block.c -S rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+line.c -E rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+line.c -S rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+str.c -E rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+str.c -S rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=2 err=0
+chr.c -E rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=1 err=0
+chr.c -S rc=0 diag_lines=0 | -Winvalid-utf8 rc=0 warn=1 err=0

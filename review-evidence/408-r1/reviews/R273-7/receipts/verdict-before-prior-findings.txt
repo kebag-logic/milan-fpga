@@ -1,0 +1,21 @@
+R273-7 verdict and findings fixed BEFORE reading any prior review report or
+finding text on PR #535 (written after the independent pass over the round-5
+diff, the gate runs in both modes, the unchanged round-4 probes and the new
+round-5 probes):
+
+  Verdict: NEGATIVE (one open MINOR).
+  F1 MINOR Docs - sw/builder/test_builder.py:11291-11295 - the call-site
+     comment still states the unscoped proof claim "at the character level
+     every byte in every position is refused by S or read as GCC reads it
+     (round four)", and that on the spellings S admits the readers read a
+     directive "exactly" where GCC does, with no bound. It is the same
+     sentence class round five scoped at the three listed sites, and the
+     probe's out-of-table cells contradict it literally (29 + 3 S-admitted
+     cells where GCC refuses the file and the readers read names, 4 where
+     the readers refuse and GCC reads; all fail safe, none a protection gap).
+  S1 SUGGESTION Docs - the cost table names the lone `#` at end of file (the
+     table cell) but not a null directive elsewhere, which is refused
+     identically at dev and here on the directive-set pin.
+
+  Lenses: Conformance CLEAN, RTL CLEAN, Robustness CLEAN, Tests CLEAN,
+  Docs UNCLEAN (F1).

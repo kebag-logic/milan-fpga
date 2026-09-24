@@ -1,0 +1,35 @@
+{
+ "rev": "759da623072358afdb0e9d570a7b4b6a788492c9",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 5,
+ "seconds": 5.6,
+ "results": [
+  {
+   "label": "R273-7 N1 shipping firmware unchanged (control)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  },
+  {
+   "label": "R273-7 N2 a lone # at the end of the file, no newline",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "R273-7 N3 a lone # line at the end of the file",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "R273-7 N4 a lone # line after the first #include",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "R273-7 N5 a # then blanks at the end of the file",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  }
+ ]
+}
