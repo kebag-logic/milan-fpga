@@ -1,0 +1,34 @@
+# R267-2's published proof_mutants.py (unmodified; evidence tree ead93cd7 review-evidence/532-r1/reviews/R267-2/scripts), run against a scratch directory holding a byte-identical copy of the head proof script; its own unshare --user --map-current-user --net
+P00 SURVIVED (selftest rc 0): no-op control: a comment word changes
+P01 KILLED (selftest rc 1): isolation: the slot's internet reachability is no longer required
+     FAIL a slot cannot reach the probe name: exit 0, wanted 1 with 'FAIL isolation slot 1'
+P02 KILLED (selftest rc 1): slot-0 collision: any refusal counts, not act's global names
+     FAIL the slot-0 rival is refused for neither the tool cache nor a job volume: exit 0, wanted 1 with 'FAIL collision slot 0'
+P03 KILLED (selftest rc 1): complete: a run that printed every PASS counts whatever its exit status
+     FAIL a run passes every workflow and is then refused: exit 0, wanted 1 with 'FAIL serial-a did not complete'
+P04 KILLED (selftest rc 1): complete: a run whose FAILED line is followed by any exit status counts
+     FAIL a run fails a workflow and is then refused: exit 0, wanted 1 with 'FAIL serial-b did not complete'
+P05 KILLED (selftest rc 1): verify_runner: the recorded digest is not compared
+     FAIL the runner is not the recorded digest: exit 0, wanted 2 with 'is not the audited read-only install'
+P06 KILLED (selftest rc 1): verify_runner: a writable runner install is accepted
+     FAIL the runner install is group-writable: exit 0, wanted 2 with 'is not the audited read-only install'
+P07 KILLED (selftest rc 1): verify_runner: a non-empty log directory is accepted
+     FAIL the log directory is not empty: exit 0, wanted 2 with 'is not empty'
+P08 KILLED (selftest rc 1): isolation: the host-side reachability of both targets is not required (expected KILLED)
+     FAIL the isolation target is dead: exit 0, wanted 1 with 'FAIL isolation slot 1'
+     FAIL the host cannot reach the container: exit 0, wanted 1 with 'FAIL isolation slot 1'
+     FAIL the host cannot reach the published port while the container answers: exit 0, wanted 1 with 'FAIL isolation slot 1'
+P09 KILLED (selftest rc 1): overlap: neither run is required to be still unended (expected KILLED)
+     FAIL the parallel runs never overlap: exit 1, wanted 1 with 'FAIL overlap'
+     FAIL a run is refused before the other slot is taken: exit 1, wanted 1 with 'FAIL overlap'
+P10 KILLED (selftest rc 1): collide: a rival refused after the holder ended still counts (expected KILLED)
+     FAIL the rival is refused only after the holder left: exit 0, wanted 1 with 'FAIL collision slot 1'
+P11 KILLED (selftest rc 1): remove_target: a surviving target network is not reported
+     FAIL the isolation network survives removal: exit 0, wanted 1 with 'FAIL isolation target not proved absent'
+P12 KILLED (selftest rc 1): parse_arguments: slot A may equal slot B or be slot 0
+     FAIL slots A and B are the same slot: exit 1, wanted 2 with 'slots A and B must be two distinct isolated slots'
+     FAIL slot A is slot 0: exit 1, wanted 2 with 'slots A and B must be two distinct isolated slots'
+     FAIL slot B is slot 0: exit 1, wanted 2 with 'slots A and B must be two distinct isolated slots'
+P13 KILLED (selftest rc 1): interrupt gate: the runner's PASS line is not required
+     FAIL the interrupt gate prints no PASS line: exit 0, wanted 1 with 'FAIL interrupt self-test in slot 1'
+SUMMARY P00=SURVIVED P01=KILLED P02=KILLED P03=KILLED P04=KILLED P05=KILLED P06=KILLED P07=KILLED P08=KILLED P09=KILLED P10=KILLED P11=KILLED P12=KILLED P13=KILLED

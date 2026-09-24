@@ -1,0 +1,16 @@
+rc=0 python3 scripts/check_baremetal_only.py --check
+rc=0 python3 scripts/check_baremetal_only.py --selftest
+rc=0 python3 scripts/docs_check.py
+rc=0 python3 scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+rc=0 python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+rc=0 python3 scripts/check_py_idiom.py
+rc=0 python3 scripts/check_sh_idiom.py
+rc=0 python3 scripts/gen_toc.py --check
+rc=0 python3 scripts/gen_toc.py --verify-anchors
+rc=0 python3 scripts/check_doc_paths.py
+rc=0 python3 scripts/check_doc_style.py
+rc=0 python3 scripts/ci_events.py --check
+rc=0 python3 scripts/check_feature_status.py
+rc=0 git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9..HEAD
+rc=0 git diff --check f5497170a2c444e01175683606310dbe7fbb2816..HEAD
+rc=0 bash -n scripts/act_slot_proof.sh

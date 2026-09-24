@@ -1,0 +1,56 @@
+# git diff --diff-algorithm=histogram f5497170a2c444e01175683606310dbe7fbb2816..604297bb41d6c8005d07539289b10bfa99273cdd: files, then hunk headers
+ docs/testing/CI_WORKFLOWS.md |  81 +++++++++++++++++++++++---------
+ scripts/act_ci.py            |  85 ++++++++++++++++++++++++---------
+ scripts/act_slot_proof.sh    | 109 +++++++++++++++++++++++++++++++++++--------
+ 3 files changed, 211 insertions(+), 64 deletions(-)
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+@@ -1766,6 +1766,11 @@ them:
+@@ -1816,16 +1821,24 @@ Resource bounds:
+@@ -1938,14 +1951,38 @@ code's live behaviour is proved with an independently audited install:
+@@ -1982,9 +2019,11 @@ The offline self-test of the runner pins:
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+@@ -151,10 +151,12 @@ SLOT_LABEL = "org.kebag-logic.milan-act-ci.slot"
+@@ -4451,12 +4453,18 @@ def release_replay_slot(lease: SlotLease, *, host: SlotHost) -> None:
+@@ -4464,6 +4472,7 @@ def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str
+@@ -4479,7 +4488,10 @@ def require_slot_memory_cap_unexhausted(slot: ReplaySlot, host: SlotHost) -> str
+@@ -4492,8 +4504,9 @@ def replay_slot(
+@@ -10813,7 +10826,8 @@ class FakeSlotHost:
+@@ -10847,6 +10861,8 @@ class FakeSlotHost:
+@@ -11108,20 +11124,27 @@ def drive_fake_slot(
+@@ -12163,17 +12186,18 @@ def selftest_slot_wiring(tally: SelftestTally) -> None:
+@@ -12183,6 +12207,8 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+@@ -12205,6 +12231,19 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+diff --git a/scripts/act_slot_proof.sh b/scripts/act_slot_proof.sh
+@@ -39,7 +39,9 @@
+@@ -273,7 +275,7 @@ remove_target() {
+@@ -374,10 +376,14 @@ def value(flag, default):
+@@ -390,11 +396,19 @@ with open(state / f"runs-{slot}-{pr}", "a+") as runs:
+@@ -406,11 +420,16 @@ try:
+@@ -422,8 +441,11 @@ try:
+@@ -449,11 +471,11 @@ def answers(specs, inside):
+@@ -464,6 +486,8 @@ if args[0] == "docker":
+@@ -472,9 +496,11 @@ if args[0] == "docker":
+@@ -493,17 +519,36 @@ EOF
+@@ -528,19 +573,43 @@ selftest() {
+# net change against merged dev
+ docs/testing/CI_WORKFLOWS.md    |  344 ++++-
+ scripts/act_ci.py               | 2886 +++++++++++++++++++++++++++++++++++++--
+ scripts/act_slot_proof.sh       |  635 +++++++++
+ scripts/check_baremetal_only.py |  115 +-
+ 4 files changed, 3864 insertions(+), 116 deletions(-)
+# commits f5497170..604297bb (one line each)
+604297bb d47dc360 | Pin that a FAILED slot run whose slice sat at its memory cap without an OOM keeps its FAILED (#532) | body-lines=
+d47dc360 317a158d | Say why no self-test case reaches the live proof's ten-PASS backstop (#532) | body-lines=
+317a158d 9145a06c | Document that the slot cap check detects only an OOM at the cap, that DOCKER-USER egress policy misses slots, and every case of the proof's self-test (#532) | body-lines=
+9145a06c 3a768c4f | Print how often a slot hit its memory cap beside its peak, refuse events without that count, and say only an OOM at the cap is refused (#532) | body-lines=
+3a768c4f f5497170 | Give the live slot proof's self-test a failing case for every check it grades, including the slot's probe-name reach, the host's published-port reach and the slot-0 rival's refusal reason (#532) | body-lines=
+604297bb body-lines-after-subject=0
+d47dc360 body-lines-after-subject=0
+317a158d body-lines-after-subject=0
+9145a06c body-lines-after-subject=0
+3a768c4f body-lines-after-subject=0
+# blob ids of the touched files at the head, live dev 26d855a9 and merged dev 759da623
+scripts/act_ci.py head=2d78445a8ee72485a97076f35b8692dd9b561086 dev26d855a9=794794b12a43e37a551b732fb51b2890ebc93a2a dev759da623=794794b12a43e37a551b732fb51b2890ebc93a2a
+docs/testing/CI_WORKFLOWS.md head=6233e702d838535b8b037e0b24d2f604a15b245d dev26d855a9=a22a2828b43733599fd24c52baf5c926a039dddb dev759da623=a22a2828b43733599fd24c52baf5c926a039dddb
+scripts/check_baremetal_only.py head=b488d3c21f7218adf6dbfd05e47bcb2070dc54c8 dev26d855a9=73770b17136f12954b7d7418c65ce19c158a3b32 dev759da623=73770b17136f12954b7d7418c65ce19c158a3b32
+scripts/act_slot_proof.sh head=6f06498e1262aad68909e7a064d4fc5f0488897e absent at both dev commits

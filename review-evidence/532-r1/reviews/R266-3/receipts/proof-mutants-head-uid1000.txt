@@ -1,0 +1,59 @@
+# R266-3 proof mutants of scripts/act_slot_proof.sh sha256 3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7 (head 604297bb), mode uid1000
+# built by scripts/proof_mutants.py, run one at a time by scripts/run_proof_mutants.sh inside scripts/sandbox.sh uid1000
+X00 SURVIVED rc=0 mode=uid1000 | control: a comment-only edit | failing cases: none
+A01 KILLED rc=1 mode=uid1000 | numeric-slot check removed | failing cases: slot A is not a number
+A02 SURVIVED rc=0 mode=uid1000 | numeric check skips the serial slot | failing cases: none
+A03 SURVIVED rc=0 mode=uid1000 | numeric check skips slot B | failing cases: none
+A04 KILLED rc=1 mode=uid1000 | slot A == slot B accepted | failing cases: slots A and B are the same slot
+A05 KILLED rc=1 mode=uid1000 | slot A == 0 accepted | failing cases: slot A is slot 0
+A06 KILLED rc=1 mode=uid1000 | slot B == 0 accepted | failing cases: slot B is slot 0
+B01 KILLED rc=1 mode=uid1000 | digest comparison removed | failing cases: the runner is not the recorded digest
+B02 KILLED rc=1 mode=uid1000 | write-bit test removed | failing cases: the runner install is group-writable
+B03 SURVIVED rc=0 mode=uid1000 | non-root writability test removed (documented: no case) | failing cases: none
+B04 KILLED rc=1 mode=uid1000 | non-empty log directory accepted | failing cases: the log directory is not empty
+B05 KILLED rc=1 mode=uid1000 | verify_runner never called | failing cases: the runner is not the recorded digest;the runner install is group-writable;the log directory is not empty
+C01 KILLED rc=1 mode=uid1000 | complete always true | failing cases: every run refuses after taking its slot;a run stops before its last workflow;a run passes every workflow and is then refused;a run fails a workflow and is then refused;a parallel run refuses like its serial reference;a collision holder refuses like its serial reference
+C02 KILLED rc=1 mode=uid1000 | completion ignores exit status on success | failing cases: a run passes every workflow and is then refused
+C03 KILLED rc=1 mode=uid1000 | completion ignores exit status on failure | failing cases: a run fails a workflow and is then refused
+C04 KILLED rc=1 mode=uid1000 | exit 0 with any PASS prefix completes | failing cases: a run stops before its last workflow
+C05 KILLED rc=1 mode=uid1000 | reference records PASS without completion | failing cases: every run refuses after taking its slot;a run stops before its last workflow;a run passes every workflow and is then refused;a run fails a workflow and is then refused
+C06 KILLED rc=1 mode=uid1000 | compare skips completion | failing cases: a parallel run refuses like its serial reference
+C07 KILLED rc=1 mode=uid1000 | compare skips the verdict comparison | failing cases: a slot changes a verdict
+C08 KILLED rc=1 mode=uid1000 | verdict file keeps PASS lines only | failing cases: honest, where PR B fails its second workflow;a slot changes a verdict
+D01 KILLED rc=1 mode=uid1000 | replay never passes the slot | failing cases: honest, where PR B fails its second workflow;a slot changes a verdict;a slot reaches the default daemon's container;a slot reaches the container's published port;a slot cannot reach the probe name;the isolation target is dead;the host cannot reach the container;the host cannot reach the published port while the container answers;the slot-0 rival is refused for neither the tool cache nor a job volume
+D02 KILLED rc=1 mode=uid1000 | isolated-slot holder marker is the slot-0 marker | failing cases: a run never reports its own slot daemon
+D03 KILLED rc=1 mode=uid1000 | ended ignores refusals | failing cases: a run is refused before the other slot is taken
+D04 KILLED rc=1 mode=uid1000 | ended ignores verdicts | failing cases: the parallel runs never overlap;the rival is refused only after the holder left
+D05 KILLED rc=1 mode=uid1000 | overlap does not wait for slot A's holder | failing cases: the parallel runs never overlap
+D06 SURVIVED rc=0 mode=uid1000 | overlap does not wait for slot B's holder | failing cases: none
+D07 KILLED rc=1 mode=uid1000 | overlap ignores run A's verdict | failing cases: the parallel runs never overlap;a run is refused before the other slot is taken
+D08 SURVIVED rc=0 mode=uid1000 | overlap ignores run B's verdict | failing cases: none
+E01 KILLED rc=1 mode=uid1000 | interrupt gate ignores the runner's exit status | failing cases: the interrupt gate passes and is then refused
+E02 KILLED rc=1 mode=uid1000 | interrupt gate ignores the PASS line | failing cases: the interrupt gate prints no PASS line
+E03 KILLED rc=1 mode=uid1000 | interrupt gate ignores the slot teardown line | failing cases: the interrupt gate ignores its slot
+E04 SURVIVED rc=0 mode=uid1000 | interrupt gate accepts any slot's teardown line | failing cases: none
+F01 KILLED rc=1 mode=uid1000 | listener start failure ignored | failing cases: the isolation target cannot be started
+F02 KILLED rc=1 mode=uid1000 | target start failure not recorded | failing cases: the isolation target cannot be started
+F03 KILLED rc=1 mode=uid1000 | container presence after removal not checked | failing cases: the isolation container survives removal;the isolation target cannot be queried after removal
+F04 KILLED rc=1 mode=uid1000 | network presence after removal not checked | failing cases: the isolation network survives removal
+F05 KILLED rc=1 mode=uid1000 | failed container query read as absent | failing cases: the isolation target cannot be queried after removal
+F06 SURVIVED rc=0 mode=uid1000 | failed network query read as absent | failing cases: none
+F07 KILLED rc=1 mode=uid1000 | target not removed before the collisions | failing cases: the isolation container survives removal;the isolation network survives removal;the isolation target cannot be queried after removal
+G01 KILLED rc=1 mode=uid1000 | slot may reach the container | failing cases: a slot reaches the default daemon's container
+G02 KILLED rc=1 mode=uid1000 | slot may reach the published port | failing cases: a slot reaches the container's published port
+G03 KILLED rc=1 mode=uid1000 | slot need not reach the probe name | failing cases: a slot cannot reach the probe name
+G04 KILLED rc=1 mode=uid1000 | host reach not required | failing cases: the isolation target is dead;the host cannot reach the container;the host cannot reach the published port while the container answers
+G05 KILLED rc=1 mode=uid1000 | host need not reach the container | failing cases: the host cannot reach the container
+G06 KILLED rc=1 mode=uid1000 | host need not reach the published port | failing cases: the host cannot reach the published port while the container answers
+G07 SURVIVED rc=0 mode=uid1000 | every slot's control probes slot A's namespace | failing cases: none
+G08 SURVIVED rc=0 mode=uid1000 | slot B's control is recorded from slot A's probe | failing cases: none
+H01 KILLED rc=1 mode=uid1000 | rival need not be refused before the holder's verdict | failing cases: the rival is refused only after the holder left
+H02 KILLED rc=1 mode=uid1000 | rival exit status not checked | failing cases: the rival names the slot lock but exits 1
+H03 KILLED rc=1 mode=uid1000 | rival refusal reason not checked | failing cases: the rival is refused for another reason;the slot-0 rival is refused for neither the tool cache nor a job volume
+H04 KILLED rc=1 mode=uid1000 | collision holder completion not checked | failing cases: a collision holder refuses like its serial reference
+H05 KILLED rc=1 mode=uid1000 | collision holder verdict not compared | failing cases: the collision holder changes its verdict
+H06 KILLED rc=1 mode=uid1000 | slot-A collision accepts any refusal | failing cases: the rival is refused for another reason
+H07 KILLED rc=1 mode=uid1000 | slot-0 collision accepts any refusal | failing cases: the slot-0 rival is refused for neither the tool cache nor a job volume
+H08 KILLED rc=1 mode=uid1000 | rival lateness judged from the rival | failing cases: the rival is refused only after the holder left
+I01 KILLED rc=1 mode=uid1000 | any FAIL line ignored when ten PASS | failing cases: the isolation container survives removal;the isolation network survives removal;the isolation target cannot be queried after removal
+I02 SURVIVED rc=0 mode=uid1000 | ten-PASS backstop removed (documented: no case) | failing cases: none
