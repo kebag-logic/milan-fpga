@@ -1,0 +1,30 @@
+{
+ "rev": "759da623072358afdb0e9d570a7b4b6a788492c9",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 7,
+ "seconds": 6.1,
+ "results": [
+  {
+   "label": "X1 verifier returns 1 before the CRC through a token-joining splice of `return`",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name"
+  },
+  {
+   "label": "X2 verifier returns 1 before the CRC through a ## paste of `return`",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either"
+  },
+  {
+   "label": "X3 control: verifier returns 1 before the CRC, spelled plainly",
+   "verdict": "REFUSED",
+   "reason": "AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary"
+  },
+  {
+   "label": "X4 identity sample forged through the libc header's __CONCAT paste (no firmware #define)",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

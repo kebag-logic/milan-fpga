@@ -1,0 +1,67 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+ok : second source pulled in by a ??= trigraph include
+ok : entity enabled through a phase-2-spliced call name
+ok : entity enabled through a space phase-2 token splice
+ok : entity enabled through a tab phase-2 token splice
+ok : entity enabled through a form-feed phase-2 token splice
+ok : entity enabled through a vertical-tab phase-2 token splice
+ok : entity enabled through a pasted call name
+ok : a pasted call name in an arm the stub tree drops
+ok : a spliced call name in an arm the stub tree drops
+ok : a spliced call name in an arm only the product compiles
+ok : a spliced call name onto a literal address in a dropped arm
+ok : the CSR identity sample forged by a splice of its name between its read and its mismatch guard
+ok : the CSR identity sample forged by a paste of its name
+ok : the CSR identity sample forged by a paste a second macro reaches
+ok : PP_CTRL's name redefined onto ADP_CTRL through a #define whose name a splice joins
+ok : the identity magic redefined as a fresh read of the sample
+ok : the identity magic redefined as the sample itself
+ok : entity enable hidden in a continuation-line macro body and invoked from a UART handler
+ok : entity enable hidden after form-feed macro continuation whitespace
+ok : the store primitive hidden in a macro whose #define a splice splits
+ok : open quotes in two #defines bracketing a product-only store
+ok : a raw string literal in a UART command handler
+ok : a ??/ trigraph ending a comment before a product-only arm
+BAD: the pre-AEM clear dropped by a product-only #ifndef behind a form feed
+    the pre-AEM clear dropped by a product-only #ifndef behind a form feed mutation passed the boot-contract gate
+BAD: the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab
+    the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab mutation passed the boot-contract gate
+BAD: the pre-AEM clear dropped by a product-only #ifndef behind a NUL
+    the pre-AEM clear dropped by a product-only #ifndef behind a NUL mutation passed the boot-contract gate
+BAD: the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends
+    the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends mutation was rejected for the wrong reason: firmware leaves a preprocessor conditional open
+BAD: the verifier's #else behind a lone CR, its hidden arm returning 1
+    the verifier's #else behind a lone CR, its hidden arm returning 1 mutation passed the boot-contract gate
+BAD: an #undef behind a form feed
+    an #undef behind a form feed mutation was rejected for the wrong reason: the compiled census could not build the firmware with $HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot compile is a source whose CSR stores it cannot census; ['      |                                          MILAN_PP_CTRL']
+BAD: a second source #included behind a form feed
+    a second source #included behind a form feed mutation was rejected for the wrong reason: the preprocessed-unit instrument could not preprocess the firmware with $HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, which IS the RV32 target: a source this gate cannot preprocess is a source whose boot path it cannot read as the compiler reads it; ['compilation terminated.']
+BAD: a second #error guard, its #error behind a vertical tab
+    a second #error guard, its #error behind a vertical tab mutation was rejected for the wrong reason: under the arm selection line 59 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the preprocessed-unit instrument could not preprocess the firmware with $HOME/...
+BAD: ADP_CTRL's name defined a second time behind a NUL
+    ADP_CTRL's name defined a second time behind a NUL mutation was rejected for the wrong reason: the compiled firmware asserts ADP_CTRL (CSR 0x600) bit 0 0 time(s) inside entity_advertise(); the choke point holds exactly one enable per register
+ok : entity enabled through a spliced call name in a UART command handler
+ok : entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+BAD: entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler
+    entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler mutation passed the boot-contract gate
+BAD: entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler
+    entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler mutation passed the boot-contract gate
+BAD: entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler
+    entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler mutation passed the boot-contract gate
+BAD: entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler
+    entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler mutation was rejected for the wrong reason: firmware leaves a preprocessor conditional open
+BAD: entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed
+    entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed mutation passed the boot-contract gate
+BAD: an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test
+    an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test mutation passed the boot-contract gate
+ok : entity enabled through a cast in the product's arm, behind an #else a splice splits
+ok : entity enabled through a cast in the second of two groups on CSR_UART_BASE
+ok : a boot step erased by a function-like macro of its own name
+PROBE DONE: 43 result(s), 184 compiles, 138.1 s
