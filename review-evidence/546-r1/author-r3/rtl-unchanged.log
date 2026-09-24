@@ -1,0 +1,17 @@
+Base: d04a61678c9fc710df9bc2cad5e1bcb9d8925ae1
+Head: 0c61d458941088f3847513b7c6fe6589c75b4270
+hdl/ieee1722/crf/KL_crf_rx.sv
+  base normalized sha256: a5957197ac77d20031d3c48a927c8f560081e5349819fe569283a9fed73e7171
+  head normalized sha256: a5957197ac77d20031d3c48a927c8f560081e5349819fe569283a9fed73e7171
+  raw bytes equal: False
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+  base normalized sha256: 72cc0db964d682d33563c26a93ff4c2c40a35545646cb5f5526a3f466ed23ade
+  head normalized sha256: 72cc0db964d682d33563c26a93ff4c2c40a35545646cb5f5526a3f466ed23ade
+  raw bytes equal: True
+PASS: comment-free RTL unchanged across 72 tracked HDL files
+Changed HDL bytes: hdl/ieee1722/crf/KL_crf_rx.sv
+base RATE_DRIFT_NS_C = 601 ( 32'h259 )
+base TS_JUMP_NS_C = 2048 ( 64'h800 )
+head RATE_DRIFT_NS_C = 601 ( 32'h259 )
+head TS_JUMP_NS_C = 2048 ( 64'h800 )
+PASS: both revisions elaborate TS_JUMP_NS_C to 2048 ns
