@@ -1,0 +1,34 @@
+== c593cbeffaffa647cda70fb1a233455bf9c80d55..e65dccfe
+range c593cbeffaffa647cda70fb1a233455bf9c80d55..e65dccfe586bea9455cf1e10397d275c220c740a: 6 changed paths
+  M 100644->100644 CHANGELOG.md
+  M 100644->100644 docs/reference/EGRESS_QUEUE_MAP.md
+  M 100644->100644 docs/reference/FR_NFR.md
+  M 100644->100644 docs/reference/REGISTER_MAP.md
+  M 100644->100644 docs/traceability/ieee8021q.md
+  M 100644->100644 hdl/milan/milan_datapath.sv
+  hdl/milan/milan_datapath.sv: stripped 327d63f941421dee vs 327d63f941421dee -> IDENTICAL
+canary 50e78097564244c124e1ec30dd8821f83951ab06..c593cbeffaffa647cda70fb1a233455bf9c80d55 milan_datapath.sv: DIFFERENT (must be DIFFERENT)
+RESULT PASS
+rc=0
+== 446e79b977640d13fa1e5dc0f9896d6c5a70391d..e65dccfe
+range 446e79b977640d13fa1e5dc0f9896d6c5a70391d..e65dccfe586bea9455cf1e10397d275c220c740a: 6 changed paths
+  M 100644->100644 CHANGELOG.md
+  M 100644->100644 docs/reference/EGRESS_QUEUE_MAP.md
+  M 100644->100644 docs/reference/FR_NFR.md
+  M 100644->100644 docs/reference/REGISTER_MAP.md
+  M 100644->100644 docs/traceability/ieee8021q.md
+  M 100644->100644 hdl/milan/milan_datapath.sv
+  hdl/milan/milan_datapath.sv: stripped 327d63f941421dee vs 327d63f941421dee -> IDENTICAL
+canary 50e78097564244c124e1ec30dd8821f83951ab06..c593cbeffaffa647cda70fb1a233455bf9c80d55 milan_datapath.sv: DIFFERENT (must be DIFFERENT)
+RESULT PASS
+rc=0
+== added/removed hdl lines c593cbef..e65dccfe that are not // comments:
+(end; grep rc=1)
+== tool metacomments in changed lines:
+-  //!   sum_r is ROUND-LATCHED and keeps the stopped stream's slope until the
++  //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
+-  //! shaper keeps the RAW verdict: it budgets every admitted declaration,
+-  //!   sum_r is ROUND-LATCHED and keeps the stopped stream's slope until the
++  //!   round. sum_r is ROUND-LATCHED, so 0x698 keeps a withdrawn
+-  //! shaper keeps the RAW verdict: it budgets every admitted declaration,
+(end; grep rc=0)

@@ -1,0 +1,248 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index e9ae01bf0..7311d4ded 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -38,8 +38,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - Only `LWSRP_STATUS[9]` and `LWSRP_SLOPE` keep the raw verdict.
+ - No shaper reads either: none is instantiated.
+ - ACTIVE can lead them by up to three admission rounds.
+-- That needs a Listener Ready registered at the declaration.
+-- That status skew is the corner's only effect.
++- That needs a Listener Ready decoded within those rounds.
++- Each declaration clears its registered Listener first.
++- For an admitted stream the lead is status skew only.
++- A refused stream keeps ACTIVE until that window ends.
++- It stays licensed for up to three rounds.
++- A controller reads a `STREAM_START` and `STREAM_STOP` pair.
++- The start resets the Table 5.4 interval counters.
++- At most one PDU per source can leave.
++- The CRF output shows this on `CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]`.
++- `LWSRP_STATUS[8]` shows source 0 only.
++- Issue #551 asks whether the licence should need the grant.
+ - A bound CRF talker also ended its own bursts.
+ - The processor pin moves to `09f9bf38` (processor issue 106).
+ - Its LeaveAll now flags every MSRP attribute type.
+diff --git a/docs/reference/EGRESS_QUEUE_MAP.md b/docs/reference/EGRESS_QUEUE_MAP.md
+index 3ed01a382..10e60c72a 100644
+--- a/docs/reference/EGRESS_QUEUE_MAP.md
++++ b/docs/reference/EGRESS_QUEUE_MAP.md
+@@ -76,12 +76,29 @@ could transmit against an unbudgeted slope.
+ 
+ That ordering does not hold for the shipping gate. Since #530 every talker gate
+ reads the processor's ACTIVE, which takes the processor's optimistic admission
+-window: with a Listener Ready already registered at a fresh declaration, ACTIVE
+-can open a source up to three admission rounds before the round that adds its
+-slope to the sum. In the shipping datapath the only effect is status skew:
+-`LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only
+-readers of the raw verdict and the sum, for those rounds
+-([REGISTER_MAP.md](REGISTER_MAP.md)). A lane that credit-shapes the fabric's own
++window: a fresh declaration counts as admitted until the end of the third
++admission round after it. The same declaration clears the source's registered
++Listener, so ACTIVE opens inside the window only if a Listener Ready or Ready
++Failed for the stream is decoded within those few cycles. The corner has two
++branches:
++
++- **Admitted.** ACTIVE can open the source up to three admission rounds before
++  `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only readers of the raw
++  verdict and the sum, include it. In the shipping datapath that lead is status
++  skew only.
++- **Refused.** ACTIVE does not fall inside the window. It falls at the window's
++  end, and the declaration then swaps to Talker Failed. For up to three rounds a
++  declaration the 75% ceiling refuses holds the emission licence and the Milan
++  v1.2 5.3.7.7 Table 5.4 streaming level. A controller reads a STREAM_START and
++  STREAM_STOP pair, the start resets MEDIA_RESET, TIMESTAMP_UNCERTAIN and
++  FRAMES_TX, and at most one PDU per source can leave, if its media event falls
++  in the window. ACTIVE still needs a registered Listener Ready or Ready Failed,
++  so nothing is emitted before one. Whether the licence should also need the
++  real grant is issue #551.
++
++Both show on the licensed source's own bits ([REGISTER_MAP.md](REGISTER_MAP.md)):
++`CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]` for the CRF output, and
++`LWSRP_STATUS[8]` for source 0 only. A lane that credit-shapes the fabric's own
+ sources derives its own slope/gate ordering rather than inheriting this one.
+ 
+ ## Why gPTP sits below the shaped classes
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 62d2ab133..eda537f1a 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -207,10 +207,16 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
+ > **Scope (VERSION `0x0002_0060`):** FR-CONN-02's queue/CBS programming and
+ > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
+ > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
+-> The obligation that survives, *no transmit without a grant*, is met at the
+-> AAF admission gate and the CRF licence from the processor's SRP class-D face:
+-> its ACTIVE, which needs a registered Listener Ready or Ready Failed as well as
+-> the grant (#530).
++> The obligation that survives, in FR-SRP-03's own words *on failure the stream
++> MUST NOT transmit*, is met at the AAF admission gate and the CRF licence from
++> the processor's SRP class-D face: its ACTIVE, which needs a registered
++> Listener Ready or Ready Failed and the processor's admission term (#530). That
++> term is the grant except inside the optimistic window, up to three admission
++> rounds after a fresh declaration, where it holds before the round's verdict.
++> So a declaration the admission round refuses can be licensed for up to three
++> rounds. Its licence stops at the window's end, when the verdict the talker
++> reads turns to refused and before the declaration swaps to Talker Failed
++> (issue #551).
+ 
+ ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
+ | ID | Requirement | Pri | Ver |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 5c545f552..522826ea7 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1109,11 +1109,27 @@ removing the slope, so the shaper was never asked to carry a stream whose
+ bandwidth was not yet budgeted, in either direction. No shaper is instantiated
+ now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
+ processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
+-`LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. When a
+-Listener Ready is already registered at a fresh declaration, the processor's
+-optimistic admission window can raise ACTIVE up to three admission rounds before
+-the round that adds the slope to the sum. The only effect is that
+-`LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` for those rounds.
++`LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. Its
++optimistic admission window counts a fresh declaration as admitted until the end
++of the third admission round after it. The declaration also clears the source's
++registered Listener, so ACTIVE rises inside the window only if a Listener Ready
++or Ready Failed for the stream is decoded within those few cycles. That corner
++has two branches:
++
++* **Admitted.** ACTIVE can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` by up to
++  three admission rounds. That status skew is this branch's whole effect.
++* **Refused.** `LWSRP_STATUS[7]` rises, but ACTIVE does not fall inside the
++  window: it falls at the window's end, and the declaration then swaps to Talker
++  Failed. For up to three rounds a declaration the 75 % ceiling refuses holds the
++  emission licence and the Milan v1.2 5.3.7.7 Table 5.4 streaming level. A
++  controller reads a STREAM_START and STREAM_STOP pair, the start resets
++  MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU per source
++  can leave, if its media event falls in the window. Whether the licence should
++  also need the real grant is issue #551.
++
++Both show on the licensed source's own bits. For the CRF output they are
++`CRFT_CTRL[6]`/`[7]` (`0x750`) and `LWSRP_STATUS[6]`. `LWSRP_STATUS[8]` is
++source 0's licence only, so it never shows the CRF output's corner.
+ After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next round.
+ 
+ While enabled the plane declares MSRP Domain (+ TalkerAdvertise) and the MVRP
+@@ -1148,8 +1164,8 @@ admits frames. **When those two disagree, the bypass is engaged** — on
+ | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[31:0]` (same packing as `AAF_DM*`). The applicant that read it is deleted; the processor takes its destination address from MAAP |
+ | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[47:32]` |
+ | `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor DERIVES its Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize from the wire width the framer was elaborated with, so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
+-| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's licence, the processor's ACTIVE (since #530; its raw admission verdict before), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; it can trail `[8]` by up to three admission rounds at a fresh declaration (#530), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
+-| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail `LWSRP_STATUS[8]` by up to three admission rounds at a fresh declaration (#530) |
++| `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's licence, the processor's ACTIVE (since #530; its raw admission verdict before), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; it can trail the licensed source's ACTIVE (`[6]`, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
++| `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, and it can trail the licensed source's ACTIVE (`LWSRP_STATUS[6]`, `[8]` for source 0, `CRFT_CTRL[6]` for the CRF output) by up to three admission rounds at a fresh declaration (#530) |
+ | `0x69C` | `LWSRP_CNT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` MRPDUs received / `[15:0]` MRPDUs sent. The serialiser and ingress path that counted them are deleted; the processor exchanges MRPDUs and publishes no PDU counters. Reservations still form — read `LWSRP_STATUS` and `LWSRP_DOM`, not this |
+ | `0x6A0` | `LWSRP_LATENCY` | RW | `0` | TalkerAdvertise AccumulatedLatency, ns — still LIVE: `milan_datapath` passes it to the processor as `cfg_acc_lat_ns_i` |
+ 
+diff --git a/docs/traceability/ieee8021q.md b/docs/traceability/ieee8021q.md
+index ff601e2dd..48b2834ad 100644
+--- a/docs/traceability/ieee8021q.md
++++ b/docs/traceability/ieee8021q.md
+@@ -53,11 +53,20 @@ Two consequences worth stating rather than discovering:
+   shipping datapath ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)), so the
+   processor's Σ and raw admission verdict are read back as status only
+   (`LWSRP_SLOPE` `0x698`, `LWSRP_STATUS[9]`). Nor would the old ordering hold: the
+-  gate is ACTIVE since #530, which the processor's optimistic admission window can
+-  raise up to three admission rounds before the round that adds the slope to Σ.
+-  The only effect here is that those status words can trail `LWSRP_STATUS[8]` for
+-  those rounds. A later lane that credit-shapes these sources derives its own
+-  ordering.
++  gate is ACTIVE since #530, which the processor's optimistic admission window
++  holds admitted until the end of the third admission round after a fresh
++  declaration. The declaration clears the source's registered Listener, so ACTIVE
++  rises inside the window only if a Listener Ready or Ready Failed is decoded
++  within those few cycles. If the round admits the stream, those status words can
++  trail ACTIVE by up to three rounds, and that skew is the whole effect. If it
++  refuses the stream, ACTIVE falls at the window's end, not inside it: a
++  declaration the 75 % ceiling refuses holds the emission licence and the Milan
++  v1.2 5.3.7.7 Table 5.4 streaming level for up to three rounds. A controller
++  reads a STREAM_START and STREAM_STOP pair, the start resets the Table 5.4
++  interval counters, and at most one PDU per source can leave (issue #551). The
++  lead shows on the licensed source's own bits: `CRFT_CTRL[6]`/`[7]` and
++  `LWSRP_STATUS[6]` for the CRF output, `LWSRP_STATUS[8]` for source 0 only. A
++  later lane that credit-shapes these sources derives its own ordering.
+ 
+ Also gone with the applicant: the MRPDU tx/rx counters and rx-drop count at CSR
+ 0x680 read **structural zeros**, and the provisioning words software used to write
+@@ -86,7 +95,7 @@ the processor's face.
+ | Q-6 | 8.6.7 | Queue management: no reordering within a class, loss only by admission | traffic_queues + shaping core | ✅ RTL datapath (in-order byte-exact per class, burst) | 8.6.7: reordering inside an SR class breaks the AVTP sequence_num contract downstream (AVTP-7). |
+ | Q-7 | 8.6.8.1 / 34.6.2 | Strict priority transmission selection among non-shaped queues | traffic_shaping_core | ✅ RTL shaper_core (61 k vs independent model: SP order, unshaped bypass) | 8.6.8.1 is the default algorithm; inversion starves the control plane under media load. |
+ | Q-8 | 8.6.8.2 / 34.6.1 | Credit-based shaper: idleSlope accrual, sendSlope drain, hiCredit/loCredit clamp, credit-reset rules, no transmit while credit < 0 | credit_based_shaper (CSR 0x400) | ✅ RTL cbs (87 k: bit-exact vs fixed-point replica + bounded vs ideal continuous model; accrual under back-pressure; live reconfig hiCredit clamp) | 34.6.1's math is the AVB latency guarantee itself; the TB's dual-model approach is the reference for any shaper change. |
+-| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE within the three-round optimistic window and swaps to Talker Failed. The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
++| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE when the three-round optimistic window ends and swaps to Talker Failed; until then it is licensed (the second consequence above, issue #551). The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
+ | Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size incl. per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath, so the slope-versus-gate ORDERING has no object on this wire (see the second consequence above: since #530 the ACTIVE gate can lead Σ by up to three admission rounds). The MaxFrameSize the recipe consumes is still derived in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) from the real AAF geometry and handed over as `cfg_tspec_max_frame_i` | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
+ | Q-11 | 34.5 | Default SR class config: class A = PCP 3, SR_PVID default = VID 2 | processor SRP encoder for the declaration; `cfg_lwsrp_vid` (reset word 0x684 = 2) for this fabric's default, and the ADOPTED pair from the class-D face once a Domain has been seen | 🔵 PROCESSOR for the Domain bytes; ✅ RTL crf_tx TCI golden 0x6002 for the tag. The property that survives intact is the ONE-SOURCE rule: the AAF and CRF C-TAGs mux off exactly the pair the processor publishes (`srp_class_a_prio_o` / `srp_class_a_vid_o`), so frame and declaration cannot name different values. Historic: BENCH item 1.2; SILICON MSRP Domain = VID 2 | 34.5: the bench-measured truth — Domain misparse as 638 cost a debugging round; the defaults are load-bearing for interop. |
+ | Q-12 | 34.2 | SRP domain detection: talker uses the boundary-port rules (Domain attribute) to pick class priority | processor SRP registrar (`srp_domain_adopted_o`) | 🔵 PROCESSOR — the boundary case was pinned by the deleted `lwsrp_rx` suite. The fabric reads only the adopted verdict | 34.2: transmitting class-A-tagged frames on a non-SRP boundary port is undefined behavior for the bridge. |
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 3c54da1cb..6202ea378 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -6578,18 +6578,43 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! the Listener had left. So:
+   //!
+   //!   OPENING EDGE - ACTIVE takes the admission term through the
+-  //!   processor's optimistic window (sr_adm_fsm = opt | admitted, three
+-  //!   admission rounds after a fresh declaration, a round walking one
+-  //!   source per cycle, so N_SOURCES cycles), so it can rise before the
+-  //!   round that sets sr_admitted_o and puts the slope into sum_r. It can
+-  //!   do so only when a Listener Ready is registered within those rounds,
+-  //!   which in practice means already registered at the declaration (a
+-  //!   re-declaration the bridge's Listener outlived); a first Listener
+-  //!   Ready arrives by MRPDU long after those rounds. In that corner the
+-  //!   gates and LWSRP_STATUS[8] rise up to three rounds before
+-  //!   LWSRP_STATUS[9] and 0x698 include the stream. If the round then
+-  //!   refuses it, ACTIVE falls inside the window and the declaration swaps
+-  //!   to Talker Failed. That status skew is the corner's whole effect here.
++  //!   processor's optimistic window (sr_adm_fsm = opt | admitted): a fresh
++  //!   declaration counts as admitted until the end of the third admission
++  //!   round after it, a round walking one source per cycle, so N_SOURCES
++  //!   cycles each (protocol-processor hdl/srp/KL_srp_top.sv:445,772-779,
++  //!   855-858).
++  //!   The same declaration clears that source's talker-side Listener
++  //!   registrar (KL_srp_talker_fsm.sv:705-710), so no Listener Ready is
++  //!   ever registered at a declaration and ACTIVE is 0 after it. ACTIVE
++  //!   rises inside the window only if a registering Listener event for the
++  //!   stream (New, JoinIn or JoinMt with Ready or Ready Failed) is decoded
++  //!   within those few cycles; the Listener Ready that answers the Talker
++  //!   Advertise arrives by MRPDU long after them. That corner has two
++  //!   branches, and status skew is the whole effect of the first only:
++  //!
++  //!   ADMITTED - the round admits the stream. ACTIVE and the gates lead
++  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
++  //!   either word. The lead shows on the licensed source's own bits:
++  //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
++  //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
++  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (|ACTIVE), never on [8].
++  //!
++  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
++  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
++  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
++  //!   and falls at the window's end, and the declaration then swaps to
++  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
++  //!   up to three rounds, the emission licence (crft_emit_en_w into
++  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
++  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
++  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
++  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
++  //!   per source can leave, if its media event falls in the window.
++  //!   CRFT_CTRL[6]/[7], LWSRP_STATUS[6], [8] for source 0 and the 0x82C
++  //!   talker lobs pulse with it. ACTIVE still needs a registered Listener
++  //!   Ready or Ready Failed, so nothing leaves before one (#530). Whether
++  //!   the licence should also need the real grant is issue #551.
++  //!
+   //!   The processor takes the window so that a declaration is never Talker
+   //!   Failed first.
+   //!
+@@ -6601,8 +6626,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //!
+   //! A LATER LANE that credit-shapes these sources must not pair this gate
+   //! with sum_r and inherit the bw-gate's ordering: at the opening edge
+-  //! above the gate can lead the Sigma by three rounds. That lane derives
+-  //! its own ordering and its own test for it.
++  //! above the gate can lead the Sigma by three rounds, or open for three
++  //! rounds on a stream the Sigma never includes. That lane derives its
++  //! own ordering and its own test for it.
+   assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+   //! STATUS ONLY (no shaper, above): LWSRP_STATUS[9] reads the RAW verdict
+   //! of any source and LWSRP_SLOPE 0x698 the processor's Sigma across
