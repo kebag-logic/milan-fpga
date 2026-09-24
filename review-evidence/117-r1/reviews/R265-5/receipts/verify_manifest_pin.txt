@@ -1,0 +1,61 @@
+tree files (excluding MANIFEST.json): 236
+MANIFEST.json entries: 236
+tree files missing from MANIFEST.json: 0 []
+MANIFEST.json entries missing from tree: 0 []
+published_sha256 mismatches vs bytes: 0
+redacted (original != published): 77
+identity_redacted: 71; path-only: 6
+flagged but unchanged: []
+changed but unflagged: []
+bench-a200: MANIFEST.sha256 lines 81; sha256sum -c FAILED 20; redacted in packet 20; FAILED == redacted set: True; lines disagreeing with MANIFEST.json original: 0
+bench-a202: MANIFEST.sha256 lines 153; sha256sum -c FAILED 57; redacted in packet 57; FAILED == redacted set: True; lines disagreeing with MANIFEST.json original: 0
+full 64-hex hashes on page: 82 (81 distinct)
+raw-artifact table rows: 74 (73 distinct)
+table hashes not an original_sha256 in MANIFEST.json: []
+distinct table hashes naming a redacted file: 29
+non-table page hash 33f0e7f9e86f: manifest=None expected-crc=False
+non-table page hash 4db0e6da9c9c: manifest=None expected-crc=False
+non-table page hash 69322600bc9d: manifest=None expected-crc=False
+non-table page hash 71e798fc401e: manifest=None expected-crc=False
+non-table page hash 9b077636b1d4: manifest=None expected-crc=True
+non-table page hash aaece32fc6c8: manifest=None expected-crc=True
+non-table page hash bc41ab03e641: manifest=None expected-crc=False
+non-table page hash f0725eef7a36: manifest=None expected-crc=True
+abbreviated name+hash pairs on page: 35
+  console_read.py 652d6f83...: OK ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']
+  console_poll.py 3a0de7d8...: OK ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']
+  wire_summary.py c5039d95...: OK ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']
+  analyze_run.py 6ac03a87...: OK ['bench-a200/tools/analyze_run.py']
+  stream_timeline.py 9d2e8629...: OK ['bench-a200/tools/stream_timeline.py']
+  pdelay_turnaround.py 790e6b7c...: OK ['bench-a200/tools/pdelay_turnaround.py', 'bench-a202/tools/pdelay_turnaround.py']
+  avdecc_ro.py 17283696...: OK ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']
+  crf_bind_window.py 29b4ac46...: OK ['bench-a200/tools/crf_bind_window.py']
+  libla_avdecc_cxx.so.4.3.1.1 95d64fd5...: UNRESOLVED []
+  libla_avdecc_controller_cxx.so.4.3.1.1 8ef4b008...: UNRESOLVED []
+  target-counters-probe ad579e18...: UNRESOLVED []
+  source 0e9faf30...: UNRESOLVED []
+  a200_enum.cpp 2d8950f5...: OK ['bench-a200/tools/a200_enum.cpp']
+  binary 8c9f2885...: UNRESOLVED ['bench-a200/tools/a200_enum.bin']
+  console_read.py 652d6f83...: OK ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']
+  console_poll.py 3a0de7d8...: OK ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']
+  avdecc_ro.py 17283696...: OK ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']
+  wire_summary.py c5039d95...: OK ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']
+  expected_crc.py 04d128bb...: OK ['bench-a200/tools/expected_crc.py', 'bench-a202/tools/expected_crc.py']
+  run_cycle.sh 45889a7d...: OK ['bench-a202/tools/run_cycle.sh']
+  cycle_locked.sh c4ef8c9a...: OK ['bench-a202/tools/cycle_locked.sh']
+  powerstrip_cycle.sh b2f1593e...: OK ['bench-a202/tools/powerstrip_cycle.sh']
+  console_alive.py 644bcfb8...: OK ['bench-a202/tools/console_alive.py']
+  a202_watch.py 48c248b2...: OK ['bench-a202/tools/a202_watch.py']
+  census.sh d7912881...: OK ['bench-a202/tools/census.sh']
+  clock_offset.py 950533ca...: OK ['bench-a202/tools/clock_offset.py']
+  analyze_cycle.py bdd228a1...: OK ['bench-a202/tools/analyze_cycle.py']
+  summarize.py d6f53575...: OK ['bench-a202/tools/summarize.py']
+  census_compare.py 40424c61...: OK ['bench-a202/tools/census_compare.py']
+  binary 8c9f2885...: UNRESOLVED ['bench-a200/tools/a200_enum.bin']
+  run_cycle.sh 45889a7d...: OK ['bench-a202/tools/run_cycle.sh']
+  cycle_locked.sh c4ef8c9a...: OK ['bench-a202/tools/cycle_locked.sh']
+  analyze_cycle.py bdd228a1...: OK ['bench-a202/tools/analyze_cycle.py']
+  for 95d64fd5...: UNRESOLVED []
+  and 0e9faf30...: UNRESOLVED []
+  (unnamed) e84e579c...: not in MANIFEST.json
+RESULT: PASS

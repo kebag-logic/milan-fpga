@@ -1,0 +1,30 @@
+++ python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+++ python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+++ python3 scripts/check_feature_status.py --self-test
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+++ python3 scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+rc=0
+++ python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 839 tracked first-party file(s))
+rc=0
+++ python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+++ python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+++ python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
