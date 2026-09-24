@@ -368,12 +368,21 @@ fake_runner_source() {
   cat <<'EOF'
 #!/usr/bin/env python3
 """Stand-in runner: takes slots with real flocks, prints the runner's lines, reaches scripted verdicts."""
-import fcntl, os, pathlib, sys, time
+import fcntl, os, pathlib, signal, sys, time
 args = sys.argv[1:]
 state = pathlib.Path(os.environ["FAKE_STATE"])
 faults = os.environ.get("FAKE_FAULTS", "").split(",")
+summary = state.parent / "logs" / "SUMMARY"  # the graded proof's, beside FAKE_STATE
 def value(flag, default):
     return args[args.index(flag) + 1] if flag in args else default
+def await_judgment():
+    """Wait until the proof has failed the overlap or recorded both slots' isolation controls."""
+    for _ in range(1200):
+        lines = summary.read_text().splitlines() if summary.exists() else []
+        if any(line.startswith("FAIL overlap") for line in lines) or sum(
+                line.startswith(("PASS isolation slot ", "FAIL isolation slot ")) for line in lines) >= 2:
+            return
+        time.sleep(0.05)
 slot = value("--slot", "0")
 if "--interrupt-selftest" in args:
     if "interrupt-no-pass" not in faults:
@@ -404,11 +413,16 @@ if pr == "23" and slot == "1" and "late-refusal" in faults:
     print("act-ci: REFUSED: replay slot 1 is in use by another runner invocation", file=sys.stderr)
     sys.exit(2)
 time.sleep(0.2)
-if slot == "2" and "refused-while-held" in faults:
-    for _ in range(600):
-        if (state / "refused-while-held").exists():
-            break
-        time.sleep(0.05)
+# The parallel runs: A is PR 21's first run in slot 1, and B the only run in slot 2.
+run_a, run_b = pr == "21" and slot == "1" and run_number == 1, slot == "2"
+if (run_a and "a-never-holds" in faults) or (run_b and "b-never-holds" in faults):
+    os.kill(os.getpid(), signal.SIGKILL)
+for waits, first in ((run_b, "a-refused-first"), (run_a, "b-refused-first")):
+    if waits and first in faults:
+        for _ in range(600):
+            if (state / first).exists():
+                break
+            time.sleep(0.05)
 if "serialize" in faults:
     queue = open(state / "queue.lock", "w")
     fcntl.flock(queue, fcntl.LOCK_EX)
@@ -426,11 +440,20 @@ if slot != "0":
     if "slot-unannounced" not in faults:
         print(f"act-ci: slot {slot}: own daemon unix:///run/milan-act-slot-{slot}/docker.sock", flush=True)
 try:
-    if pr == "21" and slot == "1" and run_number == 1 and "refused-while-held" in faults:
-        print("act-ci: REFUSED: action clone failed", file=sys.stderr, flush=True)
-        (state / "refused-while-held").touch()
-        sys.exit(2)
+    for refuses, first in ((run_a, "a-refused-first"), (run_b, "b-refused-first")):
+        if refuses and first in faults:
+            # Refused before the other run takes its slot, and alive until judged,
+            # so the proof sees this run's marker before its exit status.
+            print("act-ci: REFUSED: action clone failed", file=sys.stderr, flush=True)
+            (state / first).touch()
+            await_judgment()
+            sys.exit(2)
     print(f"act-ci: running {workflows[0]} (stand-in)", flush=True)
+    # A run that announced its isolated slot holds it until the proof has judged
+    # the parallel runs, so no check races its end. Serialized runs cannot overlap
+    # and hold for FAKE_HOLD alone; the collisions come after the judgment.
+    if slot != "0" and "slot-unannounced" not in faults and "serialize" not in faults:
+        await_judgment()
     time.sleep(hold)
     if "refuse" in faults:
         print("act-ci: REFUSED: action clone failed", file=sys.stderr)
@@ -439,7 +462,8 @@ try:
     for index, name in enumerate(workflows):
         if "partial" in faults and index == 1:
             sys.exit(0)
-        if (pr == "22" and index == 1) or (broken and slot == "1"):
+        if (pr == "22" and index == 1) or (broken and slot == "1") or (
+                run_b and "parallel-break-b" in faults):
             print(f"act-ci: {name}: FAILED (1)", file=sys.stderr, flush=True)
             sys.exit(2 if "failed-refused" in faults else 1)
         print(f"act-ci: {name}: PASS at {'a' * 40}", flush=True)
@@ -464,16 +488,17 @@ if args[:1] != ["-n"]:
     sys.exit("stand-in sudo: only non-interactive -n is expected")
 args = args[1:]
 live = state / "target"
-def answers(specs, inside):
+def answers(specs, inside, slot=""):
     """What a probe of the given specs sees from inside a slot or from the host."""
     alive = live.exists() and "target-dead" not in faults
     for spec in specs:
         name, host, port = spec.split(",")
         known = {("container", "172.30.0.2", "8080"), ("published", "172.30.0.1", "32768")}
+        leaks = {f"slot-reaches-{name}", f"slot{slot}-reaches-{name}"}
         if name == "internet":
             reached = host == "github.com" and port == "443" and "slot-misses-internet" not in faults
         elif inside:
-            reached = alive and f"slot-reaches-{name}" in faults and (name, host, port) in known
+            reached = alive and not leaks.isdisjoint(faults) and (name, host, port) in known
         else:
             reached = alive and f"host-misses-{name}" not in faults and (name, host, port) in known
         print(f"{name}={'reached' if reached else 'refused'}")
@@ -499,17 +524,19 @@ if args[0] == "docker":
     elif verb == "network rm" and "network-survives" not in faults:
         (state / "network").unlink(missing_ok=True)
     elif args[1] == "ps":
-        if "target-query-fails" in faults:
+        if "container-query-fails" in faults:
             sys.exit("docker: Cannot connect to the Docker daemon (stand-in)")
         print("c" * 12 if live.exists() else "", end="")
     elif verb == "network ls":
+        if "network-query-fails" in faults:
+            sys.exit("docker: Cannot connect to the Docker daemon (stand-in)")
         print("n" * 12 if (state / "network").exists() else "", end="")
     sys.exit(0)
 if args[0] == "nsenter":
     slot = args[1].rsplit("-", 1)[1]
     if not (state / f"netns-{slot}").exists():
         sys.exit(f"nsenter: cannot open {args[1]}: No such file or directory")
-    answers(args[args.index("-c") + 2:], inside=True)
+    answers(args[args.index("-c") + 2:], inside=True, slot=slot)
     sys.exit(0)
 if args[0] == "env":
     answers(args[args.index("-c") + 2:], inside=False)
@@ -588,12 +615,17 @@ a parallel run refuses like its serial reference|refuse|23|1|FAIL parallel-a did
 the interrupt gate ignores its slot|interrupt-no-slot|23|1|FAIL interrupt self-test in slot 1
 the interrupt gate prints no PASS line|interrupt-no-pass|23|1|FAIL interrupt self-test in slot 1
 the interrupt gate passes and is then refused|interrupt-refused|23|1|FAIL interrupt self-test in slot 1
-a slot changes a verdict|parallel-break|23|1|FAIL parallel-a != serial-a
+slot A changes a verdict|parallel-break|23|1|FAIL parallel-a != serial-a
+slot B changes a verdict|parallel-break-b|23|1|FAIL parallel-b != serial-b
 the parallel runs never overlap|serialize|23|1|FAIL overlap
-a run never reports its own slot daemon|slot-unannounced|23|1|FAIL overlap
-a run is refused before the other slot is taken|refused-while-held|23|1|FAIL overlap
+neither run reports its own slot daemon|slot-unannounced|23|1|FAIL overlap
+run A dies before taking slot A while run B holds slot B|a-never-holds|23|1|FAIL overlap
+run B dies before taking slot B while run A holds slot A|b-never-holds|23|1|FAIL overlap
+run A is refused after taking slot A, before run B takes slot B|a-refused-first|23|1|FAIL overlap
+run B is refused after taking slot B, before run A takes slot A|b-refused-first|23|1|FAIL overlap
 the isolation target cannot be started|target-unstartable|23|1|FAIL isolation target: it could not be started
 a slot reaches the default daemon's container|slot-reaches-container|23|1|FAIL isolation slot 1
+only slot B reaches the default daemon's container|slot2-reaches-container|23|1|FAIL isolation slot 2
 a slot reaches the container's published port|slot-reaches-published|23|1|FAIL isolation slot 1
 a slot cannot reach the probe name|slot-misses-internet|23|1|FAIL isolation slot 1
 the isolation target is dead|target-dead|23|1|FAIL isolation slot 1
@@ -601,7 +633,8 @@ the host cannot reach the container|host-misses-container|23|1|FAIL isolation sl
 the host cannot reach the published port while the container answers|host-misses-published|23|1|FAIL isolation slot 1
 the isolation container survives removal|target-survives|23|1|FAIL isolation target not proved absent
 the isolation network survives removal|network-survives|23|1|FAIL isolation target not proved absent
-the isolation target cannot be queried after removal|target-query-fails|23|1|FAIL isolation target not proved absent
+the isolation container cannot be queried after removal|container-query-fails|23|1|FAIL isolation target not proved absent
+the isolation network cannot be queried after removal|network-query-fails|23|1|FAIL isolation target not proved absent
 the slot lock is missing|nolock|23|1|FAIL collision slot 1
 the rival is refused only after the holder left|late-refusal|23|1|FAIL collision slot 1
 the rival is refused for another reason|rival-other-refusal|23|1|FAIL collision slot 1
