@@ -306,7 +306,7 @@ readers or REFUSED:
 | 5.2.1 source characters, inside a comment or a literal | any UTF-8 character | phase 3 blanks each comment and each literal's body in the view every directive and macro reader reads and in the code text every other rule reads, so no reader sees one; the trigraph ban and the `#include` operand check, the two that read raw text, match ASCII spellings only. A byte that is not UTF-8 is refused wherever it sits, a comment or a literal included, although the pinned GCC accepts one inside a comment or a literal (it warns only under `-Winvalid-utf8`). That refusal is a deliberate fail-closed choice and a cost, stated in the cost table below; the gate keeps such a byte as an escape so that S names it |
 | 6.4.1 keywords, 6.4.2.1 identifiers | modelled | the `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on, in ASCII mode; an extended character in one is refused by the allowlist |
 | 6.4.3 universal character names in identifiers | REFUSED | GCC admits a `\u`/`\U` name in an identifier; the readers lex `\w`. A backslash left in code once phase 2 has deleted every splice is refused |
-| the gnu `$` identifier extension | REFUSED | GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers read `#if` ([R272] F1 on PR #535) |
+| the gnu `$` identifier extension | REFUSED | GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers read `#if` ([R272] F1 on PR #535 at `8e12d31f`) |
 | 6.4.4 constants, 6.4.5 string literals | modelled | as spelled; a raw string literal (a gnu99 extension spanning lines) and a literal no quote closes on its line (GCC ends it there with a warning) are refused |
 | 6.4.6 punctuators | modelled | as spelled; the digraphs and any trigraph are refused (below) |
 | 6.4.7 header names | modelled only as a plain `#include` operand | `__has_include`/`__has_include_next` lexes a header name anywhere in an `#if`, so `<x/*y>` opens no comment there while the readers read `/*` as a comment (the round-two external finding on PR #535); it is refused, and a `#include` operand hiding a comment or a backslash is refused |
@@ -334,24 +334,27 @@ byte strings that are not UTF-8, is put in each of 23 positions.
   ends a name for one side and not the other leaves different code. The
   identifier position asks whether the character ends the name `a` before
   `b`, a macro: `-E` expands `b` exactly when GCC ends `a` there.
-- Fourteen are round five's, the comment and literal boundaries the internal
-  review measured outside those nine ([R272] F1 on PR #535's round-four
-  head): splitting `/*`, `*/` and `//`, ending a line comment, between a
+- Fourteen are round five's comment, literal and directive-line boundaries.
+  The internal review measured them outside those nine
+  ([R272] F1 on PR #535's round-four head): splitting `/*`, `*/` and `//`, ending a line comment, between a
   backslash and the line end in a line comment and in a `#define`, after an
   escaping backslash in a string and a character literal, between a
   raw-string prefix and its quote, between a digit and a quote, at the end of
   the file in a line comment and in code, before a string's closing quote,
-  and after the `<` of an `#include` in a skipped group. At twelve of them the
-  character decides whether a comment or a literal opens, closes or runs on,
-  and so whether the `#define FOO` after it is live for the `#ifdef FOO` below
-  it; the two at the end of the file ask what a last character does there.
+  and after the `<` of an `#include` in a skipped group.
+  Eleven test comments or literals opening, closing or continuing.
+  One decides whether a splice continues a directive line.
+  Each decides whether the following `#define FOO` is live.
+  The following `#ifdef FOO` tests that definition.
+  The two file-end positions test the last character there.
 
 The pinned GCC's answer for each of the 6440 cells is recorded and re-measured
 wherever the compiler answers. Gate 1b shows each cell refused by S or read as
 GCC reads it, with one exception it names and fails closed on: a `#` alone at
 the end of the file is a null directive to GCC and a directive with no name to
 the readers, which refuse it, as the directive-set closure does on a whole
-firmware. Every cell outside the allowlist is refused by the allowlist itself,
+firmware. Null directives elsewhere are also refused by that closure.
+Every cell outside the allowlist is refused by the allowlist itself,
 and no cell inside it is. The table also counts the cells the allowlist
 closes, those the readers would read differently from GCC, and fails if
 U+00B7 inside a directive name is no longer one of them, which is its negative
@@ -1362,8 +1365,8 @@ The rest are refusals, and each one costs a legitimate edit:
 | A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
-| No `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores |
-| A `$` or a universal character name in an identifier or a directive name; `__has_include` or `__has_include_next`; a `#include` header name hiding a comment or a backslash; a block comment no `*/` closes; the `_Pragma` operator | NEW (#408, round three): the closed lexical grammar S, refused by name on the WHOLE firmware before any reader, on every machine. GCC lexes each of these and the readers do not -- `#if$a` is an unknown directive GCC keeps in skipped code while the readers read `#if` ([R272] F1 on PR #535), and `<x/*y>` after `__has_include` is one header-name token to GCC, so its `/*` opens no comment while the readers read one hiding a line (the round-two external finding). Rather than extend the readers toward GCC's whole grammar, S refuses everything outside it. The shipping firmware spells none. The full class list is the S table above; `subset_refusal_corpus` measures each refused |
+| No null directive (`#` alone), `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores. A null directive is also refused, wherever it sits: the directive-set closure requires a supported name, although GCC accepts a nameless directive |
+| A `$` or a universal character name in an identifier or a directive name; `__has_include` or `__has_include_next`; a `#include` header name hiding a comment or a backslash; a block comment no `*/` closes; the `_Pragma` operator | NEW (#408, round three): the closed lexical grammar S, refused by name on the WHOLE firmware before any reader, on every machine. GCC lexes each of these and the readers do not -- `#if$a` is an unknown directive GCC keeps in skipped code while the readers read `#if` ([R272] F1 on PR #535 at `8e12d31f`), and `<x/*y>` after `__has_include` is one header-name token to GCC, so its `/*` opens no comment while the readers read one hiding a line (the round-two external finding). Rather than extend the readers toward GCC's whole grammar, S refuses everything outside it. The shipping firmware spells none. The full class list is the S table above; `subset_refusal_corpus` measures each refused |
 | Outside a comment or a literal, any character but printable ASCII and tab, line feed, vertical tab, form feed, carriage return and NUL: a non-ASCII letter, mark or space in code, a control such as FS, and a UTF-8 byte-order mark at offset 0; and a byte that is not UTF-8 anywhere, a comment included | NEW (#408, round four): the character allowlist S starts with, refused by name on the WHOLE firmware before any reader, on every machine. The pinned GCC reads U+00B7, U+0301, U+0387 and U+203F as identifier characters, so `#if`, U+00B7, `x` is one unknown directive it ignores in skipped code, while the readers read `#if`, and a store in the CSR window hidden between two such directive names compiled live (both reviews of PR #535's round-three head). Denying such characters one at a time cannot be shown complete, and admitting a stated set can: the allowlist reads the whole code text, so its refusal does not depend on where a character sits. Whether the readers read an admitted character as GCC does is measured by the closure table above at the 23 positions it holds; at any other position it rests on the lexer corpora. A byte-order mark at offset 0 was accepted in round two, since phase 1 drops it as GCC does; it is a non-ASCII character outside a comment, and it is refused now. A byte that is not UTF-8 inside a comment or a literal is refused although the pinned GCC accepts it there, warning only under `-Winvalid-utf8`: that is a deliberate fail-closed choice (the #408 decision), since the gate reads the firmware as UTF-8, and it is a cost. **Remedy:** spell code in ASCII, keep any other character in a comment or a literal, and save the file as UTF-8, re-encoding a comment or a literal written in another encoding |
 | `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, folded into the subset check S and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535's round-one head). A `%:` pair phase 3 reads as other tokens, the `<%` and `:` of `<%:`, is refused too, as dev refused every `%:` pair in code, so the ban is no narrower than dev's. Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
 | A `#define` or `#include` inside the AEM verifier's QSPI-slot group or an `#error` guard | NARROWED (#408) from every conditional. Those are the two kinds of group left as written rather than graded one selection at a time, and the address model reads every definition as unconditional text, so an arm no selection resolves would choose what a register name resolves to. In a graded group each arm's definition IS unconditional in the firmware that arm builds, so an `#ifdef`/`#else` choosing a `#define` is GREEN. dev exempted the verifier's group from this rule, so a `#define` there was GREEN before and is refused now |
@@ -1479,8 +1482,8 @@ controls of their own:
   behind a build flag, a dropped arm inside a CSR write's argument, and
   `ADP_CTRL`'s name moved to another register by a product-only arm. And
   the arms dev's ordered sets refused whatever its directive readers saw
-  ([R272] F1 on PR #535): the product-only cast in a UART command handler
-  behind a form feed, a vertical tab, a NUL or lone CR line ends, a `lui`
+  ([R272] F1 on PR #535 at `a13b6e2e`): the product-only cast
+  in a UART command handler behind a form feed, a vertical tab, a NUL or lone CR line ends, a `lui`
   store and the `0 &&` arm behind a form feed, a product arm behind an
   `#else` a splice splits, and a store in the second of two groups on
   `CSR_UART_BASE`; on every machine, the pre-AEM clear dropped by a
@@ -1616,8 +1619,9 @@ refused: the external review's U+00B7, U+0387 and U+203F stores without a
 compiler, and the byte-order-mark and U+00B7 controls in both modes.
 
 Round five adds no refusal. It extends the closure table from nine positions
-to 23 with the fourteen comment and literal boundaries above, recorded on the
-pinned GCC one file at a time and re-measured by the gate in its batches:
+to 23 with the fourteen comment, literal and directive-line boundaries above,
+recorded on the pinned GCC one file at a time and re-measured by the gate in
+its batches:
 of the 6440 cells the allowlist refuses 3647 (226 of them cells the readers
 and GCC read differently), another rule of S 246, and the readers and the
 directive-set closure one, the `#` alone at the end of the file; the readers
@@ -1666,8 +1670,8 @@ leading directive lines, a byte that is not UTF-8 in a comment, and the
 byte-order mark at offset 0 that round two accepted (the thirtieth accepted
 edit then). The three entries that measured a directive behind that mark are
 re-pinned on the allowlist, which refuses the mark first; the paste ban, the
-include pin and the directive set keep their other entries. It reads the 1845
-lexer spellings, 78 fixed and 1767 generated (round two crossed 4907, the
+include pin and the directive set keep their other entries. It reads the 1846
+lexer spellings, 79 fixed and 1767 generated (round two crossed 4907, the
 digraph introducers among them; those are outside S and refused, so the
 generated corpus is now within S), and the 6440 closure cells (2520 before
 round five), as recorded in both, and re-measures them on the compiler where

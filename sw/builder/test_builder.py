@@ -2758,19 +2758,19 @@ _CLOSURE_SEQUENCES = tuple(chr(code).encode("utf-8") for code in (
 #: and the two leave different code. The identifier position asks whether
 #: X ends the name `a` before `b`, a macro: when it does, `b` expands.
 #:
-#: Then the fourteen comment and literal BOUNDARIES a review of round four
-#: measured outside those nine ([R272] F1 on PR #535's round-four head),
-#: where X can decide whether a comment or a literal opens, closes or runs
-#: on (round five): X splitting `/*`, `*/` and `//`, ending a line comment,
+#: Then the fourteen BOUNDARIES a review of round four measured outside
+#: those nine ([R272] F1 on PR #535's round-four head): comment and literal
+#: boundaries, directive-line continuation and file ends (round five).
+#: X splitting `/*`, `*/` and `//`, ending a line comment,
 #: between a backslash and the line end in a line comment and in a
 #: `#define`, after an escaping backslash in a string and a character
 #: literal, between a raw-string prefix and its quote, between a digit and a
 #: quote, at the end of the file in a line comment and in code, before a
 #: string's closing quote, and after the `<` of an `#include` in a skipped
 #: group. Each but the two at the end of the file is followed by a
-#: `#define FOO` that a comment or a literal X opens or continues would
-#: hide, and an `#ifdef FOO` that keeps `b` only when that definition is
-#: live.
+#: `#define FOO` that a comment or literal X opens or continues would hide,
+#: or that a directive line X continues would swallow, and an `#ifdef FOO`
+#: that keeps `b` only when that definition is live.
 _CLOSURE_POSITIONS = (
     ("at offset 0, before `#`", "{X}#ifdef FOO\nint b;\n#endif\nint z;\n",
      "keeps", True),
@@ -5563,9 +5563,9 @@ def test_baremetal_profile_contract() -> None:
     #: (round four). AGREEMENT is measured at the positions the closure
     #: table (`_closure_corpus()`, recorded in `_CLOSURE_KEPT`) holds: every
     #: byte 0 to 255 and a set of multi-byte sequences in each of 23, the
-    #: nine of round four and the fourteen comment and literal boundaries of
-    #: round five, where assert_character_closure() shows each cell refused
-    #: or read as GCC reads it. At a position the table does not hold,
+    #: nine of round four and the fourteen comment, literal and directive-line
+    #: boundaries of round five. assert_character_closure() shows each cell
+    #: refused or read as GCC reads it. At a position the table does not hold,
     #: agreement rests on these two corpora and is bounded by them.
     LEXER_PIN = "reads a preprocessing directive where the pinned GCC does not"
     lexer_corpus = (
@@ -5610,6 +5610,9 @@ def test_baremetal_profile_contract() -> None:
          ("a", "z")),
         ("a multi-line comment closing before #",
          "int a;\n/* c\n c */ #ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a /*/ opener does not close its own block comment",
+         "int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n",
          ("a", "z")),
         ("a token and a multi-line comment before #",
          "int a; /* c\n c */ #ifdef FOO\nint b;\n#endif\nint z;\n",
@@ -11288,11 +11291,12 @@ def test_baremetal_profile_contract() -> None:
                     r"\s*\(", firmware, re.ASCII).group(1))
         return compiled_census_verdict
 
-    # Before any firmware is graded: the grammar is closed (S refuses every
-    # construct outside it, by name), and on the spellings S admits the
-    # readers every rule stands on read a directive exactly where the pinned
-    # GCC does (#408); and at the character level every byte in every
-    # position is refused by S or read as GCC reads it (round four).
+    # Before any firmware is graded: S refuses every construct outside it,
+    # by name. Directive-reader agreement with the pinned GCC is bounded by
+    # the two lexer corpora (#408). At the character level, refusal outside
+    # the allowlist is position-independent; agreement is measured at the
+    # closure table's 23 positions. At any other position, agreement rests
+    # on the two lexer corpora.
     subset_note = assert_subset_refuses()
     lexer_note = assert_lexer_matches_compiler()
     closure_note = assert_character_closure()
