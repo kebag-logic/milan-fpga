@@ -326,15 +326,15 @@ so treat them as ordering, not promises.
  P1 CLOSE THE       P2 STATE          P3 ROBUSTNESS      P4 COMPLIANCE          P5 PRODUCT      v1.0
     FABRIC             SURVIVAL          AS A GATE          PCB SPIN           HARDWARE     SHIP
     ROADMAP                                                                                  |
-    - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
-      listener        raw-flash journal cabled +          run (Milan v1.2)   (TCXO, audio
-      latency       - image: validate   failover proof  - 802.1AS            I/O, power)
+    - deterministic - AEM persistence - one-port link   - compliance test-house  - PCB bring-up ==>
+      listener        raw-flash journal loss + return     run (Milan v1.2)   (TCXO, audio
+      latency       - image: validate   proof (#394)    - 802.1AS            I/O, power)
       (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
       0x002F)         no retired runtime timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
-      (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
-      re-base)      - field update      torture as                          serials, test
-    - CRF sink        path              release gates                       fixture)
+      (GM step        + golden image    + power-cycle   - redundancy        (MAC/EUI-64,
+      re-base)      - field update      torture as        (Section 8)       serials, test
+    - CRF sink        path              release gates     revisit, #394     fixture)
       followership                    - service-budget                    - TDM/I2S audio
       on silicon                        decision                            as supported
     - stream-clock                      (2nd hart?)                         endpoint I/O

@@ -31,7 +31,7 @@ from a later edition:
 
 | Standard | Edition | Scope here |
 |---|---|---|
-| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener |
+| Milan Specification, Consolidated | **v1.2** (Final, 2023-11-30) | the profile: non-redundant PAAD-AE, talker + listener (Section 8 out of scope for v1.2, [decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478)) |
 | IEEE Std 1722.1 | **-2021** | ATDECC: ADP, ACMP, AECP/AEM |
 | IEEE Std 1722 | **-2016** | AVTP: common header, AAF audio, CRF |
 | IEEE Std 802.1AS | **-2011** (+Cor1-2013, +Cor2-2015) | gPTP as Milan Section 4.2.6 profiles it — the fabric plane's edition of record (decision #139; [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) keeps the 802.1AS-2020 hardware-assist cross-trace) |
@@ -133,8 +133,8 @@ input, are silently refused.
 | Clause | Command | Level | Status |
 |---|---|---|---|
 | 5.4.4.1 | GET_MILAN_INFO | SHALL | implemented |
-| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a — tracked, not a gap |
-| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a — tracked, not a gap |
+| 5.4.4.2 / .3 | SET/GET_SYSTEM_UNIQUE_ID | RECOMMENDED | n/a: tracked, not a gap. Not served for the October release by the [owner decision on #510](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089) (2026-09-23; FR-MVU-02 is SHOULD). MVU `0x0001`/`0x0002` answer `NOT_IMPLEMENTED` (Table 5.19) with the command echoed: PP pp_top M4 grades `0x0002` byte-exact, and the engine's one non-echo MVU arm is `GET_MILAN_INFO`. Implementation moves to P4 (#416) if the conformance lab requires it |
+| 5.4.4.4 / .5 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | RECOMMENDED | n/a: tracked, not a gap. Same decision and fallback: MVU `0x0003`/`0x0004` reach the same `NOT_IMPLEMENTED` echo (no per-command PP arm yet). Section 7.6 media-clock management, which these commands serve, is RECOMMENDED too. P4 (#416) if the conformance lab requires it |
 
 ### 1.5 Unsolicited notifications and controller liveness (Section 5.4.5)
 
@@ -180,7 +180,7 @@ connect and the started-state restore (audit B12).
 | 7.2.2 | media clock inputs — the CRF sink can drive the media clock | implemented — #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical fsync grid (sim proof at the true 391/1591 ratio, milan_dp obj_aclk `[CRF]`); the silicon probe (J11.8 vs J11.9) stays open on issue #74 |
 | 7.2.3 / 7.3.2–7.3.4 | CRF Media Clock Output, Pro Audio CRF format (48 kHz base, SR class A) | implemented — RTL crf_tx; format fields byte-verified |
 | 7.4 | media clock source quality ± 50 ppm | partial — board-oscillator property; the 10.6 ppm internal divider offset is closed under CRF selection by #74's align chain (sim), while the ± 50 ppm oscillator bound itself remains a bench measurement |
-| 8.x | seamless redundancy | n/a — single-AVB_INTERFACE PAAD |
+| 8.x | seamless redundancy | n/a: a declared non-redundant PAAD-AE with one AVB_INTERFACE on one cabled port. Sections 4.2.5 and 8.1 make redundancy optional; `GET_MILAN_INFO` reports `features_flags` REDUNDANCY as 0 (Table 5.20; PP pp_top M2). A directed limitation, not an omission: out of scope for the October release by the [owner decision on #394](https://github.com/kebag-logic/milan-fpga/issues/394#issuecomment-5789765478) (2026-09-23), revisited with the P4/P5 PCB (#416/#417) |
 
 ## 2. IEEE 1722.1-2021 — ATDECC base
 
@@ -223,6 +223,7 @@ clause numbers below differ from 802.1AS-2020's in places (MDPdelayReq is
 | Clause | Requirement | Owner | Status / evidence |
 |---|---|---|---|
 | 8.2 | PTP timescale: monotonic, settable, frequency-adjustable | fabric (`timestamp_counter`) | implemented — RTL ptp (201 k checks vs a 128-bit model) |
+| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled. Its managed object is read-write and `Tdot3FD` in Table 14-6, so required only where 802.1AS management is implemented; management is optional (PICS `MGT`) | gPTP plane | n/a: not modelled, so zero, and no 802.1AS management is claimed; the REQ-PTP-06 elaboration constants stay the only timestamp corrections and the live UART tuner stays donor-bench-only. A directed limitation for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257); revisit trigger and adoption plan in the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |
 | 8.4.2.2 / 8.4.3 | event messages timestamped at the reference plane; general messages never | fabric (`ptp_ts_core/top`) | implemented — RTL ptp_ts interference suite |
 | Annex B.1.1 | LocalClock within ± 100 ppm, finely adjustable | fabric + board oscillator | implemented — RTL ptp adjfine granularity |
 | 10.2 / 10.3 | time-sync state machines + BTCA | gPTP plane | implemented — RTL gptp_shadow, milan_dp `obj_gptp`; SILICON elections both ways |
