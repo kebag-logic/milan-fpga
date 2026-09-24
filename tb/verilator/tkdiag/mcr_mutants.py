@@ -1,19 +1,24 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Mutation arm for the #387 pending-restart merge in tkdiag: prove T17 can fail.
+"""Mutation arm for the #387 pending-restart merge in tkdiag: prove T17 and T18 can fail.
 
 sim_main.cpp's T17 asserts that a restart request landing on a PENDING one
 merges with it (#387, ruling 5802264260 item 2): the stream puts exactly one
-toggle on the wire, never none, and its MEDIA_RESET counts it, while a stream
-that already stamped the earlier request gets a toggle of its own. So the real
-KL_media_clock_restart is mutated, one defect at a time, and the SAME harness
-is rebuilt through the Makefile's own recipe (`make build` with MCR_SRC and
-TKDIAG_MDIR overridden) and run. Each mutant must make the harness FAIL by its
-OWN verdict (a `[FAIL]` line or a tally with failures, read by
-scripts/suite_tally.py), and the named check must be among the failures; a
-crash or an abort is not a catch. The positive control is the clean harness
-that `make` just built (obj_dir), re-run here.
+toggle on the wire, never none, and its MEDIA_RESET counts it. Pending lasts
+until a PDU at the new level has gone out (ruling 5818091077), so T17 lands
+the request both inside a stream's hold and after its adoption but before its
+first PDU at the adopted level. T18 grades the other side of that boundary: a
+stream whose first PDU at the adopted level has gone out gets a toggle of its
+own for a later request. So the real KL_media_clock_restart is mutated, one
+defect at a time, and the SAME harness is rebuilt through the Makefile's own
+recipe (`make build` with MCR_SRC and TKDIAG_MDIR overridden) and run. Each
+mutant must make the harness FAIL by its OWN verdict (a `[FAIL]` line or a
+tally with failures, read by scripts/suite_tally.py), and the named check must
+be among the failures; a crash or an abort is not a catch. The positive
+control is the clean harness that `make` just built (obj_dir), re-run here; a
+binary older than any input of its recipe is stale (a direct run after a
+source edit) and is rebuilt instead of graded.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The harness is
@@ -36,14 +41,22 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 MCR_RTL = HERE / "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv"
 CLEAN_MDIR = HERE / "obj_dir"
+#: every input of the clean recipe (the Makefile's SRCS and CPP, and the
+#: Makefile itself): a clean binary older than any of them is stale
+CLEAN_INPUTS = [MCR_RTL, HERE / "../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+                HERE / "tkdiag_tb_top.sv", HERE / "sim_main.cpp", HERE / "Makefile"]
 EXE_NAME = "Vtkdiag_sim"
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
 #: the one line the merge lives on
 MERGE_LINE = "      if (restart_p_i | src_change_w) tgt_r <= ~mr_o;"
+#: the condition that keeps a talker pending from its adoption until the feed
+#: reports its first PDU at the adopted level (the wire boundary)
+WIRE_LINE = ("        if ((restart_p_i | src_change_w) && streaming_i[t]"
+             " && (hold_r[t] == '0))")
 
-# (name, the ONE line it replaces, its replacement, the check it must fail)
+# (name, the ONE text it replaces, its replacement, the check it must fail)
 MUTATIONS = [
     ("a request flips the target, cancelling a pending restart",
      MERGE_LINE,
@@ -53,7 +66,16 @@ MUTATIONS = [
      MERGE_LINE,
      "      if ((restart_p_i | src_change_w) && !(|((tgt_r ^ mr_o) & streaming_i)))\n"
      "        tgt_r <= ~tgt_r;",
-     "T17 talker 0 had stamped the disruption: the step is its 2nd toggle"),
+     "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"),
+    ("the pending window ends at the adoption, not at the first PDU",
+     WIRE_LINE,
+     "        if (1'b0)",
+     "T17 talker 0 sent no PDU at the adopted level: the step merges, ONE toggle"),
+    ("the pending window stays open for the whole hold, not until the first PDU",
+     WIRE_LINE,
+     "        if ((restart_p_i | src_change_w) && streaming_i[t] && (mr_o[t] == tgt_r[t])\n"
+     "            && (hold_r[t] != HOLDW_C'(HOLD_PDU_P)))",
+     "T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle"),
 ]
 
 
@@ -70,6 +92,12 @@ def build(rtl_path: Path, mdir: Path) -> Path | None:
         sys.stdout.write(out.stderr[-2000:])
         return None
     return exe
+
+
+def is_fresh(exe: Path) -> bool:
+    """True when `exe` exists and is no older than any input of its recipe."""
+    return exe.is_file() and all(exe.stat().st_mtime >= src.stat().st_mtime
+                                 for src in CLEAN_INPUTS)
 
 
 def run_harness(exe: Path) -> tuple[int, str]:
@@ -146,7 +174,11 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="mcr-mutants-") as td:
         work = Path(td)
         clean = CLEAN_MDIR / EXE_NAME
-        exe = clean if clean.is_file() else build(MCR_RTL, work / "obj_clean")
+        exe = clean
+        if not is_fresh(clean):
+            print(f"[INFO] {clean.relative_to(HERE)} is missing or older than its "
+                  f"sources: the positive control is rebuilt")
+            exe = build(MCR_RTL, work / "obj_clean")
         answer = verdict(*run_harness(exe), None) if exe else "did not compile"
         if answer == "pass":
             passes += 1

@@ -54,21 +54,41 @@
 
                 A PENDING RESTART ABSORBS A SECOND REQUEST (#387, ruling
                 5802264260 item 2). A request is pending on a stream from
-                the cycle it arrives until that stream stamps the new level,
-                which waits for the >= 8 PDU hold of its previous toggle. A
-                second request landing in that window (a PHC step on top of
-                a CRF disruption, say) asks for what the first already
-                asked for, so the two merge: the stream puts exactly ONE
-                toggle on the wire, and its MEDIA_RESET counts it. A request
-                therefore does not flip a target; it sets the stream's
-                target to the complement of the level the stream stamps now,
-                which a second request cannot undo. Until #387 every request
-                flipped one shared target, so a second request inside the
-                hold flipped it back and NEITHER restart reached the wire. A
-                request that lands after the stream has stamped the previous
-                toggle is a new restart, not a merge: that stream's
-                listeners have already seen the earlier toggle, so the new
-                one follows once the earlier has held its eight PDUs.
+                the cycle it arrives until a PDU carrying the new level has
+                gone out on that stream (the boundary ruled in 5818091077).
+                That window has two parts: the wait for the >= 8 PDU hold of
+                the stream's previous toggle, and then, once the stream has
+                adopted the new level, the time until its first PDU at that
+                level. Until that PDU no listener has seen the toggle, so a
+                second request landing anywhere in the window (a PHC step on
+                top of a CRF disruption, say) asks for what the first
+                already asked for, and the two merge: the stream puts
+                exactly ONE toggle on the wire, and its MEDIA_RESET counts
+                it. A request therefore does not flip a target; it sets the
+                stream's target to the complement of the level the stream
+                stamps now, which a second request cannot undo, and on a
+                stream whose adopted level no PDU has carried yet it leaves
+                the target at that level. Until #387 every request flipped
+                one shared target, so a second request inside the hold
+                flipped it back and NEITHER restart reached the wire. A
+                request that lands after the first PDU at the adopted level
+                is a new restart, not a merge: that PDU told the stream's
+                listeners about the earlier toggle, so the new one follows
+                once the earlier has held its eight PDUs.
+
+                WHERE "GONE OUT" IS MEASURED. The engine sees a PDU only on
+                the transmitted-PDU feed below (frame_p_i / frame_mr_i), the
+                feed the >= 8 PDU hold counts and MEDIA_RESET reads
+                (KL_talker_diag_ctx), so all three share one definition of a
+                PDU on the wire. The window ends when that feed reports the
+                first PDU at the adopted level, which hold_r records by
+                leaving 0. A talker latches mr when it launches a PDU and the
+                feed reports the PDU once it has been sent on, so a request
+                that lands between the launch of that first PDU and its
+                report still merges, although the PDU already carries the
+                toggle. That residue is at most one PDU's launch-to-report
+                time per restart; closing it needs a launch strobe from each
+                talker, which this module does not take.
 
                 So the target is PER STREAM. Every request still reaches
                 every stream, but whether it is pending is a property of one
@@ -123,7 +143,8 @@
 
 //! Per-talker AVTP mr level: a restart request sets each talker's target to
 //! the complement of the level it stamps, so a request landing on a pending
-//! one merges with it, and each talker adopts its target once its own last
+//! one (requested, or adopted but not yet carried by a transmitted PDU)
+//! merges with it, and each talker adopts its target once its own last
 //! change has been on the wire for HOLD_PDU_P transmitted PDUs (1722-2016
 //! 4.4.4.3).
 
@@ -155,7 +176,9 @@ module KL_media_clock_restart #(
   //! per-talker streaming level (a stopped stream holds nothing)
   input  wire [N_TALKERS_P-1:0]  streaming_i,
 
-  //! PDU completion feed: which talker, and the mr bit that PDU carried
+  //! PDU completion feed: which talker, and the mr bit that PDU carried. It
+  //! is also where a pending restart ends (#387): the first PDU reported at
+  //! a talker's adopted level closes that talker's merge window.
   input  wire                    frame_p_i,
   input  wire [3:0]              frame_idx_i,
   input  wire                    frame_mr_i,
@@ -175,7 +198,9 @@ module KL_media_clock_restart #(
   localparam int unsigned HOLDW_C = $clog2(HOLD_PDU_P + 1);
 
   //! per-talker target: the level each talker stamps once its hold allows.
-  //! It differs from mr_o exactly while a restart is pending on that talker.
+  //! It differs from mr_o while a requested restart waits for the hold; a
+  //! talker is ALSO pending, with the target equal to mr_o, from its
+  //! adoption until the feed reports a PDU at that level (hold_r == 0).
   logic [N_TALKERS_P-1:0]   tgt_r /* verilator public_flat_rw */;
   //! shadow of the media clock source; a difference is a source-change edge
   logic [15:0]              clk_src_q_r;
@@ -203,6 +228,14 @@ module KL_media_clock_restart #(
       //! restart pending (tgt_r != mr_o) keeps its target, so the second
       //! request merges instead of cancelling the first (#387).
       if (restart_p_i | src_change_w) tgt_r <= ~mr_o;
+      //! ... and so does a streaming talker whose adopted level no reported
+      //! PDU has carried yet (hold_r still 0 since the adoption): no listener
+      //! has seen that toggle, so the request merges into it and the target
+      //! stays the level just adopted (#387, ruling 5818091077). The first
+      //! PDU at that level moves hold_r off 0 and ends the window.
+      for (int t = 0; t < N_TALKERS_P; t++)
+        if ((restart_p_i | src_change_w) && streaming_i[t] && (hold_r[t] == '0))
+          tgt_r[t] <= mr_o[t];
 
       //! a completed PDU that carried this talker's CURRENT level counts
       //! toward its hold (saturating - only the >= comparison matters)
