@@ -159,10 +159,13 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   # length as a floor. Anything else keeps the echo. The protocol_id rows move
   # one octet each, as M8 does. The engine compares in four terms (@22..@23,
   # @24..@25, @26, @27), and a row that moves two octets, or only the last,
-  # lets a dropped term through. Two things are not compared. The reserved
-  # field is ignored on the way in and restated as zero on the way out. The
-  # length is bounded from below only, so a longer command is still
-  # GET_MILAN_INFO and draws the 20-octet body, not an echo of itself.
+  # lets a dropped term through. @26 also moves one nibble at a time, because
+  # 5.4.3.2.1 ends the OUI-36 and starts the 12-bit protocol id inside it, and
+  # an all-ones octet cannot see a comparison cut down to either half. Two
+  # things are not compared. The reserved field is ignored on the way in and
+  # restated as zero on the way out. The length is bounded from below only, so
+  # a longer command is still GET_MILAN_INFO and draws the 20-octet body, not
+  # an echo of itself.
   Scenario Outline: only a whole Figure 5.3 GET_MILAN_INFO is served
     When the controller sends an MVU command with protocol_id <protocol_id>, word @28 <word>, reserved <reserved> and control_data_length <cdl_in>
     Then the AECP response message_type is 7
@@ -180,6 +183,8 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 00-1B-FF-0A-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @24, the third OUI-36 octet                       |
       | 00-1B-C5-FF-C1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @25, the fourth OUI-36 octet                      |
       | 00-1B-C5-0A-FF-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26, the last OUI-36 nibble and protocol id's top |
+      | 00-1B-C5-0A-D1-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26 high nibble only: OUI-36 00-1B-C5-0A-D        |
+      | 00-1B-C5-0A-C2-00 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @26 low nibble only: protocol id 0x200            |
       | 00-1B-C5-0A-C1-FF | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27, the protocol id's low octet                  |
       | 00-1B-C5-0A-C1-01 | 0x0000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | @27 by one bit: protocol id 0x101, same OUI-36    |
       | 00-1B-C5-0A-C1-00 | 0x8000 | 0x0000   | 20     | 1      | 20  | the command payload verbatim | r = 1, which 5.4.3.2.2 requires to be 0           |
