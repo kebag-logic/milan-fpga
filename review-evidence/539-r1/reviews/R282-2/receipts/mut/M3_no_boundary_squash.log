@@ -1,0 +1,231 @@
+APPLIED M3_no_boundary_squash
+661d660
+<           if (pp_seq_r == '0) pp_run_r <= 1'b0;
+=== unit
+[U0] clock_source != 2: fully inert
+  [ ok ] [U0] state IDLE                                      = 0
+  [ ok ] [U0] zero DRP accesses                               = 0
+  [ ok ] [U0] zero PS operations                              = 0
+  [ ok ] [U0] trim 0                                          = 0
+[U1] activation: DRP read-verify only
+  [ ok ] [U1] verify reads = 2                                = 2
+  [ ok ] [U1] verify writes = 0                               = 0
+  [ ok ] [U1] verified flag                                   = 1
+  [ ok ] [U1] no mismatch                                     = 0
+[U2] lock from +100 ppm talker
+  [ ok ] [U2] reached LOCKED                                  = 4
+  [ ok ] [U2] effective clock ppm ~ talker (+100)             = 98.389
+  [ ok ] [U2] trim readout ~ +110.6 ppm (x16)                 = 1818.000
+[U3] bounded step + PS protocol
+  [ ok ] [U3] per-window trim step <= SLEW (100 ppm x16)      = 1
+  [ ok ] [U3] no PSEN while shift in flight                   = 0
+  [ ok ] [U3] no PS during DRP reset                          = 0
+[U4] step response: talker +100 -> +80 ppm
+  [ ok ] [U4] re-locked after step                            = 4
+  [ ok ] [U4] re-lock within PI budget (<48 ms = 12 windows)  = 1
+  [ ok ] [U4] effective clock ppm ~ talker (+80)              = 82.417
+[U5] holdover on CRF unlock
+  [ ok ] [U5] state HOLDOVER                                  = 5
+  [ ok ] [U5] trim frozen across holdover                     = 1558
+  [ ok ] [U5] held rate ~ last talker (+80)                   = 81.549
+  [ ok ] [U5] relock after CRF returns                        = 4
+[U6] deselect + fresh lock from -100 ppm
+  [ ok ] [U6] back to IDLE                                    = 0
+  [ ok ] [U6] trim 0 in IDLE                                  = 0
+  [ ok ] [U6] PS silent in IDLE                               = 0
+  [ ok ] [U6] locked from -100 ppm                            = 4
+  [ ok ] [U6] effective clock ppm ~ talker (-100)             = -98.912
+  [ ok ] [U6] trim ~ -89.4 ppm (x16)                          = -1462.000
+[U7] config mismatch, auto_repair OFF: informative only
+  [ ok ] [U7] mismatch flagged                                = 1
+  [ ok ] [U7] verified NOT set                                = 0
+  [ ok ] [U7] zero DRP writes                                 = 0
+  [ ok ] [U7] PS servo still locks on the live config         = 4
+[U8] auto_repair ON: full XAPP888 safe sequence
+  [ ok ] [U8] repair completed (ACQUIRE/LOCKED)               = 1
+  [ ok ] [U8] power reg written 0xFFFF (XAPP888 T14)          = 65535
+  [ ok ] [U8] ClkReg1 repaired, RESERVED[12] preserved        = 5525
+  [ ok ] [U8] ClkReg2 repaired, RESERVED[15] preserved        = 32896
+  [ ok ] [U8] writes under reset only (safe seq)              = 0
+  [ ok ] [U8] no PS during reconfiguration                    = 0
+  [ ok ] [U8] mmcm reset released                             = 0
+  [ ok ] [U8] relock seen (LOCKED synced)                     = 1
+  [ ok ] [U8] locks after repair                              = 4
+[U9] ps_invert knob vs an inverted-polarity MMCM
+  [ ok ] [U9] back to IDLE                                    = 0
+  [ ok ] [U9] locks with knob vs inverted MMCM                = 4
+  [ ok ] [U9] control: wrong polarity never locks             = 0
+[U10] local ptp step: bad window discarded, no rail-out
+  [ ok ] [U10] back to IDLE                                   = 0
+  [ ok ] [U10] locked before the step                         = 4
+  [ ok ] [U10] step counted as it lands (edges; guard: >= 6)  = 2
+  info: locked trim envelope [1459, 1559], after the step [1519, 1579] state=4
+  [ ok ] [U10] trim held across the step (3 win inside envelope +-48) = 1
+  [ ok ] [U10] the step counted once                          = 1
+  [ ok ] [U10] still LOCKED 10 windows after the step         = 4
+  info: trim pre-storm=1498 in-storm=1498 state=4
+  [ ok ] [U10] storm: every step counted as it lands (<= 3 edges) = 6
+  [ ok ] [U10] storm: one discard per step                    = 6
+  [ ok ] [U10] still LOCKED through the slew storm            = 4
+  [ ok ] [U10] trim held through the storm (|d|<=48)          = 1
+  info: trim post-recovery=1518 state=4
+  [ ok ] [U10] LOCKED after the storm ends                    = 4
+  [ ok ] [U10] trim near pre-storm after recovery (|d|<=160)  = 1
+  [ ok ] [U10] effective clock still ~ talker (+80)           = 80.084
+[U11] implausible CRF rate: the 1024 ppm guard and its re-base
+  [ ok ] [U11] LOCKED before                                  = 4
+  info: locked trim envelope [1497, 1577], through it [1577, 1577] state=4
+  info: 7 discards, ticks between them: 32 32 32 33 32 32
+  [ ok ] [U11] >= 6 windows discarded                         = 1
+  [ ok ] [U11] discards 1 to 4 one window (32 ticks) apart    = 1
+  [ ok ] [U11] the 4th re-bases: 5th is 33 ticks on           = 33
+  [ ok ] [U11] then 32 ticks apart again (5th to 6th)         = 32
+  [ ok ] [U11] still LOCKED through it                        = 4
+  [ ok ] [U11] trim held (inside envelope +-48)               = 1
+  [ ok ] [U11] LOCKED after the measurement recovers          = 4
+  [ ok ] [U11] effective clock still ~ talker (+80)           = 80.006
+[U12] a PHC step restarts the 1024 ppm guard's streak
+  [ ok ] [U12] LOCKED before                                  = 4
+  [ ok ] [U12] arm: two guard discards open a streak          = 2
+  [ ok ] [U12] arm: the step counted as it lands (edges)      = 2
+  info: 5 discards, ticks between them: 32 32 32 33
+  [ ok ] [U12] guard discards 1 to 4 after the step 32 ticks apart = 1
+  [ ok ] [U12] the 4th after the step re-bases: 33 ticks      = 33
+  [ ok ] [U12] LOCKED after the streak                        = 4
+[U12] a step with no window open is not counted
+  [ ok ] [U12] two steps one edge apart counted once          = 1
+  [ ok ] [U12] still LOCKED                                   = 4
+[U12] the discard tally saturates at 63; IDLE clears it
+  [ ok ] [U12] arm: tally below 63 before the burst           = 1
+  info: tally 23 before 64 steps, 63 after
+  [ ok ] [U12] tally after 64 steps (saturated)               = 63
+  [ ok ] [U12] still LOCKED after the burst                   = 4
+  [ ok ] [U12] back to IDLE                                   = 0
+  [ ok ] [U12] IDLE clears the tally                          = 0
+======================================================================
+KL_mmcm_drp_servo: 78 checks, 0 failures
+unit exit=0
+=== phc_step
+[P0] lock at the silicon window scale (talker +20 ppm)
+  [ ok ] [P0] state LOCKED                        got=4 exp=4
+  [ ok ] [P0] windows to LOCKED = 11 in [1, 39]
+  [ ok ] [P0] the last window committed
+  [ ok ] [P0] last window error (x512 ppm) = 60 in [-1023, 1023]
+  [ ok ] [P0] integrator ~ talker - base (x512 ppm) = 15680 in [14664, 16712]
+[P1] one PHC step at mid-window, per size
+  [ ok ] [P1 +21000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +21000 ns] next window committed
+  [ ok ] [P1 +21000 ns] next window error = 40 in [-1023, 1023]
+  [ ok ] [P1 +21000 ns] integrator moved = 20 in [-512, 512]
+  [ ok ] [P1 +21000 ns] written rate moved = 15 in [-1024, 1024]
+  [ ok ] [P1 +21000 ns] LOCKED on every edge
+  [ ok ] [P1 +100000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +100000 ns] next window committed
+  [ ok ] [P1 +100000 ns] next window error = 40 in [-1023, 1023]
+  [ ok ] [P1 +100000 ns] integrator moved = 20 in [-512, 512]
+  [ ok ] [P1 +100000 ns] written rate moved = 20 in [-1024, 1024]
+  [ ok ] [P1 +100000 ns] LOCKED on every edge
+  [ ok ] [P1 -100000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -100000 ns] next window committed
+  [ ok ] [P1 -100000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -100000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -100000 ns] written rate moved = -10 in [-1024, 1024]
+  [ ok ] [P1 -100000 ns] LOCKED on every edge
+  [ ok ] [P1 +108000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +108000 ns] next window committed
+  [ ok ] [P1 +108000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +108000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +108000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +108000 ns] LOCKED on every edge
+  [ ok ] [P1 +150000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +150000 ns] next window committed
+  [ ok ] [P1 +150000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +150000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +150000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +150000 ns] LOCKED on every edge
+  [ ok ] [P1 -150000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -150000 ns] next window committed
+  [ ok ] [P1 -150000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -150000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -150000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 -150000 ns] LOCKED on every edge
+  [ ok ] [P1 +300000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +300000 ns] next window committed
+  [ ok ] [P1 +300000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +300000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +300000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +300000 ns] LOCKED on every edge
+  [ ok ] [P1 +524000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +524000 ns] next window committed
+  [ ok ] [P1 +524000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +524000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +524000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +524000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +1000000 ns] next window committed
+  [ ok ] [P1 +1000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +1000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +1000000 ns] LOCKED on every edge
+  [ ok ] [P1 +1000000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 +1000000000 ns] next window committed
+  [ ok ] [P1 +1000000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 +1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 +1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 +1000000000 ns] LOCKED on every edge
+  [ ok ] [P1 -1000000000 ns] discards counted = 1 in [1, 1]
+  [ ok ] [P1 -1000000000 ns] next window committed
+  [ ok ] [P1 -1000000000 ns] next window error = 0 in [-1023, 1023]
+  [ ok ] [P1 -1000000000 ns] integrator moved = 0 in [-512, 512]
+  [ ok ] [P1 -1000000000 ns] written rate moved = 0 in [-1024, 1024]
+  [ ok ] [P1 -1000000000 ns] LOCKED on every edge
+[P2a] step staged on the boundary sample
+  [ ok ] [P2a] arm: the stepped sample is staged, T0 next edge
+  [ ok ] [P2a] arm: the boundary fired on it
+  [FAIL] [P2a] the boundary window is NOT committed
+  [FAIL] [P2a] integrator at the squashed close = 75000 in [0, 0]
+  [FAIL] [P2a] written rate at the squashed close = 51200 in [0, 0]
+  [ ok ] [P2a] discards counted = 1 in [1, 1]
+  [ ok ] [P2a] next window committed
+  [FAIL] [P2a] next window error = -15220 in [-1023, 1023]
+  [FAIL] [P2a] integrator moved = 67390 in [-512, 512]
+  [FAIL] [P2a] written rate moved = 63585 in [-1024, 1024]
+  [FAIL] [P2a] LOCKED on every edge
+[P2b] step staged one edge after the boundary
+  [ ok ] [P2b] arm: no stepped sample staged before T0
+  [ ok ] [P2b] arm: T0 fired as the stepped sample was staged
+  [ ok ] [P2b] the closed (pre-step) window commits
+  [FAIL] [P2b] its window error = 1280 in [-1023, 1023]
+  [ ok ] [P2b] discards counted = 1 in [1, 1]
+  [ ok ] [P2b] next window committed
+  [FAIL] [P2b] next window error = 6920 in [-1023, 1023]
+  [FAIL] [P2b] integrator moved = 4100 in [-512, 512]
+  [FAIL] [P2b] written rate moved = 9635 in [-1024, 1024]
+  [FAIL] [P2b] LOCKED on every edge
+[P2c] step inside the last tick before the boundary
+  [ ok ] [P2c] arm: window abandoned inside its last tick
+  [ ok ] [P2c] arm: the boundary tick re-based instead of closing
+  [ ok ] [P2c] discards counted = 1 in [1, 1]
+  [ ok ] [P2c] next window committed
+  [ ok ] [P2c] next window error = -720 in [-1023, 1023]
+  [ ok ] [P2c] integrator moved = -360 in [-512, 512]
+  [FAIL] [P2c] written rate moved = -2270 in [-1024, 1024]
+  [FAIL] [P2c] LOCKED on every edge
+[P3] guard discard and PHC step on one cycle
+  [ ok ] [P3] arm: S4 of a guard window with a step staged
+  [ ok ] [P3] the implausible window is NOT committed
+  [ ok ] [P3] discards counted = 2 in [2, 2]
+  [ ok ] [P3] next window committed
+  [FAIL] [P3] next window error = -9880 in [-1023, 1023]
+  [FAIL] [P3] integrator moved = -4940 in [-512, 512]
+  [FAIL] [P3] written rate moved = -7230 in [-1024, 1024]
+  [FAIL] [P3] LOCKED on every edge
+[P4] rate path: talker +20 -> -20 ppm, no step
+  [ ok ] [P4] the first window after the change commits
+  [FAIL] [P4] its error carries the rate change (x512 ppm) = 1140 in [-23040, -2560]
+  [ ok ] [P4] re-LOCKED on the new rate           got=4 exp=4
+  [ ok ] [P4] integrator ~ new talker - base (x512 ppm) = -4690 in [-5816, -3768]
+  [ ok ] [P4] nothing discarded = 0 in [0, 0]
+== mmcm_servo phc_step: checks: 113   failures: 19 ==
+RESULT: FAIL
+phc exit=1

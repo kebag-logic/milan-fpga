@@ -1,0 +1,22 @@
+# exact head 910b4fb5f104ac35e8cc1723a70de0d05672895d
+## git grep -n '#539' docs tb/verilator/milan_dp (line text truncated at 260 chars)
+docs/design/GM_LOSS_RECOVERY.md:152:| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has n
+docs/design/GM_LOSS_RECOVERY.md:154:| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm.
+docs/design/GM_LOSS_RECOVERY.md:181:- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+docs/design/TIME_SYNC.md:147:| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15
+docs/reference/REGISTER_MAP.md:1942:| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_
+docs/testing/TESTING.md:481:| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale 
+tb/verilator/milan_dp/README.md:387:- The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the s
+tb/verilator/milan_dp/README.md:388:- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+tb/verilator/milan_dp/sim_gmstep.cpp:16:// the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+## git grep -n '108 to 524' -- docs/design (expect empty)
+rc=1
+## GM_LOSS_RECOVERY.md:181 vs tb/verilator/milan_dp/README.md:388 (twin 'does not grade' lists)
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+## blame of README:388
+021b2e07b0 (hackerman-kl 2026-09-24 02:17:54 +0200 388) - The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+## #387 owner decision 5810378282 (first lines)
+[A10] OWNER DECISION (2026-09-24): decision part b, the media grid aligner
+
+The grid aligner gets no re-centre of its own.
