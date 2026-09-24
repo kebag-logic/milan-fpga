@@ -1,0 +1,17 @@
+unit suite (tb/srp_admission), first grant after declaration capture, cycles: count
+N=1 cycles=4: 4
+N=2 cycles=4: 4
+N=2 cycles=6: 12
+N=3 cycles=6: 24
+N=3 cycles=9: 12
+N=5 cycles=5: 12
+N=5 cycles=10: 76
+N=5 cycles=15: 12
+N=8 cycles=8: 60
+N=8 cycles=16: 184
+N=8 cycles=24: 12
+engine suite (tb/srp_top, M=8), frame bytes / cycles from gate acceptance (-1 = never granted): count
+frame=224 cycles=8: 10
+frame=224 cycles=16: 32
+frame=224 cycles=24: 6
+frame=20000 cycles=-1: 24
