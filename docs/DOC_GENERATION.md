@@ -26,37 +26,59 @@ Then regenerate every committed output.
 
 Never hand-edit generated renders.
 
-`gen_toc.py` owns Markdown classification and Contents provenance.
+`gen_toc.py` owns Contents provenance, not Markdown parsing.
 
-Closing fences accept only trailing spaces or tabs.
-This follows [CommonMark 4.5](https://spec.commonmark.org/0.31.2/#fenced-code-blocks).
+GitHub's own renderer decides every heading and block.
+It is cmark-gfm, read through the `cmarkgfm` binding.
 
-Type-1 HTML blocks end on any literal type-1 closer.
-The names are `pre`, `script`, `style`, and `textarea`.
+html5lib then parses the HTML that cmark-gfm emits.
+A heading counts only when both stages keep it.
 
-Any name ends any such block, including its opening line.
+- Lock: [`requirements.txt`](../tools/markdown/requirements.txt), hash-checked.
+- Binding: `cmarkgfm` `2025.10.22`.
+- Renderer: cmark-gfm `0.29.0.gfm.13`, inside that binding.
+- HTML parser: `html5lib` `1.1`.
+- Another release stops both gates by name.
 
-Matching folds ASCII case and admits no internal blanks.
-See [CommonMark 4.6](https://spec.commonmark.org/0.31.2/#html-blocks).
+Install the lock into the interpreter running documentation gates:
 
-Issue #440 corrects these closing conditions only.
+```sh
+python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+```
 
-The reconstructed 205-fixture GitHub sweep agrees after reader normalization.
+Hosted documentation CI installs the same lock first.
 
-Raw helpers retain CR inside lines and withhold five headings.
+Its wheels cover CPython 3.12 and 3.14.
+Other hosts add their wheel hashes from PyPI.
 
-Both shipped readers normalize CR and CRLF before classification.
+Setext headings and container headings now appear in Contents.
 
-The global 26-character refusal policy remains unchanged.
+An ATX label still comes from its own line.
+A setext label is its rendered text.
+
+Raw HTML headings are never listed.
+GitHub's hidden footnote label is never listed either.
+
+A page able to forge the position attribute lists nothing.
+Letter case, character references and backslash escapes all count.
+
+A page nesting elements over 200 deep lists nothing.
+GitHub drops everything from an element 256 deep.
+
+Each limit withholds a heading and grants no exemption.
+
+GitHub's file view reads some raw HTML differently.
+[CONTRIBUTING.md](../CONTRIBUTING.md) 6.1 measures that difference and its direction.
+
+The refusal policy names 26 characters.
+It also names the position attribute in any letter case.
+
 Refusal binds both provenance and the base heading's authority.
 
-These hidden headings authorize no copied-label exemption.
+[`gen_toc_shapes.json`](../scripts/gen_toc_shapes.json) records GitHub renderings.
+The self-test compares every shape with the renderer.
 
-`I440` controls cover fence trailers and literal type-1 closer boundaries.
-
-Raw-walk and shipped-label controls reject `div`, `title`, and `xmp`.
-
-Container behavior remains the separate scope of issue #437.
+Its file-view pages keep GitHub's anchors for withheld cases.
 
 Synthetic inputs and renderer receipts stay outside tracked Markdown.
 
@@ -285,6 +307,8 @@ Preserve the archive for unrelated obsolete evidence.
 ## Required gates
 
 Run focused documentation checks first.
+
+Install the locked Markdown renderer before these checks.
 
 ```sh
 python3 scripts/docs_check.py

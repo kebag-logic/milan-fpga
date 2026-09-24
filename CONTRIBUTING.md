@@ -570,6 +570,61 @@ copy of a Contents block written inside a fence, an indented code block, an
 HTML comment or a raw HTML block is judged whole: nothing renders it as
 navigation, and the generator did not write it. Existing pages are not
 rewritten for this rule.
+
+Which headings a page has, and which lines are navigation, is the answer of
+the renderer GitHub uses, not of a reader this repository keeps. `gen_toc.py`
+parses the page with cmark-gfm through the `cmarkgfm` binding and parses the
+HTML it emits with html5lib, both pinned with hashes in
+[`tools/markdown/requirements.txt`](tools/markdown/requirements.txt) (#437,
+#516). A heading is listed only when it survives both stages. So a heading
+inside a fence, a raw HTML block or a comment authorises no label, and neither
+does one that a raw `<!--`, an open attribute value or a `<select>` hides. A
+setext heading and a heading inside a list item, a block quote or a referenced
+footnote are listed, and their anchors follow the same rule as every other
+heading's. An ATX heading's label is still read off its own line, so every
+existing label is unchanged. A setext heading's label is its rendered text.
+Install the lock before running the gate or the generator
+(`python3 -m pip install --require-hashes -r tools/markdown/requirements.txt`).
+Both refuse to answer without it, and both refuse any other release.
+[`scripts/gen_toc_shapes.json`](scripts/gen_toc_shapes.json) records GitHub's
+rendering of every page #437 and #516 were judged on, and the self-test
+compares the renderer with each one. Its file-view pages also carry GitHub's
+anchors, and on each the self-test requires every heading listed, label and
+anchor, to be one GitHub shows.
+
+Four limits remain, and each one withholds a heading; none can grant an
+exemption:
+
+- A heading written as raw HTML (`<h2>`) is not listed, although GitHub
+  renders it.
+- The renderer marks its own elements with a position attribute, and a page
+  could make the HTML parse read that attribute on an element of its own.
+  Raw HTML can spell it in any letter case, and text can spell it through a
+  character reference or a backslash escape. So a page is read as rendering
+  nothing when its HTML, rendered without positions as GitHub renders it,
+  spells the attribute in any letter case. A page whose own text spells it,
+  in any letter case, is also refused by name, as a page carrying a refused
+  character is: the generator leaves it alone and the gate exempts nothing
+  on it.
+- A page whose HTML nests an element more than 200 deep is read as rendering
+  nothing. Where GitHub nests an element 256 deep, that element's content and
+  everything after it are lost, and the pinned renderer loses nothing. No
+  tracked page nests an element deeper than 8.
+- GitHub opens a referenced footnote's section with a visually hidden
+  `Footnotes` heading that the pinned cmark-gfm does not emit, so no such
+  heading is listed. Of the recorded `gfm` renderings, this is the one the
+  renderer does not reproduce.
+
+The recorded renderings are the Markdown API's `gfm` mode, which #437 names.
+GitHub renders a repository file through the API's `markdown` mode, and that
+mode reads some raw HTML differently. Measured on 2026-09-23 over the 352
+pages then recorded and 700 generated ones, it differed from the renderer on 8,
+each involving a processing instruction (`<?`), a `<select>` or an `<xmp>`.
+On 2 the renderer lists headings after a processing instruction that carries
+a `<!--`, which a file view hides: an escape. On 4 it hides headings after a
+`<select>`, an `<xmp>` or an unclosed processing instruction that a file view
+shows: withholding. On 2 a heading carrying a processing instruction reads
+differently. No tracked page carries any of the three as raw HTML.
 The gate judges the lines a change ADDS, never the tree, so a page that
 carries the character keeps it until a change touches those lines.
 
