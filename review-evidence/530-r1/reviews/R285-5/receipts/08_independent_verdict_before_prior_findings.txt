@@ -1,0 +1,18 @@
+[R285] independent pass, written before reading any prior review finding on PR #549
+exact head 8ffd6c616840b161891e2eb714a7ddbbb72c7a0d (tree ff757231ac361ff2a07f3bb3e838bba267e0f056)
+
+Independent verdict: POSITIVE (no BLOCKER/MAJOR/MINOR from this pass)
+
+Findings from this pass:
+- S1 SUGGESTION (RTL, Docs) hdl/milan/milan_datapath.sv:6597 - ADMITTED lead-in still reads
+  "The lead shows on the licensed source's own bits:" before a list whose LWSRP_STATUS[6]
+  is ACTIVE ORed over sources (not one source's own bit). Same wording R285-4 S1 removed
+  from the three pages; the list itself qualifies [6] correctly, so it does not mislead.
+
+Ledger (independent pass):
+| lens | state | covering round | head |
+| Conformance | CLEAN | R285-5 (carried: no logic/harness/gitlink change f814d37d..head; crflic 85/0 on 5.050) | 8ffd6c61 |
+| RTL | CLEAN | R285-5 (delta f814d37d..8ffd6c61 applied) | 8ffd6c61 |
+| Robustness | CLEAN | R285-5 (carried; gate mutant 23/85 red) | 8ffd6c61 |
+| Tests | CLEAN | R285-5 (carried; crflic 85/0 + gate mutant at head) | 8ffd6c61 |
+| Docs | CLEAN | R285-5 (delta applied, PR body re-read) | 8ffd6c61 |

@@ -1,0 +1,70 @@
+0x82C index-0 talker word and LWSRP_STATUS[6]/[8] sources at 8ffd6c61
+--- milan_csr.sv snap_srp9_w and index-0 talker packing
+  //! low 9 bits of the selected stream's SRP status word = the STATE[27:19]
+  //! SRP summary (single documented rule for both the flat and ctx sources)
+  wire [8:0] snap_srp9_w = (snap_idx_r == 4'd0) ? i_lwsrp_status[8:0]
+                         : (srp_fresh_r ? i_srp_ctx_rd_stat[8:0] : 9'd0);
+            end else begin
+              snap_shadow_r[0] <= {4'd0, i_lwsrp_status[8:0], 15'd0,
+                                   i_aaf_gate, acmp_lobs[0],
+                                   i_acmp_talker_active, i_acmp_probe_armed};
+            //! STATE with the LIVE per-stream truth vectors (bits [3:0] were
+            //! hardwired 0 until 2026-07-26 - the window-honesty fix)
+            snap_shadow_r[11] <= i_tctx_rd_data;
+            snap_shadow_r[0]  <= {4'd0, snap_srp9_w, 15'd0,
+                                  i_tlk_gate_v[snap_idx_r[2:0]],
+                                  i_tlk_lobs_v[snap_idx_r[2:0]],
+                                  i_tlk_active_v[snap_idx_r[2:0]],
+                                  i_tlk_probe_v[snap_idx_r[2:0]]};
+--- milan_datapath.sv LWSRP_STATUS packing (bit6 = lwsrp_res_active, bit8 = lwsrp_stream_gate[0])
+  localparam int SRP_TALKERS_C  = N_STREAMS + SRP_CRF_TK_C;
+  wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
+  wire        lwsrp_slope_en, lwsrp_res_active;
+  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w /* verilator public_flat_rd */;
+    .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 4'd0,
+                            lwsrp_ctx_oor_w,
+                            lwsrp_tfail_valid, lwsrp_slope_en,
+                            lwsrp_stream_gate[0], lwsrp_over_limit,
+                            lwsrp_res_active, lwsrp_domain_ok,
+                            lwsrp_talker_declared, lwsrp_listener_ready,
+                            lwsrp_listener_reg, lwsrp_listener_decl}),
+  //! vector when it exists): a reservation EXISTS, Milan v1.2 5.3.7.3
+  wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
+                           lwsrp_stream_gate[SRP_TALKERS_C-1];
+  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+  assign lwsrp_res_active  = |pp_cd_srp_active_w;
+  assign srp_ctx_rd_stat_w = 16'd0;
+--- width check: {4'd0, lwsrp[8:0], 15'd0, 4 bits} = 4+9+15+4 = 32 -> [27:19] = LWSRP_STATUS[8:0], [27]=[8], [25]=[6]
+--- new comment text 6596-6627
+  //!   LWSRP_STATUS[9] and 0x698 by up to three rounds, and no shaper reads
+  //!   either word. The lead shows on the licensed source's own bits:
+  //!   LWSRP_STATUS[8] is source 0's gate only, so the CRF output (the top
+  //!   ACTIVE slot, source 1 on the AX7101 1x1 shape) shows it on
+  //!   CRFT_CTRL[6]/[7] and LWSRP_STATUS[6] (ACTIVE ORed over sources),
+  //!   never on [8].
+  //!
+  //!   REFUSED - the round refuses the stream: over_limit (LWSRP_STATUS[7])
+  //!   rises and sr_admitted_o stays 0 (KL_srp_admission.sv:152-154,
+  //!   207-214). ACTIVE does not fall inside the window: it holds on opt
+  //!   and falls at the window's end, and the declaration then swaps to
+  //!   Talker Failed. So a declaration the 75 % ceiling refuses holds, for
+  //!   up to three rounds, the emission licence (crft_emit_en_w into
+  //!   KL_crf_tx.enable_i, the AAF gates) and the Milan v1.2 5.3.7.7 Table
+  //!   5.4 streaming level (tkd_streaming_w). KL_talker_diag_ctx counts a
+  //!   STREAM_START and a STREAM_STOP a controller reads, the start zeroes
+  //!   MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX, and at most one PDU
+  //!   per source can leave, if its media event falls in the window.
+  //!   CRFT_CTRL[6]/[7] pulse with it for the CRF output and LWSRP_STATUS[8]
+  //!   for source 0; LWSRP_STATUS[6] is |ACTIVE, so it pulses only while no
+  //!   other source is ACTIVE. The snap-latched 0x82C talker window's
+  //!   per-index bits hold the AAF sources only, never the CRF output: its
+  //!   gate bit [3] pulses at every index, its lobs bit [2] only above
+  //!   index 0, because index 0's lobs is source 0's registered Listener
+  //!   level, not ACTIVE. At index 0 its [27:19] mirrors LWSRP_STATUS[8:0],
+  //!   so [27] pulses as LWSRP_STATUS[8] does and [25] as the OR
+  //!   LWSRP_STATUS[6] does. ACTIVE still needs a registered Listener Ready
+  //!   or Ready Failed, so nothing leaves before one (#530). Whether the
+  //!   licence should also need the real grant is issue #551.
+  //!
+  //!   The processor takes the window so that a declaration is never Talker
+  //!   Failed first.

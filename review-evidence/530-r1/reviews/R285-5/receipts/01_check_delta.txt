@@ -1,0 +1,63 @@
+== identity
+8ffd6c616840b161891e2eb714a7ddbbb72c7a0d
+ff757231ac361ff2a07f3bb3e838bba267e0f056
+== stripped datapath
+50e78097564244c124e1ec30dd8821f83951ab06 hdl/milan/milan_datapath.sv stripped-sha256 84574816e4dc90141c27a45c5ce73376340abaa5d372ce468459ec64d2892ce9
+c593cbeff hdl/milan/milan_datapath.sv stripped-sha256 5cd4d5ae11ebbd2a4f3143880a4d33d65e747899ff67376f483518be150a38c7
+f814d37d94e17435f3b6dcc424f8b2b606cdd3e9 hdl/milan/milan_datapath.sv stripped-sha256 5cd4d5ae11ebbd2a4f3143880a4d33d65e747899ff67376f483518be150a38c7
+6556effc8 hdl/milan/milan_datapath.sv stripped-sha256 5cd4d5ae11ebbd2a4f3143880a4d33d65e747899ff67376f483518be150a38c7
+77068c9ad hdl/milan/milan_datapath.sv stripped-sha256 5cd4d5ae11ebbd2a4f3143880a4d33d65e747899ff67376f483518be150a38c7
+8ffd6c616840b161891e2eb714a7ddbbb72c7a0d hdl/milan/milan_datapath.sv stripped-sha256 5cd4d5ae11ebbd2a4f3143880a4d33d65e747899ff67376f483518be150a38c7
+== hdl/ files differing c593cbef..head
+hdl/milan/milan_datapath.sv
+== non-tb/scripts/hdl paths changed f814..head (non-doc?)
+hdl/milan/milan_datapath.sv
+== tb/ scripts/ syn/ tests/ features/ changed f814..head
+== added/removed hdl lines f814..head that are not // comments
+(none)
+== metacomment tokens in changed hdl lines
+(none)
+== gitlinks head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+== modes of changed files f814..head
+:100644 100644 README.md
+:100644 100644 REQUIREMENTS.md
+:100644 100644 docs/MILAN_V12_ROADMAP.md
+:100644 100644 docs/design/GPTP_PLANE.md
+:100644 100644 docs/design/TIME_SYNC.md
+:100644 100644 docs/guides/gptp/MANAGER.md
+:100644 100644 docs/reference/EGRESS_QUEUE_MAP.md
+:100644 100644 docs/reference/FR_NFR.md
+:100644 100644 docs/reference/MILAN_COMPLIANCE_MATRIX.md
+:100644 100644 docs/reference/MILAN_FEATURE_STATUS.md
+:100644 100644 docs/reference/REGISTER_MAP.md
+:100644 100644 docs/reference/SUBMODULES.md
+:100644 100644 docs/traceability/ieee8021as.md
+:100644 100644 docs/traceability/ieee8021q.md
+:100644 100644 hdl/milan/milan_datapath.sv
+== merge-tree recompute of 6556effc
+auto tree 30b13c3daf0a3f72e41c8cc4020c8632bf420383
+docs/reference/FR_NFR.md
+
+Auto-merging docs/reference/FR_NFR.md
+CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+Auto-merging docs/reference/MILAN_COMPLIANCE_MATRIX.md
+Auto-merging docs/reference/SUBMODULES.md
+-- recorded merge vs auto tree (paths)
+M	docs/reference/FR_NFR.md
+-- FR-CONN row at head equals PR side; FR-MVU row equals dev side
+FR-MVU-01..03 f814d37d 211339d34103a8a6
+FR-MVU-01..03 3d2f3e31 57c5f483d9a8a072
+FR-MVU-01..03 6556effc 57c5f483d9a8a072
+FR-MVU-01..03 8ffd6c61 57c5f483d9a8a072
+FR-CONN-01/02 f814d37d 0c3c8cde45b1cf9c
+FR-CONN-01/02 3d2f3e31 28110fc046225941
+FR-CONN-01/02 6556effc 0c3c8cde45b1cf9c
+FR-CONN-01/02 8ffd6c61 0c3c8cde45b1cf9c
+== diff --check f814..head and dev..head
+clean1
+clean2
+== is dev tip ancestor of head
+yes
