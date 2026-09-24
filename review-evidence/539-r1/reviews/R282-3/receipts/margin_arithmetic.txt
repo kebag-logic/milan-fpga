@@ -1,0 +1,6 @@
+incr_i max 255.999999940 ns (<256), adj_i max 127.999999940 ns (<128), sum 383.999999881 ns (<384)
+4096/384 = 10.6667 -> 10.7x (comment line 302)
+20000/4096 = 4.8828 -> 4.9x (comment line 302)
+docs/design/TIME_SYNC.md:85:| Link-up | The first pair after asCapable rises | 20 us | 20 us |
+docs/design/TIME_SYNC.md:88:- Every reset clears asCapable, so it re-arms link-up.
+docs/design/TIME_SYNC.md:89:- Nothing else re-arms link-up.
