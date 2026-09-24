@@ -1,0 +1,20 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: MD1 literal-address cast store into the CSR window in a UART handler, hidden by U+00B7 in two directive names
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: MD1a the same store hidden by U+0387
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: MD1b the same store hidden by U+203F
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: MD1c control: the same store hidden by `$` (S refuses)
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: MD1p control: the same store, plain
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsi
+REFUSED: MD2 identity sample forged in milan_init(), hidden by U+00B7
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+REFUSED: MD3 ADP enable in a UART handler, hidden by U+00B7
+    ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED: MD4 AEM verdict overwritten after the verifier, hidden by U+00B7
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+ACCEPTED: MD5 benign control: a printf in a UART handler, hidden by U+00B7
+ACCEPTED: MD6 benign control: U+00B7 in a comment only
+PROBE DONE: 10 result(s), 0 compiles, 10.5 s

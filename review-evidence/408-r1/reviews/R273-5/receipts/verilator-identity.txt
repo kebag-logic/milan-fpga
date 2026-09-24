@@ -1,0 +1,4 @@
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  <pinned-tool-bin>/verilator
+#!/bin/sh
+exec env VERILATOR_ROOT=<verilator-5.050-image>/usr/share/verilator <verilator-5.050-image>/usr/bin/verilator "$@"

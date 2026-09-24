@@ -1,0 +1,74 @@
+## sdk
+  dev=REFUSED  head=ACCEPTED ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  dev=REFUSED  head=ACCEPTED ACC2 a benign statement in an arm the census tree drops, inside configure_f
+  dev=REFUSED  head=ACCEPTED ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+  dev=REFUSED  head=ACCEPTED ACC4 a ## token paste building a call outside the boot path
+  dev=REFUSED  head=ACCEPTED ACC5 a token-joining backslash-newline inside a macro body
+  dev=REFUSED  head=ACCEPTED ACC6 a read-only #define accessor over milan_read()
+  dev=REFUSED  head=ACCEPTED ACC7 a fifth cast to a pointer, resolving outside the window
+  dev=REFUSED  head=ACCEPTED ACC8 a fifth store through a pointer, resolving outside the window
+  dev=REFUSED  head=ACCEPTED ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or remov
+  dev=REFUSED  head=ACCEPTED ACC10 a fifth inline-asm statement, a fence in a UART command handler
+  dev=REFUSED  head=REFUSED  H1 function pointer to milan_write built by a SPLICE, called from a UART ha
+         the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as a
+  dev=REFUSED  head=REFUSED  H2 function pointer to milan_write built by a PASTE, called from a UART han
+         the compiled firmware transfers control through a register this resolver cannot tie to a symbol, which it must read as a
+  dev=REFUSED  head=REFUSED  H3 second choke-point call built by a SPLICE, in a UART handler
+         the compiled firmware enters entity_advertise() from ['milan_init', 'milan_status_handler'], not from milan_init() exact
+  dev=REFUSED  head=REFUSED  H4 verdict overwritten by a PASTE between the verifier and the choke point
+         a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and e
+  dev=REFUSED  head=REFUSED  H5 verdict overwritten by a SPLICE between the verifier and the choke point
+         a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so t
+  dev=REFUSED  head=REFUSED  H11 store through milan_reg() built by a PASTE, in a UART handler
+         the compiled firmware stores through milan_reg()'s return from ['milan_status_handler', 'milan_write'] (2 store(s)): tha
+  dev=REFUSED  head=REFUSED  H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+         #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second defin
+  dev=ACCEPTED head=REFUSED  H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+         #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second defin
+  dev=ACCEPTED head=ACCEPTED H8 verifier QSPI-slot group with its #else arm deleted (the no-slot build f
+  dev=ACCEPTED head=REFUSED  H9 verifier #else behind a lone CR, its hidden arm returning 1
+         AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachabilit
+  dev=REFUSED  head=REFUSED  H10 product-only 0 && in the choke point's verdict test (the gate's own con
+         under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware 
+  dev=ACCEPTED head=REFUSED  H12 the same product-only 0 && with its directives behind lone CRs
+         under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware 
+  dev=ACCEPTED head=REFUSED  H13 the same product-only 0 && with its directives behind form feeds
+         under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware 
+  dev=ACCEPTED head=REFUSED  H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lone-CR
+         under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of 
+  dev=REFUSED  head=ACCEPTED ACC11 a README and a notes.txt beside the firmware
+  dev=-        head=REFUSED  H15 a LINK named init.h beside the firmware to a file outside
+         a pinned include resolved to a file this repository supplies beside the firmware: ['/tmp/milan-beside-z5xuxxv0/init.h'].
+## absent
+  dev=REFUSED  head=ACCEPTED ACC1 an #ifdef around a debug printf INSIDE milan_init()
+  dev=REFUSED  head=ACCEPTED ACC2 a benign statement in an arm the census tree drops, inside configure_f
+  dev=REFUSED  head=ACCEPTED ACC3 an #ifdef/#else choosing a #define, read in a UART command handler
+  dev=REFUSED  head=ACCEPTED ACC4 a ## token paste building a call outside the boot path
+  dev=REFUSED  head=ACCEPTED ACC5 a token-joining backslash-newline inside a macro body
+  dev=REFUSED  head=ACCEPTED ACC6 a read-only #define accessor over milan_read()
+  dev=REFUSED  head=ACCEPTED ACC7 a fifth cast to a pointer, resolving outside the window
+  dev=REFUSED  head=ACCEPTED ACC8 a fifth store through a pointer, resolving outside the window
+  dev=REFUSED  head=ACCEPTED ACC9 parse_u64() and seconds_to_ns() exchanged, with nothing added or remov
+  dev=REFUSED  head=ACCEPTED ACC10 a fifth inline-asm statement, a fence in a UART command handler
+  dev=REFUSED  head=ACCEPTED H1 function pointer to milan_write built by a SPLICE, called from a UART ha
+  dev=REFUSED  head=ACCEPTED H2 function pointer to milan_write built by a PASTE, called from a UART han
+  dev=REFUSED  head=ACCEPTED H3 second choke-point call built by a SPLICE, in a UART handler
+  dev=REFUSED  head=REFUSED  H4 verdict overwritten by a PASTE between the verifier and the choke point
+         a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and e
+  dev=REFUSED  head=REFUSED  H5 verdict overwritten by a SPLICE between the verifier and the choke point
+         a backslash-newline JOINS two tokens inside the boot entry point (line 1453): translation phase 2 deletes the pair, so t
+  dev=REFUSED  head=ACCEPTED H11 store through milan_reg() built by a PASTE, in a UART handler
+  dev=REFUSED  head=REFUSED  H6 second #define of MILAN_ID_MAGIC as a fresh milan_read(MILAN_ID)
+         #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second defin
+  dev=ACCEPTED head=REFUSED  H7 second #define of MILAN_ID_MAGIC as the sample itself (control)
+         #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second defin
+  dev=ACCEPTED head=ACCEPTED H8 verifier QSPI-slot group with its #else arm deleted (the no-slot build f
+  dev=ACCEPTED head=REFUSED  H9 verifier #else behind a lone CR, its hidden arm returning 1
+         AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachabilit
+  dev=REFUSED  head=ACCEPTED H10 product-only 0 && in the choke point's verdict test (the gate's own con
+  dev=ACCEPTED head=ACCEPTED H12 the same product-only 0 && with its directives behind lone CRs
+  dev=ACCEPTED head=ACCEPTED H13 the same product-only 0 && with its directives behind form feeds
+  dev=ACCEPTED head=REFUSED  H14 a product-only arm clearing nothing: pre-AEM ADP clear behind a lone-CR
+         under the arm selection line 1367 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, no arm taken, graded as a firmware of 
+  dev=REFUSED  head=ACCEPTED ACC11 a README and a notes.txt beside the firmware
+  dev=-        head=ACCEPTED H15 a LINK named init.h beside the firmware to a file outside

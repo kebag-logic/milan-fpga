@@ -1,0 +1,26 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+ACCEPTED: C0 shipping firmware unchanged (must be ACCEPTED)
+ACCEPTED: C1 struct-overlay store to ADP_CTRL, unconditional
+ACCEPTED: C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)
+ACCEPTED: C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape)
+REFUSED: C4 same store, plain `%:ifdef` digraph (kept ban)
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H3 same store, split digraph with a blank before the newline
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+ACCEPTED: C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE
+REFUSED: H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED: H5 same second definition spelled with a split `%:` digraph
+    firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL
+    firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+ACCEPTED: B1 a byte order mark before the first line, nothing else
+REFUSED: B2 a byte order mark, then `#include <string.h>` on line 1
+    the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file
+PROBE DONE: 15 result(s), 0 compiles, 11.0 s
