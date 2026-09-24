@@ -1,0 +1,68 @@
+== 1. step 2 cadence (Run A, B, C, final)
+  Sync       switch->DUT: 4556 intervals (includes run gaps), within 30%: 4556, max in-run 149.4 ms, min 100.6 ms
+  Pdelay_Req switch->DUT: 564 intervals (includes run gaps), within 30%: 564, max in-run 1029.6 ms, min 999.9 ms
+  Announce   switch->DUT: 565 intervals (includes run gaps), within 30%: 565, max in-run 1010.6 ms, min 999.7 ms
+  Pdelay_Req DUT->switch: 566 intervals (includes run gaps), within 30%: 566, max in-run 1000.0 ms, min 1000.0 ms
+  Pdelay switch requests, DUT responds: requests 568, answered 568, tap req->resp min 10.984 us max 11.009 us; top3 [11.009, 11.009, 11.009]
+  Pdelay DUT requests, switch responds: requests 570, answered 570, tap req->resp min 679.394 us max 18359.403 us; top3 [879.89, 18330.396, 18359.403]
+== 2. Run B CRF PDUs sent by the DUT
+  CRF PDUs 34061, tu=1 0, sequence discontinuities 0
+== 3. tap records without an envelope
+  bench-a200/bench/final/tap-final.pcap: 0
+  bench-a200/bench/probe-tap-0.pcap: 0
+  bench-a200/bench/runA/tap-runA.pcap: 76
+  bench-a200/bench/runB/tap-runB.pcap: 0
+  bench-a200/bench/runC/tap-runC.pcap: 0
+  bench-a202/bench/attempt1-aborted/tap-c1.pcap: 0
+  bench-a202/bench/cycle1/tap-c1.pcap: 38
+  bench-a202/bench/cycle2/tap-c2.pcap: 0
+  bench-a202/bench/cycle3/tap-c3.pcap: 38
+  bench-a202/bench/cycle4/tap-c4.pcap: 45
+  bench-a202/bench/cycle5/tap-c5.pcap: 0
+  bench-a202/bench/cycle6/tap-c6.pcap: 37
+  bench-a202/bench/final/tap-final.pcap: 18
+== 4. console commands
+  bench-a200/bench/console-memread-test.lock.txt: 0 {}
+  bench-a200/bench/console-memread-test.txt: 10 {'mem_read': 10}
+  bench-a200/bench/final/console-final.txt: 11 {'milan_status': 1, 'mem_read': 10}
+  bench-a200/bench/runA/console.txt: 600 {'milan_status': 60, 'mem_read': 540}
+  bench-a200/bench/runB/console.txt: 371 {'milan_status': 53, 'mem_read': 318}
+  bench-a200/identity/console-identity.txt: 6 {'milan_status': 2, 'mem_list': 1, 'crc': 3}
+  bench-a202/bench/cycle1/console.txt: 6400 {'milan_status': 1600, 'mem_read': 4800}
+  bench-a202/bench/cycle2/console.txt: 4800 {'milan_status': 1200, 'mem_read': 3600}
+  bench-a202/bench/cycle3/console.txt: 4800 {'milan_status': 1200, 'mem_read': 3600}
+  bench-a202/bench/cycle4/console.txt: 7242 {'milan_status': 1207, 'mem_read': 6035}
+  bench-a202/bench/cycle5/console.txt: 7248 {'milan_status': 1208, 'mem_read': 6040}
+  bench-a202/bench/cycle6/console.txt: 7248 {'milan_status': 1208, 'mem_read': 6040}
+  bench-a202/bench/final/console-final.txt: 9 {'milan_status': 1, 'mem_read': 8}
+  bench-a202/bench/poll-test/console.txt: 200 {'milan_status': 50, 'mem_read': 150}
+  bench-a202/identity/console-identity.txt: 9 {'milan_status': 2, 'mem_list': 1, 'crc': 3, 'mem_read': 3}
+  transcripts 15; total 38954; by word {'mem_read': 31154, 'milan_status': 7792, 'mem_list': 2, 'crc': 6}
+== 5. tcpdump logs
+  bench-a200/bench/final/tcpdump.log: dropped ['0']
+  bench-a200/bench/runA/tcpdump.log: dropped ['0']
+  bench-a200/bench/runB/tcpdump.log: dropped ['0']
+  bench-a200/bench/runC/tcpdump.log: dropped ['0']
+  bench-a202/bench/attempt1-aborted/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/attempt1-aborted/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle1/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle1/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle2/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle2/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle3/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle3/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle4/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle4/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle5/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle5/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/cycle6/tcpdump-pw1.log: dropped ['0']
+  bench-a202/bench/cycle6/tcpdump-tap.log: dropped ['0']
+  bench-a202/bench/final/tcpdump-tap.log: dropped ['0']
+  logs: 19
+== 6. step 3 outlet on-command intervals
+  attempt1-aborted -> cycle1: 114.19 s
+  cycle1 -> cycle2: 355.93 s
+  cycle2 -> cycle3: 163.28 s
+  cycle3 -> cycle4: 154.51 s
+  cycle4 -> cycle5: 180.29 s
+  cycle5 -> cycle6: 154.08 s

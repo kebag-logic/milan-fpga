@@ -1,0 +1,36 @@
+== probe: retired-stack term (bare-metal gate)
+  - docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: [T] retired-stack term 'linuxptp': 'The capture server ran linuxptp.' (#259: the checkout is bare-metal only; history lives in git)
+baremetal-only: FAIL (1 finding(s) across 839 scanned file(s))
+rc=1
+restored: yes
+== probe: home path (docs_check local-info)
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: home path at column 17 — write ~ or $HOME
+docs_check: 1 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=1
+restored: yes
+== probe: em dash (added-line gate)
+check_em_dash: 0 finding(s) over 670 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+restored: yes
+== probe: dead fragment link (docs_check link health)
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+restored: yes
+== probe: cross-page dead anchor
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+restored: yes
+== probe: cross-page dead anchor (gen_toc --verify-anchors)
+  MISS docs/findings/117_GPTP_SILICON_EVIDENCE.md -> ../design/GM_LOSS_RECOVERY.md#no-such-bound
+anchor check: 148 existing cross-page fragment links reproduced, 1 NOT reproduced
+rc=1
+restored: yes
+== probe: same-page dead anchor (gen_toc --verify-anchors)
+anchor check: 148 existing cross-page fragment links reproduced
+rc=0
+restored: yes
+== probe: dead relative file link (docs_check)
+docs/findings/117_GPTP_SILICON_EVIDENCE.md:630: broken link -> ../design/NO_SUCH_PAGE.md
+docs_check: 1 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=1
+restored: yes
