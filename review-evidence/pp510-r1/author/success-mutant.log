@@ -1,0 +1,566 @@
+FAIL: A5: NOT_IMPLEMENTED echo is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 55 00 05 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 55 00 05 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: A5b: unassigned opcode, empty payload: the response is not the echoed command
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 0c 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 61 7f fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 0c 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 61 7f fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: A5b: GET_MAX_TRANSIT_TIME (§7.4.78.1, the Hive 4.3.1 case): the response is not the echoed command
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 62 00 4d a0 a1 a2 a3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 62 00 4d a0 a1 a2 a3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: A5b: unassigned opcode, 16-byte payload: the response is not the echoed command
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 1c 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 63 7f fc a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 1c 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 63 7f fc a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af 00 00 00 00 00 00
+FAIL: A5b: unassigned opcode, past the 60-octet floor: the response is not the echoed command
+  got  (110 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 54 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 64 7f fd a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 ba bb bc bd be bf c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb cc cd ce cf d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 da db dc dd de df e0 e1 e2 e3 e4 e5 e6 e7
+  want (110 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 54 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 64 7f fd a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 ba bb bc bd be bf c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb cc cd ce cf d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 da db dc dd de df e0 e1 e2 e3 e4 e5 e6 e7
+FAIL: A5b: GET_MAX_TRANSIT_TIME again, after a 72-byte command: the response is not the echoed command
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 65 00 4d a0 a1 a2 a3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 10 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 55 65 00 4d a0 a1 a2 a3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M3: the foreign-protocol_id echo is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 02 00 1b c5 0a c1 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 02 00 1b c5 0a c1 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M4: MVU 0x0001 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0001 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M4: MVU 0x0002 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0002 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M4: MVU 0x0003 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0003 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M4: MVU 0x0004 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0004 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M4: MVU 0x0005 must answer VENDOR_UNIQUE_RESPONSE / NOT_IMPLEMENTED
+FAIL: M4: MVU 0x0005 NOT_IMPLEMENTED echo is not byte-exact
+FAIL: M5: r = 1 was not echoed as NOT_IMPLEMENTED
+FAIL: M6: the truncated-MVU echo is not byte-exact
+FAIL: M8: foreign in @22 (OUI octet 1) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 ff 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 ff 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: foreign in @23 (OUI octet 2) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 ff c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 ff c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: foreign in @24 (OUI octet 3) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b ff 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b ff 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: foreign in @25 (OUI-36 nibble + protocol) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 ff c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 ff c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: foreign in @26 (protocol number, high) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: foreign in @27 (protocol number, low) was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a c1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a c1 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8: one BIT from MVU, in the last octet was not echoed as NOT_IMPLEMENTED
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a c1 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 10 00 1b c5 0a c1 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8b: an OUI with bit 7 of @22 SET (0xFC): the echo is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 11 fc 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 11 fc 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M8b: an OUI that is bit 7 and nothing else (0x80): the echo is not byte-exact
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 11 80 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 11 80 1b c5 0a c1 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 20 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 20 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 21 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 21 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 22 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 22 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 23 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 23 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 24 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 24 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 25 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 25 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 26 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 26 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 27 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 27 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 28 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 28 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 29 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 29 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2a 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2a 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2b 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2b 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2c 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2c 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2d 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2d 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2e 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2e 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2f 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 2f 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 30 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 30 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 31 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 31 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 32 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 32 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 33 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 33 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 34 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 34 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 35 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 35 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=2 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 36 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 03 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 36 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 37 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 37 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 38 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 38 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 39 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 39 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3a 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3a 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3b 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3b 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3c 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3c 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3d 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3d 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3e 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3e 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3f 00 14 00 02 00 00 00 00 bb 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 3f 00 14 00 02 00 00 00 00 bb 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 40 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 40 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 41 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 41 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 42 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 42 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 43 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 43 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 44 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 44 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 45 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 45 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 46 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 46 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 47 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 47 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 48 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 48 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 49 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 49 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4a 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4a 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4b 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4b 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4c 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4c 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4d 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4d 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4e 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4e 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4f 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 4f 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 50 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 50 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 51 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 51 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 52 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 52 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 53 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 53 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 54 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 54 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 55 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 55 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 56 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 56 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 57 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 57 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 58 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 58 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 59 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 59 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5a 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5a 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5b 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5b 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5c 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5c 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5d 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5d 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5e 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5e 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5f 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 5f 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 60 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 60 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 61 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 61 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 62 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 62 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 63 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 63 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 64 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 64 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 65 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 65 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 66 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 66 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 67 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 67 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 68 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 68 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 69 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 69 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6a 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6a 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6b 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6b 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6c 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6c 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6d 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6d 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6e 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6e 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6f 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 6f 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 70 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 70 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 71 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 71 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 72 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 72 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 73 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 73 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 74 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 74 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 75 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 75 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 76 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 76 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 77 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 77 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 78 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 78 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 79 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 79 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7a 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7a 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=8 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7b 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 09 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7b 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7c 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7c 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7d 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7d 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7e 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7e 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7f 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 7f 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 80 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 80 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 81 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 81 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 82 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 82 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 83 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 83 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 84 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 84 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 85 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 85 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 86 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 86 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 87 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 87 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 88 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 88 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 89 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 89 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8a 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8a 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8b 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8b 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8c 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8c 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8d 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8d 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8e 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8e 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8f 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 8f 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 90 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 90 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 91 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 91 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=10 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 92 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0b 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 92 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 93 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 93 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 94 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 94 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 95 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 95 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 96 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 96 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 97 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 97 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 98 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 98 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 99 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 99 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9a 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9a 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9b 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9b 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9c 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9c 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9d 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9d 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9e 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9e 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9f 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 9f 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a0 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a0 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a1 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a1 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a2 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a2 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a3 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a3 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a4 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a4 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a5 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a5 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a6 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a6 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a7 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a7 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a8 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a8 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=12 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a9 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0d 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 a9 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0000 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 aa 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 aa 00 00 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0001 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ab 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ab 00 01 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0002 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ac 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ac 00 02 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ad 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ad 00 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0006 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ae 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ae 00 06 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0007 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 af 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 af 00 07 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0009 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b0 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b0 00 09 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 000F must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b1 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b1 00 0f aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0014 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b2 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b2 00 14 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0015 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b3 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b3 00 15 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0016 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b4 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b4 00 16 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0017 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b5 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b5 00 17 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0018 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b6 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b6 00 18 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0019 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b7 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b7 00 19 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0022 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b8 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b8 00 22 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0023 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b9 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 b9 00 23 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0024 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ba 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 ba 00 24 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0025 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bb 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bb 00 25 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0026 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bc 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bc 00 26 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bd 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bd 00 27 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0028 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 be 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 be 00 28 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bf 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 bf 00 29 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=14 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c0 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 0f 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c0 00 2b 00 0e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0004 must be NOT_IMPLEMENTED with the command echoed WHOLE (VENDOR_UNIQUE / READ_DESCRIPTOR short)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c1 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c1 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 0029 must be NOT_IMPLEMENTED with the command echoed WHOLE (VENDOR_UNIQUE / GET_COUNTERS short)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c2 00 29 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c2 00 29 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 002B must be NOT_IMPLEMENTED with the command echoed WHOLE (VENDOR_UNIQUE / GET_AUDIO_MAP short)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c3 00 2b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 0e 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c3 00 2b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=6 word 8004 must be NOT_IMPLEMENTED with the command echoed WHOLE (VENDOR_UNIQUE, OUI with bit 15 set)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c4 80 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 07 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c4 80 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9: mt=4 word 8004 must be NOT_IMPLEMENTED with the command echoed WHOLE (AVC_COMMAND, length word with bit 15 set)
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c5 80 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 05 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 c0 c5 80 04 aa bb cc dd 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: M9c: a non-colliding vendor OUI still round-trips whole
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+FAIL: B5: the echoed NOT_IMPLEMENTED response is not byte-exact
+FAIL: Q5e: a non-port type keeps the NOT_IMPLEMENTED echo
+  got  (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 e0 0e 00 2b 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  want (60 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 08 14 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 e0 0e 00 2b 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[build default, SRP_DOM_DEF_VID_P 0x0002] 1946 checks, 197 failures

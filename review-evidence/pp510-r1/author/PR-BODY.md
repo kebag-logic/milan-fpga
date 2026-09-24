@@ -1,0 +1,58 @@
+[A290]
+
+Closes #55
+Closes #56
+Closes #77
+Relates to kebag-logic/milan-fpga#510
+
+The October profile deliberately leaves the recommended SYSTEM_UNIQUE_ID and
+MEDIA_CLOCK_REFERENCE_INFO command pairs unsupported. Record the
+[owner decision](https://github.com/kebag-logic/milan-fpga/issues/510#issuecomment-5789766089)
+in section 6.9, F06.14, GAP-03 and REQ-MVU-003/004. Milan v1.2 sections
+5.4.4.2–5.4.4.5 (printed pp. 58–61) and 7.6 (printed p. 115) introduce support as a recommendation. Implementation
+returns at P4 if the conformance lab requires it.
+
+F01.5 marks both phantom enable names reserved with no RTL consumer. Related
+interface and storage descriptions are marked deferred. GET_MILAN_INFO remains
+implemented; features_flags is zero and Table 5.20 has no flag for either pair.
+
+M4 sends complete commands 0x0001–0x0004 and reserved type 0x0005. It verifies
+the response type, NOT_IMPLEMENTED status, length and exact echo, including
+nonzero SET data. The four cdl values are 28/20/92/20. No RTL changes.
+
+Processor head: `05fd9e1b2390e7cb0c704c07cd3d9ec47ecd0a19` on `510-mvu-waiver`,
+from `265d6762a58d9d9e545624d6d3f1a34e7006d171`.
+
+Mutation evidence: changing only generated ROM word 560 from NOT_IMPLEMENTED
+to SUCCESS is rejected with exit 1. Every waived command fails both its
+status and byte-exact response check; lengths remain correct. Changing
+features_flags from 0 to 3 is also rejected (M1, M2, M5b). The original ROM
+is restored. The normal top-level suite passes 1,966 checks.
+
+All required validation returned **0**:
+
+- `make check`: 41 diagram blocks, 18 waveform blocks, 871 links, 115 requirement rows, 92 module/test rows and zero untested modules.
+- Every `.github/workflows/hdl.yml` gate: links, compliance matrix, waveform freshness, `make stale`, lint, the full suite bank, generated matrix, historical NVM figures and portability including memory-mapping assertions.
+- Full suite bank: **33 suites, 1,008,937 checks, zero failing suites**.
+- Parent consumer at local commit `65bc81ed7cd1ffc9c24226a5d81850e10f5cc241`, based on `35f0695815c202392b6b4806bb9f59dd110687ed`, with only the processor gitlink changed: all requested checks pass; integration suite **371 checks, 0 failures**.
+
+Parent commands:
+
+```text
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_py_idiom.py
+python3 scripts/xvlog_gate.py --check
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/pp_srcs.py --check --selftest
+python3 scripts/check_port_contracts.py
+python3 scripts/measure_naming.py --check
+python3 scripts/measure_test_evidence.py --check
+python3 scripts/docs_check.py
+make -C tb/verilator/pp_shadow -j8
+```
+
+Existing parent ratchet findings remain within their recorded budgets; no
+budget was changed. Commits are local and no PR has been opened.
+
+REQ-MVU-005 timing remains tracked by #57. This waiver claims no successful
+command behavior, state storage, persistence or notifications for either pair.
