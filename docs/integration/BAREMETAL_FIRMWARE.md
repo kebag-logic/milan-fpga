@@ -290,23 +290,45 @@ the other groups', including combinations no build selects, and a refusal
 names the selection it graded rather than claiming the product builds it.
 
 That claim holds for the conditionals the gate's readers find, and the bound
-is measured rather than assumed. Every C directive reader in gate 1b reads the
-same lexed view of the firmware, built to lex as the pinned GCC 14.3 lexes at
-`-std=gnu99`: a line ends at LF, CRLF or a lone CR; a form feed, a vertical
-tab or a NUL is whitespace wherever it sits, before or after `#` included; a
-comment before `#` is whitespace, on one line or across several; a splice may
-continue a comment, a literal or a directive name. A corpus of 55 directive
-spellings, each recorded with what that GCC keeps of it, is read by the gate's
-readers on every run, and re-measured on the compiler wherever it answers; the
-two must agree. A form feed, a vertical tab, a NUL or a lone CR before `#`
-once hid a product-only arm from every reader while GCC honoured it ([R272]
-F1 on PR #535), and the corpus pins each of them. Three lexings no edit means
-are refused before any reader runs, so no reader has to guess them: a
-character or string literal that no quote closes on its line (GCC ends it
-there with only a warning), a raw string literal (a gnu99 extension spanning
-lines), and a trigraph anywhere in the file (GCC ignores it at `-std=gnu99`
-and a strict `-std` translates it, so the two read different lines around
-it).
+is measured rather than assumed. The gate RUNS translation phases 1 to 3 (C11
+5.1.1.2) in the standard's order and as the pinned GCC 14.3 runs them at
+`-std=gnu99`, once per text, and every C directive reader in gate 1b reads
+the result through one anchor. Phase 1 drops a UTF-8 byte-order mark at
+offset 0 and ends a line at LF, CRLF or a lone CR; it does not replace
+trigraphs, since gnu99 does not. Phase 2 deletes every splice: a backslash,
+any run of space, tab, form feed, vertical tab or NUL, then a line end. Phase
+3 lexes what is left: a comment is whitespace, on one line or across
+several; a form feed, a vertical tab or a NUL is whitespace; and `%:` and
+`%:%:` are the digraphs of `#` and `##`, found by maximal munch, so `<%:` is
+`<%` and `:`. The readers used to approximate those phases in an order of
+their own, and twice a spelling fell between them while GCC honoured it: a
+form feed before `#`, then a `%:` digraph a splice splits (`%\`, a line end,
+then `:ifdef`), each hiding a product-only arm from every reader ([R272] F1
+on PR #535, rounds one and two). Every span a reader finds is mapped back to
+the source, so a refusal names the line the `#` is on.
+
+Two corpora, each firmware recorded with what the pinned GCC keeps of it, are
+read by the gate's readers on every run and re-measured on the compiler
+wherever it answers; the two must agree. The fixed corpus holds the 78
+spellings the reviews found, the byte-order mark among them ([R273] F1 on PR
+#535). The generated corpus holds the 4907 nobody listed: a splice at every
+offset of each directive line in turn, at the end of the line before it, and
+at every offset of the introducer on both lines at once, crossed with every
+introducer (`#` or `%:`, alone or after a form feed, a vertical tab, a NUL or
+blanks, and six spellings GCC does not read as one, such as `%:%:` and
+`<%:`), and with ten spellings of the splice where no blank precedes the
+introducer. Its templates exercise each reader: a conditional and the
+`#endif` closing it, the macro name a condition reads, `#define`, `#undef`,
+`#else`, `#elifdef`, `#elifndef`, and the `##` a `#define` body pastes with.
+BOUNDED, and the bound is these corpora: a spelling in neither that GCC reads
+differently is outside the measurement, and the readers are exact because
+they run GCC's phases in GCC's order, not because every spelling has been
+tried. Three lexings no edit means are refused before any reader runs, so no
+reader has to guess them: a character or string literal that no quote closes
+on its line (GCC ends it there with only a warning), a raw string literal (a
+gnu99 extension spanning lines), and a trigraph anywhere in the file (GCC
+ignores it at `-std=gnu99` and a strict `-std` translates it, so the two read
+different lines around it).
 
 Two kinds of group are left as written. A guard whose one arm holds only
 `#error` emits no code in any selection. The AEM verifier's QSPI-slot group
@@ -324,17 +346,22 @@ under the same flags, preprocesses each graded firmware with `-E`; each of
 accessors is compared against its body in that unit by CONTENT -- the ordered
 sequence of the CSR primitives and boot steps it calls, and the number of
 statements they sit in -- read both as this gate reads it and after
-translation phases 1 and 2, where a splice is closed; and no preprocessing
+translation phases 1 to 3, where a splice is deleted; and no preprocessing
 directive may survive into the unit at all. Those tokens are macro-invariant,
 so the texts can be compared although one has its register names expanded. A
 macro that erases or moves a boot step is one disagreement, reported rather
 than anticipated. The comparison reads the boot tokens and not every name the
 text rules in those bodies read, the CSR identity sample and the verdict
 among them, so a splice or a paste rebuilding such a name would agree in both
-texts. Inside the six bodies, and in every macro they name at any depth, the
-token-joining splice ban and the `##` paste ban are therefore KEPT, and they
-refuse on every machine. Outside those bodies what a splice or a paste builds
-is compiled, and the resolved census answers it by the store it makes. The
+texts. Inside the six bodies, and in every macro this file defines that they
+name at any depth, the token-joining splice ban and the `##` paste ban are
+therefore KEPT, and they refuse on every machine. The paste ban reads this
+file's own `#define`s: a paste through a macro a header defines, such as
+`__CONCAT(i, d) = MILAN_ID_MAGIC;` before the identity guard, is outside it
+([R273] F2 on PR #535), accepted on dev and here, and it is the same bound as
+the plain function-like macro that forges the identity sample with no paste
+at all (#544). Outside those bodies what a splice or a paste builds is
+compiled, and the resolved census answers it by the store it makes. The
 caveat is this instrument's and
 is written at its site as well as here: the unit is the one the census STUB
 tree produces, so a macro whose DEFINITION differs between that tree and the
@@ -1262,13 +1289,13 @@ The rest are refusals, and each one costs a legitimate edit:
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
 | Firmware `MILAN_ID` and `MILAN_ID_MAGIC` equal the comment-blanked, directive-closed RTL `A_ID` address and readback default | otherwise inactive decoy text can hide a live address/value change that teaches the token-level guard to validate a different CSR or forged identity |
-| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor. A splice or a `##` paste that rebuilds the local's name there is refused by the bans kept inside the six boot-path bodies (#408). BOUND, measured by both reviews of PR #535's first round and not changed here: an assignment inside a plain function-like macro invoked there, `MILAN_FORGE(id);`, is not refused, on dev or here |
-| A token-joining backslash-newline, or a `##` paste in any macro they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
+| The `MILAN_ID` local is not assigned or addressed between its CSR read and mismatch guard | otherwise an intervening `id = MILAN_ID_MAGIC` forges the verdict while preserving every ordering anchor. A splice, or a `##` paste in a macro this file defines, that rebuilds the local's name there is refused by the bans kept inside the six boot-path bodies (#408). BOUND, measured by both reviews of PR #535's first round and not changed here: an assignment inside a plain function-like macro invoked there, `MILAN_FORGE(id);`, is not refused, on dev or here (#544), and neither is a paste through a macro a header defines, `__CONCAT(i, d) = MILAN_ID_MAGIC;` ([R273] F2 on PR #535) |
+| A token-joining backslash-newline, or a `##` paste in any macro this file defines that they name at any depth, inside `milan_init()`, `configure_fabric()`, `entity_advertise()` or the three CSR accessors | NARROWED (#408) from the whole file, and refused on every machine. The paste ban reads this file's `#define`s, the one behind a byte-order mark at offset 0 included ([R273] F1 on PR #535); a macro a header defines, `__CONCAT` for one, is trusted rather than read, so a paste through it is outside the ban, with the bound of the plain function-like macro (#544). The text rules reading those bodies key on names as written, and the `-E` comparison compares only the boot tokens there, so a splice or a paste rebuilding another name they read, the identity sample or the verdict, agrees in both texts ([R272] F2 on PR #535). A splice inside a comment or a literal, and one with blanks on either side, joins no token and is not refused. Outside the six bodies both are retired, below |
 | A second `#define` of any name, an identical one included | the address model reads a register name and the identity magic by ONE definition, and the compiler expands every use after a second one with the second: `#define MILAN_ID_MAGIC (milan_read(MILAN_ID))` after the real one turned the identity guard into a comparison of the sample with a fresh read of itself ([R273] F1 on PR #535). **Remedy:** define it once, or in the arms of one graded group, where each arm's definition is the one definition of the firmware it builds |
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | No `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores |
-| `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban. Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
+| `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535, round two). Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
 | A `#define` or `#include` inside the AEM verifier's QSPI-slot group or an `#error` guard | NARROWED (#408) from every conditional. Those are the two kinds of group left as written rather than graded one selection at a time, and the address model reads every definition as unconditional text, so an arm no selection resolves would choose what a register name resolves to. In a graded group each arm's definition IS unconditional in the firmware that arm builds, so an `#ifdef`/`#else` choosing a `#define` is GREEN. dev exempted the verifier's group from this rule, so a `#define` there was GREEN before and is refused now |
 | Any statement in the AEM verifier's no-QSPI arm beyond a literal `printf` and `return 0;` | no selection compiles that arm and the census stub tree takes the other, so it is the one text in the firmware no instrument compiles. The retired cast, store and asm sets used to read it with the rest of the file; it is pinned instead |
 | More than 16 preprocessor arm selections in the whole firmware, and code inside a disabled `#if 0` | every selection is graded as a firmware of its own, so an arm nothing builds is still graded as the code it would be, and a firmware with more selections than the bound is refused rather than graded in part. **Remedy:** delete dead code rather than disabling it |
@@ -1358,7 +1385,7 @@ compiler hidden on every commit.
 | Instrument | What it sees that the text rule cannot | Text rules it replaced |
 |---|---|---|
 | every arm selection graded: each conditional group resolved to each of its arms, and every resulting text graded by the whole gate as a firmware of its own | the arm the product compiles, whichever its headers select, including one the census stub tree drops: a `0 &&` short-circuiting the choke point's verdict test only where `CSR_UART_BASE` is defined names nothing this file defines and moves no boot token, and is refused in the selection that takes it | the conditional-reach ban, and (narrowed) the rule on a conditional carrying a definition |
-| the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 and 2 | the text the compiler is actually handed, so a macro that erases or moves a boot step is a measured disagreement rather than a construct someone had to anticipate. It compares the boot tokens and the statement count, not every name the text rules in those bodies read. The caveat is the instrument's: the unit is the one the census stub tree produces, so a macro whose definition differs in the product is outside it | none now: the token-joining splice ban and the `##` ban inside the six boot-path bodies were retired onto it and are KEPT there instead ([R272] F2 on PR #535), since a splice or a paste rebuilding a name it does not compare agrees in both texts |
+| the preprocessed unit: the same compiler under the same flags with `-E`, and each boot-path body compared as CONTENT -- the ordered boot tokens and the statements they sit in -- read both as this gate reads it and after translation phases 1 to 3 | the text the compiler is actually handed, so a macro that erases or moves a boot step is a measured disagreement rather than a construct someone had to anticipate. It compares the boot tokens and the statement count, not every name the text rules in those bodies read. The caveat is the instrument's: the unit is the one the census stub tree produces, so a macro whose definition differs in the product is outside it | none now: the token-joining splice ban and the `##` ban inside the six boot-path bodies were retired onto it and are KEPT there instead ([R272] F2 on PR #535), since a splice or a paste rebuilding a name it does not compare agrees in both texts |
 | the include-resolution measurement: `-H` reports every file the preprocessor OPENED, and no pinned name may be opened beside the firmware, through a file or a link | which FILE each pinned name resolved to, which a listing of the directory cannot say at all. The caveat is the instrument's: it proves resolution in the tree it is HANDED -- the firmware's own directory plus the gate's stub header root -- so a different `-I` set, sysroot or working directory is outside it | the directory pin |
 | the resolver's store census: every store the compiler emits, of every instruction class, classified by the address it RESOLVES to at every word it writes, exempting nobody | an address built with `slli`/`ori` that prints no window immediate, a store inside the address helper the census exempts by name, a `lui`-based `asm` template, a store behind a brace-less `if` that the text store set could not see at all (#495), an FP store or an RV32A AMO or SC instruction through a paged base (R228-F1 on PR #521), and a local's parked address rewritten by a union byte or half-word store or through a pointer to the local (R227-2-F1 on PR #521). Not a store made inside a called function, such as a `memset` or 64-bit atomic library call handed a window pointer; see [What the census does NOT observe](#editing-contract-for-this-firmware) | the ordered pointer-cast set, the ordered pointer-store set, the inline-`asm` set and the ordered-list comparison; the splice and `##` bans outside the six boot-path bodies |
 

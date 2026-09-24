@@ -2237,9 +2237,8 @@ def _assert_make_plan_is_determined(plan, hostile, origins):
 
 
 def _assert_primitive_spelling_is_readable(code, definitions):
-    """Rules 3 and 4: milan_write is always CALLED, no digraph or trigraph
-    spells a token, and no macro body hides the store primitive or the
-    address helper from the census.
+    """Rules 3 and 4: milan_write is always CALLED, and no macro body hides
+    the store primitive or the address helper from the census.
 
     `definitions` is every `#define` as `(name, parameters, body)`, read
     the way the preprocessor reads it (gate 1b's macro_definitions(), #408):
@@ -2253,21 +2252,17 @@ def _assert_primitive_spelling_is_readable(code, definitions):
         assert re.match(r"\s*\(", code[use.end():]), \
             "milan_write must always be called, never used as a value: a " \
             "function pointer to it stores to a CSR outside the census"
-    # 4. KEPT (#408): no digraph and no trigraph, anywhere. Outside a literal
-    #    or a comment, `%:` and `??` occur ONLY as a digraph or a trigraph,
-    #    so this costs no edit anybody writes, and it keeps every directive
-    #    reader here exact without translating phase 1 for each of them. The
-    #    `##` half of this rule is NARROWED (#408): outside the six boot-path
-    #    bodies a paste is performed by the preprocessor and the resolved
-    #    census reads the call or store it builds, in every arm selection
-    #    gate 1b grades; inside them assert_boot_path_is_spelled() still
-    #    refuses one, because the text rules there read names as written.
-    assert "%:" not in code and "??" not in code, \
-        "firmware must not spell a token with a digraph or a trigraph: " \
-        "`%:` and `??=` spell a directive and `%:%:` a paste in text no " \
-        "reader here translates, and nothing but a digraph or a trigraph " \
-        "puts either pair in C code outside a literal or a comment"
-    # ... and NARROWED (#408): a macro body may not hide the STORE primitive
+    # 4. The digraph and `??` half of the old paste ban is KEPT, and gate 1b
+    #    reads it on the whole firmware before any reader (#408, its
+    #    assert_spelled_without_digraphs()), so a digraph spelling a
+    #    directive is refused wherever it sits. The `##` half is NARROWED
+    #    (#408): outside the six boot-path bodies a paste is performed by the
+    #    preprocessor and the resolved census reads the call or store it
+    #    builds, in every arm selection gate 1b grades; inside them
+    #    assert_boot_path_is_spelled() still refuses one, because the text
+    #    rules there read names as written.
+    #
+    #    And NARROWED (#408): a macro body may not hide the STORE primitive
     #    or the ADDRESS helper. A read-only accessor over milan_read() is
     #    GREEN, because each rule here that reads a read fails closed when
     #    the read is hidden: a write whose value it cannot evaluate counts as
@@ -2312,6 +2307,433 @@ def _assert_read_side_preserves_offset(code, reg_span, reg_def,
         rf"\s*;\s*", read_body), \
         "milan_read() must return exactly the value loaded through " \
         "milan_reg(offset)"
+
+
+#: ---- translation phases 1 to 3, as the pinned GCC runs them (#408) ----
+#:
+#: Every rule of gate 1b reads TEXT, and the compiler reads the TOKENS it
+#: builds in translation phases 1 to 3 (C11 5.1.1.2). Where the two disagree
+#: about where a comment, a literal, a line or a directive is, a rule reads
+#: code the compiler never sees or misses code it compiles, and a directive
+#: the gate does not find is an arm it grades as unconditional. That
+#: happened twice on PR #535 ([R272] F1, rounds one and two): a form feed
+#: before `#`, then a `%:` digraph a splice splits, each hid a product-only
+#: arm from every directive reader while GCC honoured it, because the
+#: readers approximated the phases in an order of their own. So the phases
+#: are RUN here, in the standard's order and as the pinned GCC 14.3 runs them
+#: at -std=gnu99, and every reader reads their result:
+#:
+#:   1. a UTF-8 byte-order mark at offset 0 is dropped, as GCC drops it
+#:      ([R273] F1 on PR #535: a directive behind one is a directive), and a
+#:      line ends at LF, at CRLF and at a lone CR. Trigraphs are NOT
+#:      replaced, since gnu99 does not replace them; gate 1b refuses one
+#:      anywhere instead, because a strict -std would;
+#:   2. a backslash, then any run of space, tab, form feed, vertical tab or
+#:      NUL, then a line end, is DELETED: a splice, which GCC honours with
+#:      only a warning when blanks separate the pair;
+#:   3. the result is lexed: a comment is whitespace, so a line end inside a
+#:      block comment does not end its logical line; a character or string
+#:      literal that no quote closes ends at its line end (GCC warns and
+#:      carries on); a RAW string literal (`R"d(...)d"`, prefixed u8, u, U
+#:      or L too), a gnu99 extension, spans lines and undoes phase 2 inside
+#:      it; form feed, vertical tab and NUL are whitespace; and `%:` and
+#:      `%:%:` are the digraphs of `#` and `##`, found by maximal munch, so
+#:      `<%:` is the punctuators `<%` and `:` and spells no `#`.
+_C_PHASE12_RE = re.compile(r"\\[ \t\f\v\0]*(?:\r\n|\r|\n)|\r\n?")
+_C_LEX_STOP_RE = re.compile(r"[/\"'\f\v\0]")
+#: The first character of every punctuator a `%:` can sit in: `<%`, `<:`,
+#: `<<`, `<=` and `<<=` start with `<`, and `%:`, `%:%:`, `%=` and `%>` with
+#: `%`. No other token holds either character.
+_C_PUNCTUATOR_RE = re.compile(r"[<%]")
+_C_RAW_PREFIXES = ("R", "u8R", "uR", "UR", "LR")
+#: Phase results by source text: every reader of one graded firmware asks
+#: for the same text, and gate 1b grades a few hundred of them.
+_C_PHASES_CACHE: dict[str, "_CPhases"] = {}
+
+
+class _CPhases(NamedTuple):
+    """One C source after translation phases 1 to 3, as three texts.
+
+    `raw` is the phase-2 text: the mark dropped, every line end one LF and
+    every splice deleted, literals intact. `view` is the phase-3 text at the
+    SAME offsets: comments and literal bodies blank, form feed, vertical tab
+    and NUL spaces, and each digraph of `#` or `##` spelled as that
+    punctuator, padded to its width on the side away from a `#` before it,
+    so that `#%:` still reads as two tokens. Every C directive reader in gate
+    1b reads `view`. `code` is the same lexing laid back over the SOURCE,
+    the same length as it (blanked()): comments and literal bodies blank, a
+    CRLF a space and an LF, a lone CR an LF, and a splice outside them kept
+    as written, so every other rule indexes the source with its offsets.
+
+    `cuts` and `shifts` map a phase-2 offset back to the source
+    (source_at()); `findings` are the lexings no edit means, and `digraphs`
+    the source offset of each `%:`, both by source offset."""
+    view: str
+    raw: str
+    code: str
+    cuts: tuple[int, ...]
+    shifts: tuple[int, ...]
+    findings: tuple[tuple[str, int], ...]
+    digraphs: tuple[int, ...]
+
+    def source_at(self, at: int) -> int:
+        """The source offset of phase-2 offset `at`, which is how a reader
+        maps a span back for blanking and a line number for its message."""
+        import bisect
+        cut = bisect.bisect_right(self.cuts, at) - 1
+        return at + (self.shifts[cut] if cut >= 0 else 0)
+
+
+def _c_raw_prefixed(raw: str, at: int) -> bool:
+    """Whether the `"` at phase-2 offset `at` opens a raw literal: one of
+    the raw prefixes, as a whole token, right before it."""
+    word, back = "", at - 1
+    while back >= 0 and (raw[back].isalnum() or raw[back] in "_$") and \
+            len(word) < 4:
+        word, back = raw[back] + word, back - 1
+    if back >= 0 and (raw[back].isalnum() or raw[back] in "_$"):
+        return False
+    return word in _C_RAW_PREFIXES
+
+
+def _c_raw_end(source: str, at: int) -> int:
+    """The source end of the raw literal whose quote is at source offset
+    `at`: phases 1 and 2 are undone inside one, so it is found in the
+    source text, not the phase-2 text."""
+    opened = source.find("(", at)
+    closing = ")" + source[at + 1:opened] + '"'
+    close = source.find(closing, opened) if opened >= 0 else -1
+    return len(source) if close < 0 else close + len(closing)
+
+
+def _c_literal_end(raw: str, at: int, quote: str) -> tuple[int, bool]:
+    """`(end, closed)` for the literal whose body starts at phase-2 offset
+    `at`: one past its closing quote, or the line end GCC stops it at."""
+    size = len(raw)
+    while at < size and raw[at] not in ("\n", quote):
+        at += 2 if raw[at] == "\\" and raw[at + 1:at + 2] not in ("", "\n") \
+            else 1
+    closed = at < size and raw[at] == quote
+    return (at + 1 if closed else at), closed
+
+
+def _c_phases_12(source: str) -> tuple[str, list[int], list[int]]:
+    """`(raw, cuts, shifts)`: `source` after phases 1 and 2, and where each
+    run of deleted characters sits (the phase-2 offset of the first
+    character kept after it, and how many source characters lie before that
+    offset in all)."""
+    pieces: list[str] = []
+    cuts: list[int] = []
+    shifts: list[int] = []
+    at = size = shift = 0
+    if source.startswith("﻿"):
+        at = shift = 1
+        cuts.append(0)
+        shifts.append(1)
+    for hit in _C_PHASE12_RE.finditer(source, at):
+        pieces.append(source[at:hit.start()])
+        size += hit.start() - at
+        line_end = hit.group(0)[0] == "\r"
+        # a splice is deleted whole; a CRLF keeps its LF, a lone CR itself
+        dropped = len(hit.group(0)) - line_end
+        if dropped:
+            shift += dropped
+            cuts.append(size)
+            shifts.append(shift)
+        if line_end:
+            pieces.append("\n")
+            size += 1
+        at = hit.end()
+    pieces.append(source[at:])
+    return "".join(pieces), cuts, shifts
+
+
+def _c_phases(source: str) -> _CPhases:
+    """`source` after translation phases 1 to 3, as the pinned GCC 14.3 runs
+    them at -std=gnu99 (the comment above `_C_PHASE12_RE` says how)."""
+    cached = _C_PHASES_CACHE.get(source)
+    if cached is not None:
+        return cached
+    raw, cuts, shifts = _c_phases_12(source)
+    mapped = _CPhases("", raw, "", tuple(cuts), tuple(shifts), (), ())
+    at_source, size = mapped.source_at, len(raw)
+    view, code, findings = list(raw), list(source), []
+    for control in re.finditer(r"[\f\v\0\r]", source):
+        at = control.start()
+        code[at] = "\n" if source[at] == "\r" and \
+            source[at + 1:at + 2] != "\n" else " "
+    if source.startswith("﻿"):
+        code[0] = " "
+    i = 0
+    while (hit := _C_LEX_STOP_RE.search(raw, i)) is not None:
+        i, char = hit.start(), hit.group(0)
+        if char == "/" and raw[i + 1:i + 2] not in ("/", "*"):
+            i += 1
+            continue
+        if char == "/":
+            stop = raw.find("\n" if raw[i + 1] == "/" else "*/", i + 2)
+            closed = stop >= 0
+            stop = size if not closed else stop + 2 * (raw[i + 1] == "*")
+            spans = ((i, stop), (at_source(i), at_source(stop - 1) + 1
+                                 if closed and raw[i + 1] == "*"
+                                 else at_source(stop)))
+        elif char == '"' and _c_raw_prefixed(raw, i):
+            findings.append(("raw", at_source(i)))
+            end = _c_raw_end(source, at_source(i))
+            low, stop = i, size
+            while low < stop:
+                middle = (low + stop) // 2
+                low, stop = (middle + 1, stop) if at_source(middle) < end \
+                    else (low, middle)
+            spans = ((i + 1, max(stop - 1, i + 1)),
+                     (at_source(i) + 1, max(end - 1, at_source(i) + 1)))
+        elif char in "\"'":
+            stop, closed = _c_literal_end(raw, i + 1, char)
+            if not closed:
+                findings.append(("unterminated", at_source(i)))
+            spans = ((i + 1, stop - closed),
+                     (at_source(i) + 1, at_source(stop - closed)))
+        else:
+            view[i] = " "
+            i += 1
+            continue
+        (at, to), (source_from, source_to) = spans
+        view[at:to] = " " * (to - at)
+        code[source_from:source_to] = " " * (source_to - source_from)
+        i = stop
+    text, digraphs, i = "".join(view), [], 0
+    while (hit := _C_PUNCTUATOR_RE.search(text, i)) is not None:
+        i = hit.start()
+        if text.startswith("%:", i):
+            width = 4 if text.startswith("%:%:", i) else 2
+            glyph, pad = "#" * (width // 2), " " * (width // 2)
+            view[i:i + width] = pad + glyph if i and view[i - 1] == "#" \
+                else glyph + pad
+            digraphs.append(at_source(i))
+            i += width
+        elif text.startswith("<<=", i):
+            i += 3
+        else:
+            i += 2 if text[i:i + 2] in ("<<", "<=", "<:", "<%", "%=", "%>") \
+                else 1
+    phases = mapped._replace(view="".join(view), code="".join(code),
+                             findings=tuple(findings),
+                             digraphs=tuple(digraphs))
+    if len(_C_PHASES_CACHE) >= 64:
+        _C_PHASES_CACHE.clear()
+    _C_PHASES_CACHE[source] = phases
+    return phases
+
+
+#: ---- the GENERATED lexer corpus (#408, [R272] F1 on PR #535, round two) --
+#:
+#: The fixed corpus in gate 1b records the spellings somebody thought of,
+#: and round two's `%\`-newline-`:ifdef` was one nobody had. So this one is
+#: generated: every splice position crossed with every introducer of a
+#: directive, the pinned GCC 14.3 at -std=gnu99 as the oracle for what each
+#: firmware keeps. An introducer is `#` or `%:`, alone or after a form feed,
+#: a vertical tab, a NUL or blanks, and six spellings GCC does NOT read as
+#: one (`##` and its digraph `%:%:`; `#%:` and `%:#`, two `#` tokens and so
+#: a directive with no name; `%%:`, whose first token is `%`; and `<%:`,
+#: which maximal munch makes `<%` and `:`). A splice is put at EVERY offset
+#: of each directive line in turn (inside the digraph, the directive name
+#: and the macro name included), at the end of the line before it, and at
+#: every offset of the introducer on both lines at once, which is the shape
+#: of the round-two firmware. Each template's directive lines exercise one
+#: reader: a conditional and the `#endif` closing it, the macro name a
+#: condition reads, `#define`, `#undef`, `#else`, `#elifdef`, `#elifndef`,
+#: and a `##` a `#define` body pastes with.
+_LEXER_SPLICES = (
+    ("a splice", "\\\n"), ("a splice after a space", "\\ \n"),
+    ("a CRLF splice", "\\\r\n"), ("a splice after a tab", "\\\t\n"),
+    ("a splice after a form feed", "\\\f\n"),
+    ("a splice after a vertical tab", "\\\v\n"),
+    ("a splice after a NUL", "\\\0\n"), ("a lone-CR splice", "\\\r"),
+    ("a splice after a space, CRLF", "\\ \r\n"),
+    ("two splices", "\\\n\\\n"))
+_LEXER_LEADS = (("", ""), (" after a form feed", "\f"),
+                (" after a vertical tab", "\v"), (" after a NUL", "\0"),
+                (" after a space and a tab", " \t"))
+_LEXER_HASHES = ("#", "%:")
+_LEXER_NOT_HASHES = ("##", "%:%:", "#%:", "%:#", "%%:", "<%:")
+#: `(what it asks, firmware, what follows the introducer on each directive
+#: line it spells, which introducers, how many splice spellings with no
+#: lead before the introducer and how many after one)`.
+_LEXER_TEMPLATES = (
+    ("#ifdef FOO and its #endif, FOO not defined",
+     "int a;\n{0}\nint b;\n{1}\nint z;\n", ("ifdef FOO", "endif"), "all",
+     (10, 3)),
+    ("#ifndef FOO and its #endif, FOO defined",
+     "#define FOO\nint a;\n{0}\nint b;\n{1}\nint z;\n",
+     ("ifndef FOO", "endif"), "leads", (3, 3)),
+    ("#define FOO, read by an #ifdef FOO",
+     "int a;\n{0}\n#ifdef FOO\nint b;\n#endif\nint z;\n", ("define FOO",),
+     "leads", (3, 3)),
+    ("#undef FOO after #define FOO, read by an #ifdef FOO",
+     "#define FOO\nint a;\n{0}\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+     ("undef FOO",), "leads", (3, 3)),
+    ("#else of #ifdef FOO, FOO not defined",
+     "#ifdef FOO\nint a;\n{0}\nint b;\n#endif\nint z;\n", ("else",),
+     "leads", (3, 3)),
+    ("#elifdef FOO, FOO not defined",
+     "#ifdef BAR\nint a;\n{0}\nint b;\n#else\nint c;\n#endif\nint z;\n",
+     ("elifdef FOO",), "hashes", (1, 0)),
+    ("#elifndef FOO, FOO not defined",
+     "#ifdef BAR\nint a;\n{0}\nint b;\n#else\nint c;\n#endif\nint z;\n",
+     ("elifndef FOO",), "hashes", (1, 0)),
+)
+#: ... and the `##` a `#define` body pastes with, which is what the paste
+#: ban kept in the six boot-path bodies reads: `int pq;` when GCC pastes.
+_LEXER_PASTES = (" ## ", " %:%: ", " <%:%: ")
+_LEXER_PASTE_FIRMWARE = "#define CAT(x, y) x{0}y\nint CAT(p, q);\nint z;\n"
+
+
+def _lexer_introducers(which: str) -> list[tuple[str, str, str]]:
+    """`(label, lead, spelling)` of each introducer a template is spelled
+    with."""
+    spelled = [(f"`{spelling}`{label}", lead, spelling)
+               for spelling in _LEXER_HASHES for label, lead in _LEXER_LEADS
+               if which != "hashes" or not lead]
+    return spelled + ([(f"`{spelling}` (not a directive)", "", spelling)
+                       for spelling in _LEXER_NOT_HASHES]
+                      if which == "all" else [])
+
+
+def _lexer_spelled(firmware: str, lines: list[str], at: dict[int, int | str],
+                   splice: str) -> str:
+    """`firmware` with its directive lines filled in, a `splice` put at
+    offset `at[k]` of line k, or at the end of the line before it where
+    `at[k]` is "before"."""
+    for k, line in enumerate(lines):
+        where = at.get(k)
+        slot = "{" + str(k) + "}"
+        if where == "before":
+            firmware = firmware.replace("\n" + slot, splice + slot)
+        elif where is not None:
+            line = line[:where] + splice + line[where:]
+        firmware = firmware.replace(slot, line)
+    return firmware
+
+
+def _lexer_generated_corpus() -> tuple[tuple[str, str, str], ...]:
+    """`(label, firmware, reader)` for every generated spelling, in the
+    order `_LEXER_GENERATED_KEPT` records what the pinned GCC keeps of each.
+    `reader` is "keeps" for a directive template and "pastes" for the
+    `##` template."""
+    corpus = []
+    for asks, firmware, bodies, which, splices in _LEXER_TEMPLATES:
+        for introduced, lead, spelling in _lexer_introducers(which):
+            lines = [lead + spelling + body for body in bodies]
+            corpus.append((f"{asks}: {introduced}, no splice",
+                           _lexer_spelled(firmware, lines, {}, ""), "keeps"))
+            for spliced, splice in _LEXER_SPLICES[:splices[bool(lead)]]:
+                placed = [(f"line {k + 1} offset {at}", {k: at})
+                          for k, line in enumerate(lines)
+                          for at in [*range(len(line) + 1), "before"]]
+                placed += [(f"both lines offset {at}", dict.fromkeys(
+                    range(len(lines)), at))
+                    for at in range(len(lead + spelling) + 1)
+                    if len(lines) > 1]
+                corpus += [(f"{asks}: {introduced}, {spliced} at {where}",
+                            _lexer_spelled(firmware, lines, at, splice),
+                            "keeps") for where, at in placed]
+    for paste in _LEXER_PASTES:
+        corpus.append((f"a #define pasting with `{paste.strip()}`, no splice",
+                       _lexer_spelled(_LEXER_PASTE_FIRMWARE, [paste], {}, ""),
+                       "pastes"))
+        for spliced, splice in _LEXER_SPLICES[:3]:
+            corpus += [(f"a #define pasting with `{paste.strip()}`, "
+                        f"{spliced} at offset {at}",
+                        _lexer_spelled(_LEXER_PASTE_FIRMWARE, [paste],
+                                       {0: at}, splice), "pastes")
+                       for at in range(len(paste) + 1)]
+    return tuple(corpus)
+
+
+#: What the pinned GCC 14.3 keeps of each generated firmware at -std=gnu99,
+#: one letter per `_lexer_generated_corpus()` entry in its order, under
+#: `_LEXER_OUTCOMES`: the `int` names `-E` leaves, "-" where it refuses the
+#: file. Recorded on the compiler (`riscv32-linux-gcc` 14.3.0 of the pinned
+#: SDK) and re-measured by gate 1b wherever that compiler answers, so a
+#: generator change that is not re-recorded fails the gate on the compiler
+#: rather than passing on a stale record.
+_LEXER_OUTCOMES = {
+    "-": None, "a": ("a", "z"), "b": ("a", "b", "z"), "c": ("b", "z"),
+    "d": ("z",), "e": ("c", "z"), "f": ("a", "b"), "p": ("pq", "z")}
+_LEXER_GENERATED_KEPT = (
+    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaa"
+    "aaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaa"
+    "aaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaa--aaaaaaaaaaaaa-aaaaaaa-aaaaaaa"
+    "aaaaaa-aaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaa"
+    "aaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaa"
+    "aaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaa"
+    "aaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aa"
+    "aaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaa"
+    "aaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaa"
+    "aaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaa"
+    "a-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaa--aaaaaaaaaaaaaaa-"
+    "aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaa"
+    "aaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa"
+    "-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-a"
+    "aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaa"
+    "aaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaaa-a"
+    "aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaabbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbfbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb----"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------------------------------------------------------------"
+    "--------------bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbabbbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaa"
+    "-aaaaaaa-aaaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaa"
+    "aaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaa"
+    "-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa"
+    "aa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaa"
+    "aaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaa"
+    "aaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa"
+    "-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaa"
+    "aaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aa"
+    "aaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aa"
+    "aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaa"
+    "aaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaa"
+    "aa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaabbbbbbbbbbbbbabbb"
+    "bbbbbbbbbabbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabb"
+    "bbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbb"
+    "babbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbb"
+    "bbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbba"
+    "bbbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbb"
+    "bbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbbbabbbbbbbbbbbb"
+    "bbbabbbbbbbbbbbbbbbaaaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaa"
+    "aabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaa"
+    "baaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaaaabaaaaaaaaaaaa"
+    "abaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaa"
+    "aabaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaa"
+    "aaaaabaaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaaaabaaa"
+    "aaaaaaaaaaabaaaaaaaaaaaaaabcccccccdccccccdccccccdccccccccdcccccccdcc"
+    "cccccdccccccccdcccccccdcccccccdccccccccdcccccccdcccccccdcccccccccdcc"
+    "ccccccdccccccccdccccccccdcccccccdcccccccdcccccccccdccccccccdcccccccc"
+    "dcccccccccdccccccccdccccccccdcccccccccdccccccccdccccccccdccccccccccd"
+    "cccccccccdcccccccccdeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecccccccccccccccec"
+    "ccccccccccccccceppppppppppppppppppppppppppppppppppppppdddddddddddddd"
+    "ddddddddddd")
 
 
 def test_baremetal_profile_contract() -> None:
@@ -2414,41 +2836,16 @@ def test_baremetal_profile_contract() -> None:
 
     #: ---- the C lexer every reader of firmware text shares (#408) ------
     #:
-    #: Every rule here reads TEXT, and the compiler reads the TOKENS it
-    #: builds in translation phases 1 to 3. Where the two disagree about
-    #: where a comment, a literal or a line ends, a rule reads code the
-    #: compiler never sees or misses code it compiles; and a directive this
-    #: gate does not find is an arm it grades as unconditional ([R272] F1 on
-    #: PR #535: a form feed before `#` hid a product-only arm from every
-    #: reader while GCC honoured it). So this lexer follows the pinned GCC
-    #: 14.3 at -std=gnu99 as MEASURED, not the standard's minimum, and
-    #: assert_lexer_matches_compiler() below re-measures it on every run
-    #: that has the compiler:
-    #:
-    #:   * a line ends at LF, at CRLF and at a lone CR;
-    #:   * form feed, vertical tab and NUL are whitespace wherever they sit,
-    #:     before and after a `#` included;
-    #:   * a backslash, then any run of space, tab, form feed, vertical tab
-    #:     or NUL, then a line end, is a SPLICE, deleted before comments and
-    #:     literals exist: it continues a `//` comment, a literal, and a
-    #:     `/*` or `*/` it falls inside;
-    #:   * a character or string literal that no quote closes ends where its
-    #:     logical line does (GCC warns and carries on);
-    #:   * a RAW string literal (`R"d(...)d"`, prefixed u8, u, U or L too)
-    #:     is a gnu99 extension GCC honours, spanning lines;
-    #:   * a comment is ONE space, so the line ends inside a block comment do
-    #:     not end the logical line it sits in: a `#` after a multi-line
-    #:     comment is a directive exactly when nothing but whitespace and
-    #:     comments precede it on that logical line.
-    #:
-    #: Trigraphs are ignored, as gnu99 ignores them, and refused anywhere in
-    #: the file (assert_lexes_as_compiled()), since a strict -std would not.
-    #: The lexer corpus below records each of these as the compiler reads it.
+    #: _c_phases() runs translation phases 1 to 3 as the pinned GCC 14.3 runs
+    #: them at -std=gnu99 (the comment above it lists how), once per text.
+    #: Every C directive reader below reads its phase-3 VIEW through one
+    #: anchor, cpp_hash, and maps what it finds back to the source for a
+    #: span or a line number; every other rule reads blanked(), the same
+    #: lexing laid back over the source. The two lexer corpora below record
+    #: what the pinned GCC keeps of each spelling, and
+    #: assert_lexer_matches_compiler() reads both on every run and
+    #: re-measures both wherever the compiler answers.
     c_splice_re = re.compile(r"\\[ \t\f\v\0]*(?:\r\n|\r|\n)")
-    #: A name (or number) that one or more splices split, splices included.
-    c_split_name_re = re.compile(
-        r"[\w$]+(?:(?:\\[ \t\f\v\0]*(?:\r\n|\r|\n))+[\w$]+)+")
-    c_lex_stop_re = re.compile(r"[/\"'\f\v\0\r]")
     c_line_end_re = re.compile(r"\r\n|\r|\n")
 
     def c_line(source: str, at: int) -> int:
@@ -2456,135 +2853,12 @@ def test_baremetal_profile_contract() -> None:
         lone CR each end one."""
         return len(c_line_end_re.findall(source, 0, at)) + 1
 
-    c_raw_prefixes = ("R", "u8R", "uR", "UR", "LR")
-
-    def c_logical(source: str, at: int) -> int:
-        """`at`, past every splice that starts there."""
-        while at < len(source) and source[at] == "\\":
-            splice = c_splice_re.match(source, at)
-            if not splice:
-                break
-            at = splice.end()
-        return at
-
-    def c_before(source: str, at: int) -> int:
-        """The logical character before `at`, splices stepped over
-        backwards, or -1."""
-        at -= 1
-        while at >= 0 and source[at] in "\r\n":
-            back = at - 1 if source[at - 1:at + 1] == "\r\n" else at
-            back -= 1
-            while back >= 0 and source[back] in " \t\f\v\0":
-                back -= 1
-            if back < 0 or source[back] != "\\":
-                break
-            at = back - 1
-        return at
-
-    def c_spliced_end(source: str, at: int) -> bool:
-        """Whether the line end at `at` belongs to a splice."""
-        back = at - 1
-        while back >= 0 and source[back] in " \t\f\v\0":
-            back -= 1
-        return back >= 0 and source[back] == "\\"
-
-    def c_comment_end(source: str, at: int) -> int:
-        """The end of the comment whose second character is at `at`, or of
-        the file when a block comment is never closed."""
-        n = len(source)
-        if source[at] == "/":
-            for end in c_line_end_re.finditer(source, at):
-                if not c_spliced_end(source, end.start()):
-                    return end.start()
-            return n
-        at = c_logical(source, at + 1)
-        while at < n:
-            star = source.find("*", at)
-            if star < 0:
-                return n
-            close = c_logical(source, star + 1)
-            if close < n and source[close] == "/":
-                return close + 1
-            at = close
-        return n
-
-    def c_literal_end(source: str, at: int, quote: str) -> tuple[int, bool]:
-        """`(end, closed)` for the literal whose body starts at `at`: one
-        past its closing quote, or the line end GCC stops it at."""
-        n = len(source)
-        while at < n and source[at] not in "\r\n" and source[at] != quote:
-            escaped = source[at] == "\\"
-            at = c_logical(source, at + 1)
-            if escaped and at < n and source[at] not in "\r\n":
-                at = c_logical(source, at + 1)
-        closed = at < n and source[at] == quote
-        return (at + 1 if closed else at), closed
-
-    def c_raw_prefixed(source: str, at: int) -> bool:
-        """Whether the `"` at `at` opens a raw literal: one of the raw
-        prefixes, as a whole token, right before it."""
-        word, back = "", c_before(source, at)
-        while back >= 0 and (source[back].isalnum() or
-                             source[back] in "_$") and len(word) < 4:
-            word, back = source[back] + word, c_before(source, back)
-        if back >= 0 and (source[back].isalnum() or source[back] in "_$"):
-            return False
-        return word in c_raw_prefixes
-
-    def c_raw_end(source: str, at: int) -> int:
-        """The end of the raw literal whose quote is at `at`: phases 1 and 2
-        are undone inside one, so it is found in the raw text."""
-        opened = source.find("(", at)
-        closing = ")" + source[at + 1:opened] + '"'
-        close = source.find(closing, opened) if opened >= 0 else -1
-        return len(source) if close < 0 else close + len(closing)
-
-    def c_lexed(source: str) -> tuple[str, list[tuple[str, int]]]:
-        """`(view, findings)`: `source` as GCC lexes it, the SAME LENGTH so
-        every offset still indexes the original, and each place GCC lexes a
-        literal in a way no ordinary edit means.
-
-        In the view, comment and literal bodies are spaces (a block
-        comment's line ends and a spliced line end inside a comment or a
-        literal too, since neither ends the logical line); form feed,
-        vertical tab and NUL are spaces; a lone CR is an LF, and CRLF a
-        space and an LF. A code splice stays in the view for spliced() to
-        join. Physical line NUMBERS in the view therefore follow logical
-        lines; nothing here reads a line number off the view. The findings
-        are `("unterminated", offset)` for a literal no quote closes before
-        its logical line ends, and `("raw", offset)` for a raw literal."""
-        n, out, findings, i = len(source), list(source), [], 0
-        while (hit := c_lex_stop_re.search(source, i)) is not None:
-            i, char = hit.start(), hit.group(0)
-            if char == "/":
-                follow = c_logical(source, i + 1)
-                stop = c_comment_end(source, follow) \
-                    if follow < n and source[follow] in "*/" else i + 1
-                if stop > i + 1:
-                    out[i:stop] = " " * (stop - i)
-            elif char == '"' and c_raw_prefixed(source, i):
-                findings.append(("raw", i))
-                stop = c_raw_end(source, i)
-                out[i + 1:stop - 1] = " " * max(stop - i - 2, 0)
-            elif char in "\"'":
-                stop, closed = c_literal_end(
-                    source, c_logical(source, i + 1), char)
-                if not closed:
-                    findings.append(("unterminated", i))
-                out[i + 1:stop - closed] = " " * (stop - closed - i - 1)
-            else:
-                out[i] = ("\n" if char == "\r" and
-                          source[i + 1:i + 2] != "\n" else " ")
-                stop = i + 1
-            i = stop
-        return "".join(out), findings
-
     def blanked(source: str) -> str:
-        """`source` as c_lexed() views it: code only, every offset still
-        indexing the original text, and every line the compiler reads as a
-        directive a line that starts with `#` (after spliced() joins the
-        code splices)."""
-        return c_lexed(source)[0]
+        """`source` as _c_phases() lexes it, laid back over the source: code
+        only, every offset still indexing the original text. A splice in
+        code is kept as written; the directive readers read the phase-3
+        view, where it is deleted."""
+        return _c_phases(source).code
 
     def blanked_sv(source: str) -> str:
         """SystemVerilog code with comments and string literals blanked.
@@ -2683,15 +2957,18 @@ def test_baremetal_profile_contract() -> None:
             f"{reason}: checked connection must not be selected by an " \
             "implicit conditional-generate item"
 
-    #: The ONE anchor every C directive reader here shares: a `#` that is the
-    #: first token of a logical line of the lexed view (c_lexed(), so a form
-    #: feed, vertical tab, NUL, lone CR or comment before it is whitespace)
-    #: after spliced() has joined the code splices, and that is not the first
-    #: half of a `##`, which GCC does not read as a directive.
+    #: The ONE anchor every C directive reader here shares, over the phase-3
+    #: view of _c_phases(): a `#` token (spelled `#` or `%:`) that is the
+    #: first token of a logical line, a mark, a blank, a comment or a splice
+    #: before it being nothing there, and that is not a `##` (spelled `##`
+    #: or `%:%:`), which GCC does not read as a directive. The view pads a
+    #: digraph away from a `#` before it, so `#%:` is two `#` tokens here as
+    #: it is to GCC, a directive whose name is not an identifier.
     cpp_hash = r"(?m)^[ \t]*#(?!#)[ \t]*"
     #: Every preprocessor conditional directive, one LOGICAL line each: the
-    #: readers below take text after translation phases 1 and 2, so a
-    #: directive spliced across physical lines is still found at its `#`.
+    #: readers below read the phase-3 view, so a directive spliced across
+    #: physical lines is found at its `#`, and its span in the source is
+    #: every physical line it takes.
     #: `#elifdef` and `#elifndef` are C23's, and GCC 14 honours both at
     #: -std=gnu99, so they are arm boundaries here too.
     cpp_directive_re = re.compile(
@@ -2705,9 +2982,11 @@ def test_baremetal_profile_contract() -> None:
         offsets are only in the same code when the preprocessor keeps or drops
         them TOGETHER. `arm_path(pos)` is the tuple of (group, arm) pairs
         enclosing `pos`, and it is that predicate. The directives are read
-        after phases 1 and 2 (#408), because a splice between `#` and `ifdef`
-        no longer refused on its own is still a conditional to the compiler."""
-        directives = list(cpp_directive_re.finditer(spliced(code)))
+        in the phase-3 view (#408), because a splice between `#` and `ifdef`
+        no longer refused on its own is still a conditional to the compiler,
+        and each offset is mapped back to `code`'s."""
+        phases = _c_phases(code)
+        directives = list(cpp_directive_re.finditer(phases.view))
         stack, groups, marks = [], 0, []
         for directive in directives:
             kind = directive.group(1)
@@ -2720,7 +2999,8 @@ def test_baremetal_profile_contract() -> None:
             else:
                 assert stack, "firmware has an #endif outside any #if"
                 stack.pop()
-            marks.append((directive.end(), tuple(tuple(f) for f in stack)))
+            marks.append((phases.source_at(directive.end()),
+                          tuple(tuple(f) for f in stack)))
         assert not stack, "firmware leaves a preprocessor conditional open"
 
         def arm_path(pos: int) -> tuple[tuple[int, int], ...]:
@@ -2748,10 +3028,12 @@ def test_baremetal_profile_contract() -> None:
     #: the product's headers select, the product builds one of the firmwares
     #: graded here, so no arm is ever read in one state and compiled in
     #: another. BOUNDED, and the bound is measured: that holds for every
-    #: conditional the readers find, and they find one exactly where the
-    #: pinned GCC does for every spelling in the lexer corpus
-    #: (assert_lexer_matches_compiler(), re-measured wherever the compiler
-    #: answers), for text lexed as GCC lexes it -- the two lexings no edit
+    #: conditional the readers find, and they read the phase-3 view of
+    #: _c_phases(), which runs GCC's translation phases in GCC's order, and
+    #: find one exactly where the pinned GCC does for every spelling in the
+    #: two lexer corpora (assert_lexer_matches_compiler(), re-measured
+    #: wherever the compiler answers), for text lexed as GCC lexes it -- the
+    #: two lexings no edit
     #: means, a literal GCC ends at its line end and a raw string, and any
     #: trigraph, are refused before any reader runs ([R272] F1 and F4 on
     #: PR #535). That also closes what the comparison's arm BOUND could not:
@@ -2769,38 +3051,48 @@ def test_baremetal_profile_contract() -> None:
     MAX_ARM_SELECTIONS = 16
     error_line_re = re.compile(cpp_hash + r"error\b[^\n]*")
 
-    def conditional_groups(code: str) -> list[dict[str, Any]]:
-        """Every conditional group in blanked `code`, in the order its opening
-        directive appears, read after phases 1 and 2.
+    def conditional_groups(source: str) -> list[dict[str, Any]]:
+        """Every conditional group in `source`, in the order its opening
+        directive appears, read in the phase-3 view (#408).
 
-        Each group carries `lines`, the span of each of its directive lines
-        (a spliced directive's whole logical line); `arms`, the span of each
-        arm's body; `closed`, whether an `#else` ends the chain, so that "no
-        arm" is not a selection; `span`, opening directive to the end of the
-        `#endif` line; and `depth`, how many groups enclose it."""
-        text = spliced(code)
+        Each group carries `lines`, the SOURCE span of each of its directive
+        lines (a spliced directive's every physical line); `heads`, the same
+        lines as phase-3 view offsets, which is where a reader reads what a
+        directive says; `arms`, the source span of each arm's body, from the
+        line end before it; `bodies`, the same arms as view offsets;
+        `closed`, whether an `#else` ends the chain, so that "no arm" is not
+        a selection; `span`, opening directive to the end of the `#endif`
+        line; and `depth`, how many groups enclose it. `source` may be the
+        firmware or blanked() of it: both lex to the same directives."""
+        phases = _c_phases(source)
+        view, at_source = phases.view, phases.source_at
         groups, stack = [], []
-        for directive in cpp_directive_re.finditer(text):
+        for directive in cpp_directive_re.finditer(view):
             kind = directive.group(1)
-            stop = text.find("\n", directive.end())
-            stop = len(text) if stop < 0 else stop
+            stop = view.find("\n", directive.end())
+            stop = len(view) if stop < 0 else stop
+            line = (at_source(directive.start()), at_source(stop))
+            head = (directive.start(), stop)
             if kind in ("if", "ifdef", "ifndef"):
-                group = {"lines": [(directive.start(), stop)], "arms": [],
-                         "closed": False, "depth": len(stack),
-                         "open": stop + 1}
+                group = {"lines": [line], "heads": [head], "arms": [],
+                         "bodies": [], "closed": False, "depth": len(stack),
+                         "open": (line[1], stop)}
                 groups.append(group)
                 stack.append(group)
                 continue
             assert stack, f"firmware has an #{kind} outside any #if"
             group = stack[-1]
-            group["arms"].append((group.pop("open"), directive.start()))
-            group["lines"].append((directive.start(), stop))
+            opened, body = group.pop("open")
+            group["arms"].append((opened, line[0]))
+            group["bodies"].append((body, directive.start()))
+            group["lines"].append(line)
+            group["heads"].append(head)
             if kind == "endif":
-                group["span"] = (group["lines"][0][0], stop)
+                group["span"] = (group["lines"][0][0], line[1])
                 stack.pop()
             else:
                 group["closed"] = group["closed"] or kind == "else"
-                group["open"] = stop + 1
+                group["open"] = (line[1], stop)
         assert not stack, "firmware leaves a preprocessor conditional open"
         return groups
 
@@ -2827,24 +3119,29 @@ def test_baremetal_profile_contract() -> None:
                 return group
         return None
 
-    def holds_error(code: str, span: tuple[int, int],
+    def holds_error(source: str, span: tuple[int, int],
                     groups: list[dict[str, Any]]) -> bool:
-        """True when an `#error` sits in `span` itself, outside every group
-        nested in it: taking that arm is a build the preprocessor refuses."""
-        text = list(spliced(code))
-        for group in groups:
-            at, to = group["span"]
-            if span[0] <= at and to <= span[1]:
-                text[at:to] = " " * (to - at)
-        return bool(error_line_re.search("".join(text), span[0], span[1]))
+        """True when an `#error` sits in the source `span` itself, outside
+        every group nested in it: taking that arm is a build the
+        preprocessor refuses."""
+        phases = _c_phases(source)
+        nested = [group["span"] for group in groups
+                  if span[0] <= group["span"][0] and
+                  group["span"][1] <= span[1]]
+        for error in error_line_re.finditer(phases.view):
+            at = phases.source_at(error.start())
+            if span[0] <= at < span[1] and \
+                    not any(low <= at < high for low, high in nested):
+                return True
+        return False
 
-    def is_guard(code: str, group: dict[str, Any]) -> bool:
+    def is_guard(source: str, group: dict[str, Any]) -> bool:
         """A group with ONE arm and no `#else` whose body is `#error` and
         nothing else: it emits no code whichever way it is selected."""
         if group["closed"] or len(group["arms"]) != 1:
             return False
-        at, to = group["arms"][0]
-        body = spliced(code)[at:to]
+        at, to = group["bodies"][0]
+        body = _c_phases(source).view[at:to]
         return bool(error_line_re.search(body)) and \
             not error_line_re.sub("", body).strip()
 
@@ -2866,7 +3163,7 @@ def test_baremetal_profile_contract() -> None:
         r"[ \t]*defined[ \t]*(?:\([ \t]*([A-Za-z_]\w*)[ \t]*\)|"
         r"[ \t]([A-Za-z_]\w*)))[ \t]*")
 
-    def condition_key(text: str, group: dict[str, Any], movable: set[str],
+    def condition_key(view: str, group: dict[str, Any], movable: set[str],
                       after: int) -> tuple[str, int | None, int | None] | None:
         """`(name, arm taken when it is defined, arm taken when not)` when
         `group` asks ONLY whether one macro is defined -- `#ifdef N`,
@@ -2874,11 +3171,13 @@ def test_baremetal_profile_contract() -> None:
         an `#else` -- and nothing in the firmware can change that answer
         between two such tests: the firmware neither #defines nor #undefs N
         anywhere, and the group follows every #include. Otherwise None, and
-        the group's arms are graded independently."""
+        the group's arms are graded independently. `view` is the phase-3
+        view the group's `heads` index; `after` is a source offset, as its
+        `lines` are."""
         if len(group["lines"]) > 2 + group["closed"] or \
                 group["lines"][0][0] < after:
             return None
-        test = keyed_condition_re.fullmatch(text, *group["lines"][0])
+        test = keyed_condition_re.fullmatch(view, *group["heads"][0])
         if not test:
             return None
         kind, named, negated, called, spaced = test.groups()
@@ -2912,26 +3211,27 @@ def test_baremetal_profile_contract() -> None:
         such groups, which is RED on the census compile of the combination
         that has the call without the definition."""
         code = blanked(source)
-        groups = conditional_groups(code)
+        groups = conditional_groups(source)
         exempt = verifier_group(code, groups)
         graded = [group for group in groups
-                  if group is not exempt and not is_guard(code, group)]
+                  if group is not exempt and not is_guard(source, group)]
         if not graded:
             return None
-        text = spliced(code)
+        phases = _c_phases(source)
+        view = phases.view
         if fixed is None:
-            phase3 = blanked(closed_splices(source))
             fixed = ({name for name, _params, _body in macro_definitions(source)}
                      | set(re.findall(cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)",
-                                      phase3)),
-                     max((found.end() for found in directive_re.finditer(text)
+                                      view)),
+                     max((phases.source_at(found.end())
+                          for found in directive_re.finditer(view)
                           if found.group(1) == "include"), default=0))
         assumed = {} if assumed is None else assumed
         group = graded[0]
-        at, stop = group["lines"][0]
-        where = (f"line {c_line(source, at)} `"
-                 + " ".join(text[at:stop].split()) + "`")
-        key = condition_key(text, group, *fixed)
+        at, stop = group["heads"][0]
+        where = (f"line {c_line(source, phases.source_at(view.index('#', at)))}"
+                 " `" + " ".join(view[at:stop].split()) + "`")
+        key = condition_key(view, group, *fixed)
         if key is None:
             choices = [(choice, assumed, "") for choice in
                        [*range(len(group["arms"])),
@@ -2946,7 +3246,7 @@ def test_baremetal_profile_contract() -> None:
         selections = []
         for choice, assumption, reading in choices:
             if choice is not None and \
-                    holds_error(code, group["arms"][choice], groups):
+                    holds_error(source, group["arms"][choice], groups):
                 continue
             taken = reading + (
                 "no arm taken" if choice is None else
@@ -2966,7 +3266,7 @@ def test_baremetal_profile_contract() -> None:
                 "subset"
         return selections
 
-    def assert_conditionals_define_nothing(code: str) -> None:
+    def assert_conditionals_define_nothing(source: str) -> None:
         """No conditional group left in the graded text carries a `#define`,
         `#undef` or `#include`.
 
@@ -2975,8 +3275,9 @@ def test_baremetal_profile_contract() -> None:
         `#error` guards (#408). This half of the old preprocessor rule is
         KEPT: the address model reads each definition out of this file's
         own text as unconditional, so an arm the census never compiles would
-        still choose what a register name resolves to."""
-        text = spliced(code)
+        still choose what a register name resolves to. Read in the phase-3
+        view, as every directive reader here is."""
+        text = _c_phases(source).view
         opened = []
         for directive in cpp_directive_re.finditer(text):
             kind = directive.group(1)
@@ -3775,53 +4076,12 @@ def test_baremetal_profile_contract() -> None:
 
     def line_spliced(text: str) -> str:
         """`text` with backslash-newline splices joined, LENGTH PRESERVED so
-        every offset still indexes the original. C and make both continue a
-        line this way, so both read it through here."""
+        every offset still indexes the original: make's continuation, for
+        the Makefile readers. C's splice is wider (a backslash, blanks, then
+        a line end) and is translation phase 2 of _c_phases()."""
         return re.sub(r"\\\n", "  ", text)
 
-    def spliced(text: str) -> str:
-        """`text` after translation phases 1 and 2, LENGTH PRESERVED so every
-        offset still indexes the original: digraphs translated and
-        backslash-newline splices joined, each substitution exactly as wide as
-        what it replaces.
-
-        `%:include` and `#\\`-newline-`include` are both `#include` to the
-        compiler, so they are both `#include` here. Enumerating include
-        SPELLINGS is how a regex ends up narrower than the preprocessor;
-        doing the translations the compiler does and then reading
-        directives is how it stops being narrower.
-
-        Trigraphs are NOT translated (#408): the pinned GCC at `-std=gnu99`
-        ignores them, so `// ...??/` ends its comment at the line end there
-        and continues it under a strict `-std=cNN`. Translating them here
-        made this gate read the first dialect's directive as the second's
-        comment, so a trigraph is refused anywhere in the file instead
-        (assert_lexes_as_compiled()), and neither dialect is guessed.
-
-        The splice is C's, not make's, as the pinned GCC measures it: a
-        backslash that spaces, tabs, form feeds, vertical tabs or NULs
-        separate from the line end is deleted too, with a warning, and a lone
-        CR ends a line as LF does, so all of those are joined here
-        (c_splice_re). line_spliced() keeps make's narrower rule for the
-        Makefile readers.
-
-        A splice INSIDE a name is closed and its width moved to the name's
-        end, so `#el\\`-newline-`se` reads as the `#else` GCC reads, and
-        every offset outside that name is unchanged; any other splice
-        becomes blanks. Readers of a macro NAME or BODY take the phase-3
-        text instead (macro_definitions()), where every splice is closed."""
-        translated = text.replace("%:%:", "##  ").replace("%:", "# ")
-
-        def joined(name: re.Match[str]) -> str:
-            """One name a splice split, whole, padded to its old width."""
-            whole = c_splice_re.sub("", name.group(0))
-            return whole + " " * (len(name.group(0)) - len(whole))
-
-        return c_splice_re.sub(
-            lambda splice: " " * len(splice.group(0)),
-            c_split_name_re.sub(joined, translated))
-
-    def assert_directive_set_is_closed(code: str, source: str) -> None:
+    def assert_directive_set_is_closed(source: str) -> None:
         """The text this gate reads is the WHOLE translation unit.
 
         assert_single_translation_unit() proves the image is built from one
@@ -3832,7 +4092,7 @@ def test_baremetal_profile_contract() -> None:
         in a file no rule here ever opens: rules 1 to 3 of
         assert_csr_store_closure() are all defeated by text it never sees.
 
-        So the DIRECTIVE SET is pinned, after phases 1 and 2, rather than a
+        So the DIRECTIVE SET is pinned, after phases 1 to 3, rather than a
         list of include spellings. Every directive must be one this gate has
         a rule for, and every #include operand must be a literal header name
         in the pinned set. That covers a macro-expanded operand (C11
@@ -3844,17 +4104,18 @@ def test_baremetal_profile_contract() -> None:
         CSR stores is the same escape as a `.c`, and an angle-bracket include
         resolves through -I exactly as a quoted one does.
 
-        `code` is the blanked text, so a #include inside a comment is not an
-        include; `source` is where the operand is read back from, since
-        blanking empties a quoted path but preserves its offsets, and both
-        translations above preserve them too.
+        The directives are read in the phase-3 view of _c_phases(), so a
+        #include inside a comment is not an include, and the operand is read
+        back from the phase-2 text at the same offsets, since lexing empties
+        a quoted path but keeps its offsets.
 
         COST: a twelfth include even `<string.h>`, and any `#pragma`,
         `#line` or `#undef`, are RED until added here, as is a SECOND
         `#error`. That is the tripwire and not a defect: whoever adds one has
         to decide, in this
         gate, whether the new text can store into a CSR."""
-        text, raw = spliced(code), spliced(source)
+        phases = _c_phases(source)
+        text, raw = phases.view, phases.raw
         errors = 0
         for directive in directive_re.finditer(text):
             kind = directive.group(1)
@@ -4272,6 +4533,12 @@ def test_baremetal_profile_contract() -> None:
     DEFINED_ONCE_PIN = "is #defined more than once"
     SPLICE_PIN = "a backslash-newline JOINS two tokens inside"
     PASTE_PIN = "a `##` paste reaches"
+    #: ... and what the paste ban does NOT read, which the page must say
+    #: ([R273] F2 on PR #535): a header's macro is trusted, not read.
+    PASTE_BOUND_CLAIM = (
+        "The paste ban reads this file's own `#define`s: a paste through a "
+        "macro a header defines, such as `__CONCAT(i, d) = MILAN_ID_MAGIC;` "
+        "before the identity guard, is outside it")
     #: ... and the sentence the per-selection grading that RETIRED the
     #: conditional-reach ban prefixes to whatever refuses a selection (#408).
     #: An entry refused that way is pinned on it AND on that refusal. It
@@ -4445,9 +4712,9 @@ def test_baremetal_profile_contract() -> None:
     #: agree on the body's SHAPE:
     #:
     #:   1. the text this gate reads (comments and strings blanked);
-    #:   2. that text after translation phases 1 and 2, with each splice
-    #:      actually CLOSED -- `milan_\`-newline-`write` is one identifier
-    #:      here and two in row 1;
+    #:   2. that text after translation phases 1 to 3 (_c_phases()), with
+    #:      each splice deleted -- `milan_\`-newline-`write` is one
+    #:      identifier here and two in row 1;
     #:   3. the body the compiler compiles, from `-E`.
     #:
     #: Rows 1 and 3 disagree when a macro changes a boot token the compiler
@@ -4538,18 +4805,6 @@ def test_baremetal_profile_contract() -> None:
             own.append(line if keep else "")
         return "\n".join(own)
 
-    def closed_splices(text: str) -> str:
-        """`text` after translation phases 1 and 2 with each splice actually
-        CLOSED, and the digraph spellings of `#` translated (trigraphs are
-        not, as at -std=gnu99: see spliced()).
-
-        `spliced()` does the same translations LENGTH-PRESERVED, because its
-        callers index the result back into the original; here the point is
-        the opposite one, that `milan_\\`-newline-`write` becomes the single
-        identifier the compiler tokenises, so the pair is deleted."""
-        return c_splice_re.sub(
-            "", text.replace("%:%:", "##").replace("%:", "#"))
-
     #: One `#define` of the TRANSLATION-PHASE-3 text: the name, its
     #: parameter list when a `(` touches the name (a function-like macro),
     #: and the body to the end of the logical line.
@@ -4557,23 +4812,24 @@ def test_baremetal_profile_contract() -> None:
         cpp_hash + r"define[ \t]+([A-Za-z_$][\w$]*)(\([^)\n]*\))?(.*)$")
 
     def macro_definitions(text: str) -> list[tuple[str, str | None, str]]:
-        """Every `#define` in `text` as `(name, parameters, body)`, read
-        from the text the preprocessor reads: splices CLOSED, then lexed.
+        """Every `#define` in `text` as `(name, parameters, body)`, read in
+        the phase-3 view of _c_phases(), which is the text the preprocessor
+        reads: splices deleted, then lexed, digraphs translated.
 
-        Every reader of a macro NAME or BODY here goes through this, because
-        the length-preserving views cannot hold a joined token: a spliced
-        `#define MILAN_\\`-newline-`PP_CTRL` is `MILAN_PP_CTRL` to the
-        compiler and two words in spliced(), and a body continued across
-        lines, or across a multi-line comment, is one logical line here and
-        several there ([R272] F1 and F2 on PR #535)."""
+        Every reader of a macro NAME or BODY here goes through this: a
+        spliced `#define MILAN_\\`-newline-`PP_CTRL` is `MILAN_PP_CTRL` to the
+        compiler and here, a body continued across lines, or across a
+        multi-line comment, is one logical line in both ([R272] F1 and F2 on
+        PR #535), and a `%:%:` a splice splits is the `##` the paste ban
+        reads. `text` may be the firmware or blanked() of it."""
         return [(name, params or None, body.strip()) for name, params, body in
-                macro_definition_re.findall(blanked(closed_splices(text)))]
+                macro_definition_re.findall(_c_phases(text).view)]
 
     def assert_lexes_as_compiled(source: str) -> None:
         """No literal that GCC lexes in a way no ordinary edit means.
 
-        c_lexed() follows GCC on both, so no reader here is out of step with
-        the compiler over them; they are refused because an edit carrying one
+        _c_phases() follows GCC on both, so no reader here is out of step
+        with the compiler over them; they are refused because an edit carrying one
         is not one anybody writes to mean what GCC makes of it. A character
         or string literal left open is ended at its line by GCC with only a
         warning (the census compile carries no -Werror), so a stray quote in
@@ -4588,14 +4844,15 @@ def test_baremetal_profile_contract() -> None:
         GCC at -std=gnu99 does not, and a strict -std does, so `// ...??/`
         ends its comment at the line end in one dialect and swallows the
         next line, a directive in the other, in the second. The ban on `??`
-        in code already refused every trigraph a token could hold."""
+        in code (assert_spelled_without_digraphs()) already refused every
+        trigraph a token could hold."""
         trigraph = re.search(r"\?\?[=/'()!<>-]", source)
         assert not trigraph, \
             f"the firmware {TRIGRAPH_PIN} ({trigraph.group(0)}, line " \
             f"{c_line(source, trigraph.start())}): GCC ignores " \
             "it at -std=gnu99 and a strict -std replaces it before comments " \
             "exist, so the two read different lines around it"
-        for kind, at in c_lexed(source)[1]:
+        for kind, at in _c_phases(source).findings:
             line = c_line(source, at)
             assert kind != "unterminated", \
                 f"the firmware opens {UNTERMINATED_PIN} (line {line}): GCC " \
@@ -4605,6 +4862,36 @@ def test_baremetal_profile_contract() -> None:
                 f"the firmware spells {RAW_LITERAL_PIN} (line {line}): GCC " \
                 "honours R\"d(...)d\" at -std=gnu99, spanning lines with no " \
                 "escape and no splice, and no C standard has one"
+
+    def assert_spelled_without_digraphs(source: str) -> None:
+        """No `%:` digraph and no `??` pair in code, anywhere in the file.
+
+        KEPT (#408): the digraph half of the old `##`/`%:`/`??` ban, read on
+        the WHOLE firmware before any reader, as dev read it, so a digraph
+        spelling a conditional's own directive is refused here on every
+        machine and not only graded, one selection at a time, where a
+        compiler answers. Outside a literal or a comment `%:` is nothing but
+        the digraph of `#`, or doubled of `##`, and `??` nothing but the
+        start of a trigraph, so this costs no edit anybody writes.
+
+        The digraphs are the phase-3 tokens of _c_phases(), found after
+        phase 2 has deleted every splice, so `%\\`-newline-`:ifdef` is
+        refused as the `%:ifdef` GCC reads it; the round-one ban read the
+        text before phase 2, where a splice keeps the pair apart ([R272] F1
+        on PR #535, round two). The `??` pair is read before phase 2, which
+        is where phase 1 reads a trigraph; a trigraph itself is refused
+        before this, by assert_lexes_as_compiled()."""
+        phases = _c_phases(source)
+        spelled = [(at, "%:") for at in phases.digraphs]
+        paired = phases.code.find("??")
+        spelled += [(paired, "??")] if paired >= 0 else []
+        at, pair = min(spelled, default=(-1, ""))
+        assert not spelled, \
+            f"firmware {DIGRAPH_PIN} ({pair}, line {c_line(source, at)}): " \
+            "the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 " \
+            "has deleted every splice, and nothing but a digraph or a " \
+            "trigraph puts either pair in C code outside a literal or a " \
+            "comment"
 
     def assert_each_macro_defined_once(source: str) -> None:
         """Every name the firmware `#define`s, it defines ONCE.
@@ -4633,7 +4920,8 @@ def test_baremetal_profile_contract() -> None:
     def assert_boot_path_is_spelled(code: str, source: str) -> None:
         """Inside the six boot-path bodies, every name a text rule reads is
         the name the compiler compiles: no splice JOINS two tokens there, and
-        no macro those bodies expand pastes one with `##`.
+        no macro this file defines that those bodies expand pastes one with
+        `##`.
 
         KEPT, narrowed from the whole file (#408). The text rules that read
         these bodies key on names as WRITTEN: the identity local between its
@@ -4648,10 +4936,14 @@ def test_baremetal_profile_contract() -> None:
 
         A macro reaches a body when the body names it, or names a macro
         whose body does, at any depth; its body is read from the phase-3
-        text. A splice inside a comment or a literal, and one with blanks on
-        either side of it, joins no token and is not refused. A paste in a
-        macro no boot-path body reaches is GREEN, and so is a splice
-        anywhere outside these bodies."""
+        view. The macros read are this FILE's `#define`s: a paste through a
+        macro a header defines, `__CONCAT` for one ([R273] F2 on PR #535),
+        is outside this rule, and so is the plain function-like macro that
+        forges the identity sample with no paste at all (#544). A splice
+        inside a comment or a literal, and one with blanks on either side
+        of it, joins no token and is not refused. A paste in a macro no
+        boot-path body reaches is GREEN, and so is a splice anywhere
+        outside these bodies."""
         bodies = {name: body for name, _params, body in macro_definitions(source)}
         for header, what in boot_path_anchors:
             found = re.search(header, code)
@@ -4682,26 +4974,34 @@ def test_baremetal_profile_contract() -> None:
 
     #: ---- the C lexer, MEASURED against the compiler (#408) ------------
     #:
-    #: c_lexed() is a model of how the pinned GCC lexes, and a model is only
-    #: as good as its last measurement ([R272] F1 on PR #535: a form feed
-    #: before `#` was a directive to GCC and to no reader here). So the
-    #: spellings a directive can take are a CORPUS, each recorded with what
-    #: the pinned GCC 14.3 keeps of it at -std=gnu99 when nothing is defined
-    #: on its command line: the `int` names `-E` leaves, or None where it
-    #: refuses the file. On every machine the directive readers here must
-    #: keep exactly that; wherever the RV32 compiler answers, it is asked
-    #: again and must keep it too, so a compiler that lexes differently
-    #: fails this gate rather than leaving the readers silently behind it.
+    #: _c_phases() runs the phases as the pinned GCC runs them, and a claim
+    #: about a compiler is only as good as its last measurement ([R272] F1
+    #: on PR #535, twice). So the spellings a directive can take are two
+    #: CORPORA, each firmware recorded with what the pinned GCC 14.3 keeps of
+    #: it at -std=gnu99 when nothing is defined on its command line: the
+    #: `int` names `-E` leaves, or None where it refuses the file. On every
+    #: machine the directive readers here must keep exactly that; wherever
+    #: the RV32 compiler answers, it is asked again and must keep it too, so
+    #: a compiler that lexes differently fails this gate rather than leaving
+    #: the readers silently behind it.
     #:
-    #: The corpus covers every byte GCC's lexer skips as whitespace before
-    #: and after `#` (space, tab, form feed, vertical tab, NUL), every line
-    #: end it knows (LF, CR, CRLF), a comment before `#` on one line and
-    #: across lines, a splice wherever one changes a directive (continuing a
-    #: `//` comment, opening or closing a block comment, before or inside the
-    #: directive name), literals that span or end a line, raw strings, the
-    #: digraph and trigraph spellings of `#`, three controls GCC does NOT
-    #: skip, and each reader's own directive: the conditionals with
-    #: `#elifdef` and `#elifndef`, `#define` and `#undef`.
+    #: The fixed corpus below holds the spellings each review found: every
+    #: byte GCC's lexer skips as whitespace before and after `#` (space, tab,
+    #: form feed, vertical tab, NUL), every line end it knows (LF, CR,
+    #: CRLF), a byte-order mark at offset 0, a comment before `#` on one line
+    #: and across lines, a splice wherever one changes a directive
+    #: (continuing a `//` comment, opening or closing a block comment, before
+    #: or inside the directive name), literals that span or end a line, raw
+    #: strings, the digraph and trigraph spellings of `#`, controls GCC does
+    #: NOT skip, and each reader's own directive: the conditionals with
+    #: `#elifdef` and `#elifndef`, `#define` and `#undef`. The GENERATED
+    #: corpus (`_lexer_generated_corpus()`, recorded in
+    #: `_LEXER_GENERATED_KEPT`) holds the spellings nobody thought of: every
+    #: splice position crossed with every introducer. BOUNDED, and the bound
+    #: is these two corpora: a spelling in neither that GCC reads differently
+    #: is outside the measurement, and the readers are exact only because
+    #: they run GCC's phases in GCC's order, not because every spelling has
+    #: been tried.
     LEXER_PIN = "reads a preprocessing directive where the pinned GCC does not"
     lexer_corpus = (
         ("a plain #ifdef",
@@ -4873,6 +5173,79 @@ def test_baremetal_profile_contract() -> None:
         ("#undef behind a lone CR",
          "#define FOO\r#undef FOO\r#ifdef FOO\rint b;\r#endif\rint z;\n",
          ("z",)),
+        # ... the twenty spellings [R273] measured outside this corpus on
+        # round two of PR #535, the two behind a byte-order mark among them
+        # (its F1: GCC drops one at offset 0), and three more behind one.
+        ("BOM then #ifdef at file start",
+         "\ufeff#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("z",)),
+        ("BOM then #define at file start",
+         "\ufeff#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("b", "z")),
+        ("a multi-line comment between # and the name",
+         "int a;\n#/* c\n */ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a lone CR inside a block comment before #",
+         "int a;\n/* c\r c */ #ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("CRLF splice inside #else",
+         "#ifdef FOO\nint a;\n#el\\\r\nse\nint b;\n#endif\nint z;\n",
+         ("b", "z")),
+        ("a splice with trailing blanks and CRLF inside #endif",
+         "int a;\n#ifdef FOO\nint b;\n#end\\ \t\r\nif\nint z;\n",
+         ("a", "z")),
+        ("a NUL between / and *",
+         "int a; /\x00* c */\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a string whose escaped backslash is a splice",
+         "const char *s = \"a\\\\\n#ifdef FOO\";\nint b;\nint z;\n",
+         ("b", "z")),
+        ("a form feed and a comment after #",
+         "int a;\n#\f/* c */ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a directive after a line of only form feeds",
+         "int a;\n\f\f\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a comment then a NUL then #",
+         "int a;\n/* c */\x00#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a splice then a form feed before #",
+         "int a;\n\\\n\f#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a NEL (U+0085) before #",
+         "int a;\n\u0085#ifdef FOO\nint b;\n\u0085#endif\nint z;\n",
+         ("a", "b", "z")),
+        ("a ZWNBSP (U+FEFF) mid-file before #",
+         "int a;\n\ufeff#ifdef FOO\nint b;\n\ufeff#endif\nint z;\n",
+         ("a", "b", "z")),
+        ("a Ctrl-Z before #",
+         "int a;\n\x1a#ifdef FOO\nint b;\n\x1a#endif\nint z;\n",
+         ("a", "b", "z")),
+        ("#elifdef behind a vertical tab",
+         "#ifdef BAR\nint a;\n\v#elifdef FOO\nint b;\n#else\nint c;\n"
+         "#endif\nint z;\n",
+         ("c", "z")),
+        ("#ifndef behind a CRLF and a form feed",
+         "int a;\r\n\f#ifndef FOO\r\nint b;\r\n#endif\r\nint z;\r\n",
+         ("a", "b", "z")),
+        ("an apostrophe in a #define then a directive",
+         "#define Q 'a'\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("z",)),
+        ("a // comment continued by a splice after CRLF",
+         "int a;\r\n// c \\\r\n#ifdef FOO\r\nint b;\r\n#endif\r\nint z;\r\n",
+         None),
+        ("a splice inside the #define name with CR",
+         "#define F\\\rOO\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+         ("b", "z")),
+        ("a UTF-8 BOM before #ifndef at file start",
+         "\ufeff#ifndef FOO\nint a;\n#endif\nint z;\n",
+         ("a", "z")),
+        ("a UTF-8 BOM before a %: digraph at file start",
+         "\ufeff%:ifdef FOO\nint a;\n%:endif\nint z;\n",
+         ("z",)),
+        ("a UTF-8 BOM then a splice before # at file start",
+         "\ufeff\\\n#ifdef FOO\nint a;\n#endif\nint z;\n",
+         ("z",)),
     )
     #: The conditions a corpus entry spells, and what each asks.
     lexer_conditions = {
@@ -4882,24 +5255,28 @@ def test_baremetal_profile_contract() -> None:
         """The `int` names this gate's directive readers keep of `text` when
         nothing is defined but what `text` itself #defines and does not
         #undef, or None where they refuse it: the question the corpus
-        records the compiler's answer to."""
+        records the compiler's answer to. A directive whose name is not an
+        identifier (`#%:` is `#` and `#`) is refused, since the directive-set
+        closure refuses one wherever it sits and GCC refuses one in code it
+        does not skip."""
         try:
-            code = blanked(text)
-            groups = conditional_groups(code)
+            groups = conditional_groups(text)
         except AssertionError:
             return None
-        text_read = spliced(code)
+        view = _c_phases(text).view
+        if any(found.group(1) is None for found in directive_re.finditer(view)):
+            return None
         defined = {name for name, _params, _body in macro_definitions(text)}
         defined -= set(re.findall(cpp_hash + r"undef[ \t]+([A-Za-z_]\w*)",
-                                  text_read))
+                                  view))
         dropped = []
         for group in groups:
             taken = None
-            for arm, (at, _stop) in enumerate(group["lines"][:-1]):
-                directive = cpp_directive_re.match(text_read, at)
+            for arm, (at, _stop) in enumerate(group["heads"][:-1]):
+                directive = cpp_directive_re.match(view, at)
                 kind = directive.group(1)
                 name = re.match(r"[ \t]*(\w*)",
-                                text_read[directive.end():]).group(1)
+                                view[directive.end():]).group(1)
                 if kind != "else" and kind not in lexer_conditions:
                     # a condition no corpus entry spells: a misread name
                     return (f"#{kind} {name}, which no corpus entry spells",)
@@ -4910,24 +5287,90 @@ def test_baremetal_profile_contract() -> None:
             dropped += group["lines"] + [
                 span for arm, span in enumerate(group["arms"]) if arm != taken]
         return tuple(re.findall(r"\bint\s+(\w+)\s*;",
-                                spliced(blanked(blank_spans(text, dropped)))))
+                                _c_phases(blank_spans(text, dropped)).view))
+
+    def lexer_pastes(text: str) -> tuple[str, ...]:
+        """What the paste ban's reader makes of the generated `##` firmware,
+        as the `int` names the compiler keeps of `int CAT(p, q);`: `pq` and
+        `z` when the definition reader reads a `##` in CAT's body, and `z`
+        alone when it reads none."""
+        bodies = {name: body for name, _params, body in
+                  macro_definitions(text)}
+        return ("pq", "z") if "##" in bodies.get("CAT", "") else ("z",)
+
+    lexer_readers = {"keeps": lexer_keeps, "pastes": lexer_pastes}
 
     def assert_lexer_reads(label: str, text: str,
-                           kept: tuple[str, ...] | None) -> None:
+                           kept: tuple[str, ...] | None,
+                           reader: str = "keeps") -> None:
         """One corpus spelling, read here as the pinned GCC recorded it."""
-        read = lexer_keeps(text)
+        read = lexer_readers[reader](text)
         assert read == kept, \
             f"gate 1b's C lexer {LEXER_PIN} ({label}, {text!r}): its " \
             f"directive readers keep {read} and the pinned GCC 14.3 at " \
             f"-std=gnu99 keeps {kept}, so an arm one of them grades is an " \
             "arm the other compiles, or drops"
 
+    def lexer_measured(texts: list[str], compiler: str,
+                       driver: tuple[str, ...]) -> list[tuple[str, ...] | None]:
+        """What `compiler` keeps of each text at -std=gnu99 -E: its `int`
+        names, or None where it refuses the file.
+
+        Each text is its own file, and the files are preprocessed 64 to an
+        invocation, several invocations at a time, since the generated
+        corpus runs to thousands. Each file's lines are told apart by GCC's
+        own line markers, and a refusal by the diagnostic that names the
+        file; a failed invocation that names none is refused outright."""
+        import concurrent.futures
+        with tempfile.TemporaryDirectory(prefix="milan-lex-") as tmp:
+            files = []
+            for index, text in enumerate(texts):
+                files.append(Path(tmp) / f"lex{index:05d}.c")
+                files[-1].write_bytes(text.encode("utf-8"))
+            batches = [files[at:at + 64] for at in range(0, len(files), 64)]
+            with concurrent.futures.ThreadPoolExecutor(
+                    min(8, os.cpu_count() or 1)) as pool:
+                builds = list(pool.map(lambda batch: subprocess.run(
+                    [compiler, *driver, "-std=gnu99", "-E",
+                     *map(str, batch)], capture_output=True), batches))
+        lines: dict[str, list[str]] = {}
+        refused: set[str] = set()
+        for build in builds:
+            named = set(re.findall(
+                r"(?m)(lex\d{5}\.c):\d+(?::\d+)?: (?:fatal )?error:",
+                build.stderr.decode("utf-8", errors="replace")))
+            assert named or not build.returncode, \
+                f"{compiler} refused a batch of the lexer corpora and named " \
+                "no file: " + build.stderr.decode("utf-8", errors="replace")
+            refused |= named
+            name = None
+            for line in build.stdout.decode(
+                    "utf-8", errors="replace").split("\n"):
+                marker = line_marker_re.match(line)
+                if marker:
+                    name = Path(marker.group(1)).name
+                    continue
+                lines.setdefault(name, []).append(line)
+        return [None if file.name in refused else tuple(re.findall(
+            r"\bint\s+(\w+)\s*;", "\n".join(lines.get(file.name, []))))
+            for file in files]
+
     def assert_lexer_matches_compiler() -> str:
-        """Every corpus spelling is read here as the pinned GCC reads it, on
-        every machine; and wherever the RV32 compiler answers, it still
-        reads each one as recorded. Returns what the gate prints."""
-        for label, text, kept in lexer_corpus:
-            assert_lexer_reads(label, text, kept)
+        """Every spelling of both corpora is read here as the pinned GCC
+        reads it, on every machine; and wherever the RV32 compiler answers,
+        it still reads each one as recorded. Returns what the gate prints."""
+        generated = _lexer_generated_corpus()
+        assert len(generated) == len(_LEXER_GENERATED_KEPT), \
+            f"the generated lexer corpus has {len(generated)} spellings and " \
+            f"{len(_LEXER_GENERATED_KEPT)} are recorded: re-record it on the " \
+            "pinned compiler"
+        spellings = [(label, text, kept, "keeps")
+                     for label, text, kept in lexer_corpus] + [
+            (label, text, _LEXER_OUTCOMES[letter], reader)
+            for (label, text, reader), letter in
+            zip(generated, _LEXER_GENERATED_KEPT)]
+        for label, text, kept, reader in spellings:
+            assert_lexer_reads(label, text, kept, reader)
         #: NEGATIVE CONTROL: the comparison can fail. A form feed before `#`
         #: recorded as no directive at all must be refused.
         try:
@@ -4940,28 +5383,21 @@ def test_baremetal_profile_contract() -> None:
             raise AssertionError(
                 "the lexer corpus accepted a form feed before `#` recorded as "
                 "no directive, so the corpus above proves nothing")
+        counted = (f"{len(spellings)}/{len(spellings)} directive spellings "
+                   f"({len(lexer_corpus)} fixed, {len(generated)} generated)")
         compiler = census_compiler()
         if not census_used.get("target"):
-            return (f"{len(lexer_corpus)}/{len(lexer_corpus)} directive "
-                    "spellings read as the pinned GCC recorded them; NOT "
+            return (f"{counted} read as the pinned GCC recorded them; NOT "
                     "re-measured, since no RV32 compiler answers here")
-        driver = tuple(census_used.get("flags") or ())
-        for label, text, kept in lexer_corpus:
-            with tempfile.TemporaryDirectory(prefix="milan-lex-") as tmp:
-                source = Path(tmp) / firmware_path.name
-                source.write_bytes(text.encode("utf-8"))
-                built = subprocess.run(
-                    [compiler, *driver, "-std=gnu99", "-E", str(source)],
-                    capture_output=True)
-            measured = None if built.returncode else tuple(re.findall(
-                r"\bint\s+(\w+)\s*;", preprocessed_own_text(
-                    built.stdout.decode("utf-8", errors="replace"))))
-            assert measured == kept, \
-                f"{compiler} keeps {measured} of {label} ({text!r}) and gate " \
+        measured = lexer_measured([text for _l, text, _k, _r in spellings],
+                                  compiler,
+                                  tuple(census_used.get("flags") or ()))
+        for (label, text, kept, _reader), found in zip(spellings, measured):
+            assert found == kept, \
+                f"{compiler} keeps {found} of {label} ({text!r}) and gate " \
                 f"1b's C lexer was measured against {kept}: until the corpus " \
                 f"is re-measured, the lexer {LEXER_PIN}"
-        return (f"{len(lexer_corpus)}/{len(lexer_corpus)} directive "
-                "spellings read as the pinned GCC recorded them, and "
+        return (f"{counted} read as the pinned GCC recorded them, and "
                 f"re-measured on {Path(compiler).name}")
 
     def boot_path_shape(code: str, label: str) -> tuple[tuple[str, ...], ...]:
@@ -5019,8 +5455,7 @@ def test_baremetal_profile_contract() -> None:
         compiles = boot_path_shape(compiled, "preprocessed unit")
         for label, text in (
                 ("as this gate reads it", code),
-                ("after translation phases 1 and 2",
-                 blanked(closed_splices(source)))):
+                ("after translation phases 1 to 3", _c_phases(source).view)):
             read = boot_path_shape(text, "firmware")
             differ = [(mine, theirs) for mine, theirs in zip(read, compiles)
                       if mine != theirs]
@@ -9085,8 +9520,11 @@ def test_baremetal_profile_contract() -> None:
         planted beside-the-firmware entries or datapath and requires a
         reason-pinned refusal: the arguments are what a mutation replaces,
         and defaulting one to `None` means "read the tracked file"."""
-        # First, before any reader: text GCC lexes as no edit means it.
+        # First, before any reader: text GCC lexes as no edit means it, and
+        # the digraph ban, on the whole firmware before a conditional is
+        # resolved, so a digraph spelling one is refused on every machine.
         assert_lexes_as_compiled(firmware)
+        assert_spelled_without_digraphs(firmware)
         selections = arm_selections(firmware)
         if selections is not None:
             verdicts = []
@@ -9742,7 +10180,7 @@ def test_baremetal_profile_contract() -> None:
         # ... and one OBJECT is not one FILE. Pin what else joins the
         # translation unit, and the one store mechanism with no textual
         # signature, before any rule below calls this text the firmware.
-        assert_directive_set_is_closed(firmware, source)
+        assert_directive_set_is_closed(source)
         # ... and a pinned NAME is not a pinned FILE, so ask the preprocessor
         # which FILES it opened (#408): the directory pin that used to refuse
         # any file here is RETIRED onto this. The shipping tree is measured
@@ -9785,7 +10223,7 @@ def test_baremetal_profile_contract() -> None:
         # group and the `#error` guards; the preprocessed-unit MEASUREMENT
         # runs with the census, at the end, so a rule that answers on every
         # machine never has its verdict taken by one that answers only here.
-        assert_conditionals_define_nothing(firmware)
+        assert_conditionals_define_nothing(source)
         init_start = anchored(firmware, "static void milan_init(void)",
                               "the boot entry point")
         init_end = anchored(firmware, "define_init_func(milan_init)",
@@ -10118,6 +10556,7 @@ def test_baremetal_profile_contract() -> None:
             "either bit alone enables it.",
             "A missing or corrupt image leaves the AVDECC entity disabled "
             "while the PHC and fabric gPTP plane continue independently.",
+            PASTE_BOUND_CLAIM,
         )
         for claim in required:
             assert claim in words, f"bare-metal boot contract lost: {claim}"
@@ -10183,8 +10622,9 @@ def test_baremetal_profile_contract() -> None:
              "## bans KEPT inside the six boot-path bodies, one #define per "
              "name (which is what refuses a read hidden in a second "
              "definition of the identity magic), the macro-body rule, the "
-             "literal and trigraph refusals, the directive readers as the "
-             "lexer corpus recorded them (not re-measured), and the "
+             "literal and trigraph refusals, the digraph ban on the whole "
+             "file, the directive readers as the two lexer corpora recorded "
+             "them (not re-measured), and the "
              "per-selection grading of each conditional (its text half); "
              "and the hosted builder jobs require this compiler")
 
@@ -11505,8 +11945,8 @@ def test_baremetal_profile_contract() -> None:
         ", 1u);\n#endif", "product-only arm, phase-2 splice of the call name")
     #: ... the same splice with a NUMERIC address, so the arm names nothing
     #: this file defines and the bound above has nothing to say: what
-    #: refuses it is the row read after translation phases 1 and 2, where
-    #: the splice is CLOSED and the joined name appears.
+    #: refuses it is the row read after translation phases 1 to 3, where
+    #: the splice is deleted and the joined name appears.
     conditional_spliced_literal_enable = stored_before_aem(
         census_tree_only + "\n\tmilan_" + "\\" + "\n" + "write(" +
         raw_address + ", 1u);\n#endif",
@@ -11614,6 +12054,41 @@ def test_baremetal_profile_contract() -> None:
         "#ifndef CSR_UART_BASE\n\tcdelay(1);\n#el\\\nse\n\t*(volatile "
         f"unsigned int *){raw_address} = 1u;\n#endif",
         "product arm behind an #else a splice splits")
+    #: ... and the spelling the directive readers missed on round two
+    #: ([R272] F1 again): the same arm behind a `%:` digraph a splice splits,
+    #: which GCC reads as `#ifdef` once phase 2 has deleted the splice. The
+    #: digraph ban reads the whole file first and refuses it on every
+    #: machine, and so it refuses the plain digraph arm, which it used to
+    #: see only in the arms the selections left. Underneath the ban the
+    #: readers find the conditional, which is asserted here, and the
+    #: selection that takes the arm is graded as the firmware it builds.
+    uart_arm_split_digraph = in_uart_handler(
+        f"%\\\n:{product_tree_only[1:]}\n\t*(volatile unsigned int *)"
+        f"{raw_address} = 1u;\n%\\\n:endif",
+        "product-only cast store behind a split %: digraph")
+    uart_arm_digraph = in_uart_handler(
+        f"%:{product_tree_only[1:]}\n\t*(volatile unsigned int *)"
+        f"{raw_address} = 1u;\n%:endif",
+        "product-only cast store behind a %: digraph")
+    split_digraph_selections = dict(
+        arm_selections(uart_arm_split_digraph) or ())
+    split_digraph_product_arm = next(
+        (selected for which, selected in split_digraph_selections.items()
+         if which.endswith("ifdef CSR_UART_BASE`: CSR_UART_BASE defined, "
+                           "arm 1 of 1 taken")),
+        None)
+    assert len(split_digraph_selections) == 2 and split_digraph_product_arm, \
+        "gate 1b's directive readers do not find the #ifdef a split `%:` " \
+        "digraph spells in the UART handler, where the pinned GCC does: " \
+        f"they read the selections {sorted(split_digraph_selections)}"
+    #: ... a `##` spelled `%:%:` and split twice, building the store
+    #: primitive's name in a UART handler, outside the six bodies.
+    split_digraph_paste = replace_once(
+        in_uart_handler(f"\tMILAN_FN(write)({adp_name}, milan_read("
+                        f"{adp_name}) | 1u);", "split digraph paste use"),
+        "static int aem_loaded;",
+        "#define MILAN_FN(op) milan_ %\\\n:%\\\n: op\n\n"
+        "static int aem_loaded;", "split digraph paste macro")
     #: ... a second group on the SAME macro as an earlier one, which the
     #: grading relates ([R272] F3): the store sits in the arm every build
     #: defining CSR_UART_BASE compiles, and is graded in exactly that build.
@@ -11661,6 +12136,13 @@ def test_baremetal_profile_contract() -> None:
         "static int aem_loaded;",
         "#define MILAN_CAT(a, b) a##b\n#define MILAN_NAME(a, b) "
         "MILAN_CAT(a, b)\n\nstatic int aem_loaded;", "nested paste macros")
+    #: ... and the same paste macro behind a byte-order mark at offset 0
+    #: ([R273] F1 on PR #535), which GCC drops in phase 1: a directive to
+    #: GCC there, and before #408's phase 1 to no reader here.
+    bom_pasted_forgery = "\ufeff#define MILAN_CAT(a, b) a##b\n" + replace_once(
+        firmware_source, identity_guard_text,
+        "\tMILAN_CAT(i, d) = MILAN_ID_MAGIC;\n" + identity_guard_text,
+        "identity forged by a paste defined behind a byte-order mark")
     #: ---- one definition per name ([R273] F1): the identity magic defined
     #: a second time, as a fresh read of the sample and as the sample itself.
     magic_define = "#define MILAN_ID_MAGIC       0x4d494c4eu\n"
@@ -12938,6 +13420,10 @@ def test_baremetal_profile_contract() -> None:
                          + uart_tail, "fifth inline-asm statement"),
     }
     accepted_cases.update(retired_rule_cases)
+    #: ... and a byte-order mark at offset 0, as an editor saves one: phase
+    #: 1 drops it as GCC does ([R273] F1 on PR #535), and it spells nothing.
+    accepted_cases["a UTF-8 byte-order mark at the start of the file"] = \
+        "\ufeff" + firmware_source
     #: ... and two edits dev accepted that grading every COMBINATION of arms
     #: refused ([R272] F3 on PR #535): a debug helper and a debug counter,
     #: each defined under one `#ifdef MILAN_DEBUG_TOD` and used under a
@@ -13043,10 +13529,20 @@ def test_baremetal_profile_contract() -> None:
             f"a LEGITIMATE directory edit is refused: {accepted_beside} "
             f"beside the firmware. Gate said: {exc}") from exc
 
+    #: The page claiming the paste ban reads a header's macro too, which it
+    #: does not ([R273] F2 on PR #535).
+    paste_bound_overstated, overstated = re.subn(
+        r"\s+".join(map(re.escape, PASTE_BOUND_CLAIM.split())),
+        "The paste ban reads every macro those bodies name, a header's "
+        "included", docs_source, count=1)
+    assert overstated, "paste-ban bound mutation did not apply"
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
          replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
          csr_source, "bare-metal boot contract lost"),
+        ("documentation claiming the paste ban reads a header's macro",
+         firmware_source, paste_bound_overstated, csr_source,
+         "bare-metal boot contract lost"),
         ("CSR identity contract repointed to VERSION",
          identity_contract_at_version, docs_source, csr_source,
          "firmware MILAN_ID must resolve to the RTL A_ID address"),
@@ -13471,16 +13967,17 @@ def test_baremetal_profile_contract() -> None:
          docs_source, csr_source, "the firmware's include set is pinned"),
         # ... and the same file reached by spellings an include regex misses
         # while the preprocessor does not. Pinning the DIRECTIVE set after
-        # phases 1 and 2 answers all of these at once.
+        # phases 1 to 3 answers all of these at once.
         ("second source pulled in by a macro include operand",
          macro_included_source, docs_source, csr_source,
          "a #include operand must be a literal header name"),
         ("second source pulled in by a spliced #include directive",
          spliced_included_source, docs_source, csr_source,
          "the firmware's include set is pinned"),
+        #: ... refused before any directive reader now, by the digraph ban,
+        #: which reads the whole file first (#408, [R272] F1 round two)
         ("second source pulled in by a %: digraph include",
-         digraph_included_source, docs_source, csr_source,
-         "the firmware's include set is pinned"),
+         digraph_included_source, docs_source, csr_source, DIGRAPH_PIN),
         #: ... refused before any directive reader now: a trigraph is
         #: refused anywhere in the file, since gnu99 and a strict -std read
         #: it differently (#408)
@@ -13880,6 +14377,35 @@ def test_baremetal_profile_contract() -> None:
                       f"\0#define {adp_name} 0x604u\n\nstatic int aem_loaded;",
                       "second definition behind a NUL"),
          docs_source, csr_source, DEFINED_ONCE_PIN),
+        # ---- (#408, PR #535 round three) the directive readers run GCC's
+        # phases in GCC's order ([R272] F1, round two): a `%:` digraph a
+        # splice splits is a digraph to the whole-file ban, which reads the
+        # tokens phase 3 builds, and so is the plain digraph arm the ban
+        # used to see only in the arms a selection left, both refused on
+        # every machine; and so is a `%:%:` paste two splices split
+        ("entity enabled through a fifth pointer cast in an arm only the "
+         "product compiles, behind a `%:` digraph a splice splits, in a UART "
+         "command handler", uart_arm_split_digraph, docs_source, csr_source,
+         DIGRAPH_PIN),
+        ("entity enabled through a fifth pointer cast in an arm only the "
+         "product compiles, behind a `%:` digraph, in a UART command handler",
+         uart_arm_digraph, docs_source, csr_source, DIGRAPH_PIN),
+        ("entity enabled through a store-primitive name pasted by a `%:%:` "
+         "two splices split, in a UART command handler", split_digraph_paste,
+         docs_source, csr_source, DIGRAPH_PIN),
+        # ... and a byte-order mark at offset 0 ([R273] F1), dropped in
+        # phase 1 as GCC drops it: the directive behind it is read by the
+        # rule that reads that directive
+        ("the CSR identity sample forged by a paste whose #define sits "
+         "behind a byte-order mark", bom_pasted_forgery, docs_source,
+         csr_source, PASTE_PIN),
+        ("a second source #included behind a byte-order mark",
+         "\ufeff#include \"milan_bringup.c\"\n" + firmware_source,
+         docs_source, csr_source, "the firmware's include set is pinned"),
+        ("a #line behind a byte-order mark",
+         "\ufeff#line 1 \"milan_bringup.c\"\n" + firmware_source,
+         docs_source, csr_source,
+         "the firmware's preprocessing directives are pinned"),
     )
     #: The four shapes ONLY the compiled census catches. They are in the
     #: table when the census is live and named as skipped when it is not,
@@ -14073,6 +14599,14 @@ def test_baremetal_profile_contract() -> None:
            f"product compiles, behind {spelled}, in a UART command handler",
            mutation, docs_source, csr_source, (SELECTION_PIN, CENSUS_PIN))
           for spelled, mutation in uart_arm_spelled_casts),
+        #: ... and the product's selection of the arm a split `%:` digraph
+        #: spells ([R272] F1, round two), graded as the readers find it:
+        #: the whole-file digraph ban answers the firmware itself first, so
+        #: this is what shows the readers read the conditional GCC reads
+        ("entity enabled through a fifth pointer cast in the product's arm "
+         "of an #ifdef a split `%:` digraph spells, graded as the selection "
+         "the readers find", split_digraph_product_arm, docs_source,
+         csr_source, CENSUS_PIN),
         ("entity enabled by a lui-based inline-asm store in an arm only the "
          "product compiles, behind a form feed", uart_arm_formfeed_lui,
          docs_source, csr_source, (SELECTION_PIN, RESOLVER_STORE_PIN)),
@@ -14324,7 +14858,7 @@ def test_baremetal_profile_contract() -> None:
             "or a paste inside those bodies is refused outright, by the "
             "bans kept there) -- read BOTH as this gate reads it and after "
             "translation "
-            "phases 1 and 2, in every arm selection graded, and no "
+            "phases 1 to 3, in every arm selection graded, and no "
             "directive survived into the unit; include RESOLUTION was "
             f"measured with -H, which answered all {len(firmware_includes)} "
             "pinned names from outside the firmware's own directory, and a "
@@ -14551,7 +15085,10 @@ def test_baremetal_profile_contract() -> None:
           "resolved store census) -- and where no RV32 compiler answers "
           "those replacements are a registered NOT RUN, not coverage. "
           "NARROWED: the token-joining splice ban and the ## paste ban, to "
-          "the six boot-path bodies and every macro they name at any depth, "
+          "the six boot-path bodies and every macro this file defines that "
+          "they name at any depth (a paste through a header's macro, "
+          "__CONCAT for one, is outside it, as is the plain function-like "
+          "macro of #544), "
           "because the text rules reading those bodies read names as "
           "written and the -E comparison compares only the boot tokens "
           "there ([R272] F2 on PR #535); the macro-body rule refuses a "
@@ -14564,9 +15101,11 @@ def test_baremetal_profile_contract() -> None:
           "and the #error guards, so an #ifdef/#else choosing a #define "
           "elsewhere is GREEN (in a graded group each arm's definition is "
           "unconditional in the firmware that arm builds). KEPT, at the cost "
-          "stated: %: or ?? in code (nothing but a digraph or a trigraph "
-          "spells either outside a literal, so it costs no edit anybody "
-          "writes), and a trigraph ANYWHERE, a comment's `what??!` "
+          "stated: %: or ?? in code, read on the whole file before any "
+          "reader and after phase 2, so a splice inside a digraph is a "
+          "digraph (nothing but a digraph or a trigraph spells either "
+          "outside a literal, so it costs no edit anybody writes), and a "
+          "trigraph ANYWHERE, a comment's `what??!` "
           "included (the pinned GCC ignores it at -std=gnu99 and a strict "
           "-std replaces it before comments exist, so the two read "
           "different lines); any statement in the verifier's no-QSPI arm "
