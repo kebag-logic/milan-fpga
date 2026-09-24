@@ -1,0 +1,12 @@
+make stale rc=0
+diff --check base..head rc=0
+files changed cc077a6f..head:
+ docs/diagrams/20-rtl-dataflow.png          | Bin 445743 -> 463592 bytes
+ docs/diagrams/20-rtl-dataflow.svg          |  26 +++++++++++++++++---------
+ docs/diagrams/22-aecp-descriptor-fetch.png | Bin 539954 -> 565795 bytes
+ docs/diagrams/22-aecp-descriptor-fetch.svg |  29 ++++++++++++++++++-----------
+ docs/guides/integrator.md                  |   8 ++++----
+ hdl/top/protocol_processor_top.sv          |   1 -
+ tb/desc_mem_guard/README.md                |   1 +
+ tb/desc_mem_guard/sim_main.cpp             |   8 ++++++++
+ 8 files changed, 48 insertions(+), 25 deletions(-)
