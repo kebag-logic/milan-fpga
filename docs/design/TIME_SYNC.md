@@ -92,7 +92,9 @@ The offset is local time minus grandmaster time.
 - So does a return from grandmaster duty.
 - The written rate trim never exceeds 200 ppm.
 - That trim is proportional plus integral; both share the bound.
-- The bound is `PHC_ADJ_MAX_C`, which `KL_gptp_txret` enforces.
+- The plane's microcode clamps the trim to that bound.
+- `KL_gptp_txret` computes the same bound as `PHC_ADJ_MAX_C`.
+- It refuses egress timestamps while the trim exceeds it.
 - A 100 us slew takes 0.5 s or more.
 - One step is one `phc_step_we_o` pulse.
 - That pulse carries the measured offset, negated.

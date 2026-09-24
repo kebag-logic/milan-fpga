@@ -115,11 +115,13 @@ Issue #387 decided its media reaction.
 | Element | Decided reaction to one step | This tree |
 |---|---|---|
 | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
-| Render setpoint stage | Re-centres once, at the next PDU end, counted in its recentre tally | Yes, on the step; a grandmaster identity change also re-centres it |
-| Grid aligner and packet NCO | Nothing to re-centre: neither reads the PHC | No PHC input |
-| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm |
+| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes, at the next PDU end, counted in its recentre tally; a grandmaster identity change also re-centres it |
+| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid (#539). Whether the aligner needs its own re-centre is a question with the owner on #387 |
+| Packet NCO | Not named by the decision | No PHC or step input |
+| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm; a locked step of about 108 to 524 us passes that guard (#539) |
 | Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Not yet: `mcr_restart_p_w` ignores the step |
 | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
+| A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Not yet: `KL_media_clock_restart` flips its target once per request, so a second request before the first reaches the wire cancels it |
 | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
 
 The render stage is timed from accept, not presentation time.
@@ -130,11 +132,25 @@ Today a grandmaster change that steps counts two re-bases.
 
 The decided count for that change is one.
 
-The `milan_dp` gmstep leg measures all of this.
+The `milan_dp` gmstep leg drives one 1.5 s grandmaster step.
+
+It grades these rows:
+
+- `tu`: set at the commit, held past the step's holdover.
+- Render stage: one re-base, counted right after the step.
+- Render law: every push leaves the #386 target fill.
+- `mr` and MEDIA_RESET: one each, and both belong to the step.
+- Streams: the talker keeps streaming and the listener stays locked.
+
+It does not grade these:
+
+- The grid aligner: the leg holds the TDM clocks.
+- The CRF servo: its DRP answers zero; see #539.
+- An lwSRP licence: the escape bit opens the talker.
+- A step during a pending restart: tested with the edit.
+- The physical re-base: the #117 bench measures it.
 
 The remaining datapath edit stays open on #387.
-
-The #117 bench measures the physical re-base.
 
 ## Option-off behavior
 
@@ -160,7 +176,7 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
-| `milan_dp` gmstep | A 1.5 s grandmaster step under CRF selection (not yet in the sweep) |
+| `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, `mr`, MEDIA_RESET, stream continuity (not yet in the sweep) |
 | `media_grid_align` | Alignment, watchdog, and recovery |
 | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
 

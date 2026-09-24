@@ -349,27 +349,53 @@ CRF selection.
 |---|---|
 | Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
 | Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens |
-| Baseline | the render fill at accept is one constant inside the #386 band; the talker streams with `tu` clear |
-| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate; the listener stays locked; one counted render re-base, no rail, the fill constant; one outgoing `mr` toggle; the talker's MEDIA_RESET counts one |
+| Baseline | every PDU push leaves the #386 target fill (setpoint 8 + one PDU = 14 events); the talker streams with `tu` clear |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; one counted render re-base, no rail, every push on the target fill; one outgoing `mr` toggle; the talker's MEDIA_RESET counts one |
 
-**It is not in the default sweep yet.** At this revision the leg passes 37 of
-its 40 checks. The three it fails are decided behaviour the datapath does not
+**The counted event is the step's, not the commit's.** The render re-base
+must be counted at a PDU end within two AAF periods (500 cycles) after the
+plane's step pulse, and the first PDU carrying the new `mr` level must leave
+within two talker intervals of it. The talker's counters are read once more
+between the commit and the step, and MEDIA_RESET must not have moved there.
+A re-base keyed to the grandmaster identity change therefore fails; in this
+scenario the identity change lands about 160000 cycles before the step.
+
+**The render law is graded where the stage states it.** `KL_render_setpoint`
+judges its bands on the fill right after each PDU's push, TARGET_C =
+setpoint + one PDU. The leg reads that fill as the peak of the registered fill
+between two accepts: pops only lower it after the push, and the next PDU
+pushes only after its own accept. The fill at the accept is printed, not
+graded: it depends on how many media ticks fall between the last push and the
+accept, so it moves with the feed's start phase (9 or 10 events here).
+
+**Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
+through `make`, idles that many fabric cycles before the peer's media feed
+starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
+accept phase. With the #387 datapath edit the leg passes at all 42.
+
+**It is not in the default sweep yet.** At this revision the leg passes 44 of
+its 48 checks. The four it fails are decided behaviour the datapath does not
 implement yet: the render stage counts two re-bases, one on the grandmaster
-identity and one on the step, and the step neither toggles `mr` nor counts
-MEDIA_RESET. The datapath edit that closes them waits behind the lane holding
-`milan_datapath.sv`, and issue #387 records it. The leg joins `run` in the
-change that makes it pass, together with its negative-control runner.
+identity (outside the step's window) and one on the step, and the step neither
+toggles `mr` nor counts MEDIA_RESET. The datapath edit that closes them waits
+behind the lane holding `milan_datapath.sv`, and issue #387 records it. The
+leg joins `run` in the change that makes it pass, together with its
+negative-control runner.
 
-The model's limits, stated rather than hidden:
+What the leg does not grade:
 
-- The TDM clocks are held, so the grid aligner stays disengaged. It has no PHC input to re-base.
-- The talker is opened by `AAF_CTRL[1]`, not by an lwSRP licence; no SRP peer exists here.
-- At 2 MHz a PDU's ingress spans most of a media tick, so the fill constant is the band's upper edge, 9 events. The 100 MHz legs sit on the setpoint, 8.
-- The talker's cadence in this compressed model is not the product's, so its stream is graded against its own baseline rate.
-- The step policy's thresholds are proven by the donor's engine suite; this leg only relies on them.
+- The grid aligner. The TDM clocks are held, so it stays disengaged. Whether it needs its own re-centre on a step is a question with the owner on #387.
+- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+- An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
+- A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two; its arm joins the datapath edit.
+- The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
+- The physical re-base. The #117 bench measures it.
+
+The talker's cadence in this compressed model is not the product's, so its
+stream is graded against its own baseline rate.
 
 `CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
-Measured on 2026-09-23 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
+Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
