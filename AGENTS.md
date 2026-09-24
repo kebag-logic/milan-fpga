@@ -413,7 +413,7 @@ A task is complete only when:
 - no review round remains in flight;
 - the candidate merge result is validated;
 - the change lands in `dev`;
-- post-merge containment is clean;
+- post-merge containment is clean under CONTRIBUTING's stated proof claims;
 - authoritative documentation is current;
 - the Issue is closed (by the merge through `Closes #N`, or by hand) and
   moved to `Done`.
