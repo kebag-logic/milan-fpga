@@ -1,0 +1,27 @@
+=== base unit (clean)
+[U10] local ptp step: bad window discarded, no rail-out
+  [ ok ] [U10] back to IDLE                                   = 0
+  [ ok ] [U10] locked before the step                         = 4
+  [ ok ] [U10] trim held across the step (3 win, |d|<=48)     = 1
+  [ ok ] [U10] still LOCKED 10 windows after the step         = 4
+  [ ok ] [U10] still LOCKED through the slew storm            = 4
+  [ ok ] [U10] trim held through the storm (|d|<=48)          = 1
+  [ ok ] [U10] LOCKED after the storm ends                    = 4
+  [ ok ] [U10] trim near pre-storm after recovery (|d|<=160)  = 1
+  [ ok ] [U10] effective clock still ~ talker (+80)           = 80.079
+KL_mmcm_drp_servo: 52 checks, 0 failures
+base unit (clean) exit=0
+APPLIED base noresync
+=== base unit (noresync)
+[U10] local ptp step: bad window discarded, no rail-out
+  [ ok ] [U10] back to IDLE                                   = 0
+  [ ok ] [U10] locked before the step                         = 4
+  [ ok ] [U10] trim held across the step (3 win, |d|<=48)     = 1
+  [ ok ] [U10] still LOCKED 10 windows after the step         = 4
+  [ ok ] [U10] still LOCKED through the slew storm            = 4
+  [ ok ] [U10] trim held through the storm (|d|<=48)          = 1
+  [ ok ] [U10] LOCKED after the storm ends                    = 4
+  [ ok ] [U10] trim near pre-storm after recovery (|d|<=160)  = 1
+  [ ok ] [U10] effective clock still ~ talker (+80)           = 80.079
+KL_mmcm_drp_servo: 52 checks, 0 failures
+base unit (noresync) exit=0

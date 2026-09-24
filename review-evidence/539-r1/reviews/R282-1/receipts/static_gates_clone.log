@@ -1,0 +1,28 @@
+== [clone] lint_rtl --check
+exit=0
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+== [clone] check_sv_idiom
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+exit=0
+== [clone] check_cpp_idiom
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+== [clone] check_em_dash --base
+check_em_dash: 0 finding(s) over 4 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [26d855a9..HEAD]
+== [clone] check_cpp_idiom exit=0
+cpp idiom: 147 first-party translation units, 22 of them C
+  naked new/delete: 0
+  goto: 0
+  unbounded C call: 0
+  c-style cast: 0 <= 0
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+== [clone] check_rtl_source_lists exit=0
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)

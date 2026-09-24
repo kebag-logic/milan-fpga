@@ -1,0 +1,12 @@
+[U10] local ptp step: bad window discarded, no rail-out
+  [ ok ] [U10] back to IDLE                                   = 0
+  [ ok ] [U10] locked before the step                         = 4
+  [FAIL] [U10] trim held across the step (3 win, |d|<=48)     got=0 exp=1
+  [ ok ] [U10] still LOCKED 10 windows after the step         = 4
+  [ ok ] [U10] still LOCKED through the slew storm            = 4
+  [ ok ] [U10] trim held through the storm (|d|<=48)          = 1
+  [ ok ] [U10] LOCKED after the storm ends                    = 4
+  [ ok ] [U10] trim near pre-storm after recovery (|d|<=160)  = 1
+  [ ok ] [U10] effective clock still ~ talker (+80)           = 80.084
+KL_mmcm_drp_servo: 52 checks, 1 failures
+old harness on head exit=0

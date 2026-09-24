@@ -1,0 +1,24 @@
+== lint_rtl --check
+  missing: gptp-processor             (KL_gptp_shadow's KL_gptp_engine)
+  A fresh `git worktree add` inherits no submodules. Initialise them (no network needed for these three):
+    git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+  Refused rather than counted: a violation count over an incomplete resolution set proves nothing and must not read as a pass, nor invite a ratchet tighten - the pp_srcs.py rule.
+exit=0
+== check_sv_idiom
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit status 1.
+== check_cpp_idiom
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit status 1.
+== docs_check
+docs_check: 0 finding(s) across 164 md files + 849 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== git diff --check base..head
+exit=0
+== check_em_dash --base
+11:a branch writes - prose, headings, table cells, fenced text and the
+44:writes: the two documentation indexes, the historical tree and pages another
+58:    python3 scripts/check_em_dash.py --base "$(git merge-base origin/dev HEAD)"
+68:import argparse
+78:# OWNED by gen_toc.py, which writes the entries this gate reads; lifting them

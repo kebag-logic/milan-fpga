@@ -1,0 +1,3 @@
+152:| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid (#539). Whether the aligner needs its own re-centre is a question with the owner on #387 |
+154:| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm; a locked step of about 108 to 524 us passes that guard (#539) |
+181:- The CRF servo: its DRP answers zero; see #539.
