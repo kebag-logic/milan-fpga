@@ -293,7 +293,12 @@ module KL_pp_shadow #(
 
     //! ---- level controls ----
     input  wire        enable_i,           //! Milan 5.6.1 boot gate (CSR bit)
-    input  wire        restore_go_i,       //! start the NVM boot restore walk
+    //! start the NVM boot restore walk. REQUIRED ON EVERY BOOT since
+    //! processor pin a8f8ce81 (its issue 92): the processor holds its ACMP
+    //! listener from reset until the walk ends, so a boot that never starts
+    //! it never answers a listener command. milan_datapath drives it from
+    //! PP_CTRL[1], which the firmware's nvm_boot() sets.
+    input  wire        restore_go_i,
     input  wire        link_up_i,          //! link status (already synced)
     input  wire        gm_change_i,        //! GM_CHANGE strobe from gptp
     input  wire [63:0] gm_id_i,            //! current gm_id
@@ -381,6 +386,9 @@ module KL_pp_shadow #(
     //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
     //! answers from its binding view, SRP registrars and gPTP plane - the
     //! same warnings-are-errors rule as the other faces, wiring mandatory.
+    //! A STREAM_INPUT's selectors 5 and 7 never reach this face, and its
+    //! selector 4 failure-code byte is replaced: the processor answers
+    //! those from its own listener record and SRP registrar (#508).
     output logic        gsi_req_o,          //! a word is being asked for
     output logic [1:0]  gsi_kind_o,         //! 0 STRI / 1 AVB / 2 ASP
     output logic [15:0] gsi_desc_type_o,    //! addressed descriptor_type

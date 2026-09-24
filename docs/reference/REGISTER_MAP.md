@@ -1111,7 +1111,7 @@ now ([EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#credit-based-shaping)): the
 processor's raw admission verdict and slope sum reach only `LWSRP_STATUS[9]` and
 `LWSRP_SLOPE`. The stream gate is the processor's ACTIVE since #530. Its
 optimistic admission window counts a fresh declaration as admitted until the end
-of the third admission round after it. The declaration also clears the source's
+of the third published admission round after it. The declaration also clears the source's
 registered Listener, so ACTIVE rises inside the window only if a Listener Ready
 or Ready Failed for the stream is decoded within those few cycles. That corner
 has two branches:
@@ -1132,7 +1132,12 @@ Both show on the licensed source's bits. For the CRF output they are
 so it never shows the CRF output's corner. `LWSRP_STATUS[6]` is ACTIVE ORed
 over sources, not one source's own bit, so it shows the corner only while no
 other source is ACTIVE.
-After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next round.
+After a withdrawal `LWSRP_SLOPE` keeps the stream's slope until the next published round.
+Since processor pin `a8f8ce81` (its issue 112) two rules hold.
+An accepted re-declaration clears that source's `LWSRP_STATUS[9]` term.
+The term returns once the new TSpec has been evaluated.
+A round that meets any pending declaration publishes nothing.
+So `[9]`, `LWSRP_SLOPE` and `[7]` hold until every declaration is evaluated.
 
 While enabled the plane declares MSRP Domain (+ TalkerAdvertise) and the MVRP
 VID, registers the bridge's Listener attribute for our StreamID, and resolves
@@ -2171,7 +2176,7 @@ another.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing |
+| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. A device face that never answers ends the walk at `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, with `restore_fail` set |
 | `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done`, the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed walk validated **zero** records, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[11]` `nvm_pend`, **accepted work that no verified slot holds and `nvm_dirty` does not report**: a change the producer still holds, a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet. The durable reading of design page 9.3 is therefore `(backed 1, dirty 0, stale 0)` **and this bit `0`** (snapshot-ownership page 6.1), `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |

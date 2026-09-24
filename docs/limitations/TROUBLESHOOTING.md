@@ -67,7 +67,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 
 ## Contents
 
-- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** -- The router. One question -- how far did you get before it broke? -- narrows 26 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
+- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** -- The router. One question -- how far did you get before it broke? -- narrows 27 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
 - **[Section index](#section-index)** -- The searchable table: the exact error string or symptom you would grep for, against the one-line root cause. Scan this before reading any section body.
 - **[Section 1: import litex resolves to a namespace package](#section-1-import-litex-resolves-to-a-namespace-package)** -- `litex.__file__` is `None` because the repo-root directory named `litex/` shadows the installed package. Fix is a `cd`; the one-line check that confirms it is here.
 - **[Section 2: NaxRiscv generation needs JAVA_HOME](#section-2-naxriscv-generation-needs-java_home)** -- The build dies in "netlist generation" because the core is generated from SpinalHDL and wants a JDK. Exact packages to install, and the note that first generation needs network.
@@ -91,10 +91,11 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** -- The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
 - **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** -- The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
 - **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** -- A provisioning failure: discovery and ACMP work, but every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately because the generated image was not loaded or failed verification. The section explains the status split, derived base, bare-metal boot checks, watchdog, and late-load recovery.
+- **[Section 27: no ACMP listener command is answered - the boot restore walk was never started](#section-27-no-acmp-listener-command-is-answered---the-boot-restore-walk-was-never-started)** -- Since processor pin `a8f8ce81` the ACMP listener waits for the NVM binding walk, and `PP_CTRL[1]` starts it. How `PP_STAT` tells a walk never started from a slow device, and the one-write fix.
 
 ## Start here: which section is your problem in?
 
-*One question — how far did you get before it broke? — routes 26 field reports
+*One question -- how far did you get before it broke? -- routes 27 field reports
 down to one or two.*
 
 ```mermaid
@@ -103,6 +104,7 @@ flowchart TB
     W -->|"a controller discovers and connects,<br/>but every READ_DESCRIPTOR comes<br/>back BAD_ARGUMENTS"| AE["Section 26<br/>the descriptor image was never<br/>loaded into DRAM"]
     W -->|"a command is answered<br/>NOT_IMPLEMENTED, or IDENTIFY_NOTIFICATION<br/>is answered BAD_ARGUMENTS"| AB["NOT A FAULT<br/>the AECP capability boundary<br/>KNOWN_ISSUES Section 0"]
     W -->|"a counter reads 0 forever, or a<br/>register accepts a write and<br/>changes nothing on the wire"| SZ["Section 24<br/>structural zeros and<br/>write-only scratch"]
+    W -->|"ADP and AECP answer, but no ACMP<br/>listener command is ever answered"| RW["Section 27<br/>the boot restore walk<br/>was never started"]
 
     W -->|"the SoC build never produced<br/>a bitstream"| B["Sections 1-6<br/>toolchain env + LiteX/SoC build"]
     W -->|"a Verilator suite will not build,<br/>blocks, or fails a check"| V["Sections 7, 8, 11-14<br/>simulation + harness"]
@@ -146,6 +148,7 @@ to argue with than a bug.
 | [24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution) | a diagnostic counter reads `0` forever; a control register accepts a write, reads it back, and changes nothing on the wire | its source RTL was **deleted** on 2026-08-13 — the word is a **structural zero** or a **write-only scratch**, not a measurement and not a control |
 | [25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered) | `A_TXARB_DIAG 0x784` reports activity on the "wrong" lane, or bits 7:4 are always 0 | the TX arbiter cascade collapsed from **eight muxes to four** and the lanes were renumbered; an old decoder reads a different mux than it names |
 | [26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) | the controller discovers the entity, ACMP works, and **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** | the generated image was omitted, failed pairing or verification, or was written to the wrong derived base; an invalid image reports zero configurations and the store refuses cleanly rather than hanging |
+| [27](#section-27-no-acmp-listener-command-is-answered---the-boot-restore-walk-was-never-started) | after a reset, `BIND_RX` and `GET_RX_STATE` are never answered and no `PROBE_TX` leaves, while ADP, AECP and the talker answer | since processor pin `a8f8ce81` the listener is held until the NVM binding walk ends, and nothing set `PP_CTRL[1]` to start it |
 
 ---
 
@@ -1041,3 +1044,30 @@ command, response, drop, locate-miss, last status, last length, image-valid,
 image-fault — are not at parent CSR `0x648`, which stays a structural zero; they
 live in the protocol processor's side-port snapshot window, reached through
 `KL_pp_shadow`'s side-port adapter.)
+
+---
+## Section 27: no ACMP listener command is answered - the boot restore walk was never started
+
+**Symptom.** After a reset or a fresh boot the entity advertises and answers
+AECP. Its talker answers PROBE_TX. But no listener command is ever answered:
+`BIND_RX`, `UNBIND_RX` and `GET_RX_STATE` get no response, and no sink sends a
+PROBE_TX.
+
+**Cause.** Since processor pin `a8f8ce81` (its issue 92) the processor holds
+its ACMP listener from reset until the NVM binding walk ends. That stops an
+early command from erasing a binding the walk is restoring. `PP_CTRL[1]`
+starts the walk. The shipping firmware sets it in `nvm_boot()` on every boot.
+A custom boot path, or a test harness, that never sets it leaves the listener
+held until the next reset.
+
+**Check.** Read `PP_STAT` at `0x924`:
+
+* `[1]` and `[2]` both `0`: the walk never started. Set `PP_CTRL[1]`.
+* `[1]` stays `1`: the device face is slow. The walk still ends at
+  `NVM_RS_TMO_CYC_P`, 20 ms at the default clock, with `[3]` set.
+* `[2]` is `1`: the walk ended, so look elsewhere.
+
+**Fix.** Set `PP_CTRL[1]` before the entity enable, and wait for `PP_STAT[2]`.
+With no validated image the backend answers blank media, so the walk ends in a
+few hundred cycles. Every `milan_dp` harness that binds a sink does this since
+#508; without it the 1x1 leg fails 24 checks.

@@ -607,6 +607,10 @@ DUT_READER_DISPOSITIONS = {
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/gsi_mutants.py":
+        "mutation campaign; it plants one of seven #508 GET_STREAM_INFO seam defects into a copy of "
+        "the datapath or of the processor tree and requires a named failure. It is the explicit "
+        "gsi-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
