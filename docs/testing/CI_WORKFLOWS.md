@@ -1983,13 +1983,17 @@ code's live behaviour is proved with an independently audited install:
     verdict, a shared daemon that does not collide, and a slot-0 rival
     refused for neither the tool cache nor a job volume.
 
-  In the parallel-run and isolation cases, a stand-in run that announces its
-  slot holds it until the proof has failed the overlap check or recorded
-  both isolation controls, so no grading there waits on a timer. The case
-  whose runs never overlap is the exception: its runs hold for a fixed time,
-  in whichever order they start. The proof fails it in either order, but
-  which overlap condition fails depends on the order, so each condition also
-  has a case of its own.
+  Where the proof judges runs while they hold their slots, the stand-in runs
+  wait for that judgment rather than a timer. A parallel run holds its slot
+  until the proof has failed the overlap check or recorded both isolation
+  controls. A collision's holder holds its slot until the rival's run has
+  returned, then for a fixed time that covers only the proof's next check,
+  and a rival meant to be refused late waits for the holder to exit. So no
+  case's grading depends on how fast a run starts. The case whose runs
+  never overlap is the exception: its runs hold for a fixed time, in
+  whichever order they start. The proof fails it in either order, but which
+  overlap condition fails depends on the order, so each condition also has
+  a case of its own.
 
   Two guards have no case. The ten-`PASS` count behind `PROVED` is a backstop
   that no case reaches, because a check is skipped only after another has
