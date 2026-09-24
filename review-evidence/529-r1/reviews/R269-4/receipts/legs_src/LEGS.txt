@@ -1,0 +1,16 @@
+suite <packet>/scratch/src/tb/verilator/milan_dp
+milan_datapath.sv sha256 2b729369b5e705cf8f76713d59720e5017c7000fdc620e72bd4269021656bcd1; sim_nxn.cpp sha256 46cc9b158dfe26c7acedb5084a03932ebba17d5fed43ee70f04df755701a14b1; sim_main.cpp sha256 7cee727280ba521991354fb96c97e58ec3da84662c9c23d5be66d9a0406e10ee
+verilator Verilator 5.050 2026-07-01 rev v5.050
+legs obj_nxn,obj_nxndv,obj_nxn8,obj_nxn4c,obj_notify,obj_dir,obj_nolpf,obj_prune,obj_ax1x1,obj_gptp,obj_gptplat
+leg              build    build_s    run      run_s      tally
+obj_nxn          0        34         0        6          checks 1708 failures 0; RESULT PASS
+obj_nxndv        0        34         0        6          checks 1710 failures 0; RESULT PASS
+obj_nxn8         0        40         0        12         checks 3136 failures 0; RESULT PASS
+obj_nxn4c        0        35         0        6          checks 1708 failures 0; RESULT PASS
+obj_notify       0        31         0        13         checks 146 failures 0; RESULT PASS
+obj_dir          0        30         0        5          last: milan_datapath: guarded and NOT run in this shape: 1
+obj_nolpf        0        30         0        5          last: milan_datapath: guarded and NOT run in this shape: 1
+obj_prune        0        33         0        1          checks 33 failures 0; RESULT PASS
+obj_ax1x1        0        30         0        6          last: milan_datapath: guarded and NOT run in this shape: 5
+obj_gptp         0        32         0        84         last: 181 checks: 181 PASS, 0 FAIL
+obj_gptplat      0        32         0        86         last: 181 checks: 181 PASS, 0 FAIL
