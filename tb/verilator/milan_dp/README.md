@@ -385,7 +385,7 @@ negative-control runner.
 What the leg does not grade:
 
 - The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
-- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
+- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
 - An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
 - A step that lands while an `mr` restart is pending. Ruling 5802264260 item 2 merges the two; its arm joins the datapath edit.
 - The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
