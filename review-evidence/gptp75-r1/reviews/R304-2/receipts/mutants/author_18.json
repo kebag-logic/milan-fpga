@@ -1,0 +1,15 @@
+{
+ "name": "credit gate removed from the Announce leg",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "an Announce beat is postponed while the transmit path has no credit",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D4 Announce beats are withheld got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1586 checks: 1585 PASS, 1 FAIL"
+ ],
+ "index": 18
+}

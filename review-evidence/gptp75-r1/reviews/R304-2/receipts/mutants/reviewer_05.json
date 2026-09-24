@@ -1,0 +1,15 @@
+{
+ "name": "R06 mastership always writes a rate",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "mastership writes a rate only to retire an active correction",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL late FU never steers         got 0000000000000007 exp 0000000000000002"
+ ],
+ "tally": [
+  "1586 checks: 1585 PASS, 1 FAIL"
+ ],
+ "index": 5
+}

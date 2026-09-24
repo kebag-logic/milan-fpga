@@ -1,0 +1,21 @@
+{
+ "name": "X02 sync-ok lapse arms while inactive only",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "an inactive Sync lapse / GM change cannot arm qualification",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: idle GM change has no level edge got 000000000000001e exp 000000000000001c",
+  "FAIL slew: in-band pair after idle GM change stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1589 checks: 1582 PASS, 7 FAIL"
+ ],
+ "index": 1
+}

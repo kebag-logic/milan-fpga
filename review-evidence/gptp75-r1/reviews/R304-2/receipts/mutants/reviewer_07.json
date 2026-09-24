@@ -1,0 +1,17 @@
+{
+ "name": "R08 step clears at the step pulse",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "replacement step clears with its rate tail, not before",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: step retains only the pre-existing interval got 0000000000000000 exp 0000000000000001",
+  "FAIL slew: no clear precedes the replacement rate got 000000000000000b exp 0000000000000000"
+ ],
+ "tally": [
+  "1586 checks: 1583 PASS, 3 FAIL"
+ ],
+ "index": 7
+}

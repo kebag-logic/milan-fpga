@@ -1,0 +1,23 @@
+--- scratch/head/tb/verilator/engine/sim_main.cpp	2026-09-24 18:56:40.000000000 +0200
++++ scratch/gaptree_c/tb/verilator/engine/sim_main.cpp	2026-09-24 19:48:15.464000000 +0200
+@@ -4739,6 +4739,20 @@
+     for (int64_t off : {0, 100, -100, 0})
+       slew_probe("slew: tracking band never asserts", off, false);
+     expect("slew: tracking includes a nonzero frequency trim", phc_adj != 0, 1);
++    // R304-2 probe C: lose asCapable while inactive, recover, track.
++    {
++      const size_t c_edges = slew_edges.size();
++      pd_mode = PD_FAR;
++      expect("probeC: bad delay drops asCapable while inactive", wait_flags(FL_ASCAP, 0, 2500000), 1);
++      run_svc(200000);
++      expect("probeC: incapable and inactive", dut->phc_slew_active_o, 0);
++      pd_mode = PD_NORMAL;
++      expect("probeC: capability recovers", wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
++      expect("probeC: recovery has no level edge", slew_edges.size(), c_edges);
++      announce(0x75C0, 100, GMID, 0, PEER_CID);
++      slew_probe("probeC: in-band pair after asCapable recovery stays inactive", 0, false, false, true);
++      slew_probe("probeC: second in-band pair after recovery stays inactive", 0, false);
++    }
+ 
+     // An idle receipt lapse must not arm the completion qualifier. Check
+     // both the lapse itself and fresh consumed pairs, including every edge.

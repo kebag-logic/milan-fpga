@@ -1,0 +1,24 @@
+--- scratch/head/tb/verilator/engine/sim_main.cpp	2026-09-24 18:56:40.000000000 +0200
++++ scratch/gaptree/tb/verilator/engine/sim_main.cpp	2026-09-24 19:43:09.492000000 +0200
+@@ -4739,6 +4739,12 @@
+     for (int64_t off : {0, 100, -100, 0})
+       slew_probe("slew: tracking band never asserts", off, false);
+     expect("slew: tracking includes a nonzero frequency trim", phc_adj != 0, 1);
++    // R304 probe A: an idle Sync receipt timeout, then ordinary tracking.
++    run_svc(800000);
++    expect("probeA: idle timeout clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
++    expect("probeA: idle timeout leaves the level low", dut->phc_slew_active_o, 0);
++    slew_probe("probeA: in-band pair after idle timeout stays inactive", 0, false);
++    slew_probe("probeA: second in-band pair stays inactive", 0, false);
+ 
+     // An idle receipt lapse must not arm the completion qualifier. Check
+     // both the lapse itself and fresh consumed pairs, including every edge.
+@@ -4828,6 +4834,8 @@
+     expect("slew: return from GM starts inactive", dut->phc_slew_active_o, 0);
+     slew_probe("slew: in-band return from GM stays inactive", 0, false);
+     slew_probe("slew: second in-band return pair stays inactive", 0, false);
++    // R304 probe B: the first pair after mastership is in-band.
++    slew_probe("probeB: in-band return from GM stays inactive", 0, false);
+     slew_probe("slew: return from GM uses locked slew", 50000, true);
+     pd_mode = PD_FAR;
+     expect("slew: bad delay drops asCapable", wait_flags(FL_ASCAP, 0, 2500000), 1);
