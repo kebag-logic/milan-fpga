@@ -1,0 +1,21 @@
+head a21cd3585abdd3cdf4ac5774a048361a66fed043
+tree 5376deee90b2e0732f533f287daaf7dfc666f32e
+branch 387-media-rebase
+status-porcelain-begin
+status-porcelain-end
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+commits since a9636e0f:
+a21cd3585abdd3cdf4ac5774a048361a66fed043 Record the eleven-control gmstep campaign time in the milan_dp README
+c14f96ed51f261010e889d652dd670d12f1a2d97 Record the wire boundary, the settime evidence and the measured milan_dp margin in the design, test and CI pages
+018329b14719dd38a1c3409dbea228502f23537e Name the #387 re-centre triggers in the KL_render_setpoint banner and port spec
+94e5ae74d0fff0d083cbf2fab34020429e4d8125 Grade a software settime as one mr toggle and one MEDIA_RESET in the option-off leg, with its planted control and a source-gated one
+d5dc47c018406aa3e3f8a6e27c620ec835b660c8 End a pending mr restart at the first PDU carrying the adopted level, graded by tkdiag T17 and T18 and four engine mutants
+bodies/trailers (must be empty):
+sweep head c14f96ed5 vs final head:
+ tb/verilator/milan_dp/README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+pinned-tool-bin verilator: Verilator 5.050 2026-07-01 rev v5.050

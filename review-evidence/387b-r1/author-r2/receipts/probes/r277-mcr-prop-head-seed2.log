@@ -1,0 +1,12 @@
+random: 40 runs seed 2
+  [FAIL] P1 no request lost on any talker got=2 exp=0
+  [ok] P2 no toggle held fewer than 8 launches got=0 exp=0
+  [ok] P3 no talker toggles more often than it was asked got=0 exp=0
+  [ok] P4 every talker settles with no pending restart got=0 exp=0
+  [ok] D1 four requests, two restarts: two toggles in all got=2 exp=2
+  [ok] D1 three requests in one pending window: one more toggle got=1 exp=1
+  [ok] D2 adoption edge seen (level changed) got=1 exp=1
+  [ok] D2 a request on the adoption edge merges (no pending after) got=1 exp=1
+  [info] D3 request after adoption, before first launch at the new level: pending=0 (1 = a new restart, two wire toggles)
+  [info] D4 wire toggles on talker 1 after the grant-window request: 1 (1 = merged as not yet on the wire, 2 = a second restart)
+checks: 8   failures: 1

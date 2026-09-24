@@ -1,0 +1,19 @@
+{
+  "label": "probes/r276-probe-step-gated-by-crf-run",
+  "command": [
+    "sh",
+    "/tmp/a270-scratch/ev/review-evidence/387b-r1/reviews/R276-4/scripts/probe_step_gated_by_crf.sh",
+    "$LANES/387-media-rebase",
+    "/tmp/a270-scratch/r276-crf",
+    "run"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "env_overrides": {
+    "PATH": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin"
+  },
+  "path": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+  "exit_code": 0,
+  "started_utc": "2026-09-24T17:50:45Z",
+  "elapsed_seconds": 5.216,
+  "log_sha256": "49a07ba659689b6097d40132290c65bb9ac8560e440c6ce33010552635cd115b"
+}

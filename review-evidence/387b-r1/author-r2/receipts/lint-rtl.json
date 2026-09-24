@@ -1,0 +1,17 @@
+{
+  "label": "lint-rtl",
+  "command": [
+    "python3",
+    "scripts/lint_rtl.py",
+    "--check"
+  ],
+  "cwd": "$LANES/387-media-rebase",
+  "env_overrides": {
+    "PATH": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin"
+  },
+  "path": "$VALIDATION_TOOLS/verilator-v5.050/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$WORKSPACE_HOME/.claude/plugins/cache/zoharbabin-claude-tools/message-timestamps/1.3.0/bin",
+  "exit_code": 0,
+  "started_utc": "2026-09-24T17:43:52Z",
+  "elapsed_seconds": 5.381,
+  "log_sha256": "9e4f1a8e6f6d9a22721eddf6f57f96a7697b63891fbcd195a98085e3233ed8d3"
+}
