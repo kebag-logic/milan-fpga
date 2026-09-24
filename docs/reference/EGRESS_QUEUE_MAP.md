@@ -76,12 +76,29 @@ could transmit against an unbudgeted slope.
 
 That ordering does not hold for the shipping gate. Since #530 every talker gate
 reads the processor's ACTIVE, which takes the processor's optimistic admission
-window: with a Listener Ready already registered at a fresh declaration, ACTIVE
-can open a source up to three admission rounds before the round that adds its
-slope to the sum. In the shipping datapath the only effect is status skew:
-`LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only
-readers of the raw verdict and the sum, for those rounds
-([REGISTER_MAP.md](REGISTER_MAP.md)). A lane that credit-shapes the fabric's own
+window: a fresh declaration counts as admitted until the end of the third
+admission round after it. The same declaration clears the source's registered
+Listener, so ACTIVE opens inside the window only if a Listener Ready or Ready
+Failed for the stream is decoded within those few cycles. The corner has two
+branches:
+
+- **Admitted.** ACTIVE can open the source up to three admission rounds before
+  `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only readers of the raw
+  verdict and the sum, include it. In the shipping datapath that lead is status
+  skew only.
+- **Refused.** ACTIVE does not fall inside the window. It falls at the window's
+  end, and the declaration then swaps to Talker Failed. For up to three rounds a
+  declaration the 75% ceiling refuses holds the emission licence and the Milan
+  v1.2 5.3.7.7 Table 5.4 streaming level. A controller reads a STREAM_START and
+  STREAM_STOP pair, the start resets MEDIA_RESET, TIMESTAMP_UNCERTAIN and
+  FRAMES_TX, and at most one PDU per source can leave, if its media event falls
+  in the window. ACTIVE still needs a registered Listener Ready or Ready Failed,
+  so nothing is emitted before one. Whether the licence should also need the
+  real grant is issue #551.
+
+Both show on the licensed source's own bits ([REGISTER_MAP.md](REGISTER_MAP.md)):
+`CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]` for the CRF output, and
+`LWSRP_STATUS[8]` for source 0 only. A lane that credit-shapes the fabric's own
 sources derives its own slope/gate ordering rather than inheriting this one.
 
 ## Why gPTP sits below the shaped classes

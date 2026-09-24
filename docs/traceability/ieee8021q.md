@@ -53,11 +53,20 @@ Two consequences worth stating rather than discovering:
   shipping datapath ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)), so the
   processor's Σ and raw admission verdict are read back as status only
   (`LWSRP_SLOPE` `0x698`, `LWSRP_STATUS[9]`). Nor would the old ordering hold: the
-  gate is ACTIVE since #530, which the processor's optimistic admission window can
-  raise up to three admission rounds before the round that adds the slope to Σ.
-  The only effect here is that those status words can trail `LWSRP_STATUS[8]` for
-  those rounds. A later lane that credit-shapes these sources derives its own
-  ordering.
+  gate is ACTIVE since #530, which the processor's optimistic admission window
+  holds admitted until the end of the third admission round after a fresh
+  declaration. The declaration clears the source's registered Listener, so ACTIVE
+  rises inside the window only if a Listener Ready or Ready Failed is decoded
+  within those few cycles. If the round admits the stream, those status words can
+  trail ACTIVE by up to three rounds, and that skew is the whole effect. If it
+  refuses the stream, ACTIVE falls at the window's end, not inside it: a
+  declaration the 75 % ceiling refuses holds the emission licence and the Milan
+  v1.2 5.3.7.7 Table 5.4 streaming level for up to three rounds. A controller
+  reads a STREAM_START and STREAM_STOP pair, the start resets the Table 5.4
+  interval counters, and at most one PDU per source can leave (issue #551). The
+  lead shows on the licensed source's own bits: `CRFT_CTRL[6]`/`[7]` and
+  `LWSRP_STATUS[6]` for the CRF output, `LWSRP_STATUS[8]` for source 0 only. A
+  later lane that credit-shapes these sources derives its own ordering.
 
 Also gone with the applicant: the MRPDU tx/rx counters and rx-drop count at CSR
 0x680 read **structural zeros**, and the provisioning words software used to write
@@ -86,7 +95,7 @@ the processor's face.
 | Q-6 | 8.6.7 | Queue management: no reordering within a class, loss only by admission | traffic_queues + shaping core | ✅ RTL datapath (in-order byte-exact per class, burst) | 8.6.7: reordering inside an SR class breaks the AVTP sequence_num contract downstream (AVTP-7). |
 | Q-7 | 8.6.8.1 / 34.6.2 | Strict priority transmission selection among non-shaped queues | traffic_shaping_core | ✅ RTL shaper_core (61 k vs independent model: SP order, unshaped bypass) | 8.6.8.1 is the default algorithm; inversion starves the control plane under media load. |
 | Q-8 | 8.6.8.2 / 34.6.1 | Credit-based shaper: idleSlope accrual, sendSlope drain, hiCredit/loCredit clamp, credit-reset rules, no transmit while credit < 0 | credit_based_shaper (CSR 0x400) | ✅ RTL cbs (87 k: bit-exact vs fixed-point replica + bounded vs ideal continuous model; accrual under back-pressure; live reconfig hiCredit clamp) | 34.6.1's math is the AVB latency guarantee itself; the TB's dual-model approach is the reference for any shaper change. |
-| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE within the three-round optimistic window and swaps to Talker Failed. The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
+| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE when the three-round optimistic window ends and swaps to Talker Failed; until then it is licensed (the second consequence above, issue #551). The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
 | Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size incl. per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath, so the slope-versus-gate ORDERING has no object on this wire (see the second consequence above: since #530 the ACTIVE gate can lead Σ by up to three admission rounds). The MaxFrameSize the recipe consumes is still derived in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) from the real AAF geometry and handed over as `cfg_tspec_max_frame_i` | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
 | Q-11 | 34.5 | Default SR class config: class A = PCP 3, SR_PVID default = VID 2 | processor SRP encoder for the declaration; `cfg_lwsrp_vid` (reset word 0x684 = 2) for this fabric's default, and the ADOPTED pair from the class-D face once a Domain has been seen | 🔵 PROCESSOR for the Domain bytes; ✅ RTL crf_tx TCI golden 0x6002 for the tag. The property that survives intact is the ONE-SOURCE rule: the AAF and CRF C-TAGs mux off exactly the pair the processor publishes (`srp_class_a_prio_o` / `srp_class_a_vid_o`), so frame and declaration cannot name different values. Historic: BENCH item 1.2; SILICON MSRP Domain = VID 2 | 34.5: the bench-measured truth — Domain misparse as 638 cost a debugging round; the defaults are load-bearing for interop. |
 | Q-12 | 34.2 | SRP domain detection: talker uses the boundary-port rules (Domain attribute) to pick class priority | processor SRP registrar (`srp_domain_adopted_o`) | 🔵 PROCESSOR — the boundary case was pinned by the deleted `lwsrp_rx` suite. The fabric reads only the adopted verdict | 34.2: transmitting class-A-tagged frames on a non-SRP boundary port is undefined behavior for the bridge. |
