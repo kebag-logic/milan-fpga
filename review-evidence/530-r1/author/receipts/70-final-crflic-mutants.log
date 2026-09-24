@@ -1,0 +1,165 @@
+HEAD c593cbeffaffa647cda70fb1a233455bf9c80d55
+verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -GDIAG_TICK_CYC_P=200000 --Mdir obj_crflic -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_crf_licence.cpp -o Vmilan_dp_crflic
+make[1]: Entering directory '$LANES/530-crf-talker-licence/tb/verilator/milan_dp/obj_crflic'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/530-crf-talker-licence/tb/verilator/milan_dp/obj_crflic'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.017 s (elab=0.000, cvt=0.000, bld=0.013); cpu 0.004 s on 8 threads; allocated 16.625 MB
+./obj_crflic/Vmilan_dp_crflic
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the MAAP claim
+  [PASS] ID == 'MILN'                                                       got=1296649294 exp=1296649294
+  [PASS] KL_maap reached ANNOUNCE (a block of two is claimed)
+  [PASS] CRFT_CTRL[1:0] reads back the boot value                           got=3 exp=3
+  [PASS] nothing declares yet, so nothing is licensed                       got=0 exp=0
+[A] the Run B opening: probe refused, MAAP grant, Talker Advertise declared and admitted, NO Listener Ready - nothing may be emitted
+  [t]     1769.04 ms  listener PROBE_TX, uid 1 (1)
+  [t]     1769.04 ms  listener PROBE_TX, uid 0 (1)
+  [t]     1772.00 ms  PROBE_TX answered, status, uid 1 (3)
+  [t]     1777.83 ms  PROBE_TX answered, status, uid 0 (3)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 0 (0)
+  [t]     1806.90 ms  DUT Talker Advertise first on the wire, uid 1 (0)
+  -- source uid 0 (AAF)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] the first PROBE_TX is answered TALKER_DEST_MAC_FAIL (3)            got=3 exp=3
+  [PASS] ...and MAAP's grant opens the DA gate after it
+  [PASS] the DUT declares Talker Advertise on the wire
+  [PASS] the processor's RAW admission verdict is up (the pre-#530 gate)    got=1 exp=1
+  [PASS] ...while no Listener Ready has been declared to the DUT
+  [PASS] ACTIVE never rose                                                  got=0 exp=0
+  [PASS] the CRF licence never opened (every cycle sampled)                 got=0 exp=0
+  [PASS] no CRF PDU on the wire                                             got=0 exp=0
+  [PASS] CRFT_COUNT stays 0                                                 got=0 exp=0
+  [PASS] CRFT_CTRL[5] the output is tagged (its Talker Advertise stands)    got=1 exp=1
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+  [PASS] the AAF gate never opened                                          got=0 exp=0
+  [PASS] no AAF PDU on the wire                                             got=0 exp=0
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 0                     got=0 exp=0
+  [i]    the raw verdict has stood 3898.78 ms: the window Run B streamed through
+[B] the listener's retry succeeds and the switch declares Listener Ready
+  [t]     5772.00 ms  listener PROBE_TX, uid 1 (2)
+  [t]     5774.65 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]     5777.83 ms  listener PROBE_TX, uid 0 (2)
+  [t]     5780.48 ms  PROBE_TX answered, status, uid 0 (0)
+  [t]     5814.65 ms  switch declares the FIRST Listener Ready, uid 1
+  [t]     5815.73 ms  CRF licence RISES, uid 1
+  [t]     5815.73 ms  ACTIVE RISES, uid 1
+  [t]     5820.48 ms  switch declares the FIRST Listener Ready, uid 0
+  [t]     5898.46 ms  first CRF PDU on the wire
+  [t]     5939.01 ms  first AAF PDU on the wire
+  -- source uid 0
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  -- source uid 1
+  [PASS] the retried PROBE_TX is answered SUCCESS                           got=0 exp=0
+  [PASS] the switch's first Listener Ready reached the DUT
+  [PASS] ACTIVE rose after it, within 50 ms
+  [PASS] the CRF licence opened on the cycle ACTIVE[CRF] rose               got=581573 exp=581573
+  [PASS] the AAF gate opened on the cycle ACTIVE[AAF] rose                  got=582156 exp=582156
+  [PASS] CRF PDUs follow the licence (>= 3 in 3 s)
+  [PASS] AAF PDUs follow the AAF gate
+  [PASS] every CRF PDU: C-tag {PCP 3, VID 2}, stream {MAC, uid 1}, the MAAP DA got=6 exp=6
+  [PASS] CRFT_CTRL[6] reservation active reads 1                            got=1 exp=1
+  [PASS] CRFT_CTRL[7] emission licensed reads 1                             got=1 exp=1
+  [PASS] LWSRP_STATUS[8] stream gate (source 0) reads 1                     got=1 exp=1
+[B2] the AAF listener unbinds; the switch withdraws that Listener
+  [t]     8769.12 ms  switch withdraws its Listener (Lv), uid 0
+  [t]    10207.83 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] ACTIVE[AAF] fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the AAF gate closed on that cycle                                  got=877020 exp=877020
+  [PASS] ...while the AAF talker still declares Talker Advertise            got=1 exp=1
+  [PASS] ...and its raw verdict still stands (the pre-#530 gate stayed open) got=1 exp=1
+  [PASS] no AAF PDU 20 ms after the gate closed                             got=0 exp=0
+  [PASS] the CRF output is untouched                                        got=1 exp=1
+[C] bound, the probe window long closed, across the Run B LeaveAll exchange: no self-Leave, no licence drop
+  [t]    20197.83 ms  switch LeaveAll MRPDU (Run B layout) (1)
+  [t]    20801.88 ms  DUT Talker Advertise LEAVE, uid 0
+  [t]    22603.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    32593.48 ms  switch LeaveAll MRPDU (Run B layout) (2)
+  [t]    35603.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    45593.48 ms  switch LeaveAll MRPDU (Run B layout) (3)
+  [t]    50003.68 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    59993.68 ms  switch LeaveAll MRPDU (Run B layout) (4)
+  [t]    62207.70 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [t]    72197.70 ms  switch LeaveAll MRPDU (Run B layout) (5)
+  [t]    76403.48 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the DUT sent no Talker Advertise Leave for its bound CRF output    got=0 exp=0
+  [PASS] ACTIVE[CRF] never fell                                             got=0 exp=0
+  [PASS] the CRF licence never fell                                         got=0 exp=0
+  [PASS] the CRF DA gate never closed                                       got=0 exp=0
+  [PASS] the listener never had to re-probe (two probes in all)             got=2 exp=2
+  [PASS] the registration alone held the DA gate for >= 45 s (probe window + 15 s closed)
+  [i]    5 DUT and 5 switch LeaveAll MRPDUs in this phase
+  [PASS] the DUT sent >= 4 LeaveAll MRPDUs
+  [PASS] every DUT LeaveAll flagged all four MSRP attribute types (802.1Q-2014 10.7.5.20) got=0 exp=0
+  [PASS] the switch sent >= 4 of its own, Listener JoinMt first
+  [PASS] the Listener registration still reads Ready                        got=2 exp=2
+  [i]    155 CRF PDUs, mean period 491.52 ms, longest gap 491.52 ms
+  [PASS] the CRF stream never paused (longest gap <= 1.5 mean periods)
+[F] Stream Output 1's Milan v1.2 5.3.7.7 Table 5.4 counters (observation interval 2000 ms here)
+  [i]    37 intervals since STREAM_START, FRAMES_TX 38, 155 PDUs
+  [PASS] STREAM_START = 1: one start since the bind                         got=1 exp=1
+  [PASS] STREAM_STOP = 0                                                    got=0 exp=0
+  [PASS] FRAMES_TX = the intervals elapsed since STREAM_START (+-1)
+  [PASS] ...which is far fewer than the PDUs sent (>= 3 per interval here)
+  [PASS] CRFT_COUNT (0x764) is the PDU total the wire carried               got=155 exp=155
+[D] the Listener declaration changes: Asking Failed, then Ready Failed
+  [t]    81769.08 ms  listener PROBE_TX, uid 1 (3)
+  [t]    81771.73 ms  PROBE_TX answered, status, uid 1 (0)
+  [t]    82270.16 ms  CRF licence FALLS, uid 1
+  [t]    82270.16 ms  ACTIVE FALLS, uid 1
+  [PASS] Asking Failed registered                                           got=1 exp=1
+  [PASS] ACTIVE fell within 50 ms of it
+  [PASS] the licence closed on that cycle                                   got=8227016 exp=8227016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [t]    84270.16 ms  CRF licence RISES, uid 1
+  [t]    84270.16 ms  ACTIVE RISES, uid 1
+  [t]    86393.48 ms  switch LeaveAll MRPDU (Run B layout) (6)
+  [PASS] Ready Failed registered                                            got=3 exp=3
+  [PASS] ACTIVE rose after it
+  [PASS] the licence reopened on that cycle                                 got=8427016 exp=8427016
+  [PASS] CRF PDUs resumed
+[F] ...and they restart at the next STREAM_START
+  [PASS] STREAM_START = 2                                                   got=2 exp=2
+  [PASS] STREAM_STOP = 1                                                    got=1 exp=1
+  [PASS] FRAMES_TX restarted: it counts only the intervals since the restart (+1)
+[E] the CRF listener unbinds inside a fresh probe window
+  [t]    86769.08 ms  switch withdraws its Listener (Lv), uid 1
+  [t]    86770.16 ms  CRF licence FALLS, uid 1
+  [t]    86770.16 ms  ACTIVE FALLS, uid 1
+  [t]    90003.68 ms  DUT LeaveAll MRPDU, flagged-type mask (bit n = AttributeType n+1) (15)
+  [PASS] the probe window is still open
+  [PASS] ACTIVE fell on the Lv, within 50 ms (the registrar goes IN to MT on an rLv)
+  [PASS] the licence closed on that cycle                                   got=8677016 exp=8677016
+  [PASS] ...while the talker still declares Talker Advertise                got=1 exp=1
+  [PASS] ...and its raw verdict still stands                                got=1 exp=1
+  [PASS] no CRF PDU 20 ms after the licence closed                          got=0 exp=0
+  [PASS] CRFT_CTRL[6] reservation active reads 0                            got=0 exp=0
+  [PASS] CRFT_CTRL[7] emission licensed reads 0                             got=0 exp=0
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF]                     got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 93769.12 ms (9376912 cycles)
+checks: 85   failures: 0
+RESULT: PASS
+python3 crflic_mutants.py
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF]"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+
+4 checks: 4 PASS, 0 FAIL
+wall=168.91 s
