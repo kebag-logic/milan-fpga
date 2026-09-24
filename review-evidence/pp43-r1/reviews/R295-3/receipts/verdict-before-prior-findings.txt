@@ -1,0 +1,11 @@
+R295-3 own verdict and ledger, written BEFORE reading any prior review's findings.
+Exact head a024ab51b926690be5ade8ec35ec1fa7dd23981b (tree 631666c74bc87ee6f422650ce91ed729fc44c285).
+Own verdict: POSITIVE (no open MINOR/MAJOR/BLOCKER from the independent delta pass).
+
+lens        | result | examined artifacts (at exact head)
+Conformance | CLEAN  | delta_scope.txt (only tb/srp_stream_fsms/sim_main.cpp changed, +8/-0); no hdl/ or docs/ byte changed; issue #43/#49 acceptance and A253/A255 decisions unaffected
+RTL         | CLEAN  | ls-tree diff: every hdl/ blob identical to a14ef8b4; mutants on hdl/srp/KL_srp_listener_fsm.sv:474-475 and :735 give identical FAIL sets at both heads
+Robustness  | CLEAN  | the scenarios keep their reset boundaries (h.reset() opens L8 and L9); no local shadowing (only SID0/DA0/VID0 file-scope, SIDB/DAB local to L8); trace identical incl. printed values
+Tests       | CLEAN  | trace of all 1087 checks (seq, result, message, observed values) byte-identical anc vs head; mutants identical; dropped-call probe loses 2 checks (count sensitive)
+Docs        | CLEAN  | tb/srp_stream_fsms/README.md:8 (1087 checks) and :130-138 (mutation rows reproduced at head) still true; section L text still describes the three scenarios
+2026-09-24T15:29:12Z
