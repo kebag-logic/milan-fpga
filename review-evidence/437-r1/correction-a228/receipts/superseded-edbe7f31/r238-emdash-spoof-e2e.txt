@@ -1,0 +1,30 @@
+===== variant: control (base bda1d5a33a8fa9269b2fcd00d9923e5df6dd758b, head aad1868b37ec4384c0c62a3fd7f967e439440d55)
+--- added lines:
++## Contents
++- **[Alpha](#alpha)** -- What alpha holds.
++- **[Old — heading](#old--heading)** -- Copied.
++- **[Beta](#beta)** -- What beta holds.
++- **[Gamma](#gamma)** -- What gamma holds.
+--- headings() at base and head:
+base [(1, 'Page', 'page'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+head [(1, 'Page', 'page'), (2, 'Contents', 'contents'), (2, 'Alpha', 'alpha'), (2, 'Beta', 'beta'), (2, 'Gamma', 'gamma')]
+--- check_em_dash.py --base bda1d5a33a8fa9269b2fcd00d9923e5df6dd758b:
+P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+check_em_dash: 1 finding(s) over 7 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [bda1d5a3..HEAD]
+rc=1
+===== variant: spoof (base 436c0cb431361389b64430b5928f2624e13dc6c9, head 15804c1f0391049ad263358323a8ca7fe912188b)
+--- added lines:
++## Contents
++- **[Alpha](#alpha)** -- What alpha holds.
++- **[Old — heading](#old--heading)** -- Copied.
++- **[Beta](#beta)** -- What beta holds.
++- **[Gamma](#gamma)** -- What gamma holds.
++<h2 DATA-SOURCEPOS="19:1-19:18">x</h2>
+--- headings() at base and head:
+base []
+head []
+--- check_em_dash.py --base 436c0cb431361389b64430b5928f2624e13dc6c9:
+P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+P.md:14: `DATA-SOURCEPOS` at column 5 spells the attribute the renderer marks its own elements with, so this walk does not read the page (reword it), so no Contents label on it is exempt
+check_em_dash: 2 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [436c0cb4..HEAD]
+rc=1

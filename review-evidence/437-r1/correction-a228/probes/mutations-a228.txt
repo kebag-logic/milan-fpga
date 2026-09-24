@@ -1,0 +1,120 @@
+KILLED  toc rc=1 emdash rc=2  A01 position guard removed
+      toc: TOC selftest: FAIL (1492/1501 arm(s))
+        FAIL [I437 a page spelling the renderer's position attribute lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]
+      emdash: check_em_dash: FATAL: 2 of 339 arm(s) did not hold
+        - [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, Fal
+        - [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False,
+KILLED  toc rc=1 emdash rc=2  A02 position guard back to the page text, case-sensitive (reverse mutant)
+      toc: TOC selftest: FAIL (1493/1501 arm(s))
+        FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]
+      emdash: check_em_dash: FATAL: 2 of 339 arm(s) did not hold
+        - [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, Fal
+        - [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False,
+KILLED  toc rc=1 emdash rc=2  A03 position guard on the page text, any case (R238-4 M22 probe)
+      toc: TOC selftest: FAIL (1497/1501 arm(s))
+        FAIL [I437 a page whose raw element carries the position attribute spelled through a character reference lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled through a backslash escape lists nothing]
+        FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled through a character reference on a raw h2]
+      emdash: check_em_dash: FATAL: 2 of 339 arm(s) did not hold
+        - [I437 em dash: file view: position attribute spelled through a character reference on a raw h2] label refused, base refusal named, exempt: expected (True, Fal
+        - [I437 em dash: file view: position attribute spelled through a backslash escape on a raw h2] label refused, base refusal named, exempt: expected (True, False,
+KILLED  toc rc=1 emdash rc=0  A04 position guard on the HTML, case-sensitive
+      toc: TOC selftest: FAIL (1497/1501 arm(s))
+        FAIL [I437 a page whose raw element carries the position attribute spelled in upper case lists nothing]
+        FAIL [I437 a page whose raw element carries the position attribute spelled in mixed case lists nothing]
+        FAIL [I437 lists only what the file view shows, label and anchor: position attribute spelled in upper case on a raw h2]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A05 refusal does not name the attribute
+      toc: TOC selftest: FAIL (1498/1501 arm(s))
+        FAIL [the renderer's position attribute is refused in every letter case, with its line and column]
+        FAIL [the note names the page, the line, the column and the attribute as spelled]
+        FAIL [an attribute and a refused character on one line are named in column order]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A06 refusal names the attribute case-sensitively
+      toc: TOC selftest: FAIL (1498/1501 arm(s))
+        FAIL [the renderer's position attribute is refused in every letter case, with its line and column]
+        FAIL [the note names the page, the line, the column and the attribute as spelled]
+        FAIL [an attribute and a refused character on one line are named in column order]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A07 recursive syntax-tree walk restored
+      toc: TOC selftest: FAIL (1499/1501 arm(s))
+        FAIL [I437 a page nested past the interpreter's recursion limit is read, and lists nothing]
+        FAIL [I437 lists only what the file view shows, label and anchor: an element nested 1101 deep between two headings]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A08 depth bound removed
+      toc: TOC selftest: FAIL (1497/1501 arm(s))
+        FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]
+        FAIL [I437 a page nested past the interpreter's recursion limit is read, and lists nothing]
+        FAIL [I437 lists only what the file view shows, label and anchor: an element nested 256 deep between two headings]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A09 depth bound one lower
+      toc: TOC selftest: FAIL (1499/1501 arm(s))
+        FAIL [I437 a page nesting an element 200 deep is read]
+        FAIL [I437 renders as GitHub does: I437 arm page: an element nested 200 deep between two headings]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A10 depth bound raised to GitHub's own
+      toc: TOC selftest: FAIL (1499/1501 arm(s))
+        FAIL [I437 a page nesting one 201 deep lists nothing: GitHub drops what it nests 256 deep and all after it]
+        FAIL [I437 lists only what the file view shows, label and anchor: an element nested 256 deep between two headings]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A11 own-element kind 'block_quote' dropped
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 a block quote an open comment swallows is commented, its blank line too]: ['raw HTML line', 'raw HTML line', 'prose line', 'commented line', 'prose l
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A12 own-element kind 'list' dropped
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 a list an open comment swallows is commented, the blank line only the list holds too]: ['raw HTML line', 'raw HTML line', 'prose line', 'commented li
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A13 own-element kind 'heading' dropped
+      toc: TOC selftest: FAIL (1495/1501 arm(s))
+        FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line', 'commen
+        FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose lin
+        FAIL [I437 what a raw comment left open swallows is commented (#516)]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'prose li
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A14 own-element kind 'code_block' dropped
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 a fence an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'fenced line', 'fenced line', 'fenced line', 'prose 
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A15 own-element kind 'thematic_break' dropped
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 a thematic break an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A16 own-element kind 'table' dropped
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 a table an open comment swallows is commented]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose lin
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=2  A17 heading tag not matched to its level (R238-4 M17, R237-5 M06)
+      toc: TOC selftest: FAIL (1495/1501 arm(s))
+        FAIL [I437 a heading whose position an open raw tag reads as an attribute is not listed: the tag is not its level's]
+        FAIL [I437 the same, the position read as an unquoted value]
+        FAIL [I437 renders as GitHub does: I437 arm page: an open raw tag reads a heading's position as an attribute]
+      emdash: check_em_dash: FATAL: 2 of 339 arm(s) did not hold
+        - [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an attribute] label refused, base refusal named, exempt: expected (True, False, 0)
+        - [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an unquoted value] label refused, base refusal named, exempt: expected (True, Fals
+KILLED  toc rc=1 emdash rc=0  A18 bind() ignores a drifted release (R238-4 M15)
+      toc: TOC selftest: FAIL (1499/1501 arm(s))
+        FAIL [I437 the binding itself refuses another cmarkgfm release by name]
+        FAIL [I437 the binding itself refuses a missing html5lib by name]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A19 strikethrough extension dropped (R238-4 M11)
+      toc: TOC selftest: FAIL (1497/1501 arm(s))
+        FAIL [I437 a setext heading's strikethrough renders as GitHub's does]
+        FAIL [I437 the renderer attaches exactly the extensions spelled here]
+        FAIL [I437 renders as GitHub does: I437 arm page: a setext heading with strikethrough]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A20 autolink extension dropped (R238-4 M10)
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 the renderer attaches exactly the extensions spelled here]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A21 tasklist extension dropped (R238-4 M12)
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 the renderer attaches exactly the extensions spelled here]
+      emdash: check_em_dash selftest: PASS (339 arm(s))
+KILLED  toc rc=1 emdash rc=0  A22 file-view arm reads no heading the walk lists
+      toc: TOC selftest: FAIL (1500/1501 arm(s))
+        FAIL [I437 the file-view check refuses a heading the file view does not show, or shows with another text or anchor]
+      emdash: check_em_dash selftest: PASS (339 arm(s))

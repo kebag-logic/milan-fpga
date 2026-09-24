@@ -1,0 +1,1476 @@
+[
+ {
+  "name": "author N2: R238-2 F1a control",
+  "page": "text <? <!-- ?>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text <? <!-- ?>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "ccaa13fd97ff139670160379677854df9b12987243629b89e36ca943a789dddb",
+   "response_bytes": "<p dir=\"auto\">text </p>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "7682ce5ef6edc24d44fc584a4d458e970c02a1c9ab0cf2b8b1206f554b39a1c6",
+   "recorded_utc": "2026-09-24T01:06:19+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"text <? <!-- ?>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "12abc1ddc07abc725ee8baf9a54a2a8f686b174271edfe62996c7008c7009d66",
+   "response_bytes": "<p>text  </p>",
+   "response_sha256": "b683b6442c7b355ae9d157ef08f0cbe47256bdedf28b6229f7acbfb207336766",
+   "recorded_utc": "2026-09-24T01:06:20+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: R238-2 F2 H06",
+  "page": "<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<? a <!-- ?>\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "67c81f8a33eb5f86551dd42a17bff0b94670aa79ac10b79aee9be6a86dfb03b4",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:20+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<? a <!-- ?>\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "f3562e89352946c9c2cc843218d65bdff1140feb6f7368122a95cc1dacc50204",
+   "response_bytes": "<div>\n a </div>",
+   "response_sha256": "541d848cc3600dcbabb48426729dc611e4078bc9c7a63821b478b6ceeaa03dc0",
+   "recorded_utc": "2026-09-24T01:06:21+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0163",
+  "page": "## H1\n</div>\n  ## H2\n  - nested\n   ## H3\n<details>\n<? x\n\n## H4\n",
+  "local": [
+   [
+    2,
+    "H1"
+   ]
+  ],
+  "local_anchors": [
+   "h1"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"## H1\\n</div>\\n  ## H2\\n  - nested\\n   ## H3\\n<details>\\n<? x\\n\\n## H4\\n\"}",
+   "request_sha256": "d6c30edb5f0653ea2d6c72936c65efbfe16d3e52a1921334bcbbf53533c9c83b",
+   "response_bytes": "<h2 dir=\"auto\">H1</h2>\n\n  ## H2\n  - nested\n   ## H3\n<details><summary>Details</summary>\nH4</details>",
+   "response_sha256": "b3e1098cf34b6e135a64fa8c090c0c2fc841c91e680b5e5d95336fadde644d2b",
+   "recorded_utc": "2026-09-24T01:06:21+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ]
+   ],
+   "anchors": [
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"## H1\\n</div>\\n  ## H2\\n  - nested\\n   ## H3\\n<details>\\n<? x\\n\\n## H4\\n\"}",
+   "request_sha256": "483b02bcd82e64d658ab7b162c179d0b0effc65d77ad7ba5870c5e938030fc89",
+   "response_bytes": "<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n\n  ## H2\n  - nested\n   ## H3\n<details>\n x\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H4</h2><a id=\"user-content-h4\" class=\"anchor\" aria-label=\"Permalink: H4\" href=\"#h4\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</details>",
+   "response_sha256": "5546177b2715db0e6465e83173644bd6fa08752bcb55831ab5d032840817628e",
+   "recorded_utc": "2026-09-24T01:06:22+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H4"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "h4"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0235",
+  "page": "--!>\n<select>\n> ## H1\n## H2\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"--!>\\n<select>\\n> ## H1\\n## H2\\n\"}",
+   "request_sha256": "318e17db65ff3b0204bda48297cdff693fe870b54aadda0f72210e5775147db7",
+   "response_bytes": "<p dir=\"auto\">--!&gt;<br>\n\n\nH1\n\nH2</p>",
+   "response_sha256": "1a97dbf3a07a76df2ae4dffe752871c8bfb536d4bc57e525b8c99087f18bcc22",
+   "recorded_utc": "2026-09-24T01:06:22+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"--!>\\n<select>\\n> ## H1\\n## H2\\n\"}",
+   "request_sha256": "4a88fce9092e9848c9048852764b7f620d722bcefc0d26d07b0ee824b3979536",
+   "response_bytes": "<p>--!&gt;\n</p>\n<blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H2</h2><a id=\"user-content-h2\" class=\"anchor\" aria-label=\"Permalink: H2\" href=\"#h2\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "77ae973487a6483e9c61899c06bc2c12265dbadc27fa0ef39e647f44765d28f9",
+   "recorded_utc": "2026-09-24T01:06:22+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "h2"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0256",
+  "page": "<b title=\"x\">\n\n## H1\n- [r]: /u\n\n> ## H2\ntext <? > <!-- ?>\nH3\n---\n\n## H4\n",
+  "local": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ],
+   [
+    2,
+    "text"
+   ]
+  ],
+  "local_anchors": [
+   "h1",
+   "h2",
+   "text"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<b title=\\\"x\\\">\\n\\n## H1\\n- [r]: /u\\n\\n> ## H2\\ntext <? > <!-- ?>\\nH3\\n---\\n\\n## H4\\n\"}",
+   "request_sha256": "2cff79989a88f10f571bef3ae1dce8b070856c927e0446f4e8dd04acfc5fc856",
+   "response_bytes": "<b title=\"x\">\n<h2 dir=\"auto\">H1</h2>\n<ul dir=\"auto\">\n<li></li>\n</ul>\n<blockquote>\n<h2 dir=\"auto\">H2</h2>\n</blockquote>\n<h2 dir=\"auto\">text  </h2></b>",
+   "response_sha256": "80c08d2a75c44f8d23265b280e2b69536c633b211fb9b73c1911ee3d0dffef83",
+   "recorded_utc": "2026-09-24T01:06:23+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ],
+    [
+     2,
+     "text"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<b title=\\\"x\\\">\\n\\n## H1\\n- [r]: /u\\n\\n> ## H2\\ntext <? > <!-- ?>\\nH3\\n---\\n\\n## H4\\n\"}",
+   "request_sha256": "17405aec4b1f233dbb1b13391bd6dcfef6ba3bb1d8bc33353611f74aefe59c6b",
+   "response_bytes": "<b title=\"x\">\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<ul>\n<li>\n</li></ul>\n<blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H2</h2><a id=\"user-content-h2\" class=\"anchor\" aria-label=\"Permalink: H2\" href=\"#h2\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">text  &gt; </h2><a id=\"user-content-text---\" class=\"anchor\" aria-label=\"Permalink: text  &gt; \" href=\"#text---\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div></b>",
+   "response_sha256": "3fd2a83fa430a0223137d03ba0ff2e2733b57e18b7de771cda29ace83282525c",
+   "recorded_utc": "2026-09-24T01:06:23+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ],
+    [
+     2,
+     "text >"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "h2",
+    "text---"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0304",
+  "page": "</style>\n\n  ## H1\n   ## H2\n\n<xmp>\n<? x\n10. item\n\n## H3\n",
+  "local": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "H2"
+   ]
+  ],
+  "local_anchors": [
+   "h1",
+   "h2"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"</style>\\n\\n  ## H1\\n   ## H2\\n\\n<xmp>\\n<? x\\n10. item\\n\\n## H3\\n\"}",
+   "request_sha256": "0324cf8a9b06e0df14c7c0a20b42302935a20cd12cb17825c4d27ad7a339a2dd",
+   "response_bytes": "&lt;/style&gt;\n<h2 dir=\"auto\">H1</h2>\n<h2 dir=\"auto\">H2</h2>\n&lt;xmp&gt;\nH3",
+   "response_sha256": "10113d521016bf11b41b7bfef0022ae5782e0a825ae41f125880995732304bd8",
+   "recorded_utc": "2026-09-24T01:06:24+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"</style>\\n\\n  ## H1\\n   ## H2\\n\\n<xmp>\\n<? x\\n10. item\\n\\n## H3\\n\"}",
+   "request_sha256": "5f4d044c671486898dcef57017f73ac6996400a26245131cac408b3aa5731631",
+   "response_bytes": "&lt;/style&gt;\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H2</h2><a id=\"user-content-h2\" class=\"anchor\" aria-label=\"Permalink: H2\" href=\"#h2\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n&lt;xmp&gt;\n x\n10. item\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H3</h2><a id=\"user-content-h3\" class=\"anchor\" aria-label=\"Permalink: H3\" href=\"#h3\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "c794381e4101417fdb37d2f6b67c924935ec27ac1b95b071bfd7400115299dbf",
+   "recorded_utc": "2026-09-24T01:06:24+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ],
+    [
+     2,
+     "H3"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "h2",
+    "h3"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0471",
+  "page": "[x](<a-->)\n<a href='\n<select>\n  ## H1\n1. item\n\n## H2\n<noscript>\n## H3\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"[x](<a-->)\\n<a href='\\n<select>\\n  ## H1\\n1. item\\n\\n## H2\\n<noscript>\\n## H3\\n\"}",
+   "request_sha256": "b79e14a263a503a7bacdec9fa583260b952a540c77f95e76d7829c1218f71a0b",
+   "response_bytes": "<p dir=\"auto\"><a href=\"a--\">x</a><br>\n&lt;a href='<br>\n\nH1\n\nitem\n\nH2\n\n## H3</p>",
+   "response_sha256": "36a1cccf96bdc0fb16b734f6f3bd9d4f14f107eac3dabe30beb6088f71188f91",
+   "recorded_utc": "2026-09-24T01:06:24+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"[x](<a-->)\\n<a href='\\n<select>\\n  ## H1\\n1. item\\n\\n## H2\\n<noscript>\\n## H3\\n\"}",
+   "request_sha256": "4d8aa6ef223686181a9f5c871f070d80873dbbebcda8d7a02344c93f5504a3c1",
+   "response_bytes": "<p><a href=\"a--\">x</a>\n&lt;a href='\n</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<ol>\n<li>item</li>\n</ol>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H2</h2><a id=\"user-content-h2\" class=\"anchor\" aria-label=\"Permalink: H2\" href=\"#h2\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n\n## H3\n",
+   "response_sha256": "fdb795e2ee3dee41c242002c5b32c54cf575478ce40e10dfccb9b032452d449d",
+   "recorded_utc": "2026-09-24T01:06:25+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "H2"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "h2"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "author N2: s437212-0656",
+  "page": "> ## H1\ntext <? > <!-- ?>\n</style>\n-\n\n</pre>\n\n## H2\n",
+  "local": [
+   [
+    2,
+    "H1"
+   ],
+   [
+    2,
+    "text"
+   ]
+  ],
+  "local_anchors": [
+   "h1",
+   "text"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"> ## H1\\ntext <? > <!-- ?>\\n</style>\\n-\\n\\n</pre>\\n\\n## H2\\n\"}",
+   "request_sha256": "aa9fe2b932ee297112223f811652d2f975741073e07558d074b62fd2f58b5d4d",
+   "response_bytes": "<blockquote>\n<h2 dir=\"auto\">H1</h2>\n</blockquote>\n<h2 dir=\"auto\">text  </h2>",
+   "response_sha256": "305b548e8861b4fdf3987fc99773341c4c4c8d9e6aed0c45305ac02abe62bd78",
+   "recorded_utc": "2026-09-24T01:06:25+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "text"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"> ## H1\\ntext <? > <!-- ?>\\n</style>\\n-\\n\\n</pre>\\n\\n## H2\\n\"}",
+   "request_sha256": "220cd23fb1df683406960a7fce63a8d5082c606b9dd339cd5f02601b0ed00a76",
+   "response_bytes": "<blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">H1</h2><a id=\"user-content-h1\" class=\"anchor\" aria-label=\"Permalink: H1\" href=\"#h1\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n</blockquote>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">text  &gt; </h2><a id=\"user-content-text---\" class=\"anchor\" aria-label=\"Permalink: text  &gt; \" href=\"#text---\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>",
+   "response_sha256": "12ddd81f4d9becf11821a8242cb2ce19c3f4d0669d484092c8c95d9fe3a0322d",
+   "recorded_utc": "2026-09-24T01:06:26+00:00",
+   "headings": [
+    [
+     2,
+     "H1"
+    ],
+    [
+     2,
+     "text >"
+    ]
+   ],
+   "anchors": [
+    "h1",
+    "text---"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "empty comment <!--> as a block",
+  "page": "<!-->\n\n## X\n\n## Y\n\n<!-- -->\n\n## Z\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ],
+   [
+    2,
+    "Z"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y",
+   "z"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<!-->\\n\\n## X\\n\\n## Y\\n\\n<!-- -->\\n\\n## Z\\n\"}",
+   "request_sha256": "98fd6f86b76b27b383a06717ce825fa2453b2505ad9850dce9b9980ca79d6e6f",
+   "response_bytes": "\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>\n\n<h2 dir=\"auto\">Z</h2>",
+   "response_sha256": "220448a8849c72a3b836b72634a8e9ef26bfccc8f5142aebeaf74dc80055297a",
+   "recorded_utc": "2026-09-24T01:06:26+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ],
+    [
+     2,
+     "Z"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<!-->\\n\\n## X\\n\\n## Y\\n\\n<!-- -->\\n\\n## Z\\n\"}",
+   "request_sha256": "4fde92067b905f1e72e3b9a7bb6cc555f08af8cd05b4d5a1b09ab97cdf17e046",
+   "response_bytes": "\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Z</h2><a id=\"user-content-z\" class=\"anchor\" aria-label=\"Permalink: Z\" href=\"#z\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "84038c5113d0bf7161b9a19f8cb2fac63f631192ab2aef413b812ac0de2a9a7e",
+   "recorded_utc": "2026-09-24T01:06:27+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ],
+    [
+     2,
+     "Z"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y",
+    "z"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "empty comment <!---> as a block",
+  "page": "<!--->\n\n## X\n\n## Y\n\n<!-- -->\n\n## Z\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ],
+   [
+    2,
+    "Z"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y",
+   "z"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<!--->\\n\\n## X\\n\\n## Y\\n\\n<!-- -->\\n\\n## Z\\n\"}",
+   "request_sha256": "37255ef86db8b9b34150e253ec57cf072f8bcd41826d16f9e8c83cb207596c41",
+   "response_bytes": "\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>\n\n<h2 dir=\"auto\">Z</h2>",
+   "response_sha256": "220448a8849c72a3b836b72634a8e9ef26bfccc8f5142aebeaf74dc80055297a",
+   "recorded_utc": "2026-09-24T01:06:27+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ],
+    [
+     2,
+     "Z"
+    ]
+   ],
+   "anchors": [
+    null,
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<!--->\\n\\n## X\\n\\n## Y\\n\\n<!-- -->\\n\\n## Z\\n\"}",
+   "request_sha256": "6c68e9c7fdc26e6b317af234b85af7dab39b319a497d886cc5bda3fb3a51d53c",
+   "response_bytes": "\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Z</h2><a id=\"user-content-z\" class=\"anchor\" aria-label=\"Permalink: Z\" href=\"#z\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "84038c5113d0bf7161b9a19f8cb2fac63f631192ab2aef413b812ac0de2a9a7e",
+   "recorded_utc": "2026-09-24T01:06:27+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ],
+    [
+     2,
+     "Z"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y",
+    "z"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "empty comment <!--> in a div block",
+  "page": "<div>\n<!-->\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "f8fdf3650451a0aecf894f70531716e6c19e9aedad8942dfc32e90e555488c68",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:28+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "de1ae9eff3bfc49a5dc9eecc7dc77fb7946b6a8593853c27ba71d80fe4029e1c",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:28+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "--!> closer in a div block",
+  "page": "<div>\n<!-- a --!>\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-- a --!>\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "12ece27d3557cc3b2fe8daf9b0b4cd62d7e07a08b3757bccfda3708f6512cf98",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:29+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-- a --!>\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "fbf3cf7e724c26314e6f10314167055141957861dc42fb605f363d4aefed8e88",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:29+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "--!> closer as a comment block",
+  "page": "<!-- a --!>\n\n## X\n\n## Y\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<!-- a --!>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "e4901234a1c590745ad72b67adc95405d45ed07f3b828b754ee87189c70da878",
+   "response_bytes": "\n\n## X\n\n## Y",
+   "response_sha256": "1a5d702f3b5bdff10ef07500dc0f654b7bfb20388e61a18a0bb0f445d7fae367",
+   "recorded_utc": "2026-09-24T01:06:29+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<!-- a --!>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "e681a68f3ed2efab6dea2b490bf957090ea4ddb9b9a10ab02ac720887b97fbcd",
+   "response_bytes": "\n\n## X\n\n## Y\n",
+   "response_sha256": "0b9a68b35c64a9100ec127b1572fecf84f8e8bf70f3ba1732cf14e391ec7036a",
+   "recorded_utc": "2026-09-24T01:06:30+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "CDATA with > in a div block",
+  "page": "<div>\n<![CDATA[ a > b\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<![CDATA[ a > b\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "484b945ca04b2e970c4900395d7d7f4aa2ce7b0a04bedabdaa6707f58a510b44",
+   "response_bytes": "<div dir=\"auto\">\n b\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "bcf6bbc26f620d839700ee6ccb6252b4bb617887b437a8342fe3cd28c00c26c3",
+   "recorded_utc": "2026-09-24T01:06:30+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<![CDATA[ a > b\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "5da42bf08601c8c935f9f75b84406a89468a0efccd5426fad406ef314185ee61",
+   "response_bytes": "<div>\n b\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "e419fe300b024b3470d659dbdc9a1b587d01030eceddb43155c144f06c7a8f27",
+   "recorded_utc": "2026-09-24T01:06:31+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "CDATA inline complete",
+  "page": "text <![CDATA[ a > b ]]>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text <![CDATA[ a > b ]]>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "31cd9fdb0c630997e36300611f360a14879b8175e55d61675b4c21b3d30f8fe4",
+   "response_bytes": "<p dir=\"auto\">text  b ]]&gt;</p>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "e849e916981eda00e6f921c158dc3d8e08eb4108841f8d36ef2fa681c3da1fd3",
+   "recorded_utc": "2026-09-24T01:06:31+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"text <![CDATA[ a > b ]]>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "458c7651a3f565140962188e936edda14276ba7634771e96c16395f95a3f17e2",
+   "response_bytes": "<p>text  b ]]&gt;</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "0fce7596cefd43e0639b169d2f61b7ef77f86b5913d680082268c9636f51a1f2",
+   "recorded_utc": "2026-09-24T01:06:31+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "declaration with <!-- in a div",
+  "page": "<div>\n<!x <!-- >\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!x <!-- >\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "3c93e1f428d06f210f14ebdc9c783ee297e63da6c192c532d207efbd5a5b622c",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:32+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!x <!-- >\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "7d971a8d0daad48e2226765ff4602e4cd3d2caf214765441842ba3fe9ce0045d",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:32+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "declaration inline with <!--",
+  "page": "text <!X <!-- >\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text <!X <!-- >\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "6e4f0dbd517daab8b3f42cb6e86be74d175667341737f99fd531525ed8d23689",
+   "response_bytes": "<p dir=\"auto\">text </p>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "7682ce5ef6edc24d44fc584a4d458e970c02a1c9ab0cf2b8b1206f554b39a1c6",
+   "recorded_utc": "2026-09-24T01:06:33+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"text <!X <!-- >\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "b29f73879cdd8dbf4f3a9b21d52ad9625a20f757ba45d58744f481312a55d59d",
+   "response_bytes": "<p>text </p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "42b4d0505e8d98b406752f2702c0653a51e5f4fcef066e3e4ffedc65c4702608",
+   "recorded_utc": "2026-09-24T01:06:33+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "double hyphen inside a comment",
+  "page": "<div>\n<!-- a -- b -->\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-- a -- b -->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "0787103f417f241fb4b76020f309c6488e17a7826346ba27dcbb1bb0544579c6",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:33+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-- a -- b -->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "1a229bb83ba58d65e44726a17e54106b6b0d9e2578261ea95594dc7a781bee62",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:34+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "comment opened in attribute value",
+  "page": "<div title=\"<!--\">\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div title=\\\"<!--\\\">\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "870f398248a1d9a472606c0f309fe6368196bc8aaa35ae613e23f7a79d8568d5",
+   "response_bytes": "<div title=\"&lt;!--\" dir=\"auto\">\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "abccbfafbb3f2c0f02aa370367530afcca1714c54d71da7549d9da773c89b999",
+   "recorded_utc": "2026-09-24T01:06:34+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div title=\\\"<!--\\\">\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "589f8c5b4370cb0abde71ca5d07b6b257c1fd1f74c251f009e017ec1c5f251e3",
+   "response_bytes": "<div title=\"&lt;!--\">\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "64e6853a278d2e7d0ed69b5f21405a46da42c4cc59ca97479b9992a078aeb701",
+   "recorded_utc": "2026-09-24T01:06:35+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "unclosed quote in a div, closed later",
+  "page": "<div title=\"\n\n## X\n\n\"></div>\n\n## Y\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div title=\\\"\\n\\n## X\\n\\n\\\"></div>\\n\\n## Y\\n\"}",
+   "request_sha256": "68399fe1a1dfe626f5d2fb47d5cee081a963a1451f0ba5ad2770388e53405513",
+   "response_bytes": "",
+   "response_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "recorded_utc": "2026-09-24T01:06:35+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div title=\\\"\\n\\n## X\\n\\n\\\"></div>\\n\\n## Y\\n\"}",
+   "request_sha256": "0f7e861a9d258d30c037febbd940495cb9cd60ea8bf512514928d9071514619e",
+   "response_bytes": "<div title=\"\n&lt;h2&gt;X&lt;/h2&gt;\n&lt;p&gt;&quot;&gt;&lt;/div&gt;&lt;/p&gt;\n&lt;h2&gt;Y&lt;/h2&gt;\n\"></div>",
+   "response_sha256": "7a5c8f340803cc1f8c90ec74dda052bb8213997500a44defce5beed49088b235",
+   "recorded_utc": "2026-09-24T01:06:35+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "select inline in a paragraph",
+  "page": "text <select> more\n\n## X\n\n## Y\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text <select> more\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "c0ae61c9672e14ec853ff76d276820b6b712e79d3a2fa1e5d151c5e9b5bf1e37",
+   "response_bytes": "<p dir=\"auto\">text  more\nX\nY</p>",
+   "response_sha256": "78fd7b07d1db472cbf70f4e1f313770cb50597e8c784120fb0c5dd9e188f7a0a",
+   "recorded_utc": "2026-09-24T01:06:36+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"text <select> more\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "191489bfa26e6fcbd9b65192fc8875266f0c3e185b18be73a65f5d0eec512d30",
+   "response_bytes": "<p>text  more</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "93c39e0848738084194298c21ebea32d13e7f04ccd84f1e8795de7e32a865baf",
+   "recorded_utc": "2026-09-24T01:06:36+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": false
+  }
+ },
+ {
+  "name": "option outside select",
+  "page": "<option>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<option>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "c112deebe4c966c11381e3d4b82467ee45bda8a453376bdf9b691acd1f0546b7",
+   "response_bytes": "\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "bcaf2221646f66a3d4d7cae9c038ed70addf4b351e4940a060bb04033d894bb0",
+   "recorded_utc": "2026-09-24T01:06:37+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<option>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "e4308df0e14985e594186988c7e05ed4883e47f5c5e0c92003f16e4622d3e3e6",
+   "response_bytes": "\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "0cbbb1d246b7747ae35cbec115ff0fa176977f89e335bec6fcc3e60bf74b991d",
+   "recorded_utc": "2026-09-24T01:06:37+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "textarea inline",
+  "page": "text <textarea> more\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"text <textarea> more\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "51e75ebf855a57380dc47d9b7ac127bc43cfd0020184145b7dff146479aba694",
+   "response_bytes": "<p dir=\"auto\">text &lt;textarea&gt; more</p>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "ad58dc909a54df9d8617d68d0d9f062e048c55f52fb109269ec3fa5e3d8ab2e7",
+   "recorded_utc": "2026-09-24T01:06:37+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"text <textarea> more\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "01b2565f4964bd12223ed79415c310f36e81434f6386b99ff5e0d66de06db6af",
+   "response_bytes": "<p>text &lt;textarea&gt; more</p>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "bfa27c9c21d339aadc46990a6c9a097b46986b6b88388dc7daa1d9fd0ecc43b5",
+   "recorded_utc": "2026-09-24T01:06:38+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "table open then comment",
+  "page": "<table>\n<!--\n</table>\n\n## X\n\n## Y\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<table>\\n<!--\\n</table>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "b3a1f8e10a1df38cece0410c7acd749844c9846f01643cc9b464bc059167cee5",
+   "response_bytes": "<markdown-accessiblity-table><table role=\"table\">\n</table></markdown-accessiblity-table>",
+   "response_sha256": "5e616a8a2fa29ab682bfa11f91ec1256c0568dffd1ee44906c32de006a073b6d",
+   "recorded_utc": "2026-09-24T01:06:38+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<table>\\n<!--\\n</table>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "9db173c68c7654331c8f1b8842eac46a25acbf2b337eb0674bbb8faf1bea8992",
+   "response_bytes": "<table>\n</table>",
+   "response_sha256": "421e68bdf8c90191c00746c9248cd640dfee8ba2911151c12049d9f7eb3b4fee",
+   "recorded_utc": "2026-09-24T01:06:39+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ },
+ {
+  "name": "nested comment open",
+  "page": "<div>\n<!-- <!-- -->\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-- <!-- -->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "7426bcf6efbb017e21b0012228444d2f0090fe6cf84a2f01c62021658ad306c1",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:39+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-- <!-- -->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "253f6be342c1ad899f1dd0a1b5d805cea11784dcaa13a5c0d3f8a01bd6fc05d8",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:39+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "comment ending with ---> ",
+  "page": "<div>\n<!-- a --->\n</div>\n\n## X\n\n## Y\n",
+  "local": [
+   [
+    2,
+    "X"
+   ],
+   [
+    2,
+    "Y"
+   ]
+  ],
+  "local_anchors": [
+   "x",
+   "y"
+  ],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-- a --->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "f862c7963b2496331d6f8ac0f687d4dea9728f7ae293954364a16d6d429692f2",
+   "response_bytes": "<div dir=\"auto\">\n\n</div>\n<h2 dir=\"auto\">X</h2>\n<h2 dir=\"auto\">Y</h2>",
+   "response_sha256": "68c60239ec49f400cff2c5efd119b050bed4b8caefb7f54080632fcf359dc98b",
+   "recorded_utc": "2026-09-24T01:06:40+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    null,
+    null
+   ],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-- a --->\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "f05e6b1a681e2fa9bdb2c9fe52f069f99ced69f3c75a25bc3c4a38260a799765",
+   "response_bytes": "<div>\n\n</div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">X</h2><a id=\"user-content-x\" class=\"anchor\" aria-label=\"Permalink: X\" href=\"#x\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n<div class=\"markdown-heading\"><h2 class=\"heading-element\">Y</h2><a id=\"user-content-y\" class=\"anchor\" aria-label=\"Permalink: Y\" href=\"#y\"><span aria-hidden=\"true\" class=\"octicon octicon-link\"></span></a></div>\n",
+   "response_sha256": "21f9b90f7bf83d45656c04b1add615db57ee160d71463ec23fd2a75ae4448061",
+   "recorded_utc": "2026-09-24T01:06:40+00:00",
+   "headings": [
+    [
+     2,
+     "X"
+    ],
+    [
+     2,
+     "Y"
+    ]
+   ],
+   "anchors": [
+    "x",
+    "y"
+   ],
+   "agrees": true
+  }
+ },
+ {
+  "name": "comment ending with -- >",
+  "page": "<div>\n<!-- a -- >\n</div>\n\n## X\n\n## Y\n",
+  "local": [],
+  "local_anchors": [],
+  "gfm": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"gfm\",\"text\":\"<div>\\n<!-- a -- >\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "12a7fe316c3804b21287e91f167cae32608215a66d48f2eba63d271fa37081c8",
+   "response_bytes": "<div dir=\"auto\">\n</div>",
+   "response_sha256": "7c62c0e526cfb63ec018d37cda6e210bcc046bcec8bc19c287caa14774c3d3ad",
+   "recorded_utc": "2026-09-24T01:06:40+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  },
+  "markdown": {
+   "request_bytes": "{\"context\":\"kebag-logic/milan-fpga\",\"mode\":\"markdown\",\"text\":\"<div>\\n<!-- a -- >\\n</div>\\n\\n## X\\n\\n## Y\\n\"}",
+   "request_sha256": "ff559937bf9ac1dc8ec98f877c1bbe15319a870ceb598447dac08c40b8c6d9aa",
+   "response_bytes": "<div>\n</div>",
+   "response_sha256": "9edb21ef1c78abd3871badac6bfaf720d0f1b1782f74f148593b586969ffd2df",
+   "recorded_utc": "2026-09-24T01:06:41+00:00",
+   "headings": [],
+   "anchors": [],
+   "agrees": true
+  }
+ }
+]

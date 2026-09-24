@@ -1,0 +1,11 @@
+receipts: 700 gfm, 700 markdown-mode, bad []
+modes: ['markdown']
+FILE-VIEW DIFF s437212-0163 listed-not-shown=[] shown-not-listed=[(2, 'H4')] page='## H1\n</div>\n  ## H2\n  - nested\n   ## H3\n<details>\n<? x\n\n## H4\n'
+FILE-VIEW DIFF s437212-0235 listed-not-shown=[] shown-not-listed=[(2, 'H1'), (2, 'H2')] page='--!>\n<select>\n> ## H1\n## H2\n'
+FILE-VIEW DIFF s437212-0256 listed-not-shown=[(2, 'text')] shown-not-listed=[(2, 'text >')] page='<b title="x">\n\n## H1\n- [r]: /u\n\n> ## H2\ntext <? > <!-- ?>\nH3\n---\n\n## H4\n'
+GFM DIFF s437212-0269 '## H1\n\nref[^1]\n\n10. item\n[^1]: note\n## H2\n  - nested\n</style>\n\n## H3\n' [(2, 'H1'), (2, 'H2'), (2, 'H3')] [(2, 'H1'), (2, 'H2'), (2, 'H3'), (2, 'Footnotes')]
+FILE-VIEW DIFF s437212-0304 listed-not-shown=[] shown-not-listed=[(2, 'H3')] page='</style>\n\n  ## H1\n   ## H2\n\n<xmp>\n<? x\n10. item\n\n## H3\n'
+GFM DIFF s437212-0365 'ref[^1]\n1. item\n[^1]: note\nref[^1]\n- [r]: /u\ntext\n---\n## H1\n## H2\n' [(2, 'H1'), (2, 'H2')] [(2, 'H1'), (2, 'H2'), (2, 'Footnotes')]
+FILE-VIEW DIFF s437212-0471 listed-not-shown=[] shown-not-listed=[(2, 'H1'), (2, 'H2')] page="[x](<a-->)\n<a href='\n<select>\n  ## H1\n1. item\n\n## H2\n<noscript>\n## H3\n"
+FILE-VIEW DIFF s437212-0656 listed-not-shown=[(2, 'text')] shown-not-listed=[(2, 'text >')] page='> ## H1\ntext <? > <!-- ?>\n</style>\n-\n\n</pre>\n\n## H2\n'
+differences: gfm 2/700, markdown-mode 6/700

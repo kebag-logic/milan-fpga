@@ -1,0 +1,17 @@
+source head: 196cb7d99cb06631df514715979a5f82fbb1f7aa
+===== control: headings() at head ['Page', 'Contents', 'Alpha', 'Beta', 'Gamma']
+    P.md:6: U+2014 (em dash) in an added prose line -- write --, a colon or a plain sentence
+    check_em_dash: 1 finding(s) over 7 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [3cf62858..HEAD]
+    rc=1
+===== upper case: headings() at head ['Page', 'Contents', 'Alpha', 'Old — heading', 'Beta', 'Gamma']
+    check_em_dash: 0 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [8f278bb7..HEAD]
+    rc=0
+===== mixed case: headings() at head ['Page', 'Contents', 'Alpha', 'Old — heading', 'Beta', 'Gamma']
+    check_em_dash: 0 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [6ea74dfa..HEAD]
+    rc=0
+===== character reference: headings() at head ['Page', 'Contents', 'Alpha', 'Old — heading', 'Beta', 'Gamma']
+    check_em_dash: 0 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [3aeec70d..HEAD]
+    rc=0
+===== backslash escape: headings() at head ['Page', 'Contents', 'Alpha', 'Old — heading', 'Beta', 'Gamma']
+    check_em_dash: 0 finding(s) over 8 added line(s) in 1 changed Markdown page(s), 1 mirrored label(s) exempt, arms 332/332 [e947ce73..HEAD]
+    rc=0

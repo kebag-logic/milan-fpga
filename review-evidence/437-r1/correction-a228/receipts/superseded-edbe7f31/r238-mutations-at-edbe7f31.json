@@ -1,0 +1,526 @@
+[
+ {
+  "mutation": "M01 positions left quoted",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'commented line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 an item the HTML parse swallows is commented, its list not]: ['raw HTML line', 'commented line', 'commented line', 'prose line', 'prose line']",
+    "FAIL [I437 renders as GitHub does: I437 arm page: open double-quoted value, then a heading and a paragraph]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an item the parse swallows while its list renders]"
+   ],
+   "n_fail_lines": 5
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [I437 em dash: I437 arm page: an item the parse swallows while its list renders] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "n_fail_lines": 1
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M02 walk ignores what the HTML parse swallows",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1489/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what a raw comment left open swallows is commented (#516)]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']"
+   ],
+   "n_fail_lines": 13
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [a second comment on a closing line still hides the block] no finding names 'added commented line':"
+   ],
+   "n_fail_lines": 1
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M03 headings not filtered by the HTML parse",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1148/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a lone tag directly under a setext underline hides the heading it wraps]",
+    "FAIL [a lone tag directly under a setext underline indented one space hides the heading it wraps]",
+    "FAIL [a lone tag directly under a setext underline ending in a space hides the heading it wraps]",
+    "FAIL [a lone tag directly under a setext underline ending in a tab hides the heading it wraps]"
+   ],
+   "n_fail_lines": 354
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 69 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [I437 em dash: #516 first tag column 0 open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: #516 first tag column 0 close] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: #516 first tag column 0 attribute] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: #516 first tag column 1 open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "n_fail_lines": 69
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M04 tight-list paragraphs given an element",
+  "applied": false,
+  "matches": 0
+ },
+ {
+  "mutation": "M05 raw HTML/indented code extent from reported end",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1490/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a fence delimiter inside a comment opens no fence]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a raw HTML block's content is not Markdown]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a type-1 name ending its line opens the block that survives a blank line]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line', 'commented line', 'commented line', 'prose line']"
+   ],
+   "n_fail_lines": 12
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M06 position-attribute guard removed",
+  "applied": false,
+  "matches": 0
+ },
+ {
+  "mutation": "M07 ATX label from rendered text",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a no-break space after a run of hashes is not a closing sequence]",
+    "FAIL [I437 a heading in a list item is read off its own line]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "n_fail_lines": 3
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M08 tagfilter extension dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1463/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I440-T-valid script/pre '\\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']",
+    "FAIL [I440-T-valid script/PRE '\\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']",
+    "FAIL [I440-T-valid script/style '\\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']",
+    "FAIL [I440-T-valid script/STYLE '\\n']: ['raw HTML line', 'raw HTML line', 'commented line', 'prose line']"
+   ],
+   "n_fail_lines": 39
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [I437 em dash: type-1 script leaves comment open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "n_fail_lines": 1
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M09 table extension dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1473/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a lone tag directly under a table row hides the heading it wraps]",
+    "FAIL [a lone tag directly under a table row without a pipe hides the heading it wraps]",
+    "FAIL [a lone tag directly under a pipeless delimiter row under a paragraph line hides the heading it wraps]",
+    "FAIL [a lone tag directly under a pipeless delimiter row under a pipe-led line hides the heading it wraps]"
+   ],
+   "n_fail_lines": 29
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [added table row is refused] no finding names 'added table row':"
+   ],
+   "n_fail_lines": 1
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M10 autolink extension dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "n_fail_lines": 2
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M11 strikethrough extension dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1497/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 a setext heading's strikethrough renders as GitHub's does]",
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: a setext heading with strikethrough]",
+    "FAIL [I437 lists only what the file view shows, label and anchor: a setext heading with strikethrough]"
+   ],
+   "n_fail_lines": 5
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M12 tasklist extension dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 the renderer attaches exactly the extensions spelled here]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "n_fail_lines": 2
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M13 footnotes option dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1489/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a lone tag directly under a footnote definition hides the heading it wraps]",
+    "FAIL [a lone tag directly under a footnote definition interrupting a paragraph hides the heading it wraps]",
+    "FAIL [a lone tag directly under a plain line lazily continuing a footnote definition hides the heading it wraps]",
+    "FAIL [a lone tag directly under a footnote definition indented two spaces hides the heading it wraps]"
+   ],
+   "n_fail_lines": 13
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [I437 em dash: footnote content is read at the page end] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: R238-r1 D02 dedented footnote then resumed text] label refused, base refusal named, exempt: expected (False, False, 1), got (True, False, 0): ['s199.md:5: U+2014 (em dash) in a Contents label that mirrors no heading the base version of this page had -- reword the new heading, then regenerate the block']"
+   ],
+   "n_fail_lines": 2
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M14 unsafe option dropped",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1377/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what a raw comment left open swallows is commented (#516)]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line']"
+   ],
+   "n_fail_lines": 125
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 70 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [a second comment on a closing line still hides the block] no finding names 'added commented line':",
+    "- [I437 em dash: #516 first tag column 0 open] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: #516 first tag column 0 close] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: #516 first tag column 0 attribute] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "n_fail_lines": 70
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M15 binding ignores a drifted release",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 the binding itself refuses another cmarkgfm release by name]",
+    "FAIL [I437 the binding itself refuses a missing html5lib by name]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "n_fail_lines": 3
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M16 bundled cmark-gfm release unchecked",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 another bundled cmark-gfm is refused]",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "n_fail_lines": 2
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M17 element tag not matched to heading level",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1495/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 a heading whose position an open raw tag reads as an attribute is not listed: the tag is not its level's]",
+    "FAIL [I437 the same, the position read as an unquoted value]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an open raw tag reads a heading's position as an attribute]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: an open raw tag reads a heading's position as an unquoted value]"
+   ],
+   "n_fail_lines": 7
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 2 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an attribute] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []",
+    "- [I437 em dash: I437 arm page: an open raw tag reads a heading's position as an unquoted value] label refused, base refusal named, exempt: expected (True, False, 0), got (False, False, 1): []"
+   ],
+   "n_fail_lines": 2
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M18 comment block labelled raw HTML",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1496/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [a fence delimiter inside a comment opens no fence]: ['raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [a comment that really closes ends the span]: ['raw HTML line', 'prose line', 'prose line']",
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['raw HTML line', 'commented line', 'commented line', 'commented line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['raw HTML line', 'raw HTML line', 'commented line', 'commented line', 'commented line', 'prose line']"
+   ],
+   "n_fail_lines": 6
+  },
+  "emdash": {
+   "rc": 2,
+   "tail": [
+    "check_em_dash: FATAL: 1 of 339 arm(s) did not hold"
+   ],
+   "first_failures": [
+    "- [commented-out copy of a mirrored label is refused] no finding names 'added commented line':"
+   ],
+   "n_fail_lines": 1
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M19 lone carriage return not a line end",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 a lone carriage return ends a line for the renderer]: ['fenced line', 'fenced line', 'prose line']",
+    "TOC selftest: FAIL (1500/1501 arm(s))"
+   ],
+   "n_fail_lines": 2
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M20 headings in source order, not rendered order",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [I437 a heading in a referenced footnote is listed where the renderer places it, and numbered there]",
+    "FAIL [I437 renders as GitHub does: I437 arm page: a footnote heading follows the page's own]",
+    "TOC selftest: FAIL (1499/1501 arm(s))"
+   ],
+   "n_fail_lines": 3
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M21 own-element kinds ignored",
+  "applied": true,
+  "toc": {
+   "rc": 1,
+   "tail": [
+    "TOC selftest: FAIL (1490/1501 arm(s))"
+   ],
+   "first_failures": [
+    "FAIL [(renderer) a second comment opened on a closing line stays open past an arrow written as text]: ['commented line', 'prose line', 'commented line', 'commented line', 'prose line']",
+    "FAIL [(renderer) a comment closed and reopened inside a comment block stays open past an arrow written as text]: ['commented line', 'commented line', 'prose line', 'commented line', 'commented line', 'prose line']",
+    "FAIL [I437 what a raw comment left open swallows is commented (#516)]: ['raw HTML line', 'raw HTML line', 'prose line', 'prose line', 'raw HTML line', 'prose line', 'prose line', 'prose line']",
+    "FAIL [I437 what an open quoted attribute value swallows is commented]: ['raw HTML line', 'prose line', 'prose line', 'prose line', 'commented line', 'prose line']"
+   ],
+   "n_fail_lines": 12
+  },
+  "emdash": {
+   "rc": 0,
+   "tail": [
+    "check_em_dash selftest: PASS (339 arm(s))"
+   ],
+   "first_failures": [],
+   "n_fail_lines": 0
+  },
+  "killed": true
+ },
+ {
+  "mutation": "M22 position guard case-sensitive -> ignore case (FIX-PROBE)",
+  "applied": false,
+  "matches": 0
+ }
+]

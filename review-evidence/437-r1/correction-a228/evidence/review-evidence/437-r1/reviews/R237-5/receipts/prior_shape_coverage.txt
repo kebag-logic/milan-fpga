@@ -1,0 +1,65 @@
+# Literal pages in the prior PR #515 review reports (R237-1..4, R238-1..3) vs the committed fixture, by exact bytes
+## quoted literals (scripts/prior_shape_coverage.py)
+prior_R237-1.md: 0 literal page(s), 0 in fixture, 0 not, 0 undecodable
+prior_R237-2.md: 17 literal page(s), 17 in fixture, 0 not, 0 undecodable
+prior_R237-3.md: 14 literal page(s), 13 in fixture, 1 not, 0 undecodable
+    NOT IN FIXTURE: ' y\n\n## Old'
+prior_R237-4.md: 0 literal page(s), 0 in fixture, 0 not, 0 undecodable
+prior_R238-1.md: 0 literal page(s), 0 in fixture, 0 not, 0 undecodable
+prior_R238-2.md: 0 literal page(s), 0 in fixture, 0 not, 0 undecodable
+prior_R238-3.md: 0 literal page(s), 0 in fixture, 0 not, 0 undecodable
+total 31, in fixture 30
+## note: the one R237-3 'NOT IN FIXTURE' literal (' y\n\n## Old') is a quoted fragment of GitHub's output in the E5 row, not a page; E5's page is in the fixture
+## backtick and table-cell pages, decoded by hand
+R237-4 ref-def <u> -> IN: R237-4 F1 angle destination '- [a]: <u>\n\n\n  ```\n## Old\n```\n\n## Real\n'
+R237-4 control ref-def -> IN: R237-4 F1 control '- [a]: /u\n\n\n  ```\n## Old\n```\n\n## Real\n'
+R237-4 example -> IN: R237-4 F3 heading as lazy line '- a\n## H\n  ```\n## Old\n```\n'
+R238-3 T3 -> IN: R238-3 T3 '| a | b |\n|---|---|\n    code\nTitle\n-\n  ```\n## Old\n```\n\n## Real\n'
+R238-3 T4 -> IN: R238-3 T4 'text\n|-|\n    x\ny\n2. z\n   ```\n## Old\n```\n\n## Real\n'
+R238-3 T2 -> IN: R238-3 T2 'text\n|-|\n    x\ny\n-\n   ~~~\n\n## H1\n'
+R238-3 mutant page -> IN: R238-3 F3 M21 'text \\<!-- more\n1) item\n  [b]: /v\n- - x\n-->\n\n    text\n  ```\n    text\n\n## H1\n'
+R238-2 '- <!X y>' (truncated in report) -> truncated in the report ('...'), not checkable
+## backtick scan (fragments marked NOT are pieces of double-backtick spans or table-escaped pipes, decoded by hand above)
+R237-4 NOT ' - [a]: /u\n\n\n  '
+R237-4 NOT ' - [a]: <u>\n\n\n  '
+R237-4 NOT ' - a\n## H\n  '
+R237-4 IN "- [a]: /u 't'\n\n\n  <div>\n## Old\n\n## Real\n"
+R237-4 IN '- [a]: /u (t)\n\n\n  text\n<span>\n## Old\n</span>\n\n## Real\n'
+R237-4 IN '1. [a]:\n   /u\n\n\n   <pre>\n## Old\n</pre>\n\n## Real\n'
+R237-4 NOT '\n '
+R237-4 NOT '\n## Old\n'
+R237-4 NOT '\n\n## Real\n '
+R237-4 IN 'text <!-- c\nmore -->\n<span>\n## Old\n'
+R238-2 NOT '- <!X y>\n- <!--\n\n...'
+R238-2 IN '- <!X y\n- <!--\n\n## X\n\n## Y\n'
+R238-2 IN '- <![CDATA[ x\n> <!--\n\n## X\n\n## Y\n'
+R238-2 IN '- <? x\n- <!--\n\n## X\n\n## Y\n'
+R238-2 IN '- text <? > <!-- ?>\n\n## X\n\n## Y\n'
+R238-2 IN '<!X y\n<b>\n## X\n\n## Y\n'
+R238-2 IN '<![CDATA[\n<span>\n]]>\n## X\n\n## Y\n'
+R238-2 IN '<![CDATA[\n> <!--\n## X\n\n## Y\n'
+R238-2 NOT '</li>\n<li>'
+R238-2 NOT '</ul>\n<blockquote>'
+R238-2 IN '<? x\n## X\n\n## Y\n'
+R238-2 IN '<? x\n- <!--\n## X\n\n## Y\n'
+R238-2 IN '<? x\n<!-->\n## X\n\n## Y\n'
+R238-2 IN '<? x\n<span>\n?>\n## X\n\n## Y\n'
+R238-2 IN '<? x\n?>\n<div>\n<!--\n\n## X\n\n## Y\n'
+R238-2 IN '<? x\ntext\n?>\n## X\n\n## Y\n'
+R238-2 IN '<div title="a\n<!--\nb">\n\n## X\n\n## Y\n'
+R238-2 IN '<div>\n<!--\n\n[x](<a-->)\n\n## X\n\n## Y\n'
+R238-2 IN '<div>\n<? a <!-- ?>\n</div>\n\n## X\n\n## Y\n'
+R238-2 IN '<div\ntitle="<!--">\n\n## X\n\n## Y\n'
+R238-2 IN '<select>\n\n## X\n\n</select>\n\n\n## Y\n'
+R238-2 IN 'text <![CDATA[ > <!-- ]]>\n\n## X\n\n## Y\n'
+R238-2 IN 'text <? <!-- ?>\n\n## X\n\n## Y\n'
+R238-2 IN 'text <? > <!-- ?>\n## X\n\n## Y\n'
+R238-2 IN 'text <? > <!-- ?>\n\n## X\n\n## Y\n'
+R238-3 NOT '- [a]: /u\n[b]: /v'
+R238-3 NOT '\n    text\n\n## H1\n'
+R238-3 NOT '\n## Old\n'
+R238-3 NOT '\n\n## Real\n'
+R238-3 NOT '\\| a \\| b \\|\n\\|---\\|---\\|\n    code\nTitle\n-\n  '
+R238-3 NOT 'text \\<!-- more\n1) item\n  [b]: /v\n- - x\n-->\n\n    text\n  '
+R238-3 NOT 'text\n\\|-\\|\n    x\ny\n-\n   ~~~\n\n## H1\n'
+R238-3 NOT 'text\n\\|-\\|\n    x\ny\n2. z\n   '

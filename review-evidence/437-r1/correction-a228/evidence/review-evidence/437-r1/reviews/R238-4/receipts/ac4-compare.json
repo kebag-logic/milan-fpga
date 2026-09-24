@@ -1,0 +1,3206 @@
+{
+ "summary": {
+  "pages": 164,
+  "any_diff": 16,
+  "blocks": 6,
+  "line_kinds": 16,
+  "headings": 6,
+  "plan": 5
+ },
+ "pages": [
+  {
+   "page": "CONTRIBUTING.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     320,
+     "indented code line",
+     "fenced line",
+     "     ```bash"
+    ],
+    [
+     321,
+     "indented code line",
+     "fenced line",
+     "     suite_logs=$(mktemp -d)"
+    ],
+    [
+     322,
+     "indented code line",
+     "fenced line",
+     "     scripts/run_all_suites.sh \"$suite_logs\""
+    ],
+    [
+     323,
+     "indented code line",
+     "fenced line",
+     "     syn/yosys/run.sh"
+    ],
+    [
+     324,
+     "indented code line",
+     "fenced line",
+     "     ```"
+    ],
+    [
+     325,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     326,
+     "indented code line",
+     "prose line",
+     "     A hosted pass does not replace the local evidence, and a local pass does"
+    ],
+    [
+     327,
+     "indented code line",
+     "prose line",
+     "     not waive the ruleset's hosted contexts."
+    ],
+    [
+     328,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     582,
+     "commented line",
+     "prose line",
+     "setext heading and a heading inside a list item, a block quote or a referenced"
+    ],
+    [
+     583,
+     "commented line",
+     "prose line",
+     "footnote are listed, and their anchors follow the same rule as every other"
+    ],
+    [
+     584,
+     "commented line",
+     "prose line",
+     "heading's. An ATX heading's label is still read off its own line, so every"
+    ],
+    [
+     585,
+     "commented line",
+     "prose line",
+     "existing label is unchanged. A setext heading's label is its rendered text."
+    ],
+    [
+     586,
+     "commented line",
+     "prose line",
+     "Install the lock before running the gate or the generator"
+    ],
+    [
+     587,
+     "commented line",
+     "prose line",
+     "(`python3 -m pip install --require-hashes -r tools/markdown/requirements.txt`)."
+    ],
+    [
+     588,
+     "commented line",
+     "prose line",
+     "Both refuse to answer without it, and both refuse any other release."
+    ],
+    [
+     589,
+     "commented line",
+     "prose line",
+     "[`scripts/gen_toc_shapes.json`](scripts/gen_toc_shapes.json) records GitHub's"
+    ],
+    [
+     590,
+     "commented line",
+     "prose line",
+     "rendering of every page #437 and #516 were judged on, and the self-test"
+    ],
+    [
+     591,
+     "commented line",
+     "prose line",
+     "compares the renderer with each one."
+    ],
+    [
+     592,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     593,
+     "commented line",
+     "prose line",
+     "Three limits remain, and each one withholds a heading; none can grant an"
+    ],
+    [
+     594,
+     "commented line",
+     "prose line",
+     "exemption:"
+    ],
+    [
+     595,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     596,
+     "commented line",
+     "prose line",
+     "- A heading written as raw HTML (`<h2>`) is not listed, although GitHub"
+    ],
+    [
+     597,
+     "commented line",
+     "prose line",
+     "  renders it."
+    ],
+    [
+     598,
+     "commented line",
+     "prose line",
+     "- A page whose text spells the attribute the renderer marks its own elements"
+    ],
+    [
+     599,
+     "commented line",
+     "prose line",
+     "  with is read as rendering nothing: raw HTML could spell it too."
+    ],
+    [
+     600,
+     "commented line",
+     "prose line",
+     "- GitHub opens a referenced footnote's section with a visually hidden"
+    ],
+    [
+     601,
+     "commented line",
+     "prose line",
+     "  `Footnotes` heading that the pinned cmark-gfm does not emit, so no such"
+    ],
+    [
+     602,
+     "commented line",
+     "prose line",
+     "  heading is listed. This is the one recorded rendering the renderer does"
+    ],
+    [
+     603,
+     "commented line",
+     "prose line",
+     "  not reproduce."
+    ],
+    [
+     604,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     605,
+     "commented line",
+     "prose line",
+     "The recorded renderings are the Markdown API's `gfm` mode, which #437 names."
+    ],
+    [
+     606,
+     "commented line",
+     "prose line",
+     "GitHub renders a repository file through the API's `markdown` mode, and that"
+    ],
+    [
+     607,
+     "commented line",
+     "prose line",
+     "mode reads some raw HTML differently. Measured on 2026-09-23 over the 352"
+    ],
+    [
+     608,
+     "commented line",
+     "prose line",
+     "recorded pages and 700 generated ones, it differed from the renderer on 8,"
+    ],
+    [
+     609,
+     "commented line",
+     "prose line",
+     "each involving a processing instruction (`<?`), a `<select>` or an `<xmp>`."
+    ],
+    [
+     610,
+     "commented line",
+     "prose line",
+     "On 2 the renderer lists headings after a processing instruction that carries"
+    ],
+    [
+     611,
+     "commented line",
+     "prose line",
+     "a `<!--`, which a file view hides: an escape. On 4 it hides headings after a"
+    ],
+    [
+     612,
+     "commented line",
+     "prose line",
+     "`<select>`, an `<xmp>` or an unclosed processing instruction that a file view"
+    ],
+    [
+     613,
+     "commented line",
+     "prose line",
+     "shows: withholding. On 2 a heading carrying a processing instruction reads"
+    ],
+    [
+     614,
+     "commented line",
+     "prose line",
+     "differently. No tracked page carries any of the three as raw HTML."
+    ],
+    [
+     615,
+     "commented line",
+     "prose line",
+     "The gate judges the lines a change ADDS, never the tree, so a page that"
+    ],
+    [
+     616,
+     "commented line",
+     "prose line",
+     "carries the character keeps it until a change touches those lines."
+    ],
+    [
+     617,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     618,
+     "commented line",
+     "prose line",
+     "`scripts/check_em_dash.py --base <rev>` is the gate. It diffs `<rev>` against"
+    ],
+    [
+     619,
+     "commented line",
+     "prose line",
+     "`HEAD` over every tracked `*.md` (renames followed, every page compared as"
+    ],
+    [
+     620,
+     "commented line",
+     "prose line",
+     "text whatever a `.gitattributes` entry says, a page git will only report as"
+    ],
+    [
+     621,
+     "commented line",
+     "prose line",
+     "binary refused rather than counted clean) and refuses each added"
+    ],
+    [
+     622,
+     "commented line",
+     "prose line",
+     "line carrying the character outside the exemption, which it decides from the"
+    ],
+    [
+     623,
+     "commented line",
+     "prose line",
+     "headings of the BASE version of the same page, never from the label text"
+    ],
+    [
+     624,
+     "commented line",
+     "prose line",
+     "alone: a label mirroring a heading the same change introduces is refused"
+    ],
+    [
+     625,
+     "commented line",
+     "prose line",
+     "with its heading. Its planted controls run before every verdict. Locally,"
+    ],
+    [
+     626,
+     "commented line",
+     "prose line",
+     "pass the merge base:"
+    ],
+    [
+     627,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     628,
+     "commented line",
+     "fenced line",
+     "```sh"
+    ],
+    [
+     629,
+     "commented line",
+     "fenced line",
+     "python3 scripts/check_em_dash.py --base \"$(git merge-base origin/dev HEAD)\""
+    ],
+    [
+     630,
+     "commented line",
+     "fenced line",
+     "python3 scripts/check_em_dash.py --selftest"
+    ],
+    [
+     631,
+     "commented line",
+     "fenced line",
+     "```"
+    ],
+    [
+     632,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     633,
+     "commented line",
+     "prose line",
+     "A generator that writes committed Markdown owes the rule too, because its"
+    ],
+    [
+     634,
+     "commented line",
+     "prose line",
+     "regeneration is mandatory and the lines it adds are judged like any others:"
+    ],
+    [
+     635,
+     "commented line",
+     "prose line",
+     "[`docs/traceability/gen_module_matrix.py`](docs/traceability/gen_module_matrix.py)"
+    ],
+    [
+     636,
+     "commented line",
+     "prose line",
+     "renders an empty test or clause cell as `--`, and its own controls fail if a"
+    ],
+    [
+     637,
+     "commented line",
+     "prose line",
+     "row it emits spells the character."
+    ],
+    [
+     638,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     639,
+     "commented line",
+     "prose line",
+     "The docs workflow DERIVES the base: for a pull request it fetches the base"
+    ],
+    [
+     640,
+     "commented line",
+     "prose line",
+     "branch and takes the merge base against the checked-out tree, because GitHub"
+    ],
+    [
+     641,
+     "commented line",
+     "prose line",
+     "freezes `pull_request.base.sha` when the request opens while the job builds"
+    ],
+    [
+     642,
+     "commented line",
+     "prose line",
+     "the merge into the current base tip, so the recorded oid attributes to the"
+    ],
+    [
+     643,
+     "commented line",
+     "prose line",
+     "branch every line merged into the base since. A push judges from its own"
+    ],
+    [
+     644,
+     "commented line",
+     "prose line",
+     "`before` SHA, and an event carrying neither is refused rather than guessed"
+    ],
+    [
+     645,
+     "commented line",
+     "prose line",
+     "at."
+    ],
+    [
+     646,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     647,
+     "commented line",
+     "prose line",
+     "The first fast-forward of `main` after the gate landed judges every commit"
+    ],
+    [
+     648,
+     "commented line",
+     "prose line",
+     "since the previous one, so that one push is red on this step."
+    ],
+    [
+     649,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     650,
+     "commented line",
+     "prose line",
+     "Regenerating the Contents block of a page whose separator is still the"
+    ],
+    [
+     651,
+     "commented line",
+     "prose line",
+     "em dash adds entries the gate refuses: switch that page's separator to `--`"
+    ],
+    [
+     652,
+     "commented line",
+     "prose line",
+     "(every entry line becomes an added line, and each is judged), then rerun"
+    ],
+    [
+     653,
+     "commented line",
+     "prose line",
+     "`gen_toc.py --write`. Rewrite the entry DESCRIPTIONS in the same pass where"
+    ],
+    [
+     654,
+     "commented line",
+     "prose line",
+     "they carry the character: 102 entries on 45 pages do, and the description is"
+    ],
+    [
+     655,
+     "commented line",
+     "prose line",
+     "judged like any other added text. A block written for the first time uses"
+    ],
+    [
+     656,
+     "commented line",
+     "prose line",
+     "`--`. Provenance follows the generator's own page population: the two"
+    ],
+    [
+     657,
+     "commented line",
+     "prose line",
+     "documentation indexes it skips, the historical tree and any page another"
+    ],
+    [
+     658,
+     "commented line",
+     "prose line",
+     "generator owns carry no generated navigation, so nothing on them is ever"
+    ],
+    [
+     659,
+     "commented line",
+     "prose line",
+     "exempt."
+    ],
+    [
+     660,
+     "commented line",
+     "prose line",
+     ""
+    ],
+    [
+     661,
+     "commented line",
+     "prose line",
+     "Status claims in prose are separately machine-judged against the"
+    ],
+    [
+     662,
+     "commented line",
+     "prose line",
+     "[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md); the"
+    ],
+    [
+     663,
+     "commented line",
+     "prose line",
+     "per-clause compliance position lives in the"
+    ],
+    [
+     664,
+     "commented line",
+     "prose line",
+     "[compliance matrix](docs/reference/MILAN_COMPLIANCE_MATRIX.md) and moves only"
+    ],
+    [
+     665,
+     "commented line",
+     "prose line",
+     "with a named, runnable gate or a dated measurement."
+    ],
+    [
+     666,
+     "commented line",
+     "prose line",
+     ""
+    ]
+   ]
+  },
+  {
+   "page": "QUICKSTART.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     24,
+     "prose line",
+     "fenced line",
+     "> ```sh"
+    ],
+    [
+     25,
+     "prose line",
+     "fenced line",
+     "> git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis"
+    ],
+    [
+     26,
+     "prose line",
+     "fenced line",
+     "> git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git protocol-"
+    ],
+    [
+     27,
+     "prose line",
+     "fenced line",
+     "> git clone https://github.com/Mister-M-alt/FPGA-gPTP.git gptp-processor"
+    ],
+    [
+     28,
+     "prose line",
+     "fenced line",
+     "> ```"
+    ]
+   ]
+  },
+  {
+   "page": "docs/MILAN_V12_ROADMAP.md",
+   "fields": [
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     135,
+     "table row",
+     "prose line",
+     "| MVU `0x0000` | `GET_MILAN_INFO` | 5.4.4.1 | 0x0043 |"
+    ]
+   ]
+  },
+  {
+   "page": "docs/design/SAVED_STATE_FASTCONNECT.md",
+   "fields": [
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "table row",
+     "> | | round 1 | round 2 | now |"
+    ],
+    [
+     16,
+     "prose line",
+     "table row",
+     "> |---|---|---|---|"
+    ],
+    [
+     17,
+     "prose line",
+     "table row",
+     "> | whole-image A/B promotion into the reserved `journal` slots | decided | unchanged | **unchanged*"
+    ],
+    [
+     18,
+     "prose line",
+     "table row",
+     "> | media owned by firmware through the existing LiteSPI master | decided | unchanged | **unchanged*"
+    ],
+    [
+     19,
+     "prose line",
+     "table row",
+     "> | record namespace inside the image | one record per item group and index | banked, decided | **on"
+    ],
+    [
+     20,
+     "prose line",
+     "table row",
+     "> | the on-flash container | KLJ1 v1 \"carried forward unchanged\" | a new version, KLJ2 | unchanged, "
+    ],
+    [
+     21,
+     "prose line",
+     "table row",
+     "> | the backend's memory and the transfer mechanism | left open | decided | unchanged, section 8 |"
+    ],
+    [
+     22,
+     "prose line",
+     "table row",
+     "> | `nvm_backed_o` | asserts once a writer has answered | live, with a revocation list | **plus reco"
+    ],
+    [
+     23,
+     "prose line",
+     "table row",
+     "> | the area claim | borrowed issue #69's unrelated LUT delta | withdrawn as unmeasurable | **measur"
+    ],
+    [
+     24,
+     "prose line",
+     "table row",
+     "> | the record-space gate | did not exist | five negative controls, no omission oracle | **sixteen c"
+    ],
+    [
+     25,
+     "prose line",
+     "table row",
+     "> | the five `milan_csr.sv` citations | dangling | named as deliberately stale | **repaired**, secti"
+    ],
+    [
+     38,
+     "prose line",
+     "table row",
+     "> | | round 3 | now |"
+    ],
+    [
+     39,
+     "prose line",
+     "table row",
+     "> |---|---|---|"
+    ],
+    [
+     40,
+     "prose line",
+     "table row",
+     "> | the empty-name case | an all-zero slot meant \"no name stored\", so a legal empty name could not b"
+    ],
+    [
+     41,
+     "prose line",
+     "table row",
+     "> | the completeness oracle | `Counter(group)`, cardinalities only | the exact `(group, index)` key "
+    ],
+    [
+     42,
+     "prose line",
+     "table row",
+     "> | an incomplete but CRC-clean image | accepted; the absent item reverted to its vendor default | r"
+    ],
+    [
+     43,
+     "prose line",
+     "table row",
+     "> | the two channel-map groups in the sizing candidate | one `{prefix,length}` table for both direct"
+    ],
+    [
+     44,
+     "prose line",
+     "table row",
+     "> | the recovery machine | a latch cleared only by reset, with the published bit masked | the latch "
+    ],
+    [
+     45,
+     "prose line",
+     "table row",
+     "> | the area measurement | 539 LUT, with 128 LUT6 of distributed RAM in no column at all | **781 LUT"
+    ]
+   ]
+  },
+  {
+   "page": "docs/design/SAVED_STATE_MATERIALIZATION.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     336,
+     "indented code line",
+     "prose line",
+     "    They are prerequisites of stage 1's implementation lane and of every"
+    ],
+    [
+     337,
+     "indented code line",
+     "prose line",
+     "    stage declared shippable (tickets T8 and T9). So is the descriptor"
+    ],
+    [
+     338,
+     "indented code line",
+     "prose line",
+     "    store's roll-back reset, which stage 1 owns (section 10)."
+    ],
+    [
+     339,
+     "indented code line",
+     "prose line",
+     ""
+    ]
+   ]
+  },
+  {
+   "page": "docs/history/v1/SPEC_TRACEABILITY.md",
+   "fields": [
+    "headings",
+    "line_kinds",
+    "plan"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "heading",
+     "> ## STATUS 2026-08-13 \u2014 the control plane changed hands, and the tallies below predate it"
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Spec \u2194 test traceability matrix",
+     "spec--test-traceability-matrix"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "The chain, and which file holds each link",
+     "the-chain-and-which-file-holds-each-link"
+    ],
+    [
+     2,
+     "Family files",
+     "family-files"
+    ],
+    [
+     2,
+     "Why rows are N/A (taxonomy)",
+     "why-rows-are-na-taxonomy"
+    ],
+    [
+     2,
+     "Module \u2192 family map",
+     "module--family-map"
+    ],
+    [
+     2,
+     "tsn_gen (wire-test engine) -- model inventory and gaps",
+     "tsn_gen-wire-test-engine----model-inventory-and-gaps"
+    ],
+    [
+     2,
+     "Top MISSING rows (attack-order preview)",
+     "top-missing-rows-attack-order-preview"
+    ],
+    [
+     2,
+     "Review workflow",
+     "review-workflow"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Spec \u2194 test traceability matrix",
+     "spec--test-traceability-matrix"
+    ],
+    [
+     2,
+     "STATUS 2026-08-13 \u2014 the control plane changed hands, and the tallies below predate it",
+     "status-2026-08-13--the-control-plane-changed-hands-and-the-tallies-below-predate-it"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "The chain, and which file holds each link",
+     "the-chain-and-which-file-holds-each-link"
+    ],
+    [
+     2,
+     "Family files",
+     "family-files"
+    ],
+    [
+     2,
+     "Why rows are N/A (taxonomy)",
+     "why-rows-are-na-taxonomy"
+    ],
+    [
+     2,
+     "Module \u2192 family map",
+     "module--family-map"
+    ],
+    [
+     2,
+     "tsn_gen (wire-test engine) -- model inventory and gaps",
+     "tsn_gen-wire-test-engine----model-inventory-and-gaps"
+    ],
+    [
+     2,
+     "Top MISSING rows (attack-order preview)",
+     "top-missing-rows-attack-order-preview"
+    ],
+    [
+     2,
+     "Review workflow",
+     "review-workflow"
+    ]
+   ],
+   "plan": {
+    "base": [
+     [
+      2,
+      "The chain, and which file holds each link",
+      "the-chain-and-which-file-holds-each-link"
+     ],
+     [
+      2,
+      "Family files",
+      "family-files"
+     ],
+     [
+      2,
+      "Why rows are N/A (taxonomy)",
+      "why-rows-are-na-taxonomy"
+     ],
+     [
+      2,
+      "Module \u2192 family map",
+      "module--family-map"
+     ],
+     [
+      2,
+      "tsn_gen (wire-test engine) -- model inventory and gaps",
+      "tsn_gen-wire-test-engine----model-inventory-and-gaps"
+     ],
+     [
+      2,
+      "Top MISSING rows (attack-order preview)",
+      "top-missing-rows-attack-order-preview"
+     ],
+     [
+      2,
+      "Review workflow",
+      "review-workflow"
+     ]
+    ],
+    "head": [
+     [
+      2,
+      "STATUS 2026-08-13 \u2014 the control plane changed hands, and the tallies below predate it",
+      "status-2026-08-13--the-control-plane-changed-hands-and-the-tallies-below-predate-it"
+     ],
+     [
+      2,
+      "The chain, and which file holds each link",
+      "the-chain-and-which-file-holds-each-link"
+     ],
+     [
+      2,
+      "Family files",
+      "family-files"
+     ],
+     [
+      2,
+      "Why rows are N/A (taxonomy)",
+      "why-rows-are-na-taxonomy"
+     ],
+     [
+      2,
+      "Module \u2192 family map",
+      "module--family-map"
+     ],
+     [
+      2,
+      "tsn_gen (wire-test engine) -- model inventory and gaps",
+      "tsn_gen-wire-test-engine----model-inventory-and-gaps"
+     ],
+     [
+      2,
+      "Top MISSING rows (attack-order preview)",
+      "top-missing-rows-attack-order-preview"
+     ],
+     [
+      2,
+      "Review workflow",
+      "review-workflow"
+     ]
+    ]
+   }
+  },
+  {
+   "page": "docs/history/v1/design/TIME_SYNC.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     477,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     495,
+     "table row",
+     "prose line",
+     "|ppm| < 0.5 with CRF selected, zero junction slips, both 4.4.4.3 `mr`"
+    ]
+   ]
+  },
+  {
+   "page": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md",
+   "fields": [
+    "headings",
+    "line_kinds",
+    "plan"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "heading",
+     "> ## STATUS 2026-08-13 \u2014 a `Today` column, because the control plane changed"
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Milan v1.2 \u2192 FR/NFR dependency matrix",
+     "milan-v12--frnfr-dependency-matrix"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "How to read  -  dependency types",
+     "how-to-read-----dependency-types"
+    ],
+    [
+     2,
+     "Verification method letters (as in [`FR_NFR.md`](../../../reference/FR_NFR.md))",
+     "verification-method-letters-as-in-fr_nfrmd"
+    ],
+    [
+     2,
+     "Verification artifacts (tokens used in the *Verify* column)",
+     "verification-artifacts-tokens-used-in-the-verify-column"
+    ],
+    [
+     2,
+     "A. Discovery  -  ADP  *(Milan v1.2 Discovery; IEEE 1722.1-2021 \u00a76)*",
+     "a-discovery-----adp--milan-v12-discovery-ieee-17221-2021-6"
+    ],
+    [
+     2,
+     "B. AEM descriptor model  *(Milan v1.2 \u00a75.3.3.1\u20135.3.3.11)*",
+     "b-aem-descriptor-model--milan-v12-533153311"
+    ],
+    [
+     2,
+     "C. Enumeration & control  -  AECP/AEM  *(Milan v1.2 \u00a75.4)*",
+     "c-enumeration--control-----aecpaem--milan-v12-54"
+    ],
+    [
+     2,
+     "D. Milan Vendor Unique  -  MVU  *(Milan v1.2 \u00a75.4.3.2)*",
+     "d-milan-vendor-unique-----mvu--milan-v12-5432"
+    ],
+    [
+     2,
+     "E. Connection management  -  ACMP  *(Milan v1.2 \u00a75.5)*",
+     "e-connection-management-----acmp--milan-v12-55"
+    ],
+    [
+     2,
+     "F. Streaming & stream formats  -  AVTP AAF  *(Milan v1.2 \u00a75.4 format match; \u00a76 Base Audio Formats)*",
+     "f-streaming--stream-formats-----avtp-aaf--milan-v12-54-format-match-6-base-audio-formats"
+    ],
+    [
+     2,
+     "G. Reservation & addressing  -  MAAP, SRP  *(Milan v1.2 \u00a75.6; 802.1Qat/Qak)*",
+     "g-reservation--addressing-----maap-srp--milan-v12-56-8021qatqak"
+    ],
+    [
+     2,
+     "H. Media clocking & time  -  gPTP  *(Milan v1.2 \u00a75.7; 802.1AS; 1722-2016 \u00a710 CRF)*",
+     "h-media-clocking--time-----gptp--milan-v12-57-8021as-1722-2016-10-crf"
+    ],
+    [
+     2,
+     "I. QoS datapath  -  802.1Q / 802.1Qav  *(required by Milan for Class A)*",
+     "i-qos-datapath-----8021q--8021qav--required-by-milan-for-class-a"
+    ],
+    [
+     2,
+     "J. Timing / performance NFRs  *(Milan Class A service class)*",
+     "j-timing--performance-nfrs--milan-class-a-service-class"
+    ],
+    [
+     2,
+     "K. Milan features intentionally OUT OF SCOPE",
+     "k-milan-features-intentionally-out-of-scope"
+    ],
+    [
+     2,
+     "L. Requirements NOT Milan-driven (project / platform)",
+     "l-requirements-not-milan-driven-project--platform"
+    ],
+    [
+     2,
+     "Coverage & test summary",
+     "coverage--test-summary"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Milan v1.2 \u2192 FR/NFR dependency matrix",
+     "milan-v12--frnfr-dependency-matrix"
+    ],
+    [
+     2,
+     "STATUS 2026-08-13 \u2014 a `Today` column, because the control plane changed",
+     "status-2026-08-13--a-today-column-because-the-control-plane-changed"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "How to read  -  dependency types",
+     "how-to-read-----dependency-types"
+    ],
+    [
+     2,
+     "Verification method letters (as in [`FR_NFR.md`](../../../reference/FR_NFR.md))",
+     "verification-method-letters-as-in-fr_nfrmd"
+    ],
+    [
+     2,
+     "Verification artifacts (tokens used in the *Verify* column)",
+     "verification-artifacts-tokens-used-in-the-verify-column"
+    ],
+    [
+     2,
+     "A. Discovery  -  ADP  *(Milan v1.2 Discovery; IEEE 1722.1-2021 \u00a76)*",
+     "a-discovery-----adp--milan-v12-discovery-ieee-17221-2021-6"
+    ],
+    [
+     2,
+     "B. AEM descriptor model  *(Milan v1.2 \u00a75.3.3.1\u20135.3.3.11)*",
+     "b-aem-descriptor-model--milan-v12-533153311"
+    ],
+    [
+     2,
+     "C. Enumeration & control  -  AECP/AEM  *(Milan v1.2 \u00a75.4)*",
+     "c-enumeration--control-----aecpaem--milan-v12-54"
+    ],
+    [
+     2,
+     "D. Milan Vendor Unique  -  MVU  *(Milan v1.2 \u00a75.4.3.2)*",
+     "d-milan-vendor-unique-----mvu--milan-v12-5432"
+    ],
+    [
+     2,
+     "E. Connection management  -  ACMP  *(Milan v1.2 \u00a75.5)*",
+     "e-connection-management-----acmp--milan-v12-55"
+    ],
+    [
+     2,
+     "F. Streaming & stream formats  -  AVTP AAF  *(Milan v1.2 \u00a75.4 format match; \u00a76 Base Audio Formats)*",
+     "f-streaming--stream-formats-----avtp-aaf--milan-v12-54-format-match-6-base-audio-formats"
+    ],
+    [
+     2,
+     "G. Reservation & addressing  -  MAAP, SRP  *(Milan v1.2 \u00a75.6; 802.1Qat/Qak)*",
+     "g-reservation--addressing-----maap-srp--milan-v12-56-8021qatqak"
+    ],
+    [
+     2,
+     "H. Media clocking & time  -  gPTP  *(Milan v1.2 \u00a75.7; 802.1AS; 1722-2016 \u00a710 CRF)*",
+     "h-media-clocking--time-----gptp--milan-v12-57-8021as-1722-2016-10-crf"
+    ],
+    [
+     2,
+     "I. QoS datapath  -  802.1Q / 802.1Qav  *(required by Milan for Class A)*",
+     "i-qos-datapath-----8021q--8021qav--required-by-milan-for-class-a"
+    ],
+    [
+     2,
+     "J. Timing / performance NFRs  *(Milan Class A service class)*",
+     "j-timing--performance-nfrs--milan-class-a-service-class"
+    ],
+    [
+     2,
+     "K. Milan features intentionally OUT OF SCOPE",
+     "k-milan-features-intentionally-out-of-scope"
+    ],
+    [
+     2,
+     "L. Requirements NOT Milan-driven (project / platform)",
+     "l-requirements-not-milan-driven-project--platform"
+    ],
+    [
+     2,
+     "Coverage & test summary",
+     "coverage--test-summary"
+    ]
+   ],
+   "plan": {
+    "base": [
+     [
+      2,
+      "How to read  -  dependency types",
+      "how-to-read-----dependency-types"
+     ],
+     [
+      2,
+      "Verification method letters (as in [`FR_NFR.md`](../../../reference/FR_NFR.md))",
+      "verification-method-letters-as-in-fr_nfrmd"
+     ],
+     [
+      2,
+      "Verification artifacts (tokens used in the *Verify* column)",
+      "verification-artifacts-tokens-used-in-the-verify-column"
+     ],
+     [
+      2,
+      "A. Discovery  -  ADP  *(Milan v1.2 Discovery; IEEE 1722.1-2021 \u00a76)*",
+      "a-discovery-----adp--milan-v12-discovery-ieee-17221-2021-6"
+     ],
+     [
+      2,
+      "B. AEM descriptor model  *(Milan v1.2 \u00a75.3.3.1\u20135.3.3.11)*",
+      "b-aem-descriptor-model--milan-v12-533153311"
+     ],
+     [
+      2,
+      "C. Enumeration & control  -  AECP/AEM  *(Milan v1.2 \u00a75.4)*",
+      "c-enumeration--control-----aecpaem--milan-v12-54"
+     ],
+     [
+      2,
+      "D. Milan Vendor Unique  -  MVU  *(Milan v1.2 \u00a75.4.3.2)*",
+      "d-milan-vendor-unique-----mvu--milan-v12-5432"
+     ],
+     [
+      2,
+      "E. Connection management  -  ACMP  *(Milan v1.2 \u00a75.5)*",
+      "e-connection-management-----acmp--milan-v12-55"
+     ],
+     [
+      2,
+      "F. Streaming & stream formats  -  AVTP AAF  *(Milan v1.2 \u00a75.4 format match; \u00a76 Base Audio Formats)*",
+      "f-streaming--stream-formats-----avtp-aaf--milan-v12-54-format-match-6-base-audio-formats"
+     ],
+     [
+      2,
+      "G. Reservation & addressing  -  MAAP, SRP  *(Milan v1.2 \u00a75.6; 802.1Qat/Qak)*",
+      "g-reservation--addressing-----maap-srp--milan-v12-56-8021qatqak"
+     ],
+     [
+      2,
+      "H. Media clocking & time  -  gPTP  *(Milan v1.2 \u00a75.7; 802.1AS; 1722-2016 \u00a710 CRF)*",
+      "h-media-clocking--time-----gptp--milan-v12-57-8021as-1722-2016-10-crf"
+     ],
+     [
+      2,
+      "I. QoS datapath  -  802.1Q / 802.1Qav  *(required by Milan for Class A)*",
+      "i-qos-datapath-----8021q--8021qav--required-by-milan-for-class-a"
+     ],
+     [
+      2,
+      "J. Timing / performance NFRs  *(Milan Class A service class)*",
+      "j-timing--performance-nfrs--milan-class-a-service-class"
+     ],
+     [
+      2,
+      "K. Milan features intentionally OUT OF SCOPE",
+      "k-milan-features-intentionally-out-of-scope"
+     ],
+     [
+      2,
+      "L. Requirements NOT Milan-driven (project / platform)",
+      "l-requirements-not-milan-driven-project--platform"
+     ],
+     [
+      2,
+      "Coverage & test summary",
+      "coverage--test-summary"
+     ]
+    ],
+    "head": [
+     [
+      2,
+      "STATUS 2026-08-13 \u2014 a `Today` column, because the control plane changed",
+      "status-2026-08-13--a-today-column-because-the-control-plane-changed"
+     ],
+     [
+      2,
+      "How to read  -  dependency types",
+      "how-to-read-----dependency-types"
+     ],
+     [
+      2,
+      "Verification method letters (as in [`FR_NFR.md`](../../../reference/FR_NFR.md))",
+      "verification-method-letters-as-in-fr_nfrmd"
+     ],
+     [
+      2,
+      "Verification artifacts (tokens used in the *Verify* column)",
+      "verification-artifacts-tokens-used-in-the-verify-column"
+     ],
+     [
+      2,
+      "A. Discovery  -  ADP  *(Milan v1.2 Discovery; IEEE 1722.1-2021 \u00a76)*",
+      "a-discovery-----adp--milan-v12-discovery-ieee-17221-2021-6"
+     ],
+     [
+      2,
+      "B. AEM descriptor model  *(Milan v1.2 \u00a75.3.3.1\u20135.3.3.11)*",
+      "b-aem-descriptor-model--milan-v12-533153311"
+     ],
+     [
+      2,
+      "C. Enumeration & control  -  AECP/AEM  *(Milan v1.2 \u00a75.4)*",
+      "c-enumeration--control-----aecpaem--milan-v12-54"
+     ],
+     [
+      2,
+      "D. Milan Vendor Unique  -  MVU  *(Milan v1.2 \u00a75.4.3.2)*",
+      "d-milan-vendor-unique-----mvu--milan-v12-5432"
+     ],
+     [
+      2,
+      "E. Connection management  -  ACMP  *(Milan v1.2 \u00a75.5)*",
+      "e-connection-management-----acmp--milan-v12-55"
+     ],
+     [
+      2,
+      "F. Streaming & stream formats  -  AVTP AAF  *(Milan v1.2 \u00a75.4 format match; \u00a76 Base Audio Formats)*",
+      "f-streaming--stream-formats-----avtp-aaf--milan-v12-54-format-match-6-base-audio-formats"
+     ],
+     [
+      2,
+      "G. Reservation & addressing  -  MAAP, SRP  *(Milan v1.2 \u00a75.6; 802.1Qat/Qak)*",
+      "g-reservation--addressing-----maap-srp--milan-v12-56-8021qatqak"
+     ],
+     [
+      2,
+      "H. Media clocking & time  -  gPTP  *(Milan v1.2 \u00a75.7; 802.1AS; 1722-2016 \u00a710 CRF)*",
+      "h-media-clocking--time-----gptp--milan-v12-57-8021as-1722-2016-10-crf"
+     ],
+     [
+      2,
+      "I. QoS datapath  -  802.1Q / 802.1Qav  *(required by Milan for Class A)*",
+      "i-qos-datapath-----8021q--8021qav--required-by-milan-for-class-a"
+     ],
+     [
+      2,
+      "J. Timing / performance NFRs  *(Milan Class A service class)*",
+      "j-timing--performance-nfrs--milan-class-a-service-class"
+     ],
+     [
+      2,
+      "K. Milan features intentionally OUT OF SCOPE",
+      "k-milan-features-intentionally-out-of-scope"
+     ],
+     [
+      2,
+      "L. Requirements NOT Milan-driven (project / platform)",
+      "l-requirements-not-milan-driven-project--platform"
+     ],
+     [
+      2,
+      "Coverage & test summary",
+      "coverage--test-summary"
+     ]
+    ]
+   }
+  },
+  {
+   "page": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md",
+   "fields": [
+    "headings",
+    "line_kinds",
+    "plan"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "heading",
+     "> ## STATUS 2026-08-13 \u2014 **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED \u2014 BUT NOT FOR THE REASON "
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Milan v1.2 compliance matrix \u2014 counters + notifications first",
+     "milan-v12-compliance-matrix--counters--notifications-first"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "1. GET_COUNTERS sets (5.4.2.25, Tables 5.13\u20135.17)",
+     "1-get_counters-sets-54225-tables-513517"
+    ],
+    [
+     3,
+     "1a. What the loss of SET_CLOCK_SOURCE does to \u00a71 and \u00a72",
+     "1a-what-the-loss-of-set_clock_source-does-to-1-and-2"
+    ],
+    [
+     2,
+     "2. Counter UPDATE LAWS (the \"when does it move\" half \u2014 the named pain)",
+     "2-counter-update-laws-the-when-does-it-move-half--the-named-pain"
+    ],
+    [
+     2,
+     "3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)",
+     "3-unsolicited-notifications-5452-table-522--17221-752"
+    ],
+    [
+     2,
+     "4. Controller liveness (5.4.5.3)",
+     "4-controller-liveness-5453"
+    ],
+    [
+     2,
+     "5. Not yet inventoried (the \"etc\" \u2014 the round grows this section)",
+     "5-not-yet-inventoried-the-etc--the-round-grows-this-section"
+    ],
+    [
+     2,
+     "Round protocol",
+     "round-protocol"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Milan v1.2 compliance matrix \u2014 counters + notifications first",
+     "milan-v12-compliance-matrix--counters--notifications-first"
+    ],
+    [
+     2,
+     "STATUS 2026-08-13 \u2014 **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED \u2014 BUT NOT FOR THE REASON THIS BANNER USED TO GIVE.**",
+     "status-2026-08-13--every-row-on-this-page-is-still-not-implemented--but-not-for-the-reason-this-banner-used-to-give"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "1. GET_COUNTERS sets (5.4.2.25, Tables 5.13\u20135.17)",
+     "1-get_counters-sets-54225-tables-513517"
+    ],
+    [
+     3,
+     "1a. What the loss of SET_CLOCK_SOURCE does to \u00a71 and \u00a72",
+     "1a-what-the-loss-of-set_clock_source-does-to-1-and-2"
+    ],
+    [
+     2,
+     "2. Counter UPDATE LAWS (the \"when does it move\" half \u2014 the named pain)",
+     "2-counter-update-laws-the-when-does-it-move-half--the-named-pain"
+    ],
+    [
+     2,
+     "3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)",
+     "3-unsolicited-notifications-5452-table-522--17221-752"
+    ],
+    [
+     2,
+     "4. Controller liveness (5.4.5.3)",
+     "4-controller-liveness-5453"
+    ],
+    [
+     2,
+     "5. Not yet inventoried (the \"etc\" \u2014 the round grows this section)",
+     "5-not-yet-inventoried-the-etc--the-round-grows-this-section"
+    ],
+    [
+     2,
+     "Round protocol",
+     "round-protocol"
+    ]
+   ],
+   "plan": {
+    "base": [
+     [
+      2,
+      "1. GET_COUNTERS sets (5.4.2.25, Tables 5.13\u20135.17)",
+      "1-get_counters-sets-54225-tables-513517"
+     ],
+     [
+      2,
+      "2. Counter UPDATE LAWS (the \"when does it move\" half \u2014 the named pain)",
+      "2-counter-update-laws-the-when-does-it-move-half--the-named-pain"
+     ],
+     [
+      2,
+      "3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)",
+      "3-unsolicited-notifications-5452-table-522--17221-752"
+     ],
+     [
+      2,
+      "4. Controller liveness (5.4.5.3)",
+      "4-controller-liveness-5453"
+     ],
+     [
+      2,
+      "5. Not yet inventoried (the \"etc\" \u2014 the round grows this section)",
+      "5-not-yet-inventoried-the-etc--the-round-grows-this-section"
+     ],
+     [
+      2,
+      "Round protocol",
+      "round-protocol"
+     ]
+    ],
+    "head": [
+     [
+      2,
+      "STATUS 2026-08-13 \u2014 **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED \u2014 BUT NOT FOR THE REASON THIS BANNER USED TO GIVE.**",
+      "status-2026-08-13--every-row-on-this-page-is-still-not-implemented--but-not-for-the-reason-this-banner-used-to-give"
+     ],
+     [
+      2,
+      "1. GET_COUNTERS sets (5.4.2.25, Tables 5.13\u20135.17)",
+      "1-get_counters-sets-54225-tables-513517"
+     ],
+     [
+      2,
+      "2. Counter UPDATE LAWS (the \"when does it move\" half \u2014 the named pain)",
+      "2-counter-update-laws-the-when-does-it-move-half--the-named-pain"
+     ],
+     [
+      2,
+      "3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)",
+      "3-unsolicited-notifications-5452-table-522--17221-752"
+     ],
+     [
+      2,
+      "4. Controller liveness (5.4.5.3)",
+      "4-controller-liveness-5453"
+     ],
+     [
+      2,
+      "5. Not yet inventoried (the \"etc\" \u2014 the round grows this section)",
+      "5-not-yet-inventoried-the-etc--the-round-grows-this-section"
+     ],
+     [
+      2,
+      "Round protocol",
+      "round-protocol"
+     ]
+    ]
+   }
+  },
+  {
+   "page": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md",
+   "fields": [
+    "headings",
+    "line_kinds",
+    "plan"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "heading",
+     "> ## STATUS 2026-08-13 \u2014 **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMEN"
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Item-10 \u2014 PDU getter/setter verification (the plan, and what the AECP half can and cannot run)",
+     "item-10--pdu-gettersetter-verification-the-plan-and-what-the-aecp-half-can-and-cannot-run"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "What is gone, and what replaced it",
+     "what-is-gone-and-what-replaced-it"
+    ],
+    [
+     2,
+     "Why a command needs a *fixture class* (not one generic test)",
+     "why-a-command-needs-a-fixture-class-not-one-generic-test"
+    ],
+    [
+     3,
+     "1. GETTER fixture \u2014 read-only, idempotent, model-cross-checked",
+     "1-getter-fixture--read-only-idempotent-model-cross-checked"
+    ],
+    [
+     3,
+     "2. SETTER fixture \u2014 write + read-back + notify + no-change-gate + range + lock + restore",
+     "2-setter-fixture--write--read-back--notify--no-change-gate--range--lock--restore"
+    ],
+    [
+     3,
+     "3. PAIRED fixture (\"getter *or* setter\" \u2014 the GET/SET twins)",
+     "3-paired-fixture-getter-or-setter--the-getset-twins"
+    ],
+    [
+     3,
+     "4. ACTION / state-machine fixture (ACMP connect/disconnect)",
+     "4-action--state-machine-fixture-acmp-connectdisconnect"
+    ],
+    [
+     3,
+     "5. PDU-FORMAT fixture (AAF-PCM, ADP advertise/depart)",
+     "5-pdu-format-fixture-aaf-pcm-adp-advertisedepart"
+    ],
+    [
+     2,
+     "AECP / AEM + MVU \u2014 what the uCPU answers, and what is still absent",
+     "aecp--aem--mvu--what-the-ucpu-answers-and-what-is-still-absent"
+    ],
+    [
+     2,
+     "ACMP \u2014 owned by the protocol processor",
+     "acmp--owned-by-the-protocol-processor"
+    ],
+    [
+     2,
+     "ADP \u2014 owned by the protocol processor",
+     "adp--owned-by-the-protocol-processor"
+    ],
+    [
+     2,
+     "AAF \u2014 unaffected",
+     "aaf--unaffected"
+    ],
+    [
+     2,
+     "Prerequisites & running",
+     "prerequisites--running"
+    ],
+    [
+     2,
+     "The order now that the uCPU has landed",
+     "the-order-now-that-the-ucpu-has-landed"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Item-10 \u2014 PDU getter/setter verification (the plan, and what the AECP half can and cannot run)",
+     "item-10--pdu-gettersetter-verification-the-plan-and-what-the-aecp-half-can-and-cannot-run"
+    ],
+    [
+     2,
+     "STATUS 2026-08-13 \u2014 **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMENTED ECHO FOR EVERYTHING ELSE.**",
+     "status-2026-08-13--this-device-answers-aecp-read_descriptor-plus-a-conformant-not_implemented-echo-for-everything-else"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "What is gone, and what replaced it",
+     "what-is-gone-and-what-replaced-it"
+    ],
+    [
+     2,
+     "Why a command needs a *fixture class* (not one generic test)",
+     "why-a-command-needs-a-fixture-class-not-one-generic-test"
+    ],
+    [
+     3,
+     "1. GETTER fixture \u2014 read-only, idempotent, model-cross-checked",
+     "1-getter-fixture--read-only-idempotent-model-cross-checked"
+    ],
+    [
+     3,
+     "2. SETTER fixture \u2014 write + read-back + notify + no-change-gate + range + lock + restore",
+     "2-setter-fixture--write--read-back--notify--no-change-gate--range--lock--restore"
+    ],
+    [
+     3,
+     "3. PAIRED fixture (\"getter *or* setter\" \u2014 the GET/SET twins)",
+     "3-paired-fixture-getter-or-setter--the-getset-twins"
+    ],
+    [
+     3,
+     "4. ACTION / state-machine fixture (ACMP connect/disconnect)",
+     "4-action--state-machine-fixture-acmp-connectdisconnect"
+    ],
+    [
+     3,
+     "5. PDU-FORMAT fixture (AAF-PCM, ADP advertise/depart)",
+     "5-pdu-format-fixture-aaf-pcm-adp-advertisedepart"
+    ],
+    [
+     2,
+     "AECP / AEM + MVU \u2014 what the uCPU answers, and what is still absent",
+     "aecp--aem--mvu--what-the-ucpu-answers-and-what-is-still-absent"
+    ],
+    [
+     2,
+     "ACMP \u2014 owned by the protocol processor",
+     "acmp--owned-by-the-protocol-processor"
+    ],
+    [
+     2,
+     "ADP \u2014 owned by the protocol processor",
+     "adp--owned-by-the-protocol-processor"
+    ],
+    [
+     2,
+     "AAF \u2014 unaffected",
+     "aaf--unaffected"
+    ],
+    [
+     2,
+     "Prerequisites & running",
+     "prerequisites--running"
+    ],
+    [
+     2,
+     "The order now that the uCPU has landed",
+     "the-order-now-that-the-ucpu-has-landed"
+    ]
+   ],
+   "plan": {
+    "base": [
+     [
+      2,
+      "What is gone, and what replaced it",
+      "what-is-gone-and-what-replaced-it"
+     ],
+     [
+      2,
+      "Why a command needs a *fixture class* (not one generic test)",
+      "why-a-command-needs-a-fixture-class-not-one-generic-test"
+     ],
+     [
+      2,
+      "AECP / AEM + MVU \u2014 what the uCPU answers, and what is still absent",
+      "aecp--aem--mvu--what-the-ucpu-answers-and-what-is-still-absent"
+     ],
+     [
+      2,
+      "ACMP \u2014 owned by the protocol processor",
+      "acmp--owned-by-the-protocol-processor"
+     ],
+     [
+      2,
+      "ADP \u2014 owned by the protocol processor",
+      "adp--owned-by-the-protocol-processor"
+     ],
+     [
+      2,
+      "AAF \u2014 unaffected",
+      "aaf--unaffected"
+     ],
+     [
+      2,
+      "Prerequisites & running",
+      "prerequisites--running"
+     ],
+     [
+      2,
+      "The order now that the uCPU has landed",
+      "the-order-now-that-the-ucpu-has-landed"
+     ]
+    ],
+    "head": [
+     [
+      2,
+      "STATUS 2026-08-13 \u2014 **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMENTED ECHO FOR EVERYTHING ELSE.**",
+      "status-2026-08-13--this-device-answers-aecp-read_descriptor-plus-a-conformant-not_implemented-echo-for-everything-else"
+     ],
+     [
+      2,
+      "What is gone, and what replaced it",
+      "what-is-gone-and-what-replaced-it"
+     ],
+     [
+      2,
+      "Why a command needs a *fixture class* (not one generic test)",
+      "why-a-command-needs-a-fixture-class-not-one-generic-test"
+     ],
+     [
+      2,
+      "AECP / AEM + MVU \u2014 what the uCPU answers, and what is still absent",
+      "aecp--aem--mvu--what-the-ucpu-answers-and-what-is-still-absent"
+     ],
+     [
+      2,
+      "ACMP \u2014 owned by the protocol processor",
+      "acmp--owned-by-the-protocol-processor"
+     ],
+     [
+      2,
+      "ADP \u2014 owned by the protocol processor",
+      "adp--owned-by-the-protocol-processor"
+     ],
+     [
+      2,
+      "AAF \u2014 unaffected",
+      "aaf--unaffected"
+     ],
+     [
+      2,
+      "Prerequisites & running",
+      "prerequisites--running"
+     ],
+     [
+      2,
+      "The order now that the uCPU has landed",
+      "the-order-now-that-the-ucpu-has-landed"
+     ]
+    ]
+   }
+  },
+  {
+   "page": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md",
+   "fields": [
+    "headings",
+    "line_kinds",
+    "plan"
+   ],
+   "lines": [
+    [
+     20,
+     "prose line",
+     "heading",
+     "> ## What this plan can still be run against (2026-08-13)"
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Full protocol sweep \u2014 every mandatory command, every state machine, verified per clause",
+     "full-protocol-sweep--every-mandatory-command-every-state-machine-verified-per-clause"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "What already exists (do not rebuild it)",
+     "what-already-exists-do-not-rebuild-it"
+    ],
+    [
+     2,
+     "Lane A \u2014 the 5.4.2 command matrix (the analysis half)",
+     "lane-a--the-542-command-matrix-the-analysis-half"
+    ],
+    [
+     2,
+     "Lane B \u2014 getter/setter gap closure \u2014 **VOID**",
+     "lane-b--gettersetter-gap-closure--void"
+    ],
+    [
+     2,
+     "Lane C \u2014 per-sink probe SM (the enabler RTL) \u2014 **NOT THIS REPOSITORY'S ITEM**",
+     "lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item"
+    ],
+    [
+     2,
+     "Lane D \u2014 ACMP sink SM, Table 5.30 cell by cell",
+     "lane-d--acmp-sink-sm-table-530-cell-by-cell"
+    ],
+    [
+     2,
+     "Lane E \u2014 ADP state machines",
+     "lane-e--adp-state-machines"
+    ],
+    [
+     2,
+     "Lane F \u2014 SRP registrar/applicant walk",
+     "lane-f--srp-registrarapplicant-walk"
+    ],
+    [
+     2,
+     "Lane G \u2014 live wire verification (bench, serial)",
+     "lane-g--live-wire-verification-bench-serial"
+    ],
+    [
+     2,
+     "Dependency order",
+     "dependency-order"
+    ],
+    [
+     2,
+     "Rules that bind every lane",
+     "rules-that-bind-every-lane"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Full protocol sweep \u2014 every mandatory command, every state machine, verified per clause",
+     "full-protocol-sweep--every-mandatory-command-every-state-machine-verified-per-clause"
+    ],
+    [
+     2,
+     "What this plan can still be run against (2026-08-13)",
+     "what-this-plan-can-still-be-run-against-2026-08-13"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "What already exists (do not rebuild it)",
+     "what-already-exists-do-not-rebuild-it"
+    ],
+    [
+     2,
+     "Lane A \u2014 the 5.4.2 command matrix (the analysis half)",
+     "lane-a--the-542-command-matrix-the-analysis-half"
+    ],
+    [
+     2,
+     "Lane B \u2014 getter/setter gap closure \u2014 **VOID**",
+     "lane-b--gettersetter-gap-closure--void"
+    ],
+    [
+     2,
+     "Lane C \u2014 per-sink probe SM (the enabler RTL) \u2014 **NOT THIS REPOSITORY'S ITEM**",
+     "lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item"
+    ],
+    [
+     2,
+     "Lane D \u2014 ACMP sink SM, Table 5.30 cell by cell",
+     "lane-d--acmp-sink-sm-table-530-cell-by-cell"
+    ],
+    [
+     2,
+     "Lane E \u2014 ADP state machines",
+     "lane-e--adp-state-machines"
+    ],
+    [
+     2,
+     "Lane F \u2014 SRP registrar/applicant walk",
+     "lane-f--srp-registrarapplicant-walk"
+    ],
+    [
+     2,
+     "Lane G \u2014 live wire verification (bench, serial)",
+     "lane-g--live-wire-verification-bench-serial"
+    ],
+    [
+     2,
+     "Dependency order",
+     "dependency-order"
+    ],
+    [
+     2,
+     "Rules that bind every lane",
+     "rules-that-bind-every-lane"
+    ]
+   ],
+   "plan": {
+    "base": [
+     [
+      2,
+      "What already exists (do not rebuild it)",
+      "what-already-exists-do-not-rebuild-it"
+     ],
+     [
+      2,
+      "Lane A \u2014 the 5.4.2 command matrix (the analysis half)",
+      "lane-a--the-542-command-matrix-the-analysis-half"
+     ],
+     [
+      2,
+      "Lane B \u2014 getter/setter gap closure \u2014 **VOID**",
+      "lane-b--gettersetter-gap-closure--void"
+     ],
+     [
+      2,
+      "Lane C \u2014 per-sink probe SM (the enabler RTL) \u2014 **NOT THIS REPOSITORY'S ITEM**",
+      "lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item"
+     ],
+     [
+      2,
+      "Lane D \u2014 ACMP sink SM, Table 5.30 cell by cell",
+      "lane-d--acmp-sink-sm-table-530-cell-by-cell"
+     ],
+     [
+      2,
+      "Lane E \u2014 ADP state machines",
+      "lane-e--adp-state-machines"
+     ],
+     [
+      2,
+      "Lane F \u2014 SRP registrar/applicant walk",
+      "lane-f--srp-registrarapplicant-walk"
+     ],
+     [
+      2,
+      "Lane G \u2014 live wire verification (bench, serial)",
+      "lane-g--live-wire-verification-bench-serial"
+     ],
+     [
+      2,
+      "Dependency order",
+      "dependency-order"
+     ],
+     [
+      2,
+      "Rules that bind every lane",
+      "rules-that-bind-every-lane"
+     ]
+    ],
+    "head": [
+     [
+      2,
+      "What this plan can still be run against (2026-08-13)",
+      "what-this-plan-can-still-be-run-against-2026-08-13"
+     ],
+     [
+      2,
+      "What already exists (do not rebuild it)",
+      "what-already-exists-do-not-rebuild-it"
+     ],
+     [
+      2,
+      "Lane A \u2014 the 5.4.2 command matrix (the analysis half)",
+      "lane-a--the-542-command-matrix-the-analysis-half"
+     ],
+     [
+      2,
+      "Lane B \u2014 getter/setter gap closure \u2014 **VOID**",
+      "lane-b--gettersetter-gap-closure--void"
+     ],
+     [
+      2,
+      "Lane C \u2014 per-sink probe SM (the enabler RTL) \u2014 **NOT THIS REPOSITORY'S ITEM**",
+      "lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item"
+     ],
+     [
+      2,
+      "Lane D \u2014 ACMP sink SM, Table 5.30 cell by cell",
+      "lane-d--acmp-sink-sm-table-530-cell-by-cell"
+     ],
+     [
+      2,
+      "Lane E \u2014 ADP state machines",
+      "lane-e--adp-state-machines"
+     ],
+     [
+      2,
+      "Lane F \u2014 SRP registrar/applicant walk",
+      "lane-f--srp-registrarapplicant-walk"
+     ],
+     [
+      2,
+      "Lane G \u2014 live wire verification (bench, serial)",
+      "lane-g--live-wire-verification-bench-serial"
+     ],
+     [
+      2,
+      "Dependency order",
+      "dependency-order"
+     ],
+     [
+      2,
+      "Rules that bind every lane",
+      "rules-that-bind-every-lane"
+     ]
+    ]
+   }
+  },
+  {
+   "page": "docs/limitations/TROUBLESHOOTING.md",
+   "fields": [
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     567,
+     "prose line",
+     "table row",
+     "> | address | value | purpose |"
+    ],
+    [
+     568,
+     "prose line",
+     "table row",
+     "> |---|---|---|"
+    ],
+    [
+     569,
+     "prose line",
+     "table row",
+     "> | `0x90000800` | `0x000` | select listener entry 0 |"
+    ],
+    [
+     570,
+     "prose line",
+     "table row",
+     "> | `0x90000814` | `0x00020000` | stage stream-ID low word |"
+    ],
+    [
+     571,
+     "prose line",
+     "table row",
+     "> | `0x90000818` | `0x02000000` | stage stream-ID high word |"
+    ],
+    [
+     572,
+     "prose line",
+     "table row",
+     "> | `0x90000810` | `0x5` | commit enable + fabric RENDER route |"
+    ],
+    [
+     574,
+     "prose line",
+     "table row",
+     "> | | before | +2 s | +4 s | sustained 5 s |"
+    ],
+    [
+     575,
+     "prose line",
+     "table row",
+     "> |---|---|---|---|---|"
+    ],
+    [
+     576,
+     "prose line",
+     "table row",
+     "> | `AVTPRX_FRX 0x6BC` | **0** | 24 971 | 58 222 | 223 673 \u2192 271 646 |"
+    ],
+    [
+     577,
+     "prose line",
+     "table row",
+     "> | `AVTPRX_STAT 0x6B8` | 0 | 0x101 | 0x101 | 0x101 |"
+    ],
+    [
+     578,
+     "prose line",
+     "table row",
+     "> | `AVTPRX_ERR 0x6C0` | \u2014 | \u2014 | \u2014 | **0** |"
+    ]
+   ]
+  },
+  {
+   "page": "docs/reference/REGISTER_MAP.md",
+   "fields": [
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     355,
+     "table row",
+     "prose line",
+     "| `0x008` | `CAP` | RO | param | `[3:0]` num_queues (the retained `0x400` window geometry, 5), `[8]`"
+    ],
+    [
+     356,
+     "table row",
+     "prose line",
+     "| `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |"
+    ],
+    [
+     357,
+     "table row",
+     "prose line",
+     "| `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready - \ud83d\udd34 **STRUCTURAL ZERO** since `0x0056` (the"
+    ],
+    [
+     358,
+     "table row",
+     "prose line",
+     "| `0x014` | `IRQ_MASK` | RW | `0` | 1 = interrupt enabled; masked bits still visible in `IRQ_RAW` |"
+    ],
+    [
+     359,
+     "table row",
+     "prose line",
+     "| `0x018` | `IRQ_RAW` | RO | `0` | Latched event bits before masking |"
+    ]
+   ]
+  },
+  {
+   "page": "docs/testing/CI_WORKFLOWS.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     509,
+     "indented code line",
+     "prose line",
+     "    `rtl-fast.yml` publishes the same shape, from its `changes` job to"
+    ],
+    [
+     510,
+     "indented code line",
+     "prose line",
+     "    `verilator-lint` and `yosys-elaboration`, and is held by the same check."
+    ],
+    [
+     511,
+     "indented code line",
+     "prose line",
+     "    Its aggregate counts a skipped consumer as a pass on purpose, since a"
+    ],
+    [
+     512,
+     "indented code line",
+     "prose line",
+     "    docs-only change legitimately runs no RTL lint. Therefore the producer is"
+    ],
+    [
+     513,
+     "indented code line",
+     "prose line",
+     "    held too: `changes` carries no `needs`, `if`, `continue-on-error`,"
+    ],
+    [
+     514,
+     "indented code line",
+     "prose line",
+     "    `defaults` or job-level `env`; the workflow carries no top-level"
+    ],
+    [
+     515,
+     "indented code line",
+     "prose line",
+     "    `defaults`; and its exact"
+    ],
+    [
+     516,
+     "indented code line",
+     "prose line",
+     "    two-step sequence is `actions/checkout@v4` with full history followed by"
+    ],
+    [
+     517,
+     "indented code line",
+     "prose line",
+     "    the `scope` step. That step's keys and three env bindings are pinned, and"
+    ],
+    [
+     518,
+     "indented code line",
+     "prose line",
+     "    its normalized canonical script must self-test `ci_scope.py`, derive the"
+    ],
+    [
+     519,
+     "indented code line",
+     "prose line",
+     "    conservative changed-file set, read the selector answer and publish that"
+    ],
+    [
+     520,
+     "indented code line",
+     "prose line",
+     "    answer. An empty or forced-false publication can no longer skip both RTL"
+    ],
+    [
+     521,
+     "indented code line",
+     "prose line",
+     "    consumers into the accepted docs-only path."
+    ],
+    [
+     522,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     523,
+     "indented code line",
+     "prose line",
+     "    The verdict half of the fast lane is held the same way ([R2] on PR"
+    ],
+    [
+     524,
+     "indented code line",
+     "prose line",
+     "    #239). Because the aggregate runs under `always() && !cancelled()`, its"
+    ],
+    [
+     525,
+     "indented code line",
+     "prose line",
+     "    one verdict step is the entire conversion of four job results into the"
+    ],
+    [
+     526,
+     "indented code line",
+     "prose line",
+     "    required `rtl-fast` context, and an `if` on that step, a result binding"
+    ],
+    [
+     527,
+     "indented code line",
+     "prose line",
+     "    rebound to the literal `success`, or a `case` widened to"
+    ],
+    [
+     528,
+     "indented code line",
+     "prose line",
+     "    `success|skipped|failure` each turned a FAILED fast job into a green"
+    ],
+    [
+     529,
+     "indented code line",
+     "prose line",
+     "    required context while every job key stayed canonical. So the aggregate"
+    ],
+    [
+     530,
+     "indented code line",
+     "prose line",
+     "    must list every other job of the workflow in its `needs`, which also"
+    ],
+    [
+     531,
+     "indented code line",
+     "prose line",
+     "    refuses an entry quietly dropped from the verdict; its single step"
+    ],
+    [
+     532,
+     "indented code line",
+     "prose line",
+     "    carries exactly `name`, `env` and `run`; its env is derived from that"
+    ],
+    [
+     533,
+     "indented code line",
+     "prose line",
+     "    `needs` list, one `<JOB>_RESULT` name per needed job bound to"
+    ],
+    [
+     534,
+     "indented code line",
+     "prose line",
+     "    `${{ needs.<job>.result }}`; and its normalized script equals the"
+    ],
+    [
+     535,
+     "indented code line",
+     "prose line",
+     "    canonical form derived from the same list, whose `case` accepts exactly"
+    ],
+    [
+     536,
+     "indented code line",
+     "prose line",
+     "    `success` and `skipped`. Each public check name (`verilator-suites`,"
+    ],
+    [
+     537,
+     "indented code line",
+     "prose line",
+     "    `yosys-portability`, `rtl-fast`, `elaborate`, `docs-check`,"
+    ],
+    [
+     538,
+     "indented code line",
+     "prose line",
+     "    `wire-accountability`, `docs-check-no-git`) must be carried by exactly"
+    ],
+    [
+     539,
+     "indented code line",
+     "prose line",
+     "    one job, so a second job renamed to a required name cannot make the"
+    ],
+    [
+     540,
+     "indented code line",
+     "prose line",
+     "    ruleset's binding ambiguous. The rule reads a job's `name` as a literal,"
+    ],
+    [
+     541,
+     "indented code line",
+     "prose line",
+     "    and GitHub evaluates it as an expression, so a `name` containing `${{`"
+    ],
+    [
+     542,
+     "indented code line",
+     "prose line",
+     "    is held too ([R4] on PR #293): it may reference nothing but"
+    ],
+    [
+     543,
+     "indented code line",
+     "prose line",
+     "    `${{ matrix.<key> }}` lists of the job's own literal `strategy.matrix`"
+    ],
+    [
+     544,
+     "indented code line",
+     "prose line",
+     "    -- the sharded workers' `Verilator shard ${{ matrix.shard }}/${{"
+    ],
+    [
+     545,
+     "indented code line",
+     "prose line",
+     "    matrix.total }}` is the shape this tree carries -- every rendering is"
+    ],
+    [
+     546,
+     "indented code line",
+     "prose line",
+     "    enumerated and refused if it equals a required name in any file, and"
+    ],
+    [
+     547,
+     "indented code line",
+     "prose line",
+     "    any other expression (`${{ 'docs-check' }}`, a `github`, `vars` or"
+    ],
+    [
+     548,
+     "indented code line",
+     "prose line",
+     "    `needs` context, a matrix carrying `include`/`exclude` or built by"
+    ],
+    [
+     549,
+     "indented code line",
+     "prose line",
+     "    `fromJSON`, a referenced key that is not a non-empty list of literal"
+    ],
+    [
+     550,
+     "indented code line",
+     "prose line",
+     "    scalars, a `${{` the expression scan does not match) is refused"
+    ],
+    [
+     551,
+     "indented code line",
+     "prose line",
+     "    outright because it cannot be enumerated here. The lists must be"
+    ],
+    [
+     552,
+     "indented code line",
+     "prose line",
+     "    literal to the last character: the runner evaluates `strategy` before"
+    ],
+    [
+     553,
+     "indented code line",
+     "prose line",
+     "    the matrix expands, so `n: [\"${{ 'docs-check' }}\"]` under"
+    ],
+    [
+     554,
+     "indented code line",
+     "prose line",
+     "    `name: ${{ matrix.n }}` publishes the required name while an"
+    ],
+    [
+     555,
+     "indented code line",
+     "prose line",
+     "    enumeration would see the text ([R3] round 4 on PR #293)."
+    ],
+    [
+     556,
+     "indented code line",
+     "prose line",
+     "    `name: ${{ 'docs-check' }}` on a `run: true` job published a second"
+    ],
+    [
+     557,
+     "indented code line",
+     "prose line",
+     "    check run under a required name that no literal comparison saw, in all"
+    ],
+    [
+     558,
+     "indented code line",
+     "prose line",
+     "    four workflow files. And the count is per name, not per file: a job in"
+    ],
+    [
+     559,
+     "indented code line",
+     "prose line",
+     "    any of the four files whose display name is a required name another"
+    ],
+    [
+     560,
+     "indented code line",
+     "prose line",
+     "    workflow owns is refused, because the merge bar binds the name and a"
+    ],
+    [
+     561,
+     "indented code line",
+     "prose line",
+     "    docs.yml job literally named `elaborate` is a second `elaborate` on"
+    ],
+    [
+     562,
+     "indented code line",
+     "prose line",
+     "    every pull request the two workflows share ([R4] round 2 on PR #293)."
+    ],
+    [
+     563,
+     "indented code line",
+     "prose line",
+     "    Nor is it per inventory (maintainer review on PR #293): the reader"
+    ],
+    [
+     564,
+     "indented code line",
+     "prose line",
+     "    lists every `.yml`/`.yaml` under `.github/workflows/`, inventoried or"
+    ],
+    [
+     565,
+     "indented code line",
+     "prose line",
+     "    not, parses each, and builds one map from required name to"
+    ],
+    [
+     566,
+     "indented code line",
+     "prose line",
+     "    `(file, job id)` over all of them; each of the seven names must map to"
+    ],
+    [
+     567,
+     "indented code line",
+     "prose line",
+     "    exactly one entry, in its owning file, under its own id, and a job in"
+    ],
+    [
+     568,
+     "indented code line",
+     "prose line",
+     "    an un-inventoried file may carry no expression `name` at all, because"
+    ],
+    [
+     569,
+     "indented code line",
+     "prose line",
+     "    nothing outside the inventory is legitimately named by one. A fifth"
+    ],
+    [
+     570,
+     "indented code line",
+     "prose line",
+     "    file carrying `docs-check` -- which GitHub runs and binds all the same"
+    ],
+    [
+     571,
+     "indented code line",
+     "prose line",
+     "    -- was invisible to the four-file inventory and is refused naming the"
+    ],
+    [
+     572,
+     "indented code line",
+     "prose line",
+     "    file and the job."
+    ],
+    [
+     650,
+     "indented code line",
+     "prose line",
+     "    Every recognized carrier `run` body is also pinned (#407)."
+    ],
+    [
+     651,
+     "indented code line",
+     "prose line",
+     "    `CARRIER_STEP_LISTS` records each canonical script beside its step identity."
+    ],
+    [
+     652,
+     "indented code line",
+     "prose line",
+     "    Existing canonical gate scripts are reused; specialized checks still apply."
+    ],
+    [
+     653,
+     "indented code line",
+     "prose line",
+     "    Comparison uses item 7's whitespace normalization."
+    ],
+    [
+     654,
+     "indented code line",
+     "prose line",
+     "    Refusals name the job, step, and first differing line."
+    ],
+    [
+     655,
+     "indented code line",
+     "prose line",
+     "    Missing script records fail closed, even with unchanged workflows."
+    ],
+    [
+     656,
+     "indented code line",
+     "prose line",
+     "    `uses` steps retain their recorded `with` mappings."
+    ],
+    [
+     657,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     658,
+     "indented code line",
+     "prose line",
+     "    Mutation arms derive from live carrier steps, independently of records."
+    ],
+    [
+     659,
+     "indented code line",
+     "prose line",
+     "    Each body faces replacement, appended-command, and `continue-on-error` controls."
+    ],
+    [
+     660,
+     "indented code line",
+     "prose line",
+     "    Every normalized line gets a trailing `|| true` control."
+    ],
+    [
+     661,
+     "indented code line",
+     "prose line",
+     "    These include bounded `--check` calls and the AC5 idiom call."
+    ],
+    [
+     662,
+     "indented code line",
+     "prose line",
+     "    Multi-command bodies additionally lose a command and reorder distinct lines."
+    ],
+    [
+     663,
+     "indented code line",
+     "prose line",
+     "    Bodies carrying proof/check flags additionally lose a flag."
+    ],
+    [
+     664,
+     "indented code line",
+     "prose line",
+     "    Python gates, bounded ratchets, builder gates, and reference builds participate."
+    ],
+    [
+     665,
+     "indented code line",
+     "prose line",
+     "    A checker returning no findings fails every mutation arm."
+    ],
+    [
+     666,
+     "indented code line",
+     "prose line",
+     "    Whitespace reformatting and matching record updates remain accepted."
+    ],
+    [
+     667,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     668,
+     "indented code line",
+     "prose line",
+     "    Every legitimate script edit explicitly updates its canonical entry."
+    ],
+    [
+     669,
+     "indented code line",
+     "prose line",
+     "    Both edits belong in the same commit."
+    ],
+    [
+     670,
+     "indented code line",
+     "prose line",
+     "    Mutation arms derive automatically from the live body, independently."
+    ],
+    [
+     671,
+     "indented code line",
+     "prose line",
+     "    Never regenerate expected scripts during checking from candidate workflows."
+    ],
+    [
+     783,
+     "indented code line",
+     "prose line",
+     "    Every recognized run script in those seven jobs is pinned (#439)."
+    ],
+    [
+     784,
+     "indented code line",
+     "prose line",
+     "    `RTL_STEP_LISTS` records canonical normalized scripts beside their step identities."
+    ],
+    [
+     785,
+     "indented code line",
+     "prose line",
+     "    The sibling `full-ci-gate` SHA-pin script is also pinned:"
+    ],
+    [
+     786,
+     "indented code line",
+     "prose line",
+     "    \"Print the event and pin the one SHA this run validates\"."
+    ],
+    [
+     787,
+     "indented code line",
+     "prose line",
+     "    Its canonical record belongs to `RTL_SIBLING_STEP_LISTS`."
+    ],
+    [
+     788,
+     "indented code line",
+     "prose line",
+     "    Both use item 11's comparison and item 7's unchanged normalization."
+    ],
+    [
+     789,
+     "indented code line",
+     "prose line",
+     "    Refusals name the job, step, and first differing normalized line."
+    ],
+    [
+     790,
+     "indented code line",
+     "prose line",
+     "    Missing, empty, malformed, and stale records fail closed."
+    ],
+    [
+     791,
+     "indented code line",
+     "prose line",
+     "    Existing specialized checks and step-list membership authority remain independent."
+    ],
+    [
+     792,
+     "indented code line",
+     "prose line",
+     "    Action steps retain their recorded keys and `with` bindings."
+    ],
+    [
+     793,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     794,
+     "indented code line",
+     "prose line",
+     "    Maintain each canonical entry alongside its matching workflow script."
+    ],
+    [
+     795,
+     "indented code line",
+     "prose line",
+     "    Both edits belong in the same commit, as for carriers."
+    ],
+    [
+     796,
+     "indented code line",
+     "prose line",
+     "    Shared canonical constants avoid duplicating identical scripts."
+    ],
+    [
+     797,
+     "indented code line",
+     "prose line",
+     "    Separately specialized pins must still agree with any maintained body."
+    ],
+    [
+     798,
+     "indented code line",
+     "prose line",
+     "    Never derive expected scripts from candidate workflows during checking."
+    ],
+    [
+     799,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     800,
+     "indented code line",
+     "prose line",
+     "    The new controls derive their population from live RTL steps."
+    ],
+    [
+     801,
+     "indented code line",
+     "prose line",
+     "    Every normalized line faces swallowing, deletion, and replacement controls."
+    ],
+    [
+     802,
+     "indented code line",
+     "prose line",
+     "    Syntax and comment lines additionally participate in the textual comparison."
+    ],
+    [
+     803,
+     "indented code line",
+     "prose line",
+     "    The SHA controls delete its mismatch block and neutralize `exit 1`."
+    ],
+    [
+     804,
+     "indented code line",
+     "prose line",
+     "    Each requires the content comparison's own named first-line diagnostic."
+    ],
+    [
+     805,
+     "indented code line",
+     "prose line",
+     "    An earlier specialized refusal cannot satisfy that expectation."
+    ],
+    [
+     806,
+     "indented code line",
+     "prose line",
+     "    Record controls exercise the actual sequence-to-content comparison wiring independently."
+    ],
+    [
+     807,
+     "indented code line",
+     "prose line",
+     "    Removing the content comparison or either RTL condition fails controls."
+    ],
+    [
+     808,
+     "indented code line",
+     "prose line",
+     "    Matching script/record maintenance and existing whitespace reformatting remain accepted."
+    ],
+    [
+     809,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     810,
+     "indented code line",
+     "prose line",
+     "    The four non-RTL carriers now pin every recognized script (#407)."
+    ],
+    [
+     811,
+     "indented code line",
+     "prose line",
+     "    Their maintenance remedy is recorded in item 11."
+    ],
+    [
+     812,
+     "indented code line",
+     "prose line",
+     "    The second runner checks these pins independently through `ci_events --check`."
+    ],
+    [
+     813,
+     "indented code line",
+     "prose line",
+     "    A swallowed Python idiom call therefore leaves that step green,"
+    ],
+    [
+     814,
+     "indented code line",
+     "prose line",
+     "    but both jobs' contract steps refuse it by name."
+    ],
+    [
+     815,
+     "indented code line",
+     "prose line",
+     "    `docs-check` fails; the exhaustive aggregates also fail closed."
+    ],
+    [
+     816,
+     "indented code line",
+     "prose line",
+     ""
+    ]
+   ]
+  },
+  {
+   "page": "docs/testing/TESTING.md",
+   "fields": [
+    "headings",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     15,
+     "prose line",
+     "heading",
+     "> ### The capability boundary this page is now written against (2026-08-16)"
+    ],
+    [
+     605,
+     "table row",
+     "prose line",
+     "| Verible v0.0-4084, default rules | 1004 | **0** \u2014 it has no elaborator | 16.4 MB download + a seco"
+    ]
+   ],
+   "headings_base": [
+    [
+     1,
+     "Testing & verification - the complete map",
+     "testing--verification---the-complete-map"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Which layer do I run?",
+     "which-layer-do-i-run"
+    ],
+    [
+     2,
+     "0. Prerequisites",
+     "0-prerequisites"
+    ],
+    [
+     2,
+     "1. Verilator RTL harnesses - `tb/verilator/` (the live regression)",
+     "1-verilator-rtl-harnesses---tbverilator-the-live-regression"
+    ],
+    [
+     3,
+     "0.1 Coverage map \u2014 the module \u2194 spec \u2194 test matrix",
+     "01-coverage-map--the-module--spec--test-matrix"
+    ],
+    [
+     3,
+     "1.0 `tb/verilator/tsn_fuzz/` \u2014 the field-validation campaign (AAF only since 2026-08-13)",
+     "10-tbverilatortsn_fuzz--the-field-validation-campaign-aaf-only-since-2026-08-13"
+    ],
+    [
+     3,
+     "1.1 Suite index \u2014 reconciled against the tree 2026-08-13",
+     "11-suite-index--reconciled-against-the-tree-2026-08-13"
+    ],
+    [
+     2,
+     "2. LiteX integration checks - `sw/litex/test_*.py`",
+     "2-litex-integration-checks---swlitextest_py"
+    ],
+    [
+     2,
+     "3. SoC-level simulation - `sw/litex/milan_sim.py`",
+     "3-soc-level-simulation---swlitexmilan_simpy"
+    ],
+    [
+     2,
+     "4. Device-portability check - `syn/yosys/`",
+     "4-device-portability-check---synyosys"
+    ],
+    [
+     2,
+     "4b. RTL lint - `scripts/lint_rtl.py` (the ratcheted gate)",
+     "4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate"
+    ],
+    [
+     2,
+     "5. Legacy / auxiliary testbenches",
+     "5-legacy--auxiliary-testbenches"
+    ],
+    [
+     2,
+     "6. On-silicon validation",
+     "6-on-silicon-validation"
+    ],
+    [
+     2,
+     "6c. Controller-side validation -- la_avdecc and Hive",
+     "6c-controller-side-validation----la_avdecc-and-hive"
+    ],
+    [
+     3,
+     "The counters probe (scriptable, has a verdict)",
+     "the-counters-probe-scriptable-has-a-verdict"
+    ],
+    [
+     3,
+     "The example controllers (full model, and connections)",
+     "the-example-controllers-full-model-and-connections"
+    ],
+    [
+     3,
+     "Hive",
+     "hive"
+    ],
+    [
+     2,
+     "6b. Bench evidence retention",
+     "6b-bench-evidence-retention"
+    ],
+    [
+     2,
+     "6d. Unattended campaign vehicle",
+     "6d-unattended-campaign-vehicle"
+    ],
+    [
+     2,
+     "7. Known gaps (kept honest)",
+     "7-known-gaps-kept-honest"
+    ],
+    [
+     2,
+     "Policy",
+     "policy"
+    ]
+   ],
+   "headings_head": [
+    [
+     1,
+     "Testing & verification - the complete map",
+     "testing--verification---the-complete-map"
+    ],
+    [
+     3,
+     "The capability boundary this page is now written against (2026-08-16)",
+     "the-capability-boundary-this-page-is-now-written-against-2026-08-16"
+    ],
+    [
+     2,
+     "Contents",
+     "contents"
+    ],
+    [
+     2,
+     "Which layer do I run?",
+     "which-layer-do-i-run"
+    ],
+    [
+     2,
+     "0. Prerequisites",
+     "0-prerequisites"
+    ],
+    [
+     2,
+     "1. Verilator RTL harnesses - `tb/verilator/` (the live regression)",
+     "1-verilator-rtl-harnesses---tbverilator-the-live-regression"
+    ],
+    [
+     3,
+     "0.1 Coverage map \u2014 the module \u2194 spec \u2194 test matrix",
+     "01-coverage-map--the-module--spec--test-matrix"
+    ],
+    [
+     3,
+     "1.0 `tb/verilator/tsn_fuzz/` \u2014 the field-validation campaign (AAF only since 2026-08-13)",
+     "10-tbverilatortsn_fuzz--the-field-validation-campaign-aaf-only-since-2026-08-13"
+    ],
+    [
+     3,
+     "1.1 Suite index \u2014 reconciled against the tree 2026-08-13",
+     "11-suite-index--reconciled-against-the-tree-2026-08-13"
+    ],
+    [
+     2,
+     "2. LiteX integration checks - `sw/litex/test_*.py`",
+     "2-litex-integration-checks---swlitextest_py"
+    ],
+    [
+     2,
+     "3. SoC-level simulation - `sw/litex/milan_sim.py`",
+     "3-soc-level-simulation---swlitexmilan_simpy"
+    ],
+    [
+     2,
+     "4. Device-portability check - `syn/yosys/`",
+     "4-device-portability-check---synyosys"
+    ],
+    [
+     2,
+     "4b. RTL lint - `scripts/lint_rtl.py` (the ratcheted gate)",
+     "4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate"
+    ],
+    [
+     2,
+     "5. Legacy / auxiliary testbenches",
+     "5-legacy--auxiliary-testbenches"
+    ],
+    [
+     2,
+     "6. On-silicon validation",
+     "6-on-silicon-validation"
+    ],
+    [
+     2,
+     "6c. Controller-side validation -- la_avdecc and Hive",
+     "6c-controller-side-validation----la_avdecc-and-hive"
+    ],
+    [
+     3,
+     "The counters probe (scriptable, has a verdict)",
+     "the-counters-probe-scriptable-has-a-verdict"
+    ],
+    [
+     3,
+     "The example controllers (full model, and connections)",
+     "the-example-controllers-full-model-and-connections"
+    ],
+    [
+     3,
+     "Hive",
+     "hive"
+    ],
+    [
+     2,
+     "6b. Bench evidence retention",
+     "6b-bench-evidence-retention"
+    ],
+    [
+     2,
+     "6d. Unattended campaign vehicle",
+     "6d-unattended-campaign-vehicle"
+    ],
+    [
+     2,
+     "7. Known gaps (kept honest)",
+     "7-known-gaps-kept-honest"
+    ],
+    [
+     2,
+     "Policy",
+     "policy"
+    ]
+   ]
+  },
+  {
+   "page": "tb/verilator/gptp_txts/README.md",
+   "fields": [
+    "blocks",
+    "line_kinds"
+   ],
+   "lines": [
+    [
+     80,
+     "indented code line",
+     "prose line",
+     ""
+    ],
+    [
+     87,
+     "indented code line",
+     "prose line",
+     ""
+    ]
+   ]
+  }
+ ]
+}

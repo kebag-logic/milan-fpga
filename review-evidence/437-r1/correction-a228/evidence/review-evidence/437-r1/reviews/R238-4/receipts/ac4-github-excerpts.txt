@@ -1,0 +1,60 @@
+## CONTRIBUTING.md | 'A hosted pass does not replace' | inside <pre>: False
+   ">)</span></span>\nscripts/run_all_suites.sh <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$suite_logs</span><span class="pl-pds">"</span></span>\nsyn/yosys/run.sh</pre></div>\n<p>A hosted pass does not replace the local evidence, and a local pass does\nnot waive the rul
+
+## CONTRIBUTING.md | 'syn/yosys/run.sh</pre>' | inside <pre>: True
+   pan>mktemp -d<span class="pl-pds">)</span></span>\nscripts/run_all_suites.sh <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$suite_logs</span><span class="pl-pds">"</span></span>\nsyn/yosys/run.sh</pre></div>\n<p>A hosted pass does not replace the local evidence, and a l
+
+## QUICKSTART.md | 'git clone https://github.com/alexforencich/verilog-axis' | inside <pre>: True
+   ball? You do not have to start over — just drop the\ndependencies in by hand. The same three repositories are what the pinned\nsubmodules provide:</p>\n<div class="highlight highlight-source-shell"><pre>git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis\ngit clone
+
+## docs/MILAN_V12_ROADMAP.md | 'GET_MILAN_INFO</code> | 5.4.4.1' | inside <pre>: False
+   0</td>\n</tr>\n<tr>\n<td><code>0x004B</code></td>\n<td><code>GET_DYNAMIC_INFO</code></td>\n<td>5.4.2.29</td>\n<td><strong>0x0051</strong></td>\n</tr>\n</tbody>\n</table>\n\n\n<p>| MVU <code>0x0000</code> | <code>GET_MILAN_INFO</code> | 5.4.4.1 | 0x0043 |</p>\n\n<div class="markdown-heading"><h3 class="h
+
+## docs/design/SAVED_STATE_FASTCONNECT.md | 'whole-image A/B promotion' | inside <pre>: False
+   nd deliberately left five RTL citations stale.</p>\n<p>What changed, and what did not:</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>round 1</th>\n<th>round 2</th>\n<th>now</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>whole-image A/B promotion into the reserved <code>journal</code> slots</td>\n<td>decided</t
+
+## docs/design/SAVED_STATE_FASTCONNECT.md | '<th>round 3</th>' | inside <pre>: False
+   ing, so the shape changed: the gate now BUILDS\nthe KLJ2 image and READS IT BACK, and the sizing candidate is DRIVEN against\nthat image rather than only synthesised.</p>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>round 3</th>\n<th>now</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>the empty-name case</td>\n<td
+
+## docs/design/SAVED_STATE_MATERIALIZATION.md | 'They are prerequisites of stage 1' | inside <pre>: False
+    but the preload reaches\nthe listener. Its release starts the listener's live ACMP work and the\nD3 walk, and is part of the restore done that releases the enable\n(sections 8.1 and 8.9).</li>\n</ul>\n<p>They are prerequisites of stage 1's implementation lane and of every\nstage declared shippa
+
+## docs/history/v1/design/TIME_SYNC.md | '0.5 with CRF selected' | inside <pre>: False
+   ction slips, watchdog,\nbeyond-authority clamp and recovery); the whole chain at the root in\n<code>tb/verilator/milan_dp</code>'s <code>obj_aclk</code> leg (−10.64 ppm measured at INTERNAL,\n|ppm| &lt; 0.5 with CRF selected, zero junction slips, both 4.4.4.3 <code>mr</code>\ntriggers, the 10.
+
+## docs/limitations/TROUBLESHOOTING.md | 'select listener entry 0' | inside <pre>: False
+   tage these four writes in order:</p>\n<table>\n<thead>\n<tr>\n<th>address</th>\n<th>value</th>\n<th>purpose</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>0x90000800</code></td>\n<td><code>0x000</code></td>\n<td>select listener entry 0</td>\n</tr>\n<tr>\n<td><code>0x90000814</code></td>\n<td><code>0x00020
+
+## docs/limitations/TROUBLESHOOTING.md | 'sustained 5 s' | inside <pre>: False
+   de>0x90000810</code></td>\n<td><code>0x5</code></td>\n<td>commit enable + fabric RENDER route</td>\n</tr>\n</tbody>\n</table>\n<table>\n<thead>\n<tr>\n<th></th>\n<th>before</th>\n<th>+2 s</th>\n<th>+4 s</th>\n<th>sustained 5 s</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><code>AVTPRX_FRX 0x6BC</code></td>\n<td>
+
+## docs/reference/REGISTER_MAP.md | '<code>SCRATCH</code> | RW' | inside <pre>: False
+   de>[9]</code> PTP, <code>[10]</code> STATS, <code>[11]</code> RX-filter, <code>[12]</code> ADP, <code>[13]</code> TCAM, <code>[14]</code> LWSRP, <code>[23:16]</code> ts_width |\n| <code>0x00C</code> | <code>SCRATCH</code> | RW | <code>0</code> | R/W scratch (bus liveness test) |\n| <code>0x0
+
+## docs/reference/REGISTER_MAP.md | '<code>IRQ_RAW</code> | RO' | inside <pre>: False
+   <code>[2]</code> rmon_rollover |\n| <code>0x014</code> | <code>IRQ_MASK</code> | RW | <code>0</code> | 1 = interrupt enabled; masked bits still visible in <code>IRQ_RAW</code> |\n| <code>0x018</code> | <code>IRQ_RAW</code> | RO | <code>0</code> | Latched event bits before masking |</p>\n<p>Th
+
+## docs/testing/CI_WORKFLOWS.md | 'publishes the same shape' | inside <pre>: False
+   ]['outputs']['name']</code> -- as the same reference. A dynamic\n<code>needs[...]</code> access is refused because the producer and output cannot be\nproved statically.</p>\n<p><code>rtl-fast.yml</code> publishes the same shape, from its <code>changes</code> job to\n<code>verilator-lint</code>
+
+## docs/testing/CI_WORKFLOWS.md | 'retain their recorded' | inside <pre>: False
+   y.\nComparison uses item 7's whitespace normalization.\nRefusals name the job, step, and first differing line.\nMissing script records fail closed, even with unchanged workflows.\n<code>uses</code> steps retain their recorded <code>with</code> mappings.</p>\n<p>Mutation arms derive from live ca
+
+## docs/testing/CI_WORKFLOWS.md | 'SHA-pin script is also pinned' | inside <pre>: False
+   >Every recognized run script in those seven jobs is pinned (#439).\n<code>RTL_STEP_LISTS</code> records canonical normalized scripts beside their step identities.\nThe sibling <code>full-ci-gate</code> SHA-pin script is also pinned:\n"Print the event and pin the one SHA this run validates".\nI
+
+## docs/testing/CI_WORKFLOWS.md | 'Their maintenance remedy is recorded' | inside <pre>: False
+    either RTL condition fails controls.\nMatching script/record maintenance and existing whitespace reformatting remain accepted.</p>\n<p>The four non-RTL carriers now pin every recognized script (#407).\nTheir maintenance remedy is recorded in item 11.\nThe second runner checks these pins indep
+
+## docs/testing/TESTING.md | '| Verible v0.0-4084' | inside <pre>: False
+   — the suites already cache this exact binary</td>\n</tr>\n</tbody>\n</table>\n<p>(the 188 is the opening measurement both tools were compared on; the ratchet\nhas since been paid down to 150 — see below.)\n| Verible v0.0-4084, default rules | 1004 | <strong>0</strong> — it has no elaborator | 16
+
+## docs/testing/TESTING.md | 'capability boundary this page' | inside <pre>: False
+   "../../syn/yosys/run.sh"><code>syn/yosys/run.sh</code></a>. If a doc and the tree disagree, the tree wins.</p>\n</blockquote>\n<blockquote>\n<div class="markdown-heading"><h3 class="heading-element">The capability boundary this page is now written against (2026-08-16)</h3><a id="user-content-
+
+family two: docs/history/v1/SPEC_TRACEABILITY.md: file-view ids == headings() anchors: True (10 headings)
+family two: docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md: file-view ids == headings() anchors: True (19 headings)
+family two: docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md: file-view ids == headings() anchors: True (10 headings)
+family two: docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md: file-view ids == headings() anchors: True (16 headings)
+family two: docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md: file-view ids == headings() anchors: True (13 headings)
+family two: docs/testing/TESTING.md: file-view ids == headings() anchors: True (23 headings)
