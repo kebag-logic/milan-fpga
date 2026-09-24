@@ -564,6 +564,11 @@ class NxnDatapathHarness {
     unsigned long pp_ctr_evt_sout_seen = 0;
     bool pp_ctr_evt_avb_seen = false;
     bool pp_ctr_evt_ckd_seen = false;
+    //! every delivery none of the four records above can hold: another
+    //! descriptor type, or an index they keep no bit for. With it the five
+    //! account for every tuple, so a window can be required to have
+    //! delivered one tuple and nothing else.
+    unsigned long pp_ctr_evt_other_n = 0;
     //! The width of the two sticky bitmaps above: an index at or past it has
     //! no bit to set, and shifting into one would be undefined.
     static constexpr unsigned kSeenBits = 8 * sizeof(unsigned long);
@@ -582,6 +587,8 @@ class NxnDatapathHarness {
                 pp_ctr_evt_avb_seen = true;
             else if (ty == 0x0024 && ix == 0)
                 pp_ctr_evt_ckd_seen = true;
+            else
+                pp_ctr_evt_other_n++;
         }
     }
 
@@ -1059,7 +1066,8 @@ class NxnDatapathHarness {
     //  compressed through PP_TIM_DIV_US_P / PP_TIM_DIV_MS_P so one processor
     //  millisecond is MS_CYC_TB = 100 fabric cycles and a minute is runnable):
     //  the GET_COUNTERS one-per-descriptor-per-second limit measured as a
-    //  withheld push RELEASED after >= 1000 ms, and the 5.4.5.3 departing-
+    //  withheld push RELEASED about 1000 ms later and then silent while nothing
+    //  changes, and the 5.4.5.3 departing-
     //  controller monitor - CONTROLLER_AVAILABLE 30 to 60 s after the last
     //  command, exactly one retry, then a targeted DEREGISTER notification.
     //  At the other legs' real timebase a processor second is 1e8 cycles,
@@ -1185,6 +1193,7 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
         ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
            static_cast<long>(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
+        if (timed) prove_the_crf_input_counters_push_under_the_one_second_limit();
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
         deregister_both_controllers_and_restore_the_name(g0, name0);
@@ -1274,6 +1283,84 @@ class NxnDatapathHarness {
         ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
            notify_count(0x0010, &CTL_A), 0);
         return nB2;
+    }
+
+    // ---- (N10) the CRF Media Clock Input's counters (#529) ------------
+    //! the cycle stamp of the i-th unsolicited GET_COUNTERS for {ty, ix}
+    //! addressed to `to` (-1 when absent)
+    long notify_ctr_when(const Ctlr& to, int ty, int ix, unsigned nth) {
+        unsigned seen = 0;
+        for (size_t i = 0; i < uns_log.size(); i++) {
+            const std::vector<uint8_t>& f = uns_log[i];
+            if (!aecp_is_unsolicited(f) || notify_cmd(f) != 0x0029
+                || !notify_to(f, to) || f.size() < 42
+                || ((static_cast<unsigned>(f[38]) << 8) | f[39]) != static_cast<unsigned>(ty)
+                || ((static_cast<unsigned>(f[40]) << 8) | f[41]) != static_cast<unsigned>(ix))
+                continue;
+            if (seen++ == nth) return uns_log_when[i];
+        }
+        return -1;
+    }
+    //! KL_crf_rx raises its Table 5.22 source on the era wipe (the bind
+    //! edge) and on every event or anomaly commit. The descriptor arbiter
+    //! must hand it to the processor as {STREAM_INPUT, N_STREAMS}, and the
+    //! scheduler must push GET_COUNTERS for that row to every registered
+    //! controller at once, then at most once a second, and not again until
+    //! something changes. TIMED LEG ONLY:
+    //! at a real timebase a processor second outlasts the leg, and on the
+    //! other legs the CRF sections before this one have already spent the
+    //! row's first push. The bench lever raises the edge: no ACMP bind is
+    //! needed to change the counters, and none happens on this leg.
+    void prove_the_crf_input_counters_push_under_the_one_second_limit() {
+        const int ix = CRF_LUID;
+        notify_clear();
+        crf_lever(true);                        // not bound -> bound: the wipe
+        drain_tx(NOTIFY_WIN);
+        ck("[NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) "
+           "to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 1);
+        ck("[NOTIFY-CRF] ...and to B", notify_count(0x0029, &CTL_B, 0x0005, ix), 1);
+        const std::vector<uint8_t>* n1 = notify_last(0x0029, CTL_B, 0x0005, ix);
+        ck("[NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body",
+           static_cast<long>(n1 && n1->size() >= 174 && aecp_status(*n1) == 0
+                  && notify_cdl(*n1) == 148), 1);
+        ck("[NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F)",
+           n1 ? ctr_word(*n1, 32) : 0, CRF_CTR_MASK);
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00,
+                                          static_cast<uint8_t>(ix)};
+        const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
+        ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
+           "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
+        ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+               notify_last(0x0029, CTL_A, 0x0005, ix), g, 38)), 1);
+
+        //! a second edge inside the same processor second: withheld, then
+        //! released once, when the row's limiter opens
+        const long t1 = notify_ctr_when(CTL_B, 0x0005, ix, 0);
+        crf_lever(false);
+        crf_lever(true);
+        while (uns_log_cycle - t1 < 900L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] a second change inside the second is WITHHELD",
+           notify_count(0x0029, &CTL_B, 0x0005, ix), 1);
+        while (uns_log_cycle - t1 < 1100L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] ...and RELEASED exactly once after it",
+           notify_count(0x0029, &CTL_B, 0x0005, ix), 2);
+        const long t2 = notify_ctr_when(CTL_B, 0x0005, ix, 1);
+        printf("  [i]    CRF row pushes to B %ld ms apart\n",
+               (t1 >= 0 && t2 >= 0) ? (t2 - t1) / kMsCycTb : -1L);
+        //! the log's cycle stamp stops outside drain_tx and await_aecp, so
+        //! it skips the lever writes and the injected command between the
+        //! two pushes (about 3 ms here): the floor sits that far below 1000
+        ck("[NOTIFY-CRF] ...no earlier than one second after the first",
+           static_cast<long>(t1 >= 0 && t2 - t1 >= 990L * kMsCycTb), 1);
+        //! ...and then QUIET. The release must clear the row's pending bit:
+        //! a row whose bit never clears pushes again each time its limiter
+        //! reopens, forever, with no counter moving. Two more of the row's
+        //! seconds with no change must bring no third push to either.
+        while (uns_log_cycle - t2 < 2100L * kMsCycTb) drain_tx(10 * kMsCycTb);
+        ck("[NOTIFY-CRF] ...and no further push to B in the next two seconds "
+           "without a change", notify_count(0x0029, &CTL_B, 0x0005, ix), 2);
+        ck("[NOTIFY-CRF] ...nor to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 2);
+        crf_lever(false);
     }
 
     // ---- (N6-N8c) GPTP-off is permanently ownerless (#116) -----------
@@ -2693,6 +2780,7 @@ class NxnDatapathHarness {
     void grade_get_counters_against_the_csr_window() {
         printf("-- GET_COUNTERS: Table 7-157 block vs the CSR window --\n");
         grade_the_stream_input_counter_block();
+        grade_the_crf_media_clock_input_counter_block();
         grade_the_stream_output_counter_block();
         grade_the_interface_and_clock_domain_counters();
         prove_a_wrong_object_answers_no_such_descriptor();
@@ -3196,6 +3284,365 @@ class NxnDatapathHarness {
             ck("[CTRS] ...and the block is all zeros, not a neighbour's",
                dirty, 0);
         }
+    }
+
+    //! ------------------------------------------------------------------
+    //! [CTRS-CRF] The CRF Media Clock Input is the Stream Input the shape
+    //! appends at index N_STREAMS (#529). Milan 5.3.8.10 owes it the Table
+    //! 5.6 counters with no CRF exemption, and 5.4.2.25 Table 5.16 makes the
+    //! ten mandatory at the IEEE Table 7-157 offsets: mask 0xF3F, with the
+    //! two tv tallies unclaimed because KL_crf_rx keeps none. The crf_rx
+    //! suite proves the engine's own laws; this section proves the ROOT
+    //! serves them through the processor and the response path: from reset,
+    //! per quadlet at full width, across the era reset, through a real wrap
+    //! of each update law, onto the Table 5.22 arbiter, and without any
+    //! neighbouring row answering for the bank or the bank for a neighbour.
+    //! The last arm moves each of the ten through its own engine event, so
+    //! the KL_crf_rx port map is graded as well as the gather mux.
+    //! Runs before the CRF bind of the 5.3.8.7 section, so every edge here
+    //! is driven through the bench lever (0x738), and it leaves the lever
+    //! down so that later ACMP bind is still a not-bound -> bound edge.
+    void grade_the_crf_media_clock_input_counter_block() {
+        prove_the_crf_input_descriptor_image_matches_the_shape();
+        grade_the_crf_input_counters_from_reset();
+        grade_the_crf_input_quadlet_positions();
+        prove_no_neighbour_row_answers_for_the_crf_bank();
+        prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit();
+        grade_the_crf_input_counter_wrap_through_real_pdus();
+        grade_each_crf_input_counter_through_its_own_engine_event();
+        crf_lever(false);
+    }
+
+    //! Milan Table 5.16's ten, at their Table 7-157 quadlets and in the
+    //! standard's order: the second statement of the correspondence the
+    //! gather mux makes, so the mux is not graded against itself.
+    struct CrfCtr { int q; const char* sym; };
+    static constexpr CrfCtr CRF_CTRS[10] = {
+        { 0, "MEDIA_LOCKED"        },   // @0
+        { 1, "MEDIA_UNLOCKED"      },   // @4
+        { 2, "STREAM_INTERRUPTED"  },   // @8
+        { 3, "SEQ_NUM_MISMATCH"    },   // @12
+        { 4, "MEDIA_RESET"         },   // @16
+        { 5, "TIMESTAMP_UNCERTAIN" },   // @20
+        // @24 TIMESTAMP_VALID and @28 TIMESTAMP_NOT_VALID: unclaimed
+        { 8, "UNSUPPORTED_FORMAT"  },   // @32
+        { 9, "LATE_TIMESTAMP"      },   // @36
+        {10, "EARLY_TIMESTAMP"     },   // @40
+        {11, "FRAMES_RX"           },   // @44
+    };
+    static constexpr uint32_t CRF_CTR_MASK = 0x0F3F;
+
+    //! the root wire holding quadlet q's KL_crf_rx tally - the flop the
+    //! signature arm seeds, named by the datapath rather than by the mux
+    IData& crf_tally(int q) {
+        auto* rp = dut->rootp;
+        switch (q) {
+            case 0:  return rp->milan_datapath__DOT__crf_lockcnt_w;
+            case 1:  return rp->milan_datapath__DOT__crf_unlockcnt_w;
+            case 2:  return rp->milan_datapath__DOT__crf_intrcnt_w;
+            case 3:  return rp->milan_datapath__DOT__crf_seqerr_w;
+            case 4:  return rp->milan_datapath__DOT__crf_mrcnt_w;
+            case 5:  return rp->milan_datapath__DOT__crf_tucnt_w;
+            case 8:  return rp->milan_datapath__DOT__crf_fmterr_w;
+            case 9:  return rp->milan_datapath__DOT__crf_latecnt_w;
+            case 10: return rp->milan_datapath__DOT__crf_earlycnt_w;
+            default: return rp->milan_datapath__DOT__crf_pducnt_w;
+        }
+    }
+
+    //! a distinct full-width signature per quadlet: bit 31 set, so a row
+    //! served through a 16-bit slice cannot match, and no two alike
+    static uint32_t crf_sig(int q) {
+        return 0xA5000000u | (static_cast<uint32_t>(q + 1) << 16)
+             | static_cast<uint32_t>(0x0101 * (q + 1));
+    }
+
+    //! one GET_COUNTERS on the CRF Media Clock Input, through the whole
+    //! processor and response path
+    std::vector<uint8_t> crf_ctrs(uint16_t seq) {
+        return sin_ctrs(seq, static_cast<uint16_t>(CRF_LUID));
+    }
+    std::vector<uint8_t> sin_ctrs(uint16_t seq, uint16_t index) {
+        const std::vector<uint8_t> p = {0x00, 0x05,
+                                        static_cast<uint8_t>(index >> 8),
+                                        static_cast<uint8_t>(index)};
+        return aecp_xact(0x0029, seq, p);
+    }
+
+    //! the bench lever (0x738..0x740) on the CRF sink, following the same
+    //! sid the 5.3.8.7 section binds. Raising [0] is KL_crf_rx's
+    //! not-bound -> bound edge; lowering it is not an edge the clause resets
+    //! on, and nothing here relies on it being one.
+    void crf_lever(bool on) {
+        uint64_t sid = 0;
+        for (int i = 0; i < 8; i++) sid = (sid << 8) | csid[i];
+        if (!on) axi_write(A_CRF_CTRL_L, 0);
+        axi_write(A_CRF_SIDLO_L, on ? static_cast<uint32_t>(sid) : 0u);
+        axi_write(A_CRF_SIDHI_L, on ? static_cast<uint32_t>(sid >> 32) : 0u);
+        if (on) axi_write(A_CRF_CTRL_L, 1);
+        for (int i = 0; i < 64; i++) step();
+    }
+
+    //! every claimed quadlet of `r` against `want(q)`, and the unclaimed
+    //! quadlets against zero; the name carries the phase being graded
+    void grade_the_crf_row(const std::vector<uint8_t>& r, const char* phase,
+                           uint32_t (*want)(int)) {
+        char w[160];
+        for (const CrfCtr& c : CRF_CTRS) {
+            snprintf(w, sizeof w, "[CTRS-CRF] %s: @%d %s", phase, c.q * 4, c.sym);
+            ck(w, ctr_word(r, c.q), want(c.q));
+        }
+        long unclaimed = 0;
+        for (int q = 0; q < 32; q++)
+            if (!((CRF_CTR_MASK >> q) & 1u) && ctr_word(r, q) != 0) unclaimed++;
+        snprintf(w, sizeof w, "[CTRS-CRF] %s: unclaimed @24/@28/@48.. zero", phase);
+        ck(w, unclaimed, 0);
+    }
+    static uint32_t crf_zero(int) { return 0; }
+
+    //! the image must declare the CRF input at N and nothing at N + 1, or
+    //! every per-index claim below is about the wrong entity
+    void prove_the_crf_input_descriptor_image_matches_the_shape() {
+        const uint32_t in = 0x0005u << 16;
+        ck("[CTRS-CRF] descriptor image declares STREAM_INPUT N, not N + 1",
+           desc_want.count(in | static_cast<uint32_t>(CRF_LUID)) == 1 &&
+           desc_want.count(in | static_cast<uint32_t>(CRF_LUID + 1)) == 0, 1);
+    }
+
+    //! Nothing has bound or enabled the CRF sink since reset, so the full
+    //! controller-visible response must carry the claimed ten as zeros.
+    void grade_the_crf_input_counters_from_reset() {
+        const std::vector<uint8_t> r = crf_ctrs(0x4400);
+        ck("[CTRS-CRF] GET_COUNTERS(STREAM_INPUT, N) status SUCCESS",
+           static_cast<unsigned long>(aecp_status(r)), 0);
+        ck("[CTRS-CRF] cdl = 12 + 136", r.size() > 17
+               ? ((static_cast<unsigned>(r[16]) & 7) << 8) | r[17] : 0, 148);
+        ck("[CTRS-CRF] the frame is as long as it claims", r.size(), 174);
+        ck("[CTRS-CRF] descriptor_type echoed",
+           r.size() > 39 ? (static_cast<unsigned>(r[38]) << 8) | r[39] : 0, 5);
+        ck("[CTRS-CRF] descriptor_index echoed",
+           r.size() > 41 ? (static_cast<unsigned>(r[40]) << 8) | r[41] : 0,
+           static_cast<unsigned long>(CRF_LUID));
+        ck("[CTRS-CRF] counters_valid = 0xF3F (the Table 5.16 ten)",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "from reset", crf_zero);
+    }
+
+    //! Seed a distinct full-width signature into each root tally wire while
+    //! the sink is idle, then read the row: a gather mux that permutes,
+    //! truncates, drops or constant-fills a quadlet fails here. The seed goes
+    //! in by the root wire's name, so this arm grades wire -> quadlet only.
+    //! Which KL_crf_rx output drives each wire is graded by the real-event
+    //! arm at the end of the section. CRF_STATUS (0x74C) is the second
+    //! reader of three of those flops, through its documented slices.
+    void grade_the_crf_input_quadlet_positions() {
+        for (const CrfCtr& c : CRF_CTRS) crf_tally(c.q) = crf_sig(c.q);
+        const std::vector<uint8_t> r = crf_ctrs(0x4401);
+        ck("[CTRS-CRF] signatures: counters_valid still 0xF3F",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "signatures", crf_sig);
+        ck("[CTRS-CRF] CRF_STATUS reads the same pdu/fmt/seq flops",
+           axi_read(A_CRF_STATUS_L),
+           (crf_sig(11) << 16) | ((crf_sig(8) & 0xFFu) << 8) | (crf_sig(3) & 0xFFu));
+    }
+
+    //! Descriptor isolation, both ways, with the signatures still held. No
+    //! AAF input may carry a CRF quadlet or lose its own 0xFFF mask, and the
+    //! first undeclared index stays the refusal with the empty body.
+    void prove_no_neighbour_row_answers_for_the_crf_bank() {
+        long aaf_clean = 1;
+        for (int k = 0; k < kNstreamsTb; k++) {
+            const std::vector<uint8_t> r = sin_ctrs(static_cast<uint16_t>(0x4410 + k),
+                                                    static_cast<uint16_t>(k));
+            if (aecp_status(r) != 0 || ctr_word(r, 32) != 0x0FFF) aaf_clean = 0;
+            for (int q = 0; q < 32; q++)
+                for (const CrfCtr& c : CRF_CTRS)
+                    if (ctr_word(r, q) == crf_sig(c.q)) aaf_clean = 0;
+        }
+        ck("[CTRS-CRF] every AAF input keeps 0xFFF and none carries a CRF quadlet",
+           aaf_clean, 1);
+        const std::vector<uint8_t> miss = sin_ctrs(0x4420, static_cast<uint16_t>(CRF_LUID + 1));
+        long empty = (miss.size() == 174 && ctr_word(miss, 32) == 0) ? 1 : 0;
+        for (int q = 0; q < 32; q++) if (ctr_word(miss, q) != 0) empty = 0;
+        ck("[CTRS-CRF] index N + 1 refuses NO_SUCH_DESCRIPTOR",
+           static_cast<unsigned long>(aecp_status(miss)), 2);
+        ck("[CTRS-CRF] ...with the empty mask and a zero block, not the CRF bank",
+           empty, 1);
+    }
+
+    //! Milan 5.3.8.10: "reset all of these counters to zero each time the
+    //! Stream Input changes its state from not bound to bound". The edge
+    //! wipes the seeded row, which is a wire-visible change, so it must also
+    //! reach the Table 5.22 arbiter as {STREAM_INPUT, N} and as nothing else.
+    //! All five of step()'s delivery records are cleared first, and between
+    //! them they hold every {type, index} the arbiter can hand over. So the
+    //! CRF output's STREAM_OUTPUT row at the same N, AVB_INTERFACE 0,
+    //! CLOCK_DOMAIN 0, another STREAM_INPUT, or any other tuple fails here.
+    void prove_the_bind_edge_wipes_the_crf_row_and_raises_its_dirty_bit() {
+        pp_ctr_evt_sin_seen = 0;
+        pp_ctr_evt_sout_seen = 0;
+        pp_ctr_evt_avb_seen = false;
+        pp_ctr_evt_ckd_seen = false;
+        pp_ctr_evt_other_n = 0;
+        crf_lever(true);
+        ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+           pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+        ck("[CTRS-CRF] ...and as no STREAM_OUTPUT row", pp_ctr_evt_sout_seen, 0);
+        ck("[CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0",
+           static_cast<unsigned long>(pp_ctr_evt_avb_seen) + pp_ctr_evt_ckd_seen, 0);
+        ck("[CTRS-CRF] ...nor any tuple of another type or index",
+           pp_ctr_evt_other_n, 0);
+        const std::vector<uint8_t> r = crf_ctrs(0x4402);
+        ck("[CTRS-CRF] after the bind edge: counters_valid still 0xF3F",
+           ctr_word(r, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r, "after the bind edge", crf_zero);
+    }
+
+    //! The wrap law (Milan 5.3.8.10, gh #61) of each update law, through
+    //! real PDUs of the followed stream at the root. FRAMES_RX is an
+    //! observation-interval counter and STREAM_INTERRUPTED a per-event one;
+    //! both sit one short of 2^32, both are read back whole first (the CSR
+    //! slice would read 0xFFFF), and one real event each must land on zero.
+    void grade_the_crf_input_counter_wrap_through_real_pdus() {
+        crf_tally(11) = 0xFFFFFFFFu;
+        crf_tally(2) = 0xFFFFFFFFu;
+        const std::vector<uint8_t> r0 = crf_ctrs(0x4403);
+        ck("[CTRS-CRF] wrap: FRAMES_RX served whole at 0xFFFFFFFF",
+           ctr_word(r0, 11), 0xFFFFFFFFu);
+        ck("[CTRS-CRF] wrap: STREAM_INTERRUPTED served whole at 0xFFFFFFFF",
+           ctr_word(r0, 2), 0xFFFFFFFFu);
+        send_crf();                       // first PDU of the era: no seq check
+        const std::vector<uint8_t> r1 = crf_ctrs(0x4404);
+        ck("[CTRS-CRF] wrap: one accepted PDU's interval takes FRAMES_RX to 0",
+           ctr_word(r1, 11), 0);
+        ck("[CTRS-CRF] wrap: ...and STREAM_INTERRUPTED did not move",
+           ctr_word(r1, 2), 0xFFFFFFFFu);
+        cseq = static_cast<uint8_t>(cseq + 2);   // two PDUs lost on the wire
+        send_crf();
+        const std::vector<uint8_t> r2 = crf_ctrs(0x4405);
+        ck("[CTRS-CRF] wrap: a two-PDU gap takes STREAM_INTERRUPTED to 0",
+           ctr_word(r2, 2), 0);
+        ck("[CTRS-CRF] wrap: ...SEQ_NUM_MISMATCH counts its interval once",
+           ctr_word(r2, 3), 1);
+        ck("[CTRS-CRF] wrap: ...and FRAMES_RX counts on from zero",
+           ctr_word(r2, 11), 1);
+    }
+
+    //! The count each of the ten reaches in the event arm below, in
+    //! CRF_CTRS order. No two are equal, so no exchange of two tallies can
+    //! read back as the plan.
+    static constexpr uint32_t CRF_EVT_N[10] = {
+         2,   // MEDIA_LOCKED         two locks
+         1,   // MEDIA_UNLOCKED       one unlock
+         3,   // STREAM_INTERRUPTED   three gaps of >= 2 lost
+         4,   // SEQ_NUM_MISMATCH     ...and one gap of 1
+         5,   // MEDIA_RESET          five mr toggles
+         6,   // TIMESTAMP_UNCERTAIN  six tu PDUs
+         7,   // UNSUPPORTED_FORMAT   seven rejects
+         8,   // LATE_TIMESTAMP       eight past
+         9,   // EARLY_TIMESTAMP      nine too far ahead
+        21,   // FRAMES_RX            21 accepted
+    };
+    static constexpr bool crf_evt_counts_distinct() {
+        for (int i = 0; i < 10; i++)
+            for (int j = i + 1; j < 10; j++)
+                if (CRF_EVT_N[i] == CRF_EVT_N[j]) return false;
+        return true;
+    }
+    static uint32_t crf_by_event(int q) {
+        for (int i = 0; i < 10; i++)
+            if (CRF_CTRS[i].q == q) return CRF_EVT_N[i];
+        return 0;
+    }
+
+    //! the PHC's integer-ns time: the ptp_now_i KL_crf_rx holds each
+    //! reference timestamp against (timestamp_counter acc[87:24])
+    uint64_t phc_now_ns() {
+        const auto& a = dut->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
+        return (static_cast<uint64_t>(a[2]) << 40) | (static_cast<uint64_t>(a[1]) << 8)
+             | (static_cast<uint64_t>(a[0]) >> 24);
+    }
+
+    //! accepted PDU n of the event arm, in sequence: its reference timestamp
+    //! 1 ms in the past for P1..P8 (LATE), 100 ms ahead for P9..P17 (EARLY:
+    //! past MaxTT 2 ms + the 10 ms margin), 1 ms ahead after that (neither)
+    void send_crf_event_pdu(int n, bool mr, bool tu) {
+        const int64_t ofs = n <= 8 ? -1000000 : n <= 17 ? 100000000 : 1000000;
+        const uint8_t hdr = static_cast<uint8_t>(0x80 | (mr ? 0x08 : 0) | (tu ? 0x01 : 0));
+        send_crf_pdu(phc_now_ns() + static_cast<uint64_t>(ofs), cseq, hdr, 0x01);
+        cseq++;
+    }
+
+    //! Each of the ten through its OWN engine event, to a count no other
+    //! tally shares. No tally is seeded. The signature arm writes the root
+    //! wires by name, so a KL_crf_rx port map that bound two outputs to each
+    //! other's wires would read back exactly what was seeded there. Here real
+    //! PDUs of the followed stream, and the engine's own 100 ms silence
+    //! timeout, move each tally through the engine's own law. A quadlet
+    //! reads its count only when the engine output behind it is the counter
+    //! Table 7-157 puts at that offset, so exchanging any two bindings turns
+    //! two checks red.
+    //!
+    //! One PDU per observation interval (inject() holds each for 400 cycles
+    //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
+    //!   P1         accepted: seeds the sequence cursor and the mr level
+    //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
+    //!   P2..P4     2, 3 and 2 PDUs lost           STREAM_INTERRUPTED   3
+    //!   P5         1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
+    //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
+    //!   P6..P10    each toggles the received mr   MEDIA_RESET          5
+    //!   silence    the 100 ms timeout: an unlock  MEDIA_UNLOCKED       1
+    //!   P14..P21   eight clean in order: a lock   MEDIA_LOCKED         2
+    //!   P14..P19   carry tu                       TIMESTAMP_UNCERTAIN  6
+    //!   P1..P8     timestamp already past         LATE_TIMESTAMP       8
+    //!   P9..P17    beyond MaxTT and the margin    EARLY_TIMESTAMP      9
+    //!   P1..P21    one accepted PDU per interval  FRAMES_RX           21
+    void grade_each_crf_input_counter_through_its_own_engine_event() {
+        static_assert(crf_evt_counts_distinct(),
+                      "two equal counts would hide an exchange of their bindings");
+        crf_lever(false);
+        crf_lever(true);                        // a fresh era: the ten wiped
+        send_crf_event_pdu(1, false, false);
+        for (int k = 0; k < 7; k++)             // rejected: the cursor holds
+            send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
+        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
+        cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
+        cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(4, false, false);
+        cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(5, false, false);
+        for (int n = 6; n <= 13; n++)           // mr 1,0,1,0,1 then held at 1
+            send_crf_event_pdu(n, n > 10 || n % 2 == 0, false);
+        const std::vector<uint8_t> r1 = crf_ctrs(0x4406);
+        ck("[CTRS-CRF] events: the first lock reads MEDIA_LOCKED 1 @0",
+           ctr_word(r1, 0), 1);
+        ck("[CTRS-CRF] events: ...and MEDIA_UNLOCKED 0 @4 (Table 5.6 locked form)",
+           ctr_word(r1, 1), 0);
+        ck("[CTRS-CRF] events: ...and CRF_CTRL[31] reads the sink locked",
+           axi_read(A_CRF_CTRL_L) >> 31, 1);
+
+        //! The 100 ms silence is KL_crf_rx's own counter reaching
+        //! CLK_FREQ_HZ_P / 10 cycles of this leg's 100 MHz fabric clock. Run
+        //! whole it costs about 30 s on each broad leg of a suite that runs
+        //! against a hosted deadline, so that counter is advanced, through
+        //! the engine's own hierarchy, to 1 ms short of its limit, and the
+        //! last millisecond runs for real. Only idle time is skipped: the
+        //! unlock, its tally and every wire after it are the engine's.
+        static constexpr uint32_t kCrfSilenceCyc = 10000000;  // CLK_FREQ_HZ_P / 10
+        static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
+        dut->rootp->milan_datapath__DOT__crf_rx__DOT__tout_r = kCrfSilenceCyc - kFabricMsCyc;
+        for (uint32_t c = 0; c < kFabricMsCyc + kFabricMsCyc / 10; c++) step();
+        ck("[CTRS-CRF] events: the silence's last millisecond unlocks the sink",
+           axi_read(A_CRF_CTRL_L) >> 31, 0);
+        const std::vector<uint8_t> r2 = crf_ctrs(0x4407);
+        ck("[CTRS-CRF] events: the 100 ms silence reads MEDIA_UNLOCKED 1 @4",
+           ctr_word(r2, 1), 1);
+        ck("[CTRS-CRF] events: ...with MEDIA_LOCKED still 1 @0 (not synchronized)",
+           ctr_word(r2, 0), 1);
+
+        for (int n = 14; n <= 21; n++) send_crf_event_pdu(n, true, n <= 19);
+        const std::vector<uint8_t> r3 = crf_ctrs(0x4408);
+        ck("[CTRS-CRF] events: counters_valid still 0xF3F",
+           ctr_word(r3, 32), CRF_CTR_MASK);
+        grade_the_crf_row(r3, "events, all ten", crf_by_event);
     }
 
     // ======================================================================
@@ -4185,6 +4632,8 @@ class NxnDatapathHarness {
     //! The CRF sink's own faces and wire identity: it has no
     //! classification-table entry, so every step below keys on these.
     static constexpr uint16_t A_CRF_CTRL_L = 0x738;
+    static constexpr uint16_t A_CRF_SIDLO_L = 0x73C;
+    static constexpr uint16_t A_CRF_SIDHI_L = 0x740;
     static constexpr uint16_t A_CRF_STATUS_L = 0x74C;
     static constexpr int CRF_LUID = kNstreamsTb;    // ACMP sink N = CRF input
     static constexpr uint8_t csid[8] = {
@@ -4202,6 +4651,13 @@ class NxnDatapathHarness {
 
     //! one valid CRF PDU at the bound sid, with the cursor advanced
     void send_crf() {
+        send_crf_pdu(cts, cseq, 0x80, 0x01);
+        cseq++; cts += 2001000ULL;
+    }
+
+    //! one CRF PDU at the bound sid: `hdr` is frame byte o+1 (sv, mr at bit
+    //! 3, tu at bit 0) and `type` byte o+3 (1 is CRF_AUDIO_SAMPLE)
+    void send_crf_pdu(uint64_t ts, uint8_t seq, uint8_t hdr, uint8_t type) {
         uint8_t cf[64];
         memset(cf, 0, sizeof cf);
         memcpy(cf, cdm, 6);
@@ -4209,15 +4665,14 @@ class NxnDatapathHarness {
             0x02,0x00,0x00,0x00,0x00,0x02};
         memcpy(cf+6, src, 6);
         cf[12]=0x22; cf[13]=0xF0;
-        cf[14]=0x04; cf[15]=0x80; cf[16]=cseq; cf[17]=0x01;
+        cf[14]=0x04; cf[15]=hdr; cf[16]=seq; cf[17]=type;
         memcpy(cf+18, csid, 8);
         cf[28]=0xBB; cf[29]=0x80;               // pull0 | 48000
         cf[31]=0x08;                            // crf_data_length 8
         cf[32]=0x00; cf[33]=0x60;               // interval 96
         for (int i = 0; i < 8; i++)
-            cf[34+i] = static_cast<uint8_t>(cts >> (8*(7-i)));
+            cf[34+i] = static_cast<uint8_t>(ts >> (8*(7-i)));
         inject(cf, 64, 400);
-        cseq++; cts += 2001000ULL;
     }
 
     // BIND_RX carrying STREAMING_WAIT (0x0008): the bind itself

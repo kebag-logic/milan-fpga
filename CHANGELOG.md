@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
 - **[At 0x0002_0060 - two descriptor fields name the device](#at-0x0002_0060---two-descriptor-fields-name-the-device)** -- Image only.
 - **[Release 0x0002_0060 - saved-state pending bit widened](#release-0x0002_0060---saved-state-pending-bit-widened)** -- Pending covers more cases.
@@ -23,6 +24,22 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - CRF input counters served
+
+- The CRF Media Clock Input's counters mask was empty.
+- Controllers therefore rated the entity IEEE 1722.1 only (#529).
+- `KL_crf_rx` already kept all ten Table 5.16 counters.
+- The root now serves them for STREAM_INPUT `N_STREAMS`.
+- Each is 32 bits wide, at its Table 7-157 quadlet.
+- `counters_valid` is `0xF3F`; the two tv tallies stay unclaimed.
+- The AAF inputs keep `0xFFF`.
+- An undeclared index still answers NO_SUCH_DESCRIPTOR.
+- Its dirty pulse now reaches the Table 5.22 arbiter.
+- That row pushes at most once a second.
+- Generic synthesis of `milan_datapath` grows by 1,134 cells (0.07%).
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/milan_dp` proves it in `[CTRS-CRF]` and `[NOTIFY-CRF]`.
 
 ## Unreleased - gPTP egress launch time
 
