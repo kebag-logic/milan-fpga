@@ -1,0 +1,36 @@
+[
+  {
+    "label": "R272 plain macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  },
+  {
+    "label": "R273 parenthesized macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  },
+  {
+    "label": "literal sample macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  },
+  {
+    "label": "R273-S3 missing else",
+    "verdict": "ACCEPTED"
+  },
+  {
+    "label": "casted address",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  },
+  {
+    "label": "sizeof address",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  },
+  {
+    "label": "conditional address",
+    "verdict": "REFUSED",
+    "reason": "identity-sample single-store rule: id is written or addressed between its CSR read and mismatch guard; no assignment, compound assignment, increment, decrement or address-taking"
+  }
+]

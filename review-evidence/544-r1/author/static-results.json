@@ -1,0 +1,135 @@
+[
+  {
+    "label": "docs-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 4.18,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "docs-no-git",
+    "command": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "environment": {
+      "GIT_DIR": "/tmp/544-no-git-metadata"
+    },
+    "returncode": 0,
+    "seconds": 4.13,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 14.0,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "em-dash",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 3.12,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 0.06,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "toc",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 2.42,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 0.06,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "py-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 3.22,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 0.03,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "committed-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "ffcbd33de70278ae34b533dcbadde0b36c8cba13",
+      "HEAD"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 0.03,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  },
+  {
+    "label": "retained-rows",
+    "command": [
+      "python3",
+      "$MANAGEMENT/2026-09-23/544-a286/compare-retained.py"
+    ],
+    "environment": {},
+    "returncode": 0,
+    "seconds": 0.97,
+    "head": "b068763c849a18096b0f46cf9b18e0f904e4d708"
+  }
+]

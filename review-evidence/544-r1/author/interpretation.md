@@ -1,0 +1,5 @@
+[A286] Compiler-free interpretation for the two published hostile cases
+
+The earlier clarification request concerns these exact replacement lists: `x = MILAN_ID_MAGIC` and `((x) = MILAN_ID_MAGIC)`, each invoked as `MILAN_FORGE(id)`. Neither literally names `id` before substitution. Baseline and literal-only probes accept both without a compiler.
+
+The assignment explicitly requires both refused in this mode. The implementation therefore retains the blanket literal replacement-list refusal and also refuses an invocation between the sample and guard that substitutes the sample for a parameter used by that replacement list. An unused parameter remains accepted. This is a conservative check of this file's definitions and invocation arguments, not general macro expansion. Read-only uses through a used parameter are refused too; the cost table discloses that cost. Existing accepted cases are retained unchanged, and the two published hostile cases receive the same named replacement-rule refusal. R273-S3 remains outside this change.

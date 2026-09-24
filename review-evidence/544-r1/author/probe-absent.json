@@ -1,0 +1,21 @@
+[
+  {
+    "label": "R272 plain macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+  },
+  {
+    "label": "R273 parenthesized macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample macro replacement rule: MILAN_FORGE substitutes id for used parameter x between the CSR read and mismatch guard; without a compiler even a read-only macro use of the sample is refused"
+  },
+  {
+    "label": "literal sample macro",
+    "verdict": "REFUSED",
+    "reason": "identity-sample macro replacement rule: #define MILAN_FORGE names id in its replacement list; without a compiler no macro may touch the CSR identity sample"
+  },
+  {
+    "label": "R273-S3 missing else",
+    "verdict": "ACCEPTED"
+  }
+]
