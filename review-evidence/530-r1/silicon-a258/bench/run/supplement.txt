@@ -1,0 +1,28 @@
+bound window 47.998910 .. 768.007468 (720.009 s); streaming 54.376308 .. 768.015610 (713.639 s); first Listener Ready 54.375814
+
+== 1. LeaveAll MRPDUs inside the streaming interval (first .. last CRF PDU)
+switch: bound 56, streaming 56, bound but before the first PDU []; streaming spacing s n=55 min=10.000 median=12.611 mean=12.665 max=15.000; first 58.900364 last 755.495161; first after first PDU 4.524 s, last before last PDU 12.520 s
+DUT: bound 57, streaming 56, bound but before the first PDU [48.899429]; streaming spacing s n=55 min=10.000 median=12.800 mean=12.731 max=15.000; first 59.699454 last 759.901132; first after first PDU 5.323 s, last before last PDU 8.114 s
+
+== 2. Re-declarations across LeaveAll
+switch Listener after each DUT LeaveAll with a Listener registered (after the first Ready, to the unbind): n=56 n=56 min=0.000 median=0.000 mean=0.003 max=0.093, missing 0
+   slowest five: [(0.093332, 625.30081), (0.004501, 98.499555), (0.003645, 174.499737), (0.003583, 326.5001), (0.003548, 211.499825)]
+DUT TalkerAdvertise after each switch LeaveAll in the streaming interval: n=56 n=56 min=0.004 median=0.008 mean=0.048 max=0.199, missing 0
+DUT LeaveAlls bound but before the first Listener Ready (no Listener to re-declare yet): [48.899429]
+
+== 3. CRF emission against the first Listener Ready
+CRF PDUs from the DUT in the whole capture before the first Listener Ready: 0
+first probe answer [48.007733, 'TALKER_DEST_MAC_FAIL'] ; CRF PDUs between it and the first Ready (6.368 s): 0
+first PDU - first Ready = 0.494 ms; switch Listener messages before the first PDU: [(54.375814, 'New', 'Ready')]
+DUT TalkerAdvertise between the bind and the first Ready: 10; first three [(48.099434, 'New'), (48.299425, 'New'), (48.499435, 'JoinMt')]
+inter-PDU interval over the whole stream: n=356815 min=1.995 median=2.000 mean=2.000 max=2.005; PDUs after the unbind: 5 (last 0.008142 s after it)
+
+== 4. DUT Stream Output 1 GET_COUNTERS responses on the tap (hardware time)
+responses 870; status not SUCCESS 0
+   8.005357 {'STREAM_START': 0, 'STREAM_STOP': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 0}
+   55.005489 {'STREAM_START': 1, 'STREAM_STOP': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 0}
+   769.005111 {'STREAM_START': 1, 'STREAM_STOP': 1, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 714}
+FRAMES_TX before the first PDU: [0]; after it: first [(55.005489435, 0), (56.005468071, 1)], final (877.005097912, 714); read-to-read steps {1: 714, 0: 108}
+intervals touched by the stream, by tick phase: [714, 715] (= ceil or floor+1 of 713.639 s)
+tick phases (tap s mod 1, 1 ms grid) for which all 823 responses match the semantics: [(16, 376)] ms; as the first boundary after the first PDU: [(0.64, 1.0)] s later
+final FRAMES_TX 714 = intervals touched at those phases: [714]
