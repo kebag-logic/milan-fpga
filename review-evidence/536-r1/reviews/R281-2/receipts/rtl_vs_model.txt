@@ -1,0 +1,62 @@
+probe stdout tail: PROBE DONE after MilanInfoPhase: 731 checks, 0 FAIL
+probe exit: 0
+rows from the head feature: 26; reviewer extras: 26
+MATCH | ROW mvu 0x0000 Figure 5.3 | cmd cdl 20 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect status 0 cdl 32
+MATCH | ROW mvu 0x0001 Figure 5.5 | cmd cdl 28 | RTL mt 7 status 1 cdl 28 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 28 len 60 | expect status 1 cdl 28
+MATCH | ROW mvu 0x0002 Figure 5.3 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mvu 0x0003 Figure 5.6 | cmd cdl 92 | RTL mt 7 status 1 cdl 92 len 118 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 92 len 118 | expect status 1 cdl 92
+MATCH | ROW mvu 0x0004 Figure 5.7 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard FF-1B-C5-0A-C1-00 w0x0000 res0x0000 cdl20 (@22, the first OUI-36 octet) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-FF-C5-0A-C1-00 w0x0000 res0x0000 cdl20 (@23, the second OUI-36 octet) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-FF-0A-C1-00 w0x0000 res0x0000 cdl20 (@24, the third OUI-36 octet) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-FF-C1-00 w0x0000 res0x0000 cdl20 (@25, the fourth OUI-36 octet) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-FF-00 w0x0000 res0x0000 cdl20 (@26, the last OUI-36 nibble and protocol id's top) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-D1-00 w0x0000 res0x0000 cdl20 (@26 high nibble only: OUI-36 00-1B-C5-0A-D) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-C2-00 w0x0000 res0x0000 cdl20 (@26 low nibble only: protocol id 0x200) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-C1-FF w0x0000 res0x0000 cdl20 (@27, the protocol id's low octet) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-C1-01 w0x0000 res0x0000 cdl20 (@27 by one bit: protocol id 0x101, same OUI-36) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-C1-00 w0x8000 res0x0000 cdl20 (r = 1, which 5.4.3.2.2 requires to be 0) | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW guard 00-1B-C5-0A-C1-00 w0x0000 res0x0000 cdl19 (one octet short of Figure 5.3) | cmd cdl 19 | RTL mt 7 status 1 cdl 19 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 19 len 60 | expect status 1 cdl 19
+MATCH | ROW guard 00-1B-C5-0A-C1-00 w0x0000 res0xDEAD cdl20 (a junk reserved field (5.4.4.1)) | cmd cdl 20 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect status 0 cdl 32
+MATCH | ROW guard 00-1B-C5-0A-C1-00 w0x0000 res0x0000 cdl24 (four octets past Figure 5.3) | cmd cdl 24 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect status 0 cdl 32
+MATCH | ROW guard 00-1B-C5-0A-C1-00 w0x0000 res0x0000 cdl112 (92 octets past Figure 5.3) | cmd cdl 112 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect status 0 cdl 32
+MATCH | ROW mt 0 AEM_COMMAND | cmd cdl 20 | RTL mt 1 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 1 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 2 ADDRESS_ACCESS_COMMAND | cmd cdl 20 | RTL mt 3 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 3 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 4 AVC_COMMAND | cmd cdl 20 | RTL mt 5 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 5 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 8 HDCP_APM_COMMAND | cmd cdl 20 | RTL mt 9 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 9 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 10 reserved | cmd cdl 20 | RTL mt 11 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 11 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 12 reserved | cmd cdl 20 | RTL mt 13 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 13 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | ROW mt 14 EXTENDED_COMMAND | cmd cdl 20 | RTL mt 15 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 15 status 1 cdl 20 len 60 | expect status 1 cdl 20
+MATCH | EXTRA guard 00-1B-C5-0A-C0-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-C3-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-01-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-F1-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-41-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-CF-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0B-C1-00 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA guard 00-1B-C5-0A-C1-80 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA served-long cdl21 | cmd cdl 21 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl27 | cmd cdl 27 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl28 | cmd cdl 28 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl60 | cmd cdl 60 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl200 | cmd cdl 200 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl300 | cmd cdl 300 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl400 | cmd cdl 400 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MATCH | EXTRA served-long cdl500 | cmd cdl 500 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+MISMATCH | EXTRA served-long cdl592 | cmd cdl 592 | RTL SILENCE cmd+0 rsp+0 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+   cmd   0a0b0c0d0e0f0202deadbeef22f0fb060250123456789abcdef07777000000000042d02a001bc50ac10000000000000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b
+   rtl   SILENCE
+   model 0202deadbeef0a0b0c0d0e0f22f0fb070020123456789abcdef07777000000000042d02a001bc50ac100000000000000000100000000000000000000
+MISMATCH | EXTRA served-long cdl600 | cmd cdl 600 | RTL SILENCE cmd+0 rsp+0 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect ?
+   cmd   0a0b0c0d0e0f0202deadbeef22f0fb060258123456789abcdef07777000000000042d02b001bc50ac10000000000000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebfc0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedfe0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40414243
+   rtl   SILENCE
+   model 0202deadbeef0a0b0c0d0e0f22f0fb070020123456789abcdef07777000000000042d02b001bc50ac100000000000000000100000000000000000000
+MATCH | EXTRA word 0x0001 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA word 0x0005 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA word 0x7FFF cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA word 0xFFFF cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA word 0x0100 cdl20 | cmd cdl 20 | RTL mt 7 status 1 cdl 20 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 20 len 60 | expect echo
+MATCH | EXTRA foreign-pid Figure 5.5 | cmd cdl 28 | RTL mt 7 status 1 cdl 28 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 28 len 60 | expect echo
+MATCH | EXTRA foreign-pid Figure 5.6 | cmd cdl 92 | RTL mt 7 status 1 cdl 92 len 118 cmd+1 rsp+1 extra=0 | model mt 7 status 1 cdl 92 len 118 | expect echo
+MATCH | EXTRA served cdl32 junk tail | cmd cdl 32 | RTL mt 7 status 0 cdl 32 len 60 cmd+1 rsp+1 extra=0 | model mt 7 status 0 cdl 32 len 60 | expect served
+TOTAL 52 frames, 2 byte-exact mismatches

@@ -1,0 +1,49 @@
+--- sim_main.orig.cpp	2026-09-24 06:34:38.009734993 +0200
++++ pp/tb/pp_top/sim_main.cpp	2026-09-24 06:34:38.029000000 +0200
+@@ -19,6 +19,7 @@
+ // address reaches acmp_declaring_o, the ACMP answer and the SRP wire.
+ #include <algorithm>
+ #include <cstdint>
++#include <cstdlib>
+ #include <cstdio>
+ #include <cstring>
+ #include <deque>
+@@ -8253,6 +8254,38 @@
+     ReadDescriptorPhase{h, d, image_entity, image_clkdom}.run();
+     NamePhase{h, image_entity, image_clkdom}.run();
+     MilanInfoPhase{h, d, image_entity}.run();
++    if (const char* pin = std::getenv("PROBE_IN")) {
++      FILE* fi = std::fopen(pin, "r");
++      FILE* fo = std::fopen(std::getenv("PROBE_OUT"), "w");
++      static char line[16384];
++      while (fi && fo && std::fgets(line, sizeof line, fi)) {
++        std::vector<uint8_t> f;
++        for (char* p = line; p[0] && p[1] && p[0] != '\n'; p += 2) {
++          unsigned b = 0;
++          std::sscanf(p, "%2x", &b);
++          f.push_back(uint8_t(b));
++        }
++        if (f.empty()) continue;
++        const uint16_t c0 = d->dbg_aecp_cmd_o;
++        const uint16_t r0 = d->dbg_aecp_resp_o;
++        h.q_aecp.clear();
++        h.feed(f);
++        auto got = h.wait_any(h.q_aecp, 200);
++        h.idle(50);
++        std::fprintf(fo, "RSP ");
++        if (got.empty()) std::fprintf(fo, "SILENCE");
++        for (uint8_t b : got) std::fprintf(fo, "%02x", b);
++        std::fprintf(fo, " cmd+%u rsp+%u extra=%zu\n",
++                     unsigned(uint16_t(d->dbg_aecp_cmd_o - c0)),
++                     unsigned(uint16_t(d->dbg_aecp_resp_o - r0)),
++                     h.q_aecp.size());
++      }
++      if (fo) std::fclose(fo);
++      if (fi) std::fclose(fi);
++      std::printf("PROBE DONE after MilanInfoPhase: %d checks, %d FAIL\n",
++                  h.checks, h.fails);
++      std::exit(h.fails ? 1 : 0);
++    }
+     ResponseBufferPhase{h, d, image_entity, image_clkdom}.run();
+     CountersPhase{h, d, image_entity}.run();
+     AudioMapPhase{h, d, image_spi1}.run();
