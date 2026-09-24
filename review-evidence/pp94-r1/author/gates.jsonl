@@ -1,0 +1,13 @@
+{"name": "hdl-lint", "command": ["./scripts/lint_hdl.sh"], "rc": 0, "seconds": 11.95, "finished": "2026-09-24T08:43:19.420993+00:00"}
+{"name": "docs-check", "command": ["make", "check"], "rc": 2, "seconds": 32.53, "finished": "2026-09-24T08:44:24.205192+00:00"}
+{"name": "portability", "command": ["./syn/yosys/run.sh"], "rc": 0, "seconds": 77.93, "finished": "2026-09-24T08:44:25.402503+00:00"}
+{"name": "docs-check", "command": ["make", "check"], "rc": 0, "seconds": 28.64, "finished": "2026-09-24T08:45:33.719572+00:00"}
+{"name": "ci-links", "command": ["python3", "scripts/check-links.py"], "rc": 0, "seconds": 0.11, "finished": "2026-09-24T08:45:50.263344+00:00"}
+{"name": "ci-matrix", "command": ["python3", "scripts/check-matrix.py"], "rc": 0, "seconds": 0.03, "finished": "2026-09-24T08:45:50.345054+00:00"}
+{"name": "ci-wavedrom", "command": ["python3", "scripts/render-wavedrom.py", "--check"], "rc": 0, "seconds": 0.46, "finished": "2026-09-24T08:45:50.840779+00:00"}
+{"name": "ci-stale", "command": ["make", "stale"], "rc": 0, "seconds": 0.06, "finished": "2026-09-24T08:45:50.955327+00:00"}
+{"name": "ci-traceability", "command": ["python3", "scripts/gen_matrix.py", "--check"], "rc": 0, "seconds": 0.06, "finished": "2026-09-24T08:45:51.069598+00:00"}
+{"name": "docs-check", "command": ["make", "check"], "rc": 0, "seconds": 27.99, "finished": "2026-09-24T08:47:51.597410+00:00"}
+{"name": "nvm-figures", "command": ["make", "-C", "tb/nvm_port", "figures"], "rc": 0, "seconds": 261.88, "finished": "2026-09-24T08:49:02.248114+00:00"}
+{"name": "full-simulation-bank", "command": ["bash", "scripts/run_suites.sh"], "rc": 0, "seconds": 407.33, "finished": "2026-09-24T08:49:54.787776+00:00"}
+{"name": "diff-check", "command": ["git", "diff", "--cached", "--check"], "rc": 0, "seconds": 0.02, "finished": "2026-09-24T08:50:17.827631+00:00"}
