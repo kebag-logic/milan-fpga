@@ -1,0 +1,50 @@
+endstation_ax7101_1x1_tdm8
+{
+  "image_bytes": 3264,
+  "raw_area_bytes": 3218,
+  "record_count": 53,
+  "pages": 13,
+  "program_ms": 65,
+  "readback_ms": 2.08896,
+  "worst_commit_ms": 3067.08896,
+  "deadline_margin": 2.608336472901001,
+  "erase_percent": 97.81261773378755,
+  "slot_percent": 4.98046875,
+  "slot_percent_gate": 4,
+  "instructions": 21958,
+  "ddr_accesses": 6436,
+  "cycles": 412660,
+  "copy_ms": 8.2532,
+  "copy_2x_ms": 16.5064,
+  "hold_margin": 6.058256191537828,
+  "hold_2x_margin": 3.029128095768914,
+  "durable_ms": 4567.08896
+}
+endstation_ax7101_8x8
+{
+  "image_bytes": 12680,
+  "raw_area_bytes": 12634,
+  "record_count": 156,
+  "pages": 50,
+  "program_ms": 250,
+  "readback_ms": 8.1152,
+  "worst_commit_ms": 3258.1152,
+  "deadline_margin": 2.45540734716808,
+  "erase_percent": 92.07777551880301,
+  "slot_percent": 19.34814453125,
+  "slot_percent_gate": 19,
+  "instructions": 83604,
+  "ddr_accesses": 25268,
+  "cycles": 1594080,
+  "copy_ms": 31.8816,
+  "copy_2x_ms": 63.7632,
+  "hold_margin": 1.5683027200642377,
+  "hold_2x_margin": 0.7841513600321188,
+  "durable_ms": 4758.1152,
+  "dram_window_bytes": 56776,
+  "alternative_bram36": 4
+}
+Sources: figures_head.json from unchanged tree_figures.py;
+gate nvm_shape.commit_worst_ms and nvm_contract constants;
+FASTCONNECT 8.1 window terms; SNAPSHOT_OWNERSHIP 18 copy model;
+MATERIALIZATION 12 debounce terms. No hardware measurement.

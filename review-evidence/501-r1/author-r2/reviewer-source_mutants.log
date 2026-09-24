@@ -1,0 +1,8 @@
+gate_accept_oversize [check_nvm_record_space.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first: FINDING: endstation_ax7101_8x8: over-capacity journal was not refused atomically
+shape_one_short [check_nvm_record_space.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first: FINDING: endstation_ax7101_1x1_tdm8: the KLJ2 image this gate encoded does not decode -- verdict VD_REC, 0 record(s) applied
+restore_drops_last [check_nvm_record_space.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first: FINDING: endstation_ax7101_8x8: cleared-first map restore lost keys on port 0
+restore_nothing [check_nvm_record_space.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first: FINDING: endstation_ax7101_8x8: cleared-first map restore lost keys on port 0
+fw_out_table_uses_in_entries [test_nvm_firmware.py]: rc=0 red=False expected_red=True named=True -> UNEXPECTED; first: 
+fw_out_table_uses_in_entries [run_cases.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first:   FAIL contract-8x8 W4_all_records_rewritten_after_refused_fill : no_durable_reading_when_nothing_open@rewritten -- records open 1, pending 1, backed 0, committable 1, status claims durable False, flash erases 0, premise
+fw_out_plen_old_nine [test_nvm_firmware.py]: rc=1 red=True expected_red=True named=True -> AS EXPECTED; first: FINDING: endstation_arty_4x4: blank boot did not report two blank slots and no offer: None
+restored all mutated files to original bytes

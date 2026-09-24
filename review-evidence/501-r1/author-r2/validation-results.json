@@ -1,0 +1,290 @@
+[
+  {
+    "name": "record-space",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "seconds": 1.969
+  },
+  {
+    "name": "record-space-selftest",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 30.562
+  },
+  {
+    "name": "nvm-backend",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/nvm_backend"
+    ],
+    "rc": 0,
+    "seconds": 0.616
+  },
+  {
+    "name": "nvm-cosim",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/nvm_cosim"
+    ],
+    "rc": 0,
+    "seconds": 401.663
+  },
+  {
+    "name": "firmware",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py"
+    ],
+    "rc": 0,
+    "seconds": 25.871
+  },
+  {
+    "name": "firmware-selftest",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 39.709
+  },
+  {
+    "name": "builder",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    "rc": 0,
+    "seconds": 445.89
+  },
+  {
+    "name": "docs-git",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.223
+  },
+  {
+    "name": "docs-no-git",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "env",
+      "GIT_DIR=/tmp/501-a288-vgzgum4g/absent-git",
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 4.022
+  },
+  {
+    "name": "em-dash",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "573f0052a0e4412e81f0845438fcec2086ce5d55"
+    ],
+    "rc": 0,
+    "seconds": 3.128
+  },
+  {
+    "name": "doc-style",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.065
+  },
+  {
+    "name": "toc",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 3.484
+  },
+  {
+    "name": "doc-paths",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.117
+  },
+  {
+    "name": "module-matrix",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.021
+  },
+  {
+    "name": "python-idiom",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 3.121
+  },
+  {
+    "name": "cpp-idiom",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.322
+  },
+  {
+    "name": "diff-check",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "name": "diff-base-check",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "573f0052a0e4412e81f0845438fcec2086ce5d55",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "probe-figures",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/probes/tree_figures.py",
+      ".",
+      "$EVIDENCE/figures_head.json"
+    ],
+    "rc": 0,
+    "seconds": 0.665
+  },
+  {
+    "name": "probe-compare",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/probes/compare_figures.py",
+      "$EVIDENCE/reviewer-figures_base.json",
+      "$EVIDENCE/figures_head.json",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "name": "probe-hold",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/probes/hold_margin.py",
+      "$EVIDENCE/reviewer-figures_base.json",
+      "$EVIDENCE/figures_head.json"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "name": "probe-hold-r312",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/probes/hold_margin_r312.py"
+    ],
+    "rc": 0,
+    "seconds": 0.016
+  },
+  {
+    "name": "probe-crash",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "env",
+      "PYTHONPATH=$LANES/501-outmap-record/scripts",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "$EVIDENCE/probes/selftest_crash_probe.py",
+      "/tmp/501-a288-vgzgum4g/crash-copy"
+    ],
+    "rc": 0,
+    "seconds": 5.031
+  },
+  {
+    "name": "figure-derivation",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/derive_figures.py",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "refusal-paths",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "$EVIDENCE/probe_refusal_paths.py",
+      "."
+    ],
+    "rc": 0,
+    "seconds": 15.352
+  },
+  {
+    "name": "builder-preservation-isolated",
+    "validated_head": "dd6a68e9063c3f7aa81536197254d187e9cb65ba",
+    "command": [
+      "python3",
+      "-c",
+      "import sys; sys.path.insert(0,\"sw/builder\"); import test_builder; test_builder.test_build_sh_refuses_a_preservation_it_cannot_complete()"
+    ],
+    "rc": 0,
+    "seconds": 2.519
+  }
+]
