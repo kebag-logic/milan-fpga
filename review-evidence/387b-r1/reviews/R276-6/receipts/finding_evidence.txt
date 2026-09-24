@@ -1,0 +1,39 @@
+# head 0f003fab: every tracked statement of a 2700 s budget/deadline (outside submodules)
+docs/testing/CI_WORKFLOWS.md:167:That 1800 s deadline became 2700 s under #444.
+docs/testing/RUNNING_TESTS.md:79:with an 1800-second deadline except `milan_dp`, which has 2700 seconds (#444).
+docs/testing/TESTING.md:166:The default driver permits 1800 seconds per suite, and 2700 seconds for `milan_dp`.
+scripts/measure_test_evidence_selftest.py:294:                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
+tb/verilator/milan_dp/render_mutants.py:37:per-suite guard, suite_timeout = 2700 s (#444), and reports a kill as TIMEOUT, an
+tb/verilator/milan_dp_gptp/README.md:31:The historical `milan_dp` suite has its own 2700-second budget (#444).
+
+# runner at head
+39:#                        Defaults: 1800 s; milan_dp gets 3600 s and the
+245:    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+
+# runner points readers at TESTING.md
+41:#                        See docs/testing/TESTING.md for the physical timer floor.
+
+# S1: README census row vs head run
+| `obj_aclk` (`sim_aclk`) | 5 / 0 | **139 / 0** | the #74 two-phase rework: INTE
+media_aclk: 143 checks, 0 failures
+RESULT: PASS
+
+# S2: gmstep-build prerequisites vs is_fresh inputs
+63:GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F) $(SHAPE_AX1_F)
+323:gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+370:option-off-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+def is_fresh(leg: Leg, exe: Path) -> bool:
+    """True when `exe` exists and is no older than any input of its recipe:
+    the Makefile's SRCS (`make print-srcs`), the leg's harness and the
+    Makefile itself. A list that cannot be read counts as stale."""
+    # GNU make 4.3 can inherit directory printing from a parent recipe even
+    # with -s. Keep that chatter out of the source-path inventory for both legs.
+    out = subprocess.run(["make", "--no-print-directory", "-s", "-C", str(HERE), "print-srcs"],
+                         capture_output=True, text=True, check=False)
+    if out.returncode != 0 or not exe.is_file():
+        return False
+    inputs = [HERE / name for name in out.stdout.split()]
+    inputs += [HERE / leg.harness, HERE / "Makefile"]
+    built = exe.stat().st_mtime
+    return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
+

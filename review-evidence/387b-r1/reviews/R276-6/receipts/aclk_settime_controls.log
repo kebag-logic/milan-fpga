@@ -1,0 +1,8 @@
+[PASS] control settime removed from the render trigger: rc=1 no tally
+    [FAIL] RENDER-SETTIME: the settime reaches the stage as one pulse got=0 exp=1
+    [FAIL] RENDER-SETTIME: the settime executes one render re-base    got=0 exp=1
+    [FAIL] RENDER-SETTIME: no later re-base pulse                     got=0 exp=1
+    [FAIL] RENDER-SETTIME: the render re-base remains counted once    got=0 exp=1
+[PASS] control settime re-bases the render stage again 30 PDUs later: rc=1 no tally
+    [FAIL] RENDER-SETTIME: no later re-base pulse                     got=2 exp=1
+    [FAIL] RENDER-SETTIME: the render re-base remains counted once    got=2 exp=1

@@ -1,0 +1,20 @@
+GNU Make 4.4.1
+make: Entering directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+python3 $PACKET/scripts/fresh_probe.py $PACKET/scratch/tree/tb/verilator/milan_dp $PACKET/scratch/tree/tb/verilator/milan_dp/gmstep_mutants.py head
+[head] make on PATH: GNU Make 4.4.1
+[head] MAKELEVEL='1' MAKEFLAGS=' -- LABEL=head RUNNER=$PACKET/scratch/tree/tb/verilator/milan_dp/gmstep_mutants.py PROBE_PY=$PACKET/scripts/fresh_probe.py'
+[head] make -s ... print-srcs: rc=0 tokens=109 non-file tokens=[]
+[head] make --no-print-directory -s ... print-srcs: rc=0 tokens=109 non-file tokens=[]
+[head] leg gmstep: exe exists=True is_fresh: True
+[head] leg option-off: exe exists=True is_fresh: True
+make: Leaving directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+make: Entering directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+python3 $PACKET/scripts/fresh_probe.py $PACKET/scratch/tree/tb/verilator/milan_dp $TMP/gmstep_mutants_a21cd358.py a21cd358
+[a21cd358] make on PATH: GNU Make 4.4.1
+[a21cd358] MAKELEVEL='1' MAKEFLAGS=' -- LABEL=a21cd358 RUNNER=$TMP/gmstep_mutants_a21cd358.py PROBE_PY=$PACKET/scripts/fresh_probe.py'
+[a21cd358] make -s ... print-srcs: rc=0 tokens=109 non-file tokens=[]
+[a21cd358] make --no-print-directory -s ... print-srcs: rc=0 tokens=109 non-file tokens=[]
+[a21cd358] leg gmstep: exe exists=True is_fresh: True
+[a21cd358] leg option-off: exe exists=True is_fresh: True
+make: Leaving directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+RESULT head_all_fresh=yes a21cd358_all_fresh=yes

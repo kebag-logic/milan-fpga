@@ -1,0 +1,18 @@
+make: Entering directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+python3 $PACKET/scripts/run_gmstep_controls.py $PACKET/scratch/tree/tb/verilator/milan_dp $PACKET/scratch/ctl2 --head 7 8 9 10 --extra step_toggles_twice_gmstep
+---- h7: the grandmaster change stops the talker for good (leg gmstep, must break 'licence: the talker never pauses beyond four of its intervals')
+[PASS] control caught: the grandmaster change stops the talker for good - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 6 check(s): tu: talker PDUs graded inside the hold; tu: talker PDUs graded after tu clears; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: the outgoing mr toggles exactly once; restart: the talker's MEDIA_RESET counts exactly one
+---- h8: the step's re-centre snaps one event off the setpoint (leg gmstep, must break 'render: every PDU push leaves the target fill across the event')
+[PASS] control caught: the step's re-centre snaps one event off the setpoint - breaks "render: every PDU push leaves the target fill across the event"
+    it broke 1 check(s): render: every PDU push leaves the target fill across the event
+---- h9: a software settime does not toggle mr (leg option-off, must break 'CLKV: the settime toggled mr once more (#387)')
+[PASS] control caught: a software settime does not toggle mr - breaks "CLKV: the settime toggled mr once more (#387)"
+    it broke 2 check(s): CLKV: the settime toggled mr once more (#387); CLKV: ... and MEDIA_RESET counted that toggle once (#387)
+---- h10: the step's mr toggle is gated by the CRF clock-source selection (leg option-off, must break 'CLKV: its mr toggled once per PHC step issued so far (#387)')
+[PASS] control caught: the step's mr toggle is gated by the CRF clock-source selection - breaks "CLKV: its mr toggled once per PHC step issued so far (#387)"
+    it broke 2 check(s): CLKV: its mr toggled once per PHC step issued so far (#387); CLKV: ... and MEDIA_RESET counted that toggle once (#387)
+---- x_step_toggles_twice_gmstep: R276: the step requests a second restart 3000 cycles later (leg gmstep, must break 'restart: the outgoing mr toggles exactly once')
+[PASS] control caught: R276: the step requests a second restart 3000 cycles later - breaks "restart: the outgoing mr toggles exactly once"
+    it broke 3 check(s): restart: the outgoing mr toggles exactly once; restart: every mr toggle is first sent right after the step; restart: the talker's MEDIA_RESET counts exactly one
+make: Leaving directory '$PACKET/scratch/tree/tb/verilator/milan_dp'

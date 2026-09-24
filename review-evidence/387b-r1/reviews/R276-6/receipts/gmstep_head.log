@@ -1,0 +1,101 @@
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C40236BA0E (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote tb/verilator/milan_dp/obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+[gen_aemi_image] obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 41 descriptors -> obj_gmstep/aemi.bin, 7352 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 38
+index_off 0x000020  names_off 0x001338  image_bytes 7352  desc_max_len 452
+checksum 0xBCE6827F
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      2        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x0006D0          -
+    0  0x000D      0      1       452     456  0x000718          -
+    0  0x000E      0      1        20      24  0x0008E0          -
+    0  0x000F      0      1        20      24  0x0008F8          -
+    0  0x0014      0     25        90      96  0x000910         11
+    0  0x001A      0      1       113     120  0x001270         36
+    0  0x0024      0      1        80      80  0x0012E8         37
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.024 s (elab=0.000, cvt=0.000, bld=0.022); cpu 0.003 s on 8 threads; allocated 16.629 MB
+gmstep: feed delay 0 cycles
+gmstep: 2 MHz fabric, 8 ns PHC, quarter tick 131072 cycles
+  [ ok ] acquisition: CLKV healthy (asCapable, sync, tu clear) got=0x10002 exp=0x10002
+  [ ok ] acquisition: the link-up pair stepped the PHC once got=1 exp=1
+  [ ok ] acquisition: the counter saw exactly that step got=1 exp=1
+  [ ok ] acquisition: that step exceeds the 20 us link-up threshold
+  [ ok ] acquisition: the published grandmaster is GM A got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] media: SET_CLOCK_SOURCE to the CRF answers SUCCESS got=0 exp=0
+  [ ok ] media: the root resolves the CRF selection got=1 exp=1
+  [ ok ] media: the CRF sink is locked            got=1 exp=1
+  [ ok ] media: the talker gate is open           got=0x8 exp=0x8
+  [ ok ] baseline: the listener accepted PDUs
+RENDER: fill after each push 14..14 events (target 14 = setpoint 8 + 6); fill at accept 9..9 (the accept phase, not graded)
+  [ ok ] baseline: every PDU push leaves the #386 target fill got=0 exp=0
+  [ ok ] baseline: the talker streams
+TALKER: baseline interval 642.0 cycles
+  [ ok ] baseline: no talker PDU carries tu       got=0 exp=0
+  [ ok ] baseline: no render recentre             got=0 exp=0
+  [ ok ] event: tu is clear before the change     got=0 exp=0
+EVENT: GM B announced at cycle 7216711
+EVENT: identity 7217167, counters read 7222550, step pulse 7377296, step 7377301 (1500000020 ns), tu rise 7217166 fall 7602192
+  [ ok ] event: the published grandmaster became GM B
+  [ ok ] event: the plane stepped the PHC exactly once got=1 exp=1
+  [ ok ] event: the counter saw exactly that step got=1 exp=1
+  [ ok ] event: the step is the 1.5 s between the grandmasters, within 1 us
+  [ ok ] event: the step follows the commit
+  [ ok ] event: the counters were read between the commit and the step
+  [ ok ] tu: set in the first cycle the bank names GM B got=1 exp=1
+  [ ok ] tu: cleared after the step
+TU: held 224891 cycles after the step (quarter tick 131072)
+  [ ok ] tu: held at least the 0.25 s holdover after the step
+  [ ok ] tu: cleared within the holdover's bound
+  [ ok ] tu: clear at the end of the window       got=0 exp=0
+  [ ok ] tu: talker PDUs graded inside the hold
+  [ ok ] tu: talker PDUs graded after tu clears
+  [ ok ] tu: every talker PDU carries the verdict of its instant got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 1286 PDUs over 825926 cycles to the window end (baseline rate: 1286), longest pause 708, last PDU 314 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +2, LATE_TIMESTAMP +0, FRAMES_RX +3304 (accepts seen 3283..3325)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+RENDER: counted recentre at cycle 7377428 (step pulse +132)
+RENDER: 1 counted recentres from 1 trigger pulses
+  [ ok ] render: the GM change is one counted re-base event got=1 exp=1
+  [ ok ] render: every counted re-base lands at a PDU end right after the step got=0 exp=0
+  [ ok ] render: no reset rail across the event   got=0 exp=0
+  [ ok ] render: PDUs accepted across the event
+  [ ok ] render: every PDU push leaves the target fill across the event got=0 exp=0
+RESTART: mr toggle first sent at cycle 7377412 (step pulse +116)
+  [ ok ] restart: the outgoing mr toggles exactly once got=1 exp=1
+  [ ok ] restart: every mr toggle is first sent right after the step got=0 exp=0
+  [ ok ] restart: the Stream Output counters are valid before the change got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid between commit and step got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid after the event got=0x1f exp=0x1f
+  [ ok ] restart: MEDIA_RESET does not move between the commit and the step got=0 exp=0
+  [ ok ] restart: the talker's MEDIA_RESET counts exactly one got=1 exp=1
+simulated_cycles=8042838
+== gmstep: checks: 48   failures: 0 ==
+RESULT: PASS

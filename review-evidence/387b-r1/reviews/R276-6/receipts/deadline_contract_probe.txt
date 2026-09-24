@@ -1,0 +1,4 @@
+head: no problems
+SUITE_TIMEOUT:-3600 -> SUITE_TIMEOUT:-2700: ['the declared 1800/3600/5400-second suite budgets changed']
+SUITE_TIMEOUT:-3600 -> SUITE_TIMEOUT:-3599: ['the declared 1800/3600/5400-second suite budgets changed']
+SUITE_TIMEOUT:-3600 -> SUITE_TIMEOUT:-7200: ['the declared 1800/3600/5400-second suite budgets changed']

@@ -1,0 +1,11 @@
+verilator wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f
+#!/bin/sh
+exec env VERILATOR_ROOT=$IMAGE_LAYER/usr/share/verilator $IMAGE_LAYER/usr/bin/verilator "$@"
+
+Verilator 5.050 2026-07-01 rev v5.050
+44898b22af4178b45214a0820a04eeac8632ae721ff005e69ef1cf69121bbfdd  $IMAGE_LAYER/usr/bin/verilator_bin
+make 4.3 binary sha256: d78b8f1d099fbcfb6f2f49ab87223b9b68fb3956642f92d6ec6de812e8afa965 (GNU Make 4.3)
+host make: GNU Make 4.4.1
+Python 3.14.7
+g++ (GCC) 16.2.1 20260810
+docs venv: cffi==2.1.1 cmarkgfm==2025.10.22 html5lib==1.1 pycparser==3.0 PyYAML==6.0.3 six==1.17.0 webencodings==0.6.1 

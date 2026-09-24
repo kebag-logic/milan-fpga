@@ -1,0 +1,17 @@
+make: Entering directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
+python3 $PACKET/scripts/run_gmstep_controls.py $PACKET/scratch/tree/tb/verilator/milan_dp $PACKET/scratch/ctl1 --positive gmstep option-off --head 3 4 5 6
+[PASS] positive gmstep: pass
+[PASS] positive option-off: pass
+---- h3: the render re-base is keyed to the identity, not the step (leg gmstep, must break 'render: every counted re-base lands at a PDU end right after the step')
+[PASS] control caught: the render re-base is keyed to the identity, not the step - breaks "render: every counted re-base lands at a PDU end right after the step"
+    it broke 1 check(s): render: every counted re-base lands at a PDU end right after the step
+---- h4: tu reaches the talkers four cycles late (leg gmstep, must break 'tu: set in the first cycle the bank names GM B')
+[PASS] control caught: tu reaches the talkers four cycles late - breaks "tu: set in the first cycle the bank names GM B"
+    it broke 1 check(s): tu: set in the first cycle the bank names GM B
+---- h5: the plane's step does not re-arm the holdover (leg gmstep, must break 'tu: held at least the 0.25 s holdover after the step')
+[PASS] control caught: the plane's step does not re-arm the holdover - breaks "tu: held at least the 0.25 s holdover after the step"
+    it broke 1 check(s): tu: held at least the 0.25 s holdover after the step
+---- h6: tu stops the talker (leg gmstep, must break 'licence: the talker never pauses beyond four of its intervals')
+[PASS] control caught: tu stops the talker - breaks "licence: the talker never pauses beyond four of its intervals"
+    it broke 5 check(s): tu: talker PDUs graded inside the hold; licence: the talker never pauses beyond four of its intervals; licence: the talker keeps its baseline rate within 1%; restart: every mr toggle is first sent right after the step; restart: the talker's MEDIA_RESET counts exactly one
+make: Leaving directory '$PACKET/scratch/tree/tb/verilator/milan_dp'
