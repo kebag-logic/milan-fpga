@@ -106,6 +106,11 @@ class MilanDatapathHarness {
     long checks = 0;
     long fails = 0;
     long skipped = 0;
+    //! PHC steps this harness itself commanded (PTP_CMD settime or adjtime).
+    //! #387 makes each one an mr toggle, so the parity is the wire's mr level
+    //! while no talker streams: the expectation is what the harness did, not
+    //! a DUT read.
+    long phc_steps_issued = 0;
 
     void ck(const char* what, unsigned long got, unsigned long exp) {
         bool ok = (got == exp);
@@ -552,6 +557,7 @@ class MilanDatapathHarness {
             axi_write(A_PTP_OFLO, 100000);
             axi_write(A_PTP_OFHI, 0);
             axi_write(A_PTP_CMD2, 0x2);
+            phc_steps_issued++;
             uint64_t t5 = snap();
             ck("PHC adjtime hops the counter",
                (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
@@ -964,8 +970,13 @@ class MilanDatapathHarness {
         ck("CLKV: ownerless frame is still emitted", next_aaf(f), 1);
         ck("CLKV: ownerless frame carries tu=1",
            f.size() ? f[21] & 1 : 0xEE, 1);
+        //! every header bit of that byte but mr, which carries the restart
+        //! history below
         ck("CLKV: ownerless frame keeps tv=1",
-           f.size() ? f[19] : 0, 0x81);
+           f.size() ? f[19] & 0xF7 : 0, 0x81);
+        ck("CLKV: its mr toggled once per PHC step issued so far (#387)",
+           f.size() ? (f[19] >> 3) & 1 : 0xEE,
+           static_cast<unsigned long>(phc_steps_issued & 1));
         ck("CLKV: frame remains the full AAF PDU",
            static_cast<long>(f.size()), static_cast<long>(AAF_BYTES));
     }
@@ -1020,6 +1031,7 @@ class MilanDatapathHarness {
         constexpr uint16_t A_CLKV_TUCNT = 0x780;
         constexpr uint16_t A_PTP_CMD = 0x520;
         axi_write(A_PTP_CMD, 0x1);
+        phc_steps_issued++;
         ck("CLKV: PHC step arms holdover",
            (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
         ck("CLKV: PHC step keeps tu asserted",
