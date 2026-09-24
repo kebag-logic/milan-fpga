@@ -1,0 +1,38 @@
+## files changed by the PR (name-status):
+M	README.md
+M	REQUIREMENTS.md
+M	docs/MILAN_V12_ROADMAP.md
+M	docs/design/GPTP_PLANE.md
+M	docs/design/TIME_SYNC.md
+M	docs/guides/gptp/MANAGER.md
+M	docs/reference/FR_NFR.md
+M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+M	docs/reference/MILAN_FEATURE_STATUS.md
+M	docs/reference/SUBMODULES.md
+M	docs/traceability/ieee8021as.md
+## non-markdown files changed: 0
+## gitlink changes: 0
+## KL_gptp_shadow latency application sites:
+## any other hdl consumer of the latency params:
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv
+hdl/milan/milan_datapath.sv
+## gptp-processor top-level ports mentioning asym/lat:
+exit=0
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:36://                HERE (issue #358): INGRESS_LAT_NS_P is subtracted from the
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:37://                arrival stamp and EGRESS_LAT_NS_P is added to the
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:115:    parameter int unsigned INGRESS_LAT_NS_P = 0,
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:116:    parameter int unsigned EGRESS_LAT_NS_P  = 0
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:259:  end else if ((INGRESS_LAT_NS_P > 16'hFFFF) || (EGRESS_LAT_NS_P > 16'hFFFF))
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:268:    $error("KL_gptp_shadow: INGRESS_LAT_NS_P=%0d and EGRESS_LAT_NS_P=%0d must each fit 16 bits (0..65535 ns). The parent publishes both in one read-only
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:269:           INGRESS_LAT_NS_P, EGRESS_LAT_NS_P);
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:345:  assign ts_arr_corr_w = phc_ns_i - 64'(INGRESS_LAT_NS_P);
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:986:      .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P)
+hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:147:    parameter int unsigned EGRESS_LAT_NS_P = 0,
+hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:283:      longint'(TXTS_CORR_NS_P) - longint'(EGRESS_LAT_NS_P);
+hdl/milan/milan_datapath.sv:99:  parameter int unsigned GPTP_INGRESS_LAT_NS_P = 0,
+hdl/milan/milan_datapath.sv:100:  parameter int unsigned GPTP_EGRESS_LAT_NS_P  = 0,
+hdl/milan/milan_datapath.sv:1478:                             ? {16'(GPTP_INGRESS_LAT_NS_P),
+hdl/milan/milan_datapath.sv:1479:                                16'(GPTP_EGRESS_LAT_NS_P)} : 32'd0;
+hdl/milan/milan_datapath.sv:6771:        .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
+hdl/milan/milan_datapath.sv:6772:        .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)

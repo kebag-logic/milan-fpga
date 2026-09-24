@@ -1,0 +1,40 @@
+## gptp-processor asym grep (pinned c1b617435824929a790739ea8585c3fe1a328cc0), files only, all files:
+docs/diagrams/gptp_architecture.svg
+docs/history/v1/prototype/ARCHITECTURE.md
+docs/history/v1/prototype/BENCH_OPERATIONS.md
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+docs/history/v1/prototype/FSM_CONFORMANCE.md
+docs/history/v1/prototype/INTEGRATION_GUIDE.md
+docs/history/v1/prototype/IP_BLOCKS.md
+docs/history/v1/prototype/MGMT_INTERFACE.md
+docs/history/v1/prototype/RESOURCE_VALIDATION.md
+docs/history/v1/prototype/VERIFICATION.md
+docs/history/v1/prototype/diagrams/block_engine.svg
+docs/history/v1/prototype/diagrams/block_integration.svg
+docs/history/v1/prototype/diagrams/event_flow.svg
+docs/history/v1/prototype/diagrams/sync_followup.svg
+exit=0
+## excluding svg and docs/history (line hits):
+exit=1
+## parent grep hdl sw configs avdecc scripts:
+exit=1
+## parent grep -i asymm outside md files (files only):
+avdecc/aem_maps.py
+configs/endstation_ax7101_1x1_tdm8.yaml
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/ieee1722/crf/KL_crf_rx.sv
+scripts/entity_shape_selftest.py
+scripts/lint_rtl_policy.py
+sw/builder/test_builder.py
+tb/tools/torture_campaign.py
+tb/verilator/crf_rx/sim_main.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+tb/verilator/nvm_backend/Makefile
+tb/verilator/tkdiag/sim_main.cpp
+tests/features/counters_contract_milan.feature
+tests/features/milan_base_formats.feature
+exit=0
+## donor svg hit classification: occurrences not preceded by a base64 character:
+0
+(0 means every hit is inside base64 image data)

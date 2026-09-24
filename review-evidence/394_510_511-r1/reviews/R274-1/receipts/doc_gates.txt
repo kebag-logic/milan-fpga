@@ -1,0 +1,62 @@
+HEAD 64bcf768d28b4b9763fbe5917a734bcefa2a66e0
+
+=== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+
+=== python3 -B scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 199 added line(s) in 11 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+exit=0
+
+=== python3 -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (57 arm(s))
+exit=0
+
+=== python3 -B scripts/check_feature_status.py
+feature_status: 0 finding(s)
+exit=0
+
+=== python3 -B scripts/check_feature_status.py --self-test
+  PASS  missing milan_init refused
+  PASS  value register required
+  PASS  unknown register fact
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+exit=0
+
+=== python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 846 tracked first-party file(s))
+exit=0
+
+=== python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+exit=0
+
+=== python3 -B scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+exit=0
+
+=== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+exit=0
+
+=== python3 -B scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+exit=0
+
+=== python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 154 existing cross-page fragment links reproduced
+exit=0
+
+=== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (832 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+exit=0
+
+=== python3 -B scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+exit=0
+
+=== git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 HEAD
+exit=0

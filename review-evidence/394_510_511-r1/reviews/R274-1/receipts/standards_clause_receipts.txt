@@ -1,0 +1,73 @@
+# pdftotext -layout over the local standards archive ($STANDARDS_DIR); source PDF sha256:
+a07215b346fe0019b719b445abd4acb96d687f822b85c55ee1030d7195298ae3  802.1AS-2011.pdf
+e704e89c636e7b1e94db3af7afab619c9f8d137ba12211c99d55abeac370f31a  802.1AS-2011_Cor1-2013.pdf
+dbe16669ca5e647c8a6d5cf2ed5356eb258beefd7b9c12ec9d260727e65a0080  802.1AS-2011_Cor_2-2015.pdf
+6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8  Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf
+
+## 802.1AS-2011 (line numbers are in the -layout extraction)
+  2081: Std 802.1AS-2011                              IEEE STANDARD FOR LOCAL AND METROPOLITAN AREA NETWORKS—
+  2134: In other words, delayAsymmetry is defined to be positive when the responder to initiator propagation time is
+  2137: This standard does not explicitly require the measurement of delayAsymmetry; however, if
+  2138: delayAsymmetry is modeled, it shall be modeled as specified in this clause.
+  3790: 10.2.4.5 syncInterval: a variable containing the mean time-synchronization event message transmission
+  3802: 10.2.4.8 delayAsymmetry: the asymmetry in the propagation delay on the link attached to this port relative
+  3803: to the grandmaster time base, as defined in 8.3. If propagation delay asymmetry is not modeled, then
+  3804: delayAsymmetry is zero.
+  4532: 10.2.12 ClockSlaveSync state machine
+  4614: syncReceiptTime = rcvdPSSyncPtr->preciseOriginTimestamp + rcvdPSSyncPtr->followUpCorrectionField +
+  4615: neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+  4616: syncReceiptLocalTime = rcvdPSSyncPtr->upstreamTxTime + neighborPropDelay/neighborRateRatio +
+  4617: delayAsymmetry/rcvdPSSyncPtr->rateRatio;
+  7373: 11.2.13.2.1 setMDSyncReceive(): creates an MDSyncReceive structure, and returns a pointer to this
+  7397: Sync message, minus the mean propagation time on the link attached to this port
+  7398: (neighborPropDelay, see 10.2.4.7) divided by neighborRateRatio (see 10.2.4.6), minus
+  7399: delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+  7675: 11.2.15 MDPdelayReq state machine
+  7790: 11.2.15.2.4 computePropTime(): computes the mean propagation delay on the link attached to this MD
+ 11063: 14.6.9 delayAsymmetry
+ 11204: delayAsymmetry                        scaledNs                     RW               Tdot3FD             14.6.9
+ 11205: (recommended)
+ 11225: 
+ 11226: Tdot3FD = Required for time-aware IEEE 802.3 full-duplex port;
+ 15166: MGT             Is management of the timing                    O                  Clause 15           Yes [ ]     No [ ]
+ 15167: synchronization in Bridges supported?
+
+## 802.1AS-2011/Cor1-2013 Table 14-6 (replacement) and 11.2.13.2.1 change
+  2649: 
+  2663: neighborPropDelayThresh              UScaledNs             RW            T              14.6.8
+  2664: (recommended)
+  2665: delayAsymmetry                       scaledNs              RW            Tdot3FD        14.6.9
+  2666: (recommended)
+  2688: Tdot3OLT = Required for time-aware IEEE 802.3 EPON OLT ports;
+  2689: Tdot3ONU = Required for time-aware IEEE 802.3 EPON ONU ports.
+  1931: Change 11.2.13.2.1 as follows:
+  1950: delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+Cor1/Cor2 hits for 'Figure 10-9' or 'syncReceiptLocalTime =': $PACKET/scratch/as_cor1.txt:0 $PACKET/scratch/as_cor2.txt:0 
+
+## Milan v1.2
+  1013: 4.2.5 Redundancy
+  1015: A PAAD may implement seamless redundancy as defined by Section 8.
+  1016: If a PAAD implements redundancy compliant to Section 8, it shall set the REDUNDANCY bit in the
+  1020: 4.2.6 gPTP
+  1022: A PAAD shall implement all applicable requirements that are otherwise not discussed in this specification, as
+  3187: 1           NOT_IMPLEMENTED                   The PAAD-AE does not support the command type.
+  3314: 31            0x00000001            REDUNDANCY                                    The ATDECC Entity, in its currently active
+  3331: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+  3384: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+  3397: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+  3499: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+  6026: Note: Support for this feature is a recommendation for Milan compliant PAADs. This recomendation will become
+  6135: Seamless network redundancy is not a mandatory requirement for a PAAD to be compliant with this specifica-
+  6206: • The R-PAAD shall have at least two AVB-capable Ethernet ports.
+Milan v1.2 case-insensitive 'asymmetr' hits: 0
+
+## 802.1AS-2011 Table 14-6 neighbouring rows (the same '(recommended)' data-type annotation sits on rows whose Conformance is T = required)
+ 11190: 
+ 11191: Operations
+ 11192: Name                          Data type                              Conformanceb            References
+ 11200: neighborPropDelay                     UScaledNs                    R                T                   14.6.7
+ 11201: (recommended)
+ 11202: neighborPropDelayThresh               UScaledNs                    RW               T                   14.6.8
+ 11203: (recommended)
+ 11223: R = Read only access; RW = Read/write access.
+ 11224: bT= Required for time-aware port;

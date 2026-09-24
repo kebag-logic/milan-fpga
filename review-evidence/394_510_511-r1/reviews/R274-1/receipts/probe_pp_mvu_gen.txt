@@ -1,0 +1,7 @@
+make: Entering directory '$PACKET/scratch/pp_probe/tb/pp_top'
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 80 programs
+make: Leaving directory '$PACKET/scratch/pp_probe/tb/pp_top'
+verilate exit 0; warnings: 27

@@ -1,0 +1,15 @@
+pin: 424c688fa2205b934a7689a58f2aa766420f2326
+docs/00_MILAN_COMPLIANCE_REVIEW.md:367:| REQ-MVU-003 | Milan §5.4.4.2/.3 | SET/GET_SYSTEM_UNIQUE_ID (default 0; set ≠ 0) | rec | A | [GAP-03](#gap-03) | P-EN-MVU-SUID | 06 §6.9 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:368:| REQ-MVU-004 | Milan §5.4.4.4/.5, §7.6 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO: flags = supported set in responses; default prio read-only; 64-B UTF-8 domain name, default "DEFAULT" |
+docs/architecture/01_overview.md:169:| P-EN-MVU-SUID / P-EN-MVU-MCR | 1 / 1 | Milan "recommended" MVU groups | MVU decode |
+docs/architecture/06_aecp_engine.md:191:| MVU 0x0001/0x0002 | SET/GET_SYSTEM_UNIQUE_ID | recommended, **n/i today** (`P-EN-MVU-SUID`) | target: §6.9 | n/i | - | - | - | - | echo, `NOT_IMPLEMENTED` |
+docs/architecture/06_aecp_engine.md:192:| MVU 0x0003/0x0004 | SET/GET_MEDIA_CLOCK_REFERENCE_INFO | recommended, **n/i today** (`P-EN-MVU-MCR`) | target: §6.9 | n/i | - | - | - | - | echo, `NOT_IMPLEMENTED` |
+docs/architecture/06_aecp_engine.md:1167:`P-EN-MVU-SUID`, `P-EN-MVU-MCR`, `P-EN-TALKER-DYN-MAPPINGS-RUNNING`,
+--- parameter declared in hdl?
+exit=0
+--- ucode MILAN_FEATURES_FLAGS
+hdl/aecp/ucode/gen_ucode.py:112:MILAN_FEATURES_FLAGS = 0x00000000
+hdl/aecp/ucode/gen_ucode.py:705:    u('MOVE', rd=6, imm=MILAN_FEATURES_FLAGS),
+--- N_IF_P in top
+hdl/top/protocol_processor_top.sv:1594:      .N_IF_P                (1),
+hdl param grep exit=1

@@ -1,0 +1,57 @@
+== 909d8febee108a16769e76363c3967115974ed2b hackerman-kl <hackerman-kl@kebag-logic.com> | parents 759da623072358afdb0e9d570a7b4b6a788492c9
+   Record the #394 decision: v1.2 is a declared non-redundant end station, Milan Section 8 revisited with the P4/P5 PCB
+   body-lines: 
+ README.md                                 | 12 ++++++------
+ REQUIREMENTS.md                           | 16 +++++++++++++++-
+ docs/MILAN_V12_ROADMAP.md                 |  2 +-
+ docs/reference/FR_NFR.md                  | 30 ++++++++++++++++++++++--------
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md |  4 ++--
+ 5 files changed, 46 insertions(+), 18 deletions(-)
+   trailers: 1 body lines
+== 6c5d5b5c08a7094161959347feafee8d3cf86bdb hackerman-kl <hackerman-kl@kebag-logic.com> | parents 909d8febee108a16769e76363c3967115974ed2b
+   Record the #510 decision: the MVU system-unique-id and media-clock-reference rows are RECOMMENDED and answered NOT_IMPLEMENTED for October
+   body-lines: 
+ docs/MILAN_V12_ROADMAP.md                 |  4 ++--
+ docs/reference/FR_NFR.md                  | 12 +++++++++---
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md |  4 ++--
+ docs/reference/MILAN_FEATURE_STATUS.md    |  8 ++++++++
+ docs/reference/SUBMODULES.md              |  1 +
+ 5 files changed, 22 insertions(+), 7 deletions(-)
+   trailers: 1 body lines
+== b38634f4792f5dada4da4c3902434cdf8dbc85de hackerman-kl <hackerman-kl@kebag-logic.com> | parents 6c5d5b5c08a7094161959347feafee8d3cf86bdb
+   Record the #511 decision: delayAsymmetry is not modelled for v1.2 and the live UART tuner stays donor-bench-only
+   body-lines: 
+ REQUIREMENTS.md                           | 22 +++++++++
+ docs/MILAN_V12_ROADMAP.md                 |  1 +
+ docs/design/GPTP_PLANE.md                 | 82 +++++++++++++++++++++++++++++++
+ docs/design/TIME_SYNC.md                  |  1 +
+ docs/guides/gptp/MANAGER.md               |  1 +
+ docs/reference/FR_NFR.md                  | 20 +++++++-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md |  1 +
+ docs/traceability/ieee8021as.md           |  5 +-
+ 8 files changed, 131 insertions(+), 2 deletions(-)
+   trailers: 1 body lines
+== 71ddc7e90bd1d70ba45ec4509bc864b1ae41ebac hackerman-kl <hackerman-kl@kebag-logic.com> | parents b38634f4792f5dada4da4c3902434cdf8dbc85de
+   Say which FR_NFR out-of-scope entries are recorded decisions with a revisit trigger
+   body-lines: 
+ docs/reference/FR_NFR.md | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+   trailers: 1 body lines
+== dcbe3cfaadcd7c340e74ce9b62bf06e9d401c2fc hackerman-kl <hackerman-kl@kebag-logic.com> | parents 71ddc7e90bd1d70ba45ec4509bc864b1ae41ebac
+   Name the processor issues that carry FR-MVU-02's command behavior if P4 implements it
+   body-lines: 
+ docs/reference/FR_NFR.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+   trailers: 1 body lines
+== 64bcf768d28b4b9763fbe5917a734bcefa2a66e0 hackerman-kl <hackerman-kl@kebag-logic.com> | parents dcbe3cfaadcd7c340e74ce9b62bf06e9d401c2fc
+   State in the #511 record that the donor's ingress/egress latch compensation is not adopted
+   body-lines: 
+ docs/design/GPTP_PLANE.md | 1 +
+ 1 file changed, 1 insertion(+)
+   trailers: 1 body lines
+909d8febe msg_lines=1
+6c5d5b5c0 msg_lines=1
+b38634f47 msg_lines=1
+71ddc7e90 msg_lines=1
+dcbe3cfaa msg_lines=1
+64bcf768d msg_lines=1
