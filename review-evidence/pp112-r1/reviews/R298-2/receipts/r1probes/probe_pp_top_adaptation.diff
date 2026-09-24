@@ -1,0 +1,12 @@
+11c11
+< HERE=$(cd "$(dirname "$0")" && pwd)
+---
+> HERE=$(cd "$(dirname "$0")/../r298-1/probe_pp_top" && pwd)
+36c36
+< r = "  Suite(h).run();\n"
+---
+> r = "  if (!gsi_only) Suite(h).run();\n"
+38c38
+< s = s.replace(r, "  r298_top_probe(h);\n")
+---
+> s = s.replace(r, "  if (!gsi_only) r298_top_probe(h);\n")

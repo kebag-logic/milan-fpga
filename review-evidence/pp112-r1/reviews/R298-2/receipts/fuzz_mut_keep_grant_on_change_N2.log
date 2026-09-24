@@ -1,0 +1,14 @@
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C9 changed source low until next publication
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C9 changed source low until next publication
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C9 changed source low until next publication
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FUZZ N=2 seed=2002 episodes=60 publications=67883 held_clocks=109390 max_latency=6 bound=6
+FAILCOUNT C2 grant carries exact current slope <= ceiling: 59056
+FAILCOUNT C6 between publications no grant rises / unchanged grants hold: 658
+FAILCOUNT C9 changed source low until next publication: 68876
+2812117 checks: 2683527 PASS, 128590 FAIL

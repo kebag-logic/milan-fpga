@@ -1,0 +1,2256 @@
+verilator --cc --exe --build -j 8 --top-module srp_admission_wrap \
+  -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
+  -GN_SOURCES_P=8 --Mdir obj_8 \
+  -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8" \
+  ../../hdl/srp/KL_srp_admission.sv srp_admission_wrap.sv sim_main.cpp \
+  -o Vsrp_admission_sim
+make[1]: Entering directory '<packet>/scratch/asm/stage3_no_override/tb/srp_admission/obj_8'
+g++  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8   -c -o verilated.o <pinned-verilator-root>/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8   -c -o verilated_threads.o <pinned-verilator-root>/usr/share/verilator/include/verilated_threads.cpp
+python3 <pinned-verilator-root>/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsrp_admission_wrap.cpp Vsrp_admission_wrap___024root__0.cpp Vsrp_admission_wrap__ConstPool__0__Slow.cpp Vsrp_admission_wrap___024root__Slow.cpp Vsrp_admission_wrap___024root__0__Slow.cpp Vsrp_admission_wrap__Syms__Slow.cpp > Vsrp_admission_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DTB_SOURCES=8   -c -o Vsrp_admission_wrap__ALL.o Vsrp_admission_wrap__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_admission_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_admission_sim
+rm Vsrp_admission_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/asm/stage3_no_override/tb/srp_admission/obj_8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.080 MB sources in 3 modules, into 0.086 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.267 s (elab=0.001, cvt=0.008, bld=5.250); cpu 0.019 s on 8 threads; allocated 611.031 MB
+./obj_8/Vsrp_admission_sim
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=0 case=shrink cycles=24
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=0 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=0 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=1 case=shrink cycles=24
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=1 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=1 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=2 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=2 case=short-withdraw cycles=24
+LATENCY N=8 source=0 phase=2 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=2 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=3 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=3 case=short-withdraw cycles=24
+LATENCY N=8 source=0 phase=3 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=3 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=4 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=0 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=4 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=4 case=saturation-shrink cycles=24
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=5 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=5 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=5 case=saturation-shrink cycles=24
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=6 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=6 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=6 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=0 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=0 phase=7 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=0 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=0 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=1 case=shrink cycles=24
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=1 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=1 phase=2 case=shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=2 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=2 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=3 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=3 case=short-withdraw cycles=24
+LATENCY N=8 source=1 phase=3 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=3 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=4 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=1 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=4 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=4 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=5 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=1 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=5 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=5 case=saturation-shrink cycles=24
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=6 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=6 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=1 phase=6 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=1 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=1 phase=7 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=0 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=0 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=1 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=2 case=shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=2 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=2 phase=3 case=shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=3 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=3 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=4 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=2 phase=4 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=4 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=4 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=5 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=2 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=5 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=5 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=6 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=2 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=6 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=2 phase=6 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=2 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=2 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=2 phase=7 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=0 case=identical cycles=8
+LATENCY N=8 source=3 phase=0 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=1 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=2 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=2 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=3 case=shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=3 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=3 phase=4 case=shrink cycles=16
+LATENCY N=8 source=3 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=3 phase=4 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=4 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=5 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=3 phase=5 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=5 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=5 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=6 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=3 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=6 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=3 phase=6 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=3 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=3 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=3 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=3 phase=7 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=4 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=0 case=identical cycles=8
+LATENCY N=8 source=4 phase=0 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=1 case=identical cycles=8
+LATENCY N=8 source=4 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=2 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=2 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=3 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=3 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=4 case=shrink cycles=16
+LATENCY N=8 source=4 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=4 phase=4 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=4 phase=5 case=shrink cycles=16
+LATENCY N=8 source=4 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=4 phase=5 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=5 case=saturation-shrink cycles=16
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=6 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=4 phase=6 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=6 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=4 phase=6 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=4 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=4 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=4 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=4 phase=7 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=5 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=0 case=identical cycles=8
+LATENCY N=8 source=5 phase=0 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=5 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=1 case=identical cycles=8
+LATENCY N=8 source=5 phase=1 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=2 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=2 case=identical cycles=8
+LATENCY N=8 source=5 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=3 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=3 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=4 case=shrink cycles=8
+LATENCY N=8 source=5 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=4 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=5 case=shrink cycles=16
+LATENCY N=8 source=5 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=5 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=5 phase=6 case=shrink cycles=16
+LATENCY N=8 source=5 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=5 phase=6 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=5 phase=6 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=5 phase=7 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=5 phase=7 case=short-withdraw cycles=16
+LATENCY N=8 source=5 phase=7 case=identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=5 phase=7 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=6 phase=0 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=6 phase=0 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=0 case=identical cycles=8
+LATENCY N=8 source=6 phase=0 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=6 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=6 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=1 case=identical cycles=8
+LATENCY N=8 source=6 phase=1 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=2 case=shrink cycles=8
+LATENCY N=8 source=6 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=2 case=identical cycles=8
+LATENCY N=8 source=6 phase=2 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=3 case=shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=6 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=6 phase=3 case=identical cycles=8
+LATENCY N=8 source=6 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=4 case=shrink cycles=8
+LATENCY N=8 source=6 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=4 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=6 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=5 case=shrink cycles=8
+LATENCY N=8 source=6 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=5 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=6 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=6 phase=6 case=shrink cycles=16
+LATENCY N=8 source=6 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=6 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=6 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=6 phase=7 case=shrink cycles=16
+LATENCY N=8 source=6 phase=7 case=short-withdraw cycles=8
+LATENCY N=8 source=6 phase=7 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=6 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=0 case=shrink cycles=16
+LATENCY N=8 source=7 phase=0 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=0 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=7 phase=0 case=saturation-shrink cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=7 phase=1 case=shrink cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=7 phase=1 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=1 case=identical cycles=8
+LATENCY N=8 source=7 phase=1 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=2 case=shrink cycles=8
+LATENCY N=8 source=7 phase=2 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=2 case=identical cycles=8
+LATENCY N=8 source=7 phase=2 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=3 case=shrink cycles=8
+LATENCY N=8 source=7 phase=3 case=short-withdraw cycles=16
+LATENCY N=8 source=7 phase=3 case=identical cycles=8
+LATENCY N=8 source=7 phase=3 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=4 case=shrink cycles=8
+LATENCY N=8 source=7 phase=4 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=4 case=identical cycles=8
+LATENCY N=8 source=7 phase=4 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=5 case=shrink cycles=8
+LATENCY N=8 source=7 phase=5 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=5 case=identical cycles=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+LATENCY N=8 source=7 phase=5 case=saturation-shrink cycles=16
+LATENCY N=8 source=7 phase=6 case=shrink cycles=8
+LATENCY N=8 source=7 phase=6 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=6 case=identical cycles=8
+LATENCY N=8 source=7 phase=6 case=saturation-shrink cycles=8
+LATENCY N=8 source=7 phase=7 case=shrink cycles=16
+LATENCY N=8 source=7 phase=7 case=short-withdraw cycles=8
+LATENCY N=8 source=7 phase=7 case=identical cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: refused current TSpec never pulses a grant N=8
+LATENCY N=8 source=7 phase=7 case=saturation-shrink cycles=8
+LATENCY N=8 source=0 phase=0 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=0 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=0 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=0 case=cross-double cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=0 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=1 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=1 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=1 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=1 case=cross-double cycles=16
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=1 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=2 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=2 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=2 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=2 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=2 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=3 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=3 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=3 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=3 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=3 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=4 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=4 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=4 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=4 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=4 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=5 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=5 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=5 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=5 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=5 case=cross-middle cycles=16
+LATENCY N=8 source=0 phase=6 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=6 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=6 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=6 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=6 case=cross-middle cycles=8
+LATENCY N=8 source=0 phase=7 case=cross-identical cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=7 case=cross-shrink cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=0 phase=7 case=cross-grow cycles=8
+LATENCY N=8 source=0 phase=7 case=cross-double cycles=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: round publishes the greedy walk over every current declaration N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+FAIL: grant belongs to the current declaration after pipeline evaluation N=8
+LATENCY N=8 source=4 phase=7 case=cross-middle cycles=8
+991231 checks: 989292 PASS, 1939 FAIL
+make: *** [Makefile:10: run] Error 1

@@ -1,0 +1,133 @@
+R298-2 receipt summary (exact head f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc; pinned Verilator 5.050)
+== head suites
+receipts/head_srp_admission_shapes.log: rc=0 | 1138 checks: 1138 PASS, 0 FAIL;12615 checks: 12615 PASS, 0 FAIL;41012 checks: 41012 PASS, 0 FAIL;201073 checks: 201073 PASS, 0 FAIL;991231 checks: 991231 PASS, 0 FAIL;
+receipts/head_srp_top.log: rc=0 | 1531 checks: 1531 PASS, 0 FAIL;
+receipts/head_pp_top.log: rc=0 | 1948 checks: 1948 PASS, 0 FAIL;
+== author mutant campaign
+12 checks: 12 PASS, 0 FAIL
+== GSI mutant campaign (#111)
+GSI mutations: 13 detected by named checks; golden and restored PASS
+== pp_top functional transcript main(7a47f578) vs head: only build-line diffs (26 diff lines, see pp_top_main_vs_head.diff)
+== reviewer fuzz (head, lockstep with slope-validity-removed variant)
+FUZZ N=1 seed=1001 episodes=300 publications=731018 held_clocks=468982 max_latency=4 bound=4 10068982 checks: 10068982 PASS, 0 FAIL 
+FUZZ N=2 seed=1002 episodes=300 publications=331010 held_clocks=564400 max_latency=6 bound=6 15268990 checks: 15268990 PASS, 0 FAIL 
+FUZZ N=3 seed=1003 episodes=300 publications=196793 held_clocks=650105 max_latency=9 bound=9 20203207 checks: 20203207 PASS, 0 FAIL 
+FUZZ N=5 seed=1005 episodes=300 publications=106066 held_clocks=720324 max_latency=15 bound=15 29893934 checks: 29893934 PASS, 0 FAIL 
+FUZZ N=8 seed=1008 episodes=300 publications=57559 held_clocks=788165 max_latency=24 bound=24 44342441 checks: 44342441 PASS, 0 FAIL 
+== reviewer fuzz on mutants
+pending_absent N=2 rc=1 2785789 checks: 2745723 PASS, 40066 FAIL
+pending_absent N=8 rc=1 8624000 checks: 8621750 PASS, 2250 FAIL
+stale_eval N=2 rc=1 2785789 checks: 2726631 PASS, 59158 FAIL
+stale_eval N=8 rc=1 8624000 checks: 8596240 PASS, 27760 FAIL
+discard_strobes N=2 rc=1 2785789 checks: 2746718 PASS, 39071 FAIL
+discard_strobes N=8 rc=1 8624000 checks: 8620366 PASS, 3634 FAIL
+no_invalidate_restart N=2 rc=1 2800814 checks: 2727058 PASS, 73756 FAIL
+no_invalidate_restart N=8 rc=1 8626159 checks: 8215727 PASS, 410432 FAIL
+keep_grant_on_change N=2 rc=1 2812117 checks: 2683527 PASS, 128590 FAIL
+keep_grant_on_change N=8 rc=1 8628213 checks: 8126830 PASS, 501383 FAIL
+stage2_no_kill N=2 rc=1 2807144 checks: 2796490 PASS, 10654 FAIL
+stage2_no_kill N=8 rc=1 8627774 checks: 8625583 PASS, 2191 FAIL
+round1 N=2 rc=1 2785789 checks: 2745723 PASS, 40066 FAIL
+round1 N=8 rc=1 8624000 checks: 8621750 PASS, 2250 FAIL
+stage1_no_kill N=2 rc=1 2806644 checks: 2800339 PASS, 6305 FAIL
+stage1_no_kill N=8 rc=1 8627683 checks: 8625786 PASS, 1897 FAIL
+stage3_no_override N=2 rc=1 2804856 checks: 2782105 PASS, 22751 FAIL
+stage3_no_override N=8 rc=1 8626285 checks: 8613053 PASS, 13232 FAIL
+== lockstep equivalence
+eq_A5 N=1 rc=0 5030561 checks: 5030561 PASS, 0 FAIL
+eq_A5 N=2 rc=0 7632342 checks: 7632342 PASS, 0 FAIL
+eq_A5 N=8 rc=0 22169905 checks: 22169905 PASS, 0 FAIL
+eq_all_validity N=1 rc=1 5030561 checks: 4936821 PASS, 93740 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 93740
+eq_all_validity N=2 rc=1 7632342 checks: 7532173 PASS, 100169 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 100169
+eq_all_validity N=8 rc=1 22169905 checks: 22041652 PASS, 128253 FAIL
+   FAILCOUNT C8 lockstep equality of the two variants: 128253
+== author suites on reviewer-added mutants
+keep_grant_on_change-srp_admission-2 rc=2 12615 checks: 12367 PASS, 248 FAIL
+keep_grant_on_change-srp_admission-8 rc=2 991231 checks: 985807 PASS, 5424 FAIL
+keep_grant_on_change-srp_top rc=2 1531 checks: 1219 PASS, 312 FAIL
+no_invalidate_restart-srp_admission-2 rc=2 12615 checks: 12344 PASS, 271 FAIL
+no_invalidate_restart-srp_admission-8 rc=2 991231 checks: 985624 PASS, 5607 FAIL
+no_invalidate_restart-srp_top rc=2 1531 checks: 1209 PASS, 322 FAIL
+stage1_no_kill-srp_admission-2 rc=2 12615 checks: 12505 PASS, 110 FAIL
+stage1_no_kill-srp_admission-8 rc=2 991231 checks: 990236 PASS, 995 FAIL
+stage1_no_kill-srp_top rc=2 1531 checks: 1516 PASS, 15 FAIL
+stage2_no_kill-srp_admission-2 rc=2 12615 checks: 12557 PASS, 58 FAIL
+stage2_no_kill-srp_admission-8 rc=2 991231 checks: 990644 PASS, 587 FAIL
+stage2_no_kill-srp_top rc=2 1531 checks: 1519 PASS, 12 FAIL
+stage3_no_override-srp_admission-2 rc=2 12615 checks: 12462 PASS, 153 FAIL
+stage3_no_override-srp_admission-8 rc=2 991231 checks: 989292 PASS, 1939 FAIL
+stage3_no_override-srp_top rc=2 1531 checks: 1451 PASS, 80 FAIL
+== round-1 probes re-run
+receipts/r1probes/probe_cross_source_head_N2.log: 792 checks: 792 PASS, 0 FAIL SUMMARY N=2 caseA_identical=0 caseB_grow=0 caseC_shrink_control=0 caseD_double=0 refused-grant-cycles-per-source: 0 0
+receipts/r1probes/probe_cross_source_head_N8.log: 32832 checks: 32832 PASS, 0 FAIL SUMMARY N=8 caseA_identical=0 caseB_grow=0 caseC_shrink_control=0 caseD_double=0 refused-grant-cycles-per-source: 0 0 0 0 0 0 0 0
+receipts/r1probes/probe_cross_source_r1rtl_N2.log: 792 checks: 756 PASS, 36 FAIL SUMMARY N=2 caseA_identical=8 caseB_grow=8 caseC_shrink_control=0 caseD_double=20 refused-grant-cycles-per-source: 0 36
+receipts/r1probes/probe_cross_source_r1rtl_N8.log: 32832 checks: 32592 PASS, 240 FAIL SUMMARY N=8 caseA_identical=80 caseB_grow=80 caseC_shrink_control=0 caseD_double=80 refused-grant-cycles-per-source: 0 0 0 0 0 0 0 240
+receipts/r1probes/probe_pp_top_hdl-head.log: 656 checks, 0 failures R298TOP total admitted cycles after refused re-declaration: 0
+receipts/r1probes/probe_pp_top_hdl-main.log: 656 checks, 48 failures R298TOP total admitted cycles after refused re-declaration: 596
+receipts/r1probes/probe_pp_top_head_unchanged_anchor_fail.log: unchanged runner: anchor "  Suite(h).run();" not found after the #111 merge (AssertionError); see probe_pp_top_adaptation.diff
+receipts/r1probes/probe_srp_top_head.log: 192 checks: 192 PASS, 0 FAIL 
+receipts/r1probes/probe_srp_top_r1tree.log: 192 checks: 112 PASS, 80 FAIL 
+== round-1 mutants
+A1-no-stage-invalidation adm1: rc=2 KILLED [1138 checks: 1090 PASS, 48 FAIL]
+A1-no-stage-invalidation adm2: rc=2 KILLED [12615 checks: 12400 PASS, 215 FAIL]
+A1-no-stage-invalidation adm8: rc=2 KILLED [991231 checks: 989323 PASS, 1908 FAIL]
+A1-no-stage-invalidation srp_top: rc=2 KILLED [1531 checks: 1501 PASS, 30 FAIL]
+A1-no-stage-invalidation: KILLED
+A2-no-final-override adm1: rc=2 KILLED [1138 checks: 1108 PASS, 30 FAIL]
+A2-no-final-override adm2: rc=2 KILLED [12615 checks: 12462 PASS, 153 FAIL]
+A2-no-final-override adm8: rc=2 KILLED [991231 checks: 989292 PASS, 1939 FAIL]
+A2-no-final-override srp_top: rc=2 KILLED [1531 checks: 1451 PASS, 80 FAIL]
+A2-no-final-override: KILLED
+A3-no-grant-retire adm2: rc=2 KILLED [12615 checks: 12367 PASS, 248 FAIL]
+A3-no-grant-retire adm8: rc=2 KILLED [991231 checks: 985807 PASS, 5424 FAIL]
+A3-no-grant-retire srp_top: rc=2 KILLED [1531 checks: 1219 PASS, 312 FAIL]
+A3-no-grant-retire: KILLED
+A4-no-round-restart: ANCHOR-MISSING
+A4r2-no-round-restart adm2: rc=2 KILLED [12615 checks: 12550 PASS, 65 FAIL]
+A4r2-no-round-restart adm8: rc=2 KILLED [991231 checks: 989282 PASS, 1949 FAIL]
+A4r2-no-round-restart srp_top: rc=2 KILLED [1531 checks: 1398 PASS, 133 FAIL]
+A4r2-no-round-restart: KILLED
+A5-fit-ignores-invalid adm2: rc=0 survived [12615 checks: 12615 PASS, 0 FAIL]
+A5-fit-ignores-invalid adm8: rc=0 survived [991231 checks: 991231 PASS, 0 FAIL]
+A5-fit-ignores-invalid srp_top: rc=0 survived [1531 checks: 1531 PASS, 0 FAIL]
+A5-fit-ignores-invalid: SURVIVED
+A6-stage1-only adm1: rc=2 KILLED [1138 checks: 1111 PASS, 27 FAIL]
+A6-stage1-only adm2: rc=2 KILLED [12615 checks: 12557 PASS, 58 FAIL]
+A6-stage1-only adm8: rc=2 KILLED [991231 checks: 990644 PASS, 587 FAIL]
+A6-stage1-only srp_top: rc=2 KILLED [1531 checks: 1519 PASS, 12 FAIL]
+A6-stage1-only: KILLED
+T1-top-no-invalidate-strobe srp_top: rc=2 KILLED [1531 checks: 1121 PASS, 410 FAIL]
+T1-top-no-invalidate-strobe: KILLED
+== A266 no-behaviour-change: srp_top stdout diff lines 0, admission N=8 diff lines 0
+== lint
+lint admission N=1 (repo lint flags) rc=0
+lint admission N=2 (repo lint flags) rc=0
+lint admission N=3 (repo lint flags) rc=0
+lint admission N=5 (repo lint flags) rc=0
+lint admission N=8 (repo lint flags) rc=0
+lint_hdl.sh rc=0
+== docs gates
+make check rc=0
+gen_matrix rc=0
+== yosys generic FF bits (KL_srp_admission N=8)
+base: 913
+r1: 923
+head: 924
+== ports
+hdl/top/protocol_processor_top.sv base vs head: IDENTICAL (205 vs 205 ports)
+hdl/top/protocol_processor_top.sv main vs head: IDENTICAL (205 vs 205 ports)
+hdl/srp/KL_srp_top.sv base vs head: DIFFERENT (79 vs 80 ports)
+  only base []
+  only head ['output logic [N_SINKS_P-1:0] evt_tk_fail_chg_o']
+hdl/srp/KL_srp_top.sv main vs head: IDENTICAL (80 vs 80 ports)
+== clone
+HEAD f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc OK
+tree 60b6e1b11dfa57558a2d839a36d8a6769c0a4e72 OK
+index tree OK
+worktree vs index clean
+index vs HEAD clean
+no untracked/ignored files
+tracked entries: 246, byte/mode mismatches: 0
+gitlinks: none

@@ -1,0 +1,22 @@
+FAIL: C5b publication only >= 4 clocks after every requesting source's change
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C9 changed source low until next publication
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C9 changed source low until next publication
+FAIL: C2 grant carries exact current slope <= ceiling
+FAIL: C5 publication == greedy over current declarations
+FAIL: C5b publication only >= 4 clocks after every requesting source's change
+FAIL: C9 changed source low until next publication
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FAIL: C6 between publications no grant rises / unchanged grants hold
+FAIL: C5b publication only >= 4 clocks after every requesting source's change
+FAIL: C5 publication == greedy over current declarations
+FAIL: C5 publication == greedy over current declarations
+FUZZ N=8 seed=2008 episodes=60 publications=13841 held_clocks=143467 max_latency=23 bound=24
+FAILCOUNT C2 grant carries exact current slope <= ceiling: 195362
+FAILCOUNT C5 publication == greedy over current declarations: 1521
+FAILCOUNT C5b publication only >= 4 clocks after every requesting source's change: 2013
+FAILCOUNT C6 between publications no grant rises / unchanged grants hold: 649
+FAILCOUNT C9 changed source low until next publication: 210887
+8626159 checks: 8215727 PASS, 410432 FAIL
