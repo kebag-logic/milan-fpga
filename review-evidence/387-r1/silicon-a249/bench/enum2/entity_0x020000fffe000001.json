@@ -1,0 +1,1044 @@
+{
+    "$schema": "https://raw.githubusercontent.com/L-Acoustics/avdecc/refs/heads/main/resources/schemas/AVE/v2/schema.json",
+    "_dump_source (informative)": "issue 117 A200 enumeration",
+    "adp_information": {
+        "common": {
+            "association_id": null,
+            "controller_capabilities": null,
+            "entity_capabilities": [
+                "AEM_SUPPORTED",
+                "VENDOR_UNIQUE_SUPPORTED",
+                "CLASS_A_SUPPORTED",
+                "GPTP_SUPPORTED",
+                "AEM_IDENTIFY_CONTROL_INDEX_VALID",
+                "AEM_INTERFACE_INDEX_VALID"
+            ],
+            "entity_id": "0x020000FFFE000001",
+            "entity_model_id": "0x001BC5C40236BA0E",
+            "identify_control_index": 0,
+            "listener_capabilities": [
+                "IMPLEMENTED",
+                "MEDIA_CLOCK_SINK",
+                "AUDIO_SINK"
+            ],
+            "listener_stream_sinks": 2,
+            "talker_capabilities": [
+                "IMPLEMENTED",
+                "MEDIA_CLOCK_SOURCE",
+                "AUDIO_SOURCE"
+            ],
+            "talker_stream_sources": 2
+        },
+        "interfaces": [
+            {
+                "available_index": 284,
+                "avb_interface_index": 0,
+                "gptp_domain_number": 0,
+                "gptp_grandmaster_id": "0x3CC0C6FFFEFE0210",
+                "mac_address": "02:00:00:00:00:01",
+                "valid_time": 10
+            }
+        ]
+    },
+    "compatibility_events": [],
+    "compatibility_flags": [
+        "IEEE17221",
+        "MILAN"
+    ],
+    "diagnostics": {
+        "redundancy_warning": false,
+        "stream_input_latency_errors": []
+    },
+    "dump_version": 2,
+    "entity_model": {
+        "aem_format_version": 2,
+        "entity_descriptor": {
+            "configuration_descriptors": [
+                {
+                    "_index (informative)": 0,
+                    "audio_unit_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "control_descriptors": null,
+                            "dynamic": {
+                                "current_sampling_rate": "0x0000BB80",
+                                "object_name": "Audio Unit"
+                            },
+                            "static": {
+                                "clock_domain_index": 0,
+                                "control_counts": 0,
+                                "localized_description": null,
+                                "sampling_rates": [
+                                    "0x0000BB80"
+                                ]
+                            },
+                            "stream_port_input_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "audio_cluster_descriptors": [
+                                        {
+                                            "_index (informative)": 0,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out FL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 1,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out FR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 2,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out FC"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 3,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out LFE"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 4,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out RL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 5,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out RR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 6,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out SL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 7,
+                                            "dynamic": {
+                                                "object_name": "TDM8 Out SR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "INVALID"
+                                            }
+                                        }
+                                    ],
+                                    "audio_map_descriptors": null,
+                                    "control_descriptors": null,
+                                    "dynamic": {
+                                        "dynamic_mappings": []
+                                    },
+                                    "static": {
+                                        "clock_domain_index": 0,
+                                        "control_counts": 0,
+                                        "flags": [
+                                            "CLOCK_SYNC_SOURCE"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "stream_port_output_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "audio_cluster_descriptors": [
+                                        {
+                                            "_index (informative)": 8,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In FL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 9,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In FR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 10,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In FC"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 11,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In LFE"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 12,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In RL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 13,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In RR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 14,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In SL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 15,
+                                            "dynamic": {
+                                                "object_name": "TDM8 In SR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 16,
+                                            "dynamic": {
+                                                "object_name": "Pilot Tone"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 17,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 FL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 18,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 FR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 19,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 FC"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 20,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 LFE"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 21,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 RL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 22,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 RR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 23,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 SL"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        },
+                                        {
+                                            "_index (informative)": 24,
+                                            "dynamic": {
+                                                "object_name": "Loopback S0 SR"
+                                            },
+                                            "static": {
+                                                "block_latency": 500,
+                                                "channel_count": 1,
+                                                "format": "MBLA",
+                                                "localized_description": null,
+                                                "path_latency": 500,
+                                                "signal_index": 0,
+                                                "signal_output": 0,
+                                                "signal_type": "AUDIO_UNIT"
+                                            }
+                                        }
+                                    ],
+                                    "audio_map_descriptors": null,
+                                    "control_descriptors": null,
+                                    "dynamic": {
+                                        "dynamic_mappings": []
+                                    },
+                                    "static": {
+                                        "clock_domain_index": 0,
+                                        "control_counts": 0,
+                                        "flags": null
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "avb_interface_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "as_path": [
+                                    "0x3CC0C6FFFEFE0210"
+                                ],
+                                "avb_interface_info": {
+                                    "flags": [
+                                        "AS_CAPABLE",
+                                        "GPTP_ENABLED",
+                                        "SRP_ENABLED",
+                                        "AVTP_DOWN_VALID"
+                                    ],
+                                    "msrp_mappings": [
+                                        {
+                                            "priority": 3,
+                                            "traffic_class": 6,
+                                            "vlan_id": 2
+                                        }
+                                    ],
+                                    "propagation_delay": 389
+                                },
+                                "clock_accuracy": 254,
+                                "clock_class": 248,
+                                "clock_identity": "0x020000FFFE000001",
+                                "counters": {
+                                    "GPTP_GM_CHANGED": 0,
+                                    "LINK_DOWN": 0,
+                                    "LINK_UP": 1
+                                },
+                                "domain_number": 0,
+                                "gptp_domain_number": 0,
+                                "gptp_grandmaster_id": "0x3CC0C6FFFEFE0210",
+                                "log_announce_interval": 0,
+                                "log_pdelay_interval": 0,
+                                "log_sync_interval": 253,
+                                "mac_address": "02:00:00:00:00:01",
+                                "object_name": "AVB Interface 0",
+                                "offset_scaled_log_variance": 17258,
+                                "priority1": 248,
+                                "priority2": 248
+                            },
+                            "static": {
+                                "flags": [
+                                    "GPTP_GRANDMASTER_SUPPORTED",
+                                    "GPTP_SUPPORTED",
+                                    "SRP_SUPPORTED"
+                                ],
+                                "localized_description": null,
+                                "port_number": 1
+                            }
+                        }
+                    ],
+                    "clock_domain_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "clock_source_index": 0,
+                                "counters": {
+                                    "LOCKED": 1,
+                                    "UNLOCKED": 0
+                                },
+                                "media_clock_reference_info": {
+                                    "media_clock_domain_name": null,
+                                    "user_media_clock_priority": null
+                                },
+                                "object_name": "Clock Reference Format"
+                            },
+                            "static": {
+                                "clock_sources": [
+                                    0,
+                                    1
+                                ],
+                                "default_media_clock_priority": 128,
+                                "localized_description": null
+                            }
+                        }
+                    ],
+                    "clock_source_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x0000000000000000",
+                                "object_name": "Internal"
+                            },
+                            "static": {
+                                "clock_source_location_index": 0,
+                                "clock_source_location_type": "CLOCK_SOURCE",
+                                "clock_source_type": "INTERNAL",
+                                "localized_description": null
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "clock_source_flags": [
+                                    "LOCAL_ID"
+                                ],
+                                "clock_source_identifier": "0x0000000000000000",
+                                "object_name": "CRF Clock"
+                            },
+                            "static": {
+                                "clock_source_location_index": 1,
+                                "clock_source_location_type": "STREAM_INPUT",
+                                "clock_source_type": "INPUT_STREAM",
+                                "localized_description": null
+                            }
+                        }
+                    ],
+                    "control_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "object_name": "Identify",
+                                "values": {
+                                    "type": "CONTROL_LINEAR_UINT8",
+                                    "values": [
+                                        0
+                                    ]
+                                }
+                            },
+                            "static": {
+                                "block_latency": 500,
+                                "control_domain": 0,
+                                "control_latency": 500,
+                                "control_type": "0x90E0F00000000001",
+                                "control_value_type": {
+                                    "read_only": false,
+                                    "unknown": false,
+                                    "value_type": "CONTROL_LINEAR_UINT8"
+                                },
+                                "localized_description": null,
+                                "number_of_values": 1,
+                                "reset_time": 0,
+                                "signal_index": 0,
+                                "signal_output": 0,
+                                "signal_type": "INVALID",
+                                "values": {
+                                    "type": "CONTROL_LINEAR_UINT8",
+                                    "values": [
+                                        {
+                                            "default": 0,
+                                            "maximum": 255,
+                                            "minimum": 0,
+                                            "step": 255,
+                                            "string": null,
+                                            "unit": {
+                                                "code": "UNITLESS",
+                                                "multiplier": 0
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    "dynamic": {
+                        "object_name": "Default"
+                    },
+                    "jack_input_descriptors": null,
+                    "jack_output_descriptors": null,
+                    "locale_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "static": {
+                                "_base_string_descriptor (informative)": 0,
+                                "locale_id": "en-EN"
+                            },
+                            "strings_descriptors": [
+                                {
+                                    "_index (informative)": 0,
+                                    "static": {
+                                        "strings": [
+                                            "Milan FPGA 1x1 TDM8",
+                                            "48 kHz",
+                                            "Kebag Logic",
+                                            "",
+                                            "",
+                                            "",
+                                            ""
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    "memory_object_descriptors": null,
+                    "ptp_instance_descriptors": null,
+                    "static": {
+                        "descriptor_counts": [
+                            [
+                                "LOCALE",
+                                1
+                            ],
+                            [
+                                "CONTROL",
+                                1
+                            ],
+                            [
+                                "CLOCK_SOURCE",
+                                2
+                            ],
+                            [
+                                "CLOCK_DOMAIN",
+                                1
+                            ],
+                            [
+                                "AVB_INTERFACE",
+                                1
+                            ],
+                            [
+                                "STREAM_OUTPUT",
+                                2
+                            ],
+                            [
+                                "STREAM_INPUT",
+                                2
+                            ],
+                            [
+                                "AUDIO_UNIT",
+                                1
+                            ]
+                        ],
+                        "localized_description": {
+                            "index": 1,
+                            "offset": 0
+                        }
+                    },
+                    "stream_input_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_NOT_VALID": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "TIMESTAMP_VALID": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "Stream In 0",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x0205022002006000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x0205022002006000",
+                                    "0x0215022002006000"
+                                ],
+                                "localized_description": null,
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "connected_talker": {
+                                    "entity_id": "0xFFFFFFFFFFFFFFFF",
+                                    "stream_index": 65535
+                                },
+                                "connection_state": "NOT_CONNECTED",
+                                "counters": {
+                                    "EARLY_TIMESTAMP": 0,
+                                    "FRAMES_RX": 0,
+                                    "LATE_TIMESTAMP": 0,
+                                    "MEDIA_LOCKED": 0,
+                                    "MEDIA_RESET": 0,
+                                    "MEDIA_UNLOCKED": 0,
+                                    "SEQ_NUM_MISMATCH": 0,
+                                    "STREAM_INTERRUPTED": 0,
+                                    "TIMESTAMP_UNCERTAIN": 0,
+                                    "UNSUPPORTED_FORMAT": 0
+                                },
+                                "object_name": "CRF",
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": null,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 2126000,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": null,
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        }
+                    ],
+                    "stream_output_descriptors": [
+                        {
+                            "_index (informative)": 0,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "Stream Out 0",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x0205022002006000",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 0,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x0205022002006000"
+                                ],
+                                "localized_description": null,
+                                "stream_flags": [
+                                    "CLASS_A"
+                                ]
+                            }
+                        },
+                        {
+                            "_index (informative)": 1,
+                            "dynamic": {
+                                "counters": {
+                                    "counter_type": 1,
+                                    "counters": {
+                                        "FRAMES_TX": 0,
+                                        "MEDIA_RESET": 0,
+                                        "STREAM_START": 0,
+                                        "STREAM_STOP": 0,
+                                        "TIMESTAMP_UNCERTAIN": 0
+                                    }
+                                },
+                                "object_name": "CRF",
+                                "presentation_time_offset": 2000000,
+                                "stream_dynamic_info": {
+                                    "acmp_status": "SUCCESS",
+                                    "are_pdus_encrypted": false,
+                                    "does_support_encrypted": false,
+                                    "flags_ex": null,
+                                    "has_saved_state": false,
+                                    "has_srp_registration_failed": false,
+                                    "is_class_b": false,
+                                    "last_received_flags": [
+                                        "MSRP_ACC_LAT_VALID",
+                                        "STREAM_FORMAT_VALID"
+                                    ],
+                                    "msrp_accumulated_latency": 2000000,
+                                    "msrp_failure_code": null,
+                                    "probing_status": 0,
+                                    "stream_id": null,
+                                    "stream_vlan_id": null
+                                },
+                                "stream_format": "0x041060010000BB80",
+                                "stream_running": true
+                            },
+                            "static": {
+                                "avb_interface_index": 0,
+                                "backedup_talker_entity_id": "0x0000000000000000",
+                                "backedup_talker_unique": 0,
+                                "backup_talker_entity_id_0": "0x0000000000000000",
+                                "backup_talker_entity_id_1": "0x0000000000000000",
+                                "backup_talker_entity_id_2": "0x0000000000000000",
+                                "backup_talker_unique_id_0": 0,
+                                "backup_talker_unique_id_1": 0,
+                                "backup_talker_unique_id_2": 0,
+                                "buffer_length": 0,
+                                "clock_domain_index": 0,
+                                "formats": [
+                                    "0x041060010000BB80"
+                                ],
+                                "localized_description": null,
+                                "stream_flags": [
+                                    "CLOCK_SYNC_SOURCE",
+                                    "CLASS_A"
+                                ]
+                            }
+                        }
+                    ],
+                    "timing_descriptors": null
+                }
+            ],
+            "dynamic": {
+                "counters": null,
+                "current_configuration": 0,
+                "entity_name": "Milan FPGA 1x1 TDM8",
+                "firmware_version": "2.96.0",
+                "group_name": "",
+                "serial_number": "<device-serial>"
+            },
+            "static": {
+                "model_name_string": {
+                    "index": 0,
+                    "offset": 0
+                },
+                "vendor_name_string": {
+                    "index": 2,
+                    "offset": 0
+                }
+            }
+        }
+    },
+    "entity_model_id": "0x001BC5C40236BA0E",
+    "milan_compatibility_version": "1.2.0.0",
+    "milan_information": {
+        "certification_version": "0.0.0.0",
+        "flags": null,
+        "protocol_version": 1,
+        "specification_version": "1.2.0.0"
+    },
+    "state": {
+        "acquire_state": "NOT_SUPPORTED",
+        "active_configuration": 0,
+        "lock_state": "NOT_LOCKED",
+        "locking_controller_id": "0xFFFFFFFFFFFFFFFF",
+        "owning_controller_id": "0xFFFFFFFFFFFFFFFF",
+        "subscribed_unsol": true,
+        "unsol_supported": true
+    },
+    "statistics": {
+        "aecp_response_average_time": 3,
+        "aecp_retry_counter": 0,
+        "aecp_timeout_counter": 0,
+        "aecp_unexpected_response_counter": 0,
+        "aem_aecp_unsolicited_counter": 35,
+        "aem_aecp_unsolicited_loss_counter": 0,
+        "enumeration_time": 224,
+        "mvu_aecp_unsolicited_counter": 0,
+        "mvu_aecp_unsolicited_loss_counter": 0
+    }
+}
