@@ -1,0 +1,77 @@
+[
+  {
+    "label": "control-cpp",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 10.99
+  },
+  {
+    "label": "control-python",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 19.36
+  },
+  {
+    "label": "control-xvlog",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 343.67
+  },
+  {
+    "label": "control-source-lists",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.57
+  },
+  {
+    "label": "control-pp-srcs",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "scripts/pp_srcs.py",
+      "--check",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.31
+  },
+  {
+    "label": "control-builder",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "python3",
+      "sw/builder/test_builder.py"
+    ],
+    "rc": 0,
+    "seconds": 419.35
+  },
+  {
+    "label": "control-consumer",
+    "cwd": "$LANES/pp113-parent-consumer",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "rc": 0,
+    "seconds": 19.27
+  }
+]
