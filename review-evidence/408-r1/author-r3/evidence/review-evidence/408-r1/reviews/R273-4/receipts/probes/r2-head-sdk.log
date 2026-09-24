@@ -1,0 +1,37 @@
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["<sdk>/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<sdk>", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "<sdk>/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<sdk>/bin/toolchain-wrapper", "sysroot": "<sdk>/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<shared-selector>/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+ACCEPTED: C0 shipping firmware unchanged (must be ACCEPTED)
+REFUSED: C1 struct-overlay store to ADP_CTRL, unconditional
+    only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]
+REFUSED: C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only)
+    under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape)
+    under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register wit
+REFUSED: C4 same store, plain `%:ifdef` digraph (kept ban)
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H3 same store, split digraph with a blank before the newline
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1386): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE
+    under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compiled firmware never compares entity_advertise()'s verdict argument against zero, so no edge in it can dominate the enable writes and the entity is advertised unconditionally
+REFUSED: H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE
+    firmware must not spell a token with a digraph or a trigraph (%:, line 1396): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`)
+    #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED: H5 same second definition spelled with a split `%:` digraph
+    firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+REFUSED: H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL
+    firmware must not spell a token with a digraph or a trigraph (%:, line 71): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code outside a literal or a comment
+ACCEPTED: B1 a byte order mark before the first line, nothing else
+REFUSED: B2 a byte order mark, then `#include <string.h>` on line 1
+    the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file
+PROBE DONE: 15 result(s), 93 compiles, 19.5 s

@@ -1,0 +1,17 @@
+{
+ "rev": "working tree",
+ "mode": "sdk",
+ "patches": [
+  "disconnect/DOLLAR_full.json"
+ ],
+ "anchor": "baseline",
+ "compiles": 34,
+ "seconds": 7.7,
+ "results": [
+  {
+   "label": "dollar_misnest_store",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if$a`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  }
+ ]
+}

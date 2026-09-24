@@ -1,0 +1,62 @@
+[
+ {
+  "label": "V1a form feed before #: product-only arm with a literal-address cast store in a UART handler",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V1b vertical tab before #: the same store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V1c NUL before #: the same store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V1d lone CR before #: the same store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V1e form feed before #: product-only arm with a lui/sw asm store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V1f control: plain # product-only arm with the literal cast store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V2a identity local forged by a SPLICE between the read and the guard",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V2b identity local forged by a PASTE between the read and the guard",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V2c identity local forged by a plain function-like macro (pre-existing control)",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V3a correlated conditionals: debug helper defined and called under two #ifdef MILAN_DEBUG_TOD",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V3b correlated conditionals: debug counter declared and incremented under two #ifdef MILAN_DEBUG_TOD",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ },
+ {
+  "label": "V4 unterminated character literals in two #defines bracketing a product-only literal-address store",
+  "verdict": "ACCEPTED",
+  "census_ran": false
+ }
+]

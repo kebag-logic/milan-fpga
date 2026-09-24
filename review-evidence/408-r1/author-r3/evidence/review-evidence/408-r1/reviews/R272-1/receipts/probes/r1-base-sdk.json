@@ -1,0 +1,75 @@
+{
+ "tree": "$REVIEWS/408-r272-1-packet/scratch/base-tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 74,
+ "results": [
+  {
+   "label": "control: shipping firmware",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the entity-advertise choke point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"lui t0, 0x90000\\\\n\\\\t\" \"li t1, 1\\\\n\\\\t\" \"sw t1, 0x600(t0)\" ::: \"t0\", \"t1\", \"memory\")']"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to"
+  },
+  {
+   "label": "form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"lui t0, 0x90000\\\\n\\\\t\" \"li t1, 1\\\\n\\\\t\" \"sw t1, 0x600(t0)\" ::: \"t0\", \"t1\", \"memory\")']"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

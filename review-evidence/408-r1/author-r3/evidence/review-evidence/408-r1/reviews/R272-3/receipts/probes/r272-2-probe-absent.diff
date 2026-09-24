@@ -1,0 +1,8 @@
+49c49
+< mapped = str(sdk / sdklib.COMPILER)
+---
+> mapped = "/nonexistent/riscv32-linux-gcc"
+67c67
+<          patch.object(sys, "argv", [__file__, "--require-rv32"]), \
+---
+>          patch.object(sys, "argv", [__file__]), \

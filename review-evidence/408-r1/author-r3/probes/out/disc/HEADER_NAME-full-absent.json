@@ -1,0 +1,17 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [
+  "disconnect/HEADER_NAME_full.json"
+ ],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 2.3,
+ "results": [
+  {
+   "label": "include_operand_comment",
+   "verdict": "REFUSED",
+   "reason": "the firmware's include set is pinned, and <generated/c/*x*/sr.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  }
+ ]
+}

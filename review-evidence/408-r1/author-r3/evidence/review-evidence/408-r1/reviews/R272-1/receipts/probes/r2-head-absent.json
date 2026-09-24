@@ -1,0 +1,31 @@
+{
+ "tree": "$REVIEWS/r272-1-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "control: form feed arm around a SPELLED milan_write enable in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "NUL byte before #: product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "unterminated-quote defines around a product-only literal-address cast store in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "unterminated-quote defines around a product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "entity_advertise() must test the verdict it is handed: its parameter is the boot contract's only argument and nothing else in this function may decide whether the entity is advertised"
+  },
+  {
+   "label": "form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

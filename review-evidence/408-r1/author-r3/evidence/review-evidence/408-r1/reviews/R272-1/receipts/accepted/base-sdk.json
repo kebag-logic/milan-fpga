@@ -1,0 +1,108 @@
+{
+ "tree": "$REVIEWS/408-r272-1-packet/scratch/base-tree",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 64,
+ "results": [
+  {
+   "label": "an #ifdef around a debug printf INSIDE milan_init()",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other",
+   "pin_ok": true,
+   "because": [
+    "a conditional group reaching"
+   ]
+  },
+  {
+   "label": "a benign statement in an arm the census tree drops, inside configure_fabric()",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other",
+   "pin_ok": true,
+   "because": [
+    "a conditional group reaching"
+   ]
+  },
+  {
+   "label": "an #ifdef/#else choosing a #define, read in a UART command handler",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to",
+   "pin_ok": true,
+   "because": [
+    "a conditional group carrying #define"
+   ]
+  },
+  {
+   "label": "a ## token paste building a call outside the boot path",
+   "verdict": "REFUSED",
+   "reason": "firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either",
+   "pin_ok": true,
+   "because": [
+    "firmware must not paste tokens"
+   ]
+  },
+  {
+   "label": "a token-joining backslash-newline inside a macro body",
+   "verdict": "REFUSED",
+   "reason": "firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name",
+   "pin_ok": true,
+   "because": [
+    "firmware must not splice physical source lines with backslash-newline"
+   ]
+  },
+  {
+   "label": "a read-only #define accessor over milan_read()",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ADP_STATE hides milan_read() inside a macro body: every call to a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor macro contains no store and is refused for this reason, not for storing",
+   "pin_ok": true,
+   "because": [
+    "hides milan_read() inside a macro body"
+   ]
+  },
+  {
+   "label": "a fifth cast to a pointer, resolving outside the window",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile unsigned int *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)']",
+   "pin_ok": true,
+   "because": [
+    "the firmware's casts to a pointer are pinned"
+   ]
+  },
+  {
+   "label": "a fifth store through a pointer, resolving outside the window",
+   "verdict": "REFUSED",
+   "reason": "the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = (uint64_t)parsed', '*value = seconds * 1000000000ull + nanoseconds', 'NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))', 'NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))', 'NVM_STG[i] = NVM_ERASED', 'NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u', 'NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]', 'own[0] = nvm_word_read(NVM_W_OWN0 + 0u)', 'own[1] = nvm_word_read(NVM_W_OWN0 + 1u)', 'own[2] = nvm_word_read(NVM_W_OWN0 + 2u)', 'own[3] = nvm_word_read(NVM_W_OWN0 + 3u)', 'own[4] = nvm_word_read(NVM_W_OWN0 + 4u)', 'own[5] = nvm_word_read(NVM_W_OWN0 + 5u)', 'own[6] = nvm_word_read(NVM_W_OWN0 + 6u)', 'own[7] = nvm_word_read(NVM_W_OWN0 + 7u)', 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]', 'NVM_IMG[i] = src[i]', 'NVM_IMG[i] = NVM_STG[i]', '*reg = 1u', 'dst[i] = src[i]']",
+   "pin_ok": true,
+   "because": [
+    "the firmware's stores through a pointer are pinned"
+   ]
+  },
+  {
+   "label": "parse_u64() and seconds_to_ns() exchanged, with nothing added or removed",
+   "verdict": "REFUSED",
+   "reason": "the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = seconds * 1000000000ull + nanoseconds', '*value = (uint64_t)parsed', 'NVM_STG[i] = (uint8_t)(nvm_hdr_word(i >> 2, seq) >> (8u * (i & 3u)))', 'NVM_STG[NVM_IMG_LEN - KLJ2_TRAILER + i] = (uint8_t)(crc >> (8u * i))', 'NVM_STG[i] = NVM_ERASED', 'NVM_STG[KLJ2_HDR + NVM_AREA_RAW + i] = 0u', 'NVM_STG[i] = nvm_slot(nvm_auth_slot)[i]', 'own[0] = nvm_word_read(NVM_W_OWN0 + 0u)', 'own[1] = nvm_word_read(NVM_W_OWN0 + 1u)', 'own[2] = nvm_word_read(NVM_W_OWN0 + 2u)', 'own[3] = nvm_word_read(NVM_W_OWN0 + 3u)', 'own[4] = nvm_word_read(NVM_W_OWN0 + 4u)', 'own[5] = nvm_word_read(NVM_W_OWN0 + 5u)', 'own[6] = nvm_word_read(NVM_W_OWN0 + 6u)', 'own[7] = nvm_word_read(NVM_W_OWN0 + 7u)', 'NVM_STG[KLJ2_HDR + i] = NVM_IMG[KLJ2_HDR + i]', 'NVM_IMG[i] = src[i]', 'NVM_IMG[i] = NVM_STG[i]', 'dst[i] = src[i]']",
+   "pin_ok": true,
+   "because": [
+    "the firmware's stores through a pointer are pinned"
+   ]
+  },
+  {
+   "label": "a fifth inline-asm statement, a fence in a UART command handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile(\"fence iorw, iorw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")', '__asm__ volatile(\"fence rw, rw\" ::: \"memory\")']",
+   "pin_ok": true,
+   "because": [
+    "the firmware's inline asm is pinned"
+   ]
+  },
+  {
+   "label": "a README and a notes.txt beside the firmware",
+   "verdict": "REFUSED",
+   "reason": "the firmware's directory is pinned to ['Makefile', 'milan_baremetal.c']: a quoted include resolves against this directory FIRST, so a file dropped in here answers to a pinned include name and puts this repository's text behind it with no name changing anywhere; found ['Makefile', 'README', 'milan_baremetal.c', 'notes.txt']",
+   "pin_ok": true,
+   "because": [
+    "the firmware's directory is pinned to"
+   ]
+  }
+ ]
+}

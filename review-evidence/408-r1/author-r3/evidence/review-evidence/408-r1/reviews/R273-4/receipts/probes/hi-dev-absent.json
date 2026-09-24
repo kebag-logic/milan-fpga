@@ -1,0 +1,55 @@
+{
+ "rev": "759da623072358afdb0e9d570a7b4b6a788492c9",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 11.6,
+ "results": [
+  {
+   "label": "HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI1q control: the same with the QUOTED header name \"r273/*none\" (a string to the gate)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI1p control: the same forgery under a plain `#if 1`",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI2 ADP enable in a UART command handler behind the header name",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "HI2p control: the same enable in the handler, plain",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "HI3 literal-address cast store into the CSR window in a UART command handler behind the header name",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "HI3p control: the same store, plain",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "HI4 AEM verdict overwritten after the verifier behind the header name",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI5 benign control: a printf in a UART command handler behind the header name",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  }
+ ]
+}

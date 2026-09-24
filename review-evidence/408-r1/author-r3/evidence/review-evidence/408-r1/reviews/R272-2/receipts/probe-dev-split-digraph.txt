@@ -1,0 +1,6 @@
+=== dev control_hash ===
+[dev control_hash] REFUSED: the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', 
+exit=0
+=== dev split_digraph ===
+[dev split_digraph] REFUSED: firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+exit=0

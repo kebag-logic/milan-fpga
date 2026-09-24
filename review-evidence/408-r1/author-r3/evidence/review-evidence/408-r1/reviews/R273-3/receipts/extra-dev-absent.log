@@ -1,0 +1,9 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+REFUSED: X1 verifier returns 1 before the CRC through a token-joining splice of `return`
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED: X2 verifier returns 1 before the CRC through a ## paste of `return`
+    firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either
+REFUSED: X3 control: verifier returns 1 before the CRC, spelled plainly
+    AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary
+ACCEPTED: X4 identity sample forged through the libc header's __CONCAT paste (no firmware #define)
+PROBE DONE: 4 result(s), 0 compiles, 5.3 s

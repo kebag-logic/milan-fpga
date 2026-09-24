@@ -1,0 +1,78 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 2.5,
+ "results": [
+  {
+   "label": "dollar_misnest_store",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells `$` in its code, outside the lexical subset S (line 1500): GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers here read `#if`; the shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "outside the lexical subset S"
+   ]
+  },
+  {
+   "label": "ucn_forged_identity",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a universal character name in its code, outside S (line 1442): a backslash left in code once phase 2 has deleted every splice opens a universal character name, which GCC admits in an identifier and the readers here do not lex; the shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "universal character name"
+   ]
+  },
+  {
+   "label": "has_include_hidden_store",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither",
+   "pin_ok": true,
+   "because": [
+    "__has_include"
+   ]
+  },
+  {
+   "label": "has_include_next_hidden",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses __has_include or __has_include_next, outside S (__has_include_next, line 1499): GCC lexes its operand as one header-name token in an `#if`, so `<x/*y>` opens no comment there while the readers here read `/*` as a comment hiding the lines to the next `*/`; the shipping firmware uses neither",
+   "pin_ok": true,
+   "because": [
+    "__has_include"
+   ]
+  },
+  {
+   "label": "include_operand_comment",
+   "verdict": "REFUSED",
+   "reason": "the firmware hides a comment or a backslash in a #include header name, outside S (line 8): GCC lexes a `#include` operand as one header-name token, so a `/*`, `//` or `\\` in it is part of the name, while the readers here read the comment or the splice out of it",
+   "pin_ok": true,
+   "because": [
+    "#include header name"
+   ]
+  },
+  {
+   "label": "pragma_operator",
+   "verdict": "REFUSED",
+   "reason": "the firmware uses the _Pragma operator, outside S (line 59): it is a `#pragma` built from a string, which the `#`-directive scan does not see, so this gate has no rule for what it does; the shipping firmware uses none",
+   "pin_ok": true,
+   "because": [
+    "_Pragma operator"
+   ]
+  },
+  {
+   "label": "unterminated_comment",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a block comment no `*/` closes (line 1642): GCC stops with an error, and the readers here would blank every line after it, so the two do not read the same file",
+   "pin_ok": true,
+   "because": [
+    "block comment no `*/` closes"
+   ]
+  },
+  {
+   "label": "shipping-firmware-control (accept)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  }
+ ]
+}

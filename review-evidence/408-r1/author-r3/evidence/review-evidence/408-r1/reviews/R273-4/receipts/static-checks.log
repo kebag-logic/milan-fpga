@@ -1,0 +1,12 @@
+$ python3 -B scripts/docs_check.py -> exit 0
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+$ python3 -B scripts/check_baremetal_only.py --check -> exit 0
+baremetal-only: OK (0 findings across 846 tracked first-party file(s))
+$ python3 -B scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9 -> exit 0
+check_em_dash: 0 finding(s) over 348 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+$ python3 -B scripts/check_doc_style.py -> exit 0
+documentation style: OK (22 current documents)
+$ git diff --check 759da623072358afdb0e9d570a7b4b6a788492c9 8e12d31fefa7df0abb4d9474d0412ce123ac9644 -> exit 0
+
+$ python3 -B sw/builder/test_firmware_compiler.py --selftest -> exit 0
+compiler audit selftest: argv mapping, result propagation, absence, host refusal and actual absent/alternate --require-rv32 refusals PASS

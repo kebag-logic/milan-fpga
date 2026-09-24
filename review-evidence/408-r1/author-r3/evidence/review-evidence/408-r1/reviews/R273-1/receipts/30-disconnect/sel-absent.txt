@@ -1,0 +1,171 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what the token-joining splice ban, the ## paste ban, the directory pin and the ordered pointer-cast, pointer-store and inline-asm sets used to refuse, and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives, the per-selection grading of each conditional included (its text half), and the hosted builder jobs require this compiler
+REFUSED  [pin ok] old AEM-gated PTP documentation
+REFUSED  [pin ok] CSR identity contract repointed to VERSION
+REFUSED  [pin ok] CSR identity magic changed to the VERSION value
+REFUSED  [pin ok] CSR identity magic replaced by the sampled value
+REFUSED  [pin ok] CSR identity magic replaced by a sampled expression
+REFUSED  [pin ok] RTL A_ID address hidden behind a comment decoy
+REFUSED  [pin ok] RTL A_ID default hidden behind a comment decoy
+REFUSED  [pin ok] RTL A_ID address selected through an inactive preprocessor arm
+REFUSED  [pin ok] RTL A_ID address hidden in an inactive static generate arm
+REFUSED  [pin ok] RTL A_ID default hidden in a dead procedural case
+REFUSED  [pin ok] RTL A_ID defaults-ROM fill forged
+REFUSED  [pin ok] RTL A_ID read address offset
+REFUSED  [pin ok] CSR identity mismatch guard removed
+REFUSED  [pin ok] CSR identity mismatch guard does not return
+REFUSED  [pin ok] CSR identity mismatch guard inverted
+REFUSED  [pin ok] CSR identity sample overwritten before the guard
+REFUSED  [pin ok] milan_reg() ignores its offset
+REFUSED  [pin ok] milan_read() forges the identity value
+REFUSED  [pin ok] unconditional entity enable
+REFUSED  [pin ok] inverted entity enable
+REFUSED  [pin ok] software PTP enable write
+REFUSED  [pin ok] PHC disabled during fabric configuration
+REFUSED  [pin ok] ADP before PP
+REFUSED  [pin ok] PP bit 0 not asserted
+REFUSED  [pin ok] ADP bit 0 cleared
+REFUSED  [pin ok] PP enabled before AEM verification
+REFUSED  [pin ok] ADP enabled before AEM verification
+REFUSED  [pin ok] entity enabled through an indirect helper
+REFUSED  [pin ok] ADP enabled through an address alias
+REFUSED  [pin ok] PP enabled through an address alias
+REFUSED  [pin ok] PHC written through an address alias
+REFUSED  [pin ok] entity enabled through a repointed register name
+REFUSED  [pin ok] milan_write() given a value constant as its register
+REFUSED  [pin ok] entity enabled with a space before the call paren
+REFUSED  [pin ok] entity enabled through a function pointer
+REFUSED  [pin ok] entity enabled by storing through milan_reg()
+REFUSED  [pin ok] entity enabled through a second consumer of the address helper's return
+REFUSED  [pin ok] entity enabled through a raw CSR pointer
+REFUSED  [pin ok] entity enabled through a digraph-pasted call name
+REFUSED  [pin ok] entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler
+REFUSED  [pin ok] PP pre-AEM clear removed
+REFUSED  [pin ok] ADP pre-AEM clear removed
+REFUSED  [pin ok] CRC failure accepted
+REFUSED  [pin ok] AEM verdict overridden
+REFUSED  [pin ok] AEM verdict forced by compound assignment
+REFUSED  [pin ok] AEM verdict incremented
+REFUSED  [pin ok] disabled PHC reset
+REFUSED  [pin ok] PHC output gated by ADP
+REFUSED  [pin ok] milan_csr PHC increment output gated by ADP
+REFUSED  [pin ok] milan_csr PHC output binding gated by ADP
+REFUSED  [pin ok] PHC enable hidden behind a resolved second driver
+REFUSED  [pin ok] ADP term spliced into the render recentre pulse
+REFUSED  [pin ok] PHC crossing consumer gated by ADP
+REFUSED  [pin ok] PHC crossing increment gated by ADP
+REFUSED  [pin ok] effective PHC frequency adjustment gated by ADP
+REFUSED  [pin ok] effective PHC offset gated by ADP
+REFUSED  [pin ok] effective PHC adjustment strobe gated by ADP
+REFUSED  [pin ok] PHC counter gtx reset gated by ADP
+REFUSED  [pin ok] PHC crossing axis reset gated by ADP
+REFUSED  [pin ok] external MAC RX ready gated by ADP
+REFUSED  [pin ok] enabled RX-filter ingress valid gated by ADP
+REFUSED  [pin ok] enabled RX-filter clock gated by ADP
+REFUSED  [pin ok] enabled RX-filter reset gated by ADP
+REFUSED  [pin ok] RX-filter default policy gated by ADP
+REFUSED  [pin ok] bypass RX-filter ingress valid gated by ADP
+REFUSED  [pin ok] fabric gPTP reset gated by ADP
+REFUSED  [pin ok] fabric gPTP ingress valid gated by ADP
+REFUSED  [pin ok] fabric gPTP local egress valid gated by ADP
+REFUSED  [pin ok] fabric gPTP control-mux reset gated by ADP
+REFUSED  [pin ok] fabric gPTP MAC-boundary valid gated by ADP
+REFUSED  [pin ok] fabric gPTP boundary-mux reset gated by ADP
+REFUSED  [pin ok] external MAC TX valid gated by ADP
+REFUSED  [pin ok] external MAC TX valid hidden behind a resolved second driver
+REFUSED  [pin ok] commented direct TX decoy with live macro gate
+REFUSED  [pin ok] direct TX connection made an inactive conditional
+REFUSED  [pin ok] direct TX connection put in an inactive static generate arm
+REFUSED  [pin ok] direct TX decoy selected by mid-line compiler directives
+REFUSED  [pin ok] direct TX decoy selected by an implicit conditional generate
+REFUSED  [pin ok] external MAC RX valid gated by ADP
+REFUSED  [PIN MISSED] AEM guard selected by a build flag
+ACCEPTED pre-AEM clear behind a build flag
+REFUSED  [PIN MISSED] a dropped arm inside a CSR write's argument
+REFUSED  [pin ok] fabric configuration made dead by a compile-time constant
+REFUSED  [pin ok] entity enabled by a goto into the AEM-success guard
+REFUSED  [pin ok] entity enabled by a case falling into the AEM-success guard
+REFUSED  [pin ok] AEM verdict overwritten through a pointer
+REFUSED  [pin ok] AEM verifier returning a non-boolean status before the CRC gate
+REFUSED  [pin ok] ADP_CTRL given a second decode address
+REFUSED  [pin ok] AEM verifier succeeding from the no-QSPI preprocessor arm
+REFUSED  [PIN MISSED] CRC comparison itself put behind a build flag
+REFUSED  [pin ok] AEM verifier that can never succeed
+REFUSED  [pin ok] second translation unit listed on the OBJECTS line
+REFUSED  [pin ok] second translation unit appended with OBJECTS +=
+REFUSED  [pin ok] second translation unit on an OBJECTS continuation line
+REFUSED  [pin ok] object list this gate cannot evaluate
+REFUSED  [pin ok] second object archived past the OBJECTS list
+REFUSED  [pin ok] second source pulled in by #include of a .c
+REFUSED  [pin ok] second source pulled in by a macro include operand
+REFUSED  [pin ok] second source pulled in by a spliced #include directive
+REFUSED  [pin ok] second source pulled in by a %: digraph include
+REFUSED  [pin ok] second source pulled in by a ??= trigraph include
+REFUSED  [pin ok] a preprocessing directive this gate has no rule for
+REFUSED  [pin ok] a store planted in the AEM verifier's no-QSPI arm
+REFUSED  [pin ok] a #define planted in the AEM verifier's QSPI-slot group
+REFUSED  [PIN MISSED] ADP_CTRL's name moved to another register by an arm only the product compiles
+REFUSED  [PIN MISSED] more preprocessor arm selections than gate 1b grades
+REFUSED  [pin ok] entity enabled by a store whose whole value a read-only accessor macro builds, in a UART command handler
+REFUSED  [pin ok] CSR identity sample forged through a read-only accessor macro
+REFUSED  [pin ok] pinned include shadowed by an added -I search path
+REFUSED  [pin ok] object list the environment can override
+REFUSED  [pin ok] second file injected through -Wp, the preprocessor pass-through
+REFUSED  [pin ok] second file injected through a response file
+REFUSED  [pin ok] search path added through the -iprefix chain
+REFUSED  [pin ok] second file injected through the CC tool variable
+REFUSED  [pin ok] search path added through the CC tool variable
+REFUSED  [pin ok] compile flags deferred to an undefined environment name
+REFUSED  [pin ok] compile flags routed through a computed variable name
+REFUSED  [pin ok] compile flags deferred to the environment through a define body
+REFUSED  [pin ok] compile flags deferred to the environment through a $(call) first argument
+REFUSED  [pin ok] compile flags deferred to the environment through a $(value) first argument
+REFUSED  [pin ok] compile flags deferred to the environment through a top-level $(eval) assignment
+REFUSED  [pin ok] compile flags injected through an $(eval) of a called template
+REFUSED  [pin ok] compile flags routed through a computed $(call) first argument
+REFUSED  [pin ok] compile flags injected through a $(call eval,...) line
+REFUSED  [pin ok] compile flags injected through a ${call eval,...} line
+REFUSED  [pin ok] compile flags injected through a $(call eval,...) on an unwalked right-hand side
+REFUSED  [pin ok] a Makefile fragment written at parse time by $(call file,...)
+REFUSED  [pin ok] compile flags injected through an $(eval) of a plain reference
+REFUSED  [pin ok] a Makefile fragment included by an $(eval) whose value expands to a second line
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of the call's own argument
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of the second call argument
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of the tenth call argument
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of ${1}
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of $1
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) of $(1) behind a function
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) reaching $(1) through a named define
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) reached by a computed $(call) name
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) wrapped onto a continuation line
+REFUSED  [pin ok] compile flags injected through a define-body $(eval) reached through a second define
+REFUSED  [pin ok] compile flags injected through an $(eval) in a define whose NAME is not an identifier
+REFUSED  [pin ok] compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads
+REFUSED  [pin ok] compile flags injected by a $(let) rebinding the pinned name a define-body $(eval) reads
+REFUSED  [pin ok] a literal define-body $(eval) the environment decides to run
+REFUSED  [pin ok] a recipe $(eval) on a rule the environment adds
+REFUSED  [pin ok] compile flags injected through a top-level $(eval) of $(1)
+REFUSED  [pin ok] compile flags injected through a top-level $(eval) of $M
+REFUSED  [pin ok] compile flags injected through a top-level $(eval) reaching $(1) through a named define
+REFUSED  [pin ok] compile flags injected through a top-level $(eval) whose $$ becomes a live reference
+REFUSED  [pin ok] pinned include shadowed by an -iquote search path
+REFUSED  [pin ok] one object linked from two sources by an explicit rule
+REFUSED  [pin ok] objects added by a Makefile fragment this gate does not read
+REFUSED  [pin ok] second source injected by a -include compiler flag
+REFUSED  [pin ok] compile recipe redefined to take a second source
+REFUSED  [pin ok] second source injected by an exported assignment
+REFUSED  [pin ok] second source injected by a target-specific assignment
+REFUSED  [pin ok] the compiled source directory moved out from under the rule
+REFUSED  [pin ok] ADP_CTRL reset value advertising the entity
+REFUSED  [pin ok] PP_CTRL reset value enabling the protocol processor
+REFUSED  [pin ok] entity enabled through a CSR base held in a variable
+REFUSED  [pin ok] one object linked from two sources by literally named tools
+REFUSED  [pin ok] second object archived by a literally named ar
+REFUSED  [pin ok] ADP_CTRL reset written blocking with the enable bit set
+REFUSED  [pin ok] ADP_CTRL given no reset value at all
+REFUSED  [pin ok] ADP_CTRL reset and readback default both advertising
+REFUSED  [pin ok] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+REFUSED  [pin ok] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)
+REFUSED  [pin ok] MAKEFLAGS += -e letting the environment choose
+mode=absent disconnect=['sel'] compiles=0 cases=167
+exit=0

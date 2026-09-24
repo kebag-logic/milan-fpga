@@ -1,0 +1,55 @@
+{
+ "rev": "759da623072358afdb0e9d570a7b4b6a788492c9",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 11,
+ "seconds": 12.6,
+ "results": [
+  {
+   "label": "HI1 identity sample forged in milan_init() behind `#if !__has_include(<r273/*none>)`, `*/` behind a //",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI1q control: the same with the QUOTED header name \"r273/*none\" (a string to the gate)",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI1p control: the same forgery under a plain `#if 1`",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI2 ADP enable in a UART command handler behind the header name",
+   "verdict": "REFUSED",
+   "reason": "the compiled firmware asserts bit 0 of an entity-enable register from milan_status_handler(), not from entity_advertise(): the choke point is the property (#153), and this is resolved from the emitted call operands, so a macro body, a preprocessor arm or an aliased #define cannot move the write out of view"
+  },
+  {
+   "label": "HI2p control: the same enable in the handler, plain",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "HI3 literal-address cast store into the CSR window in a UART command handler behind the header name",
+   "verdict": "REFUSED",
+   "reason": "only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "HI3p control: the same store, plain",
+   "verdict": "REFUSED",
+   "reason": "the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *)', '(const volatile uint8_t *)', '(const volatile uint8_t *)', '(volatile uint8_t *)', '(const unsigned char *)', '(volatile unsigned int *)']"
+  },
+  {
+   "label": "HI4 AEM verdict overwritten after the verifier behind the header name",
+   "verdict": "REFUSED",
+   "reason": "firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other"
+  },
+  {
+   "label": "HI5 benign control: a printf in a UART command handler behind the header name",
+   "verdict": "ACCEPTED",
+   "census_ran": true
+  }
+ ]
+}

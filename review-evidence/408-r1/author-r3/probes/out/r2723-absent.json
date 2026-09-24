@@ -1,0 +1,19 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 1.6,
+ "results": [
+  {
+   "label": "R272-3 dollar_skipped.c",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells `$` in its code, outside the lexical subset S (line 3): GCC admits `$` in an identifier and a directive name, so `#if$a` is an unknown directive it ignores in skipped code while the readers here read `#if`; the shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "outside the lexical subset S"
+   ]
+  }
+ ]
+}

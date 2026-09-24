@@ -1,0 +1,65 @@
+{
+ "rev": "working tree",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "baseline",
+ "compiles": 0,
+ "seconds": 12.0,
+ "results": [
+  {
+   "label": "B1 BOM: identity local forged by a ## paste whose #define sits behind a BOM at offset 0 (V2b respelled)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B1c control: the same paste #define at offset 0 with no BOM (V2b respelled)",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "B2 BOM: verdict overwritten by a ## paste whose #define sits behind a BOM at offset 0 (H4 respelled)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B2c control: the same verdict overwrite through a plain function-like macro, no paste, no BOM",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B3 BOM: store primitive hidden in a macro behind a BOM, invoked in a UART command handler",
+   "verdict": "REFUSED",
+   "reason": "ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "B3c control: the same macro with no BOM",
+   "verdict": "REFUSED",
+   "reason": "#define MILAN_ADP_ON hides milan_write() inside a macro body: every store through a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor over milan_read() is not refused: each rule that reads a read fails closed when the read is hidden"
+  },
+  {
+   "label": "B4 BOM: a twelfth #include <string.h> behind a BOM",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B4c control: the same #include with no BOM",
+   "verdict": "REFUSED",
+   "reason": "the firmware's include set is pinned, and <string.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  },
+  {
+   "label": "B5 BOM: a literal-address cast store macro behind a BOM, invoked in a UART command handler",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B6 BOM alone at offset 0, nothing else changed (benign control)",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  },
+  {
+   "label": "B7 BOM: #line behind a BOM",
+   "verdict": "ACCEPTED",
+   "census_ran": false
+  }
+ ]
+}

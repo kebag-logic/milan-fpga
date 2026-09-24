@@ -1,0 +1,77 @@
+{"missing": ["firmware_includes_own"]}
+{"set": "corpus", "label": "a plain #ifdef", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "spaces and tabs before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a form feed before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a vertical tab before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a NUL before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a form feed after #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a NUL after #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "lone CR line ends", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "CRLF line ends", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "an LF then a CR before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a form feed then a lone CR", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a comment before # on its line", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a comment and a form feed before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a multi-line comment closing before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a token and a multi-line comment before #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice with a space continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice with a form feed continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice with a vertical tab continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice with a NUL continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a // comment a splice with a lone CR continues over #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "a comment opened across a splice", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a comment closed across a splice before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a comment whose close a splice splits over #", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a # in a string a splice continues", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a # in a raw string", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a # in a u8 raw string", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "an unterminated character literal before #", "recorded": ["z"], "gate": ["z"], "gcc": ["z"], "agree": true}
+{"set": "corpus", "label": "an unterminated string before #", "recorded": ["z"], "gate": ["z"], "gcc": ["z"], "agree": true}
+{"set": "corpus", "label": "an escaped quote ending a line", "recorded": ["z"], "gate": ["z"], "gcc": ["z"], "agree": true}
+{"set": "corpus", "label": "the %: digraph", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "the ??= trigraph", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a // comment ending in the ??/ trigraph", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a splice inside the directive name", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a splice between # and the name", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a line holding only a splice before #", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "a token and a splice before #", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "## at the start of a line", "recorded": null, "gate": null, "gcc": null, "agree": true}
+{"set": "corpus", "label": "an FS control before #", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a U+2028 before #", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "a no-break space before #", "recorded": ["a", "b", "z"], "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "agree": true}
+{"set": "corpus", "label": "#elifdef", "recorded": ["c", "z"], "gate": ["c", "z"], "gcc": ["c", "z"], "agree": true}
+{"set": "corpus", "label": "#elifndef", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#else behind a form feed", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#else behind a lone CR", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#else split by a splice", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#endif split by a splice", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "#define behind a form feed", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#define behind a NUL", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#define behind a multi-line comment", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#define after a token and a multi-line comment", "recorded": ["a", "z"], "gate": ["a", "z"], "gcc": ["a", "z"], "agree": true}
+{"set": "corpus", "label": "#define split by a splice", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "a #define whose name a splice splits", "recorded": ["b", "z"], "gate": ["b", "z"], "gcc": ["b", "z"], "agree": true}
+{"set": "corpus", "label": "#undef behind a form feed", "recorded": ["z"], "gate": ["z"], "gcc": ["z"], "agree": true}
+{"set": "corpus", "label": "#undef behind a lone CR", "recorded": ["z"], "gate": ["z"], "gcc": ["z"], "agree": true}
+{"set": "extra", "label": "BOM then #ifdef at file start", "text": "\ufeff#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": null, "gcc": ["z"], "gate_refuses_before_readers": false, "findings": [], "agree": false, "gcc_err": ""}
+{"set": "extra", "label": "BOM then #define at file start", "text": "\ufeff#define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["z"], "gcc": ["b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": false, "gcc_err": ""}
+{"set": "extra", "label": "a multi-line comment between # and the name", "text": "int a;\n#/* c\n */ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a lone CR inside a block comment before #", "text": "int a;\n/* c\r c */ #ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "CRLF splice inside #else", "text": "#ifdef FOO\nint a;\n#el\\\r\nse\nint b;\n#endif\nint z;\n", "gate": ["b", "z"], "gcc": ["b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a splice with trailing blanks and CRLF inside #endif", "text": "int a;\n#ifdef FOO\nint b;\n#end\\ \t\r\nif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a NUL between / and *", "text": "int a; /\u0000* c */\n#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a string whose escaped backslash is a splice", "text": "const char *s = \"a\\\\\n#ifdef FOO\";\nint b;\nint z;\n", "gate": ["b", "z"], "gcc": ["b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a form feed and a comment after #", "text": "int a;\n#\f/* c */ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a directive after a line of only form feeds", "text": "int a;\n\f\f\n#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a comment then a NUL then #", "text": "int a;\n/* c */\u0000#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a splice then a form feed before #", "text": "int a;\n\\\n\f#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["a", "z"], "gcc": ["a", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a NEL (U+0085) before #", "text": "int a;\n\u0085#ifdef FOO\nint b;\n\u0085#endif\nint z;\n", "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a ZWNBSP (U+FEFF) mid-file before #", "text": "int a;\n\ufeff#ifdef FOO\nint b;\n\ufeff#endif\nint z;\n", "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a Ctrl-Z before #", "text": "int a;\n\u001a#ifdef FOO\nint b;\n\u001a#endif\nint z;\n", "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "#elifdef behind a vertical tab", "text": "#ifdef BAR\nint a;\n\u000b#elifdef FOO\nint b;\n#else\nint c;\n#endif\nint z;\n", "gate": ["c", "z"], "gcc": ["c", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "#ifndef behind a CRLF and a form feed", "text": "int a;\r\n\f#ifndef FOO\r\nint b;\r\n#endif\r\nint z;\r\n", "gate": ["a", "b", "z"], "gcc": ["a", "b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "an apostrophe in a #define then a directive", "text": "#define Q 'a'\n#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["z"], "gcc": ["z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"set": "extra", "label": "a // comment continued by a splice after CRLF", "text": "int a;\r\n// c \\\r\n#ifdef FOO\r\nint b;\r\n#endif\r\nint z;\r\n", "gate": null, "gcc": null, "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": "/tmp/r273-lex-0li1juou/milan_baremetal.c:5:2: error: #endif without #if\n    5 | #endif\n      |  ^~~~~\n"}
+{"set": "extra", "label": "a splice inside the #define name with CR", "text": "#define F\\\rOO\n#ifdef FOO\nint b;\n#endif\nint z;\n", "gate": ["b", "z"], "gcc": ["b", "z"], "gate_refuses_before_readers": false, "findings": [], "agree": true, "gcc_err": ""}
+{"corpus_disagreements": 0}
