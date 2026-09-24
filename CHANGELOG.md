@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - one media event per PHC step](#unreleased---one-media-event-per-phc-step)** -- Toggles `mr` once.
 - **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
 - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
@@ -25,6 +26,27 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - one media event per PHC step
+
+- Issue #387 decided a PHC step's media reaction.
+- Every step now toggles `mr` once, on every running stream.
+- That holds whatever the media clock source.
+- Each talker's MEDIA_RESET counts the toggle it sends.
+- The render stage re-centres once, on the step.
+- A grandmaster identity change no longer re-centres it.
+- So a change that steps counts one re-base, not two.
+- Software settime and plane-off adjtime are steps too.
+- A step on a pending `mr` restart merges with it.
+- Exactly one toggle follows; nothing is cancelled.
+- Before, a second request flipped the target back.
+- Neither restart then reached the wire.
+- The restart target is therefore per stream.
+- The `milan_dp` gmstep leg joins the default sweep: 48/48.
+- Three negative controls run with it.
+- `make gmstep-mutants` plants all nine.
+- `tkdiag` T17 grades the merge; two mutants must fail it.
+- No CSR moves.
 
 ## Unreleased - licence and LeaveAll scope
 

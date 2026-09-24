@@ -124,8 +124,11 @@ they are not discovered by surprise:
    and `milan_datapath`'s `media_clk_resolve` compares it against the
    shape's generated `AEM_CRF_CLKSRC_C` into one registered verdict gating
    `KL_mmcm_drp_servo`, the `KL_media_grid_align` packet-grid chain and the
-   4.4.4.3 `mr` machinery. At the INTERNAL power-on state `A_MCSRV_STAT`
-   `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
+   CRF triggers of the 4.4.4.3 `mr` machinery (the disruption and the
+   received toggle). A PHC step toggles `mr` on every running Stream
+   Output whatever the selection, and that output's Table 5.4 MEDIA_RESET
+   counts the toggle it transmits (#387). At the INTERNAL power-on state
+   `A_MCSRV_STAT` `0x8F8` still reads idle - by the standing free-run rule (slips accepted), not
    by tie-off. Since `0x0058` the accepted slips are counted where software can
    read them, `SLIP_LB`/`SLIP_TDM` at `0x8D4`/`0x8D8`.
 2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
