@@ -1,0 +1,69 @@
+{
+ "tree": "$REVIEWS/r272-5-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "control: shipping firmware",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "vertical tab: product-only `0 &&` in the choke point verdict test",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "form feed: product-only paged-base cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only literal-address cast store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only lui asm store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  }
+ ]
+}

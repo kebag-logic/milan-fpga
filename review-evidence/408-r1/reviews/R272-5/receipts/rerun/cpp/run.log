@@ -1,0 +1,105 @@
+== ff-vt.c (no -D)
+int a;
+int d;
+exit=0
+== ff-vt.c -DFOO
+int a;
+int b;
+int c;
+int d;
+exit=0
+== ff-vt.c -DBAR
+int a;
+int d;
+exit=0
+== nul.c (no -D)
+int a;
+int c;
+exit=0
+== nul.c -DFOO
+int a;
+int b;
+int c;
+exit=0
+== nul.c -DBAR
+int a;
+int c;
+exit=0
+== ff-after-hash.c (no -D)
+int a;
+int c;
+exit=0
+== ff-after-hash.c -DFOO
+int a;
+int b;
+int c;
+exit=0
+== ff-after-hash.c -DBAR
+int a;
+int c;
+exit=0
+== elifdef.c (no -D)
+int a;
+int d;
+exit=0
+== elifdef.c -DFOO
+int a;
+int b;
+exit=0
+== elifdef.c -DBAR
+int a;
+int c;
+exit=0
+== lone-cr.c (no -D)
+int a;
+int c;
+int d;
+exit=0
+== lone-cr.c -DFOO
+int a;
+int b;
+int c;
+int d;
+exit=0
+== lone-cr.c -DBAR
+int a;
+int c;
+int d;
+exit=0
+== ff-undef.c (no -D)
+int x = 0x600u;
+exit=0
+== ff-undef.c -DFOO
+int x = 0x600u;
+exit=0
+== ff-undef.c -DBAR
+int x = 0x600u;
+exit=0
+== pragma-pop.c (no -D)
+
+
+
+
+
+
+int x = 0x600u;
+exit=0
+== pragma-pop.c -DFOO
+
+
+
+
+
+
+int x = 0x600u;
+exit=0
+== pragma-pop.c -DBAR
+
+
+
+
+
+
+int x = 0x600u;
+exit=0
+exit=0

@@ -1,0 +1,31 @@
+{
+ "tree": "$REVIEWS/r272-5-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "identity forged through a plain function-like macro",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "identity forged through a token-joining splice of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a backslash-newline JOINS two tokens inside the boot entry point (line 1442): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two"
+  },
+  {
+   "label": "identity forged through a ## paste of the local's name",
+   "verdict": "REFUSED",
+   "reason": "a `##` paste reaches the boot entry point through #define MILAN_CAT: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments"
+  },
+  {
+   "label": "plain #: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  },
+  {
+   "label": "form feed: product-only struct-overlay store to ADP_CTRL in a UART handler",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

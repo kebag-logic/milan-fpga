@@ -1,0 +1,19 @@
+{
+ "tree": "$REVIEWS/r272-5-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "mutations",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "[r5] live #include <a'U+00E9'b.h> added before the first #include",
+   "verdict": "REFUSED",
+   "reason": "the firmware's include set is pinned, and <a'\u00e9'b.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  },
+  {
+   "label": "[r5] the same #include in an #ifdef MILAN_NEVER_DEFINED group",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 3 `#ifdef MILAN_NEVER_DEFINED`: arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the firmware's include set is pinned, and <a'\u00e9'b.h> is not in it: every rule in this gate reads ONE file, so an include it does not know about is text in the translation unit that no rule reads. A #include of a .c keeps the object count at one, so the single-translation-unit check is satisfied honestly while the closure reads the wrong file"
+  }
+ ]
+}

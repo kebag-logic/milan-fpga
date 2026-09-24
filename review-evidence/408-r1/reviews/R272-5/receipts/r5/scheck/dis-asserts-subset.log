@@ -1,0 +1,15 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/408-r272-5-packet/scripts/r1/probe_gate1b.py", line 140, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/408-r272-5-packet/scripts/r1/probe_gate1b.py", line 126, in main
+    module.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r272-5-408/sw/builder/test_builder.py", line 11138, in test_baremetal_profile_contract
+    closure_note = assert_character_closure()
+  File "$REVIEWS/r272-5-408/sw/builder/test_builder.py", line 5897, in assert_character_closure
+    assert not outside, \
+           ^^^^^^^^^^^
+AssertionError: S admitted the closure cell byte 0x01 at offset 0, before `#` ('\x01#ifdef FOO\nint b;\n#endif\nint z;\n'), a character outside its allowlist where it sits
+exit=1

@@ -1,0 +1,57 @@
+{
+ "control: plain #ifdef": {
+  "text": "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": ""
+ },
+ "control: the %: digraph": {
+  "text": "int a;\n%:ifdef FOO\nint b;\n%:endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": ""
+ },
+ "a splice inside the %: digraph": {
+  "text": "int a;\n%\\\n:ifdef FOO\nint b;\n%\\\n:endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": ""
+ },
+ "a splice with a space inside the %: digraph": {
+  "text": "int a;\n%\\ \n:ifdef FOO\nint b;\n%\\ \n:endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": "$REVIEWS/408-r272-5-packet/scratch/gcc-spellings/s3.c:2:2: warning: backslash and newline separated by space\n    2 | %\\\n$REVIEWS/408-r272-5-packet/scratch/gcc-spellings/s3.c:5:2: warning: backslash and newline separated by space\n    5 | %\\"
+ },
+ "a form feed before the %: digraph": {
+  "text": "int a;\n\f%:ifdef FOO\nint b;\n\f%:endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": ""
+ },
+ "a UTF-8 BOM before # at file start": {
+  "text": "\ufeff#ifndef FOO\nint a;\n#endif\nint z;\n",
+  "gcc_rc": 0,
+  "gcc_keeps": [
+   "a",
+   "z"
+  ],
+  "stderr": ""
+ }
+}
+exit=0

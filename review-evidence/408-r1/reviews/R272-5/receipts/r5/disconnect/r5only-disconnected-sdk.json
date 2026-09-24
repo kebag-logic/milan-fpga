@@ -1,0 +1,72 @@
+{
+ "tree": "$REVIEWS/r272-5-408",
+ "mode": "sdk",
+ "patches": [
+  "$REVIEWS/408-r272-5-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-5-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-5-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-5-packet/scripts/r5/patches/disconnect-allowlist.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 188,
+ "results": [
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B2",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if\u00b2a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00E9",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if\u00e9a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B7",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if\u00b7a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+0301",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if\u0301a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+2028",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00A0",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken; line 1500 `#if a`: arm 1 of 1 taken; line 1503 `#ifdef MILAN_NEVER_DEFINED`: MILAN_NEVER_DEFINED defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] control: the shipping firmware unchanged",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

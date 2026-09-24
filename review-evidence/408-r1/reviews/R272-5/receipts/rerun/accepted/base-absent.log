@@ -1,0 +1,26 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS #408 AND #409 ADD ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- and so are the instrument-level acceptance and refusal measurements taken with them. WHAT GRADED THIS RUN is every text rule this gate has ever had, unchanged and in force: the conditional-reach ban, the token-joining splice ban, the paste/digraph/trigraph ban, the pointer-cast, pointer-store and inline-asm sets and the directory pin. NOTHING IS RETIRED ONTO THE INSTRUMENTS, here or on a machine that has them, so this run refuses exactly what dev refuses and a run with a compiler refuses more; the six edits #408 and #409 would retire are refused here as mutations, as they are everywhere
+REFUSED pin_ok=True: an #ifdef around a debug printf INSIDE milan_init()
+    firmware must not select boot code with the preprocessor (a conditional group reaching the boot entry point): this gate would read one arm while the compiler takes the other
+REFUSED pin_ok=True: a benign statement in an arm the census tree drops, inside configure_fabric()
+    firmware must not select boot code with the preprocessor (a conditional group reaching the fabric configuration step): this gate would read one arm while the compiler takes the other
+REFUSED pin_ok=True: an #ifdef/#else choosing a #define, read in a UART command handler
+    firmware must not select boot code with the preprocessor (a conditional group carrying #define): the address model reads every definition as unconditional text, so an arm this gate cannot evaluate chooses the value it resolves a register name to
+REFUSED pin_ok=True: a ## token paste building a call outside the boot path
+    firmware must not paste tokens, and must not spell one with a digraph or a trigraph: a pasted call name builds a CSR store this gate cannot read, and an alternate spelling of `#` builds a directive it cannot read either
+REFUSED pin_ok=True: a token-joining backslash-newline inside a macro body
+    firmware must not splice physical source lines with backslash-newline where the pair JOINS two tokens: C translation phase 2 deletes it before preprocessing tokens are formed, so the physical-text whole-firmware store census can miss a joined CSR primitive name
+REFUSED pin_ok=True: a read-only #define accessor over milan_read()
+    #define MILAN_ADP_STATE hides milan_read() inside a macro body: every call to a CSR primitive must be spelled out so the operand census can read which register it names. A read-only accessor macro contains no store and is refused for this reason, not for storing
+REFUSED pin_ok=True: a fifth cast to a pointer, resolving outside the window
+    the firmware's casts to a pointer are pinned: a cast is where an address becomes a pointer, so naming ONE cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and `(void *)` free to name a control register; found ['(volatile uint32_t *)', '(volatile uint8_t *)', '(volatile uint8_t *
+REFUSED pin_ok=True: a fifth store through a pointer, resolving outside the window
+    the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = (uint64_t)parse
+REFUSED pin_ok=True: parse_u64() and seconds_to_ns() exchanged, with nothing added or removed
+    the firmware's stores through a pointer are pinned: a store is a store whatever cast formed the pointer, and naming one cast spelling leaves `volatile unsigned int *`, `uint32_t volatile *` and a (void *) into a local all reaching a CSR; found ['*milan_reg(offset) = value', '*value = seconds * 10000
+REFUSED pin_ok=True: a fifth inline-asm statement, a fence in a UART command handler
+    the firmware's inline asm is pinned: an asm template carries no milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal address in one stores to a control register past every rule in the CSR store closure; found ['__asm__ volatile("fence iorw, iorw" ::: "memory")', '__asm__ volatile("
+REFUSED pin_ok=True: a README and a notes.txt beside the firmware
+    the firmware's directory is pinned to ['Makefile', 'milan_baremetal.c']: a quoted include resolves against this directory FIRST, so a file dropped in here answers to a pinned include name and puts this repository's text behind it with no name changing anywhere; found ['Makefile', 'README', 'milan_ba
+PROBE DONE: 11 case(s), 0 firmware compiles
+exit=0

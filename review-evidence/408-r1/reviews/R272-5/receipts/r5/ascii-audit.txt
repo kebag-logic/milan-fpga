@@ -1,0 +1,87 @@
+gate 1b function lines 2858 16283
+3054	finditer	source[:stop]	'\\b(?:begin|end|generate|endgenerate|case|casex|casez|endca
+3074	sub	''	'\\b(?:end|endgenerate|endcase|join|join_any|join_none)\\b(?
+3467	compile	(compiled)	"\\b(A_[A-Z0-9_]+)\\s*=\\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)"
+3472	compile	(compiled)	'\\bcase[xz]?\\b|\\bendcase\\b'
+3475	compile	(compiled)	"\\A\\s*(?:[0-9]+[ \\t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+
+3490	sub	''	'[\\s_]'
+3523	compile	(compiled)	f'\\b{re.escape(signal)}\\b\\s*(?:\\[[^\\]]*\\])?\\s*(?:<=|=
+3538	finditer	csr	'\\bcase\\b\\s*\\(\\s*wr_addr\\s*\\)'
+3586	search	csr	'\\bwire\\s*\\[\\s*ADDR_WIDTH\\s*-\\s*1\\s*:\\s*0\\s*\\]\\s*
+3591	finditer	csr	'\\bcase[xz]\\b\\s*\\(\\s*wr_addr\\s*\\)'
+3624	finditer	csr	f'\\bassign\\s+{port}\\s*=\\s*{re.escape(signal)}\\s*\\[\\s*
+3649	finditer	csr	'\\bfunction\\s+automatic\\s+\\[\\s*31\\s*:\\s*0\\s*\\]\\s+c
+3656	finditer	body	'\\bunique\\s+case\\s*\\(\\s*a\\s*\\)'
+3661	fullmatch	body[:case.start()]	"\\s*csr_default\\s*=\\s*32\\s*'\\s*[hH]0\\s*;\\s*"
+3685	finditer	case_body	f'\\b{re.escape(rtl_name)}\\s*{low_eleven}\\s*:\\s*csr_defau
+3866	compile	(compiled)	"\\bptp_ctrl\\s*<=\\s*(?P<literal>(?:(?:[0-9]+)\\s*)?'[hHdDb
+3883	finditer	csr	'\\bassign\\s+o_ptp_enable\\s*=\\s*(?P<value>[^;]+);'
+3889	fullmatch	value	'\\s*ptp_ctrl\\s*\\[\\s*0\\s*\\]\\s*'
+4098	compile	(compiled)	'^(\\.+)\\s+(\\S.*?)\\s*$'
+4325	search	soc_source	'(?m)^MILAN_CSR_BASE\\s*=\\s*(0x[0-9A-Fa-f_]+)'
+4327	search	soc_source	'(?m)^MILAN_CSR_SIZE\\s*=\\s*(0x[0-9A-Fa-f_]+)'
+4336	compile	(compiled)	'^\\s*\\.(?:cfi|file|loc|size|ident|align|globl)'
+4492	compile	re.M	'^\\s*\\.attribute\\s+arch\\s*,\\s*"([^"]*)"'
+5799	findall	build.stderr.decode('utf-8', errors='rep	'(?m)(lex\\d{5}\\.c):\\d+(?::\\d+)?: (?:fatal )?error:'
+6038	match	line	'^([A-Za-z_][\\w.]*):'
+6185	compile	(compiled)	f'^{re.escape(choke)}:$|^\\.type\\s+{re.escape(choke)},\\s*@
+6190	compile	(compiled)	f'(?<![\\w.$]){re.escape(choke)}(?![\\w.$])'
+7182	finditer	text	'\\bOBJECTS\\b'
+7672	sub	' '	'\\s+'
+8190	sub	' '	'\\s+'
+8267	sub	' '	'\\s+'
+8370	sub	' '	'\\s+'
+8428	sub	' '	'\\s+'
+9877	findall	makefile	'\\b([\\w.-]+)\\.o\\b'
+9933	findall	origins_run.stdout + origins_run.stderr	'(?m)^PROBE_ORIGIN_(\\w+)=\\[(.*)\\]$'
+9937	findall	plan.stdout + plan.stderr	'(?m)^PROBE_(\\w+)=\\[(.*)\\]$'
+10093	finditer	code	'`[ \\t]*(?P<name>[A-Za-z_][A-Za-z0-9_$]*)\\b'
+10139	finditer	ports	f'\\.{re.escape(port)}\\s*\\(\\s*(?P<value>[^)]*?)\\s*\\)'
+10144	sub	''	'\\s+'
+10145	sub	''	'\\s+'
+10161	findall	source	f'\\b{re.escape(name)}\\b'
+10175	sub	''	'\\s+'
+10176	sub	''	'\\s+'
+10192	fullmatch	matches[0].group('value')	f'\\s*{re.escape(rhs)}\\s*'
+10201	finditer	source	f'\\b{re.escape(module)}\\b\\s*#\\s*\\([^;]*?\\)\\s*{re.esca
+10219	finditer	csr_code	'\\binitial\\s+begin\\b(?P<body>.*?)\\bend\\b'
+10222	search	match.group('body')	'\\bdflt_rom\\b'
+10225	fullmatch	rom_initializers[0].group('body')	"\\s*for\\s*\\(\\s*int\\s+k\\s*=\\s*0\\s*;\\s*k\\s*<\\s*512\
+10436	search	datapath	'\\bgenerate\\s+if\\s*\\(\\s*RXFILT_P\\s*!=\\s*0\\s*\\)\\s*b
+10518	search	datapath	'\\bgenerate\\s+if\\s*\\(\\s*GPTP_PLANE_EN_P\\s*\\)\\s*begin
+10622	finditer	datapath	'\\bKL_link_guard\\s+link_guard\\s*\\((?P<ports>.*?)\\)\\s*;
+11366	search	csr_source	"\\bparameter\\s+logic\\s*\\[\\s*31\\s*:\\s*0\\s*\\]\\s+VERS
+11397	search	init_code	'\\buint32_t\\s+(?P<name>\\w+)\\s*=\\s*milan_read\\s*\\(\\s*
+11404	search	init_code	'\\bif\\s*\\(\\s*\\w+\\s*!=\\s*MILAN_ID_MAGIC\\s*\\)\\s*\\{'
+11415	search	init_code	'\\bentity_advertise\\s*\\(\\s*aem_loaded\\s*\\)\\s*;'
+11422	search	firmware_code	'\\bif\\s*\\(\\s*![ \\t]*' + re.escape(source_advertise.grou
+11436	search	firmware_code	'\\baem_loaded\\s*=\\s*load_aem_image\\s*\\(\\s*\\)\\s*;'
+11456	search	firmware_code	'static\\s+void\\s+configure_fabric\\s*\\(\\s*void\\s*\\)\\s
+11462	search	firmware_code	'\\bstatic\\s+inline\\s+volatile\\s+uint32_t\\s*\\*\\s*milan
+11475	search	firmware_code	'\\bstatic\\s+inline\\s+uint32_t\\s+milan_read\\s*\\(\\s*uns
+11498	search	code	'\\bstatic\\s+inline\\s+volatile\\s+uint32_t\\s*\\*\\s*milan
+11514	search	init_code	'\\bconfigure_fabric\\s*\\(\\s*\\)\\s*;'
+11601	search	firmware_code	f'(?m)^#define\\s+{spare_name}\\s+\\S+[ \\t]*$'
+11608	sub	f'0x{source_model.pp:03x}u'	'\\S+[ \\t]*$'
+11664	search	docs_source	'After\\s+the\\s+identity\\s+check\\s+and\\s+AEM\\s+verifica
+11669	sub	'enable the PTP clock and set the `PP_CT	'set\\s+the\\s+`PP_CTRL'
+11676	search	source_identity_block	'\\breturn\\s*;'
+11765	finditer	source	f'\\b{re.escape(module)}\\b\\s*#\\s*\\([^;]*?\\)\\s*{re.esca
+11773	finditer	ports	f'\\.{re.escape(port)}\\s*\\(\\s*(?P<value>[^)]*?)\\s*\\)'
+11776	fullmatch	connections[0].group('value')	f'\\s*{re.escape(value)}\\s*'
+11786	sub	'ptp_ctrl[0] & adp_ctrl[0]'	'ptp_ctrl\\s*\\[\\s*0\\s*\\]'
+12189	search	csr_source	"\\bA_ADP_CTRL\\s*=\\s*(?:[0-9]+)?'[hH][0-9A-Fa-f_]+"
+12192	search	csr_source	'(?m)^([ \\t]*)A_ADP_CTRL\\s*:\\s*adp_ctrl\\s*<=[^;]*;'
+12212	finditer	source_load_code	'\\breturn\\b([^;]*);'
+12976	search	statement	'(?:<=|=)\\s*([^;]*);'
+12978	sub	''	'\\s'
+12995	finditer	csr_source	f'\\b{re.escape(signal)}\\s*(?:<=|=)\\s*([^;]*);'
+13015	search	csr_source	'\\bA_ADP_CTRL\\s*\\[[^\\]]*\\]\\s*:\\s*csr_default\\s*=\\s*
+13038	search	code	'\\bstatic\\s+inline\\s+volatile\\s+uint32_t\\s*\\*\\s*milan
+13257	findall	census_arch	'(?:^rv32|_)([a-z][a-z0-9]*?)\\d+p\\d+'
+13349	search	_taken['text']	f'(?m)^\\s+{re.escape(mnemonic)}(?:\\.[a-z]+)*\\s'
+13375	search	source_load_code	f'\\b{re.escape(crc_local)}\\s*=\\s*crc32\\s*\\([^;]*;'
+13439	search	source_load_code	'volatile\\s+uint8_t\\s*\\*\\s*dst\\s*=\\s*\\(\\s*volatile\\
+13814	sub	''	'\\s+'
+14162	subn	"The paste ban reads every macro those b	'\\s+'.join(map(re.escape, PASTE_BOUND_CLAIM.split()))
+85 calls

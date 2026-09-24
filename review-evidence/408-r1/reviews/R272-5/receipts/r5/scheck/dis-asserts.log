@@ -1,0 +1,15 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/408-r272-5-packet/scripts/r1/probe_gate1b.py", line 140, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/408-r272-5-packet/scripts/r1/probe_gate1b.py", line 126, in main
+    module.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r272-5-408/sw/builder/test_builder.py", line 11136, in test_baremetal_profile_contract
+    subset_note = assert_subset_refuses()
+  File "$REVIEWS/r272-5-408/sw/builder/test_builder.py", line 5301, in assert_subset_refuses
+    raise AssertionError(
+        f"S accepted {label!r}, which is outside the subset")
+AssertionError: S accepted 'U+00B7 after `#if`, which GCC reads as one unknown directive', which is outside the subset
+exit=1

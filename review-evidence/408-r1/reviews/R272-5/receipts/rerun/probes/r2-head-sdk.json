@@ -1,0 +1,34 @@
+{
+ "tree": "$REVIEWS/r272-5-408",
+ "mode": "sdk",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 139,
+ "results": [
+  {
+   "label": "control: form feed arm around a SPELLED milan_write enable in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)"
+  },
+  {
+   "label": "NUL byte before #: product-only literal-address cast store in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('milan_status_handler', '0x90000000', 'li a5,-1879048192')]"
+  },
+  {
+   "label": "unterminated-quote defines around a product-only literal-address cast store in a UART handler",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1499): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  },
+  {
+   "label": "unterminated-quote defines around a product-only `0 &&` in the choke point verdict test",
+   "verdict": "REFUSED",
+   "reason": "the firmware opens a literal that no quote closes on its line (line 1395): GCC ends it at the end of that line with only a warning, which is not what a quote there is written to mean"
+  },
+  {
+   "label": "form feed: product-only literal-address cast store inside configure_fabric() (a boot-path body)",
+   "verdict": "REFUSED",
+   "reason": "under the arm selection line 1384 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, whatever cast, typedef, macro, member access or asm template spelled it; found [('configure_fabric', '0x90000000', 'li a5,-1879048192')]"
+  }
+ ]
+}

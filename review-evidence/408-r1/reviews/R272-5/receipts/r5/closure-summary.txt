@@ -1,0 +1,21 @@
+PART A: the gate's 2520-cell table, GCC re-measured per cell by this review (gcc -std=gnu99 -E -P, one file per cell)
+  {"allowlist": 1470, "other": 32, "admitted": 1018, "recorded_vs_gcc_mismatch": 0, "admitted_disagree": 0, "allowlist_reader_differs": 43}
+PART B: boundary positions the table does not hold (this review's own), X = 256 bytes + the gate's 24 sequences + 11 more (empty included)
+  {"allowlist": 2838, "other": 223, "admitted": 1595, "admitted_disagree": 1, "payload_in_code_admitted": 0}
+  B1 byte splitting a block-comment opener: {'admitted': 99, 'agree': 99, 'allowlist': 188, 'other': 4}
+  B1p ... with U+00B7 where the comment would be: {'allowlist': 285, 'other': 2, 'admitted': 4, 'agree': 4}
+  B2 byte splitting a block-comment closer: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B3 byte splitting a line-comment opener: {'admitted': 99, 'agree': 99, 'allowlist': 188, 'other': 4}
+  B3p ... with U+00B7 where the line comment would be: {'allowlist': 285, 'other': 2, 'admitted': 4, 'agree': 4}
+  B4 byte ending a line comment: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B5 byte between a backslash and the line end of a line comment: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B6 byte between a backslash and the line end in a #define: {'admitted': 8, 'agree': 8, 'allowlist': 188, 'other': 95}
+  B7 byte after an escape backslash in a string literal: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B8 byte after an escape backslash in a character literal: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B9 byte between a raw prefix and its quote: {'admitted': 97, 'agree': 97, 'allowlist': 188, 'other': 6}
+  B10 byte before a quote after a digit (digit separator?): {'admitted': 100, 'agree': 100, 'allowlist': 188, 'other': 3}
+  B11 byte at end of file after a line comment: {'admitted': 155, 'agree': 155, 'allowlist': 136}
+  B12 byte at end of file in code: {'admitted': 99, 'agree': 98, 'allowlist': 188, 'other': 4, 'DISAGREE': 1}
+  B13 byte before a string's closing quote then a comment opener: {'admitted': 153, 'agree': 153, 'other': 2, 'allowlist': 136}
+  B14 byte after an #include-like < in skipped code: {'other': 101, 'allowlist': 188, 'admitted': 2, 'agree': 2}
+  admitted cells where reader != GCC: [('byte 0x23 | B12 byte at end of file in code', None, ['a', 'z'])]

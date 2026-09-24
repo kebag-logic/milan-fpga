@@ -1,0 +1,54 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler
+ACCEPTED pin_ok=False: [retired] entity enabled through a spliced call name in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] a struct-overlay store at the ADP_CTRL address in a dropped arm
+ACCEPTED pin_ok=False: [retired] the verifier's QSPI-slot condition made false in the census stub tree
+ACCEPTED pin_ok=False: [retired] an arm only the product compiles, short-circuiting the choke point's verdict test
+ACCEPTED pin_ok=False: [retired] entity enabled by an inline-asm store to the CSR address
+ACCEPTED pin_ok=False: [retired] entity enabled by a lui-based inline-asm store
+ACCEPTED pin_ok=False: [retired] entity enabled through a widened pointer cast
+ACCEPTED pin_ok=False: [retired] entity enabled through a reordered pointer cast
+ACCEPTED pin_ok=False: [retired] entity enabled through a pointer held in a local
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler
+ACCEPTED pin_ok=False: [retired] entity enabled through a fifth pointer cast in the product's arm of an #ifdef a split `%:` digraph spells, graded as the selection the readers find
+ACCEPTED pin_ok=False: [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed
+ACCEPTED pin_ok=False: [retired] an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test
+ACCEPTED pin_ok=False: [retired] entity enabled through a cast in the product's arm, behind an #else a splice splits
+ACCEPTED pin_ok=False: [retired] entity enabled through a cast in the second of two groups on CSR_UART_BASE
+ACCEPTED pin_ok=False: [retired] a boot step erased by a function-like macro of its own name
+ACCEPTED pin_ok=False: [retired] pinned include shadowed by a file beside the firmware
+ACCEPTED pin_ok=False: [retired] the second pinned quoted include shadowed by a file beside the firmware
+ACCEPTED pin_ok=False: [retired] pinned include shadowed by a LINK beside the firmware to a file outside this repository
+REFUSED pin_ok=False: [selection] AEM guard selected by a build flag
+    the entity-advertise choke-point call must be a statement of milan_init() itself, not the body of another condition: a condition this gate cannot evaluate can drop it from the boot path
+ACCEPTED pin_ok=False: [selection] pre-AEM clear behind a build flag
+REFUSED pin_ok=False: [selection] a dropped arm inside a CSR write's argument
+    ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2 enabling write(s)
+REFUSED pin_ok=False: [selection] CRC comparison itself put behind a build flag
+    AEM verifier non-zero return must be textually after the CRC mismatch block and in its preprocessor arm; CFG reachability is not proved (#153), but 'return 1;' is not even placed behind that textual boundary
+REFUSED pin_ok=False: [selection] ADP_CTRL's name moved to another register by an arm only the product compiles
+    #define MILAN_ADP_CTRL is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED pin_ok=False: [selection] a pasted call name in an arm the stub tree drops
+    a `##` paste reaches the fabric configuration step through #define MILAN_J: the compiler reads the name the paste builds, and every text rule reading this body reads the macro's arguments
+REFUSED pin_ok=False: [selection] a spliced call name in an arm the stub tree drops
+    a backslash-newline JOINS two tokens inside the fabric configuration step (line 1385): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED pin_ok=False: [selection] a spliced call name in an arm only the product compiles
+    a backslash-newline JOINS two tokens inside the fabric configuration step (line 1385): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED pin_ok=False: [selection] a spliced call name onto a literal address in a dropped arm
+    a backslash-newline JOINS two tokens inside the fabric configuration step (line 1385): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+ACCEPTED pin_ok=False: [selection] the pre-AEM clear dropped by a product-only #ifndef behind a form feed
+ACCEPTED pin_ok=False: [selection] the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab
+ACCEPTED pin_ok=False: [selection] the pre-AEM clear dropped by a product-only #ifndef behind a NUL
+ACCEPTED pin_ok=False: [selection] the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends
+REFUSED pin_ok=True: [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+    milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed
+REFUSED pin_ok=True: [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)
+    milan_reg() must return exactly MILAN_CSR_BASE plus the offset it is passed
+PROBE DONE: 40 case(s), 0 firmware compiles
+exit=0

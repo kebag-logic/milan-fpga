@@ -1,0 +1,158 @@
+[R272] NEGATIVE - exact head 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23
+
+Round R272-5, internal cleared-context independent review of issue #408 and #409, PR #535.
+- Exact head `4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23`, tree `cd80452d1b3470374862fe387b114eab6d805cb0`.
+- Source base `759da623072358afdb0e9d570a7b4b6a788492c9`. Previous head `11b1b86c11378cac414ef58f6be40d8da00980da`.
+- Correction round 4 answers R272-4 F1 and R273-5 F1, the same MAJOR: an extended identifier character inside S.
+
+## Reconstruction
+
+I read, in this order:
+- `AGENTS.md` and `CONTRIBUTING.md`, then `docs/README.md`;
+- the #408 body (acceptance 1-5), the assignment and decision comments on #408, and the manager direction for this round (issue comment 5813535416) with its follow-up decision (5815136430: a byte-order mark at offset 0 is refused, and invalid UTF-8 in a comment is refused with the cost stated);
+- `git diff 759da623..4a56ef08`, with the round-4 delta `11b1b86c..4a56ef08` read line by line (`sw/builder/test_builder.py` and `docs/integration/BAREMETAL_FIRMWARE.md`, 709+/161-);
+- the hosted check runs at the exact head, and the list of the manager's evidence tree.
+
+I read my own R272-4 report only after my own pass over the diff. I read no other reviewer's report before this verdict and ledger were written.
+
+## Verdict summary
+
+The allowlist does what the direction asks, and I could not break it.
+- Outside a comment or a literal, only printable ASCII plus HT, LF, VT, FF, CR and NUL are admitted. Every other character is refused by name before any reader. Invalid UTF-8 is refused everywhere, and so is a leading BOM.
+- Every gate 1b reader of C text runs in ASCII mode (`re.ASCII`, `(?a)` through `cpp_hash`) or spells explicit ASCII classes. The only Unicode-mode regexes left on C text build mutants from the ASCII-only shipping firmware and do not grade (`receipts/r5/ascii-audit.txt`).
+- The 2520-cell table re-measures independently: my own per-cell GCC run matches the recorded outcome on every cell. It gives the same 1470 / 32 / 1018 split, and no admitted cell disagrees.
+- I added 4656 cells of my own at comment and literal boundaries the table does not hold. No admitted cell is read differently from GCC in the unsafe direction. The one difference is fail-closed: the readers refuse a lone `#` at end of file that GCC accepts.
+- Acceptance 4 is met: 280/280 with the SDK and 222/222 absent. The mutation table lost no entry.
+- Every probe of my rounds 1-4 was re-run unchanged in both modes.
+
+Two MINORs are open at this head, so the verdict is NEGATIVE.
+- **R272-5-F1 (mine).** The page and two site comments describe the closure table as covering "every byte in every position" and "each position a lexing difference moves a directive". It holds nine positions. The boundary positions I measured are real positions where an admitted character decides whether a directive is live. The readers agree there, but the table does not show it.
+- **R273-6 F1, retained.** After this verdict and ledger were written (`receipts/verdict-before-prior-findings.txt`), I read the other reviewer's round-six report. I confirmed its F1 independently on the pinned GCC (`receipts/r5/invalid-utf8/`). The page and the refusal message give GCC parity as the reason for refusing a byte that is not UTF-8 in a comment. GCC accepts that byte, and decision 5815136430 requires the page to state that cost. I retain it and amend my ledger's Conformance row, which was CLEAN before that reading.
+
+## Findings
+
+### R272-5-F1 - MINOR - Docs - the closure table's scope is stated as every position; it holds nine
+
+**Artifact.**
+- `docs/integration/BAREMETAL_FIRMWARE.md:1346`, the allowlist cost row: "Denying such characters one at a time cannot be shown complete, and admitting a stated set can: the closure table above is that proof, every byte in every position."
+- `sw/builder/test_builder.py:5107-5109`, the S comment: "`_closure_corpus()` is the proof, every byte in every position (assert_character_closure())."
+- `sw/builder/test_builder.py:5430-5435`, the lexer bound comment: "At the CHARACTER level the bound is closed rather than sampled (round four): the closure table ... puts every byte 0 to 255 and a set of multi-byte sequences in each position a lexing difference moves a directive".
+- For contrast, the accurate statements: `docs/integration/BAREMETAL_FIRMWARE.md:322-331` ("is put in each of nine positions") and the gate print ("in 9 positions", `receipts/gate1b/head-gate1b-sdk.log`).
+
+**Authority and evidence.**
+- Manager direction 5813535416 item 5: the docs and gate print "state the allowlist as it runs".
+- #408 acceptance 5: the page matches what survives.
+- The round-three decision (5811522505) item 3 set the pattern for this PR: a proof claim is stated only as far as it was shown ("exact on S; outside S refused"), with the lexer corpora named as the bound.
+- `_CLOSURE_POSITIONS` (`sw/builder/test_builder.py:2758-2783`) holds nine positions. None is at a comment or literal boundary.
+
+This review measured 14 boundary positions outside the table (16 templates, 4656 cells, `receipts/r5/partB-boundary.json`, summary in `receipts/r5/closure-summary.txt`). At several of them a character decides whether the next directive is live:
+- B1: a byte between `/` and `*`;
+- B3: a byte between `/` and `/`;
+- B5: a byte between a backslash and the line end of a `//` comment;
+- B6: the same in a `#define`;
+- B9: a byte between a raw prefix and its quote;
+- B10: a byte before a quote after a digit.
+
+At B5 the allowlist admits every valid UTF-8 character, because it sits inside a comment. Whether that character counts as splice whitespace decides whether the `#define` on the next line exists. So B5 is a position where "a lexing difference moves a directive" on a character the allowlist admits, and it is not in the table.
+
+The readers agree with the pinned GCC on every admitted cell there. The one difference, a lone `#` at end of file, is fail-closed. So this is not a protection gap at this head. It is a proof claim wider than the proof.
+
+**Impact.** A maintainer who reads "closed rather than sampled" and "every byte in every position" takes the table as a regression net for all character positions. It is not one. A later change to the splice-whitespace class (`_C_PHASE12_RE`), the comment opener or the escape rule would re-open a comment-boundary position. For characters the allowlist admits inside comments, that change would be caught by neither the table nor, for non-ASCII characters, the lexer corpora. This PR has already had one proof claim withdrawn: "exact because it runs GCC's phases in GCC's order" was dropped in round three.
+
+**Required outcome.** Make the three sentences say what is shown, in one of two ways:
+- (a) Scope them. Refusal of a character outside the allowlist is position-independent, because the allowlist scans the whole code text. The table shows reader agreement at its nine positions. Agreement elsewhere rests on the lexer corpora and is bounded by them.
+- (b) Make the claim true by extending the generated table with the comment and literal boundary positions (at least B1-B10 above), recorded and re-measured on the pinned GCC like the rest.
+
+Either way, remove "each position a lexing difference moves a directive" unless the positions are shown exhaustive.
+
+**Verification.** For (a): the three sites read as scoped, and `docs_check.py` passes. For (b): the new cells are in `_closure_corpus()` and `_CLOSURE_KEPT`, re-measured with the SDK. `scripts/r5/cases_r5_closure.py` Part B shows the expected outcomes: every admitted cell agrees, and the lone `#` at end of file is refused.
+
+### R272-5-S1 - SUGGESTION - Docs - two round-numbering schemes in one page
+
+`docs/integration/BAREMETAL_FIRMWARE.md:1564` says "PR #535's fifth round adds the character allowlist". Lines 1346 and 1624 of the same page and the site comments say "round four" for the same change. The page counts review rounds in the ledger paragraphs (1497, 1515, 1539, 1564) and correction rounds elsewhere. A cold reader cannot map one to the other without the thread. Use one scheme, or tie each paragraph to its commit SHA. This does not affect coverage.
+
+## Prior public findings at this head
+
+I read my own R272-4 report after my pass over the diff. I read the other reviewer's reports only after this verdict and ledger were written; see the last section.
+
+| Finding | Status at 4a56ef08 | Evidence |
+|---|---|---|
+| R272-4 F1 MAJOR (extended identifier characters inside S; U+00B7, U+0301 after `#if`), which the manager equates with R273-5 F1 (U+00B7, U+0301, U+0387, U+203F, U+00A0) | **Resolved.** The character allowlist refuses every non-ASCII character in code by name before any reader, on every machine | My unchanged round-4 inputs: `mid.c` and `comb.c` are refused by the allowlist message naming U+00B7 and U+0301 at line 2. `sup2.c` and `eacute.c` are refused too (`receipts/r5/scheck/scheck.log`). Whole-firmware misnests around a CSR-window store with U+00B2, U+00E9, U+00B7, U+0301, U+2028 and U+00A0 are refused on the allowlist pin in both modes, and accepted without a compiler when the allowlist is disconnected (`receipts/r5/disconnect/r5only-*.log`). The gate's own 12 allowlist-pinned entries: refused on their pin in both modes; disconnected, 8 of 12 pass absent and only the BOM passes with the SDK (`receipts/r5/disconnect/*.log`) |
+| R272-3 F1 MAJOR (`$` after a directive name) | Resolved; unchanged | `dollar_skipped.c` refused by the `$` rule (`receipts/r5/scheck/scheck.log`) |
+| R272-2 F1 BLOCKER (split `%:` digraph) | Resolved; unchanged | Round-two whole-gate probe, 4 spellings x 2 modes (`receipts/rerun/reader/split-digraph-*.txt`) |
+| R272-1 F1 BLOCKER, F2 MAJOR, F3/F4 MINOR | Resolved; unchanged | `cases_r1`-`cases_r4`, the accepted cross-check and the disconnect matrix re-run unchanged in both modes (`receipts/rerun/`) |
+| R273-3 F1 (BOM) | Superseded by the manager decision 5815136430: the mark is now refused rather than read through. The three BOM entries are re-pinned on the allowlist, and the three rules they measured keep 4, 3 and 2 entries of their own (`receipts/r5/labels/diff.txt`) | |
+| R273-4 F1 BLOCKER (`__has_include` header name hides a line) | Resolved; unchanged | `__has_include` and `__has_include_next` entries in `subset_refusal_corpus`, plus the mutation-table entries on SUBSET_HAS_INCLUDE_PIN. The gate passes in both modes, so each is refused on its pin (`receipts/gate1b/`) |
+| R273-3 F2 MINOR (paste bound through a header macro), R273-1 F1 MINOR (one `#define` per name; NOT RUN wording) | Resolved at earlier heads; the round-4 delta does not touch their sites. The `__CONCAT` and plain function-like macro forge remain documented bounds (#544; `BAREMETAL_FIRMWARE.md:1339`) | `cases_r3` at head: the function-like-macro forge is accepted, as at base (`receipts/rerun/probes/r3-*.log`) |
+
+## Lens ledger (reviewer-owned)
+
+| Lens | Result | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (R273-6 F1, retained after the other reviewer's report was read; CLEAN in the pre-read ledger) | Direction 5813535416 items 1-5 against `assert_within_lexical_subset()` `:5144-5223` (allowlist first, `:5154-5176`), `_C_S_CHARACTERS`/`_C_S_OUTSIDE_RE`/`_C_S_UNDECODED_RE` `:2726-2731`, `assert_character_closure()` `:5864-5936` and the gate call `:11138`. Decision 5815136430 (BOM and invalid UTF-8 refused). #408 acceptance 1-5 and #409 acceptance 1-5 against the gate logs: 280/280 SDK, 222/222 absent, 29/29 + 4/4, 1845/1845 spellings, 2520/2520 cells, absent verdict naming the arm (`receipts/gate1b/`). Accepted cases GREEN at head and RED at base on their own sentence (`receipts/rerun/accepted/`). No mutation entry lost (`receipts/r5/labels/diff.txt`). Shipping firmware bytes: printable ASCII, HT and LF only | R272-5 | 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23 |
+| RTL | CLEAN | `git diff --name-only 759da623..4a56ef08` touches no `hdl/`, `tb/` or RTL-source list file. The round-4 delta changes no SV reader (`blanked_sv`, the SV directive set, the CSR/datapath rules; the audit in `receipts/r5/ascii-audit.txt` lists their unchanged regexes). Gate 1b elaborated 46/46 RTL mutation variants under Verilator 5.050 in both modes (`receipts/gate1b/head-gate1b-*.log`, identity in `receipts/verilator-identity.txt`). Hosted `verilator-suites`, `yosys-portability` and `rtl-fast` succeeded at the exact head (`receipts/hosted-checks.txt`) | R272-5 | 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23 |
+| Robustness | CLEAN | Malformed and boundary input against S and `_c_phases()` `:2394-2537`: every byte 0-255 and 35 multi-byte and invalid strings at 9 + 14 positions (7176 cells, `receipts/r5/partA-*.json`, `partB-*.json`). Invalid UTF-8 read through `surrogateescape` (`:2930`) and refused by name. Refusal messages name the right character and line after splices, CRLF, lone CR and multi-line comments (`receipts/r5/scheck/scheck.log`). No reader raised a non-assertion exception on any cell. `#include` operand quote pair hiding U+00E9: admitted by S, refused by the include name pin live and in a skipped arm (`receipts/r5/scheck/include-quote-absent.log`). Compiler-absent mode: every round 1-4 case verdict identical to the previous head (`receipts/r5/prev-absent/`) | R272-5 | 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23 |
+| Tests | CLEAN | The 9 new mutation entries and 3 re-pinned ones fail when the allowlist is disconnected. The `subset_refusal_corpus` tripwire and the closure table's own guard trip exactly as the page states (`receipts/r5/scheck/dis-asserts*.log`). The closure table re-measured independently cell by cell: 0 recorded/GCC mismatches (`receipts/r5/partA-closure-remeasured.json`). Its negative control (U+00B7 inside a directive name among the 43 cells the allowlist closes) holds. `lexer_keeps` nested-group skip `:5708-5710` reviewed; the 1845 corpus spellings still match. The 3 within-S controls are admitted. Every round 1-4 probe re-run unchanged in both modes, with head/base verdicts as below | R272-5 | 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23 |
+| Docs | UNCLEAN (R272-5-F1; R273-6 F1, retained) | `docs/integration/BAREMETAL_FIRMWARE.md:296-342` (S table, 5.2.1 rows, closure paragraph), `:1346` (cost row), `:1564-1590` (round-five disconnect paragraph, verified: `receipts/r5/scheck/dis-asserts*.log` and `receipts/r5/disconnect/`), `:1619-1640` (counts, verified against the gate logs). Site comments `:5098-5143`, `:5427-5435`; gate print `:15649`, `:15832`. Static: `docs_check.py`, `check_baremetal_only.py --check`, `check_em_dash.py --base 759da623`, `check_doc_style.py`, `gen_toc.py --check`, `check_doc_paths.py`, `check_py_idiom.py` and `git diff --check` all exit 0 (`receipts/static.txt`) | R272-5 | 4a56ef08ffb5c6e4dc3d1d31761949870c5bbe23 |
+
+## Executed evidence
+
+All runs are at the exact head unless marked base (`759da623`, a scratch copy) or previous head (`11b1b86c`, a scratch copy).
+
+- **Setup.** The pinned SDK was installed fresh from the pinned archive and verified: riscv32-linux-gcc 14.3.0 (`receipts/sdk-install.txt`). The scoped Verilator is 5.050 rev v5.050; the digest of its wrapper is recorded (`receipts/verilator-identity.txt`).
+- **Gate 1b, round-one runner, unchanged.**
+  - With the SDK: `GATE 1b PASS; 0 NOT RUN`, 406 compiles. 280/280 mutations, 29/29 + 4/4 accepted edits, 1845/1845 spellings and 2520/2520 closure cells, re-measured on the compiler. The closure split is 1470 / 32 / 1018, with 43 cells closed.
+  - Absent: `GATE 1b PASS; 1 NOT RUN`, 0 compiles. 222/222, 29/29 + 4/4. The verdict is `TEXT RULES ONLY, AND WEAKER`, naming the arm.
+  - Logs: `receipts/gate1b/`.
+- **Closure re-measured independently** (`scripts/r5/cases_r5_closure.py`). Part A holds the gate's 2520 cells, with GCC run per cell by this review: 0 recorded/GCC mismatches and 0 admitted disagreements. Part B holds this review's 4656 boundary cells: 1595 admitted, all agreeing except one fail-closed case (a lone `#` at end of file), and no U+00B7 payload read as code behind a comment the lexer accepted. See `receipts/r5/closure-summary.txt`.
+- **Allowlist disconnect** (`scripts/r5/run_disconnect.sh`, patch `scripts/r5/patches/disconnect-allowlist.json`), both modes. Results are in the Prior findings table. The first full run completed the 12 gate entries, then stopped on a helper-name error in this review's own extra cases (`exit=1` after the 12 lines). The extra cases were re-run alone as `r5only-*`.
+- **The page's disconnect claims.** Removing only the allowlist asserts trips `subset_refusal_corpus` on "U+00B7 after `#if`". Also bypassing that tripwire makes the closure table fail on "byte 0x01 at offset 0" (`receipts/r5/scheck/dis-asserts*.log`).
+- **Mutation-table diff** against the previous head (`scripts/r5/cases_r5_labels.py`, absent): none removed, 9 added and 3 re-pinned, with the BOM accepted case removed per decision 5815136430 (`receipts/r5/labels/diff.txt`).
+- **ASCII-mode audit** (`scripts/r5/ascii_audit.py`): 85 Unicode-mode regex calls inside the gate function use `\w`/`\b`/`\s`/`\d`. None is a C reader. Those before line 11139 read SV, Makefile, assembly, `-H` output, `milan_soc.py` or diagnostics. Those after it build mutants from the ASCII-only shipping firmware (`receipts/r5/ascii-audit.txt`).
+- **Round 1-4 probes re-run unchanged** (`scripts/r5/rerun_earlier.sh`; drivers, case files and patches are byte copies under `scripts/r1`-`r4`; results in `receipts/rerun/`):
+  - **Probe pairs `cases_r1`-`cases_r4`**, head and base, both modes.
+    - With the SDK at head, every hostile case is refused except the plain function-like macro forging the identity. That is the pre-existing #544 bound, which base accepts too. The shipping-firmware control and the three `cases_r4` debug edits are accepted.
+    - Nothing base refuses with the SDK is accepted at head with the SDK.
+    - Absent, head accepts the compiler-dependent retired-rule shapes, the registered NOT RUN. Every absent verdict is identical to the previous head (`receipts/r5/prev-absent/`).
+  - **Accepted cross-check.** The 11 retired-rule accepted cases are GREEN at head in both modes and refused at base on their own rule's sentence, 11/11 in both modes. The head dumps are identical in both modes. The resolver-off control fails the gate's blindness assertion, as in round one.
+  - **Disconnect matrix** (40 controls). Connected with the SDK: 40/40 refused on their pin. Connected absent: 25 accepted, the compiler-dependent bound. With an instrument disconnected, its controls pass: selection grading 16 (SDK) and 30 (absent), `-E` 1, `-H` 3, resolver 21, `-E` plus resolver 22 (`receipts/rerun/disconnect/TABLE.txt`).
+  - **GCC spellings.** `cpp_directive_check.sh` is identical to the round-1 receipt, and `gcc_spellings.py` gives the same answers as round 2.
+  - **Reader probe** (`reader_vs_gcc.py`, round 3). Its output is identical to the round-4 receipt, paths aside. It applies its own round-3 copies of the reader regexes, in Unicode mode, to the phase-3 view and never runs S, so it still shows the round-4 divergence on `mid.c` and `comb.c`. At this head S refuses all five of its files before any reader: the allowlist refuses `mid.c`, `comb.c`, `sup2.c` and `eacute.c`, and the `$` rule refuses `dollar_skipped.c` (`receipts/r5/scheck/scheck.log`).
+  - **Split-digraph whole-gate probe** (rounds 2-3). control_hash, formfeed, plain_digraph and split_digraph are all REFUSED with the SDK and absent.
+- **Static checks**, all exit 0: `receipts/static.txt`.
+- **Hosted checks at the exact head** (read only, `receipts/hosted-checks.txt`): every executed context succeeded, including `rtl-fast`, `verilator-suites`, `yosys-portability`, `docs-check`, `docs-check-no-git` and `full-ci-gate`. `Physical gPTP (nightly and manual)` was skipped. The manager owns hosted and act acceptance.
+- **Restore check**: `receipts/restore-check.txt`.
+
+## Real limits
+
+- The closure question was attacked at 23 positions (the table's 9 plus 14 of this review's). Multi-character ASCII spellings within S rest on the two lexer corpora, as the page states at `:374-378`. I found no disagreement, but I did not prove their absence.
+- The whole `sw/builder/test_builder.py`, the parent/PP/gPTP/Yosys banks, act, the candidate merge and hardware were not run, as instructed. Gate 1b ran alone through `test_firmware_compiler.py`, in both modes.
+- `probe_dev2.py` (round two) probes a copy of the dev builder. It has no subject at this head and was not re-run. Its dev result is fixed.
+- The round-two/three split-digraph probe hard-codes its checkout path. It was run from path-only copies whose one changed line points at this clone (`scripts/r5/r272-2_probe_split_digraph_run_*_r5.py`, diff: line 20 only).
+- The compiler-absent weaker bound (the registered NOT RUN) is by design and unchanged. Without a compiler, retired-rule controls such as cast stores behind a form feed or a NUL pass the whole gate, as they did at the previous head (`receipts/rerun/probes/*-head-absent.log`).
+- Physical calibration was NOT RUN. Field skips are not hardware proof.
+
+## Pending manager duties
+
+- Hosted and act acceptance at the exact head, distinguishing executed jobs from skipped contexts.
+- Candidate-merge validation against live dev `59b816708852472da6ed4576386c30ebd5f8f839` at the merge turn, from source base `759da623`.
+- A correction for R272-5-F1 (wording, or a table extension) and for R273-6 F1 (wording), both text-only if F1 is scoped by wording.
+- Then re-review of Docs and Conformance at the new head. RTL, Robustness and Tests are covered CLEAN at `4a56ef08` and stay covered unless the correction touches their scope. A closure-table extension would touch Tests and Robustness.
+
+## Other reviewers' findings, read after this verdict and ledger
+
+I read the other reviewer's reports on this PR (R273 rounds 1 to 6) only after writing the verdict and ledger above. The pre-read copy is `receipts/verdict-before-prior-findings.txt`, sha256 `0b07f5825660e0aedcbbef3e47a2f9887204a98bc82953cbecc21672750ecedd`, listed in the manifest.
+
+- **R273-6 F1, MINOR, Docs and Conformance: RETAINED at this head, confirmed independently.** The finding is that the page and the refusal message justify refusing a byte that is not UTF-8 in a comment or literal as GCC parity.
+  - The sites say so: `docs/integration/BAREMETAL_FIRMWARE.md:306` ("GCC reads the file as UTF-8 too"), `sw/builder/test_builder.py:5155-5160` ("it is not UTF-8, which is how GCC reads the file as well") and `:5115-5117`.
+  - Nothing states the contrary. No sentence in the page or the gate print says GCC accepts the byte, and the `:1346` remedy ("keep any other character in a comment or a literal") does not apply to that half of the rule.
+  - The pinned riscv32-linux-gcc 14.3.0 at `-std=gnu99 -E` accepts such a byte with rc 0, in a block comment, a line comment and a string literal. It warns only under `-Winvalid-utf8` (`receipts/r5/invalid-utf8/gcc-invalid-utf8.txt`, inputs beside it).
+  - Decision 5815136430 item 2 reads "refused, although GCC accepts it there ... and the page states the cost".
+  - So the stated reason is false, and the cost the decision asks for is not stated as a cost.
+  - Impact: the behaviour fails closed, so nothing unsafe is admitted. But a future editor or reviewer takes the refusal for GCC parity, not a deliberate over-refusal. They could "fix" a mismatch that does not exist, and the page gives them no remedy for the refusal. I missed this in my own pass. I accept the reviewer's lens attribution, Docs and Conformance, which is why the ledger above carries it.
+  - Required outcome and verification as the other reviewer wrote them. The three sites say the pinned GCC accepts the byte and S refuses it by decision, as a stated cost. The remedy covers it, for example by re-encoding the file as UTF-8. The static docs checks stay green, and the mutation entry "a byte that is not UTF-8, in a comment" still refuses on SUBSET_CHARACTER_PIN in both modes.
+- **R273-6 S1, SUGGESTION ("every byte in every position" overstates a nine-position table)** is the same observation as R272-5-F1, reached independently. I keep it at MINOR. The site comment `:5430-5435` also claims the table covers "each position a lexing difference moves a directive". Position B5 is a counterexample: a character between a backslash and the line end of a `//` comment. The allowlist admits every valid UTF-8 character there, whether it is splice whitespace decides whether the next directive exists, and neither the table nor the ASCII lexer corpora hold that position. The two reviewers disagree on severity, not on facts. Resolving F1 by wording (option a) also satisfies S1.
+- **R273-6's other results agree with mine**: Part A re-measured with 0 mismatches, the allowlist-disconnect counts (8 of 12 absent, the BOM alone with the SDK), the ASCII-mode audit, 280/222, and the hosted contexts.
+- **R273 rounds 1-5 findings** (R273-1 F1, R273-3 F1/F2, R273-4 F1, R273-5 F1) are in the Prior findings table above: resolved at this head.
+
+R272-5 FINISHED

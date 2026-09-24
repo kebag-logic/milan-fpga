@@ -1,0 +1,21 @@
+$REVIEWS/408-r272-5-packet/scripts/r3/dollar_skipped.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'error', 'if', 'endif', 'if', 'endif', 'endif']
+  gcc rc: 0 keeps: ['evil', 'z'] stderr lines: 0
+$REVIEWS/408-r272-5-packet/scripts/r4/mid.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+$REVIEWS/408-r272-5-packet/scripts/r4/comb.c
+  readers, conditionals: ['ifdef', 'if', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+$REVIEWS/408-r272-5-packet/scripts/r4/sup2.c
+  readers, conditionals: ['ifdef', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'if²', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+$REVIEWS/408-r272-5-packet/scripts/r4/eacute.c
+  readers, conditionals: ['ifdef', 'endif', 'endif']
+  readers, directive set: ['ifdef', 'ifé', 'endif', 'endif']
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+exit=0

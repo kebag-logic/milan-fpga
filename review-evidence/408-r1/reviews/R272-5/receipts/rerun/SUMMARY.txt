@@ -1,0 +1,120 @@
+== probes/r1-base-absent.log: 4 accepted, 10 refused (0 on pin); exit=0
+== probes/r1-base-sdk.log: 4 accepted, 10 refused (0 on pin); exit=0
+== probes/r1-head-absent.log: 10 accepted, 4 refused (0 on pin); exit=0
+== probes/r1-head-sdk.log: 1 accepted, 13 refused (0 on pin); exit=0
+== probes/r2-base-absent.log: 1 accepted, 4 refused (0 on pin); exit=0
+== probes/r2-base-sdk.log: 1 accepted, 4 refused (0 on pin); exit=0
+== probes/r2-head-absent.log: 2 accepted, 3 refused (0 on pin); exit=0
+== probes/r2-head-sdk.log: 0 accepted, 5 refused (0 on pin); exit=0
+== probes/r3-base-absent.log: 3 accepted, 2 refused (0 on pin); exit=0
+== probes/r3-base-sdk.log: 3 accepted, 2 refused (0 on pin); exit=0
+== probes/r3-head-absent.log: 3 accepted, 2 refused (0 on pin); exit=0
+== probes/r3-head-sdk.log: 1 accepted, 4 refused (0 on pin); exit=0
+== probes/r4-base-absent.log: 3 accepted, 0 refused (0 on pin); exit=0
+== probes/r4-base-sdk.log: 3 accepted, 0 refused (0 on pin); exit=0
+== probes/r4-head-absent.log: 3 accepted, 0 refused (0 on pin); exit=0
+== probes/r4-head-sdk.log: 3 accepted, 0 refused (0 on pin); exit=0
+== accepted/base-absent.log: 0 accepted, 11 refused (11 on pin); exit=0
+== accepted/base-sdk.log: 0 accepted, 11 refused (11 on pin); exit=0
+== accepted/head-absent.log: 11 accepted, 0 refused (0 on pin); exit=0
+== accepted/head-sdk.log: 11 accepted, 0 refused (0 on pin); exit=0
+== accepted/resolver-off-sdk.log: 0 accepted, 0 refused (0 on pin); exit=1
+== disconnect/connected-absent.log: 25 accepted, 15 refused (15 on pin); exit=0
+== disconnect/connected-sdk.log: 0 accepted, 40 refused (40 on pin); exit=0
+== disconnect/eres-sdk.log: 22 accepted, 18 refused (18 on pin); exit=0
+== disconnect/e-sdk.log: 1 accepted, 39 refused (39 on pin); exit=0
+== disconnect/h-sdk.log: 3 accepted, 37 refused (37 on pin); exit=0
+== disconnect/res-sdk.log: 21 accepted, 19 refused (19 on pin); exit=0
+== disconnect/sel-absent.log: 30 accepted, 10 refused (2 on pin); exit=0
+== disconnect/sel-sdk.log: 16 accepted, 24 refused (14 on pin); exit=0
+connected- connected-    sel-sdk sel-absent      e-sdk      h-sdk    res-sdk   eres-sdk  control
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a spliced call name in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a pasted call name in an arm only the product compiles, in a UART command handler
+         P          A          O          A          P          P          A          A  [retired] a struct-overlay store at the ADP_CTRL address in a dropped arm
+         P          A          P          A          P          P          A          A  [retired] the verifier's QSPI-slot condition made false in the census stub tree
+         P          A          A          A          P          P          A          A  [retired] an arm only the product compiles, short-circuiting the choke point's verdict test
+         P          A          P          A          P          P          A          A  [retired] entity enabled by an inline-asm store to the CSR address
+         P          A          P          A          P          P          A          A  [retired] entity enabled by a lui-based inline-asm store
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a widened pointer cast
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a reordered pointer cast
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a pointer held in a local
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a form feed, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a vertical tab, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in an arm only the product compiles, behind lone CR line ends, in a UART command handler
+         P          A          P          A          P          P          A          A  [retired] entity enabled through a fifth pointer cast in the product's arm of an #ifdef a split `%:` digraph spells, graded as the selection the readers find
+         P          A          A          A          P          P          A          A  [retired] entity enabled by a lui-based inline-asm store in an arm only the product compiles, behind a form feed
+         P          A          A          A          P          P          A          A  [retired] an arm only the product compiles, behind a form feed, short-circuiting the choke point's verdict test
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a cast in the product's arm, behind an #else a splice splits
+         P          A          A          A          P          P          A          A  [retired] entity enabled through a cast in the second of two groups on CSR_UART_BASE
+         P          A          P          A          A          P          P          A  [retired] a boot step erased by a function-like macro of its own name
+         P          A          P          A          P          A          P          P  [retired] pinned include shadowed by a file beside the firmware
+         P          A          P          A          P          A          P          P  [retired] the second pinned quoted include shadowed by a file beside the firmware
+         P          A          P          A          P          A          P          P  [retired] pinned include shadowed by a LINK beside the firmware to a file outside this repository
+         P          P          O          O          P          P          P          P  [selection] AEM guard selected by a build flag
+         P          P          O          A          P          P          P          P  [selection] pre-AEM clear behind a build flag
+         P          P          O          O          P          P          P          P  [selection] a dropped arm inside a CSR write's argument
+         P          P          O          O          P          P          P          P  [selection] CRC comparison itself put behind a build flag
+         P          P          O          O          P          P          P          P  [selection] ADP_CTRL's name moved to another register by an arm only the product compiles
+         P          P          O          O          P          P          P          P  [selection] a pasted call name in an arm the stub tree drops
+         P          P          O          O          P          P          P          P  [selection] a spliced call name in an arm the stub tree drops
+         P          P          O          O          P          P          P          P  [selection] a spliced call name in an arm only the product compiles
+         P          P          O          O          P          P          P          P  [selection] a spliced call name onto a literal address in a dropped arm
+         P          P          A          A          P          P          P          P  [selection] the pre-AEM clear dropped by a product-only #ifndef behind a form feed
+         P          P          A          A          P          P          P          P  [selection] the pre-AEM clear dropped by a product-only #ifndef behind a vertical tab
+         P          P          A          A          P          P          P          P  [selection] the pre-AEM clear dropped by a product-only #ifndef behind a NUL
+         P          P          A          A          P          P          P          P  [selection] the pre-AEM clear dropped by a product-only #ifndef behind lone CR line ends
+         P          P          P          P          P          P          P          P  [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+         P          P          P          P          P          P          P          P  [helper] entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (reflowed baseline)
+
+connected-sdk: 40 controls, P=40 O=0 A=0
+connected-absent: 40 controls, P=15 O=0 A=25
+sel-sdk: 40 controls, P=14 O=10 A=16
+sel-absent: 40 controls, P=2 O=8 A=30
+e-sdk: 40 controls, P=39 O=0 A=1
+h-sdk: 40 controls, P=37 O=0 A=3
+res-sdk: 40 controls, P=19 O=0 A=21
+eres-sdk: 40 controls, P=18 O=0 A=22
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/reader_vs_gcc.txt <==
+  gcc rc: 1 keeps: ['evil', 'z'] stderr lines: 3
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-control_hash-absent.txt <==
+[control_hash] REFUSED: under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-control_hash-sdk.txt <==
+[control_hash] REFUSED: under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-formfeed-absent.txt <==
+[formfeed] REFUSED: under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a C
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-formfeed-sdk.txt <==
+[formfeed] REFUSED: under the arm selection line 1499 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only milan_reg() may form a C
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-plain_digraph-absent.txt <==
+[plain_digraph] REFUSED: firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code o
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-plain_digraph-sdk.txt <==
+[plain_digraph] REFUSED: firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code o
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-split_digraph-absent.txt <==
+[split_digraph] REFUSED: firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code o
+exit=0
+
+==> $REVIEWS/408-r272-5-packet/receipts/rerun/reader/split-digraph-split_digraph-sdk.txt <==
+[split_digraph] REFUSED: firmware must not spell a token with a digraph or a trigraph (%:, line 1499): the compiler reads `%:` as `#` and `%:%:` as `##` once phase 2 has deleted every splice, and nothing but a digraph or a trigraph puts either pair in C code o
+exit=0
+
+real	24m33.637s
+user	29m58.693s
+sys	5m19.967s
+
+[exited with code 0]

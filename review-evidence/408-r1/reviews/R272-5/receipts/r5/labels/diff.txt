@@ -1,0 +1,23 @@
+mutations head 222 prev 213 (labels unique: True True )
+REMOVED: []
+ADDED:
+   a UTF-8 byte-order mark at the start of the file, which round two accepted
+   a byte that is not UTF-8, in a comment
+   a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] an
+   a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] an
+   a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] an
+   a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] an
+   a window store between two directive lines a control the readers do not model (FS) leads
+   a window store between two directive lines a no-break space leads
+   the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()
+PIN CHANGED:
+   a #line behind a byte-order mark | the firmware's preprocessing directives are pinned -> spells a character outside the allowlist of S
+   a second source #included behind a byte-order mark | the firmware's include set is pinned -> spells a character outside the allowlist of S
+   the CSR identity sample forged by a paste whose #define sits behind a byte-order mark | a `##` paste reaches -> spells a character outside the allowlist of S
+accepted removed: ['a UTF-8 byte-order mark at the start of the file']
+accepted added: []
+subset corpus added: ['U+00B7 after `#if`, which GCC reads as one unknown directive', 'U+0301 after `#if`, which GCC reads as one unknown directive', 'U+0387 in two directive names, misnesting the readers', 'U+203F in two directive names, misnesting the readers', 'a no-break space before `#`', 'U+00B7 inside an identifier in code', 'a control the readers do not model, FS, before `#`', 'a byte-order mark at offset 0', 'a byte that is not UTF-8, in a comment']
+subset corpus removed: []
+entries still pinned on 'a `##` paste reaches': 4
+entries still pinned on "the firmware's include set is pinned": 3
+entries still pinned on "the firmware's preprocessing directives are pinned": 2
