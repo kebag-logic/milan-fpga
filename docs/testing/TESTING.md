@@ -263,6 +263,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | Explicit campaign | Command | Who runs it |
 |---|---|---|
 | #447 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
+| #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 
 The default sweep still runs both render legs, and their assertions are unchanged.
 It also runs that campaign's leg-side defect arms, which need no elaboration.

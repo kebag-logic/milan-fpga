@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - licence and LeaveAll scope](#unreleased---licence-and-leaveall-scope)** -- No Listener Ready, no stream.
 - **[Unreleased - CRF input counters served](#unreleased---crf-input-counters-served)** -- The CRF input answers GET_COUNTERS.
 - **[Unreleased - gPTP egress launch time](#unreleased---gptp-egress-launch-time)** -- The queue leaves t1.
 - **[At 0x0002_0060 - two descriptor fields name the device](#at-0x0002_0060---two-descriptor-fields-name-the-device)** -- Image only.
@@ -24,6 +25,28 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - licence and LeaveAll scope
+
+- Silicon streamed the CRF output before any Listener Ready (#530).
+- Every talker gate read the processor's raw admission verdict.
+- The Talker Advertise declaration alone raises that verdict.
+- The gates now read the processor's ACTIVE.
+- ACTIVE needs a Listener Ready or Ready Failed as well.
+- That covers the CRF licence and every AAF talker gate.
+- `CRFT_CTRL[6]`, `LWSRP_STATUS[8]` and the `0x82C` talker lobs follow.
+- The CBS slope enable keeps the raw verdict.
+- A bound CRF talker also ended its own bursts.
+- The processor pin moves to `09f9bf38` (processor issue 106).
+- Its LeaveAll now flags every MSRP attribute type.
+- It applies a received LeaveAll per attribute type.
+- Its ROM digests are re-recorded; the images are unchanged.
+- FRAMES_TX read 16: Table 5.4 counts intervals, not PDUs.
+- `CRFT_COUNT` is the PDU total; its row now says so.
+- VERSION is unchanged; the release step owns the bump.
+- No descriptor changes.
+- `tb/verilator/milan_dp` `obj_crflic` proves it at compressed time.
+- `make crflic-mutants` holds its failing arms.
 
 ## Unreleased - CRF input counters served
 

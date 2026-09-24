@@ -208,7 +208,9 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 > FR-SRP-03's shaper configuration have no object in the shipped datapath - the
 > classifier/CBS chain is not instantiated ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)).
 > The obligation that survives, *no transmit without a grant*, is met at the
-> AAF admission gate from the processor's SRP class-D face.
+> AAF admission gate and the CRF licence from the processor's SRP class-D face:
+> its ACTIVE, which needs a registered Listener Ready or Ready Failed as well as
+> the grant (#530).
 
 ### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |

@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **eleven elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **twelve elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -24,6 +24,7 @@ log in the failure so the artifact can be inspected.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): the INTERNAL free-run drift (-10.64 ppm, the standing free-run rule), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and dups once per beat period at INTERNAL on the predicted beat, one event per fed pair. The closed form: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup comes (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts the first dup from the first beat and grades it within 25 percent over a window of 1.5 times the prediction. The same aim and window under CRF show zero, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification |
+| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates follow the processor's ACTIVE on every cycle, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 
 The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
@@ -36,6 +37,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 
 - **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
+- **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here drives the descriptor-memory ports into the documented degrade path deliberately, and the dynamic-output-map capability that the substitution cost
 - **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
@@ -327,7 +329,7 @@ Each phase has a bounded simulated deadline.
 Transport timeout aborts print the remaining unexecuted scope.
 
 The explicit physical driver runs this leg once through `milan_dp_gptp`.
-The `milan_dp` default retains its eleven existing legs.
+The `milan_dp` default retains its twelve existing legs.
 `suite_tally.py` reads its separate physical-rate summary.
 It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
@@ -335,6 +337,97 @@ The nightly/manual job runs that selection without sharding.
 The historical `milan_dp` directory runs alone on hosted shard 4/5 (#444).
 The existing `gptp` compressed smoke remains separately counted.
 The option-OFF and fractional-audio legs retain their original models.
+
+## The #530 CRF talker licence leg (`obj_crflic`)
+
+Issue #530 records what the #117 silicon Run B measured on the AX7101 1x1
+TDM8 image's CRF Media Clock Output. Two items were defects and the third
+was a counter question:
+
+1. **A bound CRF talker ended its own bursts.** The bench AVB switch applies
+   a received LeaveAll per attribute type (802.1Q-2014 10.7.5.20 NOTE). The
+   DUT's LeaveAll MRPDU flagged only its Domain message, so the switch never
+   re-declared its Listener after it. The processor also re-aged the Listener
+   registration at every flagged VectorHeader of the switch's own LeaveAll
+   MRPDU. Once the 15 s PROBE_TX window had closed (Milan v1.2 4.3.3.1) the DA
+   gate closed and the DUT withdrew its Talker Advertise. The protocol
+   processor fixed both halves at pin `09f9bf38` (its issue 106).
+2. **Emission began before a reservation existed.** Every talker gate read
+   the processor's raw admission verdict, which the declaration alone raises,
+   instead of its ACTIVE: Talker Advertise declared, a Listener Ready or Ready
+   Failed registered, admitted (Milan v1.2 5.3.7.3). `milan_datapath` now
+   drives `lwsrp_stream_gate` from `pp_cd_srp_active_w`.
+3. **FRAMES_TX read 16 against 34,061 PDUs.** That is the documented
+   semantics, not a defect; see [FRAMES_TX is an interval count](#frames_tx-is-an-interval-count).
+
+`sim_crf_licence.cpp` elaborates `endstation_ax7101_1x1_tdm8`, where the CRF
+output is source uid 1. The processor's millisecond and `KL_maap`'s
+millisecond sit on one 100-cycle grid (the `pp_shadow` recipe), and the Table
+5.4 observation interval is 2000 of those milliseconds. The CRF grid is not
+compressed: it runs off `clk_audio`, one PDU every 49,152 cycles (491.52
+compressed ms). The leg writes the firmware boot values the #117 image
+wrote (`AAF_CTRL` `0x00020001`, `LWSRP_CTRL` `0x13`, `MAAP_CTRL` `0x201`,
+`CRFT_CTRL` `0x3`) and plays the two Run B peers:
+
+- **The listener** probes a source, retries 4 s after a
+  TALKER_DEST_MAC_FAIL answer and re-probes 0.5 s after a Talker Advertise
+  Leave.
+- **The switch port** declares Listener Ready 40 ms after the listener's
+  successful probe. It re-declares, 2 ms after a DUT LeaveAll, only the
+  attribute types that LeaveAll flags. It sends its own LeaveAll 9.99 s after
+  each DUT LeaveAll, in the capture's layout: Listener JoinMt first, then the
+  Domain, then LeaveAll-only Talker Advertise and Talker Failed vectors. It
+  withdraws its Listener 2 ms after a Talker Advertise Leave.
+
+The licence, both sources' ACTIVE, raw verdict, DA gate and Talker
+Advertise state are sampled on every cycle.
+
+| phase | what it proves |
+|---|---|
+| `[A]` | Run B's opening: both first probes are refused, MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
+| `[B]` | The first Listener Ready opens each gate on the cycle ACTIVE rises. Every CRF PDU is C-tagged {PCP 3, VID 2} with the stream {MAC, uid 1} and the MAAP DA. |
+| `[B2]` | The AAF closing edge: a withdrawn Listener closes the AAF gate on the cycle ACTIVE falls, while the talker still declares and is admitted. |
+| `[C]` | Item 1: 76 s bound across five DUT and five switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. |
+| `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
+| `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
+| `[F]` | Item 3: FRAMES_TX counts observation intervals since STREAM_START, far fewer than the PDUs, and restarts at the next STREAM_START. |
+| `[INV]` | Every cycle: the CRF licence equals ACTIVE[CRF], and the AAF gate is never open without ACTIVE[AAF]. |
+
+**Failing arms.** Each was run on this head (2026-09-24 UTC):
+
+| arm | how | result |
+|---|---|---|
+| the licence mutants | `make crflic-mutants`: `crflic_mutants.py` plants each consumer back on the raw verdict (the whole gate, the CRF slot alone, AAF source 0 alone) | all three caught, each on its named check; the clean leg passes |
+| the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer, and the first CRF PDU leaves 3.85 s before the first Listener Ready |
+| the previous processor pin `424c688f` | by hand, the only arm that needs a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 16 of 85 fail, the Run B item 1 signature: each DUT LeaveAll flags only the Domain, and once the probe window has closed the DUT sends a Talker Advertise Leave 5.0 s after each switch LeaveAll, four times, and restarts six times |
+
+The mutants are an explicit campaign, not a sweep step: three elaborations
+and four runs, 139 s on an eight-core host, which the stated `milan_dp`
+deadline margin was not sized for. The leg itself builds in about 14 s
+there and runs in about 20 s.
+
+**What it cannot show.** The switch's timing is modelled from the Run B
+capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
+LeaveAll period is not modelled. This station's leavealltimer does not
+restart on a received LeaveAll (processor issue 108), and nothing here
+measures that. The silicon rerun of #530 is the acceptance.
+
+### FRAMES_TX is an interval count
+
+Milan v1.2 5.3.7.7 Table 5.4 defines the Stream Output FRAMES_TX as
+"Incremented at the end of every observation interval during which at least
+one Stream Data AVTPDU has been transmitted on this Stream Output", with an
+interval of at most 1 second, "Reset to 0 each time the Talker starts
+streaming". `KL_talker_diag_ctx` implements exactly that with a 1 s interval
+(`DIAG_TICK_CYC_P` = `MILAN_CLK_FREQ_HZ`), and `tb/verilator/tkdiag` grades
+the counter itself. Run B's last burst lasted 15.00 s. It started inside
+one interval and ended inside the sixteenth, and each of those sixteen
+intervals carried PDUs at 500 per second, so FRAMES_TX read 16. The
+#117 findings' item 9 saw it rise by one per 1 s poll and return to 0 at
+each of the four STREAM_STARTs. The PDU total is `CRFT_COUNT` (`0x764`):
+34,061. Table 5.6 in 5.3.8.10 is the Stream Input set, where FRAMES_RX
+lives; it does not define FRAMES_TX. After #530 a continuously bound output
+should read STREAM_START 1 and FRAMES_TX equal to the seconds it has streamed.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
@@ -565,6 +658,7 @@ No row projects unexecuted checks.
 | `obj_gptp` (`sim_gptp`) | not available | **164 / 0** | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC |
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **230 / 0** | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU |
 | `obj_notify` (`sim_nxn`, timed) | not in the old table | **117 / 0** | the compressed-timebase 5.4.5 notify leg |
+| `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` |
 | `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **1679 / 0** | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since |
 | `obj_nxndv` (`sim_nxn`) | not in the old table | **1682 / 0** | the divergent-shape leg |
 | `obj_nxn8` (`sim_nxn`) | 512 / not available | **3179 / 0** | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed — this cell is the measurement) |

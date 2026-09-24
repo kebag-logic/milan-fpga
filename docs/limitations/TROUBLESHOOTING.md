@@ -733,9 +733,9 @@ survive that interrupt load.
 > **Still true after the 2026-08-13 control-plane substitution**, with one
 > substitution of its own: `LWSRP_CTRL[0]` (`cfg_lwsrp_enable`) is unchanged and
 > still the escape hatch, but the gate it bypasses is now the protocol
-> processor's class-D admitted vector rather than the deleted
-> `KL_lwsrp_bw_gate`. The hazard, the measured rate and the rule below are
-> unaffected.
+> processor's class-D ACTIVE vector (its admitted vector until #530) rather
+> than the deleted `KL_lwsrp_bw_gate`. The hazard, the measured rate and the
+> rule below are unaffected.
 
 **Rule.** Never leave the engine off with an armed `t > 0` context. Arm extras **only** with
 `LWSRP_CTRL[0] = 1`; the escape hatch is for deliberate, watched experiments on a link whose

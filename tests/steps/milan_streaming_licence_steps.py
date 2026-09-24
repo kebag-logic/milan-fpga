@@ -164,6 +164,25 @@ def step_escape_hatch_recorded(context: Context) -> None:
         "for as long as it can be set")
 
 
+@when("I read the lwSRP stream gate assignment from milan_datapath")
+def step_read_stream_gate(context: Context) -> None:
+    """Resolve the right-hand side that drives lwsrp_stream_gate as it
+    ships, so the scenario grades the source every talker gate reads."""
+    context.expr = _assign(_read(_DATAPATH), "lwsrp_stream_gate")
+
+
+@then("the stream gate takes the processor's ACTIVE vector and nothing else")
+def step_gate_is_active(context: Context) -> None:
+    """#530: the gate is srp_active_o off the class-D face - Talker
+    Advertise declared, a Listener Ready or Ready Failed registered and
+    admitted - and never the raw admission verdict a declaration raises."""
+    found = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", context.expr))
+    assert found == {"pp_cd_srp_active_w", "SRP_TALKERS_C"}, (
+        "lwsrp_stream_gate must be the processor's ACTIVE vector alone; "
+        "expression is %s" % context.expr)
+    assert "sr_admitted" not in context.expr, context.expr
+
+
 # ---------------------------------------------------------------------------
 # Wire scenarios - the byte-exact capture
 # ---------------------------------------------------------------------------
