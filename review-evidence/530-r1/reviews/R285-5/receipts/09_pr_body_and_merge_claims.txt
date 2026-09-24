@@ -1,0 +1,34 @@
+PR #549 body fetched read-only at 2026-09-24T08:22:22Z; headRefOid=8ffd6c616840b161891e2eb714a7ddbbb72c7a0d isDraft=false updatedAt=2026-09-24T08:13:32Z
+body sha256 c575ea4bc2202d677403a351e06529e129e96b946e4d84453cc665e9e24ec94a
+--- lines relevant to R285-4 F1 required outcome (Status, silicon scope, image difference, checkout, disposition):
+17:GREEN locally at `8ffd6c616840b161891e2eb714a7ddbbb72c7a0d` (tree `ff757231ac361ff2a07f3bb3e838bba267e0f056`): 21 first-parent commits on `50e78097564244c124e1ec30dd8821f83951ab06`, two of them merges of `dev`. It contains live `dev` `3d2f3e3131c9db5898e1db9dd3e2a35149843109`, so it merges into it without conflict. `530-crf-talker-licence` -> `dev`.
+27:| 4, dev merge and comments/Markdown | merge `6556effc` (dev `3d2f3e31`, #537); `77068c9a`, `8ffd6c61` | [A242] | awaiting R284-5 and R285-5 at `8ffd6c61` |
+33:Closes #530.
+35:**What the silicon PASS covers.** The manager's silicon rerun passed at `c593cbef` ([A237], archive `1b3fa46058c5313d2ec41a6b06d2166d1462c76a`). It covers the #530 RTL. From `c593cbef` to `8ffd6c61`, the comment-stripped `milan_datapath.sv` and the `protocol-processor` pin `09f9bf3846511f8388d995126502ed92eaa65213` do not change.
+37:**What it does not cover.** It is not exact-image evidence for this head. The image this head builds differs from the flashed one by #540's `gptp-processor` pin, `c1b617435824929a790739ea8585c3fe1a328cc0` -> `e5dcea6e351abff18a27a00f8e345f3251bdbd8f`, brought in by the dev merge `44ad6991`. The only `hdl/` change between those two pins is the gPTP microcode generator `hdl/ucode/gen_gptp_ucode.py`. So the gPTP ROM differs:
+41:| `c1b61743` (flashed) | `83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939` |
+42:| `e5dcea6e` (this head) | `4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb` |
+44:Both images regenerate to the digests that `syn/yosys/rom_digests.tsv` records for their pins. The bench has not run the `e5dcea6e` ROM. The dev merge `6556effc` (#537) is docs only and changes nothing in the image. The earlier sentence here ("the tested image is still the one this head builds") and the same claim in [A241] REVIEW READY were wrong. The manager's CORRECTION corrects both: https://github.com/kebag-logic/milan-fpga/issues/530#issuecomment-5810084473.
+46:**Where exact-image silicon runs.** By the same manager decision, the silicon check runs on the exact image of this PR's merge-train candidate. That image carries #540's microcode, this PR, and the train merges ahead of it. The check includes gPTP lock and #530 acceptance (a) and (b).
+90:| R285-4 F1, MINOR (Docs): the PR body said the silicon-tested image is what this head builds, and its Status, checkout line and disposition table predated the merge | **Fixed in this body.** "Linked Issue / roles" states that the `c593cbef` silicon PASS covers the #530 RTL (comment-stripped datapath and processor pin `09f9bf38` unchanged since `c593cbef`), and that this head's image differs from the flashed one by #540's `gptp-processor` pin `c1b61743` -> `e5dcea6e` and its `gptp_ucode.hex` (`83f14a7d...` -> `4afe436d...`). Exact-image silicon runs on the merge-train candidate, by the manager's decision. Status, the checkout line and this table name `8ffd6c61`. The manager's CORRECTION o
+91:| R284-4 S2 (Docs, PR body): the image-identity sentence, Status, checkout line and disposition table predate the merge | **Taken** with R285-4 F1 above. | this body |
+121:- #540 (the `gptp-processor` pin `e5dcea6e` and its microcode) and #537 (the FR-MVU, redundancy and delayAsymmetry decisions), both merged from `dev`
+130:git checkout 8ffd6c616840b161891e2eb714a7ddbbb72c7a0d
+133:git submodule status gptp-processor       # e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+187:- **The image this head builds has not been on the bench.** The [A237] silicon PASS at `c593cbef` covers the #530 RTL. This head adds #540's gPTP microcode (`gptp_ucode.hex` `4afe436d...`), which the bench has not run. Exact-image silicon runs on the merge-train candidate, by the manager's decision (Linked Issue / roles).
+--- manager CORRECTION of the [A241] sentence: https://github.com/kebag-logic/milan-fpga/issues/530#issuecomment-5810084473
+--- first-parent count 50e78097..8ffd6c61: 21 (body says 21)
+--- gptp-processor c1b61743..e5dcea6e hdl/ diff:
+ hdl/ucode/gen_gptp_ucode.py | 162 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 114 insertions(+), 48 deletions(-)
+--- processor 424c688f..09f9bf38 touches no AECP/MVU source (dev #537 claims):
+hdl/srp/KL_srp_decoder.sv
+hdl/srp/KL_srp_encoder.sv
+hdl/srp/KL_srp_listener_fsm.sv
+hdl/srp/KL_srp_talker_fsm.sv
+hdl/srp/KL_srp_top.sv
+hdl/srp/srp_pkg.sv
+hdl/top/protocol_processor_top.sv
+grep: warning: stray \ before "
+pp_top M2/M4 hunks changed in that range: 0
+MVU SUID/MCR parameters at 09f9bf38: 0 files
