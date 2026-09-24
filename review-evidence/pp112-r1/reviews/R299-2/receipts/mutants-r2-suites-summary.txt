@@ -1,0 +1,13 @@
+D-last-visit-ignored     adm2     rc=2   KILLED     12615 checks: 12578 PASS, 37 FAIL | FAIL: round publishes the greedy walk over every current declaration
+D-last-visit-ignored     adm8     rc=2   KILLED     991231 checks: 991198 PASS, 33 FAIL | FAIL: round publishes the greedy walk over every current declaration
+D-last-visit-ignored     srp_top  rc=0   SURVIVED   1531 checks: 1531 PASS, 0 FAIL | 
+E-pend-not-accumulated   adm2     rc=0   SURVIVED   12615 checks: 12615 PASS, 0 FAIL | 
+E-pend-not-accumulated   adm8     rc=2   KILLED     991231 checks: 990263 PASS, 968 FAIL | FAIL: freed capacity admits the refused source in a published round; FAIL: refused source never granted while a lower source re-declares; FAIL: round publishes the greedy walk over every current declaration
+E-pend-not-accumulated   srp_top  rc=2   KILLED     1531 checks: 1326 PASS, 205 FAIL | FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=0); FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=1); FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=2); FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=3); FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=4); FAIL: I: freed source 1 grants with source 0's new slope, then declares Advertise (phase=5)
+I-aggregate-not-frozen   adm2     rc=2   KILLED     12615 checks: 12593 PASS, 22 FAIL | FAIL: aggregate holds between publications
+I-aggregate-not-frozen   adm8     rc=2   KILLED     991231 checks: 990997 PASS, 234 FAIL | FAIL: aggregate holds between publications
+I-aggregate-not-frozen   srp_top  rc=0   SURVIVED   1531 checks: 1531 PASS, 0 FAIL | 
+control                  adm2     rc=0   PASS       12615 checks: 12615 PASS, 0 FAIL | 
+control                  adm8     rc=0   PASS       991231 checks: 991231 PASS, 0 FAIL | 
+control                  srp_top  rc=0   PASS       1531 checks: 1531 PASS, 0 FAIL | 
+rc=0

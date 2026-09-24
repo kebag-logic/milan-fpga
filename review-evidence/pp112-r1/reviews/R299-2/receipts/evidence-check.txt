@@ -1,0 +1,201 @@
+== final-summary.json
+{
+  "head": "f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc",
+  "suites": 33,
+  "canonical_checks": 1008919,
+  "gsi_mutants": 13,
+  "admission_verdicts": 12,
+  "parent_checks": 371,
+  "processor_clean": true,
+  "parent_index_clean": true
+}
+
+== merge-metadata.json
+{
+  "head": "f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc",
+  "base": "939c143333d11e2378a514f1c7b6abd4c3259bfd",
+  "parents": [
+    "ae7f531bc97a7277116e0df78e70c84396c499d0",
+    "7a47f5788ff504f099a47ad4407c340771bb6bdb"
+  ],
+  "branch_only": [
+    "docs/traceability/MODULE_MATRIX.md",
+    "hdl/srp/KL_srp_admission.sv",
+    "syn/ooc/srp_ooc.tcl",
+    "tb/srp_admission/Makefile",
+    "tb/srp_admission/README.md",
+    "tb/srp_admission/mutants.py",
+    "tb/srp_admission/sim_main.cpp",
+    "tb/srp_admission/srp_admission_wrap.sv"
+  ],
+  "main_only": [
+    "docs/architecture/02_interfaces.md",
+    "docs/architecture/06_aecp_engine.md",
+    "hdl/acmp/KL_pp_acmp_listener.sv",
+    "hdl/aecp/KL_aecp_engine.sv",
+    "hdl/aecp/ucode/gen_ucode.py",
+    "hdl/srp/KL_srp_listener_fsm.sv",
+    "syn/ooc/protocol_processor_ooc.tcl",
+    "tb/acmp_listener/README.md",
+    "tb/acmp_listener/sim_main.cpp",
+    "tb/pp_top/Makefile",
+    "tb/pp_top/README.md",
+    "tb/pp_top/gsi_internal.hpp",
+    "tb/pp_top/gsi_mutants.py",
+    "tb/pp_top/pp_top_wrap.sv",
+    "tb/pp_top/sim_main.cpp",
+    "tb/srp_stream_fsms/README.md",
+    "tb/srp_stream_fsms/sim_main.cpp",
+    "tb/srp_stream_fsms/srp_stream_fsms_wrap.sv"
+  ],
+  "overlap": [
+    "docs/architecture/10_srp_engine.md",
+    "docs/guides/integrator.md",
+    "hdl/srp/KL_srp_top.sv",
+    "hdl/top/protocol_processor_top.sv",
+    "syn/ooc/README.md",
+    "tb/srp_top/README.md",
+    "tb/srp_top/sim_main.cpp",
+    "tb/srp_top/srp_top_wrap.sv"
+  ]
+}
+
+== admission-results.json
+[
+  {
+    "name": "admission-mutants",
+    "command": [
+      "python3",
+      "tb/srp_admission/mutants.py",
+      "--output",
+      "$MANAGEMENT/2026-09-23/pp112-a273/admission-mutants"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 113.39,
+    "ended": "2026-09-24T17:07:02.257508+00:00"
+  }
+]
+
+== gsi-results.json
+[
+  {
+    "name": "gsi-mutants",
+    "command": [
+      "python3",
+      "tb/pp_top/gsi_mutants.py",
+      "--output",
+      "$MANAGEMENT/2026-09-23/pp112-a273/gsi-mutants"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 296.21,
+    "ended": "2026-09-24T17:10:05.086123+00:00"
+  }
+]
+
+== parent-results.json
+[
+  {
+    "name": "parent-fetch",
+    "command": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "fetch",
+      "$LANES/pp112-stale-grant",
+      "HEAD"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.12,
+    "ended": "2026-09-24T17:05:24.972301+00:00"
+  },
+  {
+    "name": "parent-checkout",
+    "command": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "checkout",
+      "--detach",
+      "FETCH_HEAD"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.02,
+    "ended": "2026-09-24T17:05:24.992186+00:00"
+  },
+  {
+    "name": "parent-add",
+    "command": [
+      "git",
+      "add",
+      "protocol-processor"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.0,
+    "ended": "2026-09-24T17:05:24.996147+00:00"
+  },
+  {
+    "name": "parent-cpp",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 1.32,
+    "ended": "2026-09-24T17:05:26.315030+00:00"
+  },
+  {
+    "name": "parent-py",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 3.12,
+    "ended": "2026-09-24T17:05:29.440024+00:00"
+  },
+  {
+    "name": "parent-source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 1.72,
+    "ended": "2026-09-24T17:05:31.161917+00:00"
+  },
+  {
+    "name": "parent-pp-shadow",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 28.79,
+    "ended": "2026-09-24T17:05:59.953532+00:00"
+  },
+  {
+    "name": "parent-reset",
+    "command": [
+      "git",
+      "reset",
+      "-q",
+      "protocol-processor"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.01,
+    "ended": "2026-09-24T17:05:59.961855+00:00"
+  }
+]
+

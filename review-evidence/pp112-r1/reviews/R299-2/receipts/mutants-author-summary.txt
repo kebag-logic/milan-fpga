@@ -1,0 +1,14 @@
+control admission-2: rc=0 PASS
+control admission-8: rc=0 PASS
+control srp-top: rc=0 PASS
+stale-evaluation admission-2: rc=2 PASS
+stale-evaluation admission-8: rc=2 PASS
+stale-evaluation srp-top: rc=2 PASS
+pending-absent admission-2: rc=2 PASS
+pending-absent admission-8: rc=2 PASS
+pending-absent srp-top: rc=2 PASS
+discarded-round-strobes admission-2: rc=2 PASS
+discarded-round-strobes admission-8: rc=2 PASS
+discarded-round-strobes srp-top: rc=2 PASS
+12 checks: 12 PASS, 0 FAIL
+rc=0

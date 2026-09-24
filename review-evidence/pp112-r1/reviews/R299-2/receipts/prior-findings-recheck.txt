@@ -1,0 +1,13 @@
+F2 recheck at f222f6b (reviewer heuristics, not the parent gate):
+-- candidate multi-declarator lines added by this PR in tb/srp_top/sim_main.cpp (type followed by 'a, b' list):
+(end)
+-- public functions in tb/srp_admission/mutants.py:
+50:def build_tree(tree: Path) -> None:
+58:def run_suite(tree: Path, suite: str, command: tuple[str, ...], log: Path) -> tuple[int, str]:
+66:def judge(expect: str | None, status: int, contents: str) -> bool:
+73:def campaign(tree: Path, output: Path) -> tuple[int, int]:
+98:def main() -> int:
+-- srp_admission Makefile default target:
+6:all: shapes
+-- run_suites.sh invocation of srp_admission (make default):
+30:  if (cd "$d" && make) >"$log" 2>&1; then
