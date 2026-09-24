@@ -1,0 +1,17 @@
+OK   endstation_arty_4x4: every row, image length and SHA-256 identical base->head
+OK   endstation_arty_8ch: every row, image length and SHA-256 identical base->head
+OK   endstation_arty_current: every row, image length and SHA-256 identical base->head
+OK   endstation_ax7101_1x1_tdm8: every row, image length and SHA-256 identical base->head
+OK   8x8: identical record-id set base->head
+OK   8x8: group/index per id unchanged; only MAPS_OUT lengths changed
+OK   8x8: exactly ids 0x70..0x77 grow 72 -> 576 payload bytes (9 -> 72 entries)
+OK   8x8 head: records contiguous, area sum 12634
+OK   8x8: 40 + align4(12634) + 4 = 12680 = 12680
+OK   8x8: growth 8*(72-9)*8 = 4032
+     fixed=770 mapin=64 mapout=4672 names=7128 (99 names)
+OK   8x8: doc terms 770 + 64 + 4672 + 7128 = 12634
+OK   8x8: 156 records, top id 0x80+99-1 = 0xE2
+OK   8x8: commit worst 3258.1152 ms, 2x = 6516.2304 < 8000
+OK   8x8: committed fixture rows and imglen equal the head emit
+OK   1x1: doc terms (266, 72, 144, 2736), 53 records, top 0xA5
+rc=0

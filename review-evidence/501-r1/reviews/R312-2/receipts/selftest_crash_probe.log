@@ -1,0 +1,21 @@
+== crash_no_finding (file from HEAD): --self-test rc=1
+self-test OK: --mutate=block           exits 1 -- FINDING: endstation_arty_4x4: NAME[8] has no id -- the group's block holds 8 and this shape needs 9
+SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=True; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+== finding_then_crash (file from HEAD): --self-test rc=1
+self-test OK: --mutate=block           exits 1 -- FINDING: endstation_arty_4x4: NAME[8] has no id -- the group's block holds 8 and this shape needs 9
+self-test OK: --mutate=collide         exits 1 -- FINDING: endstation_arty_4x4: record_id 0x30 is claimed by both FMT_IN[0] and FMT_OUT[0] -- one of them is lost
+SELF-TEST FAILED: negative control --mutate=old_output_length: exit=1, traceback=True; required FINDING containing 'output-record capacity'. A crash or unrelated failure does not prove the assertion.
+== unrelated_finding (file from HEAD): --self-test rc=1
+SELF-TEST FAILED: negative control --mutate=block: exit=1, traceback=False; required FINDING containing 'NAME[8] has no id'. A crash or unrelated failure does not prove the assertion.
+== vacuous (file from HEAD): --self-test rc=1
+self-test OK: --mutate=block           exits 1 -- FINDING: endstation_arty_4x4: NAME[8] has no id -- the group's block holds 8 and this shape needs 9
+self-test OK: --mutate=collide         exits 1 -- FINDING: endstation_arty_4x4: record_id 0x30 is claimed by both FMT_IN[0] and FMT_OUT[0] -- one of them is lost
+self-test OK: --mutate=old_output_length exits 1 -- FINDING: endstation_ax7101_8x8: output-record capacity: MAPS_OUT[0] cannot save 10 keys in 9 entries
+SELF-TEST FAILED: negative control --mutate=payload: exit=0, traceback=False; required FINDING containing 'over MAX_PAYLOAD_P'. A crash or unrelated failure does not prove the assertion.
+== r1_crash_no_finding (file from b5ee412cdc0fd771d3df1f7fda49031409cf11fa): --self-test rc=0
+self-test OK: --mutate=block           exits 1 -- FINDING: endstation_arty_4x4: NAME[8] has no id -- the group's block holds 8 and this shape needs 9
+self-test OK: --mutate=collide         exits 1 -- (no FINDING line)
+self-test OK: --mutate=old_output_length exits 1 -- FINDING: endstation_ax7101_8x8: the KLJ2 image this gate encoded does not decode -- verdict VD_REC, 0 record(s) applied
+self-test OK: --mutate=payload         exits 1 -- FINDING: endstation_arty_4x4: MCR[0] payload is 1025 B, over MAX_PAYLOAD_P = 1024 -- the port refuses it
+== direct --mutate=collide with crash plant: rc=1 traceback=1
+restored: 8e8e8737cc0aa617db68964cafe9bb2591e415c2 vs HEAD 8e8e8737cc0aa617db68964cafe9bb2591e415c2

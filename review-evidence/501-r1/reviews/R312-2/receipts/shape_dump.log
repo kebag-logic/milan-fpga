@@ -1,0 +1,52 @@
+== endstation_arty_4x4 STREAM_OUTPUT=5 STREAM_INPUT=5 SPO=4 SPI=4
+   OUT port 0 mode=None clusters=4 entries=4
+   OUT port 1 mode=None clusters=4 entries=4
+   OUT port 2 mode=None clusters=4 entries=4
+   OUT port 3 mode=None clusters=4 entries=4
+   IN  port 0 mode=dynamic clusters=4
+   IN  port 1 mode=dynamic clusters=4
+   IN  port 2 mode=dynamic clusters=4
+   IN  port 3 mode=dynamic clusters=4
+   MAPS_OUT recs: [(0, '0x70', 32), (1, '0x71', 32), (2, '0x72', 32), (3, '0x73', 32)]
+   nrec=84 top=0xB2 body=4476 image=4520 worst=3092.8928
+== endstation_arty_8ch STREAM_OUTPUT=5 STREAM_INPUT=5 SPO=4 SPI=4
+   OUT port 0 mode=None clusters=8 entries=8
+   OUT port 1 mode=None clusters=8 entries=8
+   OUT port 2 mode=None clusters=8 entries=8
+   OUT port 3 mode=None clusters=8 entries=8
+   IN  port 0 mode=dynamic clusters=8
+   IN  port 1 mode=dynamic clusters=8
+   IN  port 2 mode=dynamic clusters=8
+   IN  port 3 mode=dynamic clusters=8
+   MAPS_OUT recs: [(0, '0x70', 64), (1, '0x71', 64), (2, '0x72', 64), (3, '0x73', 64)]
+   nrec=116 top=0xD2 body=7036 image=7080 worst=3144.5312
+== endstation_arty_current STREAM_OUTPUT=1 STREAM_INPUT=2 SPO=1 SPI=1
+   OUT port 0 mode=None clusters=8 entries=8
+   IN  port 0 mode=dynamic clusters=8
+   MAPS_OUT recs: [(0, '0x70', 64)]
+   nrec=41 top=0x9B body=2400 image=2444 worst=3051.5642
+== endstation_ax7101_1x1_tdm8 STREAM_OUTPUT=2 STREAM_INPUT=2 SPO=1 SPI=1
+   OUT port 0 mode=dynamic clusters=17 entries=17
+   IN  port 0 mode=dynamic clusters=8
+   MAPS_OUT recs: [(0, '0x70', 136)]
+   nrec=53 top=0xA5 body=3220 image=3264 worst=3067.0890
+== endstation_ax7101_8x8 STREAM_OUTPUT=9 STREAM_INPUT=9 SPO=8 SPI=8
+   OUT port 0 mode=dynamic clusters=9 entries=72
+   OUT port 1 mode=dynamic clusters=9 entries=72
+   OUT port 2 mode=dynamic clusters=9 entries=72
+   OUT port 3 mode=dynamic clusters=9 entries=72
+   OUT port 4 mode=dynamic clusters=9 entries=72
+   OUT port 5 mode=dynamic clusters=9 entries=72
+   OUT port 6 mode=dynamic clusters=9 entries=72
+   OUT port 7 mode=dynamic clusters=9 entries=72
+   IN  port 0 mode=dynamic clusters=0
+   IN  port 1 mode=dynamic clusters=0
+   IN  port 2 mode=dynamic clusters=0
+   IN  port 3 mode=dynamic clusters=0
+   IN  port 4 mode=dynamic clusters=0
+   IN  port 5 mode=dynamic clusters=0
+   IN  port 6 mode=dynamic clusters=0
+   IN  port 7 mode=dynamic clusters=0
+   MAPS_OUT recs: [(0, '0x70', 576), (1, '0x71', 576), (2, '0x72', 576), (3, '0x73', 576), (4, '0x74', 576), (5, '0x75', 576), (6, '0x76', 576), (7, '0x77', 576)]
+   nrec=156 top=0xE2 body=12636 image=12680 worst=3258.1152
+rc=0

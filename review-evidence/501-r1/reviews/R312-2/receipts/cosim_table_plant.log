@@ -1,0 +1,9 @@
+== control_head: rc=0
+      1 RESULT: PASS
+      1 nvm_cosim: 150 checks: 150 PASS, 0 FAIL (0 not expressible)
+== fw_table_old_output_length: rc=1
+      1 RESULT: FAIL
+      1 nvm_cosim: 150 checks: 148 PASS, 2 FAIL (0 not expressible)
+      1   FAIL contract-8x8 W4_all_records_rewritten_after_refused_fill : no_durable_reading_when_nothing_open@rewritten -- records open 1, pending 1, backed 0, committable 1, status claims durable False, flash erases 0, premise (nothing le
+      1   FAIL contract-8x8 W4_all_records_rewritten_after_refused_fill : no_durable_reading_when_nothing_open@end2 -- records open 1, pending 1, backed 0, committable 1, status claims durable False, flash erases 0, premise (nothing left op
+restored: 1d4e54781c42cbc105f8111e4f548bc6579a1f53 vs HEAD 1d4e54781c42cbc105f8111e4f548bc6579a1f53

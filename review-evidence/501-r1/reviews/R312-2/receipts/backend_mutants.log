@@ -1,0 +1,34 @@
+control [harness with]: rc=0 nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 0 ; distinct FAIL kinds:
+over_by_one [harness with]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 25 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: a READ one byte past the end of record 0x00 was ACCEPTED
+      8 FAIL: endstation_ax7101_8x8: output ERASE crossed span on port N
+      8 FAIL: endstation_ax7101_8x8: output READ beyond capacity accepted on port N
+      8 FAIL: endstation_ax7101_8x8: output WRITE beyond capacity accepted on port N
+over_by_one_old [harness without]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 469  failures: 1 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: a READ one byte past the end of record 0x00 was ACCEPTED
+erase_short [harness with]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 10 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: acknowledged bridge: ERASE of 0x01 did not fill exactly its 16 bytes with 0xFF
+      8 FAIL: endstation_ax7101_8x8: output ERASE crossed span on port N
+      1 FAIL: endstation_ax7101_8x8: posted bridge: ERASE of 0x01 did not fill exactly its 16 bytes with 0xFF
+erase_short_old [harness without]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 469  failures: 2 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: acknowledged bridge: ERASE of 0x01 did not fill exactly its 16 bytes with 0xFF
+      1 FAIL: endstation_ax7101_8x8: posted bridge: ERASE of 0x01 did not fill exactly its 16 bytes with 0xFF
+len9 [harness with]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 40 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[0]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[1]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[2]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[3]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[4]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[5]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[6]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[7]) was REFUSED
+len9_old [harness without]: rc=1 nvm_backend[endstation_ax7101_8x8]: checks: 469  failures: 8 ; distinct FAIL kinds:
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[0]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[1]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[2]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[3]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[4]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[5]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[6]) was REFUSED
+      1 FAIL: endstation_ax7101_8x8: a READ of record 0x7N (MAPS_OUT[7]) was REFUSED
+rc=0
