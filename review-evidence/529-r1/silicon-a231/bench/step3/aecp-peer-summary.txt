@@ -1,0 +1,33 @@
+== PDU counts (message, command, solicited/unsolicited, direction)
+        4  COMMAND CONTROLLER_AVAILABLE solicited entity-is-controller
+        1  COMMAND DEREGISTER_UNSOLICITED_NOTIFICATION solicited entity-is-target
+        2  COMMAND GET_AS_PATH solicited entity-is-target
+        2  COMMAND GET_AUDIO_MAP solicited entity-is-target
+        2  COMMAND GET_AVB_INFO solicited entity-is-target
+       89  COMMAND GET_COUNTERS solicited entity-is-target
+       14  COMMAND GET_STREAM_INFO solicited entity-is-target
+        1  COMMAND LOCK_ENTITY solicited entity-is-target
+       79  COMMAND READ_DESCRIPTOR solicited entity-is-target
+        1  COMMAND REGISTER_UNSOLICITED_NOTIFICATION solicited entity-is-target
+        4  RESPONSE CONTROLLER_AVAILABLE solicited entity-is-controller
+        1  RESPONSE DEREGISTER_UNSOLICITED_NOTIFICATION solicited entity-is-target
+        2  RESPONSE GET_AS_PATH solicited entity-is-target
+        2  RESPONSE GET_AUDIO_MAP solicited entity-is-target
+        2  RESPONSE GET_AVB_INFO solicited entity-is-target
+       89  RESPONSE GET_COUNTERS solicited entity-is-target
+      332  RESPONSE GET_COUNTERS unsolicited entity-is-target
+       14  RESPONSE GET_STREAM_INFO solicited entity-is-target
+       36  RESPONSE GET_STREAM_INFO unsolicited entity-is-target
+        1  RESPONSE LOCK_ENTITY solicited entity-is-target
+        1  RESPONSE LOCK_ENTITY unsolicited entity-is-target
+       79  RESPONSE READ_DESCRIPTOR solicited entity-is-target
+        1  RESPONSE REGISTER_UNSOLICITED_NOTIFICATION solicited entity-is-target
+== unsolicited responses from the entity, per command/descriptor/controller
+   GET_COUNTERS STREAM_INPUT 8 -> 6805ca95b2ed0a20: n=166 first=+51.792s last=+225.817s min_gap=1.000s non_decreasing=NO (STREAM_INTERRUPTED 1 -> 0)
+      valid=0x00000fff first={'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 0, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'TIMESTAMP_VALID': 323, 'TIMESTAMP_NOT_VALID': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0, 'FRAMES_RX': 323}
+      valid=0x00000fff last={'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'TIMESTAMP_VALID': 79103, 'TIMESTAMP_NOT_VALID': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0, 'FRAMES_RX': 79103}
+   GET_COUNTERS AVB_INTERFACE 0 -> 6805ca95b2ed0a20: n=166 first=+51.792s last=+225.817s min_gap=1.000s non_decreasing=yes
+      valid=0x00000023 first={'LINK_UP': 1, 'LINK_DOWN': 0, 'GPTP_GM_CHANGED': 15}
+      valid=0x00000023 last={'LINK_UP': 1, 'LINK_DOWN': 0, 'GPTP_GM_CHANGED': 15}
+   GET_STREAM_INFO STREAM_INPUT 8 -> 6805ca95b2ed0a20: n=36 first=+45.191s last=+225.192s min_gap=0.000s non_decreasing=n/a
+   LOCK_ENTITY None None -> 6805ca95b2ed0a20: n=1 first=+0.275s last=+0.275s min_gap=n/a non_decreasing=n/a

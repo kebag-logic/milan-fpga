@@ -1,0 +1,41 @@
+LIB la_avdecc 4.3.1-beta1, controller 4.3.1-beta1
+EVENT online 0x020000fffe000001
+EVENT online 0x3cc0c60102030000
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+EVENT compatibility 0x3cc0c60102030000 flags=IEEE17221|Milan|MilanWarning milan=1.2.0.0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+COMPLAINT [Compatibility] [0x3cc0c60102030000] [Milan 1.2 - 5.4.2.10.1] StreamInfoFlag bit 24 is reserved and must be set to 0
+ENTITY 0x020000fffe000001 model=0x001bc5c40236ba0e flags=IEEE17221|Milan milanRedundant=0 cacheable=1
+ENTITY 0x020000fffe000001 milanInfo protocolVersion=1 certificationVersion=0.0.0.0 specificationVersion=1.2.0.0
+ENTITY 0x020000fffe000001 diagnostics redundancyWarning=0 controlsOutOfBounds=0 streamInputOverLatency=0
+ENTITY 0x020000fffe000001 query-errors 0
+ENTITY 0x020000fffe000001 json written /tmp/a231/enum-bind/entity_0x020000fffe000001.json
+ENTITY 0x3cc0c60102030000 model=0x3cc0c60000010101 flags=IEEE17221|Milan|MilanWarning milanRedundant=1 cacheable=0
+ENTITY 0x3cc0c60102030000 milanInfo protocolVersion=1 certificationVersion=1.1.0.0 specificationVersion=1.2.0.0
+ENTITY 0x3cc0c60102030000 compat-change IEEE17221|Milan -> IEEE17221|Milan|MilanWarning clause="Milan 1.2 - 5.4.2.10.1" message="StreamInfoFlag bit 24 is reserved and must be set to 0"
+ENTITY 0x3cc0c60102030000 diagnostics redundancyWarning=0 controlsOutOfBounds=0 streamInputOverLatency=0
+ENTITY 0x3cc0c60102030000 query-errors 0
+ENTITY 0x3cc0c60102030000 json written /tmp/a231/enum-bind/entity_0x3cc0c60102030000.json
+SUMMARY online=2 complaints=22
+EVENT offline 0x3cc0c60102030000
+EVENT offline 0x020000fffe000001
+ENUM_RC=0
