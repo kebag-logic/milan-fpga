@@ -1,0 +1,29 @@
+--- $REVIEWS/gptp75-r305-3-packet/scratch/head/tb/verilator/engine/sim_main.cpp	2026-09-24 20:55:25.000000000 +0200
++++ $REVIEWS/gptp75-r305-3-packet/scratch/probec/tb/verilator/engine/sim_main.cpp	2026-09-24 21:16:25.410960979 +0200
+@@ -4762,6 +4762,26 @@
+     expect("slew: idle GM change has no level edge", slew_edges.size(), idle_edges);
+     slew_probe("slew: in-band pair after idle GM change stays inactive", -100, false);
+     slew_probe("slew: second pair after idle GM change stays inactive", 0, false);
++    // [R305 probe C] asCapable loss and recovery while inactive
++    {
++      const size_t c_edges = slew_edges.size();
++      pd_mode = PD_FAR;
++      expect("r305c: bad delay drops asCapable while inactive",
++             wait_flags(FL_ASCAP, 0, 2500000), 1);
++      expect("r305c: inactive asCapable loss stays inactive", dut->phc_slew_active_o, 0);
++      printf("R305C flags after loss: 0x%x\n", dut->pub_flags_o);
++      pd_mode = PD_NORMAL;
++      expect("r305c: capability recovers",
++             wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
++      printf("R305C flags after recovery: 0x%x\n", dut->pub_flags_o);
++      announce(0x75C0, 100, GMID + 2, 0, PEER_CID);
++      expect("r305c: slave again after recovery", dut->pub_flags_o & FL_AMGM, 0);
++      expect("r305c: recovery leaves the level low", dut->phc_slew_active_o, 0);
++      expect("r305c: loss and recovery make no level edge", slew_edges.size(), c_edges);
++      slew_probe("r305c: in-band pair after asCapable recovery stays inactive",
++                 0, false, false, true);
++      slew_probe("r305c: second in-band pair after recovery stays inactive", 0, false);
++    }
+ 
+     // Losing capability while tracking must also leave qualification unarmed.
+     // Bad and good Pdelay exchanges drive the entire loss/recovery on the wire.
