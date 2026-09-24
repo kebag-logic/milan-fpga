@@ -1,0 +1,88 @@
+# Documentation gates at 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6 (tree ef96bf2fe0d66dd9c0b1ba45c6b4300d89ba658c), 2026-09-24T00:38:18Z
+# submodules:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (remotes/origin/72-split-the-three-69-functions-that-exceed-the-parents-100-line-rule-1-gc1b6174)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+### python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+### python3 -B scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9
+check_em_dash: 0 finding(s) over 230 added line(s) in 11 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [759da623..HEAD]
+exit=0
+### python3 -B scripts/check_em_dash.py --base 64bcf768d28b4b9763fbe5917a734bcefa2a66e0
+check_em_dash: 0 finding(s) over 40 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [64bcf768..HEAD]
+exit=0
+### python3 -B scripts/check_feature_status.py --self-test
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+exit=0
+### python3 -B scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 846 tracked first-party file(s))
+exit=0
+### python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+exit=0
+### python3 -B scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+exit=0
+### python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+exit=0
+### python3 -B scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+exit=0
+### python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 154 existing cross-page fragment links reproduced
+exit=0
+### python3 -B scripts/check_doc_paths.py
+doc path gate: OK (832 cited paths all resolve; 0 line anchor(s) within their file)
+exit=0
+### python3 -B scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+exit=0
+### git diff --check 759da623 HEAD
+exit=0
+### git diff --check 64bcf768 HEAD
+exit=0
+# Remaining docs.yml documentation gates at 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+### python3 -B scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+exit=0
+### python3 -B scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+exit=0
+### python3 -B scripts/check_gptp_docs.py --selftest
+gPTP documentation selftest: OK (30 controls)
+exit=0
+### python3 -B docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+exit=0
+### python3 -B docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+exit=0
+### python3 -B scripts/check_solution_docs.py
+solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+exit=0
+### python3 -B scripts/check_solution_docs.py --selftest
+solution documentation selftest: OK (43 mutation controls)
+exit=0
+### python3 -B docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+exit=0
+### python3 -B scripts/check_submodule_docs.py --selftest
+submodule documentation selftest: OK (table and diagram controls)
+exit=0
+### python3 -B scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+exit=0
+### python3 -B scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (377 arm(s))
+exit=0
+### python3 -B scripts/check_wire_accountability.py
+----------------------------------------------------------------------
+checks: 42   findings: 0
+RESULT: PASS
+exit=0

@@ -1,0 +1,200 @@
+# Clause receipts for [A226] correction round 1 (PR #537, F1/F2). pdftotext -layout over $STANDARDS_DIR, 2026-09-24T00:39:32Z
+# Line numbers refer to the extracted text of each PDF; sha256 of the source PDFs:
+a07215b346fe0019b719b445abd4acb96d687f822b85c55ee1030d7195298ae3  802.1AS-2011.pdf
+e704e89c636e7b1e94db3af7afab619c9f8d137ba12211c99d55abeac370f31a  802.1AS-2011_Cor1-2013.pdf
+dbe16669ca5e647c8a6d5cf2ed5356eb258beefd7b9c12ec9d260727e65a0080  802.1AS-2011_Cor_2-2015.pdf
+762d15eb65b4401b251255c11e3bde7cabdda71b8d5d9e8703292714b0f02dcb  802.1AS-2020.pdf
+pdftotext version 26.08.0
+
+## F1: every arithmetic use of delayAsymmetry in 802.1AS-2011 (all 'delayAsymmetry' hits, then the arithmetic ones in context)
+### all hits (2011)
+2104:          responder to the initiator, meanPathDelay be the mean propagation time, and delayAsymmetry be the delay
+2127:          The meanPathDelay is the mean value of tir and tri, i.e., meanPathDelay = (tir + tri)/2. The delayAsymmetry
+2130:          tir = meanPathDelay – delayAsymmetry, and
+2132:          tri = meanPathDelay + delayAsymmetry.
+2134:          In other words, delayAsymmetry is defined to be positive when the responder to initiator propagation time is
+2137:          This standard does not explicitly require the measurement of delayAsymmetry; however, if
+2138:          delayAsymmetry is modeled, it shall be modeled as specified in this clause.
+2150:          NOTE—A time-aware system can change the value of delayAsymmetry during operation using methods not specified in
+3802:          10.2.4.8 delayAsymmetry: the asymmetry in the propagation delay on the link attached to this port relative
+3804:          delayAsymmetry is zero.
+4615:                                                neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+4617:                                                delayAsymmetry/rcvdPSSyncPtr->rateRatio;
+6917:          propagation delay plus the quantity delayAsymmetry (see 8.3 and 10.2.4.8); delayAsymmetry is already
+6930:             d)    The quantity delayAsymmetry (see 10.2.4.8) divided by rateRatioi.
+6932:          The division of delayAsymmetry by rateRatioi is performed after rateRatioi has been updated, as described
+7236:          the two directions, i.e., the absolute value of the quantity delayAsymmetry (see 8.3 and 10.2.4.8), for the
+7399:                   delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+7405:          delayAsymmetry is divided by rateRatio to convert it from the time base of the grandmaster to the time base of the
+7411:          same is true of any delayAsymmetry. See NOTE 2 of 11.2.15.2.4.
+8472:                                                      and 11.2.14.2.3; the quantity delayAsymmetry is used in the
+11063:          14.6.9 delayAsymmetry
+11067:          delayAsymmetry is 0.
+11204:           delayAsymmetry                        scaledNs                     RW               Tdot3FD             14.6.9
+13450:                             delayAsymmetry is 0.
+13477:                              delayAsymmetry is 0.
+13514:                             delayAsymmetry is 0.
+17011:                                                delayAsymmetry                                              12           38
+17056:          E.5.2.1.1.9 delayAsymmetry (UScaledNs)
+17058:          The delayAsymmetry value described in 10.2.4.8.
+17070:          upstreamTxTime, neighborPropDelay, neighborRateRatio, and delayAsymmetry values from the respective
+### 10.2.12 Figure 10-9 (ClockSlaveSync), two assignments
+  4612	                             if (rcvdPSSync)
+  4613	                             {
+  4614	                                 syncReceiptTime = rcvdPSSyncPtr->preciseOriginTimestamp + rcvdPSSyncPtr->followUpCorrectionField +
+  4615	                                                neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+  4616	                                 syncReceiptLocalTime = rcvdPSSyncPtr->upstreamTxTime + neighborPropDelay/neighborRateRatio +
+  4617	                                                delayAsymmetry/rcvdPSSyncPtr->rateRatio;
+### 10.2.7 Figure 10-4 (PortSyncSyncReceive) rateRatio update
+  4025	                                                                  rateRatio = rcvdMDSyncPtr->rateRatio;
+  4026	                                                                 rateRatio += (neighborRateRatio – 1.0);
+### 11.2.13.2.1 e) f) setMDSyncReceive and NOTE 2
+             e)    rateRatio is set equal to the quantity (cumulativeScaledRateOffsetu2–41)+1.0, where the
+                   cumulativeScaledRateOffset field is for the most recently received Follow_Up message (see
+                   11.4.4.3.6),
+             f)    upstreamTxTime is set equal to the <syncEventIngressTimestamp> for the most recently received
+                   Sync message, minus the mean propagation time on the link attached to this port
+                   (neighborPropDelay, see 10.2.4.7) divided by neighborRateRatio (see 10.2.4.6), minus
+                   delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+                   <syncEventIngressTimestamp> is equal to the timestamp value measured relative to the timestamp
+                   measurement plane, minus any ingressLatency (see 8.4.3),
+          NOTE 2—The difference between the mean propagation time in the grandmaster time base, the time base of the time-
+          aware system at the other end of the link, and the time base of the current time-aware system is usually negligible. The
+          same is true of any delayAsymmetry. See NOTE 2 of 11.2.15.2.4.
+### 11.1.3 c) d) e) (description)
+             c)    The quantity neighborPropDelay (see 10.2.4.7) divided by neighborRateRatio (see 10.2.4.6), and
+             d)    The quantity delayAsymmetry (see 10.2.4.8) divided by rateRatioi.
+
+          The division of delayAsymmetry by rateRatioi is performed after rateRatioi has been updated, as described
+          shortly. The computation of upstreamTxTime is done by the MDSyncReceiveSM state machine in the
+          function setMDSyncReceive() (see 11.2.13.2.1). When time-aware system i sends a Sync message to time-
+          aware system i+1, it computes the sum of the link propagation delay and residence time, expressed in the
+          grandmaster time base, as:
+
+             e)    The quantity (ts,i – upstreamTxTime)(rateRatioi).
+### 11.2.14.2.3 a) setFollowUp
+          11.2.14.2.3 setFollowUp(): creates a structure whose parameters contain the fields (see 11.4 and its
+          subclauses) of a Follow_Up message to be transmitted, and returns a pointer to this structure. The
+          parameters are set as follows:
+            a) followUpCorrectionField is set equal to the sum of:
+                  1) the followUpCorrectionField member of the most recently received MDSyncSend structure
+                       (see 10.2.2.1 and 11.2.11)
+                  2) the quantity
+
+                         rateRatio u (<syncEventEgressTimestamp> upstreamTxTime),
+
+                         where rateRatio is the rateRatio member of the most recently received MDSyncSend structure
+                         (see 10.2.2.1 and 11.2.11), upstreamTxTime is the upstreamTxTime member of the most
+                         recently received MDSyncSend structure (see 10.2.2.1 and 11.2.11), and
+### Table 11-5 correction field (Follow_Up row)
+                             Message type                                             Value
+
+                      Follow_Up                       Corrections for fractional nanoseconds (see 10.2.8 and
+                                                      Figure 10-5), difference between preciseOriginTimestamp field
+                                                      and current synchronized time (see 11.2.14.2.3 and
+                                                      Figure 11-7), and asymmetry corrections (see 8.3, 11.2.13.2.1,
+                                                      and 11.2.14.2.3; the quantity delayAsymmetry is used in the
+                                                      computation of upstreamTxTime in 11.2.13.2.1, and
+                                                      upstreamTxTime is used in computing an addition to the
+### 10.2.11 PortSyncSyncSend: relays only to a port other than the receiving one
+
+                    rcvdPSSync &&
+                    (rcvdPSSyncPtr->localPortNumber != thisPort) &&                                                   rcvdPSSync = FALSE;
+                    portEnabled && pttPortEnabled && asCapable &&
+                    selectedRole[thisPort] == MasterPort
+                                                                                rcvdPSSync &&
+                                                                                (rcvdPSSyncPtr->localPortNumber != thisPort) &&
+                                                                                portEnabled && pttPortEnabled && asCapable &&
+                                                                                selectedRole[thisPort] == MasterPort
+### 10.2.8.2.1 g) grandmaster source: upstreamTxTime = localTime (line 4078)
+             g)    upstreamTxTime is set equal to localTime
+### Annex E.5.2.2 CSN egress node
+          The CSN egress port sets neighborRateRatio to 1 and neighborPropDelay to 0 for its CSN port.
+
+          The CSN egress port modifies the function setMDSyncReceive of the MDSyncReceiveSM state machine
+          [11.2.13.2.1 item f)] for the port to CSN link entity to extract upstreamTxTime, neighborPropDelay, and
+          neighborRateRatio from the respective fields of the CSN TLV in the Follow_Up message received from the
+          CSN ingress node.
+
+          The CSN egress port also modifies the ClockSlaveSync state machine (see 10.2.12) to get the
+          upstreamTxTime, neighborPropDelay, neighborRateRatio, and delayAsymmetry values from the respective
+          fields of the CSN TLV in the Follow_Up message received from the CSN ingress node.
+### Cor1: ClockSlaveSync change is 10.2.12.2.1 text only; 11.2.13.2.1 f) restated unchanged
+1206:Change 10.2.12.2.1 as follows:
+1931:Change 11.2.13.2.1 as follows:
+             11.4.4.3.6),
+     f)      upstreamTxTime is set equal to the <syncEventIngressTimestamp> for the most recently received
+             Sync message, minus the mean propagation time on the link attached to this port
+             (neighborPropDelay, see 10.2.4.7) divided by neighborRateRatio (see 10.2.4.6), minus
+             delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+             <syncEventIngressTimestamp> is equal to the timestamp value measured relative to the timestamp
+             measurement plane, minus any ingressLatency (see 8.4.3),
+### Cor2: delayAsymmetry hits
+0
+
+## F2: management grade
+### 14.6.9 (2011): defines, does not grade
+          14.6.9 delayAsymmetry
+
+          The value is the asymmetry in the propagation delay on the link attached to this port relative to the
+          grandmaster time base, as defined in 8.3. If propagation delay asymmetry is not modeled, then
+          delayAsymmetry is 0.
+### Table 14-6 rows and legend (2011)
+           asCapable                             Boolean                      R                T                   14.6.6
+           neighborPropDelay                     UScaledNs                    R                T                   14.6.7
+                                                 (recommended)
+           neighborPropDelayThresh               UScaledNs                    RW               T                   14.6.8
+                                                 (recommended)
+           delayAsymmetry                        scaledNs                     RW               Tdot3FD             14.6.9
+                                                 (recommended)
+           neighborRateRatio                     Integer32                    R                T                   14.6.10
+               a
+                R = Read only access; RW = Read/write access.
+               bT= Required for time-aware port;
+
+                   Tdot3FD = Required for time-aware IEEE 802.3 full-duplex port;
+                   Tdot3OLT = Required for time-aware IEEE 802.3 EPON OLT ports;
+                   Tdot3ONU = Required for time-aware IEEE 802.3 EPON ONU ports.
+
+### Cor1 replacement of Table 14-6
+Change Table 14-6 as follows:
+ neighborPropDelayThresh              UScaledNs             RW            T              14.6.8
+                                      (recommended)
+ delayAsymmetry                       scaledNs              RW            Tdot3FD        14.6.9
+                                      (recommended)
+     bT= Required for time-aware port;
+
+         Tdot3FD = Required for time-aware IEEE 802.3 full-duplex port;
+         Tdot3OLT = Required for time-aware IEEE 802.3 EPON OLT ports;
+         Tdot3ONU = Required for time-aware IEEE 802.3 EPON ONU ports.
+### '(recommended)' annotates the data type: 14.3.2 and Table 14-2 offsetFromMaster
+          slave and the grandmaster, as computed by the slave, and as specified in 10.2.9. It is recommended that the
+          data type be scaledNs. The default value is implementation specific.
+             offsetFromMaster             ScaledNs                      R                T                       14.3.2
+                                          (recommended)
+### PICS A.5 MGT and MINTA-8
+            MGT             Is management of the timing                    O                  Clause 15           Yes [ ]     No [ ]
+                            synchronization in Bridges supported?
+           MINTA-8          If path delay asymmetry is modeled by this         O                  8.3              Yes [ ]     No [ ]
+                            device does it comply with the
+                            requirements of 8.3?
+### 10.2.4.8 names no data type
+          10.2.4.8 delayAsymmetry: the asymmetry in the propagation delay on the link attached to this port relative
+          to the grandmaster time base, as defined in 8.3. If propagation delay asymmetry is not modeled, then
+          delayAsymmetry is zero.
+
+## 802.1AS-2020 comparison row
+5639: 10.2.13 ClockSlaveSync state machine
+10518: 11.2.14.2.1 setMDSyncReceiveMDSR(): Creates an MDSyncReceive structure, and returns a pointer to
+10744: 11.2.15.2.3 setFollowUp(): Creates a structure whose parameters contain the fields (see 11.4) of a
+11108: 11.2.17.2 Differences between instance-specific peer-to-peer delay mechanism and CMLDS
+                         syncReceiptTime = rcvdPSSyncPtrCSS->preciseOriginTimestamp + rcvdPSSyncPtrCSS->followUpCorrectionField +
+                                        meanLinkDelay*(rcvdPSSyncPtrCSS->rateRatio/neighborRateRatio) + delayAsymmetry;
+                         syncReceiptLocalTime = rcvdPSSyncPtrCSS->upstreamTxTime + meanLinkDelay/neighborRateRatio +
+                                        delayAsymmetry/rcvdPSSyncPtrCSS->rateRatio;
+ as follows:
+
+    a)     Instance-specific peer delay computes mean link delay averaged over the two directions and adds
+           delayAsymmetry separately when computing upstreamTxTime by the setMDSyncReceiveMDSR()
+           function of the MDSyncReceive state machine, while CMLDS corrects the computed mean link
+           delay for delayAsymmetry and therefore does not need to add it separately (see 11.2.14.2.1).
