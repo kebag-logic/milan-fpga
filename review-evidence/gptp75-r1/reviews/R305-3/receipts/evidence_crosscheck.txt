@@ -1,0 +1,16 @@
+# public evidence cross-check (kebag-logic/milan-fpga@26975a0c702be697be3693529940b4c536484107 review-evidence/gptp75-r1)
+downloaded 26 files; each matched its MANIFEST.json published_sha256 (0 mismatches)
+author-r3/commit.json: head/tree/parent:
+3face0914efd9d5e71f36da7e30108cfe09c837d c1f98ddfb81a5e4d06dfa436cc5162023b590314 4a897e44243d39945df763d00b96049363a58e78
+author-r3/candidate-sources.sha256 checked against the exact-head clone:
+ALL 104 entries OK
+author-r3 reviewer-scripts-after.sha256 vs this packet's copied round-2 scripts:
+  probe_mutants.py 12ced094b8220f389d096be47582450867942e3625e7dfe2b49c06b7a2f2778b MATCH published R305-2
+  probe_r2.py e8c8d3d501b4352df11e91cc6f5adf4472fb2ce1e7796a12b60b03685b3e6779 MATCH published R305-2
+  make_probe_tree_r2.py 4fc4e4d8ed12cdf84b97765ce0059f1cce764f787b387b6f31cff109b3e1686f MATCH published R305-2
+  run_probe_tree_at_head.py 33fc09a15962e55527299c996e0a224466044879be252398bf0170804e92ba5a MATCH published R305-2
+  checker_controls.py f5bb00fdbe8199266217f9f10055bb5e166e3ca5f3f85c06b9b497686dd5c09b MATCH published R305-2
+Vivado reports: engine 4853 LUT / 3652 FF / LUTRAM 466 / BRAM 1.5 / DSP 4 / WNS +1.773 (author-r3/engine_util.rpt, engine_timing.rpt dated Thu Sep 24 20:53-20:54 2026)
+baseline 4773 / 3646 / 466 / 1.5 / 4 / +2.249 (author/baseline-engine_*.rpt)
+ucpu 1643 / 733 / 1.5 / 4 / +1.941 (author-r3/ucpu_util.rpt, ucpu_timing.rpt dated Thu Sep 24 20:52 2026)
+OOC part xc7a100tfgg484-2, 10.000 ns clock (syn/ooc/engine_ooc.tcl:18,20)
