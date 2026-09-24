@@ -1,0 +1,14 @@
+window_plus_one: 2 failed checks; checks: 96   failures: 2
+      [FAIL] T18 talker 0 had put the disruption on the wire: the step is its 2nd toggle got=0x1 exp=0x2
+      [FAIL] T18 ... and talker 0's MEDIA_RESET counts both               got=0x1 exp=0x2
+no_streaming_term: 0 failed checks; checks: 96   failures: 0
+src_not_request: 6 failed checks; checks: 96   failures: 6
+      [FAIL] T13 source change internal->CRF toggles mr to 1              got=0x0 exp=0x1
+      [FAIL] T13 no-op SET (same source) does NOT toggle                  got=0x0 exp=0x1
+      [FAIL] T15 a source change toggles the CRF context with the rest    got=0x0 exp=0x7
+      [FAIL] T15 the CRF context has 3 CRF AVTPDUs -> HELD at 1           got=0x0 exp=0x1
+      [FAIL] T15 talker 1 transmitted one PDU -> held too (per-stream hold) got=0x0 exp=0x1
+      [FAIL] T15 seven CRF AVTPDUs is not eight -> still held             got=0x0 exp=0x1
+hold_seven: 2 failed checks; checks: 96   failures: 2
+      [FAIL] T15 seven CRF AVTPDUs is not eight -> still held             got=0x0 exp=0x1
+      [FAIL] T17 the merged restart still waits for talker 1's eighth PDU got=0x0 exp=0x1
