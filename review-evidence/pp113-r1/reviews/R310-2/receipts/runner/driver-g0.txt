@@ -1,0 +1,6 @@
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "latency-trigger-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 0, got 0", "FAIL: GI LATENCY-CHANGE: exactly one unsolicited response for sink 1, got 0"], "passed": true}
+{"variant": "failure-code-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0"], "passed": true}
+{"variant": "status-notification-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response", "FAIL: GI PASSIVE unsolicited: complete Milan response"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+group 0: 5 records, 0 errors

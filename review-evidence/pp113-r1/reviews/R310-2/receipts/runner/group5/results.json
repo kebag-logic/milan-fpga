@@ -1,0 +1,43 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "latency-cmp-high2",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "integrator-path",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI internal seam: selectors 5/7 never requested from integrator"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "bridge-gate-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]

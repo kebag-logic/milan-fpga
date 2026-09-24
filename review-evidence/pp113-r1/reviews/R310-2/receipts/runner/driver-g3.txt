@@ -1,0 +1,6 @@
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "latency-cmp-high16", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 0 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "acmpsta-zero", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0"], "passed": true}
+{"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+group 3: 5 records, 0 errors

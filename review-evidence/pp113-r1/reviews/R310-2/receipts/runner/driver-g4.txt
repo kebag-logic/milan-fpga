@@ -1,0 +1,6 @@
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "latency-cmp-low31", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0"], "passed": true}
+{"variant": "wrong-sink", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0"], "passed": true}
+{"variant": "index-guard-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+group 4: 5 records, 0 errors
