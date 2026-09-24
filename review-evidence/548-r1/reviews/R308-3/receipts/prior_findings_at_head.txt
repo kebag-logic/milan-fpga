@@ -1,0 +1,23 @@
+$ git diff --stat 8544472a HEAD -- hdl/common/csr/milan_csr.sv
+$ sed -n 758p;761,768p;2397,2402p hdl/common/csr/milan_csr.sv
+    A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
+    //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+    //! Reads 0 because the local counter source was deleted.
+    //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+    //! but exports no replacement count. The address is kept for the ABI.
+    //! Zero is no measurement.
+    //! 0x6F8 and 0x6FC are the LAST free words of this group — reserved, do
+    //! not guess at them without checking here first.
+    A_CTLR_DIAG   = 'h6F4,
+      //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+      //! Reads 0 because the local counter source was deleted.
+      //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
+      //! but exports no replacement count. The address is kept for the ABI.
+      //! Zero is no measurement.
+      A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+$ sim_nxn.cpp axi_read (blob equality of lines 600-640 at 8544472a vs HEAD)
+axi_read region identical
+612:    uint32_t axi_read(uint16_t a) {
+$ REGISTER_MAP 0x6F4 row and Timers line
+1247:| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local 
+1262:Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker

@@ -1,0 +1,46 @@
+git git version 2.55.0
+head 0b81fdc969131b82c535c4a183a78065fd1cd2d8 tree 3f312155566a7c38094d3b55851e55317756142f
+head parents: e1333a144115f074f8e3bdcd1de2d3a29d7f9dfd 8544472a19a4b4d3853d64b15dea22f999372a32
+merge-base(parent, src) 573f0052a0e4412e81f0845438fcec2086ce5d55
+recomputed merge tree 3f312155566a7c38094d3b55851e55317756142f
+== files the source changes (mb..src)
+docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/reference/REGISTER_MAP.md
+hdl/common/csr/milan_csr.sv
+hdl/milan/milan_datapath.sv
+tb/verilator/milan_dp/sim_nxn.cpp
+== files the predecessor side changes (mb..parent) that the source also changes
+docs/reference/REGISTER_MAP.md
+hdl/milan/milan_datapath.sv
+tb/verilator/milan_dp/sim_nxn.cpp
+== per-file patch identity: source (mb..src) vs composition (parent..head)
+SAME docs/findings/117_GPTP_SILICON_EVIDENCE.md 33c4971d8330834b6f785212504c9ceb53383526 33c4971d8330834b6f785212504c9ceb53383526
+SAME docs/reference/REGISTER_MAP.md aa105970598eaf003d081c2d0a478a09743478b9 aa105970598eaf003d081c2d0a478a09743478b9
+SAME hdl/common/csr/milan_csr.sv e66667dfbaefc2cda0fde5a68c75e230af10c51f e66667dfbaefc2cda0fde5a68c75e230af10c51f
+SAME hdl/milan/milan_datapath.sv 1f5606feb68ec9cc829ac1d43fe8b2bc962ad8cf 1f5606feb68ec9cc829ac1d43fe8b2bc962ad8cf
+SAME tb/verilator/milan_dp/sim_nxn.cpp 2fffed58d7a68cbcc7db1ef7f9e31c2131fe2ddb 2fffed58d7a68cbcc7db1ef7f9e31c2131fe2ddb
+== whole-patch identity
+source      11914cc425e44ba397f434b220d5d8033fa678aa
+composition 11914cc425e44ba397f434b220d5d8033fa678aa
+predecessor side (mb..parent) a21a3f8b5988a0af7ff7d508289ffdddf1d7d79a
+other side    (src..head)     a21a3f8b5988a0af7ff7d508289ffdddf1d7d79a
+== gitlinks parent/src/head
+e1333a14 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+e1333a14 e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor
+e1333a14 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor
+e1333a14 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+8544472a efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+8544472a e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor
+8544472a 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor
+8544472a 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+0b81fdc9 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+0b81fdc9 e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor
+0b81fdc9 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor
+0b81fdc9 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+== composition diffstat
+ docs/findings/117_GPTP_SILICON_EVIDENCE.md | 10 ++++++++--
+ docs/reference/REGISTER_MAP.md             | 22 ++++++++++++----------
+ hdl/common/csr/milan_csr.sv                | 26 ++++++++++++++------------
+ hdl/milan/milan_datapath.sv                |  8 +++++---
+ tb/verilator/milan_dp/sim_nxn.cpp          |  4 ++++
+ 5 files changed, 43 insertions(+), 27 deletions(-)

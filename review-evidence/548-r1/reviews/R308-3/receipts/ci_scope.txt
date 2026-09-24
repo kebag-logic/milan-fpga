@@ -1,0 +1,6 @@
+$ git diff --name-only e1333a14 HEAD | python3 -B scripts/ci_scope.py
+true
+rc=0
+$ git diff --name-only 573f0052 8544472a | python3 -B scripts/ci_scope.py
+true
+rc=0

@@ -1,0 +1,163 @@
+diff --git a/docs/findings/117_GPTP_SILICON_EVIDENCE.md b/docs/findings/117_GPTP_SILICON_EVIDENCE.md
+index 2d41e450..7671e620 100644
+--- a/docs/findings/117_GPTP_SILICON_EVIDENCE.md
++++ b/docs/findings/117_GPTP_SILICON_EVIDENCE.md
+@@ -465,7 +465,13 @@ are seconds after the outlet-off command, as in
+ | behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline only, with no hardware tier |
+ 
+ - **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register map already records this CRF Stream Input counter gap with closure criteria, and [#529](https://github.com/kebag-logic/milan-fpga/issues/529) tracks closing it. The DUT's GET_MILAN_INFO reports protocol version 1, `certification_version` 0.0.0.0 and specification 1.2.0.0.
+-- **Controller registration.** la_avdecc registered for unsolicited notifications at 13:10:47.0 and deregistered at 13:11:26.5 UTC. The DUT answered both with SUCCESS, and its `CTLR_DIAG` still read 0 at 13:13 UTC, so no controller was left for it to evict.
++- **Controller registration.** The controller registered for unsolicited notifications
++  at 13:10:47.0 and deregistered at 13:11:26.5 UTC.
++  The DUT answered both with SUCCESS.
++  `CTLR_DIAG` read 0 at 13:13 UTC.
++  This word is **STRUCTURAL ZERO**, not a measurement.
++  It cannot establish controller presence or eviction.
++  See the [register verdict](../reference/REGISTER_MAP.md#how-to-read-this-page-now-three-verdicts-and-why-the-distinction-matters).
+ 
+ ## Observations outside the acceptance boxes
+ 
+@@ -515,7 +521,7 @@ The Run B timeline with tap-clock times is in the A200 packet (`bench/runB/strea
+ - **Bindings.** The end census matches the start census for all 18 ACMP states: every input unbound, connection count 0. Each of the three CRF bindings unbound on its first attempt, about 110 s after its outage.
+ - **Peer settings.** The 15 settings reads of both entities match: configuration 0, 96 kHz, clock source 0 (INTERNAL), both stream formats, and the ENTITY and six stream descriptors. The only difference is the reserved half-word after `configuration_index`, which the peer varies (as above).
+ - **Counters that moved, as expected.** GPTP_GM_CHANGED rose by 14 on the DUT and on the peer's interface 0. The DUT's Stream Output 1 STREAM_START and STREAM_STOP went from 4 to 25. The peer's available_index went from 5843 to 6067.
+-- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0, `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
++- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0 (STRUCTURAL ZERO, not a measurement), `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
+ - **Hosts.** The watcher, census and power-strip scripts were removed from the controller host and the power-strip host; the captures were copied, their SHA-256 checked against the remote copy, and removed. No process of the runs remains, and the bench lock is free.
+ - **Not touched.** Flash, JTAG, wiring, instruments and every outlet but OUT4.
+ 
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index df924db3..acf03eae 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -188,7 +188,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
+   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
+   - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- AECP counters remain structural zeros, while `AECP_STAT0[16]` is the processor's live entity-lock level. Diagnostics live in the side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
+   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
+-  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live.
++  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live. **CTLR_DIAG (0x6F4) is STRUCTURAL ZERO; never read it as a measurement.** The departing-controller monitor lives in the protocol processor.
+   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
+   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
+   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
+@@ -1244,18 +1244,20 @@ live** — they are the AVTP RX monitor's, not the control plane's.
+ | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
+ | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [presentation validity](../design/TIME_SYNC.md#presentation-validity)) |
+ | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
+-| `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 Section 5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
++| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor |
+ | `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
+ | `0x6FC` | — | — | **reserved**, free — the last word of this group. The next group starts at `0x700` (`TCAM_CTRL`) |
+ 
+-`CTLR_DIAG` (0x6F4) is the standing sweep's window onto the one place the
+-entity speaks first. On a healthy bench every probe is answered, so probes
+-and replies climb together (about one probe per registered controller per
+-45 seconds) and evictions stay flat. Probes climbing *ahead* of replies by
+-exactly two per eviction is the signature the clause is about: a controller
+-that vanished without deregistering was asked twice, 250 ms apart, and shed.
+-Replies climbing with no probes cannot happen — the reply tally counts only
+-answers matched to a registered controller.
++`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
++this word has no replacement source. It reads `0` because nothing backs
++it, not because nothing happened. Never read it as a measurement.
++
++The departing-controller monitor (Milan v1.2 Section 5.4.5.3) lives in the
++protocol processor's `KL_aecp_notify` and `KL_aecp_ca_originator`.
++The processor exports no probe, reply or eviction count.
++The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
++Zero cannot establish controller presence, silence or eviction.
++The `milan_dp` timed notification leg checks this after controller traffic.
+ 
+ Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
+ 10 s, random pre-probe delay 0..1023 ms (LFSR).
+diff --git a/hdl/common/csr/milan_csr.sv b/hdl/common/csr/milan_csr.sv
+index 73e752a5..806935b3 100644
+--- a/hdl/common/csr/milan_csr.sv
++++ b/hdl/common/csr/milan_csr.sv
+@@ -306,10 +306,10 @@ module milan_csr #(
+   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
+   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
+   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
+-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), RO 0x6F4:
+-  //! {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
+-  //!  CONTROLLER_AVAILABLE probes sent[11:0]} — three free-running wrapping
+-  //! tallies, no state field (the two that climb fastest get 12 bits each)
++  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
++  //! The deleted local monitor's counters have no replacement CSR source.
++  //! The processor owns departing-controller detection (Milan 5.4.5.3),
++  //! but exports no probe, reply or eviction count. Zero is no measurement.
+   input  wire [31:0]             i_ctlr_diag,
+   output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
+   output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])
+@@ -758,9 +758,11 @@ module milan_csr #(
+     A_ACMPL_DBG   = 'h6E8,   //! RO live: listener walker forensics {classify_cnt, fc_cnt, fc_flags, base_hits}
+     A_AVTPRX_TSD  = 'h6EC,   //! RO live: signed ts_delta at last accepted PDU (stream-sync error signal)
+     A_I2SPB_DBG   = 'h6F0,   //! RO live: exact 32 serial bits of the last LEFT half-frame at the DAC pin
+-    //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3). RO live,
+-    //! one word: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
+-    //! CONTROLLER_AVAILABLE probes sent[11:0]}. All three wrap.
++    //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
++    //! Reads 0 because the local counter source was deleted.
++    //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
++    //! but exports no replacement count. The address is kept for the ABI.
++    //! Zero is no measurement.
+     //! 0x6F8 and 0x6FC are the LAST free words of this group — reserved, do
+     //! not guess at them without checking here first.
+     A_CTLR_DIAG   = 'h6F4,
+@@ -2392,11 +2394,11 @@ module milan_csr #(
+       A_CHMAP_SNAP: live_mux = chmap_snap_rd_w;
+       A_CHMAP_LOOP: live_mux = chmap_loop_rd_w;
+       A_I2SPB_DBG:  live_mux = i_i2spb_dbg;
+-      //! gh #59: probes sent / replies seen / controllers shed. All three
+-      //! climb together on a healthy bench (each probe is answered); a
+-      //! climbing eviction count with a static reply count is a controller
+-      //! that died without deregistering, which is the whole point of
+-      //! Milan 5.4.5.3.
++      //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
++      //! Reads 0 because the local counter source was deleted.
++      //! The processor owns the departing-controller monitor (Milan 5.4.5.3)
++      //! but exports no replacement count. The address is kept for the ABI.
++      //! Zero is no measurement.
+       A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+       //! E1 commit readback: {busy, done, 20'0, status, 4'0, idx}
+       A_REST_CMD:   live_mux = {rest_pend_r, rest_done_r, 20'd0,
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index d91eaf61..3502ec54 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1497,9 +1497,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! local mapping writer and the CSR status mux.
+   wire                     aecp_locked;
+   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
+-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
+-  //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
+-  //! CONTROLLER_AVAILABLE probes sent[11:0]}
++  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
++  //! Departing-controller detection lives in the processor's KL_aecp_notify
++  //! and KL_aecp_ca_originator; no probe, reply or eviction count is exported.
+   wire [31:0]              aecp_ctlr_diag;
+   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
+   wire [15:0]              acmp_cmd_count, acmp_resp_count;
+@@ -3215,6 +3215,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
+   assign aecp_cmd_count = 16'd0;
+   assign aecp_resp_count = 16'd0;
++  //! STRUCTURAL ZERO: the deleted local monitor's counters have no source.
++  //! The processor monitor is live; this word cannot measure its activity.
+   assign aecp_ctlr_diag = 32'd0;
+   assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
+   //! pp_aecp_pt_offset_*/pp_aecp_fmt_in_*/pp_aecp_fmt_out_*: the
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 65a50269..d98d1fe9 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -1591,6 +1591,10 @@ class NxnDatapathHarness {
+            notify_count(0x0025, &CTL_A), 0);
+         ck("[NOTIFY-T] A, which kept talking, was never probed",
+            notify_when(0x0003, CTL_A, 0, true) < 0 ? 1L : 0L, 1);
++        // The monitor just probed and evicted B, but exports no CSR count.
++        // #548 pins the retained ABI word through the real AXI-Lite path.
++        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
++           axi_read(0x6F4), 0);
+         //! B is gone: A's next change has nobody to tell
+         notify_clear();
+         const std::vector<uint8_t> sA4 = notify_set_name(CTL_A, "Notify-A4", notify_sq++);
