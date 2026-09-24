@@ -64,7 +64,7 @@ Two consequences worth stating rather than discovering:
   v1.2 5.3.7.7 Table 5.4 streaming level for up to three rounds. A controller
   reads a STREAM_START and STREAM_STOP pair, the start resets the Table 5.4
   interval counters, and at most one PDU per source can leave (issue #551). The
-  lead shows on the licensed source's own bits: `CRFT_CTRL[6]`/`[7]` for the CRF
+  lead shows on the licensed source's bits: `CRFT_CTRL[6]`/`[7]` for the CRF
   output, `LWSRP_STATUS[8]` for source 0 only. `LWSRP_STATUS[6]` is ACTIVE ORed
   over sources, not one source's own bit, so it shows the lead only while no
   other source is ACTIVE. A later lane that credit-shapes these sources derives

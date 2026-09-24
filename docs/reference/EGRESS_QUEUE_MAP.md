@@ -96,7 +96,7 @@ branches:
   so nothing is emitted before one. Whether the licence should also need the
   real grant is issue #551.
 
-Both show on the licensed source's own bits ([REGISTER_MAP.md](REGISTER_MAP.md)):
+Both show on the licensed source's bits ([REGISTER_MAP.md](REGISTER_MAP.md)):
 `CRFT_CTRL[6]`/`[7]` for the CRF output and `LWSRP_STATUS[8]` for source 0
 only. `LWSRP_STATUS[6]` is ACTIVE ORed over sources, not one source's own bit,
 so it shows the corner only while no other source is ACTIVE. A lane that
