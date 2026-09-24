@@ -1,0 +1,51 @@
+=== 5804831883 Mister-M-alt 2026-09-23T23:46:26Z
+[A10] ASSIGNMENT: A223 author. Branch 536-aecp-model-mvu from dev 26d855a9. The offline AECP model gets the MVU dispatch that the pinned processor serves (GET_MILAN_INFO answered, the others per the engine), with scenario rows for 0x0000 to 0x0004 and a failing arm for each. The #510 RECOMMENDED decision governs the SYSTEM_UNIQUE_ID and MEDIA_CLOCK_REFERENCE_INFO rows. Two independent reviews follow.
+
+=== 5804893299 Mister-M-alt 2026-09-23T23:53:14Z
+[A223] TAKEN
+Branch: `536-aecp-model-mvu` at dev `26d855a9176d63625e6635a029a0c44e3d57ce9a` (protocol-processor at its pin `424c688`, read-only)
+Authoritative references: Milan v1.2 Section 5.4.3.2 (MVU AECPDU: protocol_id @22..@27, r + command_type @28..@29), Section 5.4.4.1 GET_MILAN_INFO (Figure 5.3 command, Figure 5.4 response, SHALL), Sections 5.4.4.2 to 5.4.4.5 (RECOMMENDED per the #510 decision), Table 5.18, Table 5.19; IEEE 1722.1-2021 Section 9.3.5.3.3. Engine behaviour read from the pin: `KL_aecp_engine.sv` `mvu_get_milan_info_w`, `gen_ucode.py` `E_MVUINFO`, `tb/pp_top` M1 to M6.
+Interpreted scope: the offline AECP model gains the engine's MVU sub-decode. A whole Figure 5.3 GET_MILAN_INFO (message_type 6, the full 48-bit Milan protocol_id, @28..@29 = 0x0000 with r clear, at least 8 payload octets) is answered SUCCESS with the 20-octet Figure 5.4 body (cdl 32, protocol_version 1, features_flags 0, certification_version 0). Every other MVU command, including 0x0001 to 0x0004, keeps the NOT_IMPLEMENTED echo at the command's own length. The contract scenario asserts the served 0x0000 behaviour and gains rows for 0x0001 to 0x0004. The engine's decode guards (whole protocol_id, r bit, Figure 5.3 length, reserved field ignored) get rows too, and the served MVU set gets an anti-staleness gate against the engine's `MVU_*_C` constants. No processor or RTL change.
+Validation plan: `cd tests && behave --no-capture -f plain` (full suite and the touched feature), mutation arms (the model reverted, each row's status flipped, the served MVU set widened), `scripts/check_py_idiom.py`, `scripts/docs_check.py`, `scripts/check_em_dash.py --base 26d855a9`, `git diff --check`.
+Blockers: none
+
+
+=== 5804968393 Mister-M-alt 2026-09-24T00:01:17Z
+[A223] REVIEW READY
+Commit: `612db13c244335b0fa3467d02ebab1c350b01990` on `536-aecp-model-mvu` (base dev `26d855a9176d63625e6635a029a0c44e3d57ce9a`; two commits, `92011f6ae` and `612db13c2`). Not pushed yet: this lane's assignment excludes push and PR, so the lane owner pushes and opens the draft PR.
+Changed:
+- `tests/steps/aecp_engine_model.py`: the engine's MVU sub-decode (message_type 6, all 48 bits of `00-1B-C5-0A-C1-00`, at least the 8-octet Figure 5.3 payload, the whole @28..@29 word with its r bit; reserved not read) and the `E_MVUINFO` program: SUCCESS with the 20-octet Figure 5.4 body, cdl 32, protocol_version 1, features_flags 0, certification_version 0. Everything else keeps the NOT_IMPLEMENTED echo. `mvu_served` is a required keyword argument.
+- `tests/steps/aecp_engine_steps.py`: `SERVED_MVU` (`0x0000 GET_MILAN_INFO`, Milan 5.4.4.1), gated by value and name against the engine's `MVU_GET_*_C`/`MVU_SET_*_C` constants; the new steps.
+- `tests/features/aecp_response_contract.feature`: the MVU outline, with `0x0000` served (status 0, cdl 32, Figure 5.4 body) and `0x0001` to `0x0004` echoed (status 1, cdl 20, payload verbatim), one row each with its 5.4.4.x clause. Also the three quadlets (pp_top M2), the sub-decode guards (foreign 12-bit protocol id, r = 1, one octet short, junk reserved still served with reserved 0: pp_top M3/M5/M6/M5b) and the RTL gate. 32 -> 42 scenarios.
+- `tests/README.md` T1 row; `docs/MILAN_V12_ROADMAP.md` Section 6 inventory row (not the Section 3 or matrix rows that #537 edits).
+- No processor, RTL or firmware change.
+Validation (all exit 0 at `612db13c2`):
+- `cd tests && behave --no-capture -f plain`: 14 features / 326 scenarios / 1600 steps passed (base 316 / 1515)
+- the contract feature alone: 42 scenarios / 299 steps passed
+- `python3 -B scripts/check_py_idiom.py`: every ratchet held
+- `python3 -B scripts/docs_check.py`: 0 findings
+- `python3 -B scripts/check_em_dash.py --base 26d855a9`: 0 findings over 2 added lines
+- `python3 -B scripts/check_feature_status.py`: 0 findings
+- `git diff --check 26d855a9 HEAD`: clean
+- Mutation arms, each one substitution restored after the run: 21 arms, all red, each failing only the expected scenarios:
+  - model reverted (dispatch arm unreachable): row `0x0000`, the quadlet scenario, the junk-reserved row
+  - each row's status cell flipped: that row only
+  - `0x0001`/`0x0002`/`0x0003`/`0x0004` declared served: that row and the RTL gate
+  - command_type ignored: rows `0x0001` to `0x0004` and r = 1
+  - length guard, protocol_id tail compare, r bit, reserved forwarded: one guard row each
+  - protocol_version, features_flags, certification_version: the quadlet scenario
+  - body one quadlet short: the three served checks
+  - gate pointed at a pinned-engine copy that adds `MVU_GET_SYSTEM_UNIQUE_ID_C`, or `SERVED_MVU` misnamed: the RTL gate
+- Cross-check: the base scenario on the new model fails at `the AECP response status is 1`
+- Offline cross-check: the model's GET_MILAN_INFO frame equals the payload pp_top M1 builds.
+Acceptance criteria:
+1. Met: the model dispatches the MVU command the pinned engine serves with the engine's status (0, Figure 5.4 body) and answers `0x0001` to `0x0004` as the engine does (status 1, echo), per the #510 RECOMMENDED decision. The scenario asserts the served behaviour for `0x0000` and has rows for `0x0001` to `0x0004`.
+2. Met: each row has a failing arm (the model reverted fails `0x0000`; each row fails on its own status flip and when its command is declared served).
+3. Met: the behave suite and the docs gates pass.
+Open risks/questions:
+- pp_top was not run in this lane; the model follows the pinned RTL source and the pp_top M1 to M6 check text.
+- The Milan v1.2 text was not available here: clause numbers and the protocol_version wording follow the processor's own citations. A reviewer with the text should check 5.4.3.2.2 and 5.4.4.1.
+- The gptp-processor submodule was initialized at its pin (read-only) because `check_py_idiom` refuses without it.
+- `SERVED_MVU` is not yet tied to the ledger's `served_mvu_operations` in `check_feature_status.py`; left out of scope.
+
+

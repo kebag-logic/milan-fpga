@@ -1,0 +1,26 @@
+head 612db13c244335b0fa3467d02ebab1c350b01990 tree 80a23ecd3630d054c0062d62ba138494efc44693
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+== python3 -B scripts/check_em_dash.py --base 26d855a9176d63625e6635a029a0c44e3d57ce9a
+check_em_dash: 0 finding(s) over 2 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [26d855a9..HEAD]
+exit=0
+== python3 -B scripts/check_feature_status.py
+feature_status: 0 finding(s)
+exit=0
+== python3 -B scripts/check_py_idiom.py
+  wildcard import: 0
+  dynamic eval/exec: 0
+  unparseable source: 0
+  long function: 9 <= 9
+  long module: 10 <= 10
+  unannotated public function: 0 <= 0
+  undocumented public function: 0 <= 0
+  os.path use: 1 <= 1
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+exit=0
+== git diff --check 26d855a9176d63625e6635a029a0c44e3d57ce9a 612db13c244335b0fa3467d02ebab1c350b01990
+exit=0

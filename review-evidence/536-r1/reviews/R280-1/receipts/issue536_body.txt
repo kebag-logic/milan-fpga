@@ -1,0 +1,16 @@
+Offline AECP model answers GET_MILAN_INFO as NOT_IMPLEMENTED while the pinned engine serves it
+OPEN
+
+[A10] Newly discovered by [A215] while recording #510 (PR for #394/#510/#511).
+
+## Observed
+`tests/features/aecp_response_contract.feature` scenario "a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact" sends `build_mvu_command()` with its default `MVU_GET_MILAN_INFO` (0x0000) and asserts status 1 (NOT_IMPLEMENTED). The offline model `tests/steps/aecp_engine_model.py` has no MVU dispatch, while the pinned protocol processor serves GET_MILAN_INFO (pp_top M1). The model disagrees with the RTL for a served command.
+
+## Authority
+Milan v1.2 Section 5.4.4 (Milan Vendor Unique), 5.4.4.1 GET_MILAN_INFO (SHALL, per docs/reference/MILAN_COMPLIANCE_MATRIX.md); AGENTS.md: a model must not contradict the implementation it stands for.
+
+## Acceptance
+1. The offline model dispatches the MVU commands the pinned engine serves, with the engine's status codes; the scenario asserts the served behaviour for 0x0000, and adds rows for 0x0001, 0x0002, 0x0003 and 0x0004 per the #510 decision (RECOMMENDED rows answer as the engine does).
+2. Each row has a failing arm (the model reverted fails the scenario).
+3. The behave/offline suites and the docs gates pass.
+
