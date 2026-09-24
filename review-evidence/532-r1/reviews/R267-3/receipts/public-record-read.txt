@@ -1,0 +1,42 @@
+Public record read for R267-3 (read-only API queries).
+Order: the comment listing (first line of every comment) was printed first; issue and manager/author comment
+bodies were read before the independent pass. The A220 REVIEW READY on #532, read then, names the prior findings
+it answers. Prior reviewer report bodies and reviewer scripts were opened only after
+receipts/independent-pass-before-prior-reviews.md was written.
+
+issue #532: [CI] Run trusted act replays in parallel: one isolated Docker daemon per replay slot (OPEN), body read
+  issue comment 5796372210 2026-09-23T14:10:06Z [A10] ASSIGNMENT: A203 author on branch `532-act-parallel-slots` from   (body read)
+  issue comment 5796576737 2026-09-23T14:22:17Z [A203] TAKEN  (body read)
+  issue comment 5796770637 2026-09-23T14:33:39Z [A203] DECISION: one Docker daemon per replay slot, owned by the runne  (body read)
+  issue comment 5797481044 2026-09-23T15:16:34Z [A203] REVIEW READY  (body read)
+  issue comment 5798070616 2026-09-23T15:53:22Z [A10] ASSIGNMENT: A208 author, correction on PR #533: merge live dev `  (body read)
+  issue comment 5798338195 2026-09-23T16:10:39Z [A208] REVIEW READY  (body read)
+  issue comment 5799562228 2026-09-23T17:25:23Z [A10] ASSIGNMENT: A213 author, correction round 1 of PR #533 for R266-  (body read)
+  issue comment 5800878550 2026-09-23T18:49:03Z [A213] REVIEW READY  (body read)
+  issue comment 5803011314 2026-09-23T21:12:22Z [A10] ASSIGNMENT: A220 author, correction round 2 of PR #533 for R266-  (body read)
+  issue comment 5804781514 2026-09-23T23:41:06Z [A220] REVIEW READY  (body read)
+PR #533 head 604297bb41d6c8005d07539289b10bfa99273cdd draft=False base=dev, body read
+  PR comment 5797709398 2026-09-23T15:30:48Z [A10] SOURCE VALIDATION r1 at `fcce541b`: 47 of 48 static/builder comm  (body read)
+  PR comment 5798415843 2026-09-23T16:15:34Z [A10] INDEPENDENT REVIEW STARTED: R266-1  (body read)
+  PR comment 5798467330 2026-09-23T16:18:56Z [A10] INDEPENDENT REVIEW STARTED: R267-1  (body read)
+  PR comment 5799503315 2026-09-23T17:22:04Z [R266] NEGATIVE - exact head a37af3c6ad54aa16403861c969f68cf2a83679c6  (first line only; body not read)
+  PR comment 5799504385 2026-09-23T17:22:08Z [R267] NEGATIVE - exact head a37af3c6ad54aa16403861c969f68cf2a83679c6  (first line only; body not read)
+  PR comment 5802028950 2026-09-23T20:02:21Z [A10] INDEPENDENT REVIEW STARTED: R266-2  (body read)
+  PR comment 5802451902 2026-09-23T20:32:23Z [R266] NEGATIVE - exact head f5497170a2c444e01175683606310dbe7fbb2816  (body read after the independent pass (as the published REPORT.md))
+  PR comment 5802457303 2026-09-23T20:32:44Z [A10] INDEPENDENT REVIEW STARTED: R267-2  (body read)
+  PR comment 5803007221 2026-09-23T21:12:03Z [R267] NEGATIVE - exact head f5497170a2c444e01175683606310dbe7fbb2816  (body read after the independent pass (as the published REPORT.md))
+  PR comment 5805562532 2026-09-24T01:01:56Z [A10] INDEPENDENT REVIEW STARTED: R266-3  (body read)
+  PR comment 5805754339 2026-09-24T01:21:52Z [A10] INDEPENDENT REVIEW STARTED: R267-3  (body read)
+
+Evidence tree ead93cd70078ebb0137b74a04fe9f0d5da1b0af6, review-evidence/532-r1: file listing read first. After the independent pass:
+  reviews/R266-2/REPORT.md
+  reviews/R267-2/REPORT.md
+  reviews/R266-2/scripts/proof_mutants_r266_2.py
+  reviews/R267-2/scripts/proof_mutants.py
+  correction-a213/bin/slot-mutants.py
+  correction-a213/bin/proof-mutants.py
+  correction-a220/bin/slot-mutants-a220.py
+  correction-a220/bin/proof-mutants-a220.py
+  correction-a220/bin/run-selftest-sandbox.sh
+Fetched but not relied on: R267-2 proof_controls.py and memcap_probe.py and receipts, the A220 HANDOFF.md, MANIFEST.sha256 and mutant receipts.
+Earlier rounds (R266-1, R267-1) are reconciled from the R266-2 and R267-2 tables plus this head's code and mutants.
