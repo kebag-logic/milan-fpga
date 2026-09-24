@@ -1,0 +1,81 @@
+input wire clk_i
+input wire rst_n
+input wire [47:0] own_mac_i
+input wire link_up_i
+input wire p2p_i
+input wire cfg_rank_i
+input wire [31:0] cfg_acc_lat_ns_i
+input wire [31:0] port_rate_bps_i
+input wire mrp_valid_i
+input wire [7:0] mrp_data_i
+input wire mrp_last_i
+input wire mrp_msrp_i
+output logic mrp_ready_o
+input wire req_valid_i
+output logic req_ready_o
+input wire [2:0] req_op_i
+input wire [7:0] req_index_i
+input wire [63:0] req_stream_id_i
+input wire [47:0] req_da_i
+input wire [11:0] req_vid_i
+input wire [15:0] req_max_frame_i
+input wire [15:0] req_max_interval_i
+input wire [1:0] req_lstn_state_i
+output logic rsp_valid_o
+output logic [1:0] rsp_status_o
+output logic [31:0] rsp_data_o
+output logic alloc_req_o
+output logic oversize_o
+input wire [SLOT_W_C-1:0] alloc_slot_i
+input wire alloc_gnt_i
+output logic [SLOT_W_C-1:0] wr_slot_o
+output logic [TXA_W_C-1:0] wr_addr_o
+output logic wr_valid_o
+output logic [7:0] wr_data_o
+output logic wr_commit_o
+output logic [TXA_W_C-1:0] wr_len_o
+output logic txreq_valid_o
+output logic [SLOT_W_C-1:0] txreq_slot_o
+input wire txreq_ready_i
+input wire [31:0] now_ms_i
+output logic arm_valid_o
+output logic arm_cancel_o
+output logic [SLOT_AW_P-1:0] arm_slot_o
+output logic [7:0] arm_owner_o
+output logic [31:0] arm_deadline_ms_o
+input wire exp_valid_i
+input wire [SLOT_AW_P-1:0] exp_slot_i
+output logic draw_req_o
+output logic [2:0] draw_kind_o
+input wire draw_busy_i
+input wire draw_valid_i
+input wire [15:0] draw_ms_i
+output logic [N_SINKS_P-1:0] evt_tk_registered_o
+output logic [N_SINKS_P-1:0] evt_tk_unregistered_o
+output logic [N_SINKS_P-1:0] evt_tk_fail_chg_o
+output logic [N_SINKS_P-1:0] evt_tk_latency_chg_o
+output logic [N_SOURCES_P-1:0] lstn_reg_change_o
+output logic evt_domain_change_o
+output logic [2:0] class_a_prio_o
+output logic [11:0] class_a_vid_o
+output logic domain_adopted_o
+output logic [N_SOURCES_P-1:0][1:0] tk_decl_state_o
+output logic [N_SOURCES_P-1:0][1:0] lstn_reg_state_o
+output logic [N_SOURCES_P-1:0] active_o
+output logic [N_SOURCES_P-1:0][7:0] src_fail_code_o
+output logic [N_SOURCES_P-1:0][63:0] src_fail_bridge_o
+output logic [N_SINKS_P-1:0][1:0] tk_reg_state_o
+output logic [N_SINKS_P-1:0][1:0] lstn_decl_state_o
+output logic [N_SINKS_P-1:0][31:0] acc_latency_o
+output logic [N_SINKS_P-1:0][7:0] snk_fail_code_o
+output logic [N_SINKS_P-1:0][63:0] snk_fail_bridge_o
+output logic [N_SOURCES_P-1:0][31:0] granted_slope_bps_o
+output logic [N_SOURCES_P-1:0] sr_admitted_o
+output logic [31:0] sum_slope_bps_o
+output logic over_limit_o
+output logic [N_VIDS_P-1:0] dbg_vid_active_o
+output logic dbg_vlan_err_o
+output logic dbg_adm_round_o
+output logic dbg_pdu_done_o
+output logic dbg_pdu_ok_o
+output logic dbg_pdu_malformed_o
