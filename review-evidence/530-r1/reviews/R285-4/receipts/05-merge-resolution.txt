@@ -1,0 +1,83 @@
+merge parents: e65dccfe586bea9455cf1e10397d275c220c740a f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f
+merge base of parents: 50e78097564244c124e1ec30dd8821f83951ab06
+files changed on both sides since the base:
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/reference/SUBMODULES.md
+syn/yosys/rom_digests.tsv
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+one-sided files not equal to their side at the merge (expect none):
+(end)
+== docs/diagrams/PNG_MANIFEST.json: merge-file conflicts=1; merge result == head: yes
+12,13c12
+< <<<<<<< <scratch>/ours
+<       "raster_sha256": "abbb8aea13eea080f636633b743a254c4d63610c20fe7c030556e67e6ffdf899",
+---
+>       "raster_sha256": "920b41da170c2f6ba0b88d055828e34a337ec5cb47c91d3616473e1c9fc38b3f",
+15,20c14
+<       "source_sha256": "3b888000e19f08087e1a4563656313a1242c9c4c637da3a2bfd4c60eee0b6380",
+< =======
+<       "raster_sha256": "2224f4634d5581b83e68de30ceeaa6c763356703a2f10bc491e3ec64c5242a88",
+<       "source": "docs/diagrams/submodule_boundaries.drawio",
+<       "source_sha256": "70419f0ce3a68e2f5fb404bd372affca7a2b50a68e9307ec4f6f35d70b2555b5",
+< >>>>>>> <scratch>/theirs
+---
+>       "source_sha256": "6c3ba10c6c6b40acfcf364223098a310beb06929750ddf79d54e7e34807a59e1",
+== docs/diagrams/submodule_boundaries.drawio: merge-file conflicts=1; merge result == head: yes
+1,5c1
+< <<<<<<< <scratch>/ours
+< <mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1
+< =======
+< <mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1
+< >>>>>>> <scratch>/theirs
+---
+> <mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1
+== docs/diagrams/submodule_boundaries.png: binary, judged by the diagram gates
+== docs/diagrams/submodule_boundaries.svg: merge-file conflicts=0; merge result == head: yes
+== docs/reference/SUBMODULES.md: merge-file conflicts=1; merge result == head: yes
+24,27d23
+< <<<<<<< <scratch>/ours
+< | `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+< | `protocol-processor` | `09f9bf3846511f8388d995126502ed92eaa65213` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+< =======
+29,30c25
+< | `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+< >>>>>>> <scratch>/theirs
+---
+> | `protocol-processor` | `09f9bf3846511f8388d995126502ed92eaa65213` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+== syn/yosys/rom_digests.tsv: merge-file conflicts=0; merge result == head: yes
+== tb/verilator/milan_dp/Makefile: merge-file conflicts=2; merge result == head: yes
+193,197c193
+< <<<<<<< <scratch>/ours
+< .PHONY: all run gptp option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+< =======
+< .PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+< >>>>>>> <scratch>/theirs
+---
+> .PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+547,551c543
+< <<<<<<< <scratch>/ours
+< 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex
+< =======
+< 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+< >>>>>>> <scratch>/theirs
+---
+> 	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+== tb/verilator/milan_dp/README.md: merge-file conflicts=2; merge result == head: yes
+40d39
+< <<<<<<< <scratch>/ours
+42d40
+< =======
+44d41
+< >>>>>>> <scratch>/theirs
+345d341
+< <<<<<<< <scratch>/ours
+436c432
+< =======
+---
+> 
+496d491
+< >>>>>>> <scratch>/theirs
