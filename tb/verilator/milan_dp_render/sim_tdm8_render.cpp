@@ -3396,6 +3396,7 @@ void TdmRenderHarness::phase_multistream() {
     constexpr uint16_t kAdpEidHi = 0x608;
     axi_write(kAdpEidHi, 0x020000FF);
     axi_write(kAdpEidLo, 0xFE000001);
+    start_the_boot_restore_walk();
     axi_write(kAdpCtrl, 0x00001F01);
     steps(2000);
     //! STREAM 1'S LISTENER CONTEXT. Stream 0's current format reaches the RX
