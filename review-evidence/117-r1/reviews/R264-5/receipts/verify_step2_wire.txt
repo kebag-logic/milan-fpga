@@ -1,0 +1,56 @@
+== run A: host records 76
+  Sync switch->DUT: msgs 2520 intervals n=2519 min=100.7 mean=125.00 max=149.2 ms logMessageInterval [-3]
+  Announce switch->DUT: msgs 315 intervals n=314 min=999.9 mean=1000.42 max=1010.5 ms logMessageInterval [0]
+  Pdelay_Req switch->DUT: msgs 315 intervals n=314 min=999.9 mean=1002.01 max=1029.5 ms logMessageInterval [0]
+  Pdelay_Req DUT->switch: msgs 315 intervals n=314 min=1000.0 mean=1000.00 max=1000.0 ms logMessageInterval [0]
+  Sync DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Announce DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Pdelay switch req, DUT resp: 315/315 complete; req->resp ns min 10984 max 11009; top3 [11009, 11009, 11009]; resp->fup ns min 7552 max 7569
+  Pdelay DUT req, switch resp: 315/315 complete; req->resp ns min 740585 max 18359403; top3 [838162, 18330396, 18359403]; resp->fup ns min 608001 max 1113995
+  Announce (prio1, class, accuracy, oslv, prio2, gm, stepsRemoved, timeSource): [(246, 248, 32, 17258, 248, '3cc0c6fffefe0210', 0, 160)]
+== run B: host records 0
+  Sync switch->DUT: msgs 920 intervals n=919 min=100.7 mean=125.00 max=149.2 ms logMessageInterval [-3]
+  Announce switch->DUT: msgs 115 intervals n=114 min=999.9 mean=1002.19 max=1010.6 ms logMessageInterval [0]
+  Pdelay_Req switch->DUT: msgs 114 intervals n=113 min=999.9 mean=1006.73 max=1029.6 ms logMessageInterval [0]
+  Pdelay_Req DUT->switch: msgs 115 intervals n=114 min=1000.0 mean=1000.00 max=1000.0 ms logMessageInterval [0]
+  Sync DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Announce DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Pdelay switch req, DUT resp: 114/114 complete; req->resp ns min 10984 max 11009; top3 [11008, 11008, 11009]; resp->fup ns min 7552 max 7568
+  Pdelay DUT req, switch resp: 115/115 complete; req->resp ns min 702657 max 879890; top3 [861594, 862698, 879890]; resp->fup ns min 533825 max 1059627
+  Announce (prio1, class, accuracy, oslv, prio2, gm, stepsRemoved, timeSource): [(246, 248, 32, 17258, 248, '3cc0c6fffefe0210', 0, 160)]
+  CRF PDUs 34061 ports [3] tu=1 count 0 seq gaps 0 first 12.804s last 82.751s (tap clock)
+== run C: host records 0
+  Sync switch->DUT: msgs 800 intervals n=799 min=100.6 mean=125.01 max=149.4 ms logMessageInterval [-3]
+  Announce switch->DUT: msgs 100 intervals n=99 min=999.9 mean=1000.21 max=1010.1 ms logMessageInterval [0]
+  Pdelay_Req switch->DUT: msgs 100 intervals n=99 min=999.9 mean=1007.58 max=1020.0 ms logMessageInterval [0]
+  Pdelay_Req DUT->switch: msgs 100 intervals n=99 min=1000.0 mean=1000.00 max=1000.0 ms logMessageInterval [0]
+  Sync DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Announce DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Pdelay switch req, DUT resp: 100/100 complete; req->resp ns min 10984 max 11008; top3 [11008, 11008, 11008]; resp->fup ns min 7552 max 7568
+  Pdelay DUT req, switch resp: 100/100 complete; req->resp ns min 679394 max 822530; top3 [800194, 802306, 822530]; resp->fup ns min 532193 max 836426
+  Announce (prio1, class, accuracy, oslv, prio2, gm, stepsRemoved, timeSource): [(246, 248, 32, 17258, 248, '3cc0c6fffefe0210', 0, 160)]
+== run final: host records 0
+  Sync switch->DUT: msgs 320 intervals n=319 min=100.7 mean=125.02 max=149.2 ms logMessageInterval [-3]
+  Announce switch->DUT: msgs 39 intervals n=38 min=999.7 mean=1006.04 max=1010.4 ms logMessageInterval [0]
+  Pdelay_Req switch->DUT: msgs 39 intervals n=38 min=999.9 mean=1006.85 max=1019.1 ms logMessageInterval [0]
+  Pdelay_Req DUT->switch: msgs 40 intervals n=39 min=1000.0 mean=1000.00 max=1000.0 ms logMessageInterval [0]
+  Sync DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Announce DUT->switch: msgs 0 intervals n=0 ms logMessageInterval []
+  Pdelay switch req, DUT resp: 39/39 complete; req->resp ns min 10984 max 11008; top3 [11000, 11008, 11008]; resp->fup ns min 7552 max 7568
+  Pdelay DUT req, switch resp: 40/40 complete; req->resp ns min 729617 max 809490; top3 [784290, 786114, 809490]; resp->fup ns min 535009 max 542793
+  Announce (prio1, class, accuracy, oslv, prio2, gm, stepsRemoved, timeSource): [(246, 248, 32, 17258, 248, '3cc0c6fffefe0210', 0, 160)]
+== summed over runs A, B, C, final
+  Sync switch->DUT: intervals n=4556 min=100.6 mean=125.00 max=149.4 ms
+  sync-within-30pct: True
+  Announce switch->DUT: intervals n=565 min=999.7 mean=1001.12 max=1010.6 ms
+  Announce switch->DUT-30pct: True
+  Pdelay_Req switch->DUT: intervals n=564 min=999.9 mean=1004.26 max=1029.6 ms
+  Pdelay_Req switch->DUT-30pct: True
+  Pdelay_Req DUT->switch: intervals n=566 min=1000.0 mean=1000.00 max=1000.0 ms
+  Pdelay_Req DUT->switch-30pct: True
+  Sync DUT->switch: none
+  Announce DUT->switch: none
+  switch req, DUT resp n: 568/568
+  switch req, DUT resp turn: count 568 min 10984 max 11009
+  DUT req, switch resp n: 570/570
+  DUT req, switch resp turn: count 570 min 679394 max 18359403

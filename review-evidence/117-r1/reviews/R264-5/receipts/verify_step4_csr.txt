@@ -1,0 +1,26 @@
+final      0x9000066c       reads   1 values {'00000000': 1}
+final      0x900006a4       reads   1 values {'00000000': 1}
+final      CTLR_DIAG        reads   1 values {'00000000': 1}
+final      RST_EPOCH        reads   1 values {'00000001': 1}
+final      CRFT_CTRL        reads   1 values {'00000003': 1}
+final      CRFT_COUNT       reads   1 values {'0000850d': 1}
+final      LINKG_STAT       reads   1 values {'00000083': 1}
+final      CLKV_TUCNT       reads   1 values {'0000000b': 1}
+final      GPTP_DROPW       reads   1 values {'00000000': 1}
+final      GPTP_DROPE       reads   1 values {'00000000': 1}
+runA       ADP_GPTP_DOMAIN  reads  60 values {'00000000': 60}
+runA       0x90000644       reads  60 values ('000000bc', '000000e6', 43)
+runA       CTLR_DIAG        reads  60 values {'00000000': 60}
+runA       RST_EPOCH        reads  60 values {'00000001': 60}
+runA       LINKG_STAT       reads  60 values {'00000083': 60}
+runA       CLKV_TUCNT       reads  60 values {'0000000b': 60}
+runA       ASP_CMD          reads  60 values {'00000011': 60}
+runA       GPTP_DROPW       reads  60 values {'00000000': 60}
+runA       GPTP_DROPE       reads  60 values {'00000000': 60}
+runB       0x9000066c       reads  53 values {'00000000': 53}
+runB       CRFT_CTRL        reads  53 values {'00000003': 19, '003002e3': 34}
+runB       CRFT_COUNT       reads  53 values ('00000000', '0000850d', 37)
+runB       CLKV_TUCNT       reads  53 values {'0000000b': 53}
+runB       GPTP_DROPW       reads  53 values {'00000000': 53}
+runB       GPTP_DROPE       reads  53 values {'00000000': 53}
+milan_status PDELAY_NS: min 380 max 391 median 385.0 n 116

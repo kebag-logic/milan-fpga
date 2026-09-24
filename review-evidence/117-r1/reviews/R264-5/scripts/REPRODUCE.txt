@@ -1,0 +1,38 @@
+Reproduction index for round R264-5 (issue 117 / PR 531, head b71061d7fbc1119b02eb430f293672ff8b3f85b8).
+
+Setup (paths relative to this packet directory):
+  git init --bare scratch/ev.git
+  git -C scratch/ev.git remote add origin https://github.com/kebag-logic/milan-fpga.git
+  git -C scratch/ev.git fetch origin '+refs/heads/117-review-evidence:refs/remotes/origin/117-review-evidence'
+  for s in 160debeba112 32aec66197ba 74ac94e8eb33 db842315015d 4165beb89afe 7626fb2b850e \
+           b71061d7fbc1119b02eb430f293672ff8b3f85b8; do git -C scratch/ev.git fetch origin <full sha of $s>; done
+  mkdir -p scratch/pin && git -C scratch/ev.git archive bb8c690f8487c202f2f53dbcba2b84dc4c36df73 review-evidence/117-r1 | tar -x -C scratch/pin
+  P=scratch/pin/review-evidence/117-r1; CLONE=<review clone at b71061d7>; B=ede8d48ecd7c7f589a14b957951f040d92c99c70
+  Private inputs (not published): scratch/private_tokens.txt from extract_masked_tokens.py; scratch/census_tokens.txt
+  (that list without the 64-hex manifest values, plus its identity sub-strings); scratch/benign_tokens.txt.
+
+Receipt <- command
+  archive_manifest_pin.txt               <- check_archive_manifest.py $P $CLONE/docs/findings/117_GPTP_SILICON_EVIDENCE.md
+  masked_tokens_public.txt               <- extract_masked_tokens.py scratch/ev.git bb8c690f.. scratch/private_tokens.txt <160debeb> <32aec661> <74ac94e8> <db842315>
+  identity_census_pin_pr.txt             <- identity_census.py scratch/ev.git scratch/census_tokens.txt pin-tree=bb8c690f.. pin-history=$B..bb8c690f.. pr-tree=b71061d7.. pr-history=$B..b71061d7.. evidence-tip-additions=bb8c690f..915d2faa..
+  identity_census_superseded_summary.txt <- identity_census.py --summary ... superseded-<sha>=$B..<sha> (six superseded commits)
+  repo_scrub_pin_pr.txt                  <- repo_scrub_over_archive.py $CLONE scratch/ev.git pin-history=$B..bb8c690f.. pr-history=$B..b71061d7..
+  repo_scrub_superseded_summary.txt      <- the scope/TOTAL lines of repo_scrub_over_archive.py over the six superseded commits and bb8c690f..915d2faa
+  pcap_name_census_pin.txt               <- pcap_name_census.py $P --allow pcap_allowlist.txt --private <private file>
+  verify_step2_wire.txt                  <- verify_step2_wire.py $P/bench-a200
+  verify_step3_cycles.txt                <- verify_step3_cycles.py $P/bench-a202
+  verify_step3_details.txt               <- verify_step3_details.py $P/bench-a202
+  verify_step4_csr.txt                   <- verify_step4_csr.py $P/bench-a200
+  verify_counts_misc.txt                 <- verify_counts_misc.py $P
+  verify_switch_dhcp.txt                 <- verify_switch_dhcp.py $P/bench-a200
+  console_and_tcpdump_census.txt         <- console_tcpdump_census.py $P
+  redacted_tools_pin.txt                 <- redacted_tools.py $P/MANIFEST.json
+  originals_check_160debeb.txt           <- originals_check.py scratch/ev.git 160debeba11231e2fd38fde26c01c467039603ba $P/MANIFEST.json
+  pin_delta_db842315_bb8c690f.txt        <- git -C scratch/ev.git diff --stat db842315015dda3d68c9687973c4803bb25ceefb bb8c690f8487c202f2f53dbcba2b84dc4c36df73
+  redaction_delta_db842315_bb8c690f.txt  <- redaction_delta_records.py scratch/ev.git db842315015dda3d68c9687973c4803bb25ceefb bb8c690f8487c202f2f53dbcba2b84dc4c36df73
+  redaction_delta_protocols_160debeb_bb8c690f.txt <- redaction_delta_protocols.py scratch/ev.git 160debeba11231e2fd38fde26c01c467039603ba bb8c690f8487c202f2f53dbcba2b84dc4c36df73
+  link_anchor_check.txt                  <- link_anchor_check.py $CLONE
+  docs_gates_head.txt                    <- (cd $CLONE && docs_gates.sh)
+  hosted_check_runs_head.tsv             <- hosted_checks.sh b71061d7fbc1119b02eb430f293672ff8b3f85b8   (read-only API)
+  clone_state_final.txt                  <- verify_clone_state.sh $CLONE
+  leak_check_publishables.txt            <- leak_check_publishables.py . scratch/benign_tokens.txt scratch/census_tokens.txt scratch/private_tokens.txt
