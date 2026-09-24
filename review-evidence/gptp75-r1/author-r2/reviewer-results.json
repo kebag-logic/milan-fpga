@@ -1,0 +1,56 @@
+[
+  {
+    "head": "4a897e44243d39945df763d00b96049363a58e78",
+    "name": "reviewer-r304",
+    "command": [
+      "python3",
+      "/tmp/gptp75-a272-review/review-evidence/gptp75-r1/reviews/R304-1/scripts/probe_mutants.py",
+      "/tmp/gptp75-a272-review/head",
+      "/tmp/gptp75-a272-review/r304-work",
+      "$MANAGEMENT/2026-09-23/gptp75-a272/reviewer-r304",
+      "reviewer",
+      "--only",
+      "6,13",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 92.735
+  },
+  {
+    "head": "4a897e44243d39945df763d00b96049363a58e78",
+    "name": "reviewer-r305-control",
+    "command": [
+      "python3",
+      "/tmp/gptp75-a272-review/review-evidence/gptp75-r1/reviews/R305-1/scripts/probe_mutants.py",
+      "--tree",
+      "/tmp/gptp75-a272-review/head",
+      "--work",
+      "/tmp/gptp75-a272-review/r305-work",
+      "--set",
+      "control"
+    ],
+    "rc": 0,
+    "seconds": 41.337
+  },
+  {
+    "head": "4a897e44243d39945df763d00b96049363a58e78",
+    "name": "reviewer-r305",
+    "command": [
+      "python3",
+      "/tmp/gptp75-a272-review/review-evidence/gptp75-r1/reviews/R305-1/scripts/probe_mutants.py",
+      "--tree",
+      "/tmp/gptp75-a272-review/head",
+      "--work",
+      "/tmp/gptp75-a272-review/r305-work",
+      "--set",
+      "reviewer",
+      "--only",
+      "R01,R06",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 41.556
+  }
+]
