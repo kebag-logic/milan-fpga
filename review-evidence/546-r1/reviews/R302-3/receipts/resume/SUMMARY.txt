@@ -1,0 +1,10 @@
+OK  head_clean: expect PASS; got rc=0 KL_mmcm_drp_servo: 85 checks, 0 failures; fails=0
+OK  head_never_resumes: expect FAIL:[U13] valid offset resumes PI trim; got rc=1 KL_mmcm_drp_servo: 85 checks, 1 failures; fails=1
+      [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+OK  prior_never_resumes: expect PASS; got rc=0 KL_mmcm_drp_servo: 82 checks, 0 failures; fails=0
+OK  head_no_offset: expect FAIL:[U13] valid offset resumes PI trim; got rc=1 KL_mmcm_drp_servo: 85 checks, 1 failures; fails=1
+      [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+OK  head_instrumented: expect PASS; got rc=0 KL_mmcm_drp_servo: 85 checks, 0 failures; fails=0
+OK  head_resume_on_idle_only: expect FAIL:[U13] valid offset resumes PI trim; got rc=1 KL_mmcm_drp_servo: 85 checks, 1 failures; fails=1
+      [FAIL] [U13] valid offset resumes PI trim                   got=0 exp=1
+overall: PASS
