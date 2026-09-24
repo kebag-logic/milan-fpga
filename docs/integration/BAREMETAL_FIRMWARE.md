@@ -1387,8 +1387,10 @@ controls of their own:
   store and the `0 &&` arm behind a form feed, a product arm behind an
   `#else` a splice splits, and a store in the second of two groups on
   `CSR_UART_BASE`; on every machine, the pre-AEM clear dropped by a
-  product-only `#ifndef` behind each of those four spellings, and the
-  verifier's `#else` behind a lone CR;
+  product-only `#ifndef` behind each of those four spellings, the verifier's
+  `#else` behind a lone CR, and, for each of the other directive readers, an
+  `#undef`, a second source's `#include`, a second `#error` guard and a second
+  definition of `ADP_CTRL`'s name, each behind one of those spellings;
 - the splice and `##` bans: inside the six boot-path bodies, where both are
   KEPT and refuse on every machine, the five phase-2 splices of
   `milan_write` in `configure_fabric()`, the pasted call name, the four
@@ -1416,22 +1418,23 @@ and on the property the selected firmware breaks, and with it disconnected
 all fifteen of that head's selection controls failed that pin with a compiler
 and all six without one.
 
-PR #535's second round measured each fix it adds the same way, over its 39
-controls, with the pinned SDK and with every cross compiler hidden. With
-nothing disconnected all 39 are refused on their own pins. Removing the
-lexer's form-feed, vertical-tab, NUL and lone-CR handling lets eleven of them
-through or refuses them for another reason (five without a compiler), and
+PR #535's second round measured each fix it adds the same way, over its 43
+controls, with the pinned SDK and with every cross compiler hidden (32 of
+them run without a compiler). With nothing disconnected all are refused on
+their own pins. Removing the lexer's form-feed, vertical-tab, NUL and lone-CR
+handling lets fifteen of them through or refuses them for another reason
+(nine without a compiler), and
 the lexer corpus then fails on its own sentence before any firmware is
 graded; removing the rejoining of a name a splice splits does the same to the
 spliced-`#else` arm and to the corpus. Reading macro definitions one physical
 line at a time again, as the macro-body rule did, lets three through;
 removing the splice and `##` bans kept inside the six boot-path bodies,
 thirteen; removing the literal and trigraph refusals, four; removing one
-definition per name, three. With the `-E` comparison removed, the boot step
+definition per name, four. With the `-E` comparison removed, the boot step
 erased by a macro of its own name passes the whole gate, and with the
 relating of groups on one macro removed, the three correlated debug edits are
 refused where the compiler answers. With the per-selection grading removed,
-seventeen of the 39 fail their pin with a compiler and eight without one.
+seventeen of the 43 fail their pin with a compiler and eight without one.
 
 **What a runner with no RV32 compiler gets** is explicitly weaker, and it is
 a registered `NOT RUN`, never coverage. The compiler-absent CI control keeps
@@ -1456,8 +1459,8 @@ recorded them (not re-measured there), and the text half of the
 per-selection grading.
 
 Measured on this change, once with the pinned SDK mapped and once with every
-cross compiler hidden: gate 1b refuses 251 mutations where the compiler
-answers and 194 where it does not, against 217 and 182 on dev `759da623`, and
+cross compiler hidden: gate 1b refuses 255 mutations where the compiler
+answers and 198 where it does not, against 217 and 182 on dev `759da623`, and
 accepts 29 firmware edits and 4 Makefile edits in both, against 17 and 4. It
 reads the 55 lexer-corpus spellings as recorded in both, and re-measures them
 on the compiler where it answers. Without a compiler, 33 census and resolver

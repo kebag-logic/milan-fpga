@@ -13855,6 +13855,31 @@ def test_baremetal_profile_contract() -> None:
         ("the verifier's #else behind a lone CR, its hidden arm returning 1",
          verifier_else_behind_cr, docs_source, csr_source,
          "AEM verifier non-zero return must be textually after the CRC"),
+        # ... and each of the other directive readers, behind a spelling
+        # every one of them used to miss: the directive-set closure, the
+        # include pin, the #error count and the definition reader
+        ("an #undef behind a form feed",
+         replace_once(firmware_source, "static int aem_loaded;",
+                      f"\f#undef {adp_name}\n\nstatic int aem_loaded;",
+                      "#undef behind a form feed"),
+         docs_source, csr_source,
+         "the firmware's preprocessing directives are pinned"),
+        ("a second source #included behind a form feed",
+         replace_once(firmware_source, "static int aem_loaded;",
+                      "\f#include \"milan_bringup.c\"\n\nstatic int aem_loaded;",
+                      "#include behind a form feed"),
+         docs_source, csr_source, "the firmware's include set is pinned"),
+        ("a second #error guard, its #error behind a vertical tab",
+         replace_once(firmware_source, "static int aem_loaded;",
+                      "#ifdef MILAN_NEVER_DEFINED\n\v#error \"a second "
+                      "refusal\"\n#endif\n\nstatic int aem_loaded;",
+                      "#error behind a vertical tab"),
+         docs_source, csr_source, "#error directive(s) and exactly one is"),
+        ("ADP_CTRL's name defined a second time behind a NUL",
+         replace_once(firmware_source, "static int aem_loaded;",
+                      f"\0#define {adp_name} 0x604u\n\nstatic int aem_loaded;",
+                      "second definition behind a NUL"),
+         docs_source, csr_source, DEFINED_ONCE_PIN),
     )
     #: The four shapes ONLY the compiled census catches. They are in the
     #: table when the census is live and named as skipped when it is not,
