@@ -1,0 +1,12 @@
+[PASS] R01 lapse hook fires while inactive
+[PASS] R02 lapse hook ignores asCapable (bit 2)
+[CAUGHT] R03 lapse hook ignores sync-ok (bit 3)  | first: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[CAUGHT] R04 lapse hook removed  | first: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[CAUGHT] R05 lapse hook reloads only one pair  | first: FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+[PASS] R06 mastership leaves the qualifier armed
+[CAUGHT] R07 mastership writes a rate even when inactive  | first: FAIL late FU never steers         got 0000000000000007 exp 0000000000000002
+[CAUGHT] R08 mastership never writes the rate  | first: FAIL slew: mastership writes one replacement rate got 00000000000000ae exp 00000000000000af
+[CAUGHT] R09 step keeps the qualifier  | first: FAIL slew: replacement step clears at its rate got 0000000000000001 exp 0000000000000000
+[CAUGHT] R10 step clears the level before its rate  | first: FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+
+10 probes: 7 caught, 3 not caught

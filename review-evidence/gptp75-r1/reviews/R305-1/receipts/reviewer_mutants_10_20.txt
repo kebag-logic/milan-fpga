@@ -1,0 +1,12 @@
+[CAUGHT] R11 level rises only at the rate write  | first: FAIL slew: decision asserts before its affected rate got 0000000000000000 exp 0000000000000001
+[CAUGHT] R12 rate write never clears  | first: FAIL slew: ordinary frequency tracking stays inactive got 0000000000000001 exp 0000000000000000
+[CAUGHT] R13 qualifier reads back as zero  | first: FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[CAUGHT] R14 reset leaves the level high  | first: FAIL slew: cold reset clears the level got 0000000000000001 exp 0000000000000000
+[CAUGHT] R15 band excludes +100 ns  | first: FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000
+[CAUGHT] R16 band 101 ns wide  | first: FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[CAUGHT] R17 three settled pairs required  | first: FAIL slew: second in-band pair completes got 0000000000000001 exp 0000000000000000
+[CAUGHT] R18 mastership skips the retire write  | first: FAIL slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000
+[CAUGHT] R19 mastership retires with the wrong sign  | first: FAIL slew: mastership keeps the integral-only rate got 0000000000199999 exp 00000000ffe66667
+[CAUGHT] R20 verdict written after the rate  | first: FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+
+10 probes: 10 caught, 0 not caught
