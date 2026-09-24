@@ -1,0 +1,42 @@
+R303-2 reviewer commands (exact head d04a61678c9fc710df9bc2cad5e1bcb9d8925ae1)
+
+All runs used exported copies of the exact head (git archive HEAD) under the
+private scratch area: <packet>/scratch/tree (default suite, servo unit) and
+<packet>/scratch/pristine (probe campaigns; each case copies it again). The
+review clone itself was never built in or edited.
+
+Simulator: Verilator 5.050 rev v5.050 through the pinned wrapper
+(<pinned-tool-bin>/verilator, sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f).
+
+Build parallelism: in the scratch copies only, the Makefiles' "--build -j 0"
+was rewritten to "--build -j 4" (crf_rx and mmcm_servo); no other change.
+At most two cases ran at once (2 x -j 4 = 8 jobs).
+
+1. Default receiver gate (crf_rx `all` = run + mutants):
+   make -C tb/verilator/crf_rx VERILATOR=<pinned>          -> receipts/crf_rx_default.log, .rc
+   python3 scripts/suite_tally.py --verdict <that log>      -> verdict_rc in .rc
+2. Round-1 reviewer campaign, unchanged (sha256 equal to the R303-1 manifest):
+   python3 probes/mutant_probe.py scratch/pristine scratch/r1probe <pinned>
+                                                            -> receipts/r1_campaign_rerun.txt, receipts/r1_cases/
+3. Round-2 addendum campaign, in foreground batches of two:
+   python3 probes/run_probes_r2.py scratch/pristine scratch/r2probe <pinned> <case> <case>
+                                                            -> receipts/r2_probe_batch1..5.txt, receipts/r2_cases/
+   python3 scripts/suite_tally.py --verdict <M0/M1 logs>    -> receipts/r2_campaign_sweep_reader.txt
+4. Artifact probe (round-1 source, unchanged):
+   verilator --cc --exe --build -j 4 --public-flat-rw --top-module KL_crf_rx
+     -GCLK_FREQ_HZ_P=200000 -GIVAL_CYC_P=200 -Wno-fatal -Wno-lint -Wno-style
+     hdl/ieee1722/crf/KL_crf_rx.sv probes/probe_artifact.cpp -CFLAGS '-std=c++17 -O2' -o Vart
+                                                            -> receipts/probe_artifact.log
+5. Servo unit harness (includes U13):
+   make -s -C tb/verilator/mmcm_servo unit-build VERILATOR=<pinned>; ./obj_dir/Vservo_sim
+                                                            -> receipts/mmcm_servo_unit.log
+6. Round-2 RTL delta is comment-only:
+   verilator -E -P on KL_crf_rx.sv and KL_mmcm_drp_servo.sv at 39a0171c8 and d04a61678,
+   whitespace-normalised, compared byte for byte          -> receipts/rtl_round2_comment_only.txt
+7. Authority text: pdftotext -layout of the local Milan v1.2 (Final Approved
+   2023-11-30), IEEE 802.1AS-2011 and IEEE 802.1AS-2020 copies
+                                                            -> receipts/authority_excerpts.txt
+   Threshold sensitivity (python3 arithmetic)               -> receipts/threshold_sensitivity.txt
+8. Hosted check runs at the exact head, read-only (gh api .../commits/<head>/check-runs)
+                                                            -> receipts/hosted_check_runs.tsv
+9. Clone integrity after all runs                           -> receipts/clone_integrity.txt

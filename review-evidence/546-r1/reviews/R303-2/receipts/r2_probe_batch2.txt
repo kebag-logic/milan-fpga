@@ -1,0 +1,27 @@
+N2_jump_removed: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    [FAIL] servo samples invalid history at a boundary
+    quiet: post-edge artifacts 550, sampled invalid 0
+    talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    talker_only_neg: integrator range 30.723..177.188 ppm, state 3, crossing boundaries 1, invalid boundaries 0
+    both_short_pos: integrator range 163.477..185.918 ppm, state 3, crossing boundaries 0, invalid boundaries 1
+    both_short_neg: integrator range 169.375..185.742 ppm, state 3, crossing boundaries 0, invalid boundaries 0
+    both_long_pos: integrator range 175.879..182.930 ppm, state 3, crossing boundaries 1, invalid boundaries 1
+    both_long_neg: integrator range 190.703..200.000 ppm, state 3, crossing boundaries 1, invalid boundaries 0
+    == crf_rx talker_step: checks: 69   failures: 15 ==
+N3_lower_bound_removed: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    [FAIL] servo samples invalid history at a boundary
+    quiet: post-edge artifacts 550, sampled invalid 0
+    talker_only_pos: integrator range 30.703..30.703 ppm, state 4, crossing boundaries 1, invalid boundaries 1
+    talker_only_neg: integrator range 30.723..177.188 ppm, state 3, crossing boundaries 1, invalid boundaries 0
+    both_short_pos: integrator range 163.477..185.918 ppm, state 3, crossing boundaries 0, invalid boundaries 1
+    both_short_neg: integrator range 169.375..185.742 ppm, state 3, crossing boundaries 0, invalid boundaries 0
+    both_long_pos: integrator range 175.879..182.930 ppm, state 3, crossing boundaries 1, invalid boundaries 1
+    both_long_neg: integrator range 190.703..200.000 ppm, state 3, crossing boundaries 1, invalid boundaries 0
+    == crf_rx talker_step: checks: 69   failures: 15 ==
+rc=0 wall=429s

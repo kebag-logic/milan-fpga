@@ -1,0 +1,7 @@
+M0_campaign_clean: target=mutants expect=clean rc=0 -> PASS
+    == crf_rx mutants: checks: 7   failures: 0 ==
+M1_campaign_survivor: target=mutants expect=kill rc=2 -> KILLED
+    [FAIL] jump_removed: rc=0
+    == crf_rx discontinuity: checks: 1658   failures: 0 ==
+    == crf_rx mutants: checks: 7   failures: 1 ==
+rc=0 wall=75s

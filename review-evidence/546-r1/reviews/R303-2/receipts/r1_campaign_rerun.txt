@@ -1,0 +1,115 @@
+clean_disc: target=disc expect=clean rc=0 -> PASS
+    == crf_rx discontinuity: checks: 1658   failures: 0 ==
+clean_talker: target=talker expect=clean rc=0 -> PASS
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 0 ==
+clean_probe: target=probe expect=clean rc=0 -> PASS
+    [probe] B tu pulse no step   state=4 locked_all=1 invalid_clk=40599189/90000000 valid_falls=1 integ=30.703..30.723 ppm now_valid=1 disc_delta=0
+    [probe] D jitter 1200        state=4 locked_all=1 invalid_clk=299005820/300000000 valid_falls=1 integ=30.703..30.703 ppm now_valid=0 disc_delta=0
+    [probe] E clean recovery     state=4 locked_all=1 invalid_clk=23287735/200000000 valid_falls=0 integ=30.703..30.723 ppm now_valid=1 disc_delta=0
+    [probe] C jitter 500         state=4 locked_all=1 invalid_clk=0/200000000 valid_falls=0 integ=30.154..31.328 ppm now_valid=1 disc_delta=0
+    == reviewer probe talker: checks: 7   failures: 0 ==
+C1_tu_ignored: target=talker expect=report rc=0 -> PASSES
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 0 ==
+C2_jump_removed: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    [FAIL] servo samples invalid history at a boundary
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 15 ==
+C3_tu_and_jump_removed: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    [FAIL] servo samples invalid history at a boundary
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 22 ==
+C4_servo_ignores_valid: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] invalid sample cannot update the integrator got=1 exp=0
+    [FAIL] invalid sample cannot update the integrator got=2 exp=0
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 5 ==
+C5_rx_valid_forced: target=talker expect=kill rc=2 -> KILLED
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] quiet: post-edge artifact was exercised
+    [FAIL] servo samples invalid history at a boundary
+    steady integrator 30.723 ppm
+    == crf_rx talker_step: checks: 69   failures: 11 ==
+D1_seq_gap_ignored: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] duplicate PDU restarts the rate history
+    == crf_rx discontinuity: checks: 1658   failures: 2 ==
+D2_stop_gate_removed: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] STOP gates sample validity immediately
+    == crf_rx discontinuity: checks: 1658   failures: 1 ==
+D3_silence_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] initial history stays invalid for 256 timestamps
+    [FAIL] silence invalidates the old rate
+    == crf_rx discontinuity: checks: 1658   failures: 257 ==
+D4_bind_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] initial history stays invalid for 256 timestamps
+    [FAIL] rebind invalidates old history
+    == crf_rx discontinuity: checks: 1658   failures: 257 ==
+D5_spacing_32bit: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] unmarked timestamp jump cannot publish
+    [FAIL] unmarked timestamp jump invalidates the rate
+    == crf_rx discontinuity: checks: 1658   failures: 10 ==
+D6_pend_not_cancelled: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] back-to-back marker cancels pending publication
+    == crf_rx discontinuity: checks: 1658   failures: 1 ==
+D7_threshold_4096: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2049 ns boundary is rejected
+    [FAIL] all 255 crossing intervals are withheld
+    == crf_rx discontinuity: checks: 1658   failures: 4 ==
+D8_threshold_1024: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2048 ns boundary remains valid
+    == crf_rx discontinuity: checks: 1658   failures: 2 ==
+D9_break_keeps_valid: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] 2049 ns boundary is rejected
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] back-to-back marker leaves invalid history
+    [FAIL] duplicate PDU restarts the rate history
+    [FAIL] lost PDU cannot poison a 256-PDU rate
+    [FAIL] unmarked timestamp jump invalidates the rate
+    == crf_rx discontinuity: checks: 1658   failures: 32 ==
+D10_tu_rise_only: target=disc expect=kill rc=2 -> KILLED
+    [FAIL] all 255 crossing intervals are withheld
+    [FAIL] tu edge holds the published rate
+    [FAIL] tu edge invalidates before the sampling edge
+    == crf_rx discontinuity: checks: 1658   failures: 3 ==
+O0_clean: target=order expect=clean rc=0 -> PASS
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 0 ==
+O1_tu_ignored: target=order expect=report rc=0 -> PASSES
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.723 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 0 ==
+O2_jump_removed: target=order expect=kill rc=1 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+    step -150000 ns: integrator range 30.703..177.188 ppm, state 3
+    == reviewer probe gm_order: checks: 19   failures: 3 ==
+O3_tu_and_jump_removed: target=order expect=kill rc=1 -> KILLED
+    [FAIL] GM change: integrator stays within 1 ppm
+    [FAIL] GM change: receiver withholds crossing rate samples
+    [FAIL] GM change: servo stays LOCKED on every clock
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range -115.742..30.723 ppm, state 3
+    step -150000 ns: integrator range -70.352..115.488 ppm, state 3
+    == reviewer probe gm_order: checks: 19   failures: 6 ==
+O4_servo_ignores_valid: target=order expect=kill rc=1 -> KILLED
+    [FAIL] invalid sample cannot update the integrator got=1 exp=0
+    steady integrator 30.723 ppm
+    step 150000 ns: integrator range 30.703..30.742 ppm, state 4
+    step -150000 ns: integrator range 30.703..30.703 ppm, state 4
+    == reviewer probe gm_order: checks: 19   failures: 1 ==
+rc=0 wall=2090s
