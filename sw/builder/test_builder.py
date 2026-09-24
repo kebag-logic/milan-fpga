@@ -4743,6 +4743,9 @@ def test_baremetal_profile_contract() -> None:
     #: this gate reads -- a macro erasing a boot step, say. A splice or a
     #: paste there is refused before it, by the bans kept in those bodies.
     PREPROCESSED_PIN = "is not the boot path the compiler COMPILES"
+    #: #544: preserve the sampled object, including writes a macro hides.
+    IDENTITY_SAMPLE_PIN = "identity-sample single-store rule"
+    IDENTITY_MACRO_PIN = "identity-sample macro replacement rule"
     #: ... and the three sentences the RESOLVER answers on, one per
     #: question it asks. Every mutant that reaches a control register by
     #: address arithmetic no immediate reveals fails on the first; every one
@@ -5113,6 +5116,136 @@ def test_baremetal_profile_contract() -> None:
         reads. `text` may be the firmware or blanked() of it."""
         return [(name, params or None, body.strip()) for name, params, body in
                 macro_definition_re.findall(_c_phases(text).view)]
+
+    def assert_identity_macro_free(source: str, sample: str,
+                                   between: str) -> None:
+        """Without a compiler, no replacement list may name the sample.
+
+        This deliberately costs unused macros and read-only replacements
+        too (#544). Comments and literal bodies are not identifiers; the
+        shared phase-3 reader handles continued definitions and comments.
+        The published hostile macros name a parameter in their replacement
+        lists and supply the sample at the call. Refuse that substitution
+        too, when the replacement uses the parameter. This is conservative
+        for read-only uses, and does not attempt general macro expansion.
+        """
+        calls = _c_phases(between).view
+        for name, params, body in macro_definitions(source):
+            used = set(c_identifier_re.findall(body))
+            assert sample not in used, \
+                f"{IDENTITY_MACRO_PIN}: #define {name} names {sample} in " \
+                "its replacement list; without a compiler no macro may " \
+                "touch the CSR identity sample"
+            if params is None:
+                continue
+            parameters = [param.strip() for param in params[1:-1].split(",")]
+            for call in re.finditer(rf"\b{re.escape(name)}\s*\(", calls):
+                depth, start, arguments = 0, call.end(), []
+                for at in range(start, len(calls)):
+                    char = calls[at]
+                    if char == ")" and not depth:
+                        arguments.append(calls[start:at])
+                        break
+                    if char == "," and not depth:
+                        arguments.append(calls[start:at])
+                        start = at + 1
+                    depth += {"(": 1, ")": -1, "[": 1, "]": -1,
+                              "{": 1, "}": -1}.get(char, 0)
+                else:
+                    raise AssertionError(
+                        f"{IDENTITY_MACRO_PIN}: unclosed invocation of {name}")
+                for index, param in enumerate(parameters):
+                    variadic = param.endswith("...")
+                    formal = ((param[:-3].strip() or "__VA_ARGS__")
+                              if variadic else param)
+                    actual = (arguments[index:] if variadic else
+                              arguments[index:index + 1])
+                    assert formal not in used or sample not in \
+                        c_identifier_re.findall(",".join(actual)), \
+                        f"{IDENTITY_MACRO_PIN}: {name} substitutes {sample} " \
+                        f"for used parameter {formal} between the CSR read " \
+                        "and mismatch guard; without a compiler even a " \
+                        "read-only macro use of the sample is refused"
+
+    def assert_preprocessed_identity_sample(taken: dict[str, Any],
+                                            sample: str,
+                                            model: CsrModel) -> None:
+        """Only the sampling read may store the identity before its guard.
+
+        Read the same -E unit as the boot-shape comparison, after macro
+        substitution (#544). This is an object-use check, not a proof of
+        arbitrary C semantics: writes to a shadowed name, taking its
+        address even for a read, and naming it in the first argument of
+        any mem*/str* call are conservatively refused in this interval.
+        The census's trusted stub headers remain the preprocessing boundary.
+        """
+        assert taken["ran"], f"{IDENTITY_SAMPLE_PIN}: preprocessing did not run"
+        compiled = blanked(preprocessed_own_text(taken["text"]))
+        init = re.search(boot_path_anchors[0][0], compiled, re.ASCII)
+        body = braced_block(compiled, init, IDENTITY_SAMPLE_PIN)
+        name = re.escape(sample)
+        reads = list(re.finditer(
+            rf"\buint32_t\s+{name}\s*=\s*milan_read\s*\("
+            r"(?P<address>[^;]+)\)\s*;", body, re.ASCII))
+        guards = list(re.finditer(
+            rf"\bif\s*\(\s*{name}\s*!=\s*"
+            r"(?P<magic>[^;{]+)\)\s*\{", body, re.ASCII))
+        assert len(reads) == len(guards) == 1 and \
+            constant_value(reads[0].group("address")) == model.identity and \
+            constant_value(guards[0].group("magic")) == model.identity_default and \
+            reads[0].end() <= guards[0].start(), \
+            f"{IDENTITY_SAMPLE_PIN}: cannot locate the compiled sample " \
+            f"{sample} and its mismatch guard against the RTL identity"
+        between = body[reads[0].end():guards[0].start()]
+        tokens = re.findall(
+            r"[A-Za-z_]\w*|0[xX][0-9a-fA-F]+[uUlL]*|[0-9]+[uUlL]*|"
+            r"<<=|>>=|[-+*/%|&^]=|\+\+|--|==|!=|<=|>=|&&|\|\||->|\S",
+            between, re.ASCII)
+        stack, pairs = [], {}
+        for index, token in enumerate(tokens):
+            if token == "(":
+                stack.append(index)
+            elif token == ")":
+                assert stack, f"{IDENTITY_SAMPLE_PIN}: unbalanced expression"
+                pairs[stack.pop()] = index
+        assert not stack, f"{IDENTITY_SAMPLE_PIN}: unbalanced expression"
+        stores = {"=", "+=", "-=", "*=", "/=", "%=", "<<=", ">>=",
+                  "&=", "|=", "^=", "++", "--"}
+        for index, token in enumerate(tokens):
+            if token != sample:
+                continue
+            start = stop = index
+            while start > 0 and pairs.get(start - 1) == stop + 1:
+                start, stop = start - 1, stop + 1
+            before = tokens[start - 1] if start else ""
+            after = tokens[stop + 1] if stop + 1 < len(tokens) else ""
+            # A name/number on the left makes '&' binary. A closing ')'
+            # can instead end a cast, so that ambiguous form is refused.
+            left = tokens[start - 2] if start >= 2 else ""
+            address = before == "&" and not (
+                left in ("]", "++", "--") or
+                re.fullmatch(r"[A-Za-z_0-9]\w*", left, re.ASCII) and
+                left not in ("return", "case", "sizeof", "_Alignof",
+                             "__alignof__", "else", "do"))
+            assert before not in ("++", "--") and after not in stores and \
+                not address, \
+                f"{IDENTITY_SAMPLE_PIN}: {sample} is written or addressed " \
+                "between its CSR read and mismatch guard; no assignment, " \
+                "compound assignment, increment, decrement or address-taking"
+        for index, token in enumerate(tokens[:-1]):
+            if not re.fullmatch(r"(?:__builtin_)?(?:mem|str)\w*", token) or \
+                    tokens[index + 1] != "(":
+                continue
+            end = pairs[index + 1]
+            depth, first_end = 0, end
+            for at in range(index + 2, end):
+                depth += {"(": 1, ")": -1}.get(tokens[at], 0)
+                if tokens[at] == "," and not depth:
+                    first_end = at
+                    break
+            assert sample not in tokens[index + 2:first_end], \
+                f"{IDENTITY_SAMPLE_PIN}: {token} receives {sample} as a " \
+                "destination between its CSR read and mismatch guard"
 
     def assert_lexes_as_compiled(source: str) -> None:
         """No literal that GCC lexes in a way no ordinary edit means.
@@ -11082,8 +11215,14 @@ def test_baremetal_profile_contract() -> None:
         # not only for its compiler (#408): it is what the token-joining
         # splice ban and the `##` paste ban retired onto, so it answers only
         # after every rule that still reads text has had its say.
-        assert_preprocessed_boot_path(firmware, source,
-                                      preprocess_take(source))
+        preprocessed = preprocess_take(source)
+        assert_preprocessed_boot_path(firmware, source, preprocessed)
+        if preprocessed["ran"]:
+            assert_preprocessed_identity_sample(
+                preprocessed, identity_read.group("name"), model)
+        else:
+            assert_identity_macro_free(
+                source, identity_read.group("name"), identity_between)
         census_taken = census_take(source)
         compiled_census_verdict = assert_compiled_census_is_clean(
             source, taken=census_taken)
@@ -11858,6 +11997,60 @@ def test_baremetal_profile_contract() -> None:
         source_identity_read_statement +
         f"\n\t{source_identity_read.group('name')} = MILAN_ID_MAGIC;",
         "overwritten CSR identity sample")
+    sample_name = source_identity_read.group("name")
+
+    def identity_macro_firmware(replacement: str, parameters: str = "",
+                                arguments: str = "") -> str:
+        """A macro invocation between the real sample and mismatch guard."""
+        defined = replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_FORGE({parameters}) {replacement}\n\n"
+            "static int aem_loaded;", "identity macro definition")
+        return replace_once(
+            defined, source_identity_read_statement,
+            source_identity_read_statement + f"\n\tMILAN_FORGE({arguments});",
+            "identity macro invocation")
+
+    # The public reviews used a parameter, not a literal sample identifier.
+    # Keep both exact replacement spellings, including their parentheses.
+    parameter_identity_macros = (
+        identity_macro_firmware("x = MILAN_ID_MAGIC", "x", sample_name),
+        identity_macro_firmware("((x) = MILAN_ID_MAGIC)", "x", sample_name),
+    )
+    identity_macro_writes = {
+        "assignment": f"{sample_name} = MILAN_ID_MAGIC",
+        "parenthesized assignment": f"(({sample_name}) = MILAN_ID_MAGIC)",
+        **{f"compound {operator}": f"(({sample_name}) {operator} 1u)"
+           for operator in ("+=", "-=", "*=", "/=", "%=", "<<=", ">>=",
+                            "&=", "|=", "^=")},
+        "prefix increment": f"++({sample_name})",
+        "postfix increment": f"({sample_name})++",
+        "prefix decrement": f"--({sample_name})",
+        "postfix decrement": f"({sample_name})--",
+        "address taken": f"(void)&(({sample_name}))",
+        "unevaluated address": f"sizeof &({sample_name})",
+        "conditional address": f"if (1) &({sample_name})",
+        "memory destination":
+            f"__builtin_memset((void *)(uintptr_t){sample_name}, 0, 4)",
+        "string destination":
+            f'__builtin_strcpy((char *)(uintptr_t){sample_name}, "bad")',
+        "continued replacement": f"(\\\n({sample_name}) = MILAN_ID_MAGIC)",
+    }
+    identity_macro_fixtures = {
+        label: identity_macro_firmware(body)
+        for label, body in identity_macro_writes.items()}
+    identity_macro_costs = {
+        label: replace_once(
+            firmware_source, "static int aem_loaded;",
+            definition + "\n\nstatic int aem_loaded;", label)
+        for label, definition in (
+            ("unused object-like sample macro",
+             f"#define MILAN_UNUSED_SAMPLE {sample_name}"),
+            ("unused function-like sample macro",
+             f"#define MILAN_UNUSED_SAMPLE() ({sample_name})"),
+            ("continued sample identifier in an unused replacement",
+             f"#define MILAN_UNUSED_SAMPLE {sample_name[0]}\\\n{sample_name[1:]}"),
+        )}
     identity_address_comment_decoy = replace_once(
         csr_source,
         "    A_ID          = 'h000,",
@@ -14253,6 +14446,31 @@ def test_baremetal_profile_contract() -> None:
         # call above is its positive arm; helper_body_store_mutations carries
         # the paired negative arm relative to this exact spelling.
         assert source_reg_signature == reflowed_reg_signature
+    accepted_cases.update({
+        "identity sample read without modification": replace_once(
+            firmware_source, source_identity_read_statement,
+            source_identity_read_statement + f"\n\t(void)({sample_name} & 1u);",
+            "identity read only"),
+        "identity sample renamed consistently": re.sub(
+            rf"\b{re.escape(sample_name)}\b", "boot_identity", firmware_source,
+            flags=re.ASCII),
+        "sample name in a macro literal and comment": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f'#define MILAN_SAMPLE_TEXT "{sample_name}" /* {sample_name} */\n\n'
+            "static int aem_loaded;", "sample name outside code"),
+        "different identifier in a macro replacement": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_OTHER_SAMPLE {sample_name}_copy\n\n"
+            "static int aem_loaded;", "sample token boundary"),
+        "sample name only in an unused formal parameter": replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define MILAN_UNUSED_ARGUMENT({sample_name}) 0u\n\n"
+            "static int aem_loaded;", "unused formal parameter"),
+        "sample passed to an unused macro parameter":
+            identity_macro_firmware("0u", "x", sample_name),
+    })
+    if not instruments_down:
+        accepted_cases.update(identity_macro_costs)
     for label, accepted in accepted_cases.items():
         assert accepted != firmware_source, \
             f"accepted case {label!r} did not change the firmware, so it " \
@@ -15556,8 +15774,50 @@ def test_baremetal_profile_contract() -> None:
         raise AssertionError(
             "assert_rejected() accepted a tuple of reasons the refusal did "
             "not all carry, so an arm-selection pin checks only its wrapper")
+    identity_pin = (IDENTITY_MACRO_PIN if instruments_down else
+                    IDENTITY_SAMPLE_PIN)
+    mutations += tuple(
+        (f"identity macro {label}", fixture, docs_source, csr_source,
+         identity_pin) for label, fixture in identity_macro_fixtures.items())
+    mutations += tuple(
+        (f"published identity macro {index}", fixture, docs_source,
+         csr_source, identity_pin)
+        for index, fixture in enumerate(parameter_identity_macros, 1))
+    if instruments_down:
+        mutations += tuple(
+            (label, fixture, docs_source, csr_source, IDENTITY_MACRO_PIN)
+            for label, fixture in identity_macro_costs.items())
     for mutation in mutations:
         assert_rejected(*mutation)
+    # Each new rule must be necessary: remove only that check, then grade
+    # the same hostile firmware through the entire remaining contract.
+    if instruments_down:
+        identity_check = assert_identity_macro_free
+        try:
+            assert_identity_macro_free = lambda *_args: None
+            for fixture in (*parameter_identity_macros,
+                            identity_macro_fixtures["assignment"]):
+                assert_boot_contract(fixture, docs_source, csr_source)
+        finally:
+            assert_identity_macro_free = identity_check
+    else:
+        identity_check = assert_preprocessed_identity_sample
+        try:
+            assert_preprocessed_identity_sample = lambda *_args: None
+            for fixture in parameter_identity_macros:
+                assert_boot_contract(fixture, docs_source, csr_source)
+        finally:
+            assert_preprocessed_identity_sample = identity_check
+    identity_cost = (
+        "unused and read-only replacements naming the sample, and direct "
+        "calls substituting it into a used parameter, are refused without "
+        "general macro expansion" if instruments_down else
+        "address-taking for reads, ambiguous '&' after parentheses and "
+        "mem*/str* first arguments are conservatively refused in the "
+        "preprocessed sample-to-guard interval")
+    print(f"  [gate 1b] {identity_pin}: hostile macros refused; "
+          "removing only this check lets the hostile control pass. COST: "
+          + identity_cost)
     if verilator:
         try:
             assert_rtl_mutant_elaborates(
