@@ -1,0 +1,18 @@
+docs	0	python3 scripts/docs_check.py
+doc-style	0	python3 scripts/check_doc_style.py
+toc	0	python3 scripts/gen_toc.py --check
+doc-paths	0	python3 scripts/check_doc_paths.py
+matrix	0	python3 docs/traceability/gen_module_matrix.py --check
+xvlog	0	python3 scripts/xvlog_gate.py --check
+source-lists	0	python3 scripts/check_rtl_source_lists.py
+cpp-idiom	0	python3 scripts/check_cpp_idiom.py
+py-idiom	0	python3 scripts/check_py_idiom.py
+sv-idiom	0	python3 scripts/check_sv_idiom.py
+lint	0	python3 scripts/lint_rtl.py --check
+test-evidence	0	python3 scripts/measure_test_evidence.py --check
+behave	0	behave --no-capture -f plain
+diff-check	0	git diff --check 57456af96b3127b9d309a995bbbd35a6113ce52d HEAD
+diff-cached-check	0	git diff --cached --check
+em-dash	0	python3 scripts/check_em_dash.py --base 57456af96b3127b9d309a995bbbd35a6113ce52d
+docs-no-git	0	python3 scripts/docs_check.py (no-git HEAD archive)
+feature-status-no-git	0	python3 scripts/check_feature_status.py (no-git HEAD archive)

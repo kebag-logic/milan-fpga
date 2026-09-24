@@ -1,0 +1,1099 @@
+diff --git a/docs/design/GM_LOSS_RECOVERY.md b/docs/design/GM_LOSS_RECOVERY.md
+index f8424c7c8..e44fbd0c0 100644
+--- a/docs/design/GM_LOSS_RECOVERY.md
++++ b/docs/design/GM_LOSS_RECOVERY.md
+@@ -149,9 +149,9 @@ Issue #387 decided its media reaction.
+ |---|---|---|
+ | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
+ | Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes, at the next PDU end, counted in its recentre tally; a grandmaster identity change also re-centres it |
+-| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
++| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); The receiver excludes talker-step rate samples (#546). A policy-legal local slew remains tracked by #545. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+ | Packet NCO | Not named by the decision | No PHC or step input |
+-| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
++| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. A policy-legal local 100 us slew remains tracked by #545 |
+ | Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Not yet: `mcr_restart_p_w` ignores the step |
+ | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
+ | A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Not yet: `KL_media_clock_restart` flips its target once per request, so a second request before the first reaches the wire cancels it |
+@@ -210,6 +210,8 @@ Legacy writes remain acknowledged and ineffective.
+ | `clkvalid` | Holdover, steps, and option-off values |
+ | `milan_dp` | Public CSR and protocol consumers |
+ | `milan_dp` gmstep | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, `mr`, MEDIA_RESET, stream continuity (not yet in the sweep) |
++| `crf_rx` talker_step | Connected receiver and servo: +/-150 us steps at both ends, continuous LOCKED state, held integrator and fresh rate recovery |
++| `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
+ | `media_grid_align` | Alignment, watchdog, and recovery |
+ | `tsn_fuzz` | Storms, malformed pairs, drought recovery |
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 964c5013e..e4702af85 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -144,6 +144,7 @@ Each link has exactly one master.
+ | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
+ | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
+ | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
++| CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.crf_rate_valid_i` |
+ | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+ | MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+ | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+@@ -163,6 +164,54 @@ Each link has exactly one master.
+ | MMCM servo activation | Conditional | Steers audio clocks under CRF selection |
+ | Packet-grid alignment | Conditional | Follows the physical sample grid |
+ 
++CRF rate history restarts on either received `tu` edge.
++
++IEEE 1722-2016 `4.4.4.7` defines uncertainty.
++
++Clause `10.4.5` maps CRF's bit.
++
++The separate `mr` restart follows `4.4.4.3` and `10.4.3`.
++
++Held `tu` permits recovery after 256 clean timestamp intervals.
++
++Sequence gaps also restart that history.
++
++Invalid or foreign PDUs never seed its reference.
++
++Silence, reset and binding changes invalidate old history.
++
++STOP suppresses sample validity while counters continue observing.
++
++An adjacent-timestamp jump provides the unmarked-step backstop.
++
++Its threshold derives from the 2 ms CRF interval.
++
++Combined media and PHC drift permits 601 ns deviation.
++
++That combines +/-100 ppm media with +/-200 ppm PHC.
++
++Two PHC quantization bounds add less than 768 ns.
++
++Rounding upward gives 2,048 ns.
++
++Both signed jumps are detected using full-width timestamps.
++
++This excludes network arrival jitter from the decision.
++
++The event's PDU seeds the new timestamp history.
++
++After 256 further intervals, the rate becomes valid again.
++
++Until then, `CRF_RATE` holds its last clean value.
++
++The servo skips invalid samples without changing its lock state.
++
++Local PHC guards remain independent of this validity signal.
++
++No additional CSR bit or discard tally is introduced.
++
++The [receiver suite](../../tb/verilator/crf_rx) exercises this connected path.
++
+ A dead TDM feed disengages grid alignment.
+ 
+ The packet grid then free-runs nominally.
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 2c9b7764f..70734e8c5 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -835,7 +835,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
+ | `0x73C` | `CRF_SIDLO` | RW | `0` | followed CRF stream_id `[31:0]` |
+ | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
+ | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
+-| `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
++| `0x748` | `CRF_RATE` | RO | `0` | Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
+ | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
+ 
+ Those three are the only CRF input counters exported into the local CSR plane,
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index ce12dd40a..83261018b 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -459,7 +459,7 @@ verdicts and for check counts.
+ | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+ | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+ | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports; since #74 the root's `media_clk_resolve` verdict decides whether its measurements steer the servo chain, so a CRF selection makes them actuate |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; discontinuity isolation and receiver-to-servo GM steps. `make mutants` separately proves tu, jump, refill and sample-edge failures |
+ | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+ | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
+ | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+diff --git a/docs/traceability/MODULE_MATRIX.md b/docs/traceability/MODULE_MATRIX.md
+index 771ee5f37..bd45f9894 100644
+--- a/docs/traceability/MODULE_MATRIX.md
++++ b/docs/traceability/MODULE_MATRIX.md
+@@ -97,7 +97,7 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰milan_dp_render | -- |
+ | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `media_grid_align` · `milan_dp` · ➰milan_dp_render | -- |
+ | ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_render | -- |
+-| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
++| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
+ | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `maap` · `milan_dp` · ➰milan_dp_render | -- |
+ 
+ ## IEEE 802.1Q
+@@ -139,9 +139,9 @@ _CSR, CDC, RMON, utilities_
+ |---|---|---|---|
+ | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
+-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_render | -- |
+-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
+ | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰milan_dp_render | -- |
+ | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · ➰milan_dp_render | -- |
+diff --git a/hdl/common/README-tests.md b/hdl/common/README-tests.md
+index 59b7cc6ff..2e873c9a4 100644
+--- a/hdl/common/README-tests.md
++++ b/hdl/common/README-tests.md
+@@ -12,9 +12,9 @@ hand-edit. Part of the Common / integration family; rolled up in
+ |---|---|---|---|
+ | ✅ `KL_link_guard` | `KL_link_guard.sv` | `gptp_shadow` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | ✅ `axis_mux_rr_2in_1out` | `axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
+-| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_handshake` | `cdc_handshake.sv` | `cdc` · `crf_rx` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | ✅ `cdc_pair_fifo` | `cdc_pair_fifo.sv` | `aaf` · `aes3` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_render | -- |
+-| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
++| ✅ `cdc_pulse` | `cdc_pulse.sv` | `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰milan_dp_render | -- |
+ | 📦 `ethernet_packet_pkg` | `ethernet_packet_pkg.sv` | -- | -- |
+ | ✅ `tx_ifg_gasket` | `tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰milan_dp_render | -- |
+ 
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 7c0f56e56..e8959852a 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -29,6 +29,8 @@
+                             in a single-port READ_FIRST BRAM ring; the read
+                             lands the cycle after the accept - a fixed +1
+                             clk skew, invisible to the ms-scale CSR poll).
++                            Holds the last clean value while rate_valid_o
++                            is low after tu edges, timestamp jumps or gaps.
+                   locked_o: PDUs arriving AND |delta jitter| within window
+                             for 8 consecutive PDUs; drops after 100 ms
+                             without an accepted PDU (mirrors the AAF
+@@ -206,6 +208,9 @@ module KL_crf_rx #(
+   //! measurement outputs (CSR)
+   output logic signed [31:0] delta_o,     //! crf_ts - ptp_now @ last PDU
+   output logic signed [31:0] rate_o,      //! ns error per 256-PDU window
++  //! Valid level for rate_o. A discontinuity invalidates the whole ring;
++  //! only a fresh 256-interval sample restores validity. Lock is independent.
++  output wire         rate_valid_o,
+   //! the seven Table 5.6 tallies below are 32-bit WRAPPING counters
+   //! (gh #61 G1). The old backing had TWO deviations from Milan 5.3.8.10's
+   //! "wraps back to zero": fmt_err/seq_err SATURATED at 255 (a saturating
+@@ -266,6 +271,20 @@ module KL_crf_rx #(
+   localparam int unsigned RATE_LOG2_C   = 8;   // 256-PDU rate window
+   localparam logic [63:0] NOM_WIN_NS_C  = 64'(NOM_PDU_NS_C) << RATE_LOG2_C;
+ 
++  //! Adjacent timestamps, unlike the 512 ms rate, expose a phase step.
++  //! Bound legitimate spacing using Milan Annex B.1.1's 100 ppm media
++  //! clock and the talker's 200 ppm PHC trim envelope (TIME_SYNC).
++  //! 2 ms * (200 + 100) / (1e6 - 100), rounded up, is 601 ns.
++  //! Add two PHC quantisation errors, each below 384 ns (incr + adj,
++  //! the #539 rationale), then round 1369 ns up to 2048 ns. This is
++  //! below the plane's smallest step (>20 us), without copying #539's
++  //! per-cycle 4096 ns threshold. Arrival/network jitter is absent here.
++  localparam int unsigned RATE_DRIFT_NS_C =
++    (NOM_PDU_NS_C * (200 + 100) + (1_000_000 - 100) - 1)
++      / (1_000_000 - 100);
++  localparam logic [63:0] TS_JUMP_NS_C =
++    64'd1 << $clog2(RATE_DRIFT_NS_C + 2 * 384);
++
+   //! lock: 8 clean consecutive PDUs in, 100 ms silence out (AAF contract)
+   localparam int unsigned SETTLE_C   = 8;
+   localparam int unsigned TOUT_CYC_C = CLK_FREQ_HZ_P / 10;
+@@ -304,6 +323,10 @@ module KL_crf_rx #(
+   logic [31:0] ts_hist_r [0:(1<<RATE_LOG2_C)-1];
+   logic [31:0] hist_old_r;   //! sync read data: ts[31:0] from 256 PDUs ago
+   logic [31:0] ts_new_r;     //! accepted ts[31:0], aligned with hist_old_r
++  logic [63:0] prev_ts_ns_r; //! full width prevents 2^32 ns step aliasing
++  logic        prev_tu_r;
++  logic        rate_seeded_r;
++  logic        rate_valid_r;
+   logic        rate_pend_r;  //! rate math scheduled (ring full on accept)
+   logic [RATE_LOG2_C-1:0] hidx_r;
+   logic [8:0]  hfill_r;                           //! saturates at 256
+@@ -356,6 +379,21 @@ module KL_crf_rx #(
+   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
+   wire w_bind_rise_w = en_i && !en_q;
+ 
++  //! IEEE 1722-2016 4.4.4.3/4.4.4.7, CRF mapping 10.4.5: tu is
++  //! uncertainty, not a rate. Either edge separates timestamp eras. A
++  //! constant high level does not block recovery. Sequence gaps cannot
++  //! represent 256 consecutive intervals either, so they restart the ring.
++  wire [63:0] ts_spacing_ns_w = w_crf_ts - prev_ts_ns_r;
++  wire ts_jump_w = (ts_spacing_ns_w < (64'(NOM_PDU_NS_C) - TS_JUMP_NS_C))
++                || (ts_spacing_ns_w > (64'(NOM_PDU_NS_C) + TS_JUMP_NS_C));
++  wire tu_change_w = tu_i != prev_tu_r;
++  wire rate_break_w = w_acc && rate_seeded_r &&
++    (tu_change_w || ts_jump_w || (have_seq_r && (seq_i != exp_seq_r)));
++  //! Include the accept-edge verdict: a simultaneous servo boundary must
++  //! not snapshot stale validity before the registered invalidation lands.
++  assign rate_valid_o = rate_valid_r && en_i && !stop_i &&
++                        !w_bind_rise_w && !rate_break_w;
++
+   // ==========================================================================
+   //  Table 5.6 observation-interval tick (free-running; the clause fixes
+   //  only an upper bound on the interval, not its phase)
+@@ -402,6 +440,8 @@ module KL_crf_rx #(
+       exp_seq_r <= '0; have_seq_r <= 1'b0;
+       settle_r <= '0; tout_r <= '0;
+       ts_new_r <= '0; rate_pend_r <= 1'b0;
++      prev_ts_ns_r <= '0; prev_tu_r <= 1'b0;
++      rate_seeded_r <= 1'b0; rate_valid_r <= 1'b0;
+       prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0; en_q <= 1'b0;
+       iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
+       iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
+@@ -471,10 +511,11 @@ module KL_crf_rx #(
+       //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
+       //! mod 2^32 with the 64-bit timestamp difference. Placed before the
+       //! hit block so a same-cycle new accept re-arms rate_pend_r.
+-      if (rate_pend_r) begin
++      if (rate_pend_r && !rate_break_w) begin
+         rate_o      <= 32'(signed'(ts_new_r - hist_old_r
+                                    - NOM_WIN_NS_C[31:0]));
+         rate_pend_r <= 1'b0;
++        rate_valid_r <= 1'b1;
+       end
+ 
+       //! lock timeout: 100 ms without a CONSUMED accepted PDU - a stopped
+@@ -499,6 +540,9 @@ module KL_crf_rx #(
+         if (!stop_i) begin
+           have_seq_r <= 1'b0;
+           hfill_r  <= '0;
++          rate_seeded_r <= 1'b0;
++          rate_valid_r <= 1'b0;
++          rate_pend_r <= 1'b0;
+           mr_seeded_r <= 1'b0;
+         end
+       end else begin
+@@ -540,8 +584,16 @@ module KL_crf_rx #(
+           //! port (ts_hist_port) reads old + writes new this cycle; the
+           //! subtraction is retimed to next cycle via rate_pend_r
+           ts_new_r    <= w_crf_ts[31:0];
+-          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C));
+-          if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
++          prev_ts_ns_r <= w_crf_ts;
++          prev_tu_r <= tu_i;
++          rate_seeded_r <= 1'b1;
++          rate_pend_r <= (hfill_r == 9'(1 << RATE_LOG2_C)) && !rate_break_w;
++          if (rate_break_w) begin
++            //! This PDU is the first timestamp of the new era. Do not
++            //! reset BRAM: all old entries age out before another read.
++            hfill_r <= 9'd1;
++            rate_valid_r <= 1'b0;
++          end else if (hfill_r != 9'(1 << RATE_LOG2_C)) begin
+             hfill_r <= hfill_r + 9'd1;
+           end
+           hidx_r <= hidx_r + 1'b1;
+@@ -557,6 +609,10 @@ module KL_crf_rx #(
+       //! a PDU cannot land in the same cycle in practice, but the ordering
+       //! is stated, not left to luck
+       if (w_bind_rise_w) begin
++        hfill_r <= '0;
++        rate_pend_r <= 1'b0;
++        rate_seeded_r <= 1'b0;
++        rate_valid_r <= 1'b0;
+         mr_seeded_r <= 1'b0;
+         have_seq_r  <= 1'b0;
+         settle_r    <= '0;
+diff --git a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+index 9459a26bd..b20fd342d 100644
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -246,6 +246,7 @@ module KL_mmcm_drp_servo #(
+   //! wrong source, silently.
+   input  wire [15:0]  crf_src_idx_i,
+   input  wire         crf_locked_i,   //! KL_crf_rx locked_o
++  input  wire         crf_rate_valid_i, //! RX ring spans one timestamp era
+   input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
+ 
+   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
+@@ -561,7 +562,10 @@ module KL_mmcm_drp_servo #(
+             win_start_r <= ptp_q_r;
+             pp_d_r      <= $signed(ptp_q_r - win_start_r);
+             pp_rate_r   <= crf_rate_i;
+-            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S);
++            //! Invalid remote history holds PI and lock; local step/slew
++            //! guards retain their own independent window policy.
++            pp_run_r    <= (win_skip_r == '0) && (state_r != HOLDOVER_S)
++                           && crf_rate_valid_i;
+             pp_seq_r    <= 3'd1;
+             if (win_skip_r != '0)
+               win_skip_r <= win_skip_r - 2'd1;
+diff --git a/hdl/ieee1722/crf/README-tests.md b/hdl/ieee1722/crf/README-tests.md
+index 6608b287d..9a62eeefa 100644
+--- a/hdl/ieee1722/crf/README-tests.md
++++ b/hdl/ieee1722/crf/README-tests.md
+@@ -14,5 +14,5 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰milan_dp_render | -- |
+ | ✅ `KL_media_grid_align` | `KL_media_grid_align.sv` | `media_grid_align` · `milan_dp` · ➰milan_dp_render | -- |
+ | ✅ `KL_media_nco` | `KL_media_nco.sv` | `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_render | -- |
+-| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
++| ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰milan_dp_render | -- |
+ 
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index dffa78501..b0210b2c3 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1722,6 +1722,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [7:0]  avtprx_b3;
+   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
+   wire signed [31:0] crf_delta_w, crf_rate_w;
++  wire crf_rate_valid_w;
+   //! public_flat_rd: [31:16] is the servo's signed 1/16 ppm trim, and it is
+   //! the INPUT to the NCO conversion below. A harness that cannot see it
+   //! cannot tell "the gate held the trim at zero" from "the servo was idle
+@@ -5484,6 +5485,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .stop_i      (crf_snk_stopped_w),
+     .delta_o     (crf_delta_w),
+     .rate_o      (crf_rate_w),
++    .rate_valid_o (crf_rate_valid_w),
+     .pdu_count_o (crf_pducnt_w),
+     .fmt_err_o   (crf_fmterr_w),
+     .seq_err_o   (crf_seqerr_w),
+@@ -5542,6 +5544,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .crf_src_idx_i (AEM_CRF_CLKSRC_C),
+     .crf_locked_i  (crf_locked_w),
+     .crf_rate_i    (crf_rate_w),
++    .crf_rate_valid_i (crf_rate_valid_w),
+     .auto_repair_i (mcsrv_auto_repair_w),
+     .ps_invert_i   (mcsrv_ps_invert_w),
+     .drp_addr_o    (o_mmcm_drp_addr),
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 89816adf3..caa2615af 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -594,6 +594,9 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+ DUT_READER_DISPOSITIONS = {
++    "tb/verilator/crf_rx/mutants.py":
++        "mutation campaign; copies the receiver and requires named failures for "
++        "tu, jump, refill and accept-edge defects; no expectations read from RTL",
+     "gptp-processor/tb/check_phc_contract.py":
+         "structural boundary check; it asserts required/forbidden tokens, not behavior",
+     "gptp-processor/tb/tsngen/mutants.py":
+diff --git a/tb/verilator/crf_rx/Makefile b/tb/verilator/crf_rx/Makefile
+index 2f1127322..5473faa81 100644
+--- a/tb/verilator/crf_rx/Makefile
++++ b/tb/verilator/crf_rx/Makefile
+@@ -5,7 +5,8 @@
+ # Pins the ts-history-dependent outputs (delta/rate/lock trajectory) against
+ # an independent C++ ring replica — the regression that guards the
+ # ts_hist flop-file -> BRAM conversion.
+-#   make        - build and run the self-checking harness
++#   make        - run counters, discontinuity and connected servo harnesses
++#   make mutants - isolated detector/refill mutants, each requiring a named failure
+ #   make clean  - remove build artifacts
+ #
+ # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
+@@ -43,16 +44,39 @@ VFLAGS = --cc --exe --build -j 0 \
+          -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
+                   -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u -Wall -Wextra"
+ 
+-SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
++RX_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
++SRCS = $(RX_RTL)
++DISC_MDIR ?= obj_discontinuity
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run clean
++.PHONY: all run unit discontinuity discontinuity-build talker_step mutants clean
+ all: run
+ 
+-run:
++run: unit discontinuity talker_step
++
++unit:
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vcrf_rx_sim
+ 	@echo "======================================================================"
+ 	./obj_dir/Vcrf_rx_sim
+ 
++discontinuity: discontinuity-build
++	./$(DISC_MDIR)/Vdiscontinuity
++
++discontinuity-build:
++	$(VERILATOR) $(VFLAGS) -Mdir $(DISC_MDIR) $(SRCS) sim_discontinuity.cpp -o Vdiscontinuity
++
++talker_step:
++	$(VERILATOR) --cc --exe --build -j 4 --public-flat-rw \
++	  --top-module crf_talker_wrap -Mdir obj_talker \
++	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
++	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
++	  $(SRCS) $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
++	  $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv crf_talker_wrap.sv \
++	  sim_talker_step.cpp -o Vtalker_step
++	./obj_talker/Vtalker_step
++
++mutants:
++	python3 mutants.py
++
+ clean:
+-	rm -rf obj_dir
++	rm -rf obj_dir obj_discontinuity obj_talker
+diff --git a/tb/verilator/crf_rx/crf_talker_wrap.sv b/tb/verilator/crf_rx/crf_talker_wrap.sv
+new file mode 100644
+index 000000000..0bec273bc
+--- /dev/null
++++ b/tb/verilator/crf_rx/crf_talker_wrap.sv
+@@ -0,0 +1,75 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Receiver-to-servo integration at the production 512 ms window scale.
++// The remote sample travels through the real receiver and validity wire.
++`default_nettype none
++module crf_talker_wrap (
++  input wire frame_p_i, //! one received CRF PDU
++  input wire [63:0] ts_ns_i, //! talker reference timestamp
++  input wire [7:0] seq_i, //! talker sequence
++  input wire tu_i, //! remote timing uncertainty
++  output wire rx_locked_o, //! receiver media lock
++  output wire rate_valid_o, //! receiver rate validity
++  output wire signed [31:0] rate_o, //! receiver ns per 512 ms
++  output wire [31:0] rx_unlocks_o, //! counted receiver unlocks
++  input  wire         clk_i,          //! datapath clock (= MMCM DCLK domain)
++  input  wire         rst_n,          //! active-low reset (clk_i)
++  input  wire         clk_audio_i,    //! MMCM CLKOUT0 (the measured clock)
++  input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
++
++  input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
++  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
++  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal: the
++  //! set is internal then CRF (1 on every shipping shape since #389 dropped
++  //! the per-listener sources; it was 2 on a 1-listener shape and 9 on an
++  //! 8-listener one before). The datapath feeds this from the generated
++  //! AEM (AEM_CRF_CLKSRC_C); a wrong value here engages the servo on the
++  //! wrong source, silently.
++  input  wire [15:0]  crf_src_idx_i,
++
++  input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
++  input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
++                                      //! knob, MCSRV_CTRL 0x8FC[0]: 2026-07-23
++                                      //! mf51 silicon stepped the WRONG way -
++                                      //! rails 25x worse under the servo; the
++                                      //! TB model bakes the UG472 sign, so
++                                      //! only silicon can settle it)
++
++  //! MMCME2_ADV DRP port (DCLK = clk_i; DS181 FDCK <= 200 MHz)
++  output logic [6:0]  drp_addr_o,
++  output logic        drp_en_o,       //! 1-cycle DEN (with drp_we_o for writes)
++  output logic        drp_we_o,
++  output logic [15:0] drp_di_o,
++  input  wire  [15:0] drp_do_i,
++  input  wire         drp_rdy_i,      //! DRDY completion pulse
++
++  output logic        mmcm_rst_o,     //! MMCME2_ADV RST (held through repair)
++  input  wire         mmcm_locked_i,  //! MMCME2_ADV LOCKED (async)
++
++  //! MMCME2_ADV dynamic fine phase shift port (ps_clk_i domain, UG472)
++  output logic        ps_en_o,        //! 1-PSCLK-cycle PSEN
++  output logic        ps_incdec_o,    //! 1 = increment (delay = slow down)
++  input  wire         ps_done_i,      //! PSDONE (12 PSCLK cycles after PSEN)
++
++  output logic [31:0] status_o        //! A_MCSRV_STAT (0x8F8) readback
++);
++  KL_crf_rx rx (
++    .clk_i(clk_i), .rst_n(rst_n), .frame_p_i(frame_p_i),
++    .subtype_i(8'd4), .seq_i(seq_i), .sid_frame_i(64'd1),
++    .pullbase_i(32'd48000), .type_i(8'd1),
++    .fsh_i({16'd8, 16'd96, ts_ns_i[63:32]}),
++    .fsh2_i({ts_ns_i[31:0], 32'd0}),
++    .mr_i(1'b0), .tu_i(tu_i), .ptp_now_i(ptp_now_i),
++    .en_i(1'b1), .sid_i(64'd1), .stop_i(1'b0),
++    .rate_o(rate_o), .rate_valid_o(rate_valid_o), .locked_o(rx_locked_o),
++    .cnt_unlocked_o(rx_unlocks_o),
++    .delta_o(), .pdu_count_o(), .fmt_err_o(), .seq_err_o(),
++    .mr_cnt_o(), .tu_cnt_o(), .late_cnt_o(), .early_cnt_o(),
++    .cnt_locked_o(), .cnt_intr_o(), .dirty_p_o(), .mr_toggle_p_o()
++  );
++  KL_mmcm_drp_servo servo (
++    .crf_locked_i(rx_locked_o), .crf_rate_i(rate_o),
++    .crf_rate_valid_i(rate_valid_o), .*
++  );
++endmodule
++`default_nettype wire
+diff --git a/tb/verilator/crf_rx/mutants.py b/tb/verilator/crf_rx/mutants.py
+new file mode 100644
+index 000000000..daa0059e6
+--- /dev/null
++++ b/tb/verilator/crf_rx/mutants.py
+@@ -0,0 +1,82 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Compile isolated CRF receiver mutants; require named harness failures.
++
++No checkout is edited. Every executable, including the positive control,
++is rebuilt from this invocation's source. The harness has bounded loops.
++"""
++
++import os
++import signal
++import subprocess
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = HERE / "../../../hdl/ieee1722/crf/KL_crf_rx.sv"
++MUTANTS = (
++    ("tu_ignored", "wire tu_change_w = tu_i != prev_tu_r;",
++     "wire tu_change_w = 1'b0;", "tu edge invalidates before the sampling edge"),
++    ("jump_removed", "tu_change_w || ts_jump_w ||", "tu_change_w || 1'b0 ||",
++     "unmarked timestamp jump invalidates the rate"),
++    ("refill_short", "hfill_r <= 9'd1;", "hfill_r <= 9'd2;",
++     "all 255 crossing intervals are withheld"),
++    ("accept_edge_late", "!w_bind_rise_w && !rate_break_w;", "!w_bind_rise_w;",
++     "tu edge invalidates before the sampling edge"),
++)
++
++
++def run_case(work: Path, name: str, source: str, failure: str | None) -> bool:
++    """A compiler error or abnormal termination never counts as a kill."""
++    rtl = work / f"{name}.sv"
++    rtl.write_text(source)
++    mdir = work / f"obj_{name}"
++    result = subprocess.run(
++        ["make", "-s", "-C", str(HERE), "discontinuity-build",
++         f"RX_RTL={rtl}", f"DISC_MDIR={mdir}",
++         f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}"],
++        capture_output=True, text=True, check=False)
++    if result.returncode:
++        print(result.stdout[-2000:] + result.stderr[-2000:])
++        print(f"FAIL {name}: compilation failed")
++        return False
++    result = subprocess.run([str(mdir / "Vdiscontinuity")],
++                            capture_output=True, text=True, check=False)
++    output = result.stdout + result.stderr
++    if failure is None:
++        passed = result.returncode == 0 and "RESULT: PASS" in output
++    else:
++        passed = (result.returncode == 1 and "RESULT: FAIL" in output and
++                  f"[FAIL] {failure}" in output)
++    print(f"{'PASS' if passed else 'FAIL'} {name}: rc={result.returncode}")
++    for line in output.splitlines():
++        if "[FAIL]" in line or "checks:" in line:
++            print(line)
++    return passed
++
++
++def main() -> int:
++    """Run all controls and fail if any named defect escapes."""
++    def interrupted(_signum: int, _frame: object) -> None:
++        """Unwind temporary storage when the caller stops the campaign."""
++        raise SystemExit(143)
++
++    signal.signal(signal.SIGTERM, interrupted)
++    source = RTL.read_text()
++    with tempfile.TemporaryDirectory(prefix="crf-step-mutants-") as directory:
++        work = Path(directory)
++        if not run_case(work, "clean", source, None):
++            return 1
++        passed = True
++        for name, anchor, replacement, failure in MUTANTS:
++            if source.count(anchor) != 1:
++                print(f"FAIL {name}: expected exactly one mutation anchor")
++                passed = False
++                continue
++            passed = run_case(work, name, source.replace(anchor, replacement), failure) and passed
++    return 0 if passed else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/verilator/crf_rx/sim_discontinuity.cpp b/tb/verilator/crf_rx/sim_discontinuity.cpp
+new file mode 100644
+index 000000000..13e680f69
+--- /dev/null
++++ b/tb/verilator/crf_rx/sim_discontinuity.cpp
+@@ -0,0 +1,185 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Issue #546: public-output checks of timestamp-era isolation. Expected
++// rates come from the stimulus's interval sum, never from DUT internals.
++#include "VKL_crf_rx.h"
++#include "verilated.h"
++#include "../../common/verilator_harness.hpp"
++#include <array>
++#include <cstdint>
++
++namespace {
++class DiscontinuityHarness {
++ public:
++    int run() {
++        check.echo_passes();
++        reset();
++        fill(200, false);
++        marker(true);
++        marker(false);
++        for (const int64_t jump : std::array<int64_t, 10>{
++                 21000, -21000, 150000, -150000, 1000000000, -1000000000,
++                 4294967296LL, -4294967296LL, 4294968296LL, -4294968296LL})
++            step(jump);
++        spacing_limits();
++        rejected_markers();
++        pending_collision();
++        lifecycle();
++        return check.report();
++    }
++ private:
++    milan::tb::Model<VKL_crf_rx> dut;
++    milan::tb::Checker check{"crf_rx discontinuity"};
++    uint64_t ts = 10'000'000'000ULL;
++    uint8_t seq = 0;
++    static constexpr uint64_t kSid = 0x0200000000010001ULL;
++
++    void tick() {
++        dut->clk_i = 0; dut->eval();
++        dut->clk_i = 1; dut->eval();
++    }
++    void reset() {
++        dut->rst_n = 0; dut->en_i = 0; dut->stop_i = 0;
++        dut->frame_p_i = 0; dut->sid_i = kSid;
++        dut->subtype_i = 4; dut->type_i = 1;
++        dut->sid_frame_i = kSid; dut->pullbase_i = 48000;
++        dut->mr_i = 0; dut->tu_i = 0;
++        tick(); tick(); dut->rst_n = 1; dut->en_i = 1; tick();
++    }
++    void fields() {
++        dut->seq_i = seq;
++        dut->fsh_i = (uint64_t{8} << 48) | (uint64_t{96} << 32) | (ts >> 32);
++        dut->fsh2_i = ts << 32;
++        // Deliberately jitter arrival time: it cannot change source spacing.
++        dut->ptp_now_i = ts - (seq % 2 ? 100 : 1'900'000);
++    }
++    void send(int64_t spacing = 2'000'200) {
++        ts += static_cast<uint64_t>(spacing);
++        fields(); dut->frame_p_i = 1; tick();
++        dut->frame_p_i = 0; tick(); tick(); ++seq;
++    }
++    void fill(int drift, bool tu) {
++        dut->tu_i = tu;
++        for (int n = 0; n < 256; ++n) {
++            send(2'000'000 + drift);
++            check.that("initial history stays invalid for 256 timestamps", !dut->rate_valid_o);
++        }
++        send(2'000'000 + drift);
++        check.that("257th timestamp publishes a valid sample", dut->rate_valid_o);
++        check.that("rate equals 256 source intervals minus nominal",
++                   static_cast<int32_t>(dut->rate_o) == 256 * drift);
++    }
++    void refill(int drift = 200) {
++        const auto held = dut->rate_o;
++        bool isolated = true;
++        for (int n = 1; n < 256; ++n) {
++            send(2'000'000 + drift);
++            isolated &= !dut->rate_valid_o && dut->rate_o == held;
++        }
++        check.that("all 255 crossing intervals are withheld", isolated);
++        send(2'000'000 + drift);
++        check.that("exactly 256 new intervals restore validity", dut->rate_valid_o);
++        check.that("first clean rate excludes the phase jump",
++                   static_cast<int32_t>(dut->rate_o) == 256 * drift);
++    }
++    void marker(bool tu) {
++        const auto held = dut->rate_o;
++        dut->tu_i = tu;
++        ts += 2'001'200; // 1 us phase step: below the backstop, marker alone
++        fields(); dut->frame_p_i = 1; dut->clk_i = 0; dut->eval();
++        check.that("tu edge invalidates before the sampling edge", !dut->rate_valid_o);
++        tick(); dut->frame_p_i = 0; tick(); ++seq;
++        check.that("tu edge holds the published rate", dut->rate_o == held);
++        check.that("tu edge leaves receiver locked", dut->locked_o);
++        refill(); // includes a whole clean window with tu held high
++        check.dec("tu edges never count a media unlock", dut->cnt_unlocked_o, 0);
++    }
++    void step(int64_t jump) {
++        const auto held = dut->rate_o;
++        send(2'000'200 + jump);
++        check.that("unmarked timestamp jump invalidates the rate", !dut->rate_valid_o);
++        check.that("unmarked timestamp jump cannot publish", dut->rate_o == held);
++        check.that("unmarked timestamp jump preserves receiver lock", dut->locked_o);
++        refill();
++    }
++    void spacing_limits() {
++        // Inclusive detector boundary, checked at nominal rate. These are
++        // isolated phase offsets, so subsequent periods return to 2 ms.
++        reset(); fill(0, true);
++        for (const int delta : {-2048, 2048}) {
++            send(2'000'000 + delta);
++            check.that("2048 ns boundary remains valid", dut->rate_valid_o);
++            send(2'000'000);
++        }
++        for (const int delta : {-2049, 2049}) {
++            send(2'000'000 + delta);
++            check.that("2049 ns boundary is rejected", !dut->rate_valid_o);
++            refill(0);
++        }
++        // Legitimate extremes combine 100 ppm media and 200 ppm PHC.
++        for (const int drift : {-601, 601}) {
++            bool valid = true;
++            for (int n = 0; n < 257; ++n) {
++                send(2'000'000 + drift); valid &= dut->rate_valid_o;
++            }
++            check.that("combined legitimate rate extremes are never rejected", valid);
++            check.that("legitimate rate changes still propagate",
++                       static_cast<int32_t>(dut->rate_o) == 256 * drift);
++        }
++    }
++    void rejected_markers() {
++        const auto held = dut->rate_o;
++        dut->tu_i = !dut->tu_i;
++        dut->type_i = 0;
++        fields(); dut->frame_p_i = 1; tick();
++        dut->frame_p_i = 0; tick();
++        check.that("malformed marker cannot invalidate", dut->rate_valid_o);
++        dut->type_i = 1; dut->sid_frame_i = kSid + 1;
++        dut->frame_p_i = 1; tick(); dut->frame_p_i = 0; tick();
++        check.that("foreign marker cannot invalidate", dut->rate_valid_o);
++        check.dec("rejected frames cannot change rate", dut->rate_o, held);
++        dut->sid_frame_i = kSid; dut->tu_i = !dut->tu_i;
++        send();
++        check.that("rejected marker never seeds the reference", dut->rate_valid_o);
++    }
++    void pending_collision() {
++        reset(); fill(200, false);
++        const auto held = dut->rate_o;
++        ts += 2'000'300; fields(); dut->frame_p_i = 1; tick(); ++seq;
++        // A clean rate is pending in the BRAM read pipeline. The very
++        // next cycle carries a sub-threshold jump and a tu transition.
++        ts += 2'001'200; dut->tu_i = 1; fields(); tick(); ++seq;
++        dut->frame_p_i = 0; tick(); tick();
++        check.that("back-to-back marker cancels pending publication", dut->rate_o == held);
++        check.that("back-to-back marker leaves invalid history", !dut->rate_valid_o);
++        refill();
++    }
++    void lifecycle() {
++        ++seq; send(4'000'400);
++        check.that("lost PDU cannot poison a 256-PDU rate", !dut->rate_valid_o);
++        refill();
++        --seq; send();
++        check.that("duplicate PDU restarts the rate history", !dut->rate_valid_o);
++        refill();
++        dut->stop_i = 1; dut->eval();
++        check.that("STOP gates sample validity immediately", !dut->rate_valid_o);
++        dut->stop_i = 0;
++        for (int n = 0; n < 20005; ++n) tick();
++        check.that("silence invalidates the old rate", !dut->rate_valid_o);
++        fill(200, false);
++        dut->en_i = 0; tick(); dut->en_i = 1; tick();
++        check.that("rebind invalidates old history", !dut->rate_valid_o);
++        fill(-100, true);
++        reset();
++        check.that("reset invalidates history", !dut->rate_valid_o);
++        ts = UINT64_MAX - 10'000'000;
++        fill(200, false);
++        check.that("natural 64-bit rollover preserves clean spacing", dut->rate_valid_o);
++    }
++};
++} // namespace
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    DiscontinuityHarness harness;
++    return harness.run();
++}
+diff --git a/tb/verilator/crf_rx/sim_main.cpp b/tb/verilator/crf_rx/sim_main.cpp
+index a157ccbd4..07956be9a 100644
+--- a/tb/verilator/crf_rx/sim_main.cpp
++++ b/tb/verilator/crf_rx/sim_main.cpp
+@@ -92,6 +92,9 @@ struct Model {
+     uint32_t cnt_i = 0;                  // STREAM_INTERRUPTED (per-event)
+     int32_t  delta = 0;
+     int32_t  rate = 0;
++    uint64_t last_ts = 0;
++    bool last_tu = false;
++    bool rate_seeded = false;
+     // gh #61 G1: all seven interval tallies are 32-bit WRAPPING - the old
+     // 8-bit fmt/seq SATURATION violated 5.3.8.10's "wraps back to zero"
+     // (a pegged instrument is frozen), and 16 bits wrapped at the
+@@ -145,7 +148,16 @@ struct Model {
+         else                        { iv_div++;   iv_tick = false; }
+     }
+ 
+-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr) {
++    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr, bool tu) {
++        // Rate windows require contiguous timestamps from one era. The
++        // directed discontinuity suite independently pins this boundary.
++        const auto spacing = ts - last_ts;
++        if (rate_seeded && (tu != last_tu || seq != exp_seq ||
++                           spacing < 1'997'952 || spacing > 2'002'048))
++            hfill = 0;
++        last_ts = ts;
++        last_tu = tu;
++        rate_seeded = true;
+         if (have_seq && seq != exp_seq) {
+             settle = 0;                  // discontinuity breaks the settle run
+             // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
+@@ -181,7 +193,7 @@ struct Model {
+         // sequence cursor, ring fill and mr reference stay live (a reset
+         // here would fake SEQ_NUM_MISMATCH and MEDIA_RESET on restart)
+         if (!stop) {
+-            have_seq = false; hfill = 0;
++            have_seq = false; hfill = 0; rate_seeded = false;
+             mr_seeded = false;           // the mr level died with the stream
+         }
+     }
+@@ -199,6 +211,7 @@ struct Model {
+         f_frx = f_uf = f_sm = false;
+         f_mr = f_tu = f_lt = f_et = false;
+         settle = 0; have_seq = false; mr_seeded = false;
++        hfill = 0; rate_seeded = false;
+     }
+ };
+ 
+@@ -375,7 +388,7 @@ class CrfRxHarness {
+         g_ev_et  = ts_early(ts, ptp);
+         pulse();
+         for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.good_pdu(ts, seq, ptp, g_mr);
++        m.good_pdu(ts, seq, ptp, g_mr, g_tu);
+     }
+     void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+         feed_good(ts, seq, ptp);
+@@ -518,7 +531,7 @@ class CrfRxHarness {
+                 lat++;
+             }
+             for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-            m.good_pdu(ts, seq, ptp, g_mr); seq++;
++            m.good_pdu(ts, seq, ptp, g_mr, g_tu); seq++;
+             compare(++g_pdu_no);
+             printf("  [info] rate_o update skew after pulse edge: %d cycle(s)\n", lat);
+             ck("rate update skew <= 2 cycles", lat <= 2, 1);
+diff --git a/tb/verilator/crf_rx/sim_talker_step.cpp b/tb/verilator/crf_rx/sim_talker_step.cpp
+new file mode 100644
+index 000000000..d8bb47621
+--- /dev/null
++++ b/tb/verilator/crf_rx/sim_talker_step.cpp
+@@ -0,0 +1,153 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// GM-change integration: independent PHC timelines step at both ends.
++// Real CRF timestamps enter the receiver; its rate and valid outputs feed
++// the production servo. Audio frequency responds through the MMCM model.
++#include "Vcrf_talker_wrap.h"
++#include "Vcrf_talker_wrap___024root.h"
++#include "verilated.h"
++#include "../../common/verilator_harness.hpp"
++#include "../mmcm_servo/mmcm_model.h"
++#include <algorithm>
++#include <cmath>
++#include <cstdint>
++#include <cstdio>
++
++namespace {
++class TalkerStepHarness {
++ public:
++    int run() {
++        check.echo_passes();
++        mm.regs[0x08] = 0x0595; mm.regs[0x09] = 0x0080;
++        dut->rst_n = 0; dut->clk_src_i = 1; dut->crf_src_idx_i = 1;
++        dut->auto_repair_i = 0; dut->ps_invert_i = 0;
++        dut->mmcm_locked_i = 1; run_ms(0.01); dut->rst_n = 1;
++        run_ms(8500);
++        check.that("receiver-to-servo loop locks at production scale", state() == 4);
++        check.that("steady receiver rate is valid", dut->rate_valid_o);
++        check.that("steady rate matches the source interval sum",
++                   static_cast<int32_t>(dut->rate_o) == -40 * 256);
++        std::printf("steady integrator %.3f ppm\n", integ() / 512.0);
++        gm_change(150000, true);
++        gm_change(-150000, false); // same tu: the timestamp backstop alone
++        return check.report();
++    }
++ private:
++    milan::tb::Model<Vcrf_talker_wrap> dut;
++    milan::tb::Checker check{"crf_rx talker_step"};
++    MmcmModel mm;
++    double now_fs = 0;
++    double next_i = 10e6;
++    double next_p = 10e6;
++    double next_a = 12345e3;
++    double base_a = 12345e3;
++    double next_pdu_ns = 100000;
++    int64_t local_step_ns = 0;
++    uint64_t remote_ts_ns = 10'000'000'000ULL;
++    int64_t remote_step_ns = 0;
++    bool monitor = false;
++    bool stayed_locked = true;
++    bool saw_invalid = false;
++    int min_integ = 0;
++    int max_integ = 0;
++    int held_updates = 0;
++    int previous_integ = 0;
++    bool previous_valid = true;
++
++    int state() const { return dut->status_o & 7; }
++    int integ() const {
++        return static_cast<int32_t>(
++            dut->rootp->crf_talker_wrap__DOT__servo__DOT__integ_r << 8) >> 8;
++    }
++    void observe() {
++        if (!monitor) return;
++        const int value = integ();
++        stayed_locked &= state() == 4;
++        saw_invalid |= !dut->rate_valid_o;
++        min_integ = std::min(min_integ, value);
++        max_integ = std::max(max_integ, value);
++        // Allow a clean pre-event PI sequence to finish (eight cycles).
++        if (!previous_valid && !dut->rate_valid_o &&
++            dut->rootp->crf_talker_wrap__DOT__servo__DOT__pp_seq_r == 0 &&
++            value != previous_integ) ++held_updates;
++        previous_integ = value;
++        previous_valid = dut->rate_valid_o;
++    }
++    void event() {
++        if (next_i <= next_p && next_i <= next_a) {
++            now_fs = next_i; next_i += 10e6; dut->clk_i ^= 1;
++            if (dut->clk_i) {
++                dut->ptp_now_i = static_cast<uint64_t>(
++                    10'000'000'000LL + std::llround(now_fs / 1e6) + local_step_ns);
++                dut->frame_p_i = 0;
++                if (dut->rst_n && now_fs / 1e6 >= next_pdu_ns) {
++                    next_pdu_ns += 1'999'960;
++                    remote_ts_ns += 1'999'960;
++                    dut->ts_ns_i = remote_ts_ns + static_cast<uint64_t>(remote_step_ns);
++                    dut->seq_i = static_cast<uint8_t>(dut->seq_i + 1);
++                    dut->frame_p_i = 1;
++                }
++            }
++            dut->eval();
++            if (dut->clk_i) {
++                mm.dclk_edge(dut->drp_addr_o, dut->drp_en_o, dut->drp_we_o,
++                             dut->drp_di_o, dut->mmcm_rst_o);
++                dut->drp_do_i = mm.dout; dut->drp_rdy_i = mm.drdy;
++                dut->mmcm_locked_i = mm.locked;
++                observe();
++            }
++        } else if (next_p <= next_a) {
++            now_fs = next_p; next_p += 10e6; dut->ps_clk_i ^= 1;
++            dut->eval();
++            if (dut->ps_clk_i) {
++                mm.psclk_edge(dut->ps_en_o, dut->ps_incdec_o, dut->mmcm_rst_o);
++                dut->ps_done_i = mm.psdone;
++            }
++        } else {
++            now_fs = next_a;
++            base_a += 0.5 * (1e15 / 24.576e6) * (1.0 + 10.64e-6);
++            next_a = std::max(base_a + mm.audio_adj_fs, now_fs + 1e3);
++            dut->clk_audio_i ^= 1; dut->eval();
++        }
++    }
++    void run_ms(double ms) {
++        const auto until = now_fs + ms * 1e12;
++        while (now_fs < until) event();
++    }
++    void gm_change(int64_t step_ns, bool marker) {
++        const int before = integ();
++        const int disc_before = (dut->status_o >> 10) & 63;
++        const auto unlocks_before = dut->rx_unlocks_o;
++        stayed_locked = true; saw_invalid = false; held_updates = 0;
++        min_integ = before; max_integ = before;
++        previous_integ = before; previous_valid = true; monitor = true;
++        remote_step_ns += step_ns;
++        if (marker) dut->tu_i = 1;
++        run_ms(100); // talker changes first; local guard cannot hide it
++        local_step_ns += step_ns;
++        run_ms(150);
++        if (marker) dut->tu_i = 0;
++        run_ms(1100); // includes refill and a clean servo window
++        monitor = false;
++        check.that("GM change: receiver withholds crossing rate samples", saw_invalid);
++        check.that("GM change: servo stays LOCKED on every clock", stayed_locked);
++        check.dec("GM change: no counted receiver re-lock", dut->rx_unlocks_o, unlocks_before);
++        check.that("GM change: integrator stays within 1 ppm",
++                   min_integ >= before - 512 && max_integ <= before + 512);
++        check.dec("invalid sample cannot update the integrator", held_updates, 0);
++        check.that("GM change: receiver returns to clean valid rate", dut->rate_valid_o);
++        check.that("GM change: recovered rate excludes talker step",
++                   static_cast<int32_t>(dut->rate_o) == -40 * 256);
++        check.dec("GM change: local PHC step counted exactly once",
++                  ((dut->status_o >> 10) & 63) - disc_before, 1);
++        std::printf("step %lld ns: integrator range %.3f..%.3f ppm, state %d\n",
++                    static_cast<long long>(step_ns), min_integ / 512.0,
++                    max_integ / 512.0, state());
++    }
++};
++} // namespace
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    TalkerStepHarness harness;
++    return harness.run();
++}
+diff --git a/tb/verilator/mmcm_servo/rails_wrap.sv b/tb/verilator/mmcm_servo/rails_wrap.sv
+index 587cd9f18..179715e6a 100644
+--- a/tb/verilator/mmcm_servo/rails_wrap.sv
++++ b/tb/verilator/mmcm_servo/rails_wrap.sv
+@@ -135,6 +135,7 @@ module rails_wrap (
+     .crf_src_idx_i (crf_src_idx_i),
+     .crf_locked_i  (crf_locked_i),
+     .crf_rate_i    (crf_rate_i),
++    .crf_rate_valid_i (1'b1), //! this harness supplies clean rate samples
+     .auto_repair_i (1'b0),
+     .ps_invert_i   (1'b0),
+     .drp_addr_o    (drp_addr_o),
+diff --git a/tb/verilator/mmcm_servo/sim_main.cpp b/tb/verilator/mmcm_servo/sim_main.cpp
+index 84e121352..2f108c20b 100644
+--- a/tb/verilator/mmcm_servo/sim_main.cpp
++++ b/tb/verilator/mmcm_servo/sim_main.cpp
+@@ -65,6 +65,7 @@ class MmcmServoUnitHarness {
+         prove_implausible_windows_meet_the_guard();
+         prove_step_restarts_the_guard_streak();
+         prove_step_with_no_window_open_is_not_counted();
++        prove_invalid_remote_sample_holds_the_loop();
+         prove_tally_saturates_and_idle_clears_it();
+         return report();
+     }
+@@ -187,6 +188,7 @@ class MmcmServoUnitHarness {
+         mm.regs[0x09] = 0x0080;
+ 
+         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
++        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+         //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
+         //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
+         //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
+@@ -577,6 +579,23 @@ class MmcmServoUnitHarness {
+         ck("[U12] IDLE clears the tally", disc_cnt(), 0);
+     }
+ 
++    //! The value on an invalid sample bus is deliberately plausible but
++    //! wrong: below the guard, large enough to kick PI if valid is ignored.
++    void prove_invalid_remote_sample_holds_the_loop() {
++        ck("[U13] LOCKED before invalid remote sample", state(), 4);
++        const int16_t before = trim();
++        const auto clean = dut->crf_rate_i;
++        dut->crf_rate_valid_i = 0;
++        dut->crf_rate_i = clean + 150000;
++        run_ms(24);
++        ck("[U13] invalid remote sample holds trim", trim(), before);
++        ck("[U13] invalid remote sample holds LOCKED", state(), 4);
++        dut->crf_rate_i = clean;
++        dut->crf_rate_valid_i = 1;
++        run_ms(24);
++        ck("[U13] clean remote sample resumes locked", state(), 4);
++    }
++
+     int report() const {
+         printf("======================================================================\n");
+         printf("KL_mmcm_drp_servo: %ld checks, %ld failures\n", checks, fails);
+diff --git a/tb/verilator/mmcm_servo/sim_phc_step.cpp b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+index 181253a31..8de8629df 100644
+--- a/tb/verilator/mmcm_servo/sim_phc_step.cpp
++++ b/tb/verilator/mmcm_servo/sim_phc_step.cpp
+@@ -267,6 +267,7 @@ class PhcStepHarness {
+         dut->clk_src_i = 0;
+         dut->crf_src_idx_i = 1;
+         dut->crf_locked_i = 0;
++        dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+         dut->crf_rate_i = 0;
+         dut->auto_repair_i = 0;
+         dut->ps_invert_i = 0;
+diff --git a/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp b/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+index 4b0628589..0b0456d52 100644
+--- a/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
++++ b/tb/verilator/mmcm_servo_autorepair/sim_autorepair.cpp
+@@ -164,6 +164,7 @@ void AutoRepairHarness::engage_until_active() {
+ 
+ void AutoRepairHarness::reset_and_defaults() {
+     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
++    dut->crf_rate_valid_i = 1; // synthetic rate input is valid
+     //! this suite selects CRF at CLOCK_SOURCE index 2, a suite-local
+     //! value and NOT the shipping index (AEM_CRF_CLKSRC_C = 1 on every
+     //! shipping shape since #389: INTERNAL 0, the CRF sink 1). The DUT
