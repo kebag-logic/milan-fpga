@@ -1,0 +1,19 @@
+{
+ "name": "R19 mastership skips retirement",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "return to GM clears",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL slew: mastership retires the phase correction got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: mastership writes one replacement rate got 00000000000000ae exp 00000000000000af",
+  "FAIL slew: mastership keeps the integral-only rate got 00000000ffe66666 exp 00000000ffe66667",
+  "FAIL slew: mastership has one falling edge got 0000000000000025 exp 0000000000000026",
+  "FAIL slew: GM duty remains inactive got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1530 checks: 1525 PASS, 5 FAIL"
+ ],
+ "index": 18
+}

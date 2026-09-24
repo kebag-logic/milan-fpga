@@ -1,0 +1,27 @@
+== ROM regeneration at 49d23b20fcad15a3c03554476d8b8c9116b3b375
+$REVIEWS/gptp75-r304-1-packet/scratch/static/rg_ooc.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-1-packet/scratch/static/rg_ucpu.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-1-packet/scratch/static/rg_tsngen.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+$REVIEWS/gptp75-r304-1-packet/scratch/static/rg_engine.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+MATCH c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371 syn/ooc/work/gptp_ucode.hex
+MATCH c496ed8af59edd424e7d980aa3442bb725c745f44469ce53ec3a4d219fa30371 tb/verilator/ucpu/gptp_ucode.hex
+MATCH bb2f541e315e0f2a8a6fbeaed89bd8ab801618f0d9574e8b99747b6a610b0d47 tb/tsngen/gptp_ucode.hex
+MATCH 71f8606bb1e0bd635188bbf39d2d3eac399296b00a14a7fa1ab641c79e7d74a0 tb/verilator/engine/gptp_ucode.hex
+== SOURCE_EVIDENCE.md KL_gptp_engine.sv anchors (base line text -> head)
+L20 EXACT :: base='//                  0  message bank      RO  (parser-written, PING-PONG' head='//                  0  message bank      RO  (parser-written, PING-PONG'
+L57 STALE(now at line 58) :: base='module KL_gptp_engine' head=''
+L99 STALE(now at line 100) :: base='    input  wire         tx_credit_i,' head='    //! responses and both Follow_Up companions are never gated.'
+L120 STALE(now at line 124) :: base='    output logic        pub_commit_o,' head='    //! zero; an absent TLV reports count zero. pub_path_o carries slots 1..7,'
+L156 STALE(now at line 160) :: base='  KL_gptp_rx_parser u_parser (' head='  logic [63:0] local_clock_id_r = 64'd0;'
+L236 STALE(now at line 240) :: base='  logic t1v_valid_r, pdwait_valid_r;' head='  //! be numeric zero, so "have we a t1" cannot be read off its value, and a'
+L339 STALE(now at line 343) :: base='  logic        txts_pend_r;' head='  //! low from that edge until the dispatch that consumes it, so a later'
+L345 STALE(now at line 349) :: base='  assign txts_ready_o  = !txts_pend_r && rst_n;' head='  logic  [3:0] txts_pend_type_r;'
+L381 STALE(now at line 385) :: base='  KL_gptp_timer #(' head='  logic        tev_valid_w;'
+L401 STALE(now at line 405) :: base='  logic [39:0] evq_r [0:3];' head='  //! 4 deep, {code, seq, aux}; parser wins a same-cycle queue push and the'
+L428 STALE(now at line 432) :: base='  always_comb begin : push_arb' head='  logic disp_valid_r;'
+== SOURCE_EVIDENCE.md changed by the PR?
+unchanged

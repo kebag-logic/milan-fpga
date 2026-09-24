@@ -1,0 +1,18 @@
+{
+ "name": "R14 lapse hook arms while inactive",
+ "file": "top/KL_gptp_engine.sv",
+ "breaks": "an idle lapse cannot turn ordinary tracking into a slew",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL probeA: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000",
+  "FAIL probeB: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000",
+  "FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000"
+ ],
+ "tally": [
+  "1555 checks: 1551 PASS, 4 FAIL"
+ ],
+ "index": 13
+}

@@ -1,0 +1,16 @@
+{
+ "name": "lost Sync cancels the requester exchange",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "a lost Sync result retires the Sync claim and nothing else",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D2b lost Sync left the recorded t1 alone value got 000000000000012d exp 00000000000002bc",
+  "FAIL D2b lost Sync left the recorded t1 alone moved got 0000000000000000 exp 0000000000000001"
+ ],
+ "tally": [
+  "1532 checks: 1530 PASS, 2 FAIL"
+ ],
+ "index": 9
+}

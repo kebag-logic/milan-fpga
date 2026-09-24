@@ -1,0 +1,17 @@
+{
+ "name": "lost response cancels the requester exchange",
+ "file": "ucode/gen_gptp_ucode.py",
+ "breaks": "a lost Pdelay_Resp result retires the response claim and nothing else",
+ "pattern_count": 1,
+ "rc": 1,
+ "answer": "caught",
+ "fail_lines": [
+  "FAIL D2a lost response left the frozen pair alone value got 0000000000000259 exp 000000000000012d",
+  "FAIL D2a lost response left the frozen pair alone moved got 0000000000000000 exp 0000000000000001",
+  "FAIL D2b lost Sync left the recorded t1 alone value got 00000000000002bd exp 00000000000002bc"
+ ],
+ "tally": [
+  "1532 checks: 1529 PASS, 3 FAIL"
+ ],
+ "index": 10
+}
