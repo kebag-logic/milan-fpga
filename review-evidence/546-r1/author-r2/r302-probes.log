@@ -1,0 +1,13 @@
+$ env VERILATOR=$TOOLS/verilator-v5.050/bin/verilator python3 $OUTPUT/run_review_probes.py
+Candidate 8f432ba77548d0e3ff6f93fb87dd0323ca356d6e
+Traceback (most recent call last):
+  File "$OUTPUT/run_review_probes.py", line 16, in <module>
+    print(p.name, hashlib.sha256(p.read_bytes()).hexdigest(), flush=True)
+                                 ~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+IsADirectoryError: [Errno 21] Is a directory: '$SCRATCH/review-evidence/546-r1/reviews/R302-1/probes/__pycache__'

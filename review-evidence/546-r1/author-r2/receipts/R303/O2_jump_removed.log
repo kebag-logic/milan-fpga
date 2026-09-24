@@ -1,0 +1,24 @@
+  [ ok ] receiver-to-servo loop locks at production scale
+  [ ok ] steady receiver rate is valid
+  [ ok ] steady rate matches the source interval sum
+steady integrator 30.723 ppm
+  [ ok ] GM change: receiver withholds crossing rate samples
+  [ ok ] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [ ok ] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC step counted exactly once got=1 exp=1
+step 150000 ns: integrator range 30.703..30.723 ppm, state 4
+  [FAIL] GM change: receiver withholds crossing rate samples
+  [FAIL] GM change: servo stays LOCKED on every clock
+  [ ok ] GM change: no counted receiver re-lock   got=0 exp=0
+  [FAIL] GM change: integrator stays within 1 ppm
+  [ ok ] invalid sample cannot update the integrator got=0 exp=0
+  [ ok ] GM change: receiver returns to clean valid rate
+  [ ok ] GM change: recovered rate excludes talker step
+  [ ok ] GM change: local PHC step counted exactly once got=1 exp=1
+step -150000 ns: integrator range 30.703..177.188 ppm, state 3
+== reviewer probe gm_order: checks: 19   failures: 3 ==
+RESULT: FAIL
