@@ -1,0 +1,340 @@
+FAIL: GI RESET solicited: pbsta sink 0 = 0, got 3
+FAIL: GI RESET solicited: full failure bridge sink 0
+FAIL: GI RESET solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 00 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 00 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI RESET solicited: pbsta sink 1 = 0, got 3
+FAIL: GI RESET solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI RESET solicited: failure code sink 1 = 0, got 1
+FAIL: GI RESET solicited: full failure bridge sink 1
+FAIL: GI RESET solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 01 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 01 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 0 = 2, got 3
+FAIL: GI BIND-ACTIVE unsolicited: full failure bridge sink 0
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 0 = 2, got 3
+FAIL: GI BIND-ACTIVE solicited: full failure bridge sink 0
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 04 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 0 = 2, got 3
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI BIND-TIMEOUT solicited: full failure bridge sink 0
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 05 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 05 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 0
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 3
+FAIL: GI PASSIVE solicited: full failure bridge sink 0
+FAIL: GI PASSIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 06 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 06 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 20 00 00 00
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-ACTIVE unsolicited: acmpsta sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE unsolicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE unsolicited: full failure bridge sink 1
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-ACTIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE solicited: full failure bridge sink 1
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 08 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 1 = 7, got 1
+FAIL: GI BIND-TIMEOUT solicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-TIMEOUT solicited: full failure bridge sink 1
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 09 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 09 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 1
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 3
+FAIL: GI PASSIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI PASSIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI PASSIVE solicited: full failure bridge sink 1
+FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0a 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0a 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 20 00 00 00
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI ACTIVE unsolicited: complete Milan response
+FAIL: GI ACTIVE solicited: pbsta sink 0 = 2, got 3
+FAIL: GI ACTIVE solicited: full failure bridge sink 0
+FAIL: GI ACTIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI ACTIVE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 3
+FAIL: GI OTHER-PASSIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI OTHER-PASSIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI OTHER-PASSIVE solicited: full failure bridge sink 1
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 20 00 00 00
+FAIL: GI TIMEOUT unsolicited: complete Milan response
+FAIL: GI TIMEOUT solicited: pbsta sink 0 = 2, got 3
+FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI TIMEOUT solicited: full failure bridge sink 0
+FAIL: GI TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+FAIL: GI TIMEOUT: solicited and unsolicited bodies agree for sink 0
+FAIL: GI OTHER-PASSIVE solicited: pbsta sink 1 = 1, got 3
+FAIL: GI OTHER-PASSIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI OTHER-PASSIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI OTHER-PASSIVE solicited: full failure bridge sink 1
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 20 00 00 00
+FAIL: GI RETRY-CLEAR unsolicited: complete Milan response
+FAIL: GI RETRY-CLEAR solicited: pbsta sink 0 = 2, got 3
+FAIL: GI RETRY-CLEAR solicited: full failure bridge sink 0
+FAIL: GI RETRY-CLEAR solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 14 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI RETRY-CLEAR: solicited and unsolicited bodies agree for sink 0
+FAIL: GI COMPLETED unsolicited: complete Milan response
+FAIL: GI COMPLETED solicited: full failure bridge sink 0
+FAIL: GI COMPLETED solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 15 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 15 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI COMPLETED: solicited and unsolicited bodies agree for sink 0
+FAIL: GI ACTIVE unsolicited: complete Milan response
+FAIL: GI ACTIVE solicited: pbsta sink 1 = 2, got 3
+FAIL: GI ACTIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI ACTIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI ACTIVE solicited: full failure bridge sink 1
+FAIL: GI ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 16 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 16 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI ACTIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI COMPLETED unsolicited: acmpsta sink 1 = 0, got 1
+FAIL: GI COMPLETED unsolicited: failure code sink 1 = 0, got 1
+FAIL: GI COMPLETED unsolicited: full failure bridge sink 1
+FAIL: GI COMPLETED unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI COMPLETED solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI COMPLETED solicited: failure code sink 1 = 0, got 1
+FAIL: GI COMPLETED solicited: full failure bridge sink 1
+FAIL: GI COMPLETED solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 17 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 17 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI FAILED-0 unsolicited: complete Milan response
+FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0
+FAIL: GI FAILED-0 solicited: full failure bridge sink 0
+FAIL: GI FAILED-0 solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 18 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 18 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-0: solicited and unsolicited bodies agree for sink 0
+FAIL: GI FAILED-1 unsolicited: acmpsta sink 1 = 0, got 1
+FAIL: GI FAILED-1 unsolicited: failure code sink 1 = 11, got 1
+FAIL: GI FAILED-1 unsolicited: full failure bridge sink 1
+FAIL: GI FAILED-1 unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI FAILED-1 solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI FAILED-1 solicited: failure code sink 1 = 11, got 1
+FAIL: GI FAILED-1 solicited: full failure bridge sink 1
+FAIL: GI FAILED-1 solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 19 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 19 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI DISTINCT-0 solicited: failure code sink 0 = 7, got 0
+FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0
+FAIL: GI DISTINCT-0 solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1a 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1a 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-0 wire: a fresh Failed registration declares Listener New
+FAIL: GI FAILED-REFRESH unsolicited: complete Milan response
+FAIL: GI FAILED-REFRESH solicited: failure code sink 0 = 9, got 0
+FAIL: GI FAILED-REFRESH solicited: full failure bridge sink 0
+FAIL: GI FAILED-REFRESH solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1b 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1b 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 09 00 4e 82 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-REFRESH: solicited and unsolicited bodies agree for sink 0
+FAIL: GI ADVERTISE unsolicited: complete Milan response
+FAIL: GI ADVERTISE solicited: full failure bridge sink 0
+FAIL: GI ADVERTISE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI ADVERTISE: solicited and unsolicited bodies agree for sink 0
+FAIL: GI FAILED-AGAIN unsolicited: complete Milan response
+FAIL: GI FAILED-AGAIN solicited: failure code sink 0 = 7, got 0
+FAIL: GI FAILED-AGAIN solicited: full failure bridge sink 0
+FAIL: GI FAILED-AGAIN solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1d 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1d 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-AGAIN: solicited and unsolicited bodies agree for sink 0
+FAIL: GI WITHDRAWAL unsolicited: complete Milan response
+FAIL: GI WITHDRAWAL solicited: pbsta sink 0 = 2, got 3
+FAIL: GI WITHDRAWAL solicited: full failure bridge sink 0
+FAIL: GI WITHDRAWAL solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1e 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI WITHDRAWAL: solicited and unsolicited bodies agree for sink 0
+FAIL: GI WITHDRAWAL-PROBING unsolicited: complete Milan response
+FAIL: GI WITHDRAWAL-PROBING solicited: pbsta sink 0 = 2, got 3
+FAIL: GI WITHDRAWAL-PROBING solicited: full failure bridge sink 0
+FAIL: GI WITHDRAWAL-PROBING solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1f 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 1f 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI WITHDRAWAL-PROBING: solicited and unsolicited bodies agree for sink 0
+FAIL: GI DISTINCT-1 solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI DISTINCT-1 solicited: failure code sink 1 = 11, got 1
+FAIL: GI DISTINCT-1 solicited: full failure bridge sink 1
+FAIL: GI DISTINCT-1 solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 20 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 20 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI DISABLED unsolicited: pbsta sink 0 = 0, got 3
+FAIL: GI DISABLED unsolicited: full failure bridge sink 0
+FAIL: GI DISABLED unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI DISABLED solicited: pbsta sink 0 = 0, got 3
+FAIL: GI DISABLED solicited: full failure bridge sink 0
+FAIL: GI DISABLED solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 22 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 22 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI RESET-LIVE solicited: pbsta sink 0 = 0, got 3
+FAIL: GI RESET-LIVE solicited: full failure bridge sink 0
+FAIL: GI RESET-LIVE solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 23 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 23 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI RESET-LIVE solicited: pbsta sink 1 = 0, got 3
+FAIL: GI RESET-LIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI RESET-LIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI RESET-LIVE solicited: full failure bridge sink 1
+FAIL: GI RESET-LIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 24 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 24 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+FAIL: GI REBIND-BOUND unsolicited: pbsta sink 0 = 2, got 3
+FAIL: GI REBIND-BOUND unsolicited: full failure bridge sink 0
+FAIL: GI REBIND-BOUND unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 00 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI REBIND-BOUND solicited: pbsta sink 0 = 2, got 3
+FAIL: GI REBIND-BOUND solicited: full failure bridge sink 0
+FAIL: GI REBIND-BOUND solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 27 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 27 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 2
+FAIL: GI REBIND-SW unsolicited: pbsta sink 0 = 2, got 3
+FAIL: GI REBIND-SW unsolicited: full failure bridge sink 0
+FAIL: GI REBIND-SW unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI REBIND-SW solicited: pbsta sink 0 = 2, got 3
+FAIL: GI REBIND-SW solicited: full failure bridge sink 0
+FAIL: GI REBIND-SW solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 29 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 29 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 40 00 00 00
+FAIL: GI REBIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI REBIND-TIMEOUT solicited: pbsta sink 0 = 2, got 3
+FAIL: GI REBIND-TIMEOUT solicited: acmpsta sink 0 = 7, got 0
+FAIL: GI REBIND-TIMEOUT solicited: full failure bridge sink 0
+FAIL: GI REBIND-TIMEOUT solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2a 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2a 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+FAIL: GI REBIND-TIMEOUT: solicited and unsolicited bodies agree for sink 0
+FAIL: GI REBIND-UNBIND unsolicited: pbsta sink 0 = 0, got 3
+FAIL: GI REBIND-UNBIND unsolicited: full failure bridge sink 0
+FAIL: GI REBIND-UNBIND unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI REBIND-UNBIND solicited: pbsta sink 0 = 0, got 3
+FAIL: GI REBIND-UNBIND solicited: full failure bridge sink 0
+FAIL: GI REBIND-UNBIND solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 d0 00 00 05 00 00 05 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2c 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 00 00 00 00
+FAIL: GI BIND-ACTIVE unsolicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-ACTIVE unsolicited: acmpsta sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE unsolicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE unsolicited: full failure bridge sink 1
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-ACTIVE solicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-ACTIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-ACTIVE solicited: full failure bridge sink 1
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2e 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2e 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: complete Milan response
+FAIL: GI BIND-TIMEOUT solicited: pbsta sink 1 = 2, got 3
+FAIL: GI BIND-TIMEOUT solicited: acmpsta sink 1 = 7, got 1
+FAIL: GI BIND-TIMEOUT solicited: failure code sink 1 = 0, got 1
+FAIL: GI BIND-TIMEOUT solicited: full failure bridge sink 1
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 2f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 47 00 00 00
+FAIL: GI BIND-TIMEOUT: solicited and unsolicited bodies agree for sink 1
+FAIL: GI PASSIVE unsolicited: complete Milan response
+FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 3
+FAIL: GI PASSIVE solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI PASSIVE solicited: failure code sink 1 = 0, got 1
+FAIL: GI PASSIVE solicited: full failure bridge sink 1
+FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 30 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 30 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 20 00 00 00
+FAIL: GI PASSIVE: solicited and unsolicited bodies agree for sink 1
+FAIL: GI INDEX-GUARD-ALIAS solicited: pbsta sink 1 = 1, got 3
+FAIL: GI INDEX-GUARD-ALIAS solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI INDEX-GUARD-ALIAS solicited: failure code sink 1 = 0, got 1
+FAIL: GI INDEX-GUARD-ALIAS solicited: full failure bridge sink 1
+FAIL: GI INDEX-GUARD-ALIAS solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 32 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 32 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 20 00 00 00
+FAIL: GI DISABLED unsolicited: pbsta sink 1 = 0, got 3
+FAIL: GI DISABLED unsolicited: acmpsta sink 1 = 0, got 1
+FAIL: GI DISABLED unsolicited: failure code sink 1 = 0, got 1
+FAIL: GI DISABLED unsolicited: full failure bridge sink 1
+FAIL: GI DISABLED unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+FAIL: GI DISABLED solicited: pbsta sink 1 = 0, got 3
+FAIL: GI DISABLED solicited: acmpsta sink 1 = 0, got 1
+FAIL: GI DISABLED solicited: failure code sink 1 = 0, got 1
+FAIL: GI DISABLED solicited: full failure bridge sink 1
+FAIL: GI DISABLED solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 34 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 01 00 00 d0 00 00 05 01 00 05 00 02 00 00 05 01 00 01 61 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 79 34 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+R294-Q Q1-pre-settled sink0 unsolicited=2 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q1a-same-talker-SW-on sink0 unsolicited=1 [pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005 started=0
+R294-Q Q1b-same-talker-SW-repeat sink0 unsolicited=0 | solicited pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005 started=0
+R294-Q Q1c-same-talker-SW-off sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q1d-other-talker-from-settled-SW-on sink0 unsolicited=2 [pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005] [pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005 started=0
+R294-Q Q1e-other-talker-SW-kept sink0 unsolicited=2 [pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005] [pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=1 code=0 bridge=00d0000005000005 started=0
+R294-Q Q1f-other-talker-SW-off sink0 unsolicited=2 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q1g-unbind sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=0
+R294-Q Q2-pre-settled sink0 unsolicited=2 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q2-pre-settled sink1 unsolicited=2 [pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005] [pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005] | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q2a-fresh-failed sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q2a-fresh-failed sink1 unsolicited=1 [pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005] | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q2a listener New for shared sid over 1000 ms = 4
+R294-Q Q2b-changed-code+bridge sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q2b-changed-code+bridge sink1 unsolicited=0 | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q2b listener New for shared sid over 600 ms = 0
+R294-Q Q2c-bridge-only sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q2c-bridge-only sink1 unsolicited=0 | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q2c listener New for shared sid over 600 ms = 0
+R294-Q Q2d-unchanged sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q2d-unchanged sink1 unsolicited=0 | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q3-pre-advertise sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005] | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q3-pre-advertise sink1 unsolicited=1 [pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005] | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q3-latency-only-refresh sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=00d0000005000005 started=1
+R294-Q Q3-latency-only-refresh sink1 unsolicited=0 | solicited pb=3 ac=1 sw=0 code=1 bridge=00d0000005010005 started=1
+R294-Q Q4 index8 size=94 status=0 pb=0 ac=0 code=0 bridge=0000000000000000 | sink0 pb=3
+R294-Q done
+FAIL: GI internal seam: selectors 5/7 never requested from integrator
+[build default, SRP_DOM_DEF_VID_P 0x0002] 411 checks, 218 failures

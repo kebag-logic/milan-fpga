@@ -1,0 +1,28 @@
+R294-Q Q1-pre-settled sink0 unsolicited=2 [pb=2 ac=0 sw=0 code=0 bridge=0000000000000000] [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q1a-same-talker-SW-on sink0 unsolicited=1 [pb=3 ac=0 sw=1 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=1 code=0 bridge=0000000000000000 started=0
+R294-Q Q1b-same-talker-SW-repeat sink0 unsolicited=0 | solicited pb=3 ac=0 sw=1 code=0 bridge=0000000000000000 started=0
+R294-Q Q1c-same-talker-SW-off sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q1d-other-talker-from-settled-SW-on sink0 unsolicited=1 [pb=2 ac=0 sw=1 code=0 bridge=0000000000000000] | solicited pb=2 ac=0 sw=1 code=0 bridge=0000000000000000 started=0
+R294-Q Q1e-other-talker-SW-kept sink0 unsolicited=0 | solicited pb=2 ac=0 sw=1 code=0 bridge=0000000000000000 started=0
+R294-Q Q1f-other-talker-SW-off sink0 unsolicited=1 [pb=2 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=2 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q1g-unbind sink0 unsolicited=1 [pb=0 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=0 ac=0 sw=0 code=0 bridge=0000000000000000 started=0
+R294-Q Q2-pre-settled sink0 unsolicited=2 [pb=2 ac=0 sw=0 code=0 bridge=0000000000000000] [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q2-pre-settled sink1 unsolicited=2 [pb=2 ac=0 sw=0 code=0 bridge=0000000000000000] [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q2a-fresh-failed sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=7 bridge=b17d23456789abcd] | solicited pb=3 ac=0 sw=0 code=7 bridge=b17d23456789abcd started=1
+R294-Q Q2a-fresh-failed sink1 unsolicited=1 [pb=3 ac=0 sw=0 code=7 bridge=b17d23456789abcd] | solicited pb=3 ac=0 sw=0 code=7 bridge=b17d23456789abcd started=1
+R294-Q Q2a listener New for shared sid over 1000 ms = 4
+R294-Q Q2b-changed-code+bridge sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c2] | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c2 started=1
+R294-Q Q2b-changed-code+bridge sink1 unsolicited=1 [pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c2] | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c2 started=1
+R294-Q Q2b listener New for shared sid over 600 ms = 0
+R294-Q Q2c-bridge-only sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3] | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3 started=1
+R294-Q Q2c-bridge-only sink1 unsolicited=1 [pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3] | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3 started=1
+R294-Q Q2c listener New for shared sid over 600 ms = 0
+R294-Q Q2d-unchanged sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3 started=1
+R294-Q Q2d-unchanged sink1 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=9 bridge=9eaf1029384756c3 started=1
+R294-Q Q3-pre-advertise sink0 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q3-pre-advertise sink1 unsolicited=1 [pb=3 ac=0 sw=0 code=0 bridge=0000000000000000] | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q3-latency-only-refresh sink0 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q3-latency-only-refresh sink1 unsolicited=0 | solicited pb=3 ac=0 sw=0 code=0 bridge=0000000000000000 started=1
+R294-Q Q4 index8 size=94 status=0 pb=0 ac=0 code=0 bridge=0000000000000000 | sink0 pb=3
+R294-Q done
+[build default, SRP_DOM_DEF_VID_P 0x0002] 501 checks, 0 failures

@@ -1,0 +1,159 @@
+[
+  {
+    "part": "B",
+    "mutant": "r2-fchg-code-compare-only",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "a bridge-only FailureInformation change is missed",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      },
+      {
+        "bench": "fsm",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: L3: a bridge-only change strobes the change",
+          "FAIL: L9: a change on a shared stream strobes every registered sink once (fchg 0/0/0)"
+        ]
+      },
+      {
+        "bench": "srptop",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-fchg-bridge-compare-only",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "a code-only FailureInformation change is missed",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      },
+      {
+        "bench": "fsm",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: L3: a code-only change strobes the change"
+        ]
+      },
+      {
+        "bench": "srptop",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-fchg-lowest-candidate-only",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "only the compared sink of a shared stream is strobed",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      },
+      {
+        "bench": "fsm",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: L9: a change on a shared stream strobes every registered sink once (fchg 1/0/0)"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-fchg-candidate-includes-mt",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "an MT (unregistered) sink can be the compared candidate",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      },
+      {
+        "bench": "fsm",
+        "build_rc": 0,
+        "run_rc": 0,
+        "verdict": "SURVIVED",
+        "first_failures": []
+      }
+    ],
+    "verdict": "SURVIVED"
+  },
+  {
+    "part": "B",
+    "mutant": "r2-fail-code-ungated",
+    "file": "hdl/srp/KL_srp_listener_fsm.sv",
+    "intent": "failure code no longer gated to FAILED",
+    "sites_found": 1,
+    "benches": [
+      {
+        "bench": "gi",
+        "build_rc": 0,
+        "run_rc": 1,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: GI ADVERTISE unsolicited: failure code sink 0 = 0, got 9",
+          "FAIL: GI ADVERTISE unsolicited: byte-exact sink 0 response",
+          "FAIL: GI ADVERTISE solicited: failure code sink 0 = 0, got 9",
+          "FAIL: GI ADVERTISE solicited: byte-exact sink 0 response"
+        ]
+      },
+      {
+        "bench": "fsm",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: L failure gated off: code 0, bridge left ungated under ADVERTISE"
+        ]
+      },
+      {
+        "bench": "srptop",
+        "build_rc": 0,
+        "run_rc": 2,
+        "verdict": "KILLED",
+        "first_failures": [
+          "FAIL: D: failure gated off"
+        ]
+      }
+    ],
+    "verdict": "KILLED"
+  }
+]

@@ -1,0 +1,8 @@
+retained list: 13 mutations; slice [9:13]
+{"variant": "golden", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "failure-change-strobe-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH unsolicited: complete Milan response"], "passed": true}
+{"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"], "passed": true}
+{"variant": "index-guard-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"], "passed": true}
+{"variant": "bridge-gate-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"], "passed": true}
+{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+GSI mutations: 4 detected by named checks; golden and restored PASS
