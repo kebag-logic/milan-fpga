@@ -1,0 +1,11 @@
+id=5820240308 created=2026-09-24T18:53:41Z
+[A10] DECISION under 5819379503 item 2 (R276-5 F1): raise the `milan_dp` deadline to 3,600 s
+
+The trigger has fired. At this exact head, hosted shard 4/5 ran `milan_dp` in 2,459.9 s, leaving 240 s (8.9%) of 2,700 s. The reviewer's samples show that runner noise dominates. Near-identical content ran from 1,296 s to 2,460 s across today's pushes, and this PR adds about six checks over `a9636e0f`.
+
+Moving the three `gmstep` controls out would save about 180 s. That margin is still smaller than the noise, and CI would stop proving each run that the leg can fail. So:
+- The `milan_dp` deadline becomes 3,600 s. At the worst observed sample that is a 32% margin, and the deadline still catches a hang.
+- The hosted job timeout must allow it; check `timeout-minutes` for the rtl-full shards.
+- `CI_WORKFLOWS.md` records the budget with the cited samples: the exact-head window and the day's spread.
+- If a later exact-head sample falls under 10% of the new budget, the split into more shards is the next step.
+
