@@ -1,0 +1,5 @@
+[R272] NEGATIVE - exact head 11b1b86c11378cac414ef58f6be40d8da00980da
+Independent pass written before reading prior review findings.
+F1 MAJOR Conformance/Robustness/Tests/Docs: S does not close extended (UTF-8) identifier characters; U+00B7 and U+0301 after a directive name make the readers find #if where the pinned GCC reads one identifier (receipts/probes/reader_vs_gcc.txt).
+Ledger: Conformance UNCLEAN, RTL CLEAN, Robustness UNCLEAN, Tests UNCLEAN, Docs UNCLEAN at 11b1b86c.
+2026-09-24T11:24:26Z
