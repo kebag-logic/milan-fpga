@@ -2473,6 +2473,11 @@ def _c_phases(source: str) -> _CPhases:
         if char == "/":
             stop = raw.find("\n" if raw[i + 1] == "/" else "*/", i + 2)
             closed = stop >= 0
+            if raw[i + 1] == "*" and not closed:
+                # GCC errors on a block comment no `*/` closes; the readers
+                # here would blank to EOF and lose every line after it, so it
+                # is refused before any reader (assert_lexes_as_compiled()).
+                findings.append(("unterminated_comment", at_source(i)))
             stop = size if not closed else stop + 2 * (raw[i + 1] == "*")
             spans = ((i, stop), (at_source(i), at_source(stop - 1) + 1
                                  if closed and raw[i + 1] == "*"
@@ -2531,12 +2536,14 @@ def _c_phases(source: str) -> _CPhases:
 #: and round two's `%\`-newline-`:ifdef` was one nobody had. So this one is
 #: generated: every splice position crossed with every introducer of a
 #: directive, the pinned GCC 14.3 at -std=gnu99 as the oracle for what each
-#: firmware keeps. An introducer is `#` or `%:`, alone or after a form feed,
-#: a vertical tab, a NUL or blanks, and six spellings GCC does NOT read as
-#: one (`##` and its digraph `%:%:`; `#%:` and `%:#`, two `#` tokens and so
-#: a directive with no name; `%%:`, whose first token is `%`; and `<%:`,
-#: which maximal munch makes `<%` and `:`). A splice is put at EVERY offset
-#: of each directive line in turn (inside the digraph, the directive name
+#: firmware keeps. RESTRICTED to the subset S (round three): the introducer
+#: is `#`, alone or after a form feed, a vertical tab, a NUL or blanks, and
+#: `##`, which GCC reads as two `#` tokens and so a directive with no name.
+#: The digraph introducers (`%:`, `%:%:`, `#%:`, `%:#`, `%%:`, `<%:`) that
+#: round two crossed here are OUTSIDE S: the subset check refuses a firmware
+#: spelling one before any reader, so the readers never lex one, and
+#: `subset_refusal_corpus` is where each is measured refused. A splice is put
+#: at EVERY offset of each directive line in turn (inside the directive name
 #: and the macro name included), at the end of the line before it, and at
 #: every offset of the introducer on both lines at once, which is the shape
 #: of the round-two firmware. Each template's directive lines exercise one
@@ -2554,8 +2561,8 @@ _LEXER_SPLICES = (
 _LEXER_LEADS = (("", ""), (" after a form feed", "\f"),
                 (" after a vertical tab", "\v"), (" after a NUL", "\0"),
                 (" after a space and a tab", " \t"))
-_LEXER_HASHES = ("#", "%:")
-_LEXER_NOT_HASHES = ("##", "%:%:", "#%:", "%:#", "%%:", "<%:")
+_LEXER_HASHES = ("#",)
+_LEXER_NOT_HASHES = ("##",)
 #: `(what it asks, firmware, what follows the introducer on each directive
 #: line it spells, which introducers, how many splice spellings with no
 #: lead before the introducer and how many after one)`.
@@ -2584,7 +2591,7 @@ _LEXER_TEMPLATES = (
 )
 #: ... and the `##` a `#define` body pastes with, which is what the paste
 #: ban kept in the six boot-path bodies reads: `int pq;` when GCC pastes.
-_LEXER_PASTES = (" ## ", " %:%: ", " <%:%: ")
+_LEXER_PASTES = (" ## ",)
 _LEXER_PASTE_FIRMWARE = "#define CAT(x, y) x{0}y\nint CAT(p, q);\nint z;\n"
 
 
@@ -2661,79 +2668,34 @@ _LEXER_OUTCOMES = {
     "-": None, "a": ("a", "z"), "b": ("a", "b", "z"), "c": ("b", "z"),
     "d": ("z",), "e": ("c", "z"), "f": ("a", "b"), "p": ("pq", "z")}
 _LEXER_GENERATED_KEPT = (
-    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaa"
-    "aaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaa"
-    "aaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaa--aaaaaaaaaaaaa-aaaaaaa-aaaaaaa"
-    "aaaaaa-aaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaa"
-    "aaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaa"
-    "aaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaa"
-    "aaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aa"
-    "aaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaa"
-    "aaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaa"
-    "aaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaa"
-    "a-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaa--aaaaaaaaaaaaaaa-"
-    "aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaa"
-    "aaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa"
-    "-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-a"
-    "aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaa"
-    "aaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaaa-a"
-    "aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaabbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbbfbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb----"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------------------------------------------------------------"
-    "--------------bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbabbbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbbbbbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaa"
-    "-aaaaaaa-aaaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaa"
-    "aaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaa"
-    "-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa"
-    "aa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaa"
-    "aaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaa"
-    "aaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa"
-    "-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaa"
-    "aaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaa-aa"
-    "aaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aa"
-    "aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaa"
-    "aaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaa"
-    "aa-aaaaaaaaaa-aaaaaaaaaaaaaaaaaaaa-aaaaaaaaaa-aaaaabbbbbbbbbbbbbabbb"
-    "bbbbbbbbbabbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabb"
-    "bbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbb"
-    "babbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbb"
-    "bbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbba"
-    "bbbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbb"
-    "bbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbbbbabbbbbbbbbbbb"
-    "bbbabbbbbbbbbbbbbbbaaaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaa"
-    "aabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaa"
-    "baaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaaaabaaaaaaaaaaaa"
-    "abaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaa"
-    "aabaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaa"
-    "aaaaabaaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaaaaabaaa"
-    "aaaaaaaaaaabaaaaaaaaaaaaaabcccccccdccccccdccccccdccccccccdcccccccdcc"
-    "cccccdccccccccdcccccccdcccccccdccccccccdcccccccdcccccccdcccccccccdcc"
-    "ccccccdccccccccdccccccccdcccccccdcccccccdcccccccccdccccccccdcccccccc"
-    "dcccccccccdccccccccdccccccccdcccccccccdccccccccdccccccccdccccccccccd"
-    "cccccccccdcccccccccdeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecccccccccccccccec"
-    "ccccccccccccccceppppppppppppppppppppppppppppppppppppppdddddddddddddd"
-    "ddddddddddd")
+    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-a"
+    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaaa-a"
+    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaa-aaaaaa--aaaaaaaaaaaaa-aaaaaaa-a"
+    "aaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaa"
+    "aaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaa"
+    "aaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-"
+    "aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa"
+    "a-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaa"
+    "a-aaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbabbbb"
+    "bbbbfbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaa"
+    "aaaaaa-aaaaaaa-aaaaaaaaaaaaaa-aaaaaaa-aaaaaaaaaaaaaa-aaaaaaa-aaaaa"
+    "aaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aa"
+    "aaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaa"
+    "aaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaa-aa"
+    "aaaaaa-aaaaaaaaaaaaaaaa-aaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaa"
+    "aaaaaaaaaaaaaa-aaaaaaaaa-aaaaaaaaaaaaaaaaaa-aaaaaaaaa-aaaabbbbbbbb"
+    "bbbbbabbbbbbbbbbbbabbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbabbbbb"
+    "bbbbbbbbabbbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbb"
+    "abbbbbbbbbbbbbabbbbbbbbbbbbbabbbbbbbbbbbbbbbabbbbbbbbbbbbbbabbbbbb"
+    "bbbbbbbbaaaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaabaaaaaaaaaaaaabaaaaaa"
+    "aaaaaabaaaaaaaaaaaabaaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaa"
+    "aaaaaaabaaaaaaaaaaaabaaaaaaaaaaaabaaaaaaaaaaaaaabaaaaaaaaaaaaabaaa"
+    "aaaaaaaaaabcccccccdccccccdccccccdccccccccdcccccccdcccccccdcccccccc"
+    "dcccccccdcccccccdccccccccdcccccccdcccccccdcccccccccdccccccccdccccc"
+    "cccdeeeeeeeeeeeeeeecccccccccccccccepppppppppppppppp"
+)
 
 
 def test_baremetal_profile_contract() -> None:
@@ -3029,14 +2991,18 @@ def test_baremetal_profile_contract() -> None:
     #: graded here, so no arm is ever read in one state and compiled in
     #: another. BOUNDED, and the bound is measured: that holds for every
     #: conditional the readers find, and they read the phase-3 view of
-    #: _c_phases(), which runs GCC's translation phases in GCC's order, and
-    #: find one exactly where the pinned GCC does for every spelling in the
-    #: two lexer corpora (assert_lexer_matches_compiler(), re-measured
-    #: wherever the compiler answers), for text lexed as GCC lexes it -- the
-    #: two lexings no edit
-    #: means, a literal GCC ends at its line end and a raw string, and any
-    #: trigraph, are refused before any reader runs ([R272] F1 and F4 on
-    #: PR #535). That also closes what the comparison's arm BOUND could not:
+    #: _c_phases(). The readers are EXACT ON THE SUBSET S and no wider (#408,
+    #: PR #535 round three): a firmware carrying a construct GCC lexes and the
+    #: readers do not is refused by assert_within_lexical_subset() before any
+    #: reader runs, so the readers never lex one. On S, they find a directive
+    #: exactly where the pinned GCC does for every spelling in the two lexer
+    #: corpora (assert_lexer_matches_compiler(), re-measured wherever the
+    #: compiler answers). A `$` or a universal character name in an
+    #: identifier, `__has_include`, a digraph, a raw string, a literal GCC
+    #: ends at its line end, any trigraph, and a block comment no `*/` closes
+    #: are outside S and refused before any reader ([R272] F1 and F4, and the
+    #: round-two external finding, on PR #535). That also closes what the
+    #: comparison's arm BOUND could not:
     #: `if (\n#ifdef CSR_UART_BASE\n0 &&\n#endif\n!verified)` names nothing
     #: this file defines, moves no token and no statement, and advertises
     #: an unverified entity in the one tree the census never compiles.
@@ -4533,6 +4499,23 @@ def test_baremetal_profile_contract() -> None:
     DEFINED_ONCE_PIN = "is #defined more than once"
     SPLICE_PIN = "a backslash-newline JOINS two tokens inside"
     PASTE_PIN = "a `##` paste reaches"
+    UNTERMINATED_COMMENT_PIN = "opens a block comment no `*/` closes"
+    #: ... and the CLOSED lexical grammar S (#408, PR #535 round three). The
+    #: readers are regexes over the phase-3 view, exact on a BOUNDED set of
+    #: C11 6.4 token classes and refused on the rest, so rather than chase
+    #: GCC's whole grammar the grammar is closed: a firmware carrying a
+    #: construct outside S is refused by NAME, before any reader, on every
+    #: machine ([R272] F1's `$` in a directive name, and the round-two
+    #: external finding's header name in __has_include, are two such
+    #: constructs). Refusing is never a reduction (acceptance 4): S admits
+    #: every spelling the shipping firmware uses.
+    SUBSET_DOLLAR_PIN = "spells `$` in its code, outside the lexical subset S"
+    SUBSET_UCN_PIN = "spells a universal character name in its code, outside S"
+    SUBSET_HAS_INCLUDE_PIN = (
+        "uses __has_include or __has_include_next, outside S")
+    SUBSET_HEADER_NAME_PIN = (
+        "hides a comment or a backslash in a #include header name, outside S")
+    SUBSET_PRAGMA_PIN = "uses the _Pragma operator, outside S"
     #: ... and what the paste ban does NOT read, which the page must say
     #: ([R273] F2 on PR #535): a header's macro is trusted, not read.
     PASTE_BOUND_CLAIM = (
@@ -4862,6 +4845,10 @@ def test_baremetal_profile_contract() -> None:
                 f"the firmware spells {RAW_LITERAL_PIN} (line {line}): GCC " \
                 "honours R\"d(...)d\" at -std=gnu99, spanning lines with no " \
                 "escape and no splice, and no C standard has one"
+            assert kind != "unterminated_comment", \
+                f"the firmware {UNTERMINATED_COMMENT_PIN} (line {line}): GCC " \
+                "stops with an error, and the readers here would blank every " \
+                "line after it, so the two do not read the same file"
 
     def assert_spelled_without_digraphs(source: str) -> None:
         """No `%:` digraph and no `??` pair in code, anywhere in the file.
@@ -4899,6 +4886,154 @@ def test_baremetal_profile_contract() -> None:
             "has deleted every splice, and nothing but a digraph or a " \
             "trigraph puts either pair in C code outside a literal or a " \
             "comment"
+
+    #: The one identifier context S keeps a header name in: an #include line.
+    include_directive_re = re.compile(cpp_hash + r"include\b")
+
+    def assert_within_lexical_subset(source: str) -> None:
+        """S, the declared lexical subset, checked BEFORE any reader runs
+        (#408, PR #535 round three; the manager's round-two direction: close
+        the grammar rather than chase GCC's whole one).
+
+        Gate 1b's directive and macro readers are regexes over the phase-3
+        VIEW of _c_phases(). They model a BOUNDED set of C11 6.4 token classes
+        exactly and disagree with the pinned GCC on the rest -- a reviewer
+        found such a spelling twice, a `$` in a directive name GCC keeps as an
+        unknown directive ([R272] F1, round two) and a header name in
+        `__has_include(<...>)` whose `/*` opens no comment to GCC (the
+        round-two external finding). So a firmware carrying anything outside S
+        is refused HERE, by name, before a reader reads it, on every machine.
+        Refusing is never a reduction (acceptance 4): S admits every spelling
+        the shipping firmware uses.
+
+        S, by C11 6.4 token class, each MODELLED exactly by the readers or
+        REFUSED:
+          - 6.4.1 keywords, 6.4.2.1 identifiers: MODELLED, as the
+            `[A-Za-z_][A-Za-z0-9_]*` class every reader keys on.
+          - 6.4.3 universal character names in identifiers: REFUSED. A `\\`
+            left in code once phase 2 has deleted every splice opens one, and
+            the readers lex `\\w`, not a UCN.
+          - the gnu `$` identifier extension: REFUSED. GCC admits it in an
+            identifier and a directive name; the readers stop a name at `\\b`.
+          - 6.4.4 constants, 6.4.5 string literals: MODELLED as spelled; a raw
+            string literal and a literal no quote closes are REFUSED
+            (assert_lexes_as_compiled()).
+          - 6.4.6 punctuators: MODELLED as spelled; the digraphs and any
+            trigraph are REFUSED (assert_spelled_without_digraphs() and
+            assert_lexes_as_compiled()).
+          - 6.4.7 header names: MODELLED only as a plain `#include` operand;
+            the `__has_include`/`__has_include_next` operator lexes one
+            anywhere in an `#if` and is REFUSED, and a `#include` operand that
+            hides a comment or a backslash is REFUSED.
+          - 6.4.9 comments: MODELLED; a block comment no `*/` closes is
+            REFUSED (assert_lexes_as_compiled()).
+          - the `_Pragma` operator, a `#pragma` the `#`-directive scan cannot
+            see: REFUSED.
+        Every other class the readers do not model exactly is refused by one
+        of the rules above."""
+        # literals, raw strings, trigraphs and unterminated comments first,
+        # then the digraphs: these settle the view every check below reads.
+        assert_lexes_as_compiled(source)
+        assert_spelled_without_digraphs(source)
+        phases = _c_phases(source)
+        view = phases.view
+        dollar = view.find("$")
+        assert dollar < 0, \
+            f"the firmware {SUBSET_DOLLAR_PIN} (line " \
+            f"{c_line(source, phases.source_at(dollar))}): GCC admits `$` in " \
+            "an identifier and a directive name, so `#if$a` is an unknown " \
+            "directive it ignores in skipped code while the readers here read " \
+            "`#if`; the shipping firmware spells none"
+        backslash = view.find("\\")
+        assert backslash < 0, \
+            f"the firmware {SUBSET_UCN_PIN} (line " \
+            f"{c_line(source, phases.source_at(backslash))}): a backslash " \
+            "left in code once phase 2 has deleted every splice opens a " \
+            "universal character name, which GCC admits in an identifier and " \
+            "the readers here do not lex; the shipping firmware spells none"
+        has_include = re.search(r"__has_include(_next)?", view)
+        assert not has_include, \
+            f"the firmware {SUBSET_HAS_INCLUDE_PIN} " \
+            f"(__has_include{has_include.group(1) or ''}, line " \
+            f"{c_line(source, phases.source_at(has_include.start()))}): GCC " \
+            "lexes its operand as one header-name token in an `#if`, so " \
+            "`<x/*y>` opens no comment there while the readers here read `/*` " \
+            "as a comment hiding the lines to the next `*/`; the shipping " \
+            "firmware uses neither"
+        for directive in include_directive_re.finditer(view):
+            stop = view.find("\n", directive.end())
+            stop = len(view) if stop < 0 else stop
+            operand = phases.raw[directive.end():stop]
+            bad = re.search(r"/\*|//|\\", operand)
+            assert not bad, \
+                f"the firmware {SUBSET_HEADER_NAME_PIN} (line " \
+                f"{c_line(source, phases.source_at(directive.end() + bad.start()))}" \
+                "): GCC lexes a `#include` operand as one header-name token, " \
+                "so a `/*`, `//` or `\\` in it is part of the name, while the " \
+                "readers here read the comment or the splice out of it"
+        pragma = re.search(r"_Pragma", view)
+        assert not pragma, \
+            f"the firmware {SUBSET_PRAGMA_PIN} (line " \
+            f"{c_line(source, phases.source_at(pragma.start()))}): it is a " \
+            "`#pragma` built from a string, which the `#`-directive scan does " \
+            "not see, so this gate has no rule for what it does; the shipping " \
+            "firmware uses none"
+
+    #: One firmware per excluded token class, and the S pin that refuses it:
+    #: the generated corpus below is restricted to spellings within S, and S
+    #: is what refuses every class it drops (#408, PR #535 round three). The
+    #: first entries are the two reviewer probes, at the reader level
+    #: ([R272] F1's `$` in a directive name, and the round-two external
+    #: finding's header name in `__has_include`).
+    subset_refusal_corpus = (
+        ("a `$` GCC keeps in a directive name",
+         "int a;\n#if$a\nint b;\n#endif\nint z;\n", SUBSET_DOLLAR_PIN),
+        ("a `$` in an identifier", "int a$b;\nint z;\n", SUBSET_DOLLAR_PIN),
+        ("a universal character name in an identifier",
+         "int a\\u0064b;\nint z;\n", SUBSET_UCN_PIN),
+        ("__has_include with a header name holding `/*`",
+         "int a;\n#if !__has_include(<x/*y>)\nint b; // */\n#endif\nint z;\n",
+         SUBSET_HAS_INCLUDE_PIN),
+        ("__has_include_next with a header name",
+         "int a;\n#if __has_include_next(<x>)\nint b;\n#endif\nint z;\n",
+         SUBSET_HAS_INCLUDE_PIN),
+        ("a comment inside a #include header name",
+         "#include <a/*x*/b.h>\nint z;\n", SUBSET_HEADER_NAME_PIN),
+        ("a // comment opened inside a #include header name",
+         "#include <a//b.h>\nint z;\n", SUBSET_HEADER_NAME_PIN),
+        ("the _Pragma operator", "_Pragma(\"once\")\nint z;\n",
+         SUBSET_PRAGMA_PIN),
+        ("the %: digraph of a directive",
+         "int a;\n%:ifdef FOO\nint b;\n%:endif\nint z;\n", DIGRAPH_PIN),
+        ("the ??= trigraph of a directive",
+         "int a;\n??=ifdef FOO\nint b;\n??=endif\nint z;\n", TRIGRAPH_PIN),
+        ("a raw string literal", "const char *s = R\"x(a)x\";\nint z;\n",
+         RAW_LITERAL_PIN),
+        ("a literal no quote closes on its line",
+         "#define Q '\nint z;\n", UNTERMINATED_PIN),
+        ("a block comment no `*/` closes", "int z;\n/* no close",
+         UNTERMINATED_COMMENT_PIN),
+    )
+
+    def assert_subset_refuses() -> str:
+        """Every construct outside S is refused by name, and a within-S
+        firmware is not: the executable statement of what S admits and
+        refuses (#408, PR #535 round three)."""
+        for label, text, pin in subset_refusal_corpus:
+            try:
+                assert_within_lexical_subset(text)
+            except AssertionError as exc:
+                assert pin in str(exc), \
+                    f"S refused {label!r} for the wrong reason: {exc}"
+            else:
+                raise AssertionError(
+                    f"S accepted {label!r}, which is outside the subset")
+        #: NEGATIVE CONTROL: a within-S firmware is NOT refused, so the loop
+        #: above proves a refusal and not a reader that always throws.
+        assert_within_lexical_subset(
+            "int a;\n#ifdef FOO\nint b;\n#endif\nint z;\n")
+        return (f"{len(subset_refusal_corpus)} out-of-subset constructs "
+                "refused by name, one within-S control accepted")
 
     def assert_each_macro_defined_once(source: str) -> None:
         """Every name the firmware `#define`s, it defines ONCE.
@@ -4999,16 +5134,21 @@ def test_baremetal_profile_contract() -> None:
     #: and across lines, a splice wherever one changes a directive
     #: (continuing a `//` comment, opening or closing a block comment, before
     #: or inside the directive name), literals that span or end a line, raw
-    #: strings, the digraph and trigraph spellings of `#`, controls GCC does
-    #: NOT skip, and each reader's own directive: the conditionals with
-    #: `#elifdef` and `#elifndef`, `#define` and `#undef`. The GENERATED
-    #: corpus (`_lexer_generated_corpus()`, recorded in
-    #: `_LEXER_GENERATED_KEPT`) holds the spellings nobody thought of: every
-    #: splice position crossed with every introducer. BOUNDED, and the bound
-    #: is these two corpora: a spelling in neither that GCC reads differently
-    #: is outside the measurement, and the readers are exact only because
-    #: they run GCC's phases in GCC's order, not because every spelling has
-    #: been tried.
+    #: strings, controls GCC does NOT skip, and each reader's own directive:
+    #: the conditionals with `#elifdef` and `#elifndef`, `#define` and
+    #: `#undef`. It also records what the SHARED lexer makes of the digraph
+    #: and trigraph spellings of `#`, because that same lexer is how the
+    #: subset check DETECTS them: S must be exact about what it refuses, and
+    #: these entries are that detector's measurement. The GENERATED corpus
+    #: (`_lexer_generated_corpus()`, recorded in `_LEXER_GENERATED_KEPT`)
+    #: holds the spellings nobody thought of: every splice position crossed
+    #: with every WITHIN-S introducer (`#` and `##`, not the digraphs, which
+    #: `subset_refusal_corpus` measures refused). BOUNDED, and the bound is
+    #: these two corpora: a spelling in neither that GCC reads differently is
+    #: outside the measurement. The readers are exact ON THE SUBSET S -- a
+    #: firmware outside S is refused before any reader (assert_within_lexical_subset()),
+    #: so a spelling the readers would lex differently never reaches them --
+    #: not because every spelling has been tried.
     LEXER_PIN = "reads a preprocessing directive where the pinned GCC does not"
     lexer_corpus = (
         ("a plain #ifdef",
@@ -9527,11 +9667,13 @@ def test_baremetal_profile_contract() -> None:
         planted beside-the-firmware entries or datapath and requires a
         reason-pinned refusal: the arguments are what a mutation replaces,
         and defaulting one to `None` means "read the tracked file"."""
-        # First, before any reader: text GCC lexes as no edit means it, and
-        # the digraph ban, on the whole firmware before a conditional is
-        # resolved, so a digraph spelling one is refused on every machine.
-        assert_lexes_as_compiled(firmware)
-        assert_spelled_without_digraphs(firmware)
+        # First, before any reader: the firmware is inside the declared
+        # lexical subset S (#408). S folds in the literal, digraph and
+        # trigraph refusals -- read on the whole firmware before a conditional
+        # is resolved, so a construct GCC lexes and the readers do not is
+        # refused by name on every machine, and no reader ever reads a
+        # spelling it would misread.
+        assert_within_lexical_subset(firmware)
         selections = arm_selections(firmware)
         if selections is not None:
             verdicts = []
@@ -10590,8 +10732,11 @@ def test_baremetal_profile_contract() -> None:
                     r"\s*\(", firmware).group(1))
         return compiled_census_verdict
 
-    # Before any firmware is graded: the readers every rule stands on read
-    # a directive exactly where the pinned GCC does (#408).
+    # Before any firmware is graded: the grammar is closed (S refuses every
+    # construct outside it, by name), and on the spellings S admits the
+    # readers every rule stands on read a directive exactly where the pinned
+    # GCC does (#408).
+    subset_note = assert_subset_refuses()
     lexer_note = assert_lexer_matches_compiler()
     baseline_census_verdict = assert_boot_contract(
         firmware_source, docs_source, csr_source)
@@ -10629,9 +10774,11 @@ def test_baremetal_profile_contract() -> None:
              "## bans KEPT inside the six boot-path bodies, one #define per "
              "name (which is what refuses a read hidden in a second "
              "definition of the identity magic), the macro-body rule, the "
-             "literal and trigraph refusals, the digraph ban on the whole "
-             "file, the directive readers as the two lexer corpora recorded "
-             "them (not re-measured), and the "
+             "closed-grammar subset check S (the literal, digraph, trigraph, "
+             "$, universal-character-name, __has_include, header-name, "
+             "_Pragma and unterminated-comment refusals), read on the whole "
+             "firmware before any reader, the directive readers as the two "
+             "lexer corpora recorded them (not re-measured), and the "
              "per-selection grading of each conditional (its text half); "
              "and the hosted builder jobs require this compiler")
 
@@ -12100,6 +12247,37 @@ def test_baremetal_profile_contract() -> None:
     #: refused all the same, as dev refused every `%:` pair in code.
     unread_digraph_pair = in_uart_handler(
         "\t<%: %>", "a %: pair read as <% and :")
+    #: ---- (#408, PR #535 round three) the CLOSED grammar: each construct
+    #: GCC lexes and the readers do not is refused by the subset check S,
+    #: before any reader, on every machine. The first two are the reviewer
+    #: probes ([R272] F1 round two's `$` in a directive name, and the
+    #: round-two external finding's header name in `__has_include`); the rest
+    #: are the other classes S closes.
+    dollar_misnest_store = in_uart_handler(
+        "#ifdef MILAN_NEVER_DEFINED\n#if$a\n#endif\n\t*(volatile unsigned "
+        f"int *){raw_address} = 1u;\n#endif$b",
+        "a store hidden by a `$` GCC keeps in a directive name")
+    ucn_forged_identity = replace_once(
+        firmware_source, "\tif (id != MILAN_ID_MAGIC) {",
+        "\ti\\u0064 = MILAN_ID_MAGIC;\n\tif (id != MILAN_ID_MAGIC) {",
+        "identity local forged through a universal character name")
+    has_include_hidden_store = in_uart_handler(
+        "#if !__has_include(<milan/*missing>)\n\t*(volatile unsigned int *)"
+        f"{raw_address} = 1u; // */\n#endif",
+        "a store hidden behind a header name in __has_include")
+    has_include_next_hidden_store = in_uart_handler(
+        "#if !__has_include_next(<milan/*missing>)\n\t*(volatile unsigned "
+        f"int *){raw_address} = 1u; // */\n#endif",
+        "a store hidden behind a header name in __has_include_next")
+    include_operand_hidden_comment = replace_once(
+        firmware_source, "#include <generated/csr.h>",
+        "#include <generated/c/*x*/sr.h>",
+        "a comment hidden inside a #include header name")
+    pragma_operator_use = replace_once(
+        firmware_source, "static int aem_loaded;",
+        '_Pragma("push_macro(\\"MILAN_ID_MAGIC\\")")\n\nstatic int '
+        "aem_loaded;", "a _Pragma operator the #-directive scan cannot see")
+    unterminated_block_comment = firmware_source + "\n/* no close"
     #: ... a second group on the SAME macro as an earlier one, which the
     #: grading relates ([R272] F3): the store sits in the arm every build
     #: defining CSR_UART_BASE compiles, and is graded in exactly that build.
@@ -14420,6 +14598,29 @@ def test_baremetal_profile_contract() -> None:
          "\ufeff#line 1 \"milan_bringup.c\"\n" + firmware_source,
          docs_source, csr_source,
          "the firmware's preprocessing directives are pinned"),
+        # ---- (#408, PR #535 round three) the closed grammar S: each
+        # construct GCC lexes and the readers do not, refused by the subset
+        # check before any reader, on every machine. The first three are the
+        # reviewer probes ([R272] F1's `$`, the round-two external finding's
+        # __has_include header name); the rest are the other classes S closes.
+        ("a store hidden by a `$` GCC keeps in a directive name ([R272] F1)",
+         dollar_misnest_store, docs_source, csr_source, SUBSET_DOLLAR_PIN),
+        ("the identity local forged through a universal character name",
+         ucn_forged_identity, docs_source, csr_source, SUBSET_UCN_PIN),
+        ("a store hidden behind a header name in __has_include (the round-two "
+         "external finding)", has_include_hidden_store, docs_source,
+         csr_source, SUBSET_HAS_INCLUDE_PIN),
+        ("a store hidden behind a header name in __has_include_next",
+         has_include_next_hidden_store, docs_source, csr_source,
+         SUBSET_HAS_INCLUDE_PIN),
+        ("a comment hidden inside a #include header name",
+         include_operand_hidden_comment, docs_source, csr_source,
+         SUBSET_HEADER_NAME_PIN),
+        ("a _Pragma operator the #-directive scan cannot see",
+         pragma_operator_use, docs_source, csr_source, SUBSET_PRAGMA_PIN),
+        ("a block comment no `*/` closes, blanking the file to its end",
+         unterminated_block_comment, docs_source, csr_source,
+         UNTERMINATED_COMMENT_PIN),
     )
     #: The four shapes ONLY the compiled census catches. They are in the
     #: table when the census is live and named as skipped when it is not,
@@ -14983,17 +15184,22 @@ def test_baremetal_profile_contract() -> None:
     print("  [gate 1b] ... and the text this reads is the text that runs, by "
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules that SURVIVE #408 "
-          "and #409: only milan_reg() may use the CSR base or a CSR pointer "
+          "and #409: the firmware is inside the CLOSED lexical subset S "
+          f"({subset_note}) -- a construct GCC lexes and the readers do not "
+          "($ or a universal character name in an identifier, __has_include, "
+          "a #include header name hiding a comment, a digraph, a trigraph, a "
+          "raw string, a literal no quote closes, a block comment no */ "
+          "closes, the _Pragma operator) is refused by name before any "
+          "reader; only milan_reg() may use the CSR base or a CSR pointer "
           "cast, no macro body hides milan_write() or milan_reg(), no "
           "conditional left ungraded carries a definition, the verifier's "
           "no-QSPI arm holds only a literal printf and `return 0;`, no %: "
-          "or ?? in code and no trigraph anywhere, no token-joining splice "
+          "or ?? in code, no token-joining splice "
           "and no ## paste reaching the six boot-path bodies, one #define "
-          "per name, and no literal GCC ends at a line end and no raw "
-          "string; every conditional the pinned GCC reads is graded ONE ARM "
+          "per name; every conditional the pinned GCC reads is graded ONE ARM "
           "SELECTION AT A TIME, each selection as a firmware of its own, "
-          "and the readers that find those conditionals read a directive "
-          f"where that GCC does ({lexer_note}). RETIRED onto the tools "
+          "and on S the readers that find those conditionals read a directive "
+          f"exactly where that GCC does ({lexer_note}). RETIRED onto the tools "
           "(#408, #409): the conditional-reach ban, the token-joining "
           "splice and ## paste bans OUTSIDE the six boot-path bodies, the "
           "directory pin and the ordered pointer-cast, pointer-store and "
@@ -15142,7 +15348,17 @@ def test_baremetal_profile_contract() -> None:
           "which are graded in every combination, one with the call and "
           "without the definition included (remedy: test the one macro "
           "with #ifdef/#ifndef/#if defined(...) in both, which are graded "
-          "as the builds that exist). Also RED: a "
+          "as the builds that exist). NEW THIS ROUND (#408, PR #535 round "
+          "three) the CLOSED grammar, subset S, each a refusal by name on "
+          "every machine before any reader: a `$` in an identifier or a "
+          "directive name (GCC keeps `#if$a` as an unknown directive; [R272] "
+          "F1), a universal character name in an identifier, __has_include or "
+          "__has_include_next (GCC lexes a header name in an #if, hiding a "
+          "line; the round-two external finding), a #include header name "
+          "hiding a comment or a backslash, a block comment no */ closes, and "
+          "the _Pragma operator -- none of which the shipping firmware "
+          "spells, and each measured refused in subset_refusal_corpus. Also "
+          "RED: a "
           "twelfth #include even of <string.h> -- a name that names no "
           "existing file cannot be RESOLVED at all, so the name pin is what "
           "refuses one -- any "
