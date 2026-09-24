@@ -1,0 +1,18 @@
+SLEW TRACE long slew, master +90 us: active for 5879588 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3578230 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL slew: zero crossing cannot clear early got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL slew: first settled pair before lapse got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before GM change got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL slew: GM identity change holds active got 0000000000000000 exp 0000000000000001
+FAIL slew: GM change restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: warm-reset qualification starts afresh got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+1610 checks: 1595 PASS, 15 FAIL

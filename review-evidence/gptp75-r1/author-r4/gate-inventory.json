@@ -1,0 +1,36 @@
+{
+  "workflows": [],
+  "default_make_targets": [
+    "contract",
+    "tb",
+    "lint",
+    "docs"
+  ],
+  "tb_targets": [
+    "ucpu/run",
+    "parser/run",
+    "engine/run",
+    "engine/mutants",
+    "gaskets/run",
+    "gaskets/mutants",
+    "tsngen/run",
+    "tsngen/mutants",
+    "bench/arty/test"
+  ],
+  "docs_targets": [
+    "diagrams-check",
+    "diagram selftest",
+    "docs check",
+    "docs selftest",
+    "source evidence check",
+    "source evidence selftest"
+  ],
+  "parent_gates": [
+    "python3 scripts/check_cpp_idiom.py",
+    "python3 scripts/check_py_idiom.py",
+    "python3 scripts/xvlog_gate.py --check",
+    "python3 scripts/check_rtl_source_lists.py",
+    "python3 sw/builder/test_builder.py",
+    "make -C tb/verilator/gptp_shadow -j8"
+  ]
+}

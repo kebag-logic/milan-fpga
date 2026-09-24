@@ -1,0 +1,79 @@
+make: Entering directory '$LANES/gptp75-slew-active/tb/verilator/engine'
+python3 mutants.py
+recorded mutant run: clean
+[PASS] the unmutated engine still passes the harness
+recorded mutant run: slew_level_tied_low
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+recorded mutant run: slew_clears_at_the_first_in_band_pair
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+recorded mutant run: slew_clears_before_the_replacement_rate
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+recorded mutant run: slew_idle_lapse_arms_qualification
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+recorded mutant run: slew_idle_asCapable_loss_arms_qualification
+FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle asCapable loss arms qualification - breaks "slew: in-band pair after asCapable recovery stays inactive"
+recorded mutant run: slew_mastership_keeps_qualification
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+recorded mutant run: result_face_always_ready
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+recorded mutant run: result_value_taken_without_an_accepted_beat
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+recorded mutant run: result_tag_taken_without_an_accepted_beat
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+recorded mutant run: recorded_t1_survives_reset
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+recorded mutant run: byte_face_advances_without_ready
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+recorded mutant run: lost_t1_fabricates_a_time_and_a_companion
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+recorded mutant run: lost_Sync_cancels_the_requester_exchange
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+recorded mutant run: lost_response_cancels_the_requester_exchange
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+recorded mutant run: a_later_response_re_arms_the_frozen_pair
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+recorded mutant run: the_tail_runs_before_its_own_t1
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+recorded mutant run: a_new_request_leaves_the_old_pair_live
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+recorded mutant run: credit_gate_removed_from_the_Pdelay_Req_leg
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+recorded mutant run: credit_gate_removed_from_the_Sync_leg
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+recorded mutant run: credit_gate_removed_from_the_Announce_leg
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+recorded mutant run: every_pair_uses_the_locked_threshold
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+recorded mutant run: every_pair_uses_the_link_up_threshold
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+recorded mutant run: exactly_the_threshold_steps
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+recorded mutant run: the_step_arm_is_unreachable
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+recorded mutant run: a_grandmaster_change_unlocks_the_servo
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+recorded mutant run: a_receipt_timeout_unlocks_the_servo
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+recorded mutant run: becoming_grandmaster_unlocks_the_servo
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+recorded mutant run: the_locked_threshold_is_200_us
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+recorded mutant run: asCapable_s_rise_keeps_the_lock
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+recorded mutant run: becoming_grandmaster_keeps_sync_ok
+[PASS] mutant caught: becoming grandmaster keeps sync-ok - breaks "becoming grandmaster clears the sync-ok verdict"
+recorded mutant run: the_whole_trim_is_not_clamped
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+recorded mutant run: the_trim_clamp_is_one_unit_wider_than_the_envelope
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+recorded mutant run: the_integrator_is_not_clamped
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+
+34 checks: 34 PASS, 0 FAIL
+make: Leaving directory '$LANES/gptp75-slew-active/tb/verilator/engine'

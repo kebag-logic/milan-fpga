@@ -1,0 +1,45 @@
+FAIL reset holds the result face closed got 0000000000000001 exp 0000000000000000
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 0 ns, trim 1174399
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset -1 ns, trim 1174465
+FAIL D1 face closes behind the accepted result got 0000000000000001 exp 0000000000000000
+FAIL D1 second result waits for the first to dispatch got 0000000000000000 exp 0000000000000001
+FAIL D1 face stays closed while a result is owed got 0000000000000001 exp 0000000000000000
+FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+FAIL D1 response stalled at its first byte got 0000000000000000 exp 0000000000000001
+FAIL D1 face closes behind the accepted result got 0000000000000001 exp 0000000000000000
+FAIL D1 second result waits for the first to dispatch got 0000000000000000 exp 0000000000000001
+FAIL D1 face stays closed while a result is owed got 0000000000000001 exp 0000000000000000
+FAIL D1 response Follow_Up sent   got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D2a: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL D2a neighbour request answered got 0000000000000000 exp 0000000000000001
+FAIL D2a lost response retired its own claim got 0000000000000000 exp 0000000000000001
+FAIL D2a lost response left the frozen pair alone value got 0000000000000259 exp 000000000000012d
+FAIL D2a lost response left the frozen pair alone moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D2b: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b: Sync outstanding        got 0000000000000000 exp 0000000000000001
+FAIL D2b lost Sync left the recorded t1 alone value got 0000000000000259 exp 00000000000002bc
+FAIL D2b lost Sync left the recorded t1 alone moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b lost Sync retired its own claim got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D2c: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D2d: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL D2d unclaimed lost result retires nothing value got 0000000000000259 exp 00000000000001f5
+FAIL D2d unclaimed lost result retires nothing moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D3a: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL D3a the pair computes from its own operands value got 0000000000000259 exp 0000000000000191
+FAIL D3a the pair computes from its own operands moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D3b: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL D3b a zero t1 completes its exchange moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL D3c: request outstanding     got 0000000000000000 exp 0000000000000001
+FAIL D3c a real exchange after reset still computes value got 000000000000015f exp 0000000000000285
+1544 checks: 1502 PASS, 42 FAIL
