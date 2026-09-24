@@ -1,0 +1,1034 @@
+COMMAND ['make', 'ooc']
+CWD /tmp/gptp75-base-gmd_e21e
+syn/ooc/run.sh
+gptp_ucode.hex: 1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1016 PDREQ@900 TXLOST@103 TXT1OK@180
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Sep 24 17:04:56 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source /tmp/gptp75-base-gmd_e21e/syn/ooc/ucpu_ooc.tcl
+# set SPEC [file normalize [file dirname [info script]]/../..]
+# read_verilog -sv $SPEC/hdl/ucpu/gptp_ucpu_pkg.sv $SPEC/hdl/ucpu/KL_gptp_ucpu.sv
+# synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 \
+#     -generic UCODE_HEX_P=gptp_ucode.hex
+Command: synth_design -mode out_of_context -top KL_gptp_ucpu -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 100864
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2205.547 ; gain = 224.977 ; free physical = 3862 ; free virtual = 65578
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_ucpu' [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:40]
+	Parameter UCODE_HEX_P bound to: gptp_ucode.hex - type: string 
+INFO: [Synth 8-3876] $readmem data file 'gptp_ucode.hex' is read successfully [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:107]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:187]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:214]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:244]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:255]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:267]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:307]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:344]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:351]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:377]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:391]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:404]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:416]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:457]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:509]
+INFO: [Synth 8-226] default block is never used [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:509]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:557]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:605]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:648]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:680]
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_ucpu' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:40]
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2299.516 ; gain = 318.945 ; free physical = 4543 ; free virtual = 66263
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2311.391 ; gain = 330.820 ; free physical = 4436 ; free virtual = 66155
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2311.391 ; gain = 330.820 ; free physical = 4432 ; free virtual = 66152
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'ms_r_reg' in module 'KL_gptp_ucpu'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                             0001 |                               00
+                S_PRE_EV |                             0010 |                               01
+               S_PRE_TS0 |                             0100 |                               10
+                   S_RUN |                             1000 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'ms_r_reg' using encoding 'one-hot' in module 'KL_gptp_ucpu'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2336.312 ; gain = 355.742 ; free physical = 4585 ; free virtual = 66306
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   3 Input   64 Bit       Adders := 1     
+	   3 Input   33 Bit       Adders := 1     
+	   3 Input   32 Bit       Adders := 1     
+	   2 Input   20 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 1     
+	   2 Input   11 Bit       Adders := 3     
+	   2 Input   10 Bit       Adders := 4     
+	   2 Input    8 Bit       Adders := 1     
+	   2 Input    7 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 1     
+	   2 Input    4 Bit       Adders := 2     
++---XORs : 
+	   2 Input     64 Bit         XORs := 1     
+	   2 Input     20 Bit         XORs := 1     
++---Registers : 
+	               64 Bit    Registers := 8     
+	               48 Bit    Registers := 1     
+	               32 Bit    Registers := 2     
+	               24 Bit    Registers := 1     
+	               20 Bit    Registers := 1     
+	               16 Bit    Registers := 1     
+	               13 Bit    Registers := 1     
+	               11 Bit    Registers := 1     
+	               10 Bit    Registers := 3     
+	                8 Bit    Registers := 2     
+	                7 Bit    Registers := 1     
+	                6 Bit    Registers := 1     
+	                5 Bit    Registers := 2     
+	                4 Bit    Registers := 6     
+	                3 Bit    Registers := 1     
+	                1 Bit    Registers := 10    
++---Multipliers : 
+	              32x32  Multipliers := 1     
++---ROMs : 
+	                    ROMs := 1     
++---Muxes : 
+	   2 Input   64 Bit        Muxes := 8     
+	   4 Input   64 Bit        Muxes := 2     
+	   7 Input   64 Bit        Muxes := 2     
+	   3 Input   64 Bit        Muxes := 2     
+	   7 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 9     
+	   2 Input   20 Bit        Muxes := 2     
+	   7 Input   16 Bit        Muxes := 1     
+	   2 Input   16 Bit        Muxes := 2     
+	   4 Input   16 Bit        Muxes := 1     
+	   7 Input   13 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 1     
+	   7 Input   11 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 1     
+	   4 Input   11 Bit        Muxes := 1     
+	   7 Input   10 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 7     
+	   4 Input   10 Bit        Muxes := 2     
+	  11 Input    8 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 3     
+	   2 Input    8 Bit        Muxes := 2     
+	   7 Input    7 Bit        Muxes := 1     
+	   3 Input    7 Bit        Muxes := 1     
+	   7 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 1     
+	   4 Input    5 Bit        Muxes := 1     
+	   2 Input    4 Bit        Muxes := 6     
+	   4 Input    4 Bit        Muxes := 2     
+	   3 Input    4 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 2     
+	   2 Input    2 Bit        Muxes := 2     
+	   2 Input    1 Bit        Muxes := 42    
+	  16 Input    1 Bit        Muxes := 1     
+	   7 Input    1 Bit        Muxes := 14    
+	  11 Input    1 Bit        Muxes := 5     
+	   4 Input    1 Bit        Muxes := 42    
+	   3 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+WARNING: [Synth 8-3917] design KL_gptp_ucpu has port st_wstrb_o[0] driven by constant 1
+WARNING: [Synth 8-3917] design KL_gptp_ucpu has port rb_wstrb_o[0] driven by constant 1
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]__0) is unused and will be removed from module KL_gptp_ucpu.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 2546.367 ; gain = 565.797 ; free physical = 4722 ; free virtual = 66458
+---------------------------------------------------------------------------------
+ Sort Area is  md_p_r0_0 : 0 0 : 3137 5871 : Used 1 time 100
+ Sort Area is  md_p_r0_0 : 0 1 : 2734 5871 : Used 1 time 100
+ Sort Area is  md_p_r0_3 : 0 0 : 2667 5230 : Used 1 time 100
+ Sort Area is  md_p_r0_3 : 0 1 : 2563 5230 : Used 1 time 100
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++-------------+---------------+---------------+----------------+
+|Module Name  | RTL Object    | Depth x Width | Implemented As | 
++-------------+---------------+---------------+----------------+
+|KL_gptp_ucpu | upc_r_reg_rep | 1024x48       | Block RAM      | 
++-------------+---------------+---------------+----------------+
+
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++-------------+------------+----------------+----------------------+--------------+
+|Module Name  | RTL Object | Inference      | Size (Depth x Width) | Primitives   | 
++-------------+------------+----------------+----------------------+--------------+
+|KL_gptp_ucpu | rf_r_reg   | User Attribute | 16 x 64              | RAM32M x 33  | 
++-------------+------------+----------------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name  | DSP Mapping      | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_gptp_ucpu | A2*B2            | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17)+A2*B2 | 15     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu | A2*B2            | 18     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17)+A2*B2 | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:16 ; elapsed = 00:00:16 . Memory (MB): peak = 2546.367 ; gain = 565.797 ; free physical = 4852 ; free virtual = 66597
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Final Mapping Report
++-------------+------------+----------------+----------------------+--------------+
+|Module Name  | RTL Object | Inference      | Size (Depth x Width) | Primitives   | 
++-------------+------------+----------------+----------------------+--------------+
+|KL_gptp_ucpu | rf_r_reg   | User Attribute | 16 x 64              | RAM32M x 33  | 
++-------------+------------+----------------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:16 ; elapsed = 00:00:17 . Memory (MB): peak = 2546.367 ; gain = 565.797 ; free physical = 4809 ; free virtual = 66554
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2679.180 ; gain = 698.609 ; free physical = 4324 ; free virtual = 66070
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2679.180 ; gain = 698.609 ; free physical = 4321 ; free virtual = 66067
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2679.180 ; gain = 698.609 ; free physical = 4293 ; free virtual = 66039
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2679.180 ; gain = 698.609 ; free physical = 4281 ; free virtual = 66027
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2682.148 ; gain = 701.578 ; free physical = 4295 ; free virtual = 66040
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2682.148 ; gain = 701.578 ; free physical = 4295 ; free virtual = 66040
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name  | DSP Mapping       | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_gptp_ucpu | A'*B'             | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17+A'*B')' | 30     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu | A'*B'             | 17     | 17     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17+A'*B')' | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   111|
+|2     |DSP48E1  |     4|
+|3     |LUT1     |    16|
+|4     |LUT2     |   171|
+|5     |LUT3     |   151|
+|6     |LUT4     |   195|
+|7     |LUT5     |   276|
+|8     |LUT6     |   848|
+|9     |RAM32M   |    33|
+|10    |RAMB18E1 |     1|
+|11    |RAMB36E1 |     1|
+|12    |FDRE     |   732|
+|13    |FDSE     |     1|
++------+---------+------+
+
+Report Instance Areas: 
++------+---------+-------+------+
+|      |Instance |Module |Cells |
++------+---------+-------+------+
+|1     |top      |       |  2540|
++------+---------+-------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2682.148 ; gain = 701.578 ; free physical = 4292 ; free virtual = 66037
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 64 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2682.148 ; gain = 701.578 ; free physical = 4263 ; free virtual = 66008
+Synthesis Optimization Complete : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2682.156 ; gain = 701.578 ; free physical = 4255 ; free virtual = 66000
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2694.055 ; gain = 0.000 ; free physical = 4185 ; free virtual = 65931
+INFO: [Netlist 29-17] Analyzing 150 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+WARNING: [Netlist 29-101] Netlist 'KL_gptp_ucpu' is not ideal for floorplanning, since the cellview 'KL_gptp_ucpu' contains a large number of primitives.  Please consider enabling hierarchy in synthesis if you want to do floorplanning.
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3027.730 ; gain = 0.000 ; free physical = 3918 ; free virtual = 65519
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 33 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 33 instances
+
+Synth Design complete | Checksum: e14e7429
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+36 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:24 ; elapsed = 00:00:23 . Memory (MB): peak = 3030.699 ; gain = 1050.129 ; free physical = 3880 ; free virtual = 65486
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2219.833; main = 2219.833; forked = 344.006
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3522.703; main = 3030.703; forked = 1032.355
+# create_clock -period 10.000 -name clk [get_ports clk_i]
+# report_utilization -hierarchical -file ucpu_util_hier.rpt
+# report_utilization -file ucpu_util.rpt
+# report_timing_summary -delay_type max -max_paths 3 -file ucpu_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:00:15 ; elapsed = 00:00:06 . Memory (MB): peak = 3286.824 ; gain = 256.125 ; free physical = 1611 ; free virtual = 63503
+INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 17:05:30 2026...
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Sep 24 17:05:32 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source /tmp/gptp75-base-gmd_e21e/syn/ooc/engine_ooc.tcl
+# set SPEC [file normalize [file dirname [info script]]/../..]
+# read_verilog -sv \
+#     $SPEC/hdl/ucpu/gptp_ucpu_pkg.sv \
+#     $SPEC/hdl/ucpu/KL_gptp_ucpu.sv \
+#     $SPEC/hdl/wire/KL_gptp_rx_parser.sv \
+#     $SPEC/hdl/wire/KL_gptp_tx_slot.sv \
+#     $SPEC/hdl/common/KL_gptp_timer.sv \
+#     $SPEC/hdl/top/KL_gptp_engine.sv
+# synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 \
+#     -generic UCODE_HEX_P=gptp_ucode.hex
+Command: synth_design -mode out_of_context -top KL_gptp_engine -part xc7a100tfgg484-2 -generic UCODE_HEX_P=gptp_ucode.hex
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 105147
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:03 ; elapsed = 00:00:04 . Memory (MB): peak = 2205.812 ; gain = 212.250 ; free physical = 5752 ; free virtual = 66114
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_engine' [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:57]
+	Parameter UCODE_HEX_P bound to: gptp_ucode.hex - type: string 
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_rx_parser' [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_rx_parser.sv:86]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_rx_parser.sv:245]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_rx_parser.sv:320]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_rx_parser.sv:413]
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_rx_parser' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_rx_parser.sv:86]
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_timer' [/tmp/gptp75-base-gmd_e21e/hdl/common/KL_gptp_timer.sv:24]
+	Parameter CLK_HZ_P bound to: 32'b00000101111101011110000100000000 
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_timer' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/common/KL_gptp_timer.sv:24]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:520]
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_ucpu' [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:40]
+	Parameter UCODE_HEX_P bound to: gptp_ucode.hex - type: string 
+INFO: [Synth 8-3876] $readmem data file 'gptp_ucode.hex' is read successfully [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:107]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:187]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:214]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:244]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:255]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:267]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:307]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:344]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:351]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:377]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:391]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:404]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:416]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:457]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:509]
+INFO: [Synth 8-226] default block is never used [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:509]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:557]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:605]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:648]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:680]
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_ucpu' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/ucpu/KL_gptp_ucpu.sv:40]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:695]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:698]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:736]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:832]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:857]
+INFO: [Synth 8-6157] synthesizing module 'KL_gptp_tx_slot' [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_tx_slot.sv:25]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_tx_slot.sv:67]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_tx_slot.sv:77]
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_tx_slot' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/wire/KL_gptp_tx_slot.sv:25]
+INFO: [Synth 8-6155] done synthesizing module 'KL_gptp_engine' (0#1) [/tmp/gptp75-base-gmd_e21e/hdl/top/KL_gptp_engine.sv:57]
+WARNING: [Synth 8-7129] Port rb_addr_i[9] in module KL_gptp_tx_slot is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rb_addr_i[8] in module KL_gptp_tx_slot is either unconnected or has no load
+WARNING: [Synth 8-7129] Port rb_addr_i[7] in module KL_gptp_tx_slot is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2321.750 ; gain = 328.188 ; free physical = 5489 ; free virtual = 65856
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 2339.562 ; gain = 346.000 ; free physical = 5659 ; free virtual = 66027
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 2339.562 ; gain = 346.000 ; free physical = 5659 ; free virtual = 66027
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'ms_r_reg' in module 'KL_gptp_ucpu'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                             0001 |                               00
+                S_PRE_EV |                             0010 |                               01
+               S_PRE_TS0 |                             0100 |                               10
+                   S_RUN |                             1000 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'ms_r_reg' using encoding 'one-hot' in module 'KL_gptp_ucpu'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:09 ; elapsed = 00:00:08 . Memory (MB): peak = 2390.414 ; gain = 396.852 ; free physical = 5969 ; free virtual = 66170
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   3 Input   64 Bit       Adders := 1     
+	   3 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 2     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   20 Bit       Adders := 2     
+	   4 Input   18 Bit       Adders := 1     
+	   2 Input   17 Bit       Adders := 1     
+	   2 Input   16 Bit       Adders := 2     
+	   2 Input   13 Bit       Adders := 1     
+	   2 Input   11 Bit       Adders := 6     
+	   2 Input   10 Bit       Adders := 5     
+	   2 Input    8 Bit       Adders := 3     
+	   2 Input    7 Bit       Adders := 4     
+	   2 Input    6 Bit       Adders := 1     
+	   2 Input    4 Bit       Adders := 2     
+	   2 Input    3 Bit       Adders := 3     
+	   4 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 5     
++---XORs : 
+	   2 Input     64 Bit         XORs := 1     
+	   2 Input     20 Bit         XORs := 1     
++---Registers : 
+	              448 Bit    Registers := 2     
+	               64 Bit    Registers := 27    
+	               48 Bit    Registers := 1     
+	               32 Bit    Registers := 16    
+	               24 Bit    Registers := 1     
+	               20 Bit    Registers := 1     
+	               16 Bit    Registers := 9     
+	               13 Bit    Registers := 1     
+	               11 Bit    Registers := 3     
+	               10 Bit    Registers := 5     
+	                8 Bit    Registers := 7     
+	                7 Bit    Registers := 3     
+	                6 Bit    Registers := 1     
+	                5 Bit    Registers := 3     
+	                4 Bit    Registers := 10    
+	                3 Bit    Registers := 7     
+	                2 Bit    Registers := 3     
+	                1 Bit    Registers := 47    
++---Multipliers : 
+	              32x32  Multipliers := 1     
++---RAMs : 
+	              160 Bit	(4 X 40 bit)          RAMs := 1     
++---ROMs : 
+	                    ROMs := 1     
++---Muxes : 
+	   2 Input  448 Bit        Muxes := 5     
+	   8 Input  448 Bit        Muxes := 1     
+	   2 Input   64 Bit        Muxes := 43    
+	   4 Input   64 Bit        Muxes := 6     
+	   7 Input   64 Bit        Muxes := 2     
+	   3 Input   64 Bit        Muxes := 6     
+	   5 Input   64 Bit        Muxes := 1     
+	   2 Input   40 Bit        Muxes := 3     
+	   7 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 11    
+	   5 Input   32 Bit        Muxes := 1     
+	   2 Input   20 Bit        Muxes := 2     
+	   7 Input   16 Bit        Muxes := 1     
+	   2 Input   16 Bit        Muxes := 2     
+	   4 Input   16 Bit        Muxes := 1     
+	   7 Input   13 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 2     
+	   7 Input   11 Bit        Muxes := 1     
+	   4 Input   11 Bit        Muxes := 2     
+	   7 Input   10 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 8     
+	   4 Input   10 Bit        Muxes := 2     
+	   3 Input   10 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 4     
+	  11 Input    8 Bit        Muxes := 1     
+	   2 Input    8 Bit        Muxes := 8     
+	   2 Input    7 Bit        Muxes := 1     
+	   7 Input    7 Bit        Muxes := 1     
+	   3 Input    7 Bit        Muxes := 1     
+	   6 Input    7 Bit        Muxes := 1     
+	   7 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 1     
+	   4 Input    5 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 10    
+	   3 Input    5 Bit        Muxes := 1     
+	   2 Input    4 Bit        Muxes := 15    
+	   8 Input    4 Bit        Muxes := 1     
+	   4 Input    4 Bit        Muxes := 3     
+	   3 Input    4 Bit        Muxes := 3     
+	  12 Input    4 Bit        Muxes := 2     
+	   2 Input    3 Bit        Muxes := 5     
+	   8 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 1     
+	   4 Input    2 Bit        Muxes := 2     
+	   2 Input    2 Bit        Muxes := 7     
+	   2 Input    1 Bit        Muxes := 212   
+	   5 Input    1 Bit        Muxes := 10    
+	   8 Input    1 Bit        Muxes := 1     
+	   3 Input    1 Bit        Muxes := 11    
+	  16 Input    1 Bit        Muxes := 1     
+	   7 Input    1 Bit        Muxes := 14    
+	  11 Input    1 Bit        Muxes := 5     
+	   4 Input    1 Bit        Muxes := 44    
+	  12 Input    1 Bit        Muxes := 4     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register opa_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: Generating DSP md_p_r0, operation Mode is: A2*B2.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: register md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r0.
+DSP Report: Generating DSP md_p_r_reg, operation Mode is: (PCIN>>17)+A2*B2.
+DSP Report: register opb_e_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: register md_p_r_reg is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+DSP Report: operator md_p_r0 is absorbed into DSP md_p_r_reg.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[47]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[46]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[45]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[44]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[43]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[42]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[41]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[40]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[39]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[38]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[37]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[36]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[35]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[34]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[33]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[32]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[31]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[30]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[29]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[28]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[27]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[26]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[25]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[24]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[23]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[22]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[21]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[20]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[19]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[18]__0) is unused and will be removed from module KL_gptp_ucpu.
+WARNING: [Synth 8-3332] Sequential element (md_p_r_reg[17]__0) is unused and will be removed from module KL_gptp_ucpu.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:37 ; elapsed = 00:00:37 . Memory (MB): peak = 2639.594 ; gain = 646.031 ; free physical = 6668 ; free virtual = 65400
+---------------------------------------------------------------------------------
+ Sort Area is KL_gptp_engine__GB1 md_p_r0_0 : 0 0 : 3137 5871 : Used 1 time 100
+ Sort Area is KL_gptp_engine__GB1 md_p_r0_0 : 0 1 : 2734 5871 : Used 1 time 100
+ Sort Area is KL_gptp_engine__GB1 md_p_r0_3 : 0 0 : 2667 5230 : Used 1 time 100
+ Sort Area is KL_gptp_engine__GB1 md_p_r0_3 : 0 1 : 2563 5230 : Used 1 time 100
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++-------------+---------------+---------------+----------------+
+|Module Name  | RTL Object    | Depth x Width | Implemented As | 
++-------------+---------------+---------------+----------------+
+|KL_gptp_ucpu | upc_r_reg_rep | 1024x48       | Block RAM      | 
++-------------+---------------+---------------+----------------+
+
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------+------------------+----------------+----------------------+----------------+
+|Module Name    | RTL Object       | Inference      | Size (Depth x Width) | Primitives     | 
++---------------+------------------+----------------+----------------------+----------------+
+|u_txslot       | slot_r_reg       | User Attribute | 128 x 8              | RAM64M x 6     | 
+|u_ucpu         | rf_r_reg         | User Attribute | 16 x 64              | RAM32M x 33    | 
+|KL_gptp_engine | evq_r_reg        | Implied        | 4 x 40               | RAM32M x 7     | 
+|KL_gptp_engine | evq_pd_ctx_r_reg | User Attribute | 4 x 144              | RAM32M x 24    | 
+|KL_gptp_engine | scratch_r_reg    | User Attribute | 64 x 64              | RAM64X1S x 64  | 
+|KL_gptp_engine | bank_r_reg       | User Attribute | 64 x 64              | RAM64M x 22    | 
+|KL_gptp_engine | ann_ctx_r_reg    | User Attribute | 32 x 64              | RAM32M x 11    | 
++---------------+------------------+----------------+----------------------+----------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name  | DSP Mapping      | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_gptp_ucpu | A2*B2            | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17)+A2*B2 | 15     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu | A2*B2            | 18     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17)+A2*B2 | 18     | 15     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
++-------------+------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:37 ; elapsed = 00:00:38 . Memory (MB): peak = 2639.594 ; gain = 646.031 ; free physical = 6629 ; free virtual = 65362
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Distributed RAM: Final Mapping Report
++---------------+------------------+----------------+----------------------+----------------+
+|Module Name    | RTL Object       | Inference      | Size (Depth x Width) | Primitives     | 
++---------------+------------------+----------------+----------------------+----------------+
+|u_txslot       | slot_r_reg       | User Attribute | 128 x 8              | RAM64M x 6     | 
+|u_ucpu         | rf_r_reg         | User Attribute | 16 x 64              | RAM32M x 33    | 
+|KL_gptp_engine | evq_r_reg        | Implied        | 4 x 40               | RAM32M x 7     | 
+|KL_gptp_engine | evq_pd_ctx_r_reg | User Attribute | 4 x 144              | RAM32M x 24    | 
+|KL_gptp_engine | scratch_r_reg    | User Attribute | 64 x 64              | RAM64X1S x 64  | 
+|KL_gptp_engine | bank_r_reg       | User Attribute | 64 x 64              | RAM64M x 22    | 
+|KL_gptp_engine | ann_ctx_r_reg    | User Attribute | 32 x 64              | RAM32M x 11    | 
++---------------+------------------+----------------+----------------------+----------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:39 ; elapsed = 00:00:39 . Memory (MB): peak = 2639.594 ; gain = 646.031 ; free physical = 6955 ; free virtual = 65862
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2712.406 ; gain = 718.844 ; free physical = 6787 ; free virtual = 65696
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2712.406 ; gain = 718.844 ; free physical = 6791 ; free virtual = 65700
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2712.406 ; gain = 718.844 ; free physical = 6944 ; free virtual = 65853
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2712.406 ; gain = 718.844 ; free physical = 6854 ; free virtual = 65762
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2716.375 ; gain = 722.812 ; free physical = 6753 ; free virtual = 65661
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2716.375 ; gain = 722.812 ; free physical = 6733 ; free virtual = 65641
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name  | DSP Mapping       | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_gptp_ucpu | A'*B'             | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17+A'*B')' | 30     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
+|KL_gptp_ucpu | A'*B'             | 17     | 17     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 0    | 
+|KL_gptp_ucpu | (PCIN>>17+A'*B')' | 17     | 18     | -      | -      | 48     | 1    | 1    | -    | -    | -     | 0    | 1    | 
++-------------+-------------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   189|
+|2     |DSP48E1  |     4|
+|3     |LUT1     |    30|
+|4     |LUT2     |   409|
+|5     |LUT3     |   384|
+|6     |LUT4     |   540|
+|7     |LUT5     |  1257|
+|8     |LUT6     |  2141|
+|9     |MUXF7    |    62|
+|10    |RAM32M   |    72|
+|11    |RAM32X1D |     2|
+|12    |RAM64M   |    27|
+|13    |RAM64X1D |     1|
+|14    |RAM64X1S |    64|
+|15    |RAMB18E1 |     1|
+|16    |RAMB36E1 |     1|
+|17    |FDRE     |  3644|
+|18    |FDSE     |     2|
++------+---------+------+
+
+Report Instance Areas: 
++------+-----------+------------------+------+
+|      |Instance   |Module            |Cells |
++------+-----------+------------------+------+
+|1     |top        |                  |  8830|
+|2     |  u_parser |KL_gptp_rx_parser |  1347|
+|3     |  u_timer  |KL_gptp_timer     |   663|
+|4     |  u_txslot |KL_gptp_tx_slot   |   184|
+|5     |  u_ucpu   |KL_gptp_ucpu      |  3787|
++------+-----------+------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2716.375 ; gain = 722.812 ; free physical = 6734 ; free virtual = 65642
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 65 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2716.375 ; gain = 722.812 ; free physical = 6702 ; free virtual = 65610
+Synthesis Optimization Complete : Time (s): cpu = 00:00:42 ; elapsed = 00:00:43 . Memory (MB): peak = 2716.383 ; gain = 722.812 ; free physical = 6702 ; free virtual = 65610
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2728.281 ; gain = 0.000 ; free physical = 6553 ; free virtual = 65461
+INFO: [Netlist 29-17] Analyzing 423 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3062.926 ; gain = 0.000 ; free physical = 6360 ; free virtual = 65278
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 166 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 72 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 27 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 1 instance 
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+Synth Design complete | Checksum: 5679e238
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+55 Infos, 65 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:48 ; elapsed = 00:00:46 . Memory (MB): peak = 3065.895 ; gain = 1072.332 ; free physical = 6583 ; free virtual = 65333
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2232.322; main = 2232.322; forked = 338.375
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3671.953; main = 3065.898; forked = 1032.355
+# create_clock -period 10.000 -name clk [get_ports clk_i]
+# report_utilization -hierarchical -file engine_util_hier.rpt
+# report_utilization -file engine_util.rpt
+# report_timing_summary -delay_type max -max_paths 3 -file engine_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:01:38 ; elapsed = 00:00:19 . Memory (MB): peak = 3322.020 ; gain = 256.125 ; free physical = 6598 ; free virtual = 65540
+INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 17:06:42 2026...
+==== ucpu ====
+| Slice LUTs*                | 1643 |     0 |          0 |     63400 |  2.59 |
+|   LUT as Logic             | 1511 |     0 |          0 |     63400 |  2.38 |
+|   LUT as Memory            |  132 |     0 |          0 |     19000 |  0.69 |
+--
+| Block RAM Tile    |  1.5 |     0 |          0 |       135 |  1.11 |
+|   RAMB36/FIFO*    |    1 |     0 |          0 |       135 |  0.74 |
+|     RAMB36E1 only |    1 |       |            |           |       |
+--
+* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E1 or one FIFO18E1. However, if a FIFO18E1 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E1
+
+
+--
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+|   DSP48E1 only |    4 |       |            |           |       |
++----------------+------+-------+------------+-----------+-------+
+==== engine ====
+| Slice LUTs*                | 4773 |     0 |          0 |     63400 |  7.53 |
+|   LUT as Logic             | 4307 |     0 |          0 |     63400 |  6.79 |
+|   LUT as Memory            |  466 |     0 |          0 |     19000 |  2.45 |
+--
+| Block RAM Tile    |  1.5 |     0 |          0 |       135 |  1.11 |
+|   RAMB36/FIFO*    |    1 |     0 |          0 |       135 |  0.74 |
+|     RAMB36E1 only |    1 |       |            |           |       |
+--
+* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E1 or one FIFO18E1. However, if a FIFO18E1 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E1
+
+
+--
+| DSPs           |    4 |     0 |          0 |       240 |  1.67 |
+|   DSP48E1 only |    4 |       |            |           |       |
++----------------+------+-------+------------+-----------+-------+

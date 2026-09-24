@@ -1,0 +1,1979 @@
+diff --git a/bench/arty/bench_arty_top.sv b/bench/arty/bench_arty_top.sv
+index 69c9c45..95da352 100644
+--- a/bench/arty/bench_arty_top.sv
++++ b/bench/arty/bench_arty_top.sv
+@@ -294,6 +294,7 @@ module bench_arty_top (
+       .phc_addend_o       (phc_add_w),
+       .phc_step_we_o      (phc_step_we_w),
+       .phc_step_o         (phc_step_w),
++      .phc_slew_active_o (),
+       .pub_gm_id_o        (pub_gm_w),
+       .pub_parent_id_o    (pub_parent_w),
+       .pub_flags_o        (pub_flags_w),
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 90ed568..138d4f1 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -103,7 +103,7 @@ The microCPU uses `st_addr_o[19:16]` for selection.
+ | 1 | Read-only | Ingress time, egress time, credit |
+ | 2 | Read-write | Sixty-four protocol scratch words |
+ | 3 | Read-write | Publication staging bank |
+-| 4 | Write-only | PHC rate and phase controls |
++| 4 | Read-write | PHC controls and policy completion qualifier |
+ | 5 | Write-only | Timer arming interface |
+ 
+ Scratch storage survives warm resets.
+@@ -112,6 +112,16 @@ Resettable claim-valid bits do not survive.
+ 
+ Pairing validity bits do not survive either.
+ 
++The PHC slew qualifier also resets independently.
++
++Microcode writes its remaining completion pairs through PHC word 2.
++
++Nonzero decisions immediately assert `phc_slew_active_o`.
++
++A zero decision clears it with the next rate write.
++
++PHC word 3 retires an active correction during mastership.
++
+ ## MicroCPU shape
+ 
+ - ROM contains 1,024 forty-eight-bit instructions.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index edac592..b18a95e 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -153,6 +153,7 @@ Restore credit to resume every normal cadence.
+ | `phc_addend_o[31:0]` | Carries signed Q8.24 ns-per-tick rate trim |
+ | `phc_step_we_o` | Applies one phase step |
+ | `phc_step_o[63:0]` | Carries signed phase adjustment nanoseconds |
++| `phc_slew_active_o` | Registered level covering transient policy correction |
+ 
+ Treat each write-enable as a pulse.
+ 
+@@ -162,7 +163,11 @@ Apply its data during that cycle.
+ 
+ Each write-enable stays high for exactly one `clk_i` cycle.
+ 
+-Only a consumed slave Sync and Follow_Up pair writes.
++Consumed slave Sync and Follow_Up pairs write corrections.
++
++Mastership also retires any active slave correction.
++
++That transition writes the integral-only rate, without stepping.
+ 
+ Each consumed pair writes exactly one addend pulse.
+ 
+@@ -203,7 +208,9 @@ The offset is local time minus grandmaster time.
+ 
+ An offset of exactly the threshold slews.
+ 
+-Every other pair slews through the rate path.
++Every other pair runs the PI rate path.
++
++This includes ordinary tracking and transient offset correction.
+ 
+ #### Link-up
+ 
+@@ -269,6 +276,84 @@ A master over 200 ppm apart outruns the trim.
+ 
+ Its offset then grows past 100 us and steps.
+ 
++#### Slew-active level
++
++[Issue #75](https://github.com/Mister-M-alt/FPGA-gPTP/issues/75) defines the consumer indication.
++
++`phc_slew_active_o` is a registered, `clk_i`-synchronous level.
++
++It marks transient offset correction through the rate path.
++
++The policy distinguishes correction from ordinary frequency tracking.
++
++Its tracking band is inclusive: -100 ns through +100 ns.
++
++This tolerance does not change either step threshold.
++
++The existing PI arithmetic and rate clamp remain unchanged.
++
++| Consumed pair | Policy decision |
++|---|---|
++| Offset exceeds the applicable step threshold | Step; no new slew |
++| Non-stepping offset outside the tracking band | Start or continue correction |
++| First consecutive pair inside the band | Keep an existing correction active |
++| Second consecutive pair inside the band | Complete the correction |
++| Tracking inside the band without an active correction | Stay inactive |
++
++Every outside-band pair restarts the two-pair completion qualification.
++
++One zero crossing therefore cannot complete a correction.
++
++The decision precedes the affected addend write.
++
++The level rises when microcode publishes that decision.
++
++It stays high throughout the interval between consumed pairs.
++
++Completion clears it alongside that pair's replacement addend pulse.
++
++Ordinary PI tracking continues, including nonzero frequency trims.
++
++A step alone never raises this level.
++
++Neither the synchronization flag nor addend magnitude determines it.
++
++| Event | Level and correction behavior |
++|---|---|
++| Synchronous reset | Clear level and qualification immediately |
++| Warm reset | Retained scratch cannot revive the level |
++| asCapable loss | Hold level and applied rate; restart completion qualification |
++| Missing Sync; 375 ms receipt timeout | Hold level and rate; restart qualification at timeout |
++| Missing Follow_Up; 125 ms timeout | Discard pending pair; retain level and rate |
++| Grandmaster identity change | Hold level and rate; restart qualification |
++| Replacement step | Hold through step; clear with its integral-only addend |
++| Becoming grandmaster | Replace active correction with integral-only rate; clear together |
++| Returning to slave duty | Next consumed pair makes the policy decision |
++
++Reset the consumer's retained rate when resetting the engine.
++
++Loss of capability alone cannot remove an applied correction.
++
++A held slew can therefore remain active indefinitely.
++
++There is no elapsed-time completion or 0.5 s watchdog.
++
++Completion follows the measured policy verdict above.
++
++Sample this level with the PHC control signals.
++
++It is independent of `pub_commit_o`.
++
++Consumers must preserve alignment with their effective PHC rate.
++
++Discard every measurement window overlapping the level's high interval.
++
++A partly overlapping window remains affected after deassertion.
++
++The parent must carry this level through `KL_gptp_shadow`.
++
++That consumer connection belongs to [parent #545](https://github.com/kebag-logic/milan-fpga/issues/545).
++
+ #### Publication during a slew
+ 
+ `pub_flags_o` bit 3 publishes the synchronization verdict.
+@@ -337,6 +422,7 @@ Set `CLK_HZ_P` to the actual engine frequency.
+ - Drive admission credit as a level.
+ - Apply PHC pulses once.
+ - Count each step pulse as one step.
++- Align the slew level with effective rate changes.
+ - Derive addend envelopes from the generator clock.
+ - Capture publication only on commit.
+ - Review the open interface risk.
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index b92d009..51226e4 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -99,6 +99,9 @@ Prefer independent protocol formulas and frame builders.
+ - Proves the link-up and locked step thresholds.
+ - Keeps the lock across timeouts, failovers and mastership.
+ - Keeps every written addend inside 200 ppm.
++- Checks slew decisions, completion, and held intervals.
++- Checks reset, lost capability, missing Sync, steps, and mastership.
++- Rejects tied-low and early-clear slew indications.
+ - Exercises reset, backpressure, ordering, and timeouts.
+ - Reorders and withholds timestamp results.
+ - Holds every result offer until acceptance.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 458c8c6..e8b6900 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -29,7 +29,8 @@
+ //                  3  publish bank      RW  (0 gm id, 1 parent id,
+ //                                            2 flags, 3 pdelay ns,
+ //                                            6 path count, 8..14 path tail)
+-//                  4  PHC control       WO  (0 rate addend, 1 step)
++//                  4  PHC control       RW  (0 rate, 1 step, 2 slew verdict,
++//                                            3 integral-only rate)
+ //                  5  timer arm         WO  (slot = addr, delta ms = data)
+ //
+ //                gather: free-running millisecond time.
+@@ -103,6 +104,9 @@ module KL_gptp_engine
+     output logic [31:0] phc_addend_o,
+     output logic        phc_step_we_o,
+     output logic [63:0] phc_step_o,
++    //! Policy correction level; rises on its decision, clears with the
++    //! completing/replacement rate. Holds across missing Sync/asCapable loss.
++    output logic        phc_slew_active_o,
+ 
+     //! publish bank as wires — the retired software contract
+     output logic [63:0] pub_gm_id_o,
+@@ -690,6 +694,11 @@ module KL_gptp_engine
+   wire [3:0] ann_pub_count_clamped_w = (ann_pub_count_r > 8'd8)
+       ? 4'd8 : ann_pub_count_r[3:0];
+ 
++  //! Policy-owned completion qualifier: remaining in-band pairs, 0..2.
++  //! Separate from the exported level: a zero verdict stages completion,
++  //! but the old PHC rate remains affected until its replacement is written.
++  logic [1:0] phc_slew_left_r;
++
+   logic [63:0] st_rd_mux_w;
+   always_comb begin : st_read_mux
+     unique case (st_addr_w[19:16])
+@@ -746,6 +755,7 @@ module KL_gptp_engine
+           default: st_rd_mux_w = 64'd0;
+         endcase
+       end
++      4'd4: st_rd_mux_w = {62'd0, phc_slew_left_r};
+       default: st_rd_mux_w = 64'd0;
+     endcase
+   end
+@@ -782,6 +792,8 @@ module KL_gptp_engine
+       phc_addend_o    <= '0;
+       phc_step_we_o   <= 1'b0;
+       phc_step_o      <= '0;
++      phc_slew_active_o <= 1'b0;
++      phc_slew_left_r   <= 2'd0;
+       tmr_arm_we_w    <= 1'b0;
+       tmr_arm_slot_w  <= '0;
+       tmr_arm_delta_w <= '0;
+@@ -857,7 +869,14 @@ module KL_gptp_engine
+             unique case (st_addr_w[3:0])
+               4'd0: pub_gm_r     <= st_wdata_w;
+               4'd1: pub_parent_r <= st_wdata_w;
+-              4'd2: pub_flags_r  <= st_wdata_w[31:0];
++              4'd2: begin
++                pub_flags_r <= st_wdata_w[31:0];
++                //! A lapse in trustworthy measurements breaks settling
++                //! qualification, but leaves the applied correction active.
++                if (phc_slew_active_o &&
++                    (!st_wdata_w[2] || !st_wdata_w[3]))
++                  phc_slew_left_r <= 2'd2;
++              end
+               4'd3: pub_pdelay_r <= st_wdata_w[31:0];
+               4'd4: pub_offset_r <= st_wdata_w[31:0];
+               4'd5: pub_annq_r   <= st_wdata_w;
+@@ -895,13 +914,33 @@ module KL_gptp_engine
+             endcase
+           end
+           4'd4: begin
+-            if (st_addr_w[0]) begin
+-              phc_step_we_o <= 1'b1;
+-              phc_step_o    <= st_wdata_w;
+-            end else begin
+-              phc_addend_we_o <= 1'b1;
+-              phc_addend_o    <= st_wdata_w[31:0];
+-            end
++            unique case (st_addr_w[1:0])
++              2'd0: begin
++                phc_addend_we_o <= 1'b1;
++                phc_addend_o    <= st_wdata_w[31:0];
++                phc_slew_active_o <= (phc_slew_left_r != 2'd0);
++              end
++              2'd1: begin
++                phc_step_we_o <= 1'b1;
++                phc_step_o    <= st_wdata_w;
++                //! Keep an existing level until the step's rate tail.
++                phc_slew_left_r <= 2'd0;
++              end
++              2'd2: begin
++                phc_slew_left_r <= st_wdata_w[1:0];
++                if (st_wdata_w[1:0] != 2'd0)
++                  phc_slew_active_o <= 1'b1;
++              end
++              2'd3: begin
++                //! Mastership explicitly retires the slave's phase term.
++                if (phc_slew_active_o) begin
++                  phc_addend_we_o <= 1'b1;
++                  phc_addend_o    <= st_wdata_w[31:0];
++                end
++                phc_slew_left_r   <= 2'd0;
++                phc_slew_active_o <= 1'b0;
++              end
++            endcase
+           end
+           4'd5: begin
+             tmr_arm_we_w    <= 1'b1;
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 743af03..54ebb73 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -404,6 +404,10 @@ CEASE_MS_C = 300_000            # resume after 5 min (--cease-ms overrides)
+ # ---- servo constants (clock-aware, set by set_servo_gains) -----------------
+ STEP_LINKUP_NS_C = 20000        # a link-up pair steps above this, ns (#68)
+ STEP_LOCKED_NS_C = 100000       # a locked pair steps above this, ns (#68)
++# #75: distinguish transient phase correction from ordinary PI tracking.
++# Two consecutive consumed pairs inside this inclusive band complete a slew.
++# This is a completion tolerance, not another step threshold or a rate bound.
++SLEW_SETTLED_NS_C = 100
+ RATE_PPM_C = 200                # the rate envelope, ppm: the integrator clamp
+                                 # and, since #68, the whole written trim
+ GAIN_S_C = 6                    # ns -> addend units: (off * GAIN_M) >> 6
+@@ -824,8 +828,30 @@ def prog_leg_servo(base: int) -> Prog:
+     # the rate estimate survives the step AND becomes the whole addend:
+     # the re-base just made the stale proportional term moot
+     p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
+-    p.emit("BR", label="sv_rate")
++    p.emit("BR", label=LB["SVRATE"])
+     p.label("sv_slew")
++    p.emit("BR", label=LB["SLEW"])
++    return p
++
++
++def prog_leg_slew(base: int) -> Prog:
++    """Publish transient-versus-tracking policy, then compute the PI trim."""
++    p = Prog(base)
++    # Publish the policy verdict before the affected rate write. PHC word 2
++    # holds the remaining in-band pairs (0..2), reset independently of scratch.
++    # The step gate already bounds RA to +-100 us. Its biased low word
++    # compares unsigned below 2B+1 exactly inside the signed tracking band.
++    p.emit("RDST", rd=RB, imm=RG_PHC | 2, fmt=FMT_Q)
++    p.emit("ALU", rd=RW, ra=RA, rb=0, cnd=ALU_ADD, imm=SLEW_SETTLED_NS_C)
++    p.emit("CMP", ra=RW, rb=0, fmt=FMT_D, imm=2 * SLEW_SETTLED_NS_C + 1)
++    p.emit("BRS", cnd=BRS_LT, label="sv_tracking")
++    p.emit("MOVE", rd=RB, ra=0, imm=3)                       # reload, then -1
++    p.label("sv_tracking")
++    p.emit("CMP", ra=RB, rb=0, fmt=FMT_Q, imm=0)
++    p.emit("BRS", cnd=BRS_Z, label="sv_decided")
++    p.emit("ALU", rd=RB, ra=RB, rb=0, cnd=ALU_SUB, imm=1)
++    p.label("sv_decided")
++    p.emit("WRST", ra=RB, imm=RG_PHC | 2, fmt=FMT_Q)
+     p.emit("MOVE", rd=RB, ra=0, imm=RUNTIME["gain_m"])
+     p.emit("MD", rd=RT, ra=RA, rb=RB, cnd=MD_MULS)           # off * M
+     p.emit("ALU", rd=RT, ra=RT, rb=0, cnd=ALU_SAR, imm=GAIN_S_C)
+@@ -837,7 +863,13 @@ def prog_leg_servo(base: int) -> Prog:
+     p.emit("ALU", rd=RB, ra=RT, rb=0, cnd=ALU_SAR, imm=2)
+     p.emit("ALU", rd=RT, ra=RT, rb=RB, cnd=ALU_SUB)          # kp = 3/4
+     p.emit("ALU", rd=RT, ra=RT, rb=RC, cnd=ALU_ADD)          # + I
+-    p.label("sv_rate")
++    p.emit("BR", label=LB["SVRATE"])
++    return p
++
++
++def prog_leg_svrate(base: int) -> Prog:
++    """Replace the rate and finish a consumed pair's policy transaction."""
++    p = Prog(base)
+     # the whole trim, proportional plus integral, stays inside the rate
+     # envelope the parent's egress reconstruction enforces
+     e_sat(p, RT, RUNTIME["ilim"], "sv_a")                    # +-200 ppm
+@@ -1609,6 +1641,12 @@ def prog_become(base: int) -> Prog:
+     best-vector record to ourselves, and swap the slave's receipt watches
+     for the Sync and Announce transmit cadences."""
+     p = Prog(base)
++    # Retire the slave's phase correction before publishing mastership.
++    # Word 3 replaces the trim with the retained rate estimate and clears
++    # the slew verdict on that same PHC write, just as a step's rate tail.
++    p.emit("RDST", rd=RT, imm=RG_SCR | S_INTG, fmt=FMT_Q)
++    p.emit("ALU", rd=RT, ra=R0, rb=RT, cnd=ALU_SUB)
++    p.emit("WRST", ra=RT, imm=RG_PHC | 3, fmt=FMT_Q)
+     p.emit("RDST", rd=RC, imm=RG_SCR | S_CID, fmt=FMT_Q)
+     p.emit("WRST", ra=RC, imm=RG_PUB | 0, fmt=FMT_Q)
+     p.emit("WRST", ra=RC, imm=RG_PUB | 1, fmt=FMT_Q)
+@@ -1983,6 +2021,7 @@ LEG_FNS = [
+     ("PDPOST", prog_leg_pdpost), ("PDPAIR", prog_leg_pdpair),
+     ("SRTO", prog_leg_srto),
+     ("FUTO", prog_leg_futo), ("SERVO", prog_leg_servo),
++    ("SLEW", prog_leg_slew), ("SVRATE", prog_leg_svrate),
+     ("RESUME", prog_leg_resume), ("PDREQ", prog_leg_pdreq),
+     ("TXLOST", prog_leg_txlost), ("TXT1OK", prog_leg_txt1ok),
+ ]
+@@ -2017,9 +2056,11 @@ def build(mac: int, seq_seed: int = 0,
+         nxt = min(x for x in fbases if x > b)
+         assert b + sz <= nxt, f"fixed {b} is {sz} words, next entry {nxt}"
+ 
+-    # free gaps between fixed programs (µPC 0..15 stays clear)
++    # Free gaps between fixed programs, including the unused 0..15 prefix.
++    # The engine only dispatches the fixed entries above; shared legs can
++    # safely occupy this prefix. Reset never executes an instruction.
+     gaps = []
+-    prev_end = 16
++    prev_end = 0
+     for b, sz in sorted(fixed_sz):
+         if b > prev_end:
+             gaps.append([prev_end, b])
+diff --git a/syn/ooc/work/gptp_ucode.hex b/syn/ooc/work/gptp_ucode.hex
+index b53a355..e2b4504 100644
+--- a/syn/ooc/work/gptp_ucode.hex
++++ b/syn/ooc/work/gptp_ucode.hex
+@@ -1,18 +1,18 @@
+-A8397B1DCDAF
+-2DEC89025CC1
+-35DE1C9756CE
+-14E4DB018FED
+-E372E2338ACA
+-3B0CA389C35A
+-A5D9ADEFE000
+-E1E459320DD7
+-51B0EF953636
+-52FEBE706064
+-12BE8A582FCA
+-647D2380309D
+-F9FC99DE8F03
+-37B7F8AD8AFF
+-D61435DBE63E
++41003002002B
++E91000004E20
++ED8900000000
++E91100000000
++E91000000001
++F35901000000
++283030000000
++10000200000C
++E90081000000
++481030040001
++42803002000F
++0800000002A1
++08000000009F
++480030020000
++180000000000
+ 9307ABF55005
+ 428030030002
+ EAA802000007
+@@ -99,31 +99,31 @@ E88900000000
+ E88900000000
+ E8A081000000
+ 480830030004
+-08000000028B
++080000000000
+ 180000000000
+-EB78020FFFFF
+-EB3003100000
+-408030020012
+-E888023FFFFF
+-280B30000000
+-100002000079
+-E93003200000
+-280930000000
+-100002000075
+-408030020029
+-E888023FFFFF
+-280B30000000
+-100002000077
+-180000000000
+-480030020012
+-180000000000
+-480030020029
+-180000000000
+-480030020012
+-480030020025
+-480030020026
+-180000000000
+-480030020000
++42803002000F
++EA8281000000
++482830040003
++418030020019
++481830030000
++481830030001
++42803002000A
++482830020002
++481830020003
++481830020014
++428030030002
++EAA802000004
++EAA803000003
++482830030002
++228000000001
++482830030006
++482830050001
++228000000002
++482830050003
++480030050002
++480030050004
++480030050005
++A80000000000
+ 180000000000
+ B6BDE9285E98
+ 408030020017
+@@ -157,37 +157,37 @@ E99800000001
+ E9980200FFFF
+ 0800000002D9
+ 180000000000
+-418030020019
+-481830030000
+-481830030001
+-42803002000A
+-482830020002
+-481830020003
+-481830020014
+-428030030002
+-EAA802000004
+-EAA803000003
+-482830030002
+-228000000001
+-482830030006
+-482830050001
+-228000000002
+-482830050003
+-480030050002
+-480030050004
+-480030050005
+-A80000000000
+-180000000000
+-487030020010
+-228000000001
+-482830020025
+-408030020026
+-280820000000
+-1000020000BD
+-480030020026
+-41803002002A
+-080000000347
+-180000000000
++410030040002
++ED8800000064
++2858200000C9
++1000030000A4
++210000000003
++281030000000
++1000020000A7
++E91001000001
++481030040002
++210000000056
++F28900000000
++EAA807000006
++E92807000002
++41803002000F
++E99900000000
++ED9800008312
++F35801010625
++283030000000
++1000020000B6
++EB580700003F
++218000008312
++E99B04000000
++E99B01000000
++48183002000F
++E92807000002
++EAA901000000
++EAA980000000
++0800000002A1
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
+ FB952B8EA245
+ A3030FCF5E15
+ 408030020017
+@@ -307,16 +307,16 @@ E88C00000000
+ 080000000134
+ 481830020020
+ 180000000000
+-428030030002
+-EAA802000004
+-282820000004
+-10000200013A
+-08000000013B
+-08000000009F
+-228000000BB8
+-482830050002
++487030020010
++228000000001
++482830020025
++408030020026
++280820000000
++10000200013E
++480030020026
++41803002002A
++080000000347
+ 180000000000
+-33D15CECB873
+ BAF49C874FA4
+ 408030020017
+ 280820000001
+@@ -448,7 +448,7 @@ E00000000000
+ 180000000000
+ EDF802800000
+ 285820000000
+-100002000067
++10000200028B
+ EB78020FFFFF
+ EB3003100000
+ 408030020012
+@@ -468,7 +468,7 @@ E888023FFFFF
+ 480030020012
+ 080000000150
+ 480030020012
+-0800000000B4
++080000000135
+ 408030020015
+ 41803002001B
+ D81830000000
+@@ -515,13 +515,13 @@ E00000000000
+ 287810000001
+ 1000020003BF
+ 287810000002
+-100002000135
++1000020002B6
+ 287810000003
+ 100002000181
+ 287810000004
+ 10000200003B
+ 287810000005
+-10000200007D
++10000200000D
+ 180000000000
+ 408030020017
+ 280820000001
+@@ -649,40 +649,32 @@ A80000000000
+ 480030020021
+ 480030020020
+ 080000000384
+-41003002002B
+-E91000004E20
+-ED8900000000
+-E91100000000
+-E91000000001
+-F35901000000
+-283030000000
+-100002000297
+-E90081000000
+-481030040001
+-42803002000F
+-0800000002A9
+-210000000056
+-F28900000000
+-EAA807000006
+-E92807000002
+-41803002000F
+-E99900000000
+-ED9800008312
+-F35801010625
+-283030000000
+-1000020002A5
+-EB580700003F
+-218000008312
+-E99B04000000
+-E99B01000000
+-48183002000F
+-E92807000002
+-EAA901000000
+-EAA980000000
++EB78020FFFFF
++EB3003100000
++408030020012
++E888023FFFFF
++280B30000000
++10000200029D
++E93003200000
++280930000000
++100002000299
++408030020029
++E888023FFFFF
++280B30000000
++10000200029B
++180000000000
++480030020012
++180000000000
++480030020029
++180000000000
++480030020012
++480030020025
++480030020026
++180000000000
+ EDA800008312
+ F35801010625
+ 283030000000
+-1000020002B1
++1000020002A9
+ EB580700003F
+ 228000008312
+ EAAB04000000
+@@ -700,7 +692,15 @@ EAA803000008
+ 482830030002
+ A80000000000
+ 180000000000
+-9E292A2A1C8D
++428030030002
++EAA802000004
++282820000004
++1000020002BB
++0800000002BC
++080000000067
++228000000BB8
++482830050002
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -835,7 +835,7 @@ EAA802000002
+ 282820000000
+ 100002000345
+ 080000000346
+-08000000009F
++080000000067
+ 180000000000
+ 420030020011
+ 40803002000C
+diff --git a/tb/check_phc_contract.py b/tb/check_phc_contract.py
+index 1ea3d12..5059cf5 100644
+--- a/tb/check_phc_contract.py
++++ b/tb/check_phc_contract.py
+@@ -30,6 +30,7 @@ REQUIRED = {
+         "txts_ns_i",
+         "phc_addend_we_o",
+         "phc_step_we_o",
++        "phc_slew_active_o",
+         "gx_data_r <= {32'd0, ms_now_w};",
+         # the accepted-beat result face and the admission credit (#31)
+         "txts_ready_o",
+@@ -46,6 +47,7 @@ REQUIRED = {
+         ".txts_ns_i",
+         ".phc_addend_we_o",
+         ".phc_step_we_o",
++        ".phc_slew_active_o",
+         ".txts_ready_o",
+         ".txts_ok_i",
+         ".txts_gen_i",
+diff --git a/tb/tsngen/gptp_ucode.hex b/tb/tsngen/gptp_ucode.hex
+index 344c48d..c0c178e 100644
+--- a/tb/tsngen/gptp_ucode.hex
++++ b/tb/tsngen/gptp_ucode.hex
+@@ -1,18 +1,18 @@
+-A8397B1DCDAF
+-2DEC89025CC1
+-35DE1C9756CE
+-14E4DB018FED
+-E372E2338ACA
+-3B0CA389C35A
+-A5D9ADEFE000
+-E1E459320DD7
+-51B0EF953636
+-52FEBE706064
+-12BE8A582FCA
+-647D2380309D
+-F9FC99DE8F03
+-37B7F8AD8AFF
+-D61435DBE63E
++41003002002B
++E91000004E20
++ED8900000000
++E91100000000
++E91000000001
++F35901000000
++283030000000
++10000200000C
++E90081000000
++481030040001
++42803002000F
++0800000002A1
++08000000009F
++480030020000
++180000000000
+ 9307ABF55005
+ 428030030002
+ EAA802000007
+@@ -99,31 +99,31 @@ E88900000000
+ E88900000000
+ E8A081000000
+ 480830030004
+-08000000028B
++080000000000
+ 180000000000
+-EB78020FFFFF
+-EB3003100000
+-408030020012
+-E888023FFFFF
+-280B30000000
+-100002000079
+-E93003200000
+-280930000000
+-100002000075
+-408030020029
+-E888023FFFFF
+-280B30000000
+-100002000077
+-180000000000
+-480030020012
+-180000000000
+-480030020029
+-180000000000
+-480030020012
+-480030020025
+-480030020026
+-180000000000
+-480030020000
++42803002000F
++EA8281000000
++482830040003
++418030020019
++481830030000
++481830030001
++42803002000A
++482830020002
++481830020003
++481830020014
++428030030002
++EAA802000004
++EAA803000003
++482830030002
++228000000001
++482830030006
++482830050001
++228000000002
++482830050003
++480030050002
++480030050004
++480030050005
++A80000000000
+ 180000000000
+ B6BDE9285E98
+ 408030020017
+@@ -157,37 +157,37 @@ E99800000001
+ E9980200FFFF
+ 0800000002D9
+ 180000000000
+-418030020019
+-481830030000
+-481830030001
+-42803002000A
+-482830020002
+-481830020003
+-481830020014
+-428030030002
+-EAA802000004
+-EAA803000003
+-482830030002
+-228000000001
+-482830030006
+-482830050001
+-228000000002
+-482830050003
+-480030050002
+-480030050004
+-480030050005
+-A80000000000
+-180000000000
+-487030020010
+-228000000001
+-482830020025
+-408030020026
+-280820000000
+-1000020000BD
+-480030020026
+-41803002002A
+-080000000347
+-180000000000
++410030040002
++ED8800000064
++2858200000C9
++1000030000A4
++210000000003
++281030000000
++1000020000A7
++E91001000001
++481030040002
++2100000010C7
++F28900000000
++EAA807000006
++E92807000002
++41803002000F
++E99900000000
++ED980019999A
++F35801333335
++283030000000
++1000020000B6
++EB580700003F
++21800019999A
++E99B04000000
++E99B01000000
++48183002000F
++E92807000002
++EAA901000000
++EAA980000000
++0800000002A1
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
+ FB952B8EA245
+ A3030FCF5E15
+ 408030020017
+@@ -307,16 +307,16 @@ E88C00000000
+ 080000000134
+ 481830020020
+ 180000000000
+-428030030002
+-EAA802000004
+-282820000004
+-10000200013A
+-08000000013B
+-08000000009F
+-228000000BB8
+-482830050002
++487030020010
++228000000001
++482830020025
++408030020026
++280820000000
++10000200013E
++480030020026
++41803002002A
++080000000347
+ 180000000000
+-33D15CECB873
+ BAF49C874FA4
+ 408030020017
+ 280820000001
+@@ -448,7 +448,7 @@ E00000000000
+ 180000000000
+ EDF802800000
+ 285820000000
+-100002000067
++10000200028B
+ EB78020FFFFF
+ EB3003100000
+ 408030020012
+@@ -468,7 +468,7 @@ E888023FFFFF
+ 480030020012
+ 080000000150
+ 480030020012
+-0800000000B4
++080000000135
+ 408030020015
+ 41803002001B
+ D81830000000
+@@ -515,13 +515,13 @@ E00000000000
+ 287810000001
+ 1000020003BF
+ 287810000002
+-100002000135
++1000020002B6
+ 287810000003
+ 100002000181
+ 287810000004
+ 10000200003B
+ 287810000005
+-10000200007D
++10000200000D
+ 180000000000
+ 408030020017
+ 280820000001
+@@ -649,40 +649,32 @@ A80000000000
+ 480030020021
+ 480030020020
+ 080000000384
+-41003002002B
+-E91000004E20
+-ED8900000000
+-E91100000000
+-E91000000001
+-F35901000000
+-283030000000
+-100002000297
+-E90081000000
+-481030040001
+-42803002000F
+-0800000002A9
+-2100000010C7
+-F28900000000
+-EAA807000006
+-E92807000002
+-41803002000F
+-E99900000000
+-ED980019999A
+-F35801333335
+-283030000000
+-1000020002A5
+-EB580700003F
+-21800019999A
+-E99B04000000
+-E99B01000000
+-48183002000F
+-E92807000002
+-EAA901000000
+-EAA980000000
++EB78020FFFFF
++EB3003100000
++408030020012
++E888023FFFFF
++280B30000000
++10000200029D
++E93003200000
++280930000000
++100002000299
++408030020029
++E888023FFFFF
++280B30000000
++10000200029B
++180000000000
++480030020012
++180000000000
++480030020029
++180000000000
++480030020012
++480030020025
++480030020026
++180000000000
+ EDA80019999A
+ F35801333335
+ 283030000000
+-1000020002B1
++1000020002A9
+ EB580700003F
+ 22800019999A
+ EAAB04000000
+@@ -700,7 +692,15 @@ EAA803000008
+ 482830030002
+ A80000000000
+ 180000000000
+-9E292A2A1C8D
++428030030002
++EAA802000004
++282820000004
++1000020002BB
++0800000002BC
++080000000067
++228000000BB8
++482830050002
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -835,7 +835,7 @@ EAA802000002
+ 282820000000
+ 100002000345
+ 080000000346
+-08000000009F
++080000000067
+ 180000000000
+ 420030020011
+ 40803002000C
+diff --git a/tb/verilator/engine/gptp_ucode.hex b/tb/verilator/engine/gptp_ucode.hex
+index a34baea..fe0c306 100644
+--- a/tb/verilator/engine/gptp_ucode.hex
++++ b/tb/verilator/engine/gptp_ucode.hex
+@@ -1,18 +1,18 @@
+-A8397B1DCDAF
+-2DEC89025CC1
+-35DE1C9756CE
+-14E4DB018FED
+-E372E2338ACA
+-3B0CA389C35A
+-A5D9ADEFE000
+-E1E459320DD7
+-51B0EF953636
+-52FEBE706064
+-12BE8A582FCA
+-647D2380309D
+-F9FC99DE8F03
+-37B7F8AD8AFF
+-D61435DBE63E
++41003002002B
++E91000004E20
++ED8900000000
++E91100000000
++E91000000001
++F35901000000
++283030000000
++10000200000C
++E90081000000
++481030040001
++42803002000F
++0800000002A1
++08000000009F
++480030020000
++180000000000
+ 9307ABF55005
+ 428030030002
+ EAA802000007
+@@ -99,31 +99,31 @@ E88900000000
+ E88900000000
+ E8A081000000
+ 480830030004
+-08000000028B
++080000000000
+ 180000000000
+-EB78020FFFFF
+-EB3003100000
+-408030020012
+-E888023FFFFF
+-280B30000000
+-100002000079
+-E93003200000
+-280930000000
+-100002000075
+-408030020029
+-E888023FFFFF
+-280B30000000
+-100002000077
+-180000000000
+-480030020012
+-180000000000
+-480030020029
+-180000000000
+-480030020012
+-480030020025
+-480030020026
+-180000000000
+-480030020000
++42803002000F
++EA8281000000
++482830040003
++418030020019
++481830030000
++481830030001
++42803002000A
++482830020002
++481830020003
++481830020014
++428030030002
++EAA802000004
++EAA803000003
++482830030002
++228000000001
++482830030006
++482830050001
++228000000002
++482830050003
++480030050002
++480030050004
++480030050005
++A80000000000
+ 180000000000
+ B6BDE9285E98
+ 408030020017
+@@ -157,37 +157,37 @@ E99800000001
+ E9980200FFFF
+ 0800000002D9
+ 180000000000
+-418030020019
+-481830030000
+-481830030001
+-42803002000A
+-482830020002
+-481830020003
+-481830020014
+-428030030002
+-EAA802000004
+-EAA803000003
+-482830030002
+-228000000001
+-482830030006
+-482830050001
+-228000000002
+-482830050003
+-480030050002
+-480030050004
+-480030050005
+-A80000000000
+-180000000000
+-487030020010
+-228000000001
+-482830020025
+-408030020026
+-280820000000
+-1000020000BD
+-480030020026
+-41803002002A
+-080000000347
+-180000000000
++410030040002
++ED8800000064
++2858200000C9
++1000030000A4
++210000000003
++281030000000
++1000020000A7
++E91001000001
++481030040002
++2100000010C7
++F28900000000
++EAA807000006
++E92807000002
++41803002000F
++E99900000000
++ED980019999A
++F35801333335
++283030000000
++1000020000B6
++EB580700003F
++21800019999A
++E99B04000000
++E99B01000000
++48183002000F
++E92807000002
++EAA901000000
++EAA980000000
++0800000002A1
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
+ FB952B8EA245
+ A3030FCF5E15
+ 408030020017
+@@ -307,16 +307,16 @@ E88C00000000
+ 080000000134
+ 481830020020
+ 180000000000
+-428030030002
+-EAA802000004
+-282820000004
+-10000200013A
+-08000000013B
+-08000000009F
+-228000000BB8
+-482830050002
++487030020010
++228000000001
++482830020025
++408030020026
++280820000000
++10000200013E
++480030020026
++41803002002A
++080000000347
+ 180000000000
+-33D15CECB873
+ BAF49C874FA4
+ 408030020017
+ 280820000001
+@@ -448,7 +448,7 @@ E00000000000
+ 180000000000
+ EDF802800000
+ 285820000000
+-100002000067
++10000200028B
+ EB78020FFFFF
+ EB3003100000
+ 408030020012
+@@ -468,7 +468,7 @@ E888023FFFFF
+ 480030020012
+ 080000000150
+ 480030020012
+-0800000000B4
++080000000135
+ 408030020015
+ 41803002001B
+ D81830000000
+@@ -515,13 +515,13 @@ E00000000000
+ 287810000001
+ 1000020003BF
+ 287810000002
+-100002000135
++1000020002B6
+ 287810000003
+ 100002000181
+ 287810000004
+ 10000200003B
+ 287810000005
+-10000200007D
++10000200000D
+ 180000000000
+ 408030020017
+ 280820000001
+@@ -649,40 +649,32 @@ A80000000000
+ 480030020021
+ 480030020020
+ 080000000384
+-41003002002B
+-E91000004E20
+-ED8900000000
+-E91100000000
+-E91000000001
+-F35901000000
+-283030000000
+-100002000297
+-E90081000000
+-481030040001
+-42803002000F
+-0800000002A9
+-2100000010C7
+-F28900000000
+-EAA807000006
+-E92807000002
+-41803002000F
+-E99900000000
+-ED980019999A
+-F35801333335
+-283030000000
+-1000020002A5
+-EB580700003F
+-21800019999A
+-E99B04000000
+-E99B01000000
+-48183002000F
+-E92807000002
+-EAA901000000
+-EAA980000000
++EB78020FFFFF
++EB3003100000
++408030020012
++E888023FFFFF
++280B30000000
++10000200029D
++E93003200000
++280930000000
++100002000299
++408030020029
++E888023FFFFF
++280B30000000
++10000200029B
++180000000000
++480030020012
++180000000000
++480030020029
++180000000000
++480030020012
++480030020025
++480030020026
++180000000000
+ EDA80019999A
+ F35801333335
+ 283030000000
+-1000020002B1
++1000020002A9
+ EB580700003F
+ 22800019999A
+ EAAB04000000
+@@ -700,7 +692,15 @@ EAA803000008
+ 482830030002
+ A80000000000
+ 180000000000
+-9E292A2A1C8D
++428030030002
++EAA802000004
++282820000004
++1000020002BB
++0800000002BC
++080000000067
++228000000BB8
++482830050002
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -835,7 +835,7 @@ EAA802000002
+ 282820000000
+ 100002000345
+ 080000000346
+-08000000009F
++080000000067
+ 180000000000
+ 420030020011
+ 40803002000C
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 4c1762d..9200252 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -71,6 +71,21 @@ VFLAGS = [
+ 
+ #: (name, file under hdl/, pattern, replacement, the property it should break)
+ MUTATIONS = [
++    # ---- #75: the policy level must cover the entire affected interval ----
++    ("slew level tied low", "top/KL_gptp_engine.sv",
++     "      // gather: atomic millisecond snapshot",
++     "      phc_slew_active_o <= 1'b0; // injected tied-low output\n"
++     "      // gather: atomic millisecond snapshot",
++     "slew: policy decision starts at +101 ns"),
++    ("slew clears at the first in-band pair", GENERATOR,
++     "    p.emit(\"MOVE\", rd=RB, ra=0, imm=3)                       # reload, then -1",
++     "    p.emit(\"MOVE\", rd=RB, ra=0, imm=2)                       # early completion",
++     "slew: first in-band pair cannot clear"),
++    ("slew clears before the replacement rate", "top/KL_gptp_engine.sv",
++     "                if (st_wdata_w[1:0] != 2'd0)\n"
++     "                  phc_slew_active_o <= 1'b1;",
++     "                phc_slew_active_o <= (st_wdata_w[1:0] != 2'd0);",
++     "slew: no clear precedes the replacement rate"),
+     # ---- the result face: acceptance, and what acceptance protects -------
+     ("result face always ready", "top/KL_gptp_engine.sv",
+      "assign txts_ready_o  = !txts_pend_r && rst_n;",
+@@ -364,7 +379,17 @@ def main() -> int:
+                 print(f"[FAIL] mutation {name!r} did not build; a mutant that "
+                       f"cannot build proves nothing about the harness")
+                 continue
+-            answer = verdict(*run_harness(exe, rundir))
++            rc, output = run_harness(exe, rundir)
++            answer = verdict(rc, output)
++            # #75 controls must fail their specific behavioral check; an
++            # unrelated existing failure cannot stand in for that evidence.
++            if breaks.startswith("slew:") and answer == "caught":
++                named = [line for line in output.splitlines()
++                         if line.startswith("FAIL ") and breaks in line]
++                if not named:
++                    answer = "missed its named check"
++                else:
++                    print(named[0])
+             if answer == "caught":
+                 passes += 1
+                 print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\"")
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index 0b134aa..0cc8da5 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -286,6 +286,7 @@ class GptpEngineHarness {
+     postpone_only_the_initiating_beats_without_credit();
+     stall_every_byte_position_of_one_frame();
+     hold_the_media_dependent_transmit_flags();
++    exercise_the_slew_level_contract();
+     keep_every_addend_inside_the_consumer_envelope();
+ 
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+@@ -478,6 +479,12 @@ class GptpEngineHarness {
+   //! envelope (#68): the count outside it, and the count exactly on it
+   uint64_t adj_out_of_envelope = 0;
+   uint64_t adj_on_the_rail = 0;
++  struct SlewEdge { uint64_t cycle; bool active; };
++  std::vector<SlewEdge> slew_edges;
++  bool slew_previous = false;
++  uint64_t slew_async_changes = 0;
++  uint64_t slew_early_clears = 0;
++  std::vector<bool> slew_at_step;
+ 
+   uint64_t phc() { return static_cast<uint64_t>(phc_acc >> 24); }
+ 
+@@ -494,6 +501,7 @@ class GptpEngineHarness {
+     }
+     drive_result_face();
+     dut->clk_i = 0; dut->eval();
++    if (bool(dut->phc_slew_active_o) != slew_previous) slew_async_changes++;
+     //! the accepted beat is sampled where the engine samples it
+     const bool ts_beat = ts_offer && dut->txts_ready_o;
+     const bool tx_fire = dut->tx_valid_o && dut->tx_ready_i;
+@@ -501,6 +509,12 @@ class GptpEngineHarness {
+     const bool tx_sof = dut->tx_sof_o;
+     const bool tx_eof = dut->tx_eof_o;
+     dut->clk_i = 1; dut->eval();
++    const bool slew = dut->phc_slew_active_o;
++    if (slew != slew_previous) {
++      slew_edges.push_back({cyc, slew});
++      if (!slew && dut->rst_n && !dut->phc_addend_we_o) slew_early_clears++;
++      slew_previous = slew;
++    }
+     if (dut->pub_commit_o) {
+       commits_seen++;
+       PubSnap s{};
+@@ -521,6 +535,7 @@ class GptpEngineHarness {
+       if (a == SV_AMAX || a == -SV_AMAX) adj_on_the_rail++;
+     }
+     if (dut->phc_step_we_o) {
++      slew_at_step.push_back(dut->phc_slew_active_o);
+       steps_seen.push_back(dut->phc_step_o);
+       step_cyc.push_back(cyc);
+       phc_acc += static_cast<unsigned __int128>(
+@@ -1062,6 +1077,7 @@ class GptpEngineHarness {
+     //! ready is low through reset: a beat the engine would not record must
+     //! not look accepted to the producer
+     expect("reset holds the result face closed", dut->txts_ready_o, 0);
++    expect("slew: cold reset clears the level", dut->phc_slew_active_o, 0);
+     dut->rst_n = 1;
+ 
+     // Before the ROM init leg has written S_CID, no complete all-hop loop
+@@ -3233,6 +3249,7 @@ class GptpEngineHarness {
+         {"long slew, master -90 us", -90000, 40},
+     };
+     for (const auto &j : jumps) {
++      const size_t edge0 = slew_edges.size();
+       char n[96];
+       cl_mst_base += static_cast<uint64_t>(j.jump);
+       int64_t widest_pos = 0;
+@@ -3247,6 +3264,11 @@ class GptpEngineHarness {
+         if ((dut->pub_flags_o & FL_SYNCOK) == 0) unlocked++;
+         if ((dut->pub_flags_o & FL_ASCAP) == 0) uncapable++;
+         const int64_t off = closed_loop_pair(k);
++        if (k == 0)
++          expect("slew: real jump starts the level", dut->phc_slew_active_o, 1);
++        if (k >= j.pairs - 8)
++          expect("slew: ordinary frequency tracking stays inactive",
++                 dut->phc_slew_active_o, 0);
+         if (last_adj() != adj_bits(svm.addend)) mismatches++;
+         const int64_t a = static_cast<int32_t>(last_adj());
+         widest_pos = a > widest_pos ? a : widest_pos;
+@@ -3280,6 +3302,15 @@ class GptpEngineHarness {
+       const int32_t final_off = static_cast<int32_t>(dut->pub_offset_o);
+       snprintf(n, sizeof n, "%s: the loop settles back to lock", j.tag);
+       expect(n, final_off > -200 && final_off < 200, 1);
++      expect("slew: real correction has one uninterrupted interval",
++             slew_edges.size() - edge0, 2);
++      if (slew_edges.size() == edge0 + 2) {
++        expect("slew: real correction clears on a rate write",
++               slew_edges.back().active, 0);
++        printf("SLEW TRACE %s: active for %llu cycles (2 MHz), final offset %d ns, trim %d\n",
++               j.tag, static_cast<unsigned long long>(slew_edges.back().cycle -
++                   slew_edges[edge0].cycle), final_off, phc_adj);
++      }
+     }
+     expect("long slew: no step pulse", steps_seen.size(), s0);
+   }
+@@ -4647,6 +4678,171 @@ class GptpEngineHarness {
+            adj_on_the_rail >= 10 ? 1 : 0, 1);
+   }
+ 
++  //! A #75 policy probe uses wire frames and watches every output edge.
++  //! The scripted band/settling verdict is supplied by the scenario, never
++  //! read from an internal register, a pulse or the published sync flag.
++  void slew_probe(const char *tag, int64_t off, bool active, bool step = false,
++                  bool linkup = false) {
++    const size_t e0 = slew_edges.size();
++    const size_t a0 = adj_seen.size();
++    const size_t s0 = steps_seen.size();
++    const bool before = dut->phc_slew_active_o;
++    const uint64_t local = phc() + 1000000;
++    const uint16_t seq = slew_seq++;
++    Frame sync = ptp(0x0, seq, 0, 0x0200, 10);
++    sync.ts(0);
++    send_frame(sync.b, local);
++    run(2000);
++    expect("slew: Sync alone cannot change the policy level",
++           slew_edges.size(), e0);
++    Frame fu = follow_up(seq, 0, local - static_cast<uint64_t>(pdm.d)
++                                      - static_cast<uint64_t>(off));
++    send_frame(fu.b, local + 500);
++    const uint64_t decision_after = cyc;
++    run(6000);
++    servo_mirror(off, linkup);
++    expect(tag, dut->phc_slew_active_o, active);
++    expect("slew: probe offset consumed", dut->pub_offset_o,
++           static_cast<uint32_t>(off));
++    expect("slew: probe writes one rate", adj_seen.size(), a0 + 1);
++    expect("slew: probe step count", steps_seen.size(), s0 + (step ? 1 : 0));
++    expect("slew: arithmetic remains the PI policy", last_adj(), adj_bits(svm.addend));
++    expect("slew: exactly the scripted transition",
++           slew_edges.size() - e0, before != active ? 1 : 0);
++    if (before != active && slew_edges.size() > e0 && adj_seen.size() > a0) {
++      const auto &edge = slew_edges[e0];
++      if (active) {
++        expect("slew: decision asserts before its affected rate",
++               edge.active && edge.cycle >= decision_after &&
++                   edge.cycle < adj_cyc.back(), 1);
++      } else {
++        expect("slew: completion clears with its replacement rate",
++               !edge.active && edge.cycle == adj_cyc.back(), 1);
++      }
++    }
++    if (step && steps_seen.size() > s0)
++      expect("slew: step retains only the pre-existing interval",
++             slew_at_step.back(), before);
++  }
++
++  uint16_t slew_seq = 0x7500;
++
++  void exercise_the_slew_level_contract() {
++    pd_mode = PD_NORMAL;
++    pd_seen = txf.size();
++    warm_reset();
++    expect("slew: reset starts inactive", dut->phc_slew_active_o, 0);
++    expect("slew: lifecycle setup earns asCapable",
++           wait_flags(FL_ASCAP, FL_ASCAP, 9000000), 1);
++    announce(0x7500, 100, GMID, 0, PEER_CID);
++    slew_probe("slew: link-up step never asserts", 25000, false, true, true);
++    for (int64_t off : {0, 100, -100, 0})
++      slew_probe("slew: tracking band never asserts", off, false);
++    expect("slew: tracking includes a nonzero frequency trim", phc_adj != 0, 1);
++
++    slew_probe("slew: policy decision starts at +101 ns", 101, true);
++    const size_t held_edges = slew_edges.size();
++    run_svc(250000);
++    expect("slew: level covers the entire interval between pairs",
++           slew_edges.size(), held_edges);
++    expect("slew: high between pairs", dut->phc_slew_active_o, 1);
++    slew_probe("slew: first in-band pair cannot clear", 100, true);
++    slew_probe("slew: -101 ns restarts settling", -101, true);
++    slew_probe("slew: zero crossing cannot clear early", 0, true);
++    slew_probe("slew: second in-band pair completes", -100, false);
++    slew_probe("slew: tracking continues after completion", 50, false);
++    slew_probe("slew: policy decision starts at -101 ns", -101, true);
++    slew_probe("slew: replacement step clears at its rate", -100001, false, true);
++    slew_probe("slew: locked step never starts an interval", 100001, false, true);
++    slew_probe("slew: exactly 100 us starts an interval", 100000, true);
++    slew_probe("slew: first settled pair before lapse", 0, true);
++
++    // One unpaired Sync times out. Its late FU must neither replace the
++    // held rate nor count as the second settled sample.
++    const size_t lapse_edges = slew_edges.size();
++    const size_t lapse_rates = adj_seen.size();
++    const uint64_t local = phc() + 1000000;
++    const uint16_t missing_seq = slew_seq++;
++    Frame sync = ptp(0x0, missing_seq, 0, 0x0200, 10);
++    sync.ts(0);
++    send_frame(sync.b, local);
++    run_svc(270000);
++    Frame late = follow_up(missing_seq, 0, local - static_cast<uint64_t>(pdm.d));
++    send_frame(late.b, local + 500);
++    run(6000);
++    expect("slew: missing Follow_Up holds the interval", slew_edges.size(), lapse_edges);
++    expect("slew: late Follow_Up cannot retire the rate", adj_seen.size(), lapse_rates);
++    run_svc(800000);
++    expect("slew: missing Sync clears sync-ok", dut->pub_flags_o & FL_SYNCOK, 0);
++    expect("slew: missing Sync holds the affected interval", slew_edges.size(), lapse_edges);
++    expect("slew: missing Sync holds the affected rate", adj_seen.size(), lapse_rates);
++    slew_probe("slew: timeout restarts completion qualification", 0, true);
++    slew_probe("slew: two fresh pairs complete after timeout", 0, false);
++
++    slew_probe("slew: next correction starts", -5000, true);
++    slew_probe("slew: first settled pair before GM change", 0, true);
++    announce(0x7501, 100, GMID + 1, 0, PEER_CID);
++    expect("slew: GM identity change holds active", dut->phc_slew_active_o, 1);
++    slew_probe("slew: GM change restarts completion qualification", 0, true);
++    slew_probe("slew: new GM can complete correction", 0, false);
++
++    slew_probe("slew: active before mastership", 5000, true);
++    const size_t master_rates = adj_seen.size();
++    const size_t master_edges = slew_edges.size();
++    announce(0x7502, 250, GMID + 1, 0, PEER_CID);
++    expect("slew: parent degradation returns to GM", dut->pub_flags_o & FL_AMGM, FL_AMGM);
++    expect("slew: mastership retires the phase correction", dut->phc_slew_active_o, 0);
++    expect("slew: mastership writes one replacement rate", adj_seen.size(), master_rates + 1);
++    expect("slew: mastership keeps the integral-only rate", last_adj(), adj_bits(-svm.intg));
++    expect("slew: mastership has one falling edge", slew_edges.size(), master_edges + 1);
++    if (slew_edges.size() > master_edges && adj_seen.size() > master_rates)
++      expect("slew: mastership clears with its rate", slew_edges.back().cycle, adj_cyc.back());
++    run_svc(250000);
++    expect("slew: GM duty remains inactive", dut->phc_slew_active_o, 0);
++
++    announce(0x7503, 100, GMID, 0, PEER_CID);
++    slew_probe("slew: return from GM uses locked slew", 50000, true);
++    pd_mode = PD_FAR;
++    expect("slew: bad delay drops asCapable", wait_flags(FL_ASCAP, 0, 2500000), 1);
++    const size_t lost_edges = slew_edges.size();
++    const size_t lost_rates = adj_seen.size();
++    expect("slew: asCapable loss holds the correction", dut->phc_slew_active_o, 1);
++    slew_probe_unconsumed();
++    run_svc(200000);
++    expect("slew: incapable interval has no falling edge", slew_edges.size(), lost_edges);
++    expect("slew: incapable interval holds the rate", adj_seen.size(), lost_rates);
++    pd_mode = PD_NORMAL;
++    expect("slew: capability can recover", wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
++    announce(0x7504, 100, GMID, 0, PEER_CID);
++    slew_probe("slew: recovery pair retains active", 5000, true, false, true);
++
++    dut->rst_n = 0;
++    tick();
++    expect("slew: warm reset clears on its first clock", dut->phc_slew_active_o, 0);
++    run(7);
++    dut->rst_n = 1;
++    run(4000);
++    expect("slew: retained scratch cannot revive the level", dut->phc_slew_active_o, 0);
++    expect("slew: after reset capability returns", wait_flags(FL_ASCAP, FL_ASCAP, 9000000), 1);
++    announce(0x7505, 100, GMID, 0, PEER_CID);
++    slew_probe("slew: post-reset link-up step stays inactive", 25000, false, true, true);
++    slew_probe("slew: subsequent policy correction starts", -5000, true);
++    slew_probe("slew: warm-reset qualification starts afresh", 0, true);
++    slew_probe("slew: warm-reset qualification completes", 0, false);
++    expect("slew: every change is clk-synchronous", slew_async_changes, 0);
++    expect("slew: no clear precedes the replacement rate", slew_early_clears, 0);
++  }
++
++  void slew_probe_unconsumed() {
++    const size_t a0 = adj_seen.size();
++    const size_t s0 = steps_seen.size();
++    const uint64_t local = phc() + 1000000;
++    sync_pair(slew_seq++, local, local - static_cast<uint64_t>(pdm.d));
++    expect("slew: incapable pair cannot complete correction", dut->phc_slew_active_o, 1);
++    expect("slew: incapable pair writes no rate", adj_seen.size(), a0);
++    expect("slew: incapable pair writes no step", steps_seen.size(), s0);
++  }
++
+   //! One warm reset, and the settling run behind it.
+   void warm_reset() {
+     dut->rst_n = 0;
+diff --git a/tb/verilator/ucpu/gptp_ucode.hex b/tb/verilator/ucpu/gptp_ucode.hex
+index b53a355..e2b4504 100644
+--- a/tb/verilator/ucpu/gptp_ucode.hex
++++ b/tb/verilator/ucpu/gptp_ucode.hex
+@@ -1,18 +1,18 @@
+-A8397B1DCDAF
+-2DEC89025CC1
+-35DE1C9756CE
+-14E4DB018FED
+-E372E2338ACA
+-3B0CA389C35A
+-A5D9ADEFE000
+-E1E459320DD7
+-51B0EF953636
+-52FEBE706064
+-12BE8A582FCA
+-647D2380309D
+-F9FC99DE8F03
+-37B7F8AD8AFF
+-D61435DBE63E
++41003002002B
++E91000004E20
++ED8900000000
++E91100000000
++E91000000001
++F35901000000
++283030000000
++10000200000C
++E90081000000
++481030040001
++42803002000F
++0800000002A1
++08000000009F
++480030020000
++180000000000
+ 9307ABF55005
+ 428030030002
+ EAA802000007
+@@ -99,31 +99,31 @@ E88900000000
+ E88900000000
+ E8A081000000
+ 480830030004
+-08000000028B
++080000000000
+ 180000000000
+-EB78020FFFFF
+-EB3003100000
+-408030020012
+-E888023FFFFF
+-280B30000000
+-100002000079
+-E93003200000
+-280930000000
+-100002000075
+-408030020029
+-E888023FFFFF
+-280B30000000
+-100002000077
+-180000000000
+-480030020012
+-180000000000
+-480030020029
+-180000000000
+-480030020012
+-480030020025
+-480030020026
+-180000000000
+-480030020000
++42803002000F
++EA8281000000
++482830040003
++418030020019
++481830030000
++481830030001
++42803002000A
++482830020002
++481830020003
++481830020014
++428030030002
++EAA802000004
++EAA803000003
++482830030002
++228000000001
++482830030006
++482830050001
++228000000002
++482830050003
++480030050002
++480030050004
++480030050005
++A80000000000
+ 180000000000
+ B6BDE9285E98
+ 408030020017
+@@ -157,37 +157,37 @@ E99800000001
+ E9980200FFFF
+ 0800000002D9
+ 180000000000
+-418030020019
+-481830030000
+-481830030001
+-42803002000A
+-482830020002
+-481830020003
+-481830020014
+-428030030002
+-EAA802000004
+-EAA803000003
+-482830030002
+-228000000001
+-482830030006
+-482830050001
+-228000000002
+-482830050003
+-480030050002
+-480030050004
+-480030050005
+-A80000000000
+-180000000000
+-487030020010
+-228000000001
+-482830020025
+-408030020026
+-280820000000
+-1000020000BD
+-480030020026
+-41803002002A
+-080000000347
+-180000000000
++410030040002
++ED8800000064
++2858200000C9
++1000030000A4
++210000000003
++281030000000
++1000020000A7
++E91001000001
++481030040002
++210000000056
++F28900000000
++EAA807000006
++E92807000002
++41803002000F
++E99900000000
++ED9800008312
++F35801010625
++283030000000
++1000020000B6
++EB580700003F
++218000008312
++E99B04000000
++E99B01000000
++48183002000F
++E92807000002
++EAA901000000
++EAA980000000
++0800000002A1
++096BE4EFDFDB
++331CD7693666
++1B94B2E33D31
+ FB952B8EA245
+ A3030FCF5E15
+ 408030020017
+@@ -307,16 +307,16 @@ E88C00000000
+ 080000000134
+ 481830020020
+ 180000000000
+-428030030002
+-EAA802000004
+-282820000004
+-10000200013A
+-08000000013B
+-08000000009F
+-228000000BB8
+-482830050002
++487030020010
++228000000001
++482830020025
++408030020026
++280820000000
++10000200013E
++480030020026
++41803002002A
++080000000347
+ 180000000000
+-33D15CECB873
+ BAF49C874FA4
+ 408030020017
+ 280820000001
+@@ -448,7 +448,7 @@ E00000000000
+ 180000000000
+ EDF802800000
+ 285820000000
+-100002000067
++10000200028B
+ EB78020FFFFF
+ EB3003100000
+ 408030020012
+@@ -468,7 +468,7 @@ E888023FFFFF
+ 480030020012
+ 080000000150
+ 480030020012
+-0800000000B4
++080000000135
+ 408030020015
+ 41803002001B
+ D81830000000
+@@ -515,13 +515,13 @@ E00000000000
+ 287810000001
+ 1000020003BF
+ 287810000002
+-100002000135
++1000020002B6
+ 287810000003
+ 100002000181
+ 287810000004
+ 10000200003B
+ 287810000005
+-10000200007D
++10000200000D
+ 180000000000
+ 408030020017
+ 280820000001
+@@ -649,40 +649,32 @@ A80000000000
+ 480030020021
+ 480030020020
+ 080000000384
+-41003002002B
+-E91000004E20
+-ED8900000000
+-E91100000000
+-E91000000001
+-F35901000000
+-283030000000
+-100002000297
+-E90081000000
+-481030040001
+-42803002000F
+-0800000002A9
+-210000000056
+-F28900000000
+-EAA807000006
+-E92807000002
+-41803002000F
+-E99900000000
+-ED9800008312
+-F35801010625
+-283030000000
+-1000020002A5
+-EB580700003F
+-218000008312
+-E99B04000000
+-E99B01000000
+-48183002000F
+-E92807000002
+-EAA901000000
+-EAA980000000
++EB78020FFFFF
++EB3003100000
++408030020012
++E888023FFFFF
++280B30000000
++10000200029D
++E93003200000
++280930000000
++100002000299
++408030020029
++E888023FFFFF
++280B30000000
++10000200029B
++180000000000
++480030020012
++180000000000
++480030020029
++180000000000
++480030020012
++480030020025
++480030020026
++180000000000
+ EDA800008312
+ F35801010625
+ 283030000000
+-1000020002B1
++1000020002A9
+ EB580700003F
+ 228000008312
+ EAAB04000000
+@@ -700,7 +692,15 @@ EAA803000008
+ 482830030002
+ A80000000000
+ 180000000000
+-9E292A2A1C8D
++428030030002
++EAA802000004
++282820000004
++1000020002BB
++0800000002BC
++080000000067
++228000000BB8
++482830050002
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -835,7 +835,7 @@ EAA802000002
+ 282820000000
+ 100002000345
+ 080000000346
+-08000000009F
++080000000067
+ 180000000000
+ 420030020011
+ 40803002000C

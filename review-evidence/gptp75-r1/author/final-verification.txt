@@ -1,0 +1,34 @@
+COMMAND ['git', 'diff', '--check', 'e5dcea6e351abff18a27a00f8e345f3251bdbd8f', 'HEAD']
+RC 0
+
+COMMAND ['git', 'diff', '--exit-code']
+RC 0
+
+COMMAND ['git', 'diff', '--cached', '--exit-code']
+RC 0
+
+COMMAND ['git', 'status', '--porcelain']
+RC 0
+
+COMMAND ['git', 'rev-parse', 'HEAD']
+RC 0
+49d23b20fcad15a3c03554476d8b8c9116b3b375
+
+COMMAND ['git', 'rev-parse', 'HEAD^{tree}']
+RC 0
+804cd0dae42b46a2a85656f6e49781687ba671e6
+
+COMMAND ['git', 'show', '-s', '--format=%B', 'HEAD']
+RC 0
+Export the PHC policy slew interval
+
+
+candidate-sources.sha256: every recorded file matches
+
+rom-sha256.txt: every recorded file matches
+
+Parent consumer file hash unchanged
+
+HANDOFF.md: required marker/closure and content checks pass
+
+PR-BODY.md: required marker/closure and content checks pass

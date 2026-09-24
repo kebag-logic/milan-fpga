@@ -1,0 +1,20 @@
+COMMAND ['make', 'lint', 'contract']
+CWD $LANES/gptp75-slew-active
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.348 MB sources in 7 modules, into 0.290 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.064 s (elab=0.008, cvt=0.039, bld=0.000); cpu 0.063 s on 1 threads; allocated 20.242 MB
+make -C bench/arty lint
+make[1]: Entering directory '$LANES/gptp75-slew-active/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.995 MB sources in 13 modules, into 0.393 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.083 s (elab=0.012, cvt=0.050, bld=0.000); cpu 0.083 s on 1 threads; allocated 22.141 MB
+make[1]: Leaving directory '$LANES/gptp75-slew-active/bench/arty'
+python3 tb/check_phc_contract.py
+PHC interface contract: PASS
