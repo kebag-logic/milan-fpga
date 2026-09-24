@@ -96,8 +96,9 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
 # either through this same recipe
 RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
-# #387: the clock-validity block, overridable the same way so gmstep_mutants.py
-# elaborates a MUTATED copy through the gmstep recipe.
+# #387: the clock-validity block, overridable the same way so the gmstep
+# leg's negative controls elaborate a MUTATED copy through its recipe (their
+# runner joins the tree with the #387 datapath edit).
 CLKV_SRC ?= $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 # #447: the TDM master render serializer, overridable the same way so
 # tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
@@ -274,9 +275,13 @@ gptp: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 # issue #387 acceptance 3: the `gptp` leg's elaboration, driven through a
 # grandmaster change that steps the PHC by 1.5 s while the AAF listener is
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
-# model). GMSTEP_MDIR is overridable so gmstep_mutants.py builds its negative
-# controls through this same recipe; the AEM image is the shipping config's.
+# model). GMSTEP_MDIR is overridable so the leg's negative controls build
+# through this same recipe (their runner joins with the #387 datapath edit);
+# the AEM image is the shipping config's. GMSTEP_FEED_DELAY idles that many
+# fabric cycles before the peer's media feed starts, which moves the accept
+# phase against the media tick; the leg must pass at every delay.
 GMSTEP_MDIR ?= obj_gmstep
+GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o $(GMSTEP_MDIR)/aem-build
 	python3 ../../../avdecc/gen_aemi_image.py --overlay $(GMSTEP_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $(GMSTEP_MDIR)/aemi.bin
@@ -285,7 +290,7 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	  $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
 
 gmstep: gmstep-build
-	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin
+	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore
