@@ -1595,15 +1595,20 @@ A grant after hold expiry voids capture; release and retry preserve safety.
 Sustained producer activity risks liveness through repeated void-and-retry cycles.
 The shipping 1x1 shape and its margins are unchanged.
 
-[The #501 decision](https://github.com/kebag-logic/milan-fpga/issues/501#issuecomment-5823589125)
+[The corrected #501 decision](https://github.com/kebag-logic/milan-fpga/issues/501#issuecomment-5824117439)
 retains the hold without an RTL change here.
-Today only BINDING is materialized; maps are not copied yet.
-No materialized map copy can overrun the hold today.
-Donor writer adoption through processor #61/#83 must measure the copy.
-It must size the hold with a stated margin.
-Alternatively, measurements must prove the existing 50 ms adequate.
-The [donor acceptance obligation](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61#issuecomment-5823590638)
-requires recording those measurements in UNRESOLVED 6.
+The firmware's `nvm_capture()` copies every CLOSED record at each capture.
+Materialization does not affect that copy.
+An accepted RELOAD closes every allocated record in `KL_nvm_backend.sv`.
+At 8x8, the [counted copy](https://github.com/kebag-logic/milan-fpga/blob/247a9151df9948fe213d078456ff9a53ac196e89/review-evidence/501-r1/reviews/R312-2/scripts/capture_copy_probe.py)
+spans 12,634 bytes over 156 records.
+Output maps account for 4,672 of those bytes.
+The 8x8 doubled-cost exposure therefore exists at this head.
+[Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+Measure the actual 8x8 copy, then establish a stated margin.
+Size the hold or reduce copying costs.
+Alternatively, prove the existing 50 ms adequate.
+Record those measurements in UNRESOLVED 6.
 
 The hold remains below the 500 ms heartbeat period.
 It also remains below the 8000 ms commit deadline.
@@ -1696,13 +1701,18 @@ Hardware timing and memory ordering remain UNRESOLVED 6.
    The corresponding margins are 1.57x and 0.78x.
    Void and retry preserve safety; sustained activity risks liveness.
    Shipping 1x1 stays unchanged: 8.3/16.5 ms, margins 6.06x/3.03x.
-   Only BINDING is materialized today; maps are not copied yet.
-   Processor #61/#83 adoption must measure the actual 8x8 copy.
-   Size the hold with a stated margin from that measurement.
-   Alternatively, prove the existing 50 ms sufficient with measurements.
-   Record the result here, as the
-   [donor obligation](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61#issuecomment-5823590638)
-   requires. The section 19 memory-port ordering also needs measurement.
+   The firmware's `nvm_capture()` copies every CLOSED record at each capture.
+   Materialization does not affect that copy.
+   An accepted RELOAD closes every allocated record in `KL_nvm_backend.sv`.
+   The [counted 8x8 copy](https://github.com/kebag-logic/milan-fpga/blob/247a9151df9948fe213d078456ff9a53ac196e89/review-evidence/501-r1/reviews/R312-2/scripts/capture_copy_probe.py)
+   includes 4,672 output-map bytes within those 12,634 bytes.
+   The 0.78x modelled margin applies at this head.
+   [Issue #559](https://github.com/kebag-logic/milan-fpga/issues/559) owns measurement and resolution of this firmware copy.
+   Measure the actual 8x8 copy, then establish a stated margin.
+   Size the hold or reduce copying costs.
+   Alternatively, prove the existing 50 ms adequate.
+   Record the result here.
+   The section 19 memory-port ordering also needs measurement.
    The debounce measurement remains open under
    [section 14](SAVED_STATE_FASTCONNECT.md#14-what-this-page-does-not-decide).
 7. Alarm forgiveness. The donor alarm is sticky until reset, so one retry
