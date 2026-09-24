@@ -1,0 +1,47 @@
+# R266-4 diff scope at 022290e4c94a23b9ee97852b6c1c2ee2c1f25352 (tree b9740a963ee3833cfe7d7be986ef6233ba033d1c)
+## commits 604297bb..HEAD
+022290e4c94a23b9ee97852b6c1c2ee2c1f25352 Say that the slot proof's stand-in collision runs wait for the rival or the holder, not a timer (#532)
+b12fc6f6a7c6d3ce41a2afdda6984e17d84b614a Hold each collision's stand-in holder until its rival's run returns and refuse the late rival only after the holder exits, so no slot proof self-test case waits on a start-up timer (#532)
+544bfdeb8a029d49eb1801aa7699ccca84d53a0d List exactly the slot proof's self-test cases, say why its runs hold until judged and why one guard has no case, and note that a nonzero cap count is routine (#532)
+4bbd06bda05e78fc10b2293c05ee63b517a34995 Pin that one OOM at a slot's cap with no kill in the slice's own events is refused (#532)
+0a3e66f73ef94ef41654deb723f502b9fefae4fd Give each overlap condition, slot B's isolation probe and verdict, and a failed network query after removal a live slot proof self-test case that no scheduling can pass (#532)
+## numstat 604297bb..HEAD
+38	17	docs/testing/CI_WORKFLOWS.md
+5	0	scripts/act_ci.py
+62	20	scripts/act_slot_proof.sh
+## numstat 759da623..HEAD (the PR's own change against the merged dev)
+359	6	docs/testing/CI_WORKFLOWS.md
+4512	1831	scripts/act_ci.py
+677	0	scripts/act_slot_proof.sh
+110	5	scripts/check_baremetal_only.py
+## workflow paths changed 759da623..HEAD: 0
+## hunks in scripts/act_ci.py 604297bb..HEAD
+@@ -12205,0 +12206,5 @@ def selftest_slot_memory_cap(tally: SelftestTally, layout: RunLayout) -> None:
+## scripts/act_slot_proof.sh: live part (lines before fake_runner_source) and main()
+604297bb41d6c8005d07539289b10bfa99273cdd live lines 1-366 sha256 c8212f21b8ecd75313b72d56c51974cbd0e66d76cf8a6cc20aaeb1d6eb0e7104; main() sha256 9819b1feda2e2da51b26aff637a8ecbb41c1fa02ea9cb9331e8ce96f8e3ff9fe
+022290e4c94a23b9ee97852b6c1c2ee2c1f25352 live lines 1-366 sha256 c8212f21b8ecd75313b72d56c51974cbd0e66d76cf8a6cc20aaeb1d6eb0e7104; main() sha256 9819b1feda2e2da51b26aff637a8ecbb41c1fa02ea9cb9331e8ce96f8e3ff9fe
+## scripts/act_slot_proof.sh hunks 604297bb..HEAD, by region of the head file (new-side line ranges)
++371..371 (1 lines): fake_runner_source
++375..375 (1 lines): fake_runner_source
++378..391 (14 lines): fake_runner_source
++418..418 (1 lines): fake_runner_source
++422..428 (7 lines): fake_runner_source
++446..453 (8 lines): fake_runner_source
++455..465 (11 lines): fake_runner_source
++474..475 (2 lines): fake_runner_source
++500..500 (1 lines): fake_sudo_source
++506..506 (1 lines): fake_sudo_source
++510..510 (1 lines): fake_sudo_source
++536..536 (1 lines): fake_sudo_source
++540..541 (2 lines): fake_sudo_source
++548..548 (1 lines): fake_sudo_source
++627..628 (2 lines): selftest case table
++630..634 (5 lines): selftest case table
++637..637 (1 lines): selftest case table
++645..646 (2 lines): selftest case table
+regions: fake_runner_source 367-485, fake_sudo_source 488-555, selftest case table 610-655
+## file sha256 at HEAD
+f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005  scripts/act_ci.py
+939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd  scripts/act_slot_proof.sh
+399251cf76c9f41e24129fddffba1e10d9813184d43873318d78fbc137ef6029  docs/testing/CI_WORKFLOWS.md
+533c1205ccf39d3edd131d20759e4adceb16c5ba723165f8390347cf44405e51  scripts/check_baremetal_only.py

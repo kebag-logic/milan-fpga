@@ -1,0 +1,60 @@
+# R266-3 proof mutants (scripts/proof_mutants.py, 56 plus control X00) re-run at head 022290e4, scripts/act_slot_proof.sh sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd, mode uid0
+# run by scripts/run_parallel_mutants.sh (4 self-tests at a time, both modes interleaved), each inside scripts/sandbox.sh uid0
+A01 rep=1 mode=uid0 KILLED rc=1 | failing cases: slot A is not a number
+A02 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+A03 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+A04 rep=1 mode=uid0 KILLED rc=1 | failing cases: slots A and B are the same slot
+A05 rep=1 mode=uid0 KILLED rc=1 | failing cases: slot A is slot 0
+A06 rep=1 mode=uid0 KILLED rc=1 | failing cases: slot B is slot 0
+B01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the runner is not the recorded digest
+B02 rep=1 mode=uid0 KILLED rc=1 | failing cases: the runner install is group-writable
+B03 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+B04 rep=1 mode=uid0 KILLED rc=1 | failing cases: the log directory is not empty
+B05 rep=1 mode=uid0 KILLED rc=1 | failing cases: the runner is not the recorded digest;the runner install is group-writable;the log directory is not empty
+C01 rep=1 mode=uid0 KILLED rc=1 | failing cases: every run refuses after taking its slot;a run stops before its last workflow;a run passes every workflow and is then refused;a run fails a workflow and is then refused;a parallel run refuses like its serial reference;a collision holder refuses like its serial reference
+C02 rep=1 mode=uid0 KILLED rc=1 | failing cases: a run passes every workflow and is then refused
+C03 rep=1 mode=uid0 KILLED rc=1 | failing cases: a run fails a workflow and is then refused
+C04 rep=1 mode=uid0 KILLED rc=1 | failing cases: a run stops before its last workflow
+C05 rep=1 mode=uid0 KILLED rc=1 | failing cases: every run refuses after taking its slot;a run stops before its last workflow;a run passes every workflow and is then refused;a run fails a workflow and is then refused
+C06 rep=1 mode=uid0 KILLED rc=1 | failing cases: a parallel run refuses like its serial reference
+C07 rep=1 mode=uid0 KILLED rc=1 | failing cases: slot A changes a verdict;slot B changes a verdict
+C08 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;slot A changes a verdict;slot B changes a verdict
+D01 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;slot A changes a verdict;slot B changes a verdict;a slot reaches the default daemon's container;only slot B reaches the default daemon's container;a slot reaches the container's published port;a slot cannot reach the probe name;the isolation target is dead;the host cannot reach the container;the host cannot reach the published port while the container answers;the slot-0 rival is refused for neither the tool cache nor a job volume
+D02 rep=1 mode=uid0 KILLED rc=1 | failing cases: neither run reports its own slot daemon
+D03 rep=1 mode=uid0 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B;run B is refused after taking slot B, before run A takes slot A
+D04 rep=1 mode=uid0 KILLED rc=1 | failing cases: the parallel runs never overlap;the rival is refused only after the holder left
+D05 rep=1 mode=uid0 KILLED rc=1 | failing cases: the parallel runs never overlap;run A dies before taking slot A while run B holds slot B
+D06 rep=1 mode=uid0 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D07 rep=1 mode=uid0 KILLED rc=1 | failing cases: the parallel runs never overlap;run A is refused after taking slot A, before run B takes slot B
+D08 rep=1 mode=uid0 KILLED rc=1 | failing cases: run B is refused after taking slot B, before run A takes slot A
+E01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the interrupt gate passes and is then refused
+E02 rep=1 mode=uid0 KILLED rc=1 | failing cases: the interrupt gate prints no PASS line
+E03 rep=1 mode=uid0 KILLED rc=1 | failing cases: the interrupt gate ignores its slot
+E04 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+F01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation target cannot be started
+F02 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation target cannot be started
+F03 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation container survives removal;the isolation container cannot be queried after removal
+F04 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation network survives removal;the isolation network cannot be queried after removal
+F05 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation container cannot be queried after removal
+F06 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation network cannot be queried after removal
+F07 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation container survives removal;the isolation network survives removal;the isolation container cannot be queried after removal;the isolation network cannot be queried after removal
+G01 rep=1 mode=uid0 KILLED rc=1 | failing cases: a slot reaches the default daemon's container;only slot B reaches the default daemon's container
+G02 rep=1 mode=uid0 KILLED rc=1 | failing cases: a slot reaches the container's published port
+G03 rep=1 mode=uid0 KILLED rc=1 | failing cases: a slot cannot reach the probe name
+G04 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation target is dead;the host cannot reach the container;the host cannot reach the published port while the container answers
+G05 rep=1 mode=uid0 KILLED rc=1 | failing cases: the host cannot reach the container
+G06 rep=1 mode=uid0 KILLED rc=1 | failing cases: the host cannot reach the published port while the container answers
+G07 rep=1 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G08 rep=1 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+H01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H02 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival names the slot lock but exits 1
+H03 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused for another reason;the slot-0 rival is refused for neither the tool cache nor a job volume
+H04 rep=1 mode=uid0 KILLED rc=1 | failing cases: a collision holder refuses like its serial reference
+H05 rep=1 mode=uid0 KILLED rc=1 | failing cases: the collision holder changes its verdict
+H06 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused for another reason
+H07 rep=1 mode=uid0 KILLED rc=1 | failing cases: the slot-0 rival is refused for neither the tool cache nor a job volume
+H08 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+I01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the isolation container survives removal;the isolation network survives removal;the isolation container cannot be queried after removal;the isolation network cannot be queried after removal
+I02 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+X00 rep=1 mode=uid0 SURVIVED rc=0 | failing cases: none
+# tally: 51 KILLED, 6 SURVIVED
