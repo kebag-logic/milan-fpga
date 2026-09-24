@@ -1,0 +1,20 @@
+block-comment.c -E (none) rc=0 diag=0 
+block-comment.c -S (none) rc=0 diag=0 
+block-comment.c -E -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+block-comment.c -S -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+char.c -E (none) rc=0 diag=0 
+char.c -S (none) rc=0 diag=0 
+char.c -E -Winvalid-utf8 rc=0 diag=2 warning: invalid UTF-8 character <ff> 
+char.c -S -Winvalid-utf8 rc=0 diag=2 warning: invalid UTF-8 character <ff> 
+code-control.c -E (none) rc=0 diag=0 
+code-control.c -S (none) rc=1 diag=1 error: stray ‘\377’ in program
+code-control.c -E -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+code-control.c -S -Winvalid-utf8 rc=1 diag=2 warning: invalid UTF-8 character <ff> 
+line-comment.c -E (none) rc=0 diag=0 
+line-comment.c -S (none) rc=0 diag=0 
+line-comment.c -E -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+line-comment.c -S -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+string.c -E (none) rc=0 diag=0 
+string.c -S (none) rc=0 diag=0 
+string.c -E -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 
+string.c -S -Winvalid-utf8 rc=0 diag=1 warning: invalid UTF-8 character <ff> 

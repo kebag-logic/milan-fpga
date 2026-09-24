@@ -1,0 +1,189 @@
+{
+ "patches": [
+  "$REVIEWS/408-r272-6-packet/scripts/r6/patches/m7-no-named-refusal.json"
+ ],
+ "subset": "pass",
+ "lexer": {
+  "spellings": 1845,
+  "mismatch": 0,
+  "first": []
+ },
+ "closure": {
+  "at offset 0, before `#`": {
+   "index": 0,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "in a line's lead before `#`": {
+   "index": 1,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between `#` and a directive name": {
+   "index": 2,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "inside a directive name": {
+   "index": 3,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "after a directive name": {
+   "index": 4,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "inside an identifier in code": {
+   "index": 5,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "inside a block comment": {
+   "index": 6,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "inside a string literal": {
+   "index": 7,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "inside a character literal": {
+   "index": 8,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between the `/` and `*` of a block comment's opener": {
+   "index": 9,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between the `*` and `/` of a block comment's closer": {
+   "index": 10,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between the two `/` of a line comment's opener": {
+   "index": 11,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "at the end of a line comment": {
+   "index": 12,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between a backslash and the line end in a line comment": {
+   "index": 13,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between a backslash and the line end in a `#define`": {
+   "index": 14,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "after an escaping backslash in a string literal": {
+   "index": 15,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "after an escaping backslash in a character literal": {
+   "index": 16,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between a raw-string prefix and its quote": {
+   "index": 17,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "between a digit and a quote": {
+   "index": 18,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "at the end of the file, in a line comment": {
+   "index": 19,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "at the end of the file, in code": {
+   "index": 20,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 1,
+   "named_not_refused": 0,
+   "examples": [
+    [
+     "byte 0x23 at the end of the file, in code",
+     null,
+     [
+      "a",
+      "z"
+     ]
+    ]
+   ]
+  },
+  "before a string literal's closing quote": {
+   "index": 21,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  },
+  "after the `<` of an `#include` in a skipped group": {
+   "index": 22,
+   "allowlist_flag_wrong": 0,
+   "admitted_disagree": 0,
+   "named_not_refused": 0,
+   "examples": []
+  }
+ },
+ "summary": {
+  "subset_trips": false,
+  "lexer_corpora_trip": 0,
+  "round4_positions_trip": 0,
+  "round5_positions_trip": 1
+ }
+}

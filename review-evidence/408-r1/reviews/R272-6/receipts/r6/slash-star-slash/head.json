@@ -1,0 +1,28 @@
+[
+ {
+  "label": "/*/ opens a comment that */ closes",
+  "text": "int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+  "S": "admitted",
+  "reader": [
+   "a",
+   "z"
+  ],
+  "gcc": [
+   "a",
+   "z"
+  ]
+ },
+ {
+  "label": "/*/ inside a skipped group hides #endif",
+  "text": "int a;\n#ifdef NEVER\n/*/ #endif\nint b;\n*/\n#endif\nint z;\n",
+  "S": "admitted",
+  "reader": [
+   "a",
+   "z"
+  ],
+  "gcc": [
+   "a",
+   "z"
+  ]
+ }
+]

@@ -1,0 +1,51 @@
+[R272] R272-6 independent verdict, written BEFORE reading any prior review report or finding on PR #535
+Exact head 991d59653ff82ccf73ef4df9477de1df8c8c5964 (tree 07df25436405c718275b0238d02e1caeb85aec2a)
+
+Draft verdict: POSITIVE (no BLOCKER, MAJOR or MINOR found by this pass)
+
+Evidence (receipts in this packet):
+- gate 1b at head, pinned SDK: GATE 1b PASS, 0 NOT RUN, 467 compiles; 280/280 mutations,
+  29/29 + 4/4 accepted edits, 1845/1845 spellings, 6440/6440 closure cells in 23 positions
+  (3647 allowlist, 226 closes; 246 other S rule; 1 readers + directive-set closure, the lone
+  `#` at end of file; 2546 read as GCC), re-measured on riscv32-linux-gcc (receipts/gate1b/sdk.txt)
+- gate 1b at head, cross compilers hidden: GATE 1b PASS, 1 NOT RUN, 0 compiles; 222/222,
+  29/29 + 4/4, 1845/1845, the same 6440 split, not re-measured (receipts/gate1b/absent.txt)
+- independent one-file-per-cell GCC re-measure of all 6440 cells: 0 recorded-vs-GCC mismatches;
+  the only admitted cell the readers read differently is the named lone `#` (reader refuses);
+  the 3920 new cells equal round four's Part B rows cell for cell (receipts/r4probes/closure)
+- first 2520 recorded letters and first nine positions unchanged from 4a56ef08 (receipts/r6/kept-prefix.txt)
+- mutation power (receipts/r6/power, receipts/r6/wholegate): four lexer mutants pass both lexer
+  corpora and the nine round-four positions and trip only round-five cells (no-break-space and FS
+  splice blanks, no escape handling in literals, a digit-separator quote); whole gate: the
+  no-break-space and digit-separator mutants stop the gate with the full table and PASS it with
+  the table cut to nine, in both modes. A `/*/`-closes-early mutant trips nothing (whole gate PASS,
+  both modes) although it is a real divergence (receipts/r6/slash-star-slash) -> SUGGESTION.
+- within-S differential fuzz, 2 seeds, 50929 admitted samples: 0 reader/GCC disagreements; the
+  same fuzz finds 113 on the `/*/` mutant (receipts/r6/fuzz*)
+- lone `#` at end of file on the whole shipping firmware: refused on the directive-set closure pin
+- invalid UTF-8 in block/line comment, string, char literal: pinned GCC rc 0 at -E and -S, warns
+  only under -Winvalid-utf8; the four wording sites state this (receipts/r6/invalid-utf8/gcc.txt)
+- round-four probes re-run unchanged: closure probe stops on its own `== 2520` assertion (both
+  modes), as expected for a 6440-cell table; disconnect, S-check, labels, include-quote and ASCII
+  audit identical to round four; mutation table, accepted list and subset corpus identical to 4a56ef08
+- static checks: docs_check, check_baremetal_only --check/--selftest, em dash, doc style, toc,
+  doc paths, py idiom, git diff --check, test_firmware_compiler --selftest: all exit 0
+
+Draft SUGGESTIONS (non-blocking):
+- S-a Tests: no lexer corpus spelling or closure position holds `/*/`; a mutant closing a block
+  comment at the `*` of its own opener passes the whole gate in both modes.
+- S-b Docs: the fourteen round-five positions are described as places where X decides whether a
+  comment or a literal opens, closes or runs on; at `#define BAR \X` it is a directive line that
+  runs on by a splice, and at `#include <X/*>` a header-name context.
+- S-c Docs: `[R272] F1 on PR #535` names three different findings on the page without a head
+  (lines 309 and 1366: the round-two head's `$`; 1482: the first head's form feed).
+
+Lenses applied: Conformance, RTL, Robustness, Tests, Docs.
+
+Draft ledger (lens | result | covering round | exact head):
+Conformance | CLEAN | R272-6 | 991d59653ff82ccf73ef4df9477de1df8c8c5964
+RTL         | CLEAN | R272-6 | 991d59653ff82ccf73ef4df9477de1df8c8c5964
+Robustness  | CLEAN | R272-6 | 991d59653ff82ccf73ef4df9477de1df8c8c5964
+Tests       | CLEAN (S-a is a SUGGESTION) | R272-6 | 991d59653ff82ccf73ef4df9477de1df8c8c5964
+Docs        | CLEAN (S-b, S-c are SUGGESTIONS) | R272-6 | 991d59653ff82ccf73ef4df9477de1df8c8c5964
+Written before reading any prior finding and without reading the concurrent external review at this head.

@@ -1,0 +1,22 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] SKIP: the compiled CSR-address census: cc is not the RV32 target and no flag set here drives it as one, so the census-only mutations, the phase-2 splice compile proofs and the census of the shipping firmware itself did not run -- and neither did the RESOLVING half (#153), which reads the same compile: no resolved store census, no proof that the verdict test dominates the enable writes, and no proof that the CRC-equality edge dominates every non-zero verdict or that the CRC was taken over MILAN_AEM_DESC_BASE, so its mutations did not run either. THE THREE INSTRUMENTS THE TEXT RULES RETIRED BY #408 AND #409 REST ON ARE DOWN WITH THEM -- the -E comparison of the boot path this gate reads against the one the compiler compiles, the -H include-resolution measurement and the resolved store census -- so on this runner NOTHING refuses what those instruments carry: a token-joining splice or a ## paste OUTSIDE the six boot-path bodies, a file beside the firmware, a cast, store or asm the resolver would place in the window, and the COMPILER half of the retired conditional-reach ban -- an arm only one build compiles whose defect no text rule reads, such as `0 &&` in the choke point's verdict test, is graded here by the text rules alone, which do not refuse it -- and every mutation pinned on those instruments is SKIPPED, not counted. WHAT STILL GRADED is every text rule that survives: the splice and ## bans KEPT inside the six boot-path bodies, one #define per name (which is what refuses a read hidden in a second definition of the identity magic), the macro-body rule, the closed-grammar subset check S (the character allowlist, then the literal, digraph, trigraph, $, universal-character-name, __has_include, header-name, _Pragma and unterminated-comment refusals), read on the whole firmware before any reader, the directive readers as the two lexer corpora and the character-closure table recorded them (not re-measured), and the per-selection grading of each conditional (its text half); and the hosted builder jobs require this compiler
+ACCEPTED: control: shipping firmware
+ACCEPTED: plain #: product-only `0 &&` in the choke point verdict test
+ACCEPTED: form feed: product-only `0 &&` in the choke point verdict test
+ACCEPTED: vertical tab: product-only `0 &&` in the choke point verdict test
+ACCEPTED: plain #: product-only paged-base cast store to ADP_CTRL in a UART handler
+ACCEPTED: plain #: product-only literal-address cast store to ADP_CTRL in a UART handler
+ACCEPTED: plain #: product-only lui asm store to ADP_CTRL in a UART handler
+REFUSED: plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)
+    under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2
+REFUSED: plain #: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)
+    under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 
+ACCEPTED: form feed: product-only paged-base cast store to ADP_CTRL in a UART handler
+ACCEPTED: form feed: product-only literal-address cast store to ADP_CTRL in a UART handler
+ACCEPTED: form feed: product-only lui asm store to ADP_CTRL in a UART handler
+REFUSED: form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm first)
+    under the arm selection line 31 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 2
+REFUSED: form feed: product-only arm moving ADP_EID_LO onto ADP_CTRL (product arm last)
+    under the arm selection line 31 `#ifndef CSR_UART_BASE`: CSR_UART_BASE defined, arm 2 of 2 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): ADP_CTRL (CSR 0x600) bit 0 may be set only inside the entity-advertise choke point, found 
+PROBE DONE: 14 case(s), 0 firmware compiles
+exit=0

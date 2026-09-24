@@ -1,0 +1,47 @@
+SDK argv: ["$REVIEWS/408-r272-6-packet/scratch/sdk/bin/riscv32-linux-gcc", "--version"]
+SDK argv: ["$REVIEWS/408-r272-6-packet/scratch/sdk/bin/riscv32-linux-gcc", "-dumpfullversion"]
+SDK argv: ["$REVIEWS/408-r272-6-packet/scratch/sdk/bin/riscv32-linux-gcc", "-dumpmachine"]
+SDK argv: ["$REVIEWS/408-r272-6-packet/scratch/sdk/bin/riscv32-linux-gcc", "-print-sysroot"]
+SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "$REVIEWS/408-r272-6-packet/scratch/sdk", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+SDK tools: {"compiler": "$REVIEWS/408-r272-6-packet/scratch/sdk/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "$REVIEWS/408-r272-6-packet/scratch/sdk/bin/toolchain-wrapper", "sysroot": "$REVIEWS/408-r272-6-packet/scratch/sdk/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+REFUSED pin_ok=True: [gate] the CSR identity sample forged by a paste whose #define sits behind a byte-order mark
+    the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing
+REFUSED pin_ok=True: [gate] a second source #included behind a byte-order mark
+    the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing
+REFUSED pin_ok=True: [gate] a #line behind a byte-order mark
+    the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing
+REFUSED pin_ok=True: [gate] a store in the CSR window hidden between two directive names GCC reads with U+00B7, in a UART command handler ([R273] and [R272] on the round-three head)
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a store in the CSR window hidden between two directive names GCC reads with U+0387, in a UART command handler ([R273] and [R272] on the round-three head)
+    the firmware spells a character outside the allowlist of S (U+0387, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)
+    the firmware spells a character outside the allowlist of S (U+203F, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a store in the CSR window hidden between two directive names GCC reads with U+0301, in a UART command handler ([R273] and [R272] on the round-three head)
+    the firmware spells a character outside the allowlist of S (U+0301, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1443): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a window store between two directive lines a no-break space leads
+    the firmware spells a character outside the allowlist of S (U+00A0, line 1499): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a window store between two directive lines a control the readers do not model (FS) leads
+    the firmware spells a character outside the allowlist of S (U+001C, line 1499): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [gate] a byte that is not UTF-8, in a comment
+    the firmware spells a character outside the allowlist of S (the byte 0xb7, line 1499): it is not UTF-8. The pinned GCC accepts such a byte inside a comment or a literal, and S refuses it wherever it sits all the same, a comment or a literal included: a deliberate fail-closed choice, since the firmwa
+REFUSED pin_ok=True: [gate] a UTF-8 byte-order mark at the start of the file, which round two accepted
+    the firmware spells a character outside the allowlist of S (U+FEFF, line 1): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+00B2
+    the firmware spells a character outside the allowlist of S (U+00B2, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+00E9
+    the firmware spells a character outside the allowlist of S (U+00E9, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+00B7
+    the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+0301
+    the firmware spells a character outside the allowlist of S (U+0301, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+2028
+    the firmware spells a character outside the allowlist of S (U+2028, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+REFUSED pin_ok=True: [r5] window store between two directive names spelled with U+00A0
+    the firmware spells a character outside the allowlist of S (U+00A0, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and noth
+ACCEPTED: [r5] control: the shipping firmware unchanged
+PROBE DONE: 19 case(s), 277 firmware compiles
+exit=0

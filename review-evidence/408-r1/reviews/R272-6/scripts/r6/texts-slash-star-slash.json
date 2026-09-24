@@ -1,0 +1,2 @@
+[["/*/ opens a comment that */ closes", "int a;\n/*/\n#define FOO\n*/\n#ifdef FOO\nint b;\n#endif\nint z;\n"],
+ ["/*/ inside a skipped group hides #endif", "int a;\n#ifdef NEVER\n/*/ #endif\nint b;\n*/\n#endif\nint z;\n"]]

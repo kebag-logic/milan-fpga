@@ -1,0 +1,1093 @@
+{
+ "summary": {
+  "samples": 29662,
+  "refused": {
+   "allowlist": 11367,
+   "other": 7972
+  },
+  "admitted": 10323,
+  "gcc_outcomes": {
+   "('a', 'b', 'z')": 8974,
+   "None": 695,
+   "('a', 'z')": 654
+  },
+  "admitted_disagree": 113
+ },
+ "disagree": [
+  {
+   "text": "int a;\n/*/*;\n#define FOO\n\n \\\n #ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n=/*/\\\f\nu8R\n#define FOO\n\t\n\u000b#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/\u000b\\\r/*/1\n#define FOO\n//x\\\u000b\n*/\\ \n\\\f\n\\\u00a0\n\n/*\n*/#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n;e+;/**/'c'\n#define FOO\n/*\\\n/**/#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": null,
+   "gcc": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n=/*/\n#define FOO\n\n #ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n /*/\\\r\n>\n#define FOO\n\n/* x */#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\n#define FOO\n\\\u000b\n'c'1/*/\u0000\n\t#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nL\f1/*/\\\rR\n#define FOO\n//\\ \n=>\n\u000b#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n<\n#define FOO\nu/*/*>xu8\n \\\n #ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\n#define FOO\n/*//u0xL\n#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*// 0x 0xR\n#define FOO\n\\\u000b\n\\ \n\t\n\t#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\ \n*/*/\"x\"\n#define FOO\n*L<//\\\rR\n\f#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\r\n*/*/u8\f\n#define FOO\n.*\\\f\n\n#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\n/*/\n#define FOO\n/**/\n\f\u000b#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n1/*\\\n//\\ \n\\\f\n.\n#define FOO\n\r\nu8\f\n#ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n*/*/\\\f\nu8\n#define FOO\n\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/\\\f\n\n#define FOO\n\t\u0000/*/\n #ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n#define FOO\n/*/>\n\\\n#ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\r\n/*\\\t\n\\\u000b\n/\r<\n#define FOO\n\u000b;\tu8\\\f\n\\\t\n\n\u0000#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*/\\\f\n\\\u0000\n*/\n#define FOO\nu8\n\f\u000b#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\ne+\\\r\n/*//\n#define FOO\n\"x\"= >\u0000\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nu \n#define FOO\n/*/u8\\\ru8\n\f#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*/*/u8\f\n#define FOO\n\n#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\u0000a'bR'\\\rR\n#define FOO\n/*/U;\"x\"\u000bU\n\t#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n0x\n#define FOO\nL/*//\\ \n\n/*\n*/#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\u000b\n/\\\r1/*/\n#define FOO\n0x\n\f0xu\n/* x */#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\t\n;\n#define FOO\n\u0000/*\\\r\n/* x */#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": null,
+   "gcc": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\"x\"\r\n1=\n#define FOO\n/*/*\n\t#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*/*/\n#define FOO\n//>\\\f\n\\\n.\n#ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\n#define FOO\n/*\\\n/*\n*/#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": null,
+   "gcc": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n. U\n#define FOO\nx</*/e+\n #ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*/*R\n#define FOO\n//\\\n\n\u000b#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n0x\\\f\n\u0000e+/*\\\f\n//\n#define FOO\n\n/**/#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*/\n#define FOO\nR\n\\\n#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n#define FOO\n=/*/\n#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*//e+\n#define FOO\n<L\r\n\t#ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\n. \n#define FOO\n/*/*\\\t\n\\\r\n\\\f\n\n#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/\\\n//\n#define FOO\n\n1/0x*/*/\n#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nx /*/\r/'c'\n#define FOO\n\\ \n\\\t\n\n\f\u000b#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\f\n/\r\n/**//*/\n#define FOO\n\n\u0000#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n>.0x/*//\n#define FOO\nuxe+\n\u000b#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n/*/*x\n#define FOO\n\\\n\\\nu8R*/\\\n'c'\n\u000b#ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n*\\\u0000\n'c'x/*/.\n#define FOO\n//\n/**/#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\r\n/**/\\ \n//\\\f\n\\\u00a0\n\n#define FOO\n/*/\n\u000b#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/\n#define FOO\n/*/*\r=0x\n \\\n #ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*/\\\n#define FOO\n\\\n\\\f\n<U.\n\t#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n#define FOO\nU\r\n/*/1e+\n\u0000#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\u0000\ne+\n#define FOO\n/*/>/\t .\n\t#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/\\\t\n*/\n#define FOO\n\\ \n\n\n#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\ \n\n#define FOO\n*/*///\n \\\n #ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nL\n#define FOO\nu=\r\n/*/*\n\f#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*/*/\n#define FOO\n*\n\\\n#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/1\n#define FOO\n\\\u000b\nu8>*/*/\n\t#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\ne+*/*/\n#define FOO\n1\\\t\nx\n #ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\n\\\r\n/*/*\n\u000b\n#define FOO\n\r\n/* x */#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\ne+\\\u000b\n*/\\\r*/'c'\n#define FOO\n\\ \nu8\n\f#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\u000b\n\\\n\n#define FOO\nu8xu>/*/<\n #ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n=\fx\n#define FOO\n\r/*/*\n#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nLUu8\\\u000b\nu\n#define FOO\n*/*/u8\n#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*/*\n#define FOO\n\\\t\n\r\n\n\f\u000b#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/**/>*/*/=//\n\n#define FOO\nu8>u8\r\n\\\r\n\n \\\n #ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n*/*/\n#define FOO\n\n\t#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n0x\\ \n/*/\n#define FOO\n\\\u0000\n\t*\r\n\n\\\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\u000b\t\r\n \n#define FOO\n \\\t\n/*/\n\u0000#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nR*\n#define FOO\n\u000b\r/*/\\\u000b\n\n\n#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\"x\"/*/U;\r\n=\n#define FOO\n\\\rUU\r\n\\\n\n\f#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\t\n\u000b/*//\n \\\n#define FOO\n\n \\\n #ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*/u8//*/\\\u000b\n\t\n#define FOO\n\f*/>/*/<\n\u0000#ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n0xu8'c'*/*/\n#define FOO\nR>\ru\n \\\n #ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n<\n#define FOO\n/**/.R\\\f\n/*/\r\n\n/**/#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n//L\n#define FOO\n/*/>\\\t\nu8\n\f#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/*//R\n#define FOO\n\fU\n\\\n#ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\ne+\u000b/**/e+\\\f\ne+\n#define FOO\ne+/*/\n \\\n #ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\t\n/**/e+u8\n#define FOO\n/*/\\\t\n\n\f\u000b#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n*\t\n#define FOO\n\r\\\r/*/*\\ \nx\n#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\"x\">.'c'*/*//\n#define FOO\n/**/\n#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n/*\\\r/*x/*'c'R\n#define FOO\n\t<a'b\r\n\u00a0\n\f#ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\f\n\n#define FOO\n\f*/\\\u000b\n*/\n\\\n#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n'c'\\\f\nu8R\\\u0000\n/*/\n#define FOO\n/\"x\"\f\n\u000b#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n<0x>\\\n\n#define FOO\n\\\rR/*///*\n/**/#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\ \n\n#define FOO\ne+/*/*\n#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nUu8x*/*/\\ \nu8\n#define FOO\n0x;\r\n\\\r\n\n\f\u000b#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n=\r/*/*0x\"x\"\n#define FOO\n\n\u000b#ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\r\n\n#define FOO\n\r1/**//*/*;\r\n\n/**/#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n0x/*/\n#define FOO\n\"x\"\n/*\n*/#ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nL\n/*//\r*\n#define FOO\n\\\t\n*/\\\r\r\n\u0000#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n x/*/\u000b/\r\n#define FOO\n\\\r\ne+\n/* x */#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\ne+\u0000\u00000x'a'b\n#define FOO\n\\\u000b\n'c'/*\\ \n\\\u000b\n/*x\n#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n<\\ \nu\"x\">/**/\n#define FOO\n\\\r\n*/*/R0x\n \\\n #ifdef FOO\nint b;\n\\\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/**/=/*//\f\n#define FOO\n//>\u2028\\\f\n*/'c'\u00e9\n/* x */#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\nU\n.//\n#define FOO\nL\\\r\nU/*//'c' \n\\\n#ifdef FOO\nint b;\n \\\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\f*U\n#define FOO\n*/*/=\\ \n\n\f\u000b#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n0x*/*/x\n#define FOO\n//\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nxRe+\n#define FOO\n.L\u0000/*/*\f\n/**/#ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\u0000\n#define FOO\n*/*/>\\\r\\\f\n \\ \n\n\f\u000b#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\\\u0000\n>\\\r\n#define FOO\n/*/*</\n\t#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n.\\\f\n\\\u0000\n\\\u0000\n/*/L\n#define FOO\n\n\t#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n/*//\r\n#define FOO\n*/\u0000'c'\n\u000b#ifdef FOO\nint b;\n #endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n;\\ \n\\\t\n0x\\\u000b\n\n#define FOO\n//*/**/\r/*/\n\u000b#ifdef FOO\nint b;\n\t#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n/**/*/*/\n#define FOO\n/**/\\ \n\\ \n\\ \n</**/1\n\u0000#ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\nx\r\n\n\n#define FOO\n/*/U\\\t\n\\\f\n\\\u000b\n\\\r\n\n\t#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\f\n\t<\n#define FOO\n/*/\n\f#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n'c'/*/*.\n#define FOO\n/\u000b\\\n1>\n\f\u000b#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nU*/\\\r*/\"x\"/\n#define FOO\n\n #ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\u0000\ne+\n#define FOO\n/**/\\\f\n\\\r0x/*/*\n\f\u000b#ifdef FOO\nint b;\n\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\u0000\n\\\r\n#define FOO\n**/*/\n\f#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\n\r\n=/*/\n#define FOO\nue+>\r\n\f\n/*\n*/#ifdef FOO\nint b;\n\u0000#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\f/*/*\n#define FOO\n\\\u000b\n.\f\\\r\n\\\u000b\n\n\u0000#ifdef FOO\nint b;\n\f#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n#define FOO\n/*/**/\\\r\n/**/#ifdef FOO\nint b;\n/* x */#endif\nint z;\n",
+   "reader": null,
+   "gcc": [
+    "a",
+    "b",
+    "z"
+   ]
+  },
+  {
+   "text": "int a;\nR\n#define FOO\n//=/\t\\\u00a0\n/*/\n \\\n #ifdef FOO\nint b;\n/**/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\\\r\n\u000b/*/*\n#define FOO\n1 \n\\\u000b\n\n#ifdef FOO\nint b;\n#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\n\n#define FOO\n;/*\\\f\n///\\\n\\\r\n\n\f#ifdef FOO\nint b;\n\f\u000b#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": null
+  },
+  {
+   "text": "int a;\nu8*R\n#define FOO\n\"x\" /*\\\t\n// \n\u0000#ifdef FOO\nint b;\n/*\n*/#endif\nint z;\n",
+   "reader": [
+    "a",
+    "b",
+    "z"
+   ],
+   "gcc": [
+    "a",
+    "z"
+   ]
+  }
+ ]
+}

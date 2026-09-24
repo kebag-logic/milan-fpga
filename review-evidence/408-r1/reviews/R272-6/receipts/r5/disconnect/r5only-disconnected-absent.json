@@ -1,0 +1,66 @@
+{
+ "tree": "$REVIEWS/r272-6-408",
+ "mode": "absent",
+ "patches": [
+  "$REVIEWS/408-r272-6-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-6-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-6-packet/scripts/r5/patches/disconnect-allowlist.json",
+  "$REVIEWS/408-r272-6-packet/scripts/r5/patches/disconnect-allowlist.json"
+ ],
+ "anchor": "mutations",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B2",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00E9",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B7",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+0301",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+2028",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00A0",
+   "verdict": "ACCEPTED",
+   "pin_ok": false,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] control: the shipping firmware unchanged",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

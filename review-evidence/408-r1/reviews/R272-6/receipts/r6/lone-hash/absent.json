@@ -1,0 +1,36 @@
+{
+ "tree": "$REVIEWS/r272-6-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "accepted",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "[r6] `#` alone at the end of the file, no line end",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads",
+   "pin_ok": true,
+   "because": [
+    "preprocessing directives are pinned"
+   ]
+  },
+  {
+   "label": "[r6] `#` alone at the end of the file, after a blank line",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads",
+   "pin_ok": true,
+   "because": [
+    "preprocessing directives are pinned"
+   ]
+  },
+  {
+   "label": "[r6] `#` alone on the last line, with its line end",
+   "verdict": "REFUSED",
+   "reason": "the firmware's preprocessing directives are pinned, and '#' is not one of them: a directive this gate has no rule for is text in the translation unit that no rule reads"
+  },
+  {
+   "label": "[r6] control: the shipping firmware unchanged",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}

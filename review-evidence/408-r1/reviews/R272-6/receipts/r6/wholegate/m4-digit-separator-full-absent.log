@@ -1,0 +1,25 @@
+PATCHED: m4-digit-separator.json
+Compiler mode: absent cross tools
+Compiler audit: $REVIEWS/408-r272-6-packet/scratch/audit-m4-digit-separator-full-absent.jsonl
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "$REVIEWS/408-r272-6-packet/scripts/r6/gate_patched.py", line 44, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/408-r272-6-packet/scripts/r6/gate_patched.py", line 38, in main
+    tfc.run_gate(None if args.absent else args.sdk.resolve(), args.audit,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 False)
+                 ^^^^^^
+  File "$REVIEWS/r272-6-408/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r272-6-408/sw/builder/test_builder.py", line 11301, in test_baremetal_profile_contract
+    #: A stand-down that is only PRINTED inside the gate is the shape of
+  File "$REVIEWS/r272-6-408/sw/builder/test_builder.py", line 6057, in assert_character_closure
+    f"the closure cells the readers refuse are {refused}, and " \
+  File "$REVIEWS/r272-6-408/sw/builder/test_builder.py", line 5902, in assert_lexer_reads
+    f"-std=gnu99 keeps {kept}, so an arm one of them grades is an " \
+       ^^^^^^^^^^^^
+AssertionError: gate 1b's C lexer reads a preprocessing directive where the pinned GCC does not (closure cell byte 0x27 between a digit and a quote, "int a;\nint n = 1''2; /* ';\n#define FOO\n// */\n#ifdef FOO\nint b;\n#endif\nint z;\n"): its directive readers keep ('a', 'b', 'z') and the pinned GCC 14.3 at -std=gnu99 keeps ('a', 'z'), so an arm one of them grades is an arm the other compiles, or drops
+exit=1

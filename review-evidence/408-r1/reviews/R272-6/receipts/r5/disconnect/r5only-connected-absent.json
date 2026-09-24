@@ -1,0 +1,67 @@
+{
+ "tree": "$REVIEWS/r272-6-408",
+ "mode": "absent",
+ "patches": [],
+ "anchor": "mutations",
+ "compiles": 0,
+ "results": [
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B2",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B2, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00E9",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00E9, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00B7",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00B7, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+0301",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+0301, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+2028",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+2028, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] window store between two directive names spelled with U+00A0",
+   "verdict": "REFUSED",
+   "reason": "the firmware spells a character outside the allowlist of S (U+00A0, line 1500): outside a comment or a literal S admits printable ASCII, U+0020 to U+007E, and the six characters the readers model as whitespace or a line end (tab, line feed, vertical tab, form feed, carriage return and NUL), and nothing else. GCC reads a non-ASCII character in an identifier or a directive name where the readers do not: `#if`, U+00B7, `x` is one unknown directive to it and `#if` to them. The shipping firmware spells none",
+   "pin_ok": true,
+   "because": [
+    "spells a character outside the allowlist of S"
+   ]
+  },
+  {
+   "label": "[r5] control: the shipping firmware unchanged",
+   "verdict": "ACCEPTED"
+  }
+ ]
+}
