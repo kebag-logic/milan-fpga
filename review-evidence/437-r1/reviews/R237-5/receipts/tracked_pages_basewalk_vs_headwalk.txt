@@ -1,0 +1,171 @@
+refusals: 0 page(s) differ
+blocks: 6 page(s) differ
+line_kinds: 16 page(s) differ
+headings: 6 page(s) differ
+plan: 5 page(s) differ
+existing: 0 page(s) differ
+generated_block: 0 page(s) differ
+owns: 0 page(s) differ
+apply_changes: 5 page(s) differ
+
+HEADINGS docs/history/v1/SPEC_TRACEABILITY.md: plan_same=False existing_same=True owns=False
+   only in first : []
+   only in second: [(2, 'STATUS 2026-08-13 — the control plane changed hands, and the tallies below predate it', 'status-2026-08-13--the-control-plane-changed-hands-and-the-tallies-below-predate-it')]
+
+HEADINGS docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md: plan_same=False existing_same=True owns=False
+   only in first : []
+   only in second: [(2, 'STATUS 2026-08-13 — a `Today` column, because the control plane changed', 'status-2026-08-13--a-today-column-because-the-control-plane-changed')]
+
+HEADINGS docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md: plan_same=False existing_same=True owns=False
+   only in first : []
+   only in second: [(2, 'STATUS 2026-08-13 — **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED — BUT NOT FOR THE REASON THIS BANNER USED TO GIVE.**', 'status-2026-08-13--every-row-on-this-page-is-still-not-implemented--but-not-for-the-reason-this-banner-used-to-give')]
+
+HEADINGS docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md: plan_same=False existing_same=True owns=False
+   only in first : []
+   only in second: [(2, 'STATUS 2026-08-13 — **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMENTED ECHO FOR EVERYTHING ELSE.**', 'status-2026-08-13--this-device-answers-aecp-read_descriptor-plus-a-conformant-not_implemented-echo-for-everything-else')]
+
+HEADINGS docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md: plan_same=False existing_same=True owns=False
+   only in first : []
+   only in second: [(2, 'What this plan can still be run against (2026-08-13)', 'what-this-plan-can-still-be-run-against-2026-08-13')]
+
+HEADINGS docs/testing/TESTING.md: plan_same=True existing_same=True owns=True
+   only in first : []
+   only in second: [(3, 'The capability boundary this page is now written against (2026-08-16)', 'the-capability-boundary-this-page-is-now-written-against-2026-08-16')]
+
+BLOCKS CONTRIBUTING.md: 9 line(s) differ, 7 non-blank
+   CONTRIBUTING.md:320: 'indented code line' -> 'fenced line' | '     ```bash'
+   CONTRIBUTING.md:321: 'indented code line' -> 'fenced line' | '     suite_logs=$(mktemp -d)'
+   CONTRIBUTING.md:322: 'indented code line' -> 'fenced line' | '     scripts/run_all_suites.sh "$suite_logs"'
+   CONTRIBUTING.md:323: 'indented code line' -> 'fenced line' | '     syn/yosys/run.sh'
+   CONTRIBUTING.md:324: 'indented code line' -> 'fenced line' | '     ```'
+   CONTRIBUTING.md:326: 'indented code line' -> 'prose line' | '     A hosted pass does not replace the local evidence, and a local pass does'
+   CONTRIBUTING.md:327: 'indented code line' -> 'prose line' | "     not waive the ruleset's hosted contexts."
+
+BLOCKS QUICKSTART.md: 5 line(s) differ, 5 non-blank
+   QUICKSTART.md:24: 'prose line' -> 'fenced line' | '> ```sh'
+   QUICKSTART.md:25: 'prose line' -> 'fenced line' | '> git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis'
+   QUICKSTART.md:26: 'prose line' -> 'fenced line' | '> git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git'
+   QUICKSTART.md:27: 'prose line' -> 'fenced line' | '> git clone https://github.com/Mister-M-alt/FPGA-gPTP.git gptp-processor'
+   QUICKSTART.md:28: 'prose line' -> 'fenced line' | '> ```'
+
+BLOCKS docs/design/SAVED_STATE_MATERIALIZATION.md: 4 line(s) differ, 3 non-blank
+   docs/design/SAVED_STATE_MATERIALIZATION.md:336: 'indented code line' -> 'prose line' | "    They are prerequisites of stage 1's implementation lane and of every"
+   docs/design/SAVED_STATE_MATERIALIZATION.md:337: 'indented code line' -> 'prose line' | '    stage declared shippable (tickets T8 and T9). So is the descriptor'
+   docs/design/SAVED_STATE_MATERIALIZATION.md:338: 'indented code line' -> 'prose line' | "    store's roll-back reset, which stage 1 owns (section 10)."
+
+BLOCKS docs/history/v1/design/TIME_SYNC.md: 1 line(s) differ, 0 non-blank
+
+BLOCKS docs/testing/CI_WORKFLOWS.md: 120 line(s) differ, 113 non-blank
+   docs/testing/CI_WORKFLOWS.md:509: 'indented code line' -> 'prose line' | '    `rtl-fast.yml` publishes the same shape, from its `changes` job to'
+   docs/testing/CI_WORKFLOWS.md:510: 'indented code line' -> 'prose line' | '    `verilator-lint` and `yosys-elaboration`, and is held by the same check.'
+   docs/testing/CI_WORKFLOWS.md:511: 'indented code line' -> 'prose line' | '    Its aggregate counts a skipped consumer as a pass on purpose, since a'
+   docs/testing/CI_WORKFLOWS.md:512: 'indented code line' -> 'prose line' | '    docs-only change legitimately runs no RTL lint. Therefore the producer is'
+   docs/testing/CI_WORKFLOWS.md:513: 'indented code line' -> 'prose line' | '    held too: `changes` carries no `needs`, `if`, `continue-on-error`,'
+   docs/testing/CI_WORKFLOWS.md:514: 'indented code line' -> 'prose line' | '    `defaults` or job-level `env`; the workflow carries no top-level'
+   docs/testing/CI_WORKFLOWS.md:515: 'indented code line' -> 'prose line' | '    `defaults`; and its exact'
+   docs/testing/CI_WORKFLOWS.md:516: 'indented code line' -> 'prose line' | '    two-step sequence is `actions/checkout@v4` with full history followed by'
+   docs/testing/CI_WORKFLOWS.md:517: 'indented code line' -> 'prose line' | "    the `scope` step. That step's keys and three env bindings are pinned, and"
+   docs/testing/CI_WORKFLOWS.md:518: 'indented code line' -> 'prose line' | '    its normalized canonical script must self-test `ci_scope.py`, derive the'
+   docs/testing/CI_WORKFLOWS.md:519: 'indented code line' -> 'prose line' | '    conservative changed-file set, read the selector answer and publish that'
+   docs/testing/CI_WORKFLOWS.md:520: 'indented code line' -> 'prose line' | '    answer. An empty or forced-false publication can no longer skip both RTL'
+   ... 101 more
+
+BLOCKS tb/verilator/gptp_txts/README.md: 2 line(s) differ, 0 non-blank
+
+LINE_KINDS CONTRIBUTING.md: 9 line(s) differ, 7 non-blank
+   CONTRIBUTING.md:320: 'indented code line' -> 'fenced line' | '     ```bash'
+   CONTRIBUTING.md:321: 'indented code line' -> 'fenced line' | '     suite_logs=$(mktemp -d)'
+   CONTRIBUTING.md:322: 'indented code line' -> 'fenced line' | '     scripts/run_all_suites.sh "$suite_logs"'
+   CONTRIBUTING.md:323: 'indented code line' -> 'fenced line' | '     syn/yosys/run.sh'
+   CONTRIBUTING.md:324: 'indented code line' -> 'fenced line' | '     ```'
+   CONTRIBUTING.md:326: 'indented code line' -> 'prose line' | '     A hosted pass does not replace the local evidence, and a local pass does'
+   CONTRIBUTING.md:327: 'indented code line' -> 'prose line' | "     not waive the ruleset's hosted contexts."
+
+LINE_KINDS QUICKSTART.md: 5 line(s) differ, 5 non-blank
+   QUICKSTART.md:24: 'prose line' -> 'fenced line' | '> ```sh'
+   QUICKSTART.md:25: 'prose line' -> 'fenced line' | '> git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis'
+   QUICKSTART.md:26: 'prose line' -> 'fenced line' | '> git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git'
+   QUICKSTART.md:27: 'prose line' -> 'fenced line' | '> git clone https://github.com/Mister-M-alt/FPGA-gPTP.git gptp-processor'
+   QUICKSTART.md:28: 'prose line' -> 'fenced line' | '> ```'
+
+LINE_KINDS docs/MILAN_V12_ROADMAP.md: 1 line(s) differ, 1 non-blank
+   docs/MILAN_V12_ROADMAP.md:135: 'table row' -> 'prose line' | '| MVU `0x0000` | `GET_MILAN_INFO` | 5.4.4.1 | 0x0043 |'
+
+LINE_KINDS docs/design/SAVED_STATE_FASTCONNECT.md: 19 line(s) differ, 19 non-blank
+   docs/design/SAVED_STATE_FASTCONNECT.md:15: 'prose line' -> 'table row' | '> | | round 1 | round 2 | now |'
+   docs/design/SAVED_STATE_FASTCONNECT.md:16: 'prose line' -> 'table row' | '> |---|---|---|---|'
+   docs/design/SAVED_STATE_FASTCONNECT.md:17: 'prose line' -> 'table row' | '> | whole-image A/B promotion into the reserved `journal` slots | decided | unchanged | **'
+   docs/design/SAVED_STATE_FASTCONNECT.md:18: 'prose line' -> 'table row' | '> | media owned by firmware through the existing LiteSPI master | decided | unchanged | **'
+   docs/design/SAVED_STATE_FASTCONNECT.md:19: 'prose line' -> 'table row' | '> | record namespace inside the image | one record per item group and index | banked, deci'
+   docs/design/SAVED_STATE_FASTCONNECT.md:20: 'prose line' -> 'table row' | '> | the on-flash container | KLJ1 v1 "carried forward unchanged" | a new version, KLJ2 | u'
+   docs/design/SAVED_STATE_FASTCONNECT.md:21: 'prose line' -> 'table row' | "> | the backend's memory and the transfer mechanism | left open | decided | unchanged, sec"
+   docs/design/SAVED_STATE_FASTCONNECT.md:22: 'prose line' -> 'table row' | '> | `nvm_backed_o` | asserts once a writer has answered | live, with a revocation list | *'
+   docs/design/SAVED_STATE_FASTCONNECT.md:23: 'prose line' -> 'table row' | "> | the area claim | borrowed issue #69's unrelated LUT delta | withdrawn as unmeasurable "
+   docs/design/SAVED_STATE_FASTCONNECT.md:24: 'prose line' -> 'table row' | '> | the record-space gate | did not exist | five negative controls, no omission oracle | *'
+   docs/design/SAVED_STATE_FASTCONNECT.md:25: 'prose line' -> 'table row' | '> | the five `milan_csr.sv` citations | dangling | named as deliberately stale | **repaire'
+   docs/design/SAVED_STATE_FASTCONNECT.md:38: 'prose line' -> 'table row' | '> | | round 3 | now |'
+   ... 7 more
+
+LINE_KINDS docs/design/SAVED_STATE_MATERIALIZATION.md: 4 line(s) differ, 3 non-blank
+   docs/design/SAVED_STATE_MATERIALIZATION.md:336: 'indented code line' -> 'prose line' | "    They are prerequisites of stage 1's implementation lane and of every"
+   docs/design/SAVED_STATE_MATERIALIZATION.md:337: 'indented code line' -> 'prose line' | '    stage declared shippable (tickets T8 and T9). So is the descriptor'
+   docs/design/SAVED_STATE_MATERIALIZATION.md:338: 'indented code line' -> 'prose line' | "    store's roll-back reset, which stage 1 owns (section 10)."
+
+LINE_KINDS docs/history/v1/SPEC_TRACEABILITY.md: 1 line(s) differ, 1 non-blank
+   docs/history/v1/SPEC_TRACEABILITY.md:15: 'prose line' -> 'heading' | '> ## STATUS 2026-08-13 — the control plane changed hands, and the tallies below predate it'
+
+LINE_KINDS docs/history/v1/design/TIME_SYNC.md: 2 line(s) differ, 1 non-blank
+   docs/history/v1/design/TIME_SYNC.md:495: 'table row' -> 'prose line' | '|ppm| < 0.5 with CRF selected, zero junction slips, both 4.4.4.3 `mr`'
+
+LINE_KINDS docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md: 1 line(s) differ, 1 non-blank
+   docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:15: 'prose line' -> 'heading' | '> ## STATUS 2026-08-13 — a `Today` column, because the control plane changed'
+
+LINE_KINDS docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md: 1 line(s) differ, 1 non-blank
+   docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:15: 'prose line' -> 'heading' | '> ## STATUS 2026-08-13 — **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED — BUT NOT FOR T'
+
+LINE_KINDS docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md: 1 line(s) differ, 1 non-blank
+   docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:15: 'prose line' -> 'heading' | '> ## STATUS 2026-08-13 — **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NO'
+
+LINE_KINDS docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md: 1 line(s) differ, 1 non-blank
+   docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:20: 'prose line' -> 'heading' | '> ## What this plan can still be run against (2026-08-13)'
+
+LINE_KINDS docs/limitations/TROUBLESHOOTING.md: 11 line(s) differ, 11 non-blank
+   docs/limitations/TROUBLESHOOTING.md:567: 'prose line' -> 'table row' | '> | address | value | purpose |'
+   docs/limitations/TROUBLESHOOTING.md:568: 'prose line' -> 'table row' | '> |---|---|---|'
+   docs/limitations/TROUBLESHOOTING.md:569: 'prose line' -> 'table row' | '> | `0x90000800` | `0x000` | select listener entry 0 |'
+   docs/limitations/TROUBLESHOOTING.md:570: 'prose line' -> 'table row' | '> | `0x90000814` | `0x00020000` | stage stream-ID low word |'
+   docs/limitations/TROUBLESHOOTING.md:571: 'prose line' -> 'table row' | '> | `0x90000818` | `0x02000000` | stage stream-ID high word |'
+   docs/limitations/TROUBLESHOOTING.md:572: 'prose line' -> 'table row' | '> | `0x90000810` | `0x5` | commit enable + fabric RENDER route |'
+   docs/limitations/TROUBLESHOOTING.md:574: 'prose line' -> 'table row' | '> | | before | +2 s | +4 s | sustained 5 s |'
+   docs/limitations/TROUBLESHOOTING.md:575: 'prose line' -> 'table row' | '> |---|---|---|---|---|'
+   docs/limitations/TROUBLESHOOTING.md:576: 'prose line' -> 'table row' | '> | `AVTPRX_FRX 0x6BC` | **0** | 24 971 | 58 222 | 223 673 → 271 646 |'
+   docs/limitations/TROUBLESHOOTING.md:577: 'prose line' -> 'table row' | '> | `AVTPRX_STAT 0x6B8` | 0 | 0x101 | 0x101 | 0x101 |'
+   docs/limitations/TROUBLESHOOTING.md:578: 'prose line' -> 'table row' | '> | `AVTPRX_ERR 0x6C0` | — | — | — | **0** |'
+
+LINE_KINDS docs/reference/REGISTER_MAP.md: 5 line(s) differ, 5 non-blank
+   docs/reference/REGISTER_MAP.md:355: 'table row' -> 'prose line' | '| `0x008` | `CAP` | RO | param | `[3:0]` num_queues (the retained `0x400` window geometry,'
+   docs/reference/REGISTER_MAP.md:356: 'table row' -> 'prose line' | '| `0x00C` | `SCRATCH` | RW | `0` | R/W scratch (bus liveness test) |'
+   docs/reference/REGISTER_MAP.md:357: 'table row' -> 'prose line' | '| `0x010` | `IRQ_STATUS` | W1C | `0` | `[0]` tx_ts_ready - 🔴 **STRUCTURAL ZERO** since `0x'
+   docs/reference/REGISTER_MAP.md:358: 'table row' -> 'prose line' | '| `0x014` | `IRQ_MASK` | RW | `0` | 1 = interrupt enabled; masked bits still visible in `I'
+   docs/reference/REGISTER_MAP.md:359: 'table row' -> 'prose line' | '| `0x018` | `IRQ_RAW` | RO | `0` | Latched event bits before masking |'
+
+LINE_KINDS docs/testing/CI_WORKFLOWS.md: 120 line(s) differ, 113 non-blank
+   docs/testing/CI_WORKFLOWS.md:509: 'indented code line' -> 'prose line' | '    `rtl-fast.yml` publishes the same shape, from its `changes` job to'
+   docs/testing/CI_WORKFLOWS.md:510: 'indented code line' -> 'prose line' | '    `verilator-lint` and `yosys-elaboration`, and is held by the same check.'
+   docs/testing/CI_WORKFLOWS.md:511: 'indented code line' -> 'prose line' | '    Its aggregate counts a skipped consumer as a pass on purpose, since a'
+   docs/testing/CI_WORKFLOWS.md:512: 'indented code line' -> 'prose line' | '    docs-only change legitimately runs no RTL lint. Therefore the producer is'
+   docs/testing/CI_WORKFLOWS.md:513: 'indented code line' -> 'prose line' | '    held too: `changes` carries no `needs`, `if`, `continue-on-error`,'
+   docs/testing/CI_WORKFLOWS.md:514: 'indented code line' -> 'prose line' | '    `defaults` or job-level `env`; the workflow carries no top-level'
+   docs/testing/CI_WORKFLOWS.md:515: 'indented code line' -> 'prose line' | '    `defaults`; and its exact'
+   docs/testing/CI_WORKFLOWS.md:516: 'indented code line' -> 'prose line' | '    two-step sequence is `actions/checkout@v4` with full history followed by'
+   docs/testing/CI_WORKFLOWS.md:517: 'indented code line' -> 'prose line' | "    the `scope` step. That step's keys and three env bindings are pinned, and"
+   docs/testing/CI_WORKFLOWS.md:518: 'indented code line' -> 'prose line' | '    its normalized canonical script must self-test `ci_scope.py`, derive the'
+   docs/testing/CI_WORKFLOWS.md:519: 'indented code line' -> 'prose line' | '    conservative changed-file set, read the selector answer and publish that'
+   docs/testing/CI_WORKFLOWS.md:520: 'indented code line' -> 'prose line' | '    answer. An empty or forced-false publication can no longer skip both RTL'
+   ... 101 more
+
+LINE_KINDS docs/testing/TESTING.md: 2 line(s) differ, 2 non-blank
+   docs/testing/TESTING.md:15: 'prose line' -> 'heading' | '> ### The capability boundary this page is now written against (2026-08-16)'
+   docs/testing/TESTING.md:605: 'table row' -> 'prose line' | '| Verible v0.0-4084, default rules | 1004 | **0** — it has no elaborator | 16.4 MB downloa'
+
+LINE_KINDS tb/verilator/gptp_txts/README.md: 2 line(s) differ, 0 non-blank

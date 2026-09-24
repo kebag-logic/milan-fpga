@@ -1,0 +1,15 @@
+recursion limit 1000
+100 OK [(2, 'A', 'a'), (2, 'B', 'b'), (2, 'C', 'c')]
+400 OK [(2, 'A', 'a'), (2, 'B', 'b'), (2, 'C', 'c')]
+600 OK [(2, 'A', 'a'), (2, 'B', 'b'), (2, 'C', 'c')]
+1200 RecursionError (uncaught by RendererError handlers): maximum recursion depth exceeded
+list 400 OK
+list 1200 RecursionError
+BASE walk depth 1200: [(2, 'A', 'a'), (2, 'B', 'b'), (2, 'C', 'c')]
+check_em_dash on a changed page nested 1200 deep (rc=1, traceback):
+  File "<venv-3.14>/lib/python3.14/site-packages/cffi/api.py", line 292, in cast
+    cdecl = self._typeof(cdecl)
+RecursionError: maximum recursion depth exceeded
+gen_toc --check with that page tracked (rc=1, traceback):
+    cdecl = self._typeof(cdecl)
+RecursionError: maximum recursion depth exceeded

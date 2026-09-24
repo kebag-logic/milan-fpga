@@ -1,0 +1,50 @@
+=== venv312
+[rc=0] scripts/gen_toc.py --selftest :: TOC selftest: PASS (1433/1433 arm(s))
+[rc=0] scripts/gen_toc.py --check :: TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+[rc=0] scripts/gen_toc.py --verify-anchors :: anchor check: 147 existing cross-page fragment links reproduced
+[rc=0] scripts/check_em_dash.py --selftest :: check_em_dash selftest: PASS (332 arm(s))
+[rc=0] scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9 :: check_em_dash: 0 finding(s) over 75 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [759da623..HEAD]
+[rc=0] scripts/docs_check.py :: docs_check: 0 finding(s) across 164 md files + 852 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+[rc=0] scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+[rc=0] scripts/check_doc_style.py --selftest :: documentation style selftest: OK
+[rc=0] scripts/check_doc_paths.py :: doc path gate: OK (833 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+[rc=0] scripts/check_archive.py :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+[rc=0] scripts/check_archive.py --selftest :: archive selftest: OK (24 controls)
+[rc=0] scripts/check_feature_status.py --self-test :: feature_status: 0 finding(s)
+[rc=0] docs/traceability/gen_module_matrix.py --check :: traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+[rc=0] scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 728 file(s))
+[rc=0] scripts/check_hygiene.py --selftest :: 35 checks: 35 PASS, 0 FAIL
+[rc=0] scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 778 first-party file(s) read)
+[rc=0] scripts/check_todo_ownership.py --selftest :: 45 checks: 45 PASS, 0 FAIL
+[rc=0] scripts/measure_test_evidence.py --check ::   the mutation ratchet can be lowered to 74
+[rc=0] scripts/measure_test_evidence.py --selftest :: 101 checks: 101 PASS, 0 FAIL
+[rc=0] scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+[rc=0] scripts/check_py_idiom.py --selftest :: 54 checks: 54 PASS, 0 FAIL
+[rc=2] scripts/ci_events.py --check :: ci_events: cannot run: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+[rc=2] scripts/ci_events.py --selftest :: selftest: cannot load the pristine tree: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+exit=1
+=== venv314
+[rc=0] scripts/gen_toc.py --selftest :: TOC selftest: PASS (1433/1433 arm(s))
+[rc=0] scripts/gen_toc.py --check :: TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+[rc=0] scripts/gen_toc.py --verify-anchors :: anchor check: 147 existing cross-page fragment links reproduced
+[rc=0] scripts/check_em_dash.py --selftest :: check_em_dash selftest: PASS (332 arm(s))
+[rc=0] scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9 :: check_em_dash: 0 finding(s) over 75 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 332/332 [759da623..HEAD]
+[rc=0] scripts/docs_check.py :: docs_check: 0 finding(s) across 164 md files + 852 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+[rc=0] scripts/check_doc_style.py :: documentation style: OK (22 current documents)
+[rc=0] scripts/check_doc_style.py --selftest :: documentation style selftest: OK
+[rc=0] scripts/check_doc_paths.py :: doc path gate: OK (833 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+[rc=0] scripts/check_archive.py :: archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+[rc=0] scripts/check_archive.py --selftest :: archive selftest: OK (24 controls)
+[rc=0] scripts/check_feature_status.py --self-test :: feature_status: 0 finding(s)
+[rc=0] docs/traceability/gen_module_matrix.py --check :: traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+[rc=0] scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 728 file(s))
+[rc=0] scripts/check_hygiene.py --selftest :: 35 checks: 35 PASS, 0 FAIL
+[rc=0] scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 778 first-party file(s) read)
+[rc=0] scripts/check_todo_ownership.py --selftest :: 45 checks: 45 PASS, 0 FAIL
+[rc=0] scripts/measure_test_evidence.py --check ::   the mutation ratchet can be lowered to 74
+[rc=0] scripts/measure_test_evidence.py --selftest :: 101 checks: 101 PASS, 0 FAIL
+[rc=0] scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+[rc=0] scripts/check_py_idiom.py --selftest :: 54 checks: 54 PASS, 0 FAIL
+[rc=2] scripts/ci_events.py --check :: ci_events: cannot run: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+[rc=2] scripts/ci_events.py --selftest :: selftest: cannot load the pristine tree: pyyaml is not importable; install python3-yaml or `pip install pyyaml`
+exit=1
