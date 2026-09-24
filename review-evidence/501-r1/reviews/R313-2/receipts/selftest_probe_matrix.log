@@ -1,0 +1,14 @@
+crash_before_finding: control alone rc=1 traceback=True findings=0; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=True; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+crash_after_finding: control alone rc=1 traceback=True findings=12; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=True; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+unrelated_finding: control alone rc=1 traceback=False findings=12; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=False; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+silent_exit_1: control alone rc=1 traceback=False findings=0; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=False; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+no_op: control alone rc=0 traceback=False findings=0; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=0, traceback=False; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+required_text_not_a_finding: control alone rc=1 traceback=False findings=12; --self-test rc=1 -> AS REQUIRED
+    SELF-TEST FAILED: negative control --mutate=collide: exit=1, traceback=False; required FINDING containing 'is claimed by both FMT_IN[0] and FMT_OUT[0]'. A crash or unrelated failure does not prove the assertion.
+unmodified: control alone rc=1 traceback=False findings=12; --self-test rc=0 -> AS REQUIRED
+restored original bytes after every arm

@@ -1,0 +1,43 @@
+FAIL: endstation_ax7101_8x8: MAPS_OUT[1] (record 0x71, 584 framed bytes at area offset 1418) reads the wrong span: byte 0 came back 0x18, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[2] (record 0x72, 584 framed bytes at area offset 2002) reads the wrong span: byte 0 came back 0x9B, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[3] (record 0x73, 584 framed bytes at area offset 2586) reads the wrong span: byte 0 came back 0x1E, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[4] (record 0x74, 584 framed bytes at area offset 3170) reads the wrong span: byte 0 came back 0xA1, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[5] (record 0x75, 584 framed bytes at area offset 3754) reads the wrong span: byte 0 came back 0x24, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[6] (record 0x76, 584 framed bytes at area offset 4338) reads the wrong span: byte 0 came back 0xA7, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: MAPS_OUT[7] (record 0x77, 584 framed bytes at area offset 4922) reads the wrong span: byte 0 came back 0x2A, the image holds 0x17. The backend resolved this record to a different place in the image
+FAIL: endstation_ax7101_8x8: a partial READ of 0x71 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x72 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x73 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x74 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x75 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x76 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: a partial READ of 0x77 at offset 8 returned the wrong bytes
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[1] at offset 16 did not land at area offset 1434
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[2] at offset 16 did not land at area offset 2018
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[3] at offset 16 did not land at area offset 2602
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[4] at offset 16 did not land at area offset 3186
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[5] at offset 16 did not land at area offset 3770
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[6] at offset 16 did not land at area offset 4354
+FAIL: endstation_ax7101_8x8: acknowledged bridge: a WRITE into MAPS_OUT[7] at offset 16 did not land at area offset 4938
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[0] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[1] at offset 16 did not land at area offset 1434
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[1] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[2] at offset 16 did not land at area offset 2018
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[2] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[3] at offset 16 did not land at area offset 2602
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[3] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[4] at offset 16 did not land at area offset 3186
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[4] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[5] at offset 16 did not land at area offset 3770
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[5] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[6] at offset 16 did not land at area offset 4354
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[6] modified bytes outside its span
+FAIL: endstation_ax7101_8x8: posted bridge: a WRITE into MAPS_OUT[7] at offset 16 did not land at area offset 4938
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 1
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 2
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 3
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 4
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 5
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 6
+FAIL: endstation_ax7101_8x8: output ERASE crossed span on port 7
+nvm_backend[endstation_ax7101_8x8]: checks: 525  failures: 42
