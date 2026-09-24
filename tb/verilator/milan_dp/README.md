@@ -516,7 +516,7 @@ stream is graded against its own baseline rate.
 
 `CLKV_SRC`, like `RSP_SRC` and `DP_SRC`, rebuilds this leg against a mutated copy.
 Measured on 2026-09-24 with Verilator 5.050: 8.04 M cycles, about 40 s including the build.
-On the same eight-job host the sweep's three controls took 146 s, and all nine 386 s.
+On the same eight-job host the sweep's three controls took 133 s, and `make gmstep-mutants` (the leg and all eleven controls) 405 s.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
