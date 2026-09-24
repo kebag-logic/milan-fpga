@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `e5dcea6e351abff18a27a00f8e345f3251bdbd8f` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `09f9bf3846511f8388d995126502ed92eaa65213` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 

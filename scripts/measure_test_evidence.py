@@ -604,6 +604,9 @@ DUT_READER_DISPOSITIONS = {
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
         "grade isolation and cleanup only; RTL behavior still requires the real suite",
+    "tb/verilator/milan_dp/crflic_mutants.py":
+        "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
+        "named failure. It is the explicit crflic-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/render_mutants.py":
         "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
     "tb/verilator/milan_dp_render/tdm8_render_mutants.py":

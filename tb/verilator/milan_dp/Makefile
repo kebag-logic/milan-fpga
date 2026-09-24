@@ -8,6 +8,9 @@
 #   make ax1x1  - run only the eight-channel AX7101 option-OFF baseline
 #   make aclk   - run only the true-ratio leg (grid alignment + the #386
 #                 render law); its mutation arm is render_mutants.py
+#   make crflic - run only the #530 CRF talker licence leg (compressed time)
+#   make crflic-mutants - that leg's explicit mutation campaign
+#                 (crflic_mutants.py), outside the sweep's deadline
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -187,7 +190,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -231,6 +234,34 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(ACLK_MDIR) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
   $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
+endef
+
+# #530: the shipping AX 1x1 TDM8 geometry (the CRF Media Clock Output is
+# source uid 1) at COMPRESSED time. The processor millisecond and KL_maap's
+# millisecond are put on ONE grid of CRFLIC_MS_CYC fabric cycles, the
+# tb/verilator/pp_shadow recipe, so a MAAP claim, a 15 s PROBE_TX window and
+# a minute of 10-15 s LeaveAll cycles all fit in about ten million cycles. The
+# Milan Table 5.4 observation interval is CRFLIC_DIAG_MS compressed ms, long
+# enough to hold several CRF PDUs (the CRF grid is NOT compressed: it runs
+# off clk_audio), so FRAMES_TX and the PDU total can be told apart. Each
+# number feeds both the -G that builds the gateware and the -D the harness
+# grades against. crflic_mutants.py builds a MUTATED datapath through the same
+# recipe (DP_SRC and CRFLIC_MDIR overridden), so its negative controls
+# elaborate exactly the gateware the positive leg does.
+CRFLIC_MS_CYC  = 100
+CRFLIC_DIAG_MS = 2000
+CRFLIC_MDIR   ?= obj_crflic
+CRFLIC_FLAGS = $(filter-out -GDIAG_TICK_CYC_P=256,$(GPTP_OFF_VFLAGS)) \
+  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(CRFLIC_MS_CYC) \
+  -GMAAP_CLK_HZ_P=$(CRFLIC_MS_CYC)000 \
+  -GDIAG_TICK_CYC_P=$(shell echo $$(($(CRFLIC_MS_CYC) * $(CRFLIC_DIAG_MS))))
+define CRFLIC_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MDIR) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -Wall -Wextra" \
+  $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_crflic
 endef
 
 # #447: the shipping TDM8 render lane's two elaborations, its leg source and
@@ -355,6 +386,19 @@ aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 aclk-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)
 
+crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(CRFLIC_BUILD)
+	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+
+crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(CRFLIC_BUILD)
+
+# An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
+# three more elaborations and four runs of the leg, measured at 139 s on an
+# eight-core host, which the sweep's stated milan_dp margin was not sized for.
+crflic-mutants: crflic
+	python3 crflic_mutants.py
+
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
@@ -445,9 +489,12 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
 	  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
 	  -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
 	  $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+	$(CRFLIC_BUILD)
 	./obj_dir/Vmilan_dp_sim
 	@echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
 	./obj_notify/Vmilan_dp_notify
+	@echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
+	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
 	./obj_nxn/Vmilan_dp_nxn
 	@echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
 	./obj_nxndv/Vmilan_dp_nxndv
@@ -493,4 +540,4 @@ print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
