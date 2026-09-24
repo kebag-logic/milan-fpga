@@ -1,0 +1,5 @@
+clone HEAD 2e1675d2d20bbc0bb549b36b9d485b2f9b747d5f tree b83ba761298a353d80c2f48bc178764615525e1d
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+wrapper sha256: 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  -
+wrapper: #!/bin/sh
+exec env VERILATOR_ROOT=~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/bin/verilator "$@"
