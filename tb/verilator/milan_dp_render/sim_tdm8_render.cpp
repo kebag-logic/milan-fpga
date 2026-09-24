@@ -1220,6 +1220,7 @@ class TdmRenderHarness {
     }
 
     void bring_out_of_reset();
+    void start_the_boot_restore_walk();
     void bind_listener_zero();
     void run_the_bind_ladder(int listener, int talker, uint16_t seq,
                              const char* tag);
@@ -1413,11 +1414,30 @@ void TdmRenderHarness::bind_listener_zero() {
     // this leg sends is multicast.
     axi_write(kAdpEidHi, 0x020000FF);
     axi_write(kAdpEidLo, 0xFE000001);
+    start_the_boot_restore_walk();
     axi_write(kAdpCtrl, 0x00001F01);
     steps(2000);
     run_the_bind_ladder(0, 0, 0x1122, "T1 BIND");
     check.dec("T1 BIND: listener 0 bound (0x6A4[3], the class-D record)",
               (axi_read(kAcmplState) >> 3) & 1, 1);
+}
+
+//! The boot restore walk, as the firmware's nvm_boot() starts it. Since
+//! processor pin a8f8ce81 (its issue 92) the ACMP listener serves nothing
+//! from reset until the binding walk ends, and PP_CTRL[1] starts that walk;
+//! every reset clears the bit, so each bind after a reset sets it again. No
+//! image is configured, so the backend answers blank media and the walk
+//! sequences in a few hundred cycles.
+void TdmRenderHarness::start_the_boot_restore_walk() {
+    constexpr uint16_t kPpCtrl = 0x920;
+    constexpr uint16_t kPpStat = 0x924;
+    axi_write(kPpCtrl, axi_read(kPpCtrl) | 0x2u);
+    uint32_t done = 0;
+    for (int r = 0; r < 400 && done == 0; r++) {
+        steps(64);
+        done = (axi_read(kPpStat) >> 2) & 1u;
+    }
+    check.dec("BOOT: PP_STAT[2] the restore walk sequenced", done, 1);
 }
 
 //! The sim_main ACMP ladder for ONE listener: BIND_RX, the harvested
