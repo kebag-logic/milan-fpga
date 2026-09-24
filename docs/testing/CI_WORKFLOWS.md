@@ -1832,11 +1832,14 @@ Resource bounds:
 - That OOM is all the runner detects. Before one, the host reclaims memory
   at the cap, which can slow a job until its workflow times out. No `oom` is
   raised either for an allocation that fails without trying the OOM killer,
-  such as a large contiguous one or one whose caller asked not to retry. A run hurt either way keeps its verdict, so a slot's `FAILED` can
-  still be the cap's. After the workflows the runner prints the slice's
-  memory peak and its `max` count, the number of times usage hit the cap.
-  Those two numbers are the only sign of it, so replay a slot `FAILED` with a
-  nonzero count in slot 0 before attributing it to the candidate. The cap's
+  such as a large contiguous one or one whose caller asked not to retry. A
+  run hurt either way keeps its verdict, so a slot's `FAILED` can still be
+  the cap's. After the workflows the runner prints the slice's memory peak
+  and its `max` count, the number of times usage hit the cap. Usage includes
+  cached file data, which the host reclaims at the cap as a matter of
+  course, so a long run can show a nonzero count with no harm done. Those
+  two numbers are the only sign of such harm, so replay a slot `FAILED` with
+  a nonzero count in slot 0 before attributing it to the candidate. The cap's
   effect on the shipping workflows has not been measured yet; the run logs of
   the live proof below record each slot's peak and count.
 - Slot 0 keeps only its per-container bounds. Whoever allocates slots keeps
@@ -1963,26 +1966,39 @@ code's live behaviour is proved with an independently audited install:
     the collision holder;
   - the interruption gate: no teardown line for its slot, no `PASS` line, or
     a refusal after both;
-  - the parallel runs: a verdict the slot changed, runs that never overlap, a
-    run that never reports its own slot daemon, and a run refused before the
-    other slot is taken;
+  - the parallel runs: a verdict slot A or slot B changed, runs that never
+    overlap, runs that never report their own slot daemons, and, for each
+    run in turn, one that dies before taking its slot while the other holds
+    its own, and one refused after taking its slot before the other takes
+    its own. Each of those last four leaves exactly one of the overlap
+    check's four conditions to catch it;
   - the isolation control: a target that cannot be started, a slot that
-    reaches the container or the published port, a slot that cannot reach
-    `--probe-name`, a dead target, a host that cannot reach the container or
-    only the published port, and a container or network that survives its
-    removal or cannot be queried after it;
+    reaches the container or the published port, slot B alone reaching the
+    container, a slot that cannot reach `--probe-name`, a dead target, a host
+    that cannot reach the container or only the published port, and a
+    container or network that survives its removal or cannot be queried
+    after it;
   - the collisions: a missing slot lock, a rival refused late, for another
     reason, or for the lock but with exit 1, a holder that changes its
     verdict, a shared daemon that does not collide, and a slot-0 rival
     refused for neither the tool cache nor a job volume.
 
+  In the parallel-run and isolation cases, a stand-in run that announces its
+  slot holds it until the proof has failed the overlap check or recorded
+  both isolation controls, so no grading there waits on a timer. The case
+  whose runs never overlap is the exception: its runs hold for a fixed time,
+  in whichever order they start. The proof fails it in either order, but
+  which overlap condition fails depends on the order, so each condition also
+  has a case of its own.
+
   Two guards have no case. The ten-`PASS` count behind `PROVED` is a backstop
   that no case reaches, because a check is skipped only after another has
   recorded a `FAIL` (the isolation control after a failed overlap). The
   install check's refusal of a runner the non-root invoker can write although
-  no write bit is set is not staged, because an unprivileged scratch
-  directory cannot produce such a file. Run the self-test before the live
-  proof:
+  no write bit is set is not staged. A non-root user can write such a file
+  only with a capability that overrides file modes, such as one kept inside
+  a user namespace, or on a file system that does not enforce the mode, and
+  the self-test depends on neither. Run the self-test before the live proof:
 
 ```sh
 scripts/act_slot_proof.sh --selftest
@@ -2019,8 +2035,9 @@ The offline self-test of the runner pins:
   refusing rather than reading as absent;
 - teardown running with every cleanup signal blocked, and an interrupted
   start;
-- the memory cap: an OOM at the cap, and unreadable or malformed events or
-  either count missing, refused after the whole slot is torn down; the peak
+- the memory cap: one OOM at the cap with no kill in the slice's own events,
+  two OOMs, and unreadable or malformed events or either count missing, each
+  refused after the whole slot is torn down; the peak
   and the number of cap hits printed; a `FAILED` run whose slice sat at the
   cap without an OOM keeping its `FAILED`; and a body that raises keeping its
   own error;
