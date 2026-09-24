@@ -1,0 +1,18 @@
+# R266-4 sequencing probes (scripts/r4_sequencing_mutants.py) at head 022290e4, act_slot_proof.sh sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; 8 self-tests at a time, 4 runs per mode, default FAKE_HOLD
+# Z01 = the collision rival starts without await_holder (same edit class as R267-3 Q32); Z02 = the collision is judged without 'wait "$holder"'
+Z01 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=1 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=2 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=2 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=4 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z01 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=1 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=2 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=2 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=4 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+Z02 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow

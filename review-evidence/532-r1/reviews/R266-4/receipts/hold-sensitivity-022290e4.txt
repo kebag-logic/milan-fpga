@@ -1,0 +1,149 @@
+# Hold-sensitivity probe at head 022290e4 (act_slot_proof.sh sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd). FAKE_HOLD is the stand-in runner's fixed hold (default 3 s),
+# read from the environment; the proof's bytes are unchanged. Diagnostic only: the shipped self-test always runs with the 3 s default.
+## A. timing: FAKE_HOLD=0 vs 3 (uid1000, one self-test alone)
+FAKE_HOLD=0 elapsed 3.0 s, PASS (44 cases); FAKE_HOLD=3 elapsed 25.9 s, PASS (44 cases): the variable reaches the stand-in
+## B. scripts/hold_probe.sh, FAKE_HOLD=0, one self-test at a time
+FAKE_HOLD=0 mode=uid1000 rep=1 rc=0 | failing cases: none
+FAKE_HOLD=0 mode=uid1000 rep=2 rc=0 | failing cases: none
+FAKE_HOLD=0 mode=uid1000 rep=3 rc=0 | failing cases: none
+FAKE_HOLD=0 mode=uid0 rep=1 rc=0 | failing cases: none
+FAKE_HOLD=0 mode=uid0 rep=2 rc=0 | failing cases: none
+FAKE_HOLD=0 mode=uid0 rep=3 rc=0 | failing cases: none
+## C. FAKE_HOLD=0, 8 self-tests at a time (scripts/run_parallel_mutants.sh), 4 runs per mode
+D05 rep=1 mode=uid0 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=1 mode=uid1000 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=2 mode=uid0 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=2 mode=uid1000 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=3 mode=uid0 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run A dies before taking slot A while run B holds slot B
+D05 rep=4 mode=uid0 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D05 rep=4 mode=uid1000 KILLED rc=1 | failing cases: run A dies before taking slot A while run B holds slot B
+D06 rep=1 mode=uid0 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=1 mode=uid1000 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=2 mode=uid0 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=2 mode=uid1000 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=3 mode=uid0 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B dies before taking slot B while run A holds slot A
+D06 rep=4 mode=uid0 KILLED rc=1 | failing cases: run B dies before taking slot B while run A holds slot A
+D06 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B dies before taking slot B while run A holds slot A
+D07 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run A is refused after taking slot A, before run B takes slot B
+D07 rep=1 mode=uid1000 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B
+D07 rep=2 mode=uid0 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B
+D07 rep=2 mode=uid1000 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B
+D07 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run A is refused after taking slot A, before run B takes slot B
+D07 rep=3 mode=uid1000 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B
+D07 rep=4 mode=uid0 KILLED rc=1 | failing cases: run A is refused after taking slot A, before run B takes slot B
+D07 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run A is refused after taking slot A, before run B takes slot B
+D08 rep=1 mode=uid0 KILLED rc=1 | failing cases: run B is refused after taking slot B, before run A takes slot A
+D08 rep=1 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+D08 rep=2 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+D08 rep=2 mode=uid1000 KILLED rc=1 | failing cases: run B is refused after taking slot B, before run A takes slot A
+D08 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+D08 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+D08 rep=4 mode=uid0 KILLED rc=1 | failing cases: run B is refused after taking slot B, before run A takes slot A
+D08 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+F06 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+F06 rep=1 mode=uid1000 KILLED rc=1 | failing cases: the isolation network cannot be queried after removal
+F06 rep=2 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+F06 rep=2 mode=uid1000 KILLED rc=1 | failing cases: the isolation network cannot be queried after removal
+F06 rep=3 mode=uid0 KILLED rc=1 | failing cases: the isolation network cannot be queried after removal
+F06 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+F06 rep=4 mode=uid0 KILLED rc=1 | failing cases: the isolation network cannot be queried after removal
+F06 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+G07 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G07 rep=1 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G07 rep=2 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G07 rep=2 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G07 rep=3 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G07 rep=3 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G07 rep=4 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G07 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G08 rep=1 mode=uid0 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G08 rep=1 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G08 rep=2 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G08 rep=2 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G08 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G08 rep=3 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+G08 rep=4 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+G08 rep=4 mode=uid1000 KILLED rc=1 | failing cases: only slot B reaches the default daemon's container
+H01 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=1 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=2 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=2 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=3 mode=uid0 SURVIVED rc=0 | failing cases: none
+H01 rep=3 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=4 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H01 rep=4 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=1 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=1 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=2 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=2 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=3 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=3 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=4 mode=uid0 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+H08 rep=4 mode=uid1000 KILLED rc=1 | failing cases: the rival is refused only after the holder left
+X00 rep=1 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+X00 rep=1 mode=uid1000 SURVIVED rc=0 | failing cases: none
+X00 rep=2 mode=uid0 SURVIVED rc=0 | failing cases: none
+X00 rep=2 mode=uid1000 SURVIVED rc=0 | failing cases: none
+X00 rep=3 mode=uid0 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+X00 rep=3 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+X00 rep=4 mode=uid0 SURVIVED rc=0 | failing cases: none
+X00 rep=4 mode=uid1000 KILLED rc=1 | failing cases: honest, where PR B fails its second workflow
+## tally
+      4 D05 mode=uid0 KILLED | run A dies before taking slot A while run B holds slot B
+      1 D05 mode=uid1000 KILLED | honest, where PR B fails its second workflow;run A dies before taking slot A while run B holds slot B
+      3 D05 mode=uid1000 KILLED | run A dies before taking slot A while run B holds slot B
+      4 D06 mode=uid0 KILLED | run B dies before taking slot B while run A holds slot A
+      2 D06 mode=uid1000 KILLED | honest, where PR B fails its second workflow;run B dies before taking slot B while run A holds slot A
+      2 D06 mode=uid1000 KILLED | run B dies before taking slot B while run A holds slot A
+      2 D07 mode=uid0 KILLED | honest, where PR B fails its second workflow;run A is refused after taking slot A, before run B takes slot B
+      2 D07 mode=uid0 KILLED | run A is refused after taking slot A, before run B takes slot B
+      1 D07 mode=uid1000 KILLED | honest, where PR B fails its second workflow;run A is refused after taking slot A, before run B takes slot B
+      3 D07 mode=uid1000 KILLED | run A is refused after taking slot A, before run B takes slot B
+      2 D08 mode=uid0 KILLED | honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+      2 D08 mode=uid0 KILLED | run B is refused after taking slot B, before run A takes slot A
+      3 D08 mode=uid1000 KILLED | honest, where PR B fails its second workflow;run B is refused after taking slot B, before run A takes slot A
+      1 D08 mode=uid1000 KILLED | run B is refused after taking slot B, before run A takes slot A
+      2 F06 mode=uid0 KILLED | honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+      2 F06 mode=uid0 KILLED | the isolation network cannot be queried after removal
+      2 F06 mode=uid1000 KILLED | honest, where PR B fails its second workflow;the isolation network cannot be queried after removal
+      2 F06 mode=uid1000 KILLED | the isolation network cannot be queried after removal
+      1 G07 mode=uid0 KILLED | honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+      3 G07 mode=uid0 KILLED | only slot B reaches the default daemon's container
+      2 G07 mode=uid1000 KILLED | honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+      2 G07 mode=uid1000 KILLED | only slot B reaches the default daemon's container
+      3 G08 mode=uid0 KILLED | honest, where PR B fails its second workflow;only slot B reaches the default daemon's container
+      1 G08 mode=uid0 KILLED | only slot B reaches the default daemon's container
+      4 G08 mode=uid1000 KILLED | only slot B reaches the default daemon's container
+      3 H01 mode=uid0 KILLED | the rival is refused only after the holder left
+      1 H01 mode=uid0 SURVIVED | none
+      4 H01 mode=uid1000 KILLED | the rival is refused only after the holder left
+      4 H08 mode=uid0 KILLED | the rival is refused only after the holder left
+      4 H08 mode=uid1000 KILLED | the rival is refused only after the holder left
+      2 X00 mode=uid0 KILLED | honest, where PR B fails its second workflow
+      2 X00 mode=uid0 SURVIVED | none
+      2 X00 mode=uid1000 KILLED | honest, where PR B fails its second workflow
+      2 X00 mode=uid1000 SURVIVED | none
+## D. reproduction of the H01 survival: H01 mutant with the self-test's scratch kept (rm -rf replaced by an echo), FAKE_HOLD=0, uid0, 24 runs, 8 at a time
+KILLED 23 of 24; SURVIVED: run 12 SURVIVED;
+surviving run's late-refusal case SUMMARY:
+  | PASS interrupt self-test in slot 1, whose slot the runner then tore down and proved absent
+  | PASS serial-a completed: exit 0 docs PASS elaborate PASS rtl-fast PASS rtl-full PASS 
+  | PASS serial-b completed: exit 0 docs PASS elaborate PASS rtl-fast PASS rtl-full PASS 
+  | PASS overlap: slots 1 and 2 were held at the same time
+  | PASS isolation slot 1: the default daemon's container and published port were refused, github.com:443 answered, and the host reached both targets
+  | PASS isolation slot 2: the default daemon's container and published port were refused, github.com:443 answered, and the host reached both targets
+  | PASS parallel-a = serial-a
+  | PASS parallel-b = serial-b
+  | FAIL collision slot 1: the holder never held the slot
+  | FAIL collision slot 0: see collide-0-*.log
+its collide-1-holder.log (the marker is present; the run ended within the proof's marker-grep/status-test window):
+  | act-ci: slot 1: own daemon unix:///run/milan-act-slot-1/docker.sock
+  | act-ci: running docs (stand-in)
+  | act-ci: docs: PASS at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  | act-ci: elaborate: PASS at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  | act-ci: rtl-fast: PASS at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  | act-ci: rtl-full: PASS at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+collide-1-rival.log exists: no (the rival never ran: await_holder returned 'never held')
+## E. same case alone (only the late-refusal row kept), H01, FAKE_HOLD=0, uid0, 24 runs, 8 at a time: all 24 KILLED

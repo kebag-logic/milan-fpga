@@ -1,0 +1,9 @@
+# hosted docs-check job 107534501739 at head 022290e4 (its job log), step 'Local act runner contract gate' (python3 scripts/act_ci.py --selftest)
+ok lines: 425
+FAIL-prefixed result lines: 0
+2026-09-24T07:28:41.1398588Z   ok   a slot with a cap that ran out twice is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-09-24T07:28:41.1399099Z   ok   a slot with one OOM at its cap and no kill in its own events is refused naming its cap, not reported as a verdict, and the whole slot is still torn down and unlocked
+2026-09-24T07:28:42.9383060Z selftest: PASS
+
+# act_slot_proof.sh --selftest in hosted logs:
+0

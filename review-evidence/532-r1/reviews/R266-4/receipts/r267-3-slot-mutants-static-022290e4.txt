@@ -1,0 +1,29 @@
+# R267-3 published slot mutants (evidence commit d2352cdd, blob 529344545882f8828243180c7e7762e13178547b) vs scripts/act_ci.py at 022290e4 (sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005); static only, act_ci.py not executed
+# OOM fixtures in the head's selftest_slot_memory_cap: 2
+#   'a cap that ran out twice': 'low 0\nmax 9\noom 2\noom_kill 2\n'
+#   'one OOM at its cap and no kill in its own events': 'low 0\nhigh 0\nmax 7\noom 1\noom_kill 0\noom_group_kill 0\n'
+S00 applies=once | control: a comment line only
+S01 applies=once | a missing max count read as 0
+S02 applies=once | the cap-hit count taken from oom
+S03 applies=once | a slice at its cap without an OOM refused
+S04 applies=once | the OOM count taken from oom_kill (always 0 in the slice's local file) | fixtures no longer refused (their arms must fail): ['one OOM at its cap and no kill in its own events']
+S05 applies=once | the hierarchical memory.events read instead of the slice's own
+S06 applies=once | an OOM at the cap ignored | fixtures no longer refused (their arms must fail): ['a cap that ran out twice', 'one OOM at its cap and no kill in its own events']
+S07 applies=once | a single OOM at the cap ignored | fixtures no longer refused (their arms must fail): ['one OOM at its cap and no kill in its own events']
+S08 applies=once | the memory check never runs after the body
+S09 applies=once | a missing oom count read as 0 | fixtures no longer refused (their arms must fail): none
+S10 applies=once | the OOM count taken from oom_kill, fixture-matched (oom_group_kill) | fixtures no longer refused (their arms must fail): ['one OOM at its cap and no kill in its own events']
+# --- the same at 604297bb (sha256 e8bf06d297b64f08cfd2431977875b786ce0ae18eed29bd3fc4fecd74f8de3dc), to show which fixture is new
+# OOM fixtures in the head's selftest_slot_memory_cap: 1
+#   'a cap that ran out twice': 'low 0\nmax 9\noom 2\noom_kill 2\n'
+S00 applies=once | control: a comment line only
+S01 applies=once | a missing max count read as 0
+S02 applies=once | the cap-hit count taken from oom
+S03 applies=once | a slice at its cap without an OOM refused
+S04 applies=once | the OOM count taken from oom_kill (always 0 in the slice's local file) | fixtures no longer refused (their arms must fail): none
+S05 applies=once | the hierarchical memory.events read instead of the slice's own
+S06 applies=once | an OOM at the cap ignored | fixtures no longer refused (their arms must fail): ['a cap that ran out twice']
+S07 applies=once | a single OOM at the cap ignored | fixtures no longer refused (their arms must fail): none
+S08 applies=once | the memory check never runs after the body
+S09 applies=once | a missing oom count read as 0 | fixtures no longer refused (their arms must fail): none
+S10 applies=once | the OOM count taken from oom_kill, fixture-matched (oom_group_kill) | fixtures no longer refused (their arms must fail): none

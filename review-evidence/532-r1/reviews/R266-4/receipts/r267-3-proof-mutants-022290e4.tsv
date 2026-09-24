@@ -1,0 +1,24 @@
+# R267-3's published proof mutants (evidence commit d2352cdd, bin/proof_mutants_r267_3.py blob 02f951223c5dfd5cae3524edcc915321464dd32f, bin/sandbox.sh blob 2816cdea58cba172b5be653e8af35f9e887432d7), run unmodified
+# on an exact export of the head's scripts/act_slot_proof.sh (git archive HEAD), --jobs 5, --only Q00,Q25,Q26,Q27,Q28,Q32,Q52,Q53,Q61,Q62, one run per mode
+# source <export-of-HEAD>/scripts/act_slot_proof.sh sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd mode user
+Q00	SURVIVED	rc=0	control: a comment line only	failed-cases=-	act_slot_proof selftest: PASS (44 cases)
+Q25	KILLED	rc=1	overlap: run A may have ended	failed-cases=the parallel runs never overlap; run A is refused after taking slot A, before run B takes slot B	act_slot_proof selftest: 2 FAILURE(S)
+Q26	KILLED	rc=1	overlap: run B may have ended	failed-cases=the parallel runs never overlap; run B is refused after taking slot B, before run A takes slot A	act_slot_proof selftest: 2 FAILURE(S)
+Q27	KILLED	rc=1	overlap: run B need not hold its slot	failed-cases=run B dies before taking slot B while run A holds slot A	act_slot_proof selftest: 1 FAILURE(S)
+Q28	KILLED	rc=1	overlap: run A need not hold its slot	failed-cases=the parallel runs never overlap; run A dies before taking slot A while run B holds slot B	act_slot_proof selftest: 2 FAILURE(S)
+Q32	SURVIVED	rc=0	collision: rival started without waiting for the holder (sequencing only)	failed-cases=-	act_slot_proof selftest: PASS (44 cases)
+Q52	KILLED	rc=1	a failed container query reads as absent	failed-cases=the isolation container cannot be queried after removal	act_slot_proof selftest: 1 FAILURE(S)
+Q53	KILLED	rc=1	a failed network query reads as absent	failed-cases=the isolation network cannot be queried after removal	act_slot_proof selftest: 1 FAILURE(S)
+Q61	KILLED	rc=1	slot B's parallel verdict not compared with its serial reference	failed-cases=slot B changes a verdict	act_slot_proof selftest: 1 FAILURE(S)
+Q62	KILLED	rc=1	slot B's isolation view not checked	failed-cases=only slot B reaches the default daemon's container	act_slot_proof selftest: 1 FAILURE(S)
+# source <export-of-HEAD>/scripts/act_slot_proof.sh sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd mode root
+Q00	SURVIVED	rc=0	control: a comment line only	failed-cases=-	act_slot_proof selftest: PASS (44 cases)
+Q25	KILLED	rc=1	overlap: run A may have ended	failed-cases=the parallel runs never overlap; run A is refused after taking slot A, before run B takes slot B	act_slot_proof selftest: 2 FAILURE(S)
+Q26	KILLED	rc=1	overlap: run B may have ended	failed-cases=the parallel runs never overlap; run B is refused after taking slot B, before run A takes slot A	act_slot_proof selftest: 2 FAILURE(S)
+Q27	KILLED	rc=1	overlap: run B need not hold its slot	failed-cases=run B dies before taking slot B while run A holds slot A	act_slot_proof selftest: 1 FAILURE(S)
+Q28	KILLED	rc=1	overlap: run A need not hold its slot	failed-cases=the parallel runs never overlap; run A dies before taking slot A while run B holds slot B	act_slot_proof selftest: 2 FAILURE(S)
+Q32	KILLED	rc=1	collision: rival started without waiting for the holder (sequencing only)	failed-cases=honest, where PR B fails its second workflow	act_slot_proof selftest: 1 FAILURE(S)
+Q52	KILLED	rc=1	a failed container query reads as absent	failed-cases=the isolation container cannot be queried after removal	act_slot_proof selftest: 1 FAILURE(S)
+Q53	KILLED	rc=1	a failed network query reads as absent	failed-cases=the isolation network cannot be queried after removal	act_slot_proof selftest: 1 FAILURE(S)
+Q61	KILLED	rc=1	slot B's parallel verdict not compared with its serial reference	failed-cases=slot B changes a verdict	act_slot_proof selftest: 1 FAILURE(S)
+Q62	KILLED	rc=1	slot B's isolation view not checked	failed-cases=only slot B reaches the default daemon's container	act_slot_proof selftest: 1 FAILURE(S)
