@@ -2426,7 +2426,7 @@ def _c_phases_12(source: str) -> tuple[str, list[int], list[int]]:
     cuts: list[int] = []
     shifts: list[int] = []
     at = size = shift = 0
-    if source.startswith("﻿"):
+    if source.startswith("\ufeff"):
         at = shift = 1
         cuts.append(0)
         shifts.append(1)
@@ -2462,7 +2462,7 @@ def _c_phases(source: str) -> _CPhases:
         at = control.start()
         code[at] = "\n" if source[at] == "\r" and \
             source[at + 1:at + 2] != "\n" else " "
-    if source.startswith("﻿"):
+    if source.startswith("\ufeff"):
         code[0] = " "
     i = 0
     while (hit := _C_LEX_STOP_RE.search(raw, i)) is not None:
@@ -4878,11 +4878,18 @@ def test_baremetal_profile_contract() -> None:
         phase 2 has deleted every splice, so `%\\`-newline-`:ifdef` is
         refused as the `%:ifdef` GCC reads it; the round-one ban read the
         text before phase 2, where a splice keeps the pair apart ([R272] F1
-        on PR #535, round two). The `??` pair is read before phase 2, which
-        is where phase 1 reads a trigraph; a trigraph itself is refused
-        before this, by assert_lexes_as_compiled()."""
+        on PR #535, round two). A `%:` pair that maximal munch does not read
+        as a digraph, the `<%` and `:` of `<%:`, is refused as well, as dev
+        refused every `%:` pair in code, so the ban is no narrower than it
+        was. The `??` pair is read before phase 2, which is where phase 1
+        reads a trigraph; a trigraph itself is refused before this, by
+        assert_lexes_as_compiled()."""
         phases = _c_phases(source)
         spelled = [(at, "%:") for at in phases.digraphs]
+        # the view spells every digraph as its punctuator, so a `%:` pair
+        # still in it is one phase 3 read as other tokens
+        unread = phases.view.find("%:")
+        spelled += [(phases.source_at(unread), "%:")] if unread >= 0 else []
         paired = phases.code.find("??")
         spelled += [(paired, "??")] if paired >= 0 else []
         at, pair = min(spelled, default=(-1, ""))
@@ -12089,6 +12096,10 @@ def test_baremetal_profile_contract() -> None:
         "static int aem_loaded;",
         "#define MILAN_FN(op) milan_ %\\\n:%\\\n: op\n\n"
         "static int aem_loaded;", "split digraph paste macro")
+    #: ... and a `%:` pair maximal munch reads as `<%` and `:`, no digraph:
+    #: refused all the same, as dev refused every `%:` pair in code.
+    unread_digraph_pair = in_uart_handler(
+        "\t<%: %>", "a %: pair read as <% and :")
     #: ... a second group on the SAME macro as an earlier one, which the
     #: grading relates ([R272] F3): the store sits in the arm every build
     #: defining CSR_UART_BASE compiles, and is graded in exactly that build.
@@ -14393,6 +14404,9 @@ def test_baremetal_profile_contract() -> None:
         ("entity enabled through a store-primitive name pasted by a `%:%:` "
          "two splices split, in a UART command handler", split_digraph_paste,
          docs_source, csr_source, DIGRAPH_PIN),
+        ("a `%:` pair maximal munch reads as `<%` and `:`, in a UART "
+         "command handler", unread_digraph_pair, docs_source, csr_source,
+         DIGRAPH_PIN),
         # ... and a byte-order mark at offset 0 ([R273] F1), dropped in
         # phase 1 as GCC drops it: the directive behind it is read by the
         # rule that reads that directive

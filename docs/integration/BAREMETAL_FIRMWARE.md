@@ -311,13 +311,15 @@ Two corpora, each firmware recorded with what the pinned GCC keeps of it, are
 read by the gate's readers on every run and re-measured on the compiler
 wherever it answers; the two must agree. The fixed corpus holds the 78
 spellings the reviews found, the byte-order mark among them ([R273] F1 on PR
-#535). The generated corpus holds the 4907 nobody listed: a splice at every
-offset of each directive line in turn, at the end of the line before it, and
-at every offset of the introducer on both lines at once, crossed with every
-introducer (`#` or `%:`, alone or after a form feed, a vertical tab, a NUL or
-blanks, and six spellings GCC does not read as one, such as `%:%:` and
-`<%:`), and with ten spellings of the splice where no blank precedes the
-introducer. Its templates exercise each reader: a conditional and the
+#535). The generated corpus holds 4907 more, round two's split digraph among
+them: a splice at every offset of each directive line in turn, at the end of
+the line before it, and at every offset of the introducer on both lines at
+once, crossed with every introducer (`#` or `%:`, alone or after a form feed,
+a vertical tab, a NUL or blanks, and six spellings GCC does not read as one,
+such as `%:%:` and `<%:`). The first template takes all ten spellings of the
+splice when no blank precedes the introducer (after a space, a tab, a form
+feed, a vertical tab or a NUL, CRLF and lone-CR line ends, two in a row) and
+three after one; the others take three. Its templates exercise each reader: a conditional and the
 `#endif` closing it, the macro name a condition reads, `#define`, `#undef`,
 `#else`, `#elifdef`, `#elifndef`, and the `##` a `#define` body pastes with.
 BOUNDED, and the bound is these corpora: a spelling in neither that GCC reads
@@ -1295,7 +1297,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | A character or string literal that no quote closes on its line, an apostrophe in the text of an `#if 0` block included; a raw string literal | GCC ends an open literal at its line end with only a warning, and honours `R"d(...)d"` at `-std=gnu99` across lines; neither is what an edit writes to mean it, and before #408 this gate read an open quote as running on to the next one, lines away ([R272] F4 on PR #535) |
 | The identity refusal remains the exact `if (id != MILAN_ID_MAGIC)` spelling | an equivalent comparison such as `if ((id ^ MILAN_ID_MAGIC) != 0u)` is refused because this bounded model anchors the mismatch block by that exact expression; accepting another form requires extending the recognizer and its paired controls |
 | No `#pragma`, `#line`, `#undef` or `#include_next`, and no `#error` but the one saved-state contract guard | KEPT (#408), with this reason rather than a measurement: `#undef` changes what a register name resolves to in the address model, which reads definitions out of this file's text, and `#line` rewrites the line markers the `-E` comparison finds this file's bodies by. `#pragma` and `#include_next` change what the compiler does with text this gate has already read. It has no rule for them, so it refuses rather than ignores |
-| `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535, round two). Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
+| `%:` or `??` in code, and a trigraph anywhere in the file, a comment's `what??!` included | KEPT (#408), the digraph and trigraph half of the old `##`/`%:`/`??` ban, and read on the WHOLE firmware before any reader and before a conditional is resolved, as dev read it: a digraph spelling a conditional's own directive is refused on every machine, not only graded where a compiler answers. The digraphs are the tokens phase 3 builds after phase 2 has deleted every splice, so `%\`, a line end, then `:ifdef` is refused as the `%:ifdef` GCC reads; the round-one ban read the text before phase 2 and missed it ([R272] F1 on PR #535, round two). A `%:` pair phase 3 reads as other tokens, the `<%` and `:` of `<%:`, is refused too, as dev refused every `%:` pair in code, so the ban is no narrower than dev's. Outside a literal or a comment nothing but a digraph or a trigraph spells either pair, so that half costs no edit anybody writes. A trigraph is refused in comments and literals too: the pinned GCC ignores it at `-std=gnu99` and a strict `-std` replaces it before comments exist, so `// ...??/` ends its comment in one dialect and swallows the next line, a directive, in the other. The `##` half is narrowed, above |
 | A `#define` or `#include` inside the AEM verifier's QSPI-slot group or an `#error` guard | NARROWED (#408) from every conditional. Those are the two kinds of group left as written rather than graded one selection at a time, and the address model reads every definition as unconditional text, so an arm no selection resolves would choose what a register name resolves to. In a graded group each arm's definition IS unconditional in the firmware that arm builds, so an `#ifdef`/`#else` choosing a `#define` is GREEN. dev exempted the verifier's group from this rule, so a `#define` there was GREEN before and is refused now |
 | Any statement in the AEM verifier's no-QSPI arm beyond a literal `printf` and `return 0;` | no selection compiles that arm and the census stub tree takes the other, so it is the one text in the firmware no instrument compiles. The retired cast, store and asm sets used to read it with the rest of the file; it is pinned instead |
 | More than 16 preprocessor arm selections in the whole firmware, and code inside a disabled `#if 0` | every selection is graded as a firmware of its own, so an arm nothing builds is still graded as the code it would be, and a firmware with more selections than the bound is refused rather than graded in part. **Remedy:** delete dead code rather than disabling it |
@@ -1463,6 +1465,27 @@ relating of groups on one macro removed, the three correlated debug edits are
 refused where the compiler answers. With the per-selection grading removed,
 seventeen of the 43 fail their pin with a compiler and eight without one.
 
+PR #535's third round measured its fixes over the same 43 controls and the ten
+it adds, 53 in all (41 run without a compiler), and with nothing disconnected
+all are refused on their own pins. Reading the digraphs before phase 2, the
+round-two order, stops the gate before any firmware is graded, on the
+assertion that the readers find the `#ifdef` a split `%:` spells. With the
+corpora connected, the generated corpus stops it first, on its own sentence,
+at `%\`, a line end, then `:ifdef`; with only the fixed corpus connected, that
+corpus passes and the assertion stops it, so the generated corpus is what
+measures the phase order. With the corpora and the assertion off, the
+split-digraph arm passes the whole gate on every machine, the `%:%:` paste two
+splices split passes without a compiler and is refused for another reason
+with one, and the product's selection of the split-digraph arm is not found
+at all. Keeping the byte-order mark in phase 1 lets the three controls behind
+one through on every machine, and the fixed corpus fails on its own sentence.
+Removing the whole-file digraph ban fails five controls: with a compiler each
+is refused for another reason, the two digraph arms by the grading of the
+selection the readers find, and without one the two arms and the split paste
+pass. Removing the check for a `%:` pair phase 3 reads as other tokens lets
+`<%:` through without a compiler. With the page's bound on the paste ban no
+longer required, the page claiming the ban reads a header's macro passes.
+
 **What a runner with no RV32 compiler gets** is explicitly weaker, and it is
 a registered `NOT RUN`, never coverage. The compiler-absent CI control keeps
 this path executable. The `-E` comparison, the `-H` measurement, the compiled
@@ -1481,18 +1504,18 @@ the verifier's CFG and CRC provenance. What still grades is every surviving
 text rule: the splice and `##` bans inside the six boot-path bodies, one
 `#define` per name (which is what refuses a read hidden in a second
 definition of the identity magic, on every machine), the macro-body rule, the
-literal and trigraph refusals, the directive readers as the lexer corpus
-recorded them (not re-measured there), and the text half of the
-per-selection grading.
+literal and trigraph refusals, the digraph ban on the whole file, the
+directive readers as the two lexer corpora recorded them (not re-measured
+there), and the text half of the per-selection grading.
 
 Measured on this change, once with the pinned SDK mapped and once with every
-cross compiler hidden: gate 1b refuses 255 mutations where the compiler
-answers and 198 where it does not, against 217 and 182 on dev `759da623`, and
-accepts 29 firmware edits and 4 Makefile edits in both, against 17 and 4. It
-reads the 55 lexer-corpus spellings as recorded in both, and re-measures them
-on the compiler where it answers. Without a compiler, 33 census and resolver
-entries and 24 entries measuring what the retired rules refused are counted
-as skipped, not rejected.
+cross compiler hidden: gate 1b refuses 264 mutations where the compiler
+answers and 206 where it does not, against 217 and 182 on dev `759da623`, and
+accepts 30 firmware edits and 4 Makefile edits in both, against 17 and 4. It
+reads the 4985 lexer spellings, 78 fixed and 4907 generated, as recorded in
+both, and re-measures them on the compiler where it answers. Without a
+compiler, 33 census and resolver entries and 25 entries measuring what the
+retired rules refused are counted as skipped, not rejected.
 
 Gate 1b's verdict says which it was in its first clause -- `TEXT RULES +
 INSTRUMENTS` or `TEXT RULES ONLY, AND WEAKER` -- and the stand-down is
