@@ -188,13 +188,15 @@ Its threshold derives from the 2 ms CRF interval.
 
 Combined media and PHC drift permits 601 ns deviation.
 
-IEEE 802.1AS Annex B.1.1 bounds LocalClock frequency within +/-100 ppm.
+LocalClock frequency must stay within +/-100 ppm.
+
+See IEEE 802.1AS Annex B.1.1.
 
 We assume that bound also applies to the media oscillator.
 
-Milan v1.2 section 7.4 requires better than +/-50 ppm.
+Milan v1.2 section 7.4 constrains media clock sources.
 
-That requirement covers media clock source oscillators.
+Their frequency tolerance must be better than +/-50 ppm.
 
 Using 100 ppm therefore adds conservative margin.
 
