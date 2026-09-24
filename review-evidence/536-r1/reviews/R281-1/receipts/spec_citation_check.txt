@@ -1,0 +1,45 @@
+R281-1 clause check, PR #543 at 612db13c244335b0fa3467d02ebab1c350b01990
+Source: $STANDARDS_DIR/Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf
+        sha256 6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8
+        read as text with `pdftotext -layout`; short quotations only.
+
+Citation in the diff                                   | Specification text                                                          | Result
+-------------------------------------------------------|-----------------------------------------------------------------------------|--------
+5.4.3.2: protocol_id @22..@27, r + command_type @28    | Figure 5.2: protocol_id 48 bits, r 1 bit, command_type 15 bits              | correct
+5.4.3.2.1: 00-1B-C5-0A-C1-00                           | "The result is 00-1B-C5-0A-C1-00."                                           | correct
+5.4.3.2.2: r shall be zero                             | "reserved field and shall be set to zero (0) in all AECP MVU command and    | correct
+                                                       |  response messages"                                                         |
+Table 5.18: 0x0000..0x0004 names and clauses           | GET_MILAN_INFO 5.4.4.1, SET/GET_SYSTEM_UNIQUE_ID 5.4.4.2/.3,                | correct
+                                                       | SET/GET_MEDIA_CLOCK_REFERENCE_INFO 5.4.4.4/.5; 0x0005-0x7fff reserved       |
+Table 5.19: status 1 NOT_IMPLEMENTED                   | "1 NOT_IMPLEMENTED The PAAD-AE does not support the command type."           | correct
+5.4.4.1: GET_MILAN_INFO is a SHALL                     | "The PAAD-AE shall implement the GET_MILAN_INFO command"                     | correct
+5.4.4.1: Figure 5.3 command = pid tail, r+ct, reserved | Figure 5.3 ends at @28 with r, command_type, reserved: payload 8, cdl 20     | correct
+5.4.4.1: reserved ignored on receive, zero on send     | "shall be set to 0 by the sender and ignored by the receiver"               | correct
+5.4.4.1: Figure 5.4 body, cdl 32                       | Figure 5.4 adds protocol_version @32, features_flags @36,                    | correct
+                                                       | certification_version @40: payload 20, cdl 32                               |
+5.4.4.1: protocol_version 1                            | "The value of this field is 1."                                              | correct (value)
+model comment quoting "A PAAD shall set the value of   | that sentence is Section 4.2.4 verbatim; 5.4.4.1 words it "The               | MISATTRIBUTED (F3)
+ the protocol_version field in the GET_MILAN_INFO      | protocol_version field shall be set to the Milan protocol version           |
+ response to 1" under a 5.4.4.1 heading                | supported by the PAAD-AE. The value of this field is 1."                     |
+Table 5.20: two flags, both clear here                 | REDUNDANCY 0x00000001 (4.2.5, Section 8); TALKER_DYNAMIC_MAPPINGS_WHILE_     | correct
+                                                       | RUNNING 0x00000002 (5.3.9: set only by a PAAD supporting map changes while |
+                                                       | streaming)                                                                  |
+5.4.4.1: certification_version 0                       | "This field is set to 0 if the PAAD-AE has not passed any Milan             | correct
+                                                       |  certification."                                                            |
+5.4.4.2-5.4.4.5: each a recommendation                 | each opens "Support for this feature is a recommendation"                  | correct
+Row 0x0001 SET_SYSTEM_UNIQUE_ID, cdl 20                | Figure 5.5: pid tail, r+ct, reserved, system_unique_id (64 bit):            | row sends a Figure 5.3
+                                                       | payload 16, cdl 28                                                          | frame instead (F2)
+Row 0x0002 GET_SYSTEM_UNIQUE_ID, cdl 20                | Figure 5.3 (caption names it): payload 8, cdl 20                            | correct
+Row 0x0003 SET_MEDIA_CLOCK_REFERENCE_INFO, cdl 20      | Figure 5.6: pid tail, r+ct, clock_domain_index, flags, reserved,            | row sends a Figure 5.3
+                                                       | default_mcr_prio, user_mcr_prio, reserved(4), name(64): payload 80, cdl 92  | frame instead (F2)
+Row 0x0004 GET_MEDIA_CLOCK_REFERENCE_INFO, cdl 20      | Figure 5.7: pid tail, r+ct, clock_domain_index: payload 8, cdl 20           | correct (index 0)
+5.4.4.1 NOTE (non-compliant configuration: do not      | recommendation, "will become a requirement in a future revision"           | engine and model always
+ reply)                                                |                                                                             | reply; PR states it
+
+Added after reading the prior public review (R280-F3(a)), checked against IEEE Std 1722.1-2021
+($STANDARDS_DIR/1722.1-2021.pdf, sha256 ad7b822008c1b78bce8af1470f1ace177a22344aa48c0da939066d6db9a65b9c):
+feature:105-106 "(Table 5.19 status 1, IEEE 9.3.5.3.3)" for the MVU echo
+                                                       | 9.3.5.3.3 is the AEM entity's processCommand: "an AEM Command other than    | MISAPPLIED to MVU
+                                                       | ACQUIRE_ENTITY and LOCK_ENTITY"; the "correctly sized response" sentence    | (retained R280-F3(a))
+                                                       | is there. Vendor Unique: 9.6.2.3 Table 9-6 (1 NOT_IMPLEMENTED) and          |
+                                                       | 9.6.5.3.1 "an appropriate status code", with no size rule.                  |

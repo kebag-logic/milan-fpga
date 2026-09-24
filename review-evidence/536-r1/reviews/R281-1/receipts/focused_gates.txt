@@ -1,0 +1,71 @@
+$ python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 848 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+
+$ python3 -B scripts/check_em_dash.py --base 26d855a9176d63625e6635a029a0c44e3d57ce9a
+check_em_dash: 0 finding(s) over 2 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [26d855a9..HEAD]
+rc=0
+
+$ python3 -B scripts/check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+
+$ python3 -B scripts/check_py_idiom.py
+  unmanaged open: 0 <= 0
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+
+$ python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+
+$ python3 -B docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0
+
+$ python3 -B scripts/measure_test_evidence.py --check
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+rc=0
+
+$ python3 -B scripts/check_hygiene.py --check
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 726 file(s))
+rc=0
+
+$ python3 -B scripts/check_todo_ownership.py
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as markers; 776 first-party file(s) read)
+rc=0
+
+$ python3 -B scripts/measure_fail_fast.py --check
+   .github/workflows/rtl.yml:206  the grep IS the version assertion; its status is the verdict
+
+FAIL-FAST RATCHET: PASS (82 <= 84 modules without an elaboration contract, 4 <= 4 masked pipeline(s), 0 <= 0 discarded captured verdict(s), 2 waived by site)
+  the ratchets can be lowered to 82, 4 and 0
+rc=0
+
+$ python3 -B scripts/measure_naming.py --check
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 587 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+rc=0
+
+$ python3 -B scripts/check_doc_paths.py
+doc path gate: OK (833 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+
+$ python3 -B scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+
+$ git diff --check 26d855a9176d63625e6635a029a0c44e3d57ce9a 612db13c244335b0fa3467d02ebab1c350b01990
+rc=0
+

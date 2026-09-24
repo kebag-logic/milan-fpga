@@ -1,0 +1,57 @@
+== exact-head model vs pinned RTL, byte for byte ==
+row_mvu_0000                           MATCH  rtl: mt=7 st=0 cdl=32 len=60
+row_mvu_0001                           MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_mvu_0002                           MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_mvu_0003                           MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_mvu_0004                           MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_foreign_c101                       MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_r1                                 MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_short_cdl19                        MATCH  rtl: mt=7 st=1 cdl=19 len=60
+row_junk_reserved                      MATCH  rtl: mt=7 st=0 cdl=32 len=60
+row_vu_oui_0004                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_vu_oui_0026                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_vu_oui_0029                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_vu_oui_002b                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_vu_oui_8004                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_vu_oui_fc1b                        MATCH  rtl: mt=7 st=1 cdl=20 len=60
+row_mt4_0004                           MATCH  rtl: mt=5 st=1 cdl=20 len=60
+row_mt4_0014                           MATCH  rtl: mt=5 st=1 cdl=20 len=60
+row_mt8_0004                           MATCH  rtl: mt=9 st=1 cdl=20 len=60
+row_mt10_0006                          MATCH  rtl: mt=11 st=1 cdl=20 len=60
+row_mt12_0016                          MATCH  rtl: mt=13 st=1 cdl=20 len=60
+row_mt14_0018                          MATCH  rtl: mt=15 st=1 cdl=20 len=60
+row_vu_response_input                  MATCH  rtl: silence
+x_overlong_cdl24                       MATCH  rtl: mt=7 st=0 cdl=32 len=60
+x_overlong_cdl112                      MATCH  rtl: mt=7 st=0 cdl=32 len=60
+x_short_cdl18                          MATCH  rtl: mt=7 st=1 cdl=18 len=60
+x_short_cdl12                          MATCH  rtl: mt=7 st=1 cdl=12 len=60
+x_pid_foreign_at_22                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_pid_foreign_at_23                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_pid_foreign_at_24                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_pid_foreign_at_25                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_pid_foreign_at_26                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_pid_foreign_at_27                    MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_mt0_carrying_mvu_bytes               MATCH  rtl: mt=1 st=1 cdl=20 len=60
+x_mt2_carrying_mvu_bytes               MATCH  rtl: mt=3 st=1 cdl=20 len=60
+x_mt4_carrying_mvu_bytes               MATCH  rtl: mt=5 st=1 cdl=20 len=60
+x_mt8_carrying_mvu_bytes               MATCH  rtl: mt=9 st=1 cdl=20 len=60
+x_mt14_carrying_mvu_bytes              MATCH  rtl: mt=15 st=1 cdl=20 len=60
+x_fig55_set_system_unique_id_cdl28     MATCH  rtl: mt=7 st=1 cdl=28 len=60
+x_fig56_set_mcr_info_cdl92             MATCH  rtl: mt=7 st=1 cdl=92 len=118
+x_fig57_get_mcr_info_cdi1              MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_ct_0005                              MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_ct_7fff                              MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_ct_ffff                              MATCH  rtl: mt=7 st=1 cdl=20 len=60
+x_other_entity                         MATCH  rtl: silence
+x_vu_response_mvu_bytes                MATCH  rtl: silence
+exact-head: 45 cases, 0 differ
+mutant baseline                   diverges from the pinned RTL on 0 case(s): -
+mutant mt_guard_dropped           diverges from the pinned RTL on 5 case(s): x_mt0_carrying_mvu_bytes, x_mt2_carrying_mvu_bytes, x_mt4_carrying_mvu_bytes, x_mt8_carrying_mvu_bytes, x_mt14_carrying_mvu_bytes
+mutant len_exact_20               diverges from the pinned RTL on 2 case(s): x_overlong_cdl24, x_overlong_cdl112
+mutant pid_head_22_23_dropped     diverges from the pinned RTL on 2 case(s): x_pid_foreign_at_22, x_pid_foreign_at_23
+mutant pid_24_25_dropped          diverges from the pinned RTL on 2 case(s): x_pid_foreign_at_24, x_pid_foreign_at_25
+mutant pid_26_dropped             diverges from the pinned RTL on 1 case(s): x_pid_foreign_at_26
+mutant pid_only_27                diverges from the pinned RTL on 5 case(s): x_pid_foreign_at_22, x_pid_foreign_at_23, x_pid_foreign_at_24, x_pid_foreign_at_25, x_pid_foreign_at_26
+mutant len_off_by_one             diverges from the pinned RTL on 1 case(s): row_short_cdl19
+mutant pid_27_dropped             diverges from the pinned RTL on 2 case(s): row_foreign_c101, x_pid_foreign_at_27
+mutant served_as_echo             diverges from the pinned RTL on 4 case(s): row_mvu_0000, row_junk_reserved, x_overlong_cdl24, x_overlong_cdl112
