@@ -1591,6 +1591,10 @@ class NxnDatapathHarness {
            notify_count(0x0025, &CTL_A), 0);
         ck("[NOTIFY-T] A, which kept talking, was never probed",
            notify_when(0x0003, CTL_A, 0, true) < 0 ? 1L : 0L, 1);
+        // The monitor just probed and evicted B, but exports no CSR count.
+        // #548 pins the retained ABI word through the real AXI-Lite path.
+        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
+           axi_read(0x6F4), 0);
         //! B is gone: A's next change has nobody to tell
         notify_clear();
         const std::vector<uint8_t> sA4 = notify_set_name(CTL_A, "Notify-A4", notify_sq++);

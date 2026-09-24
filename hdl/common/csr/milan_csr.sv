@@ -306,10 +306,10 @@ module milan_csr #(
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
-  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), RO 0x6F4:
-  //! {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
-  //!  CONTROLLER_AVAILABLE probes sent[11:0]} — three free-running wrapping
-  //! tallies, no state field (the two that climb fastest get 12 bits each)
+  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
+  //! The deleted local monitor's counters have no replacement CSR source.
+  //! The processor owns departing-controller detection (Milan 5.4.5.3),
+  //! but exports no probe, reply or eviction count. Zero is no measurement.
   input  wire [31:0]             i_ctlr_diag,
   output wire [7:0]              o_adp_gptp_domain,   //! gptp_domain_number (ADP_DOMAIN[7:0])
   output wire [15:0]             o_adp_current_config,//! current_configuration_index (ADP_IDX0[15:0])

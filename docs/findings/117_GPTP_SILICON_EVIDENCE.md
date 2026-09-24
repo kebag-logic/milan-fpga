@@ -465,7 +465,13 @@ are seconds after the outlet-off command, as in
 | behave against hardware | NOT RUN: [tests/README.md](../../tests/README.md) defines the suite as offline only, with no hardware tier |
 
 - **Why Milan was downgraded.** The failing descriptor is Stream Input 1, the CRF media-clock input: its GET_COUNTERS returns `counters_valid` 0. The register map already records this CRF Stream Input counter gap with closure criteria, and [#529](https://github.com/kebag-logic/milan-fpga/issues/529) tracks closing it. The DUT's GET_MILAN_INFO reports protocol version 1, `certification_version` 0.0.0.0 and specification 1.2.0.0.
-- **Controller registration.** la_avdecc registered for unsolicited notifications at 13:10:47.0 and deregistered at 13:11:26.5 UTC. The DUT answered both with SUCCESS, and its `CTLR_DIAG` still read 0 at 13:13 UTC, so no controller was left for it to evict.
+- **Controller registration.** The controller registered for unsolicited notifications
+  at 13:10:47.0 and deregistered at 13:11:26.5 UTC.
+  The DUT answered both with SUCCESS.
+  `CTLR_DIAG` read 0 at 13:13 UTC.
+  This word is **STRUCTURAL ZERO**, not a measurement.
+  It cannot establish controller presence or eviction.
+  See the [register verdict](../reference/REGISTER_MAP.md#how-to-read-this-page-now-three-verdicts-and-why-the-distinction-matters).
 
 ## Observations outside the acceptance boxes
 
@@ -515,7 +521,7 @@ The Run B timeline with tap-clock times is in the A200 packet (`bench/runB/strea
 - **Bindings.** The end census matches the start census for all 18 ACMP states: every input unbound, connection count 0. Each of the three CRF bindings unbound on its first attempt, about 110 s after its outage.
 - **Peer settings.** The 15 settings reads of both entities match: configuration 0, 96 kHz, clock source 0 (INTERNAL), both stream formats, and the ENTITY and six stream descriptors. The only difference is the reserved half-word after `configuration_index`, which the peer varies (as above).
 - **Counters that moved, as expected.** GPTP_GM_CHANGED rose by 14 on the DUT and on the peer's interface 0. The DUT's Stream Output 1 STREAM_START and STREAM_STOP went from 4 to 25. The peer's available_index went from 5843 to 6067.
-- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0, `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
+- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0 (STRUCTURAL ZERO, not a measurement), `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
 - **Hosts.** The watcher, census and power-strip scripts were removed from the controller host and the power-strip host; the captures were copied, their SHA-256 checked against the remote copy, and removed. No process of the runs remains, and the bench lock is free.
 - **Not touched.** Flash, JTAG, wiring, instruments and every outlet but OUT4.
 
