@@ -1,0 +1,61 @@
+lane head: 156c206cbaedf721f7caef5c94faa21876a28c32
+lane status: 0 changed files
+parent: kebag-logic/milan-fpga 26d855a9 + local gitlink commit e1328fecf -> 156c206c
+
+== parent gates at gitlink 69a6eac2 (before)
+rc=1 python3 scripts/check_cpp_idiom.py
+rc=1 python3 scripts/check_cpp_idiom.py --list
+rc=0 python3 scripts/check_cpp_idiom.py --selftest
+rc=1 python3 scripts/check_py_idiom.py
+rc=1 python3 scripts/check_py_idiom.py --list
+rc=0 python3 scripts/check_py_idiom.py --selftest
+rc=0 python3 scripts/check_hygiene.py --check
+rc=0 python3 scripts/check_sh_idiom.py
+rc=0 python3 scripts/check_sv_idiom.py
+rc=0 python3 scripts/check_todo_ownership.py
+rc=1 python3 scripts/check_submodule_docs.py
+rc=0 python3 scripts/measure_naming.py --check
+rc=0 python3 scripts/measure_fail_fast.py --check
+rc=0 python3 scripts/measure_test_evidence.py --check
+
+== parent gates at gitlink 156c206c (after)
+rc=0 python3 scripts/check_cpp_idiom.py
+rc=0 python3 scripts/check_cpp_idiom.py --list
+rc=0 python3 scripts/check_cpp_idiom.py --selftest
+rc=0 python3 scripts/check_py_idiom.py
+rc=0 python3 scripts/check_py_idiom.py --list
+rc=0 python3 scripts/check_py_idiom.py --selftest
+rc=0 python3 scripts/check_hygiene.py --check
+rc=0 python3 scripts/check_sh_idiom.py
+rc=0 python3 scripts/check_sv_idiom.py
+rc=0 python3 scripts/check_todo_ownership.py
+rc=1 python3 scripts/check_submodule_docs.py
+rc=0 python3 scripts/measure_naming.py --check
+rc=0 python3 scripts/measure_fail_fast.py --check
+rc=0 python3 scripts/measure_test_evidence.py --check
+
+== processor gates at 156c206c
+run_suites.sh: suites: 15773 checks total, 0 failing, rc=0
+nvm_port figures: all measured figures agree with the tree rc=0 
+lint_hdl.sh: rc=0
+make check: rc=0
+gen_matrix --check: matrix: OK (90 rows, 0 untested) rc=0 
+yosys run.sh: rc=0
+git diff --check 09f9bf38..HEAD: rc=0
+
+== bench outputs 69a6eac vs 156c206 (tools/capture.sh)
+identical out-acmp_nvm-Vacmp_nvm_pinned.txt
+identical out-acmp_nvm-Vacmp_nvm_sim.txt
+identical out-lsn_admit-Vlsn_admit_sim.txt
+identical out-nvm_port-Vnvm_port_sim.txt
+identical out-pp_top-Vpp_top_sim.txt
+identical out-pp_top-Vpp_top_vid.txt
+compiler warnings: before 2, after 0
+
+== mutants 69a6eac vs 156c206 (tools/mutant.py)
+identical acmp_nvm-A01-grant-cycle-busy-Vacmp_nvm_sim.txt
+identical acmp_nvm-LG01-gate-deleted-Vacmp_nvm_sim.txt
+identical lsn_admit-D-no-saturation-Vlsn_admit_sim.txt
+identical lsn_admit-LG01-gate-deleted-Vlsn_admit_sim.txt
+identical pp_top-B01-no-deadline-Vpp_top_sim.txt
+identical pp_top-LG01-gate-deleted-Vpp_top_sim.txt

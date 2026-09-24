@@ -1,0 +1,12 @@
+make lsn_admit run rc=0
+run lsn_admit obj_dir/Vlsn_admit_sim rc=0
+make nvm_port run rc=0
+run nvm_port obj_dir/Vnvm_port_sim rc=0
+make pp_top run rc=0
+run pp_top obj_dir/Vpp_top_sim rc=0
+run pp_top obj_vid/Vpp_top_vid rc=0
+make acmp_nvm pinned rc=2
+run acmp_nvm obj_pinned/Vacmp_nvm_pinned rc=1
+make acmp_nvm run rc=0
+run acmp_nvm obj_dir/Vacmp_nvm_sim rc=0
+compiler warnings: 2

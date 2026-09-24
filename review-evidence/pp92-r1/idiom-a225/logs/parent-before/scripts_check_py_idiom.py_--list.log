@@ -1,0 +1,15 @@
+FAIL: long module 11 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+gptp-processor/hdl/ucode/gen_gptp_ucode.py              long module=1
+protocol-processor/hdl/aecp/ucode/gen_ucode.py          long module=1
+protocol-processor/tb/nvm_port/measure_figures.py       long module=1
+scripts/act_ci.py                                       long module=1
+scripts/check_baremetal_only.py                         long module=1
+scripts/ci_events.py                                    long module=1
+scripts/png_artifact.py                                 too many parameters=1
+scripts/xvlog_gate.py                                   long module=1
+sw/builder/endstation_builder.py                        long module=1
+sw/builder/test_builder.py                              long function=4  long module=1
+sw/litex/milan_soc.py                                   long function=5  long module=1  too many parameters=6
+sw/trace/trace_segment.py                               os.path use=1
+tb/tools/torture_campaign.py                            long module=1
+

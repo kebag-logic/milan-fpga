@@ -1,0 +1,12 @@
+FAIL: R1 the gate owns the faces from reset
+FAIL: R2 nothing passes while owned, neither valid nor ready
+FAIL: T a preload still presented: the gate keeps the faces for 50 cycles
+FAIL: T the listener still busy: the gate keeps the faces for 50 cycles
+FAIL: T the last A4 strobe still up: the gate keeps the faces for 50 cycles
+FAIL: T no terminal yet: the gate keeps the faces for 50 cycles
+FAIL: O2 a reset takes the faces back
+FAIL: D1 only a listener owner's expiry is counted (0, want 8)
+FAIL: D2 the count saturates at 0xFFFF
+FAIL: D3 a reset clears it
+FAIL: M1 every output agrees with the model on every cycle (30670 disagreeing cycles, first at 68049)
+18 checks: 7 PASS, 11 FAIL
