@@ -1,0 +1,193 @@
+[
+ {
+  "mutant": "control-unmutated",
+  "file": null,
+  "rc": 0,
+  "status": "PASS",
+  "expected_killer": "-",
+  "failing_cases": [],
+  "failing_count": 0,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "empty-delta-certified",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-empty-delta",
+  "failing_cases": [
+   "retention-command-diff-3",
+   "linear-empty-delta",
+   "linear-empty-delta-diagnostic"
+  ],
+  "failing_count": 3,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "H-error-as-unsupported",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-H-failure-diagnostic (collides with a self-test guard string; see non-colliding variant)",
+  "failing_cases": [],
+  "failing_count": 0,
+  "stderr_tail": [
+   "RuntimeError: linear retention mutant needs one guard location"
+  ]
+ },
+ {
+  "mutant": "H-error-as-unsupported-noncolliding",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-H-failure-diagnostic",
+  "failing_cases": [
+   "linear-H-failure-diagnostic"
+  ],
+  "failing_count": 1,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "H-error-silently-matched-empty-missing",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-H-measurement-failure",
+  "failing_cases": [
+   "linear-H-measurement-failure",
+   "linear-H-failure-diagnostic"
+  ],
+  "failing_count": 2,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "unknown-ref-prints-retained",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-no-retained-on-UNKNOWN",
+  "failing_cases": [
+   "linear-no-retained-on-UNKNOWN",
+   "linear-no-retention-on-UNKNOWN"
+  ],
+  "failing_count": 2,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "pre-error-prints-retained",
+  "file": "check_merge_containment.py",
+  "rc": 0,
+  "status": "SURVIVED",
+  "expected_killer": "(reachable only through a --merged-prs pre-error)",
+  "failing_cases": [],
+  "failing_count": 0,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "retention-also-evaluated-when-stranded",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-no-retention-on-STRANDED",
+  "failing_cases": [
+   "linear-no-retention-on-STRANDED"
+  ],
+  "failing_count": 1,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "stranded-prints-unknown-retention",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-no-retention-on-STRANDED",
+  "failing_cases": [
+   "linear-no-retention-on-STRANDED"
+  ],
+  "failing_count": 1,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "ancestry-disclaimer-dropped",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-ancestry-*-claim",
+  "failing_cases": [
+   "linear-ancestry-optional-claim",
+   "linear-ancestry-default-claim"
+  ],
+  "failing_count": 2,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "ancestry-historical-dropped",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-ancestry-*-claim",
+  "failing_cases": [
+   "linear-ancestry-optional-claim",
+   "linear-ancestry-default-claim"
+  ],
+  "failing_count": 2,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "retained-claim-replay-dropped",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-*-retained-claim",
+  "failing_cases": [
+   "linear-exact-retention-retained-claim",
+   "linear-legitimate-extension-retained-claim",
+   "linear-later-mode-change-retained-claim",
+   "linear-symlink-identity-retained-claim",
+   "linear-gitlink-identity-retained-claim",
+   "linear-deletion-retained-retained-claim"
+  ],
+  "failing_count": 6,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "retained-claim-target-dropped",
+  "file": "merge_containment_replay.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-*-retained-claim",
+  "failing_cases": [
+   "linear-exact-retention-retained-claim",
+   "linear-legitimate-extension-retained-claim",
+   "linear-later-mode-change-retained-claim",
+   "linear-symlink-identity-retained-claim",
+   "linear-gitlink-identity-retained-claim",
+   "linear-deletion-retained-retained-claim"
+  ],
+  "failing_count": 6,
+  "stderr_tail": []
+ },
+ {
+  "mutant": "retained-line-printed-twice",
+  "file": "check_merge_containment.py",
+  "rc": 1,
+  "status": "KILLED",
+  "expected_killer": "linear-*-retained-claim (exactly one line)",
+  "failing_cases": [
+   "linear-exact-retention",
+   "linear-exact-retention-retained-claim",
+   "linear-exact-reversion",
+   "linear-mutant-exact-reversion",
+   "linear-partial-reversion",
+   "linear-mutant-partial-reversion",
+   "linear-legitimate-extension",
+   "linear-legitimate-extension-retained-claim",
+   "linear-intentional-supersession",
+   "linear-mutant-intentional-supersession",
+   "linear-mode-loss",
+   "linear-mutant-mode-loss"
+  ],
+  "failing_count": 42,
+  "stderr_tail": []
+ }
+]

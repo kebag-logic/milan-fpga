@@ -1,0 +1,18 @@
+## raw diff base..head
+:100644 100644 b9d500cc4 4e39ed10e M	AGENTS.md
+:100644 100644 117c372f0 89c6fb0a7 M	CONTRIBUTING.md
+:100644 100644 a22a2828b 7ccf2712a M	docs/testing/CI_WORKFLOWS.md
+:100644 100644 38a276ccc 134a7b954 M	docs/testing/RUNNING_TESTS.md
+:100755 100755 256491cfa 141baec9e M	scripts/check_merge_containment.py
+:100644 100644 bca0c6a6f 5652be97c M	scripts/merge_containment_replay.py
+:100644 100644 6b766421c 838afa59f M	scripts/merge_containment_selftest.py
+:000000 100644 000000000 6032fa554 A	scripts/merge_containment_selftest_linear.py
+## raw diff round1..head
+:100644 100644 357e99b52 6032fa554 M	scripts/merge_containment_selftest_linear.py
+## commits base..head (full message bytes)
+3f2fe73d11e269ad6357db23b829283c61b5a48a parents=3d2f3e3131c9db5898e1db9dd3e2a35149843109 lines=1 :: Separate optional linear retention from historical containment
+20b7bdaa307eba722ec6cc89d2683ba1636a0cb6 parents=3f2fe73d11e269ad6357db23b829283c61b5a48a lines=1 :: Use permitted wording for containment proof claims
+b0347a4fd668f8d40bdf40a142ac0ea70167acd1 parents=20b7bdaa307eba722ec6cc89d2683ba1636a0cb6 lines=1 :: test(containment): cover unmeasurable retention and scoped claims
+## run_all_suites selftest hook
+307:          preflight check_merge_containment python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1)
+run_all_suites.sh unchanged base..head: yes

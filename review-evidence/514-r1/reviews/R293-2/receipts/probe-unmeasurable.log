@@ -1,0 +1,8 @@
+empty-net-delta: pr=67059786f0 main=3b72ee14c9 merge-bases=1
+  head   rc=1 ['contained  refs/heads/pr  [the branch has no net tree change (2 commit(s) not ancestors)]', 'UNKNOWN    refs/heads/pr: current retention: linear retention unmeasurable: retention has no measurable changed-path set']
+  mutant rc=0 ['contained  refs/heads/pr  [the branch has no net tree change (2 commit(s) not ancestors)]', 'retained   refs/heads/pr: current retention: linear retention unmeasurable: retention has no measurable changed-path set']
+criss-cross-base: pr=3e3a459ed6 main=821e21bb5a merge-bases=2
+  head   rc=1 ['contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]', 'UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges']
+  mutant rc=1 ['contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]', 'UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges']
+RESULT PASS
+rc=0

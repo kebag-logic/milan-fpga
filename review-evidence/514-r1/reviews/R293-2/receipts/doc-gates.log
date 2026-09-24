@@ -1,0 +1,42 @@
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 851 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== env GIT_DIR=/dev/null python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 851 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+== python3 -B scripts/check_em_dash.py --base 3d2f3e3131c9db5898e1db9dd3e2a35149843109
+check_em_dash: 0 finding(s) over 52 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [3d2f3e31..HEAD]
+rc=0
+== python3 -B scripts/check_em_dash.py --selftest
+check_em_dash selftest: PASS (57 arm(s))
+rc=0
+== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 -B scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+== python3 -B scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== python3 -B scripts/gen_toc.py --verify-anchors
+anchor check: 163 existing cross-page fragment links reproduced
+rc=0
+== python3 -B scripts/gen_toc.py --selftest
+TOC selftest: PASS (707/707 arm(s))
+rc=0
+== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (838 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 -B scripts/check_py_idiom.py
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+== python3 -B scripts/check_py_idiom.py --selftest
+[PASS] the checked-in budget carries every ratcheted key
+
+54 checks: 54 PASS, 0 FAIL
+rc=0
+== git diff --check 3d2f3e3131c9db5898e1db9dd3e2a35149843109 b0347a4fd668f8d40bdf40a142ac0ea70167acd1
+rc=0
