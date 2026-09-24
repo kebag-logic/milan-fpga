@@ -1,0 +1,32 @@
+notify plain==base IDENTICAL
+notify lever-vs-plain diff lines:
+>   [i]    #542 lever: 258 moves of a log holding a real frame in this section
+>   [ok]   [NOTIFY] (#542 lever) the waits moved logs holding real frames = 0x1
+< checks: 146   failures: 0
+> checks: 147   failures: 0
+nxn plain==base IDENTICAL
+nxn lever-vs-plain diff lines:
+>   [i]    #542 lever: 1 moves of a log holding a real frame in this section
+>   [ok]   [NOTIFY] (#542 lever) the waits moved logs holding real frames = 0x1
+< checks: 1708   failures: 0
+> checks: 1709   failures: 0
+nxn8 plain==base IDENTICAL
+nxn8 lever-vs-plain diff lines:
+>   [i]    #542 lever: 1 moves of a log holding a real frame in this section
+>   [ok]   [NOTIFY] (#542 lever) the waits moved logs holding real frames = 0x1
+< checks: 3136   failures: 0
+> checks: 3137   failures: 0
+nxn4c plain==base IDENTICAL
+nxn4c lever-vs-plain diff lines:
+>   [i]    #542 lever: 1 moves of a log holding a real frame in this section
+>   [ok]   [NOTIFY] (#542 lever) the waits moved logs holding real frames = 0x1
+< checks: 1708   failures: 0
+> checks: 1709   failures: 0
+nxndv plain==base IDENTICAL
+nxndv lever-vs-plain diff lines:
+>   [i]    #542 lever: 1 moves of a log holding a real frame in this section
+>   [ok]   [NOTIFY] (#542 lever) the waits moved logs holding real frames = 0x1
+< checks: 1710   failures: 0
+> checks: 1711   failures: 0
+nxn oldlever FAIL lines:
+1699:  [FAIL] [NOTIFY] GET_NAME right after is byte-identical from the body on got=0x0 exp=0x1

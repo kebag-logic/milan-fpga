@@ -1,0 +1,17 @@
+--- scratch/head/tb/verilator/milan_dp/sim_nxn.cpp	2026-09-24 08:05:25.645000000 +0200
++++ scratch/head/tb/verilator/milan_dp/sim_nxn_mut_drainhold.cpp	2026-09-24 08:17:14.458995164 +0200
+@@ -1286,7 +1286,13 @@
+            notify_count(0x0010, &CTL_B), 1);
+         ck("[NOTIFY] ...and none to A, the requester (5.4.5.2 'except')",
+            notify_count(0x0010, &CTL_A), 0);
+-        const std::vector<uint8_t> nB1 = notify_last(0x0010, CTL_B);
++        size_t k_r286 = uns_log.size();
++        for (size_t i = 0; i < uns_log.size(); i++)
++            if (aecp_is_unsolicited(uns_log[i]) && notify_cmd(uns_log[i]) == 0x0010
++                && notify_to(uns_log[i], CTL_B)) k_r286 = i;
++        static const std::vector<uint8_t> none_r286;
++        const std::vector<uint8_t>& nB1 = k_r286 < uns_log.size() ? uns_log[k_r286] : none_r286;
++        drain_tx(1);   // R286 M2: a hold across the drain_tx hook
+         ck("[NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry)",
+            notify_seq(nB1), 0);
+         ck("[NOTIFY] ...target_entity_id is this entity",

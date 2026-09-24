@@ -1,0 +1,11 @@
+--- scratch/head/tb/verilator/milan_dp/sim_nxn.cpp	2026-09-24 08:05:25.645000000 +0200
++++ scratch/head/tb/verilator/milan_dp/sim_nxn_mut_nolever.cpp	2026-09-24 08:17:14.457000000 +0200
+@@ -842,7 +842,7 @@
+     //! lever's own empty entries do not count, or it would bank its own moves
+     long realloc_moves = 0;
+     void force_uns_log_realloc() {
+-        if (!kForceRealloc) return;
++        if (kForceRealloc || !kForceRealloc) return;   // R286 M1
+         if (std::any_of(uns_log.begin(), uns_log.end(),
+                         [](const std::vector<uint8_t>& f) { return !f.empty(); }))
+             realloc_moves++;

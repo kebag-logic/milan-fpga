@@ -1,0 +1,11 @@
+--- scratch/head/tb/verilator/milan_dp/sim_nxn.cpp	2026-09-24 08:05:25.645000000 +0200
++++ scratch/head/tb/verilator/milan_dp/sim_nxn_mut_absent.cpp	2026-09-24 08:17:14.460000000 +0200
+@@ -1173,7 +1173,7 @@
+                             || ((static_cast<unsigned>(f[40]) << 8) | f[41]) != static_cast<unsigned>(ix))) continue;
+             last = i;
+         }
+-        return last < uns_log.size() ? uns_log[last] : std::vector<uint8_t>();
++        (void)last; return std::vector<uint8_t>();   // R286 M3
+     }
+     //! the cycle stamp of the i-th matching frame (-1 when absent)
+     long notify_when(uint16_t cmd, const Ctlr& to, unsigned nth, bool originated) {
