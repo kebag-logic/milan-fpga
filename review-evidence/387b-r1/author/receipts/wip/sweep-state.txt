@@ -1,0 +1,47 @@
+1 0 0.0 python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+2 0 0.1 python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+3 0 0.1 python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+4 0 0.1 python3 gen_divergent_shape.py
+5 0 11.4 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+6 0 85.8 ./obj_gptp/Vmilan_dp_gptp
+7 0 11.8 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+8 0 85.7 ./obj_gptplat/Vmilan_dp_gptplat
+9 0 0.2 python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_gmstep/aem-bui
+10 0 0.1 python3 ../../../avdecc/gen_aemi_image.py --overlay obj_gmstep/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --l
+11 0 12.2 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+12 0 23.8 ./obj_gmstep/Vmilan_dp_gmstep obj_gmstep/aemi.bin 0
+13 0 11.4 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe -
+14 0 14.5 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --bui
+15 0 14.7 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+gen_divergent --cc --exe --build -j 8 --top-module milan_datapa
+16 0 14.0 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --b
+17 0 14.6 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --bui
+18 0 11.9 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe -
+19 0 10.7 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe -
+20 0 12.4 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+21 0 12.6 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+22 0 0.0 echo "======================================================================"
+23 0 11.7 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+24 0 12.6 $VALIDATION_TOOLS/verilator-v5.050/bin/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --ex
+25 1 5.2 ./obj_dir/Vmilan_dp_sim
+26 0 0.0 echo "---- Milan 5.4.5 notifications, TIMED on the compressed processor timebase ----"
+27 0 12.8 ./obj_notify/Vmilan_dp_notify
+28 0 0.0 echo "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----"
+29 0 25.3 ./obj_crflic/Vmilan_dp_crflic
+30 0 6.4 ./obj_nxn/Vmilan_dp_nxn
+31 0 0.0 echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
+32 0 6.3 ./obj_nxndv/Vmilan_dp_nxndv
+33 0 12.1 ./obj_nxn8/Vmilan_dp_nxn8
+34 0 0.0 echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
+35 0 6.2 ./obj_nxn4c/Vmilan_dp_nxn4c
+36 0 0.0 echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
+37 1 5.3 ./obj_nolpf/Vmilan_dp_nolpf
+38 0 0.0 echo "---- all six tier-1 blocks pruned ----"
+39 0 0.6 ./obj_prune/Vmilan_dp_prune
+40 0 0.0 echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
+41 1 6.0 ./obj_ax1x1/Vmilan_dp_ax1x1
+42 0 0.0 echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
+43 0 446.9 ./obj_aclk/Vmilan_dp_aclk
+44 0 0.0 echo "---- #386 render law: the same leg against mutated setpoint stages and datapath ----"
+45 0 337.9 python3 render_mutants.py
+46 0 0.0 echo "---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----"
+47 0 146.4 python3 gmstep_mutants.py
