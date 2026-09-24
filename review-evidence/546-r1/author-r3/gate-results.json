@@ -1,0 +1,174 @@
+[
+  {
+    "name": "crf_rx",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/crf_rx"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 775.69
+  },
+  {
+    "name": "mmcm_servo",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/mmcm_servo"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 362.33
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 4.02
+  },
+  {
+    "name": "docs-check-no-git",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 4.02
+  },
+  {
+    "name": "check_em_dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "57456af96b3127b9d309a995bbbd35a6113ce52d"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 3.08
+  },
+  {
+    "name": "check_doc_style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "gen_toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 2.37
+  },
+  {
+    "name": "check_doc_paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "module_matrix",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 0.97
+  },
+  {
+    "name": "xvlog_gate",
+    "command": [
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 135.63
+  },
+  {
+    "name": "check_cpp_idiom",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 1.17
+  },
+  {
+    "name": "check_py_idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 3.07
+  },
+  {
+    "name": "measure_test_evidence",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 4.98
+  },
+  {
+    "name": "measure_test_evidence-check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "head": "28b6bfd38300afd9b66c2e7893c30f6141521a38",
+    "rc": 0,
+    "seconds": 4.87
+  },
+  {
+    "name": "git-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 0.03
+  },
+  {
+    "name": "committed-diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "d04a61678c9fc710df9bc2cad5e1bcb9d8925ae1",
+      "HEAD"
+    ],
+    "head": "0c61d458941088f3847513b7c6fe6589c75b4270",
+    "rc": 0,
+    "seconds": 0.01
+  }
+]
