@@ -15,9 +15,9 @@
 // What this leg does NOT grade: the grid aligner (the TDM clocks are held),
 // the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
 // opened by the escape bit), a step that lands inside a pending mr restart
-// (ruling 5802264260 item 2: tb/verilator/tkdiag T17 grades the restart
-// engine PDU by PDU), and the physical re-base (#117). Its negative controls
-// are gmstep_mutants.py.
+// (ruling 5802264260 item 2: tb/verilator/tkdiag T17 and T18 grade the
+// restart engine PDU by PDU), and the physical re-base (#117). Its
+// negative controls are gmstep_mutants.py.
 //
 // Elaboration: the `gptp` leg's (AX7101 1x1 TDM8 entity, fabric gPTP ON, the
 // fabric clock compressed to 2 MHz so the plane's real timers fit a runnable

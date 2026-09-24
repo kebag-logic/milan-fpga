@@ -166,6 +166,14 @@ took 1726-1773 s. Two runs of that class were killed at 1800 s, 1 s and 13 s
 short of the end. A timeout stays a red context: the driver exits 92 and the
 worker fails. `scripts/measure_test_evidence.py` pins the table.
 
+The `milan_dp` basis has since grown. Measured on 2026-09-24 from the
+`shard: 4/5` line to `PASS milan_dp` of hosted shard 4/5: 2099.5 s on dev
+`59b81670` and 2133.3 s on dev `57456af9`, then 2264.9 s (9775 checks) for
+the #387 candidate merge of PR #555 head `a9636e0f` onto `57456af9`, which
+adds the gmstep leg and three of its controls to the suite. That leaves
+435 s (16%) of the 2700 s budget, not the 885 s the table's basis states.
+The budget is unchanged; raising it is a maintainer decision.
+
 The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.

@@ -38,14 +38,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - So a change that steps counts one re-base, not two.
 - Software settime and plane-off adjtime are steps too.
 - A step on a pending `mr` restart merges with it.
+- A restart stays pending until its level is sent.
 - Exactly one toggle follows; nothing is cancelled.
 - Before, a second request flipped the target back.
 - Neither restart then reached the wire.
 - The restart target is therefore per stream.
 - The `milan_dp` gmstep leg joins the default sweep: 48/48.
 - Three negative controls run with it.
-- `make gmstep-mutants` plants all nine.
-- `tkdiag` T17 grades the merge; two mutants must fail it.
+- `make gmstep-mutants` plants all eleven.
+- Two of them grade the option-off leg's settime and INTERNAL-source `mr`.
+- `tkdiag` T17 grades the merge; T18 grades its end.
+- Four mutants must fail them.
 - No CSR moves.
 
 ## Unreleased - licence and LeaveAll scope
