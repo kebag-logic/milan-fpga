@@ -97,9 +97,11 @@ branches:
   real grant is issue #551.
 
 Both show on the licensed source's own bits ([REGISTER_MAP.md](REGISTER_MAP.md)):
-`CRFT_CTRL[6]`/`[7]` and `LWSRP_STATUS[6]` for the CRF output, and
-`LWSRP_STATUS[8]` for source 0 only. A lane that credit-shapes the fabric's own
-sources derives its own slope/gate ordering rather than inheriting this one.
+`CRFT_CTRL[6]`/`[7]` for the CRF output and `LWSRP_STATUS[8]` for source 0
+only. `LWSRP_STATUS[6]` is ACTIVE ORed over sources, not one source's own bit,
+so it shows the corner only while no other source is ACTIVE. A lane that
+credit-shapes the fabric's own sources derives its own slope/gate ordering
+rather than inheriting this one.
 
 ## Why gPTP sits below the shaped classes
 
