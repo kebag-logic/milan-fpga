@@ -1,0 +1,24 @@
+$ python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (4 exact gitlinks, decoded PNG)
+rc=0
+$ python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+rc=0
+$ python3 scripts/check_submodule_docs.py
+submodule documentation: OK (4 exact gitlinks)
+rc=0
+$ python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+$ python3 scripts/check_diagram_pngs.py --selftest
+diagram PNG selftest: OK (6 rasters, 28 mutation controls)
+rc=0
+$ python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+$ python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+rc=0
+$ python3 docs/diagrams/timesync_chain.gen.py --check
+time-sync diagram: OK (RTL, features, Gitlink, decoded PNG)
+rc=0

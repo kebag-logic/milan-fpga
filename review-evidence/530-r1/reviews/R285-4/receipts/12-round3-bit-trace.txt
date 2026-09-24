@@ -1,0 +1,62 @@
+--- lobs vector (index 0 vs index > 0)
+hdl/milan/milan_datapath.sv:  wire listener_observed_w = cfg_acmp_lobs |
+hdl/milan/milan_datapath.sv:                             (cfg_lwsrp_enable & lwsrp_listener_ready);
+hdl/milan/milan_datapath.sv:  wire [ACMP_SRC_C-1:0] acmp_lobs_v_w;
+hdl/milan/milan_datapath.sv:  generate
+hdl/milan/milan_datapath.sv:    for (genvar gj = 0; gj < ACMP_SRC_C; gj++) begin : g_acmp_lobs
+hdl/milan/milan_datapath.sv:      if (gj == 0) begin : g_lobs0
+hdl/milan/milan_datapath.sv:        assign acmp_lobs_v_w[gj] = listener_observed_w;
+hdl/milan/milan_datapath.sv:      end else begin : g_lobsn
+hdl/milan/milan_datapath.sv:        assign acmp_lobs_v_w[gj] = cfg_acmp_lobs |
+hdl/milan/milan_datapath.sv:                                   (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
+hdl/milan/milan_datapath.sv:      end
+hdl/milan/milan_datapath.sv:    end
+--- AAF gates (source 0 and index > 0)
+hdl/milan/milan_datapath.sv:  wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
+hdl/milan/milan_datapath.sv:                  (cfg_aaf_bypass |
+hdl/milan/milan_datapath.sv:                  (acmp_talker_active &
+hdl/milan/milan_datapath.sv:                   (~cfg_lwsrp_enable | lwsrp_stream_gate[0])));
+hdl/milan/milan_datapath.sv:  generate
+hdl/milan/milan_datapath.sv:    for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
+hdl/milan/milan_datapath.sv:      assign aaf_stream_en_raw_w[gs] =
+hdl/milan/milan_datapath.sv:          cfg_aaf_enable &
+hdl/milan/milan_datapath.sv:          (~cfg_maap_enable | maap_addr_valid) &
+hdl/milan/milan_datapath.sv:          (cfg_aaf_bypass |
+hdl/milan/milan_datapath.sv:           (acmp_talker_active_aaf_w[gs] & lwsrp_stream_gate[gs]));
+hdl/milan/milan_datapath.sv:    end
+--- 0x82C window inputs: AAF indices only
+hdl/milan/milan_datapath.sv:    .i_tlk_gate_v         (8'(aaf_stream_en_w)),
+hdl/milan/milan_datapath.sv:    .i_tlk_lobs_v         (8'(acmp_lobs_v_w[N_STREAMS-1:0])),
+hdl/common/csr/milan_csr.sv:  localparam [ADDR_WIDTH-1:0] A_STRMW_STATE  = 'h82C; //! RO (snap-latched): packed per-stream state
+hdl/common/csr/milan_csr.sv:            snap_shadow_r[0]  <= {4'd0, snap_srp9_w, 15'd0,
+hdl/common/csr/milan_csr.sv:                                  i_tlk_gate_v[snap_idx_r[2:0]],
+hdl/common/csr/milan_csr.sv:                                  i_tlk_lobs_v[snap_idx_r[2:0]],
+hdl/common/csr/milan_csr.sv:                                  i_tlk_active_v[snap_idx_r[2:0]],
+hdl/common/csr/milan_csr.sv:                                  i_tlk_probe_v[snap_idx_r[2:0]]};
+--- LWSRP_STATUS packing, LSB last
+hdl/milan/milan_datapath.sv:  wire        lwsrp_slope_en, lwsrp_res_active;
+hdl/milan/milan_datapath.sv:  //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
+hdl/milan/milan_datapath.sv:  wire        lwsrp_ctx_oor_w;
+hdl/milan/milan_datapath.sv:  wire [31:0] lwsrp_idle_slope;
+hdl/milan/milan_datapath.sv:  wire        lwsrp_listener_ready, lwsrp_listener_reg;
+hdl/milan/milan_datapath.sv:  wire [1:0]  lwsrp_listener_decl;
+hdl/milan/milan_datapath.sv:    .i_lwsrp_status       ({lwsrp_rx_drops, lwsrp_tfail_code, 4'd0,
+hdl/milan/milan_datapath.sv:                            lwsrp_ctx_oor_w,
+hdl/milan/milan_datapath.sv:                            lwsrp_tfail_valid, lwsrp_slope_en,
+hdl/milan/milan_datapath.sv:                            lwsrp_stream_gate[0], lwsrp_over_limit,
+hdl/milan/milan_datapath.sv:                            lwsrp_res_active, lwsrp_domain_ok,
+hdl/milan/milan_datapath.sv:                            lwsrp_talker_declared, lwsrp_listener_ready,
+hdl/milan/milan_datapath.sv:                            lwsrp_listener_reg, lwsrp_listener_decl}),
+--- [6] and [8] sources
+hdl/milan/milan_datapath.sv:  assign lwsrp_stream_gate = pp_cd_srp_active_w[SRP_TALKERS_C-1:0];
+hdl/milan/milan_datapath.sv:  assign lwsrp_res_active  = |pp_cd_srp_active_w;
+--- CRF status [6]/[7]
+hdl/milan/milan_datapath.sv:  wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
+hdl/milan/milan_datapath.sv:                           lwsrp_stream_gate[SRP_TALKERS_C-1];
+hdl/milan/milan_datapath.sv:  wire crft_emit_en_w /* verilator public_flat_rd */ = cfg_crft_en &
+hdl/milan/milan_datapath.sv:                        (cfg_aaf_bypass | ~cfg_lwsrp_enable |
+hdl/milan/milan_datapath.sv:                         ~cfg_lwsrp_talker_en | crft_res_active_w);
+hdl/milan/milan_datapath.sv:    crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
+hdl/milan/milan_datapath.sv:    crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
+--- REGISTER_MAP 0x82C row
+1524:| `0x82C` | `A_STRMW_STATE` | RO snap | `0` | Snap-latched pack. listener: `[2:0]` ACMP lsm state, `[4:3]` probing, `[9:5]` acmp_status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` SRP bits (= low 9 bits of `A_STRMW_SRP`). talker (LIVE per-stream since 0x000C: bits `[3:0]` at idx>0 were hardwired 0 before, the 2026-07-26 window-honesty fix): `[0]` probe_armed, `[1]` talker_active, `[2]` lobs (`A_ACMP_LOBS`, or with `LWSRP_CTRL[0]` set: at idx 0 source 0's registered Listener Ready or Ready Failed, at idx > 0 that source's ACTIVE since #530), `[3]` composed admission (`aaf_stream_en[idx]`; idx 0 = `aaf_gate`), `[27:19]` SRP bits |

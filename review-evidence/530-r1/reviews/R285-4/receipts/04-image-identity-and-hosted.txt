@@ -1,0 +1,32 @@
+# Image identity: flashed silicon head c593cbef vs this head f814d37d
+$ git ls-tree c593cbef / f814d37d (gitlinks)
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+$ rom_digests.tsv gptp rows for the two gptp pins
+c1b617435824929a790739ea8585c3fe1a328cc0	gptp_ucode.hex	83f14a7d020d6b3d95d5e0e8e9cb878ac78d0a6aed7812ffac9b2dc39981a939
+e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp_ucode.hex	4afe436d48763a0c178d0e4191851501de26d6b9f1fe6634d5ea206c36f643bb
+$ gptp-processor diff --stat c1b61743 e5dcea6e -- hdl
+ hdl/ucode/gen_gptp_ucode.py | 162 +++++++++++++++++++++++++++++++-------------
+ 1 file changed, 114 insertions(+), 48 deletions(-)
+$ sw/litex/milan_soc.py: gPTP plane is in the product image (default ON)
+    "hdl/milan/KL_nvm_backend.sv",
+    # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow under
+    # GPTP_PLANE_EN_P (product default ON), so Vivado must see the wrappers
+    # and the gptp-processor engine they wrap. No copy of this
+    # list is authoritative - not this one, and not GPTP_SRCS in the milan_dp
+$ PR #549 body at review time (fetched read-only), lines naming image identity / status
+6:- **[Linked Issue / roles](#linked-issue--roles)** -- closes #530; the silicon rerun passed at `c593cbef`.
+17:GREEN at `e65dccfe586bea9455cf1e10397d275c220c740a` (tree `31f4188287b90a87a31c17b4e330b61c3f657038`): fourteen commits on `50e78097564244c124e1ec30dd8821f83951ab06`. Live `dev` is now `f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f`; candidate-merge validation against it is still to run. `530-crf-talker-licence` -> `dev`.
+19:The last nine commits are two docs-only correction rounds: `9f607f7d` to `446e79b9` for R284-1 and R285-1, and `461e8c34` to `e65dccfe` for R284-2 and R285-2. They change comments and Markdown only. `hdl/milan/milan_datapath.sv` with its `//` and `/* */` comments stripped is identical to `c593cbef`, and no file under `tb/`, `tests/`, `scripts/`, `syn/` or `sw/` changes. The gitlinks do not change either.
+23:Closes #530. The manager's silicon rerun passed at `c593cbef` ([A237], archive `1b3fa46058c5313d2ec41a6b06d2166d1462c76a`). Every `hdl/` change after `c593cbef` is a comment, so the tested image is still the one this head builds.
+145:- [x] Linked Issue acceptance criteria are satisfied (simulation parts here; the silicon rerun passed at `c593cbef`, [A237])
+$ PR head / mergeable (read-only)
+{"headRefOid":"f814d37d94e17435f3b6dcc424f8b2b606cdd3e9","isDraft":false,"mergeStateStatus":"DIRTY","mergeable":"CONFLICTING"}
+$ hosted workflow runs for head_sha f814d37d (read-only)
+0
+$ check-runs count
+0

@@ -1,0 +1,25 @@
+# Probe only: textual merge of head f814d37d with live dev 3d2f3e31, in a disposable scratch clone (not the candidate build, which is the manager's)
+$ git merge-base f814d37d 3d2f3e31
+f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f
+$ git diff --stat f86c34fe 3d2f3e31
+ README.md                                 |  12 ++--
+ REQUIREMENTS.md                           |  41 ++++++++++-
+ docs/MILAN_V12_ROADMAP.md                 |   7 +-
+ docs/design/GPTP_PLANE.md                 | 109 ++++++++++++++++++++++++++++++
+ docs/design/TIME_SYNC.md                  |   1 +
+ docs/guides/gptp/MANAGER.md               |   1 +
+ docs/reference/FR_NFR.md                  |  62 ++++++++++++++---
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md |   9 +--
+ docs/reference/MILAN_FEATURE_STATUS.md    |   8 +++
+ docs/reference/SUBMODULES.md              |   1 +
+ docs/traceability/ieee8021as.md           |   5 +-
+ 11 files changed, 230 insertions(+), 26 deletions(-)
+$ git merge-tree --write-tree --name-only --messages f814d37d 3d2f3e31
+30b13c3daf0a3f72e41c8cc4020c8632bf420383
+docs/reference/FR_NFR.md
+
+Auto-merging docs/reference/FR_NFR.md
+CONFLICT (content): Merge conflict in docs/reference/FR_NFR.md
+Auto-merging docs/reference/MILAN_COMPLIANCE_MATRIX.md
+Auto-merging docs/reference/SUBMODULES.md
+rc=1

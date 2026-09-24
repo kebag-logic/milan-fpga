@@ -1,0 +1,36 @@
+$ sv_strip_compare milan_datapath.sv c593cbef e65dccfe 44ad6991 f814d37d
+c593cbeffaffa647cda70fb1a233455bf9c80d55 hdl/milan/milan_datapath.sv stripped-sha256 327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1
+e65dccfe586bea9455cf1e10397d275c220c740a hdl/milan/milan_datapath.sv stripped-sha256 327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1
+44ad6991fca85706343d1f2f84703ecf80d4da72 hdl/milan/milan_datapath.sv stripped-sha256 327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1
+f814d37d94e17435f3b6dcc424f8b2b606cdd3e9 hdl/milan/milan_datapath.sv stripped-sha256 327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1
+IDENTICAL
+rc=0
+$ canary 50e78097 vs c593cbef
+50e78097564244c124e1ec30dd8821f83951ab06 hdl/milan/milan_datapath.sv stripped-sha256 2deefa5ab4ce45dd0a45f8648c756f6ab76f1e540953b3c77996e30945b2022c
+c593cbeffaffa647cda70fb1a233455bf9c80d55 hdl/milan/milan_datapath.sv stripped-sha256 327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1
+DIFFERENT
+rc=1
+$ KL_talker_diag_ctx.sv 50e78097 vs HEAD
+50e78097564244c124e1ec30dd8821f83951ab06 hdl/ieee1722/avtp/KL_talker_diag_ctx.sv stripped-sha256 6f4c2203fd900fea2769600c189e89c20018cb7e12ef6ced7482b070b9b9a181
+f814d37d94e17435f3b6dcc424f8b2b606cdd3e9 hdl/ieee1722/avtp/KL_talker_diag_ctx.sv stripped-sha256 6f4c2203fd900fea2769600c189e89c20018cb7e12ef6ced7482b070b9b9a181
+IDENTICAL
+rc=0
+$ git diff --name-status c593cbef HEAD -- hdl/
+M	hdl/milan/milan_datapath.sv
+$ git diff --name-status 44ad6991 HEAD
+M	CHANGELOG.md
+M	docs/reference/EGRESS_QUEUE_MAP.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/traceability/ieee8021q.md
+M	hdl/milan/milan_datapath.sv
+$ hdl/ added/removed lines 44ad6991..HEAD that are not // comments
+(none above = all comment lines)
+$ metacomment tokens in changed hdl lines
+0
+$ gitlinks c593cbef vs HEAD
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
