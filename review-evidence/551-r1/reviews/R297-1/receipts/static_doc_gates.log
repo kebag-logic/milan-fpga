@@ -1,0 +1,39 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 857 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_em_dash.py --base 59b816708852472da6ed4576386c30ebd5f8f839
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (841 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+=== python3 scripts/check_cpp_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor; -09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2
+=== python3 scripts/check_py_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor; -09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2
+=== python3 scripts/check_sv_idiom.py
+REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor; -09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2
+=== git diff --check 59b816708852472da6ed4576386c30ebd5f8f839 4eca4540d6a278aeb56687029d752bade6e714e3
+rc=0
+=== python3 scripts/check_cpp_idiom.py (review clone)
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+rc=0
+=== python3 scripts/check_py_idiom.py (review clone)
+  too many parameters: 7 <= 7
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+rc=0
+=== python3 scripts/check_sv_idiom.py (review clone)
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0

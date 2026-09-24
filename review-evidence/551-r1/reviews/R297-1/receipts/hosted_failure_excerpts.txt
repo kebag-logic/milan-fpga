@@ -1,0 +1,43 @@
+# Hosted failure excerpts at exact head 4eca4540d6a278aeb56687029d752bade6e714e3 (read-only gh queries, 2026-09-24T14:19:03Z)
+## docs-check (run 36009567137)
+docs-check	Traceability matrix no-drift gate	﻿2026-09-24T14:01:14.7400020Z ##[group]Run python3 docs/traceability/gen_module_matrix.py --check
+docs-check	Traceability matrix no-drift gate	2026-09-24T14:01:14.7400463Z ^[[36;1mpython3 docs/traceability/gen_module_matrix.py --check^[[0m
+docs-check	Traceability matrix no-drift gate	2026-09-24T14:01:15.4291933Z STALE (run gen_module_matrix.py):
+docs-check	Traceability matrix no-drift gate	2026-09-24T14:01:15.4292201Z   docs/traceability/MODULE_MATRIX.md
+docs-check	Traceability matrix no-drift gate	2026-09-24T14:01:15.4292433Z   hdl/milan/README-tests.md
+docs-check	Traceability matrix no-drift gate	2026-09-24T14:01:15.4350479Z ##[error]Process completed with exit code 1.
+## bdd-conformance / rtl-fast (run 36009567268)
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:03.7807776Z     Then the stream gate takes the processor's ACTIVE vector and nothing else ... failed in 0.000s
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:03.7809741Z ASSERT FAILED: lwsrp_stream_gate must be the processor's ACTIVE vector alone; expression is pp_cd_srp_active_w[SRP_TALKERS_C-1:0] & pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0]
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:04.0768606Z Failing scenarios:
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:04.0769072Z   features/milan_streaming_licence.feature:87  the stream gate is the processor's ACTIVE, never its raw admission verdict
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:04.0769623Z 13 features passed, 1 failed, 0 skipped
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:04.0769908Z 343 scenarios passed, 1 failed, 0 skipped
+bdd-conformance	Run the specification-facing suite	2026-09-24T14:00:04.1076907Z ##[error]Process completed with exit code 1.
+rtl-fast	Require every applicable fast gate to pass	2026-09-24T14:10:33.5605098Z ^[[36;1m  "bdd-conformance:$BDD_CONFORMANCE_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-09-24T14:10:33.7158519Z   BDD_CONFORMANCE_RESULT: failure
+rtl-fast	Require every applicable fast gate to pass	2026-09-24T14:10:33.7849576Z bdd-conformance          failure
+rtl-fast	Require every applicable fast gate to pass	2026-09-24T14:10:33.7863443Z ##[error]Process completed with exit code 1.
+## verilator-suites (run 36009567229)
+full-ci-gate | success
+Yosys shard 2/4 | success
+Yosys shard 0/4 | success
+Verilator shard 0/5 | success
+Verilator shard 4/5 | cancelled
+Yosys shard 1/4 | success
+Yosys shard 3/4 | success
+Verilator shard 1/5 | cancelled
+Verilator shard 3/5 | success
+Verilator shard 2/5 | success
+Physical gPTP (nightly and manual) | skipped
+verilator-suites | failure
+yosys-portability | success
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-24T14:13:52.4736617Z ACCOUNTING FAILURE -- shard logs do not equal the serial suite inventory:
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-24T14:13:52.4740678Z ACCOUNTING FAILURE -- nothing was measured by 1 suite log(s):
+verilator-suites	Prove exhaustive ownership and tally every log	2026-09-24T14:13:52.4806604Z ##[error]Process completed with exit code 1.
+verilator-suites	Require every Verilator worker to pass	﻿2026-09-24T14:13:52.4847899Z ##[group]Run if [ "$SHARD_RESULT" != success ]; then
+verilator-suites	Require every Verilator worker to pass	2026-09-24T14:13:52.4848486Z ^[[36;1mif [ "$SHARD_RESULT" != success ]; then^[[0m
+verilator-suites	Require every Verilator worker to pass	2026-09-24T14:13:52.4848836Z ^[[36;1m  echo "one or more Verilator workers ended: $SHARD_RESULT" >&2^[[0m
+verilator-suites	Require every Verilator worker to pass	2026-09-24T14:13:52.4905651Z   SHARD_RESULT: cancelled
+verilator-suites	Require every Verilator worker to pass	2026-09-24T14:13:52.4972539Z one or more Verilator workers ended: cancelled
+verilator-suites	Require every Verilator worker to pass	2026-09-24T14:13:52.4975435Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,16 @@
+# review clone restore verification 2026-09-24T14:19:46Z
+HEAD 4eca4540d6a278aeb56687029d752bade6e714e3 tree ee1aaf3ef483bae1622c3d4528c4d958cee45781
+index-tree ee1aaf3ef483bae1622c3d4528c4d958cee45781
+worktree vs HEAD: identical (git diff --quiet HEAD rc=0)
+index vs HEAD: identical
+status (incl. ignored):
+[end status]
+ls-files -s == ls-tree -r HEAD (modes+blobs+paths)
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (heads/main)
+ 09f9bf3846511f8388d995126502ed92eaa65213 protocol-processor (v2.0-222-g09f9bf3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor gitlink=09f9bf3846511f8388d995126502ed92eaa65213 checkout=09f9bf3846511f8388d995126502ed92eaa65213 dirty=0
+gptp-processor gitlink=e5dcea6e351abff18a27a00f8e345f3251bdbd8f checkout=e5dcea6e351abff18a27a00f8e345f3251bdbd8f dirty=0
+third_party/verilog-axis gitlink=48ff7a7e2ef782cf778d47910cf85835c64b1bce checkout=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
