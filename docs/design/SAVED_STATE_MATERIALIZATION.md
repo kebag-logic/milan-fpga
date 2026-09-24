@@ -305,8 +305,8 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    and never forgotten: it stays pending, and the flush skips it until its
    port changes again (section 7.2, K16). This is FAILURE CONTAINMENT, not
    persistence: Milan 5.3.10.1 requires the accepted set to persist, and
-   stage 3 does not open until #501 decides a conforming allocation or
-   limit (section 10).
+   #501 now specifies the larger allocation in the saved-state page.
+   Stage 3 still needs its donor writer adoption (section 10).
 10. **Three firmware changes** (section 5.3): the AEM image loads before
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
@@ -1624,13 +1624,17 @@ descriptor store's roll-back. They add gates, and change no allocation:
   (section 2). The correction is #502's standalone one: the live-write
   trigger feeding the parent's pending bit from the first accepted write,
   for both classes. Filing #502 does not close it; the correction must land.
-- **Stage 3 is BLOCKED on #501.** At 8x8 a legal accepted output set can
-  outgrow its record, and the pending-and-skip rule of section 3 (rule 9)
-  keeps the status honest about it without persisting it. Stage 3's
-  implementation lane does not open until #501 records a conforming
-  allocation or accepted-mapping limit with its protocol consequence. This
-  page does not change the decided allocation and does not accept permanent
-  pending as conformance.
+- **Stage 3 requires #501's allocation and donor adoption.**
+  The manager decided output-record growth on 2026-09-23.
+  The [saved-state allocation](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)
+  derives dynamic capacity from stream/channel keys per port.
+  At 8x8, `max(9, 9 * 8)` gives 72 entries.
+  Payload length is `72 * 8 = 576` bytes.
+  The framed record adds its eight-byte header: 584 bytes.
+  At 1x1, `max(17, 2 * 8)` preserves every byte.
+  Processor #61/#83 must adopt the capacity when implementing maps.
+  The historical K16 evidence below exercised the old allocation.
+  Permanent pending still does not satisfy persistence.
 - **Work that may proceed while those are open:** stages 1 and 2 may be
   implemented and merged, and released only after #502; #502's correction
   itself; design-level evidence for maps at 1x1, where every legal output
@@ -1691,7 +1695,7 @@ to a burst the descriptor store abandoned (section 8.6, V23).
 | Forgetting or truncating an oversized set | a durable reading over a set no slot holds | EXECUTED: M15 is killed by K16 |
 | Restoring by replaying SET commands through the µCPU | it would reuse the programs' own rules, but needs a command path into the dispatch queue with its responses suppressed; not costed | UNRESOLVED 7 |
 | The held-request path in the arbiter | unreachable under the rule of section 6.4, so no case can fail it | the evidence's first mutant A01 survived; the path is removed |
-| Growing each output map record to the stream-channel key space | it changes the decided allocation, which is not this page's to change | #501 (section 10) |
+| Growing each output map record to the stream-channel key space | subsequently decided by #501; see the saved-state allocation | donor adoption: processor #61/#83 |
 | Counting the records each pass read whole and comparing the counts (round two) | two differences balance: one record lost in each pass leaves equal counts over a partial restore | EXECUTED: X02 is killed by V18c |
 | Comparing the record identities the two passes read | a record lost to the same device error in both passes is missing from both lists alike, so the lists agree over it | the port's cause (S1): H1, H8 |
 | Telling an erased record from a device error in the manager alone, by the bytes or by err against done | the pinned port folds both into one err with nothing forwarded, and eight 0xFF bytes do not prove an erased span; processor issue 20's manager-only split would fail every first boot | the port's cause (S1); V10, C03 |
@@ -1842,8 +1846,8 @@ The board's own figure is a measurement each stage owes.
   [`BAREMETAL_FIRMWARE.md`](../integration/BAREMETAL_FIRMWARE.md); `nvm_boot`
   starts the walk on every path. The new order is mandatory: under the old
   one the restore cannot prove its image and ends CLOSED.
-- An output map set larger than its record stays pending until it shrinks,
-  which is containment, not persistence; stage 3 waits for #501.
+- The old output capacity left accepted sets pending indefinitely.
+  #501 grows the allocation; stage 3 needs donor adoption.
 - The value rules exist twice, in the programs and in the writer
   (UNRESOLVED 7).
 - The writer's alarm is sticky like the binding manager's, and joins its
@@ -2033,12 +2037,12 @@ The board's own figure is a measurement each stage owes.
    mark cannot name its record. If the reviews keep the mark, the mark must
    carry the opcode and the descriptor so it can name a record, and the tail
    window must be accepted and stated.
-2. **An output map set can outgrow its record at 8x8** (#501, open). The
-   allocation gives a map record 8 bytes a cluster; an output mapping is
-   keyed by stream channel, so at 8x8 a port has 9 entries against 72
-   stream channels. This design keeps such a set pending and never writes it
-   in part (K16), which is containment only. Stage 3 is blocked on #501's
-   decision (section 10).
+2. **Output-map writer adoption remains required** (processor #61/#83).
+   #501 decides capacity from stream/channel keys (section 10).
+   The old nine-entry record caused K16's ten-mapping failure.
+   Its pending-and-skip result remains historical containment evidence.
+   The new record reserves `9 * 8 = 72` entries.
+   Product save/replay still needs the donor implementation.
 3. **The mark-tail window of today's glue** (#502, open): the status reads
    durable over an applied name or map for a program's tail. Every stage
    declared shippable waits for its correction (section 10).

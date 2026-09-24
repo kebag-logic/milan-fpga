@@ -81,6 +81,10 @@ id, media clock reference):
      processor never wrote is its span of 0xFF at the shape's position and
      counts as present; an erased header over a payload that is not erased,
      and an erased span short by one record, are both refused
+ 12. each dynamic OUTPUT map record reserves the stream/channel key space;
+     K16 and the boundary survive journal decode and cleared-first model
+     restore per port, and a CRC-clean oversized record applies nothing
+ 13. the complete 1x1 emitted image retains its pre-#501 SHA-256 digest
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -141,6 +145,7 @@ from nvm_contract import (                                    # noqa: E402
 from nvm_klj2 import (erased_record, frame_record,            # noqa: E402
                       key_of_id, klj2_assemble, klj2_decode, name_table,
                       names_from_image, payload_bytes)
+from nvm_map_checks import check_1x1_digest, check_output_maps  # noqa: E402
 from nvm_shape import (binding_base, build, commit_worst_ms,  # noqa: E402
                        conformant_floor, expected_names, expected_records,
                        inventory, layout_version)
@@ -274,7 +279,19 @@ def _mut_accept_absent():
     SEAM.DECODE_ALLOW_ABSENT = True
 
 
+def _mut_old_output_length():
+    """Keep cluster-sized output records; the image must fail capacity decode."""
+    SEAM.OLD_OUTPUT_LENGTH = True
+
+
+def _mut_changed_1x1_image():
+    """Change one framed 1x1 payload byte, retaining valid record/container CRCs."""
+    SEAM.CHANGE_1X1_IMAGE = True
+
+
 MUTATIONS = {
+    "old_output_length": _mut_old_output_length,
+    "changed_1x1_image": _mut_changed_1x1_image,
     "collide": _mut_collide,
     "shift_index": _mut_shift_index,
     "shift_name": _mut_shift_name,
@@ -321,7 +338,13 @@ def record_keys(shape: Shape) -> set[Key]:
 def expected_payloads(shape: Shape) -> dict[Key, int]:
     """{(group, index): payload length} over exactly `record_keys()`."""
     spi_cl = {p["index"]: p["clusters"] * MAP_ENTRY for p in shape.spi}
-    spo_cl = {p["index"]: p["clusters"] * MAP_ENTRY for p in shape.spo}
+    # Independent expectation: enumerate the complete key space, not the
+    # inventory helper or the encoded length. Keep existing larger records.
+    keys = {(stream, channel) for stream in range(shape.dc["STREAM_OUTPUT"])
+            for channel in range(8)}
+    spo_cl = {p["index"]: MAP_ENTRY * max(p["clusters"],
+              len(keys) if p.get("map_mode") == "dynamic" else 0)
+              for p in shape.spo}
     out = {}
     for g, i in record_keys(shape):
         if g == "MAPS_IN":
@@ -637,6 +660,10 @@ def check_one(cfg: Path, out: Path, donor: Donor,
         recs = [r for r in recs if SEAM.OMIT(r)]
     if SEAM.XFORM is not None:
         recs = SEAM.XFORM(recs)
+    if SEAM.OLD_OUTPUT_LENGTH:
+        clusters = {p["index"]: p["clusters"] for p in shape.spo}
+        recs = [(g, i, r, clusters[i] * MAP_ENTRY if g == "MAPS_OUT" else p, b)
+                for g, i, r, p, b in recs]
     findings = completeness(shape, recs)
 
     seen = {}
@@ -682,6 +709,16 @@ def check_one(cfg: Path, out: Path, donor: Donor,
             f"read-back), and the contract requires {COMMIT_MARGIN}x margin")
 
     findings += check_image(shape, recs, donor)
+    map_findings = check_output_maps(shape, recs, donor, expected_payloads(shape))
+    findings += map_findings
+    if verbose and not map_findings:
+        for port in shape.spo:
+            keys = dc["STREAM_OUTPUT"] * 8
+            if port.get("map_mode") == "dynamic" and keys > port["clusters"]:
+                print(f"{cfg.stem}: MAPS_OUT[{port['index']}]: "
+                      f"K16={port['clusters'] + 1}, boundary={keys}: "
+                      "journal decode, cleared-first restore, over-capacity refusal OK")
+    findings += check_1x1_digest(shape, recs, donor)
 
     # the committed fixture the Verilator suite reads must still be what this
     # gate would emit at this head, or the RTL is graded against stale bytes
@@ -743,8 +780,12 @@ def _every_control_reddens():
     for c in controls:
         r = subprocess.run([sys.executable, __file__, c, "--quiet"],
                            cwd=ROOT, capture_output=True, text=True)
-        if r.returncode == 0:
-            print(f"SELF-TEST FAILED: negative control {c} PASSED. The "
+        required = {
+            "--mutate=old_output_length": "output-record capacity",
+            "--mutate=changed_1x1_image": "1x1 image digest changed",
+        }.get(c)
+        if r.returncode != 1 or (required and required not in r.stdout):
+            print(f"SELF-TEST FAILED: negative control {c} missed its refusal. The "
                   f"assertion it targets is vacuous and this gate is "
                   f"green because it stopped looking.")
             return False
