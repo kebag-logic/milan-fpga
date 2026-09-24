@@ -1,0 +1,129 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 2bfbb3e7..35a45b0e 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7208,9 +7208,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   localparam int unsigned PP_CTR_EVT_N_C = PP_CTR_SIN_N_C + ACMP_SRC_C + 2;
+   localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
+                                          ? $clog2(PP_CTR_EVT_N_C) : 1;
++  // ---- R268-3 PROBE (disposable): the ghost tuple's run-time choice ----
++  logic        pp_ctr_arb_valid_w;
++  logic [15:0] pp_ctr_arb_type_w, pp_ctr_arb_index_w;
++  logic [15:0] ghost_ty_c, ghost_ix_c;
++  logic [31:0] ghost_en_c, ghost_rep_c;
++  logic        ghost_pend_r;
++  initial begin
++    if (!$value$plusargs("GHOST=%d", ghost_en_c))          ghost_en_c  = 0;
++    if (!$value$plusargs("GHOST_TY=%h", ghost_ty_c))       ghost_ty_c  = 16'h0;
++    if (!$value$plusargs("GHOST_IX=%h", ghost_ix_c))       ghost_ix_c  = 16'h0;
++    if (!$value$plusargs("GHOST_REPLACE=%d", ghost_rep_c)) ghost_rep_c = 0;
++  end
+   wire  [PP_CTR_SIN_N_C-1:0] pp_ctr_sin_dirty_w;
+   if (PP_CTR_SIN_N_C > N_STREAMS) begin : g_ctr_crf_dirty
+-    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w, avtprx_dirty_p_w};
++    assign pp_ctr_sin_dirty_w = {crf_dirty_p_w && (ghost_rep_c == 0), avtprx_dirty_p_w};
+   end else begin : g_ctr_no_crf_dirty
+     assign pp_ctr_sin_dirty_w = avtprx_dirty_p_w;
+   end
+@@ -7229,24 +7241,24 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+ 
+   always_comb begin : pp_ctr_event_pick
+     int unsigned pick;
+-    pp_ctr_evt_valid_w = 1'b0;
+-    pp_ctr_evt_type_w  = 16'd0;
+-    pp_ctr_evt_index_w = 16'd0;
++    pp_ctr_arb_valid_w = 1'b0;
++    pp_ctr_arb_type_w  = 16'd0;
++    pp_ctr_arb_index_w = 16'd0;
+     for (int unsigned off = 0; off < PP_CTR_EVT_N_C; off++) begin
+       pick = 32'(pp_ctr_rr_r) + off;
+       if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
+-      if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
+-        pp_ctr_evt_valid_w = 1'b1;
++      if (!pp_ctr_arb_valid_w && pp_ctr_all_pend_w[pick]) begin
++        pp_ctr_arb_valid_w = 1'b1;
+         if (pick < PP_CTR_SIN_N_C) begin
+-          pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+-          pp_ctr_evt_index_w = 16'(pick);
++          pp_ctr_arb_type_w  = DESC_STREAM_INPUT_C;
++          pp_ctr_arb_index_w = 16'(pick);
+         end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+-          pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+-          pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);
++          pp_ctr_arb_type_w  = DESC_STREAM_OUTPUT_C;
++          pp_ctr_arb_index_w = 16'(pick - PP_CTR_SIN_N_C);
+         end else if (pick == (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+-          pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
++          pp_ctr_arb_type_w  = DESC_AVB_INTERFACE_C;
+         end else begin
+-          pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
++          pp_ctr_arb_type_w  = DESC_CLOCK_DOMAIN_C;
+         end
+       end
+     end
+@@ -7258,18 +7270,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
+     for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
+-      if (pp_ctr_evt_valid_w
+-          && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+-          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
++      if (pp_ctr_arb_valid_w
++          && (pp_ctr_arb_type_w == DESC_STREAM_INPUT_C)
++          && (pp_ctr_arb_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
+     end
+     for (int unsigned s = 0; s < ACMP_SRC_C; s++) begin
+-      if (pp_ctr_evt_valid_w
+-          && (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+-          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sout_pend_n[s] = 1'b0;
++      if (pp_ctr_arb_valid_w
++          && (pp_ctr_arb_type_w == DESC_STREAM_OUTPUT_C)
++          && (pp_ctr_arb_index_w == 16'(s))) pp_ctr_sout_pend_n[s] = 1'b0;
+     end
+-    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_AVB_INTERFACE_C))
++    if (pp_ctr_arb_valid_w && (pp_ctr_arb_type_w == DESC_AVB_INTERFACE_C))
+       pp_ctr_avb_pend_n = 1'b0;
+-    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C))
++    if (pp_ctr_arb_valid_w && (pp_ctr_arb_type_w == DESC_CLOCK_DOMAIN_C))
+       pp_ctr_ckd_pend_n = 1'b0;
+   end : pp_ctr_event_next
+ 
+@@ -7286,20 +7298,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       pp_ctr_avb_pend_r  <= pp_ctr_avb_pend_n;
+       pp_ctr_ckd_pend_r  <= pp_ctr_ckd_pend_n;
+       //! the round-robin pointer moves past whatever was just delivered
+-      if (pp_ctr_evt_valid_w) begin
+-        if (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C)
++      if (pp_ctr_arb_valid_w) begin
++        if (pp_ctr_arb_type_w == DESC_CLOCK_DOMAIN_C)
+           pp_ctr_rr_r <= '0;
+-        else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+-          pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
+-        else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
++        else if (pp_ctr_arb_type_w == DESC_STREAM_INPUT_C)
++          pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_arb_index_w) + 1);
++        else if (pp_ctr_arb_type_w == DESC_STREAM_OUTPUT_C)
+           pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C
+-                                        + 32'(pp_ctr_evt_index_w) + 1);
++                                        + 32'(pp_ctr_arb_index_w) + 1);
+         else
+           pp_ctr_rr_r <= PP_CTR_RR_W_C'(PP_CTR_SIN_N_C + ACMP_SRC_C + 1);
+       end
+     end
+   end : pp_ctr_event_queue
+ 
++  // ---- R268-3 PROBE (disposable): the ghost tuple's face ----
++  wire ghost_go_w = ghost_pend_r && !pp_ctr_arb_valid_w;
++  always_ff @(posedge axis_clk or negedge axis_resetn) begin : ghost_q
++    if (!axis_resetn) ghost_pend_r <= 1'b0;
++    else ghost_pend_r <= (ghost_pend_r && !ghost_go_w)
++                      || (crf_dirty_p_w && (ghost_en_c != 0));
++  end : ghost_q
++  assign pp_ctr_evt_valid_w = pp_ctr_arb_valid_w || ghost_go_w;
++  assign pp_ctr_evt_type_w  = pp_ctr_arb_valid_w ? pp_ctr_arb_type_w  : ghost_ty_c;
++  assign pp_ctr_evt_index_w = pp_ctr_arb_valid_w ? pp_ctr_arb_index_w : ghost_ix_c;
++
++
+   KL_pp_shadow #(
+       .TDATA_WIDTH_P  (TDATA_WIDTH),
+       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),

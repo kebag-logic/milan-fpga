@@ -1,0 +1,49 @@
+| port A | port B | quadlet A | | quadlet B | | tally | verdict |
+|---|---|---|---|---|---|---|---|
+| cnt_intr_o | early_cnt_o | @8 red | @40 red | 1708/4 | KILLED both |
+| cnt_intr_o | fmt_err_o | @8 red | @32 red | 1708/3 | KILLED both |
+| cnt_intr_o | late_cnt_o | @8 red | @36 red | 1708/3 | KILLED both |
+| cnt_intr_o | mr_cnt_o | @8 red | @16 red | 1708/3 | KILLED both |
+| cnt_intr_o | pdu_count_o | @8 red | @44 red | 1708/8 | KILLED both |
+| cnt_intr_o | seq_err_o | @8 red | @12 red | 1708/2 | KILLED both |
+| cnt_intr_o | tu_cnt_o | @8 red | @20 red | 1708/3 | KILLED both |
+| cnt_locked_o | cnt_intr_o | @0 red | @8 red | 1708/5 | KILLED both |
+| cnt_locked_o | cnt_unlocked_o | @0 red | @4 red | 1708/4 | KILLED both |
+| cnt_locked_o | early_cnt_o | @0 red | @40 red | 1708/4 | KILLED both |
+| cnt_locked_o | fmt_err_o | @0 red | @32 red | 1708/4 | KILLED both |
+| cnt_locked_o | late_cnt_o | @0 red | @36 red | 1708/4 | KILLED both |
+| cnt_locked_o | mr_cnt_o | @0 red | @16 red | 1708/4 | KILLED both |
+| cnt_locked_o | pdu_count_o | @0 red | @44 red | 1708/8 | KILLED both |
+| cnt_locked_o | seq_err_o | @0 red | @12 red | 1708/5 | KILLED both |
+| cnt_locked_o | tu_cnt_o | @0 red | @20 red | 1708/4 | KILLED both |
+| cnt_unlocked_o | cnt_intr_o | @4 red | @8 red | 1708/5 | KILLED both |
+| cnt_unlocked_o | early_cnt_o | @4 red | @40 red | 1708/4 | KILLED both |
+| cnt_unlocked_o | fmt_err_o | @4 red | @32 red | 1708/4 | KILLED both |
+| cnt_unlocked_o | late_cnt_o | @4 red | @36 red | 1708/4 | KILLED both |
+| cnt_unlocked_o | mr_cnt_o | @4 red | @16 red | 1708/4 | KILLED both |
+| cnt_unlocked_o | pdu_count_o | @4 red | @44 red | 1708/8 | KILLED both |
+| cnt_unlocked_o | seq_err_o | @4 red | @12 red | 1708/5 | KILLED both |
+| cnt_unlocked_o | tu_cnt_o | @4 red | @20 red | 1708/3 | KILLED both |
+| early_cnt_o | pdu_count_o | @40 red | @44 red | 1708/2 | KILLED both |
+| fmt_err_o | early_cnt_o | @32 red | @40 red | 1708/3 | KILLED both |
+| fmt_err_o | late_cnt_o | @32 red | @36 red | 1708/2 | KILLED both |
+| fmt_err_o | pdu_count_o | @32 red | @44 red | 1708/7 | KILLED both |
+| late_cnt_o | early_cnt_o | @36 red | @40 red | 1708/2 | KILLED both |
+| late_cnt_o | pdu_count_o | @36 red | @44 red | 1708/6 | KILLED both |
+| mr_cnt_o | early_cnt_o | @16 red | @40 red | 1708/2 | KILLED both |
+| mr_cnt_o | fmt_err_o | @16 red | @32 red | 1708/2 | KILLED both |
+| mr_cnt_o | late_cnt_o | @16 red | @36 red | 1708/2 | KILLED both |
+| mr_cnt_o | pdu_count_o | @16 red | @44 red | 1708/6 | KILLED both |
+| mr_cnt_o | tu_cnt_o | @16 red | @20 red | 1708/2 | KILLED both |
+| seq_err_o | early_cnt_o | @12 red | @40 red | 1708/4 | KILLED both |
+| seq_err_o | fmt_err_o | @12 red | @32 red | 1708/3 | KILLED both |
+| seq_err_o | late_cnt_o | @12 red | @36 red | 1708/3 | KILLED both |
+| seq_err_o | mr_cnt_o | @12 red | @16 red | 1708/3 | KILLED both |
+| seq_err_o | pdu_count_o | @12 red | @44 red | 1708/8 | KILLED both |
+| seq_err_o | tu_cnt_o | @12 red | @20 red | 1708/3 | KILLED both |
+| tu_cnt_o | early_cnt_o | @20 red | @40 red | 1708/2 | KILLED both |
+| tu_cnt_o | fmt_err_o | @20 red | @32 red | 1708/2 | KILLED both |
+| tu_cnt_o | late_cnt_o | @20 red | @36 red | 1708/2 | KILLED both |
+| tu_cnt_o | pdu_count_o | @20 red | @44 red | 1708/6 | KILLED both |
+
+45 of 45 exchanges red on both exchanged quadlets (nxn)

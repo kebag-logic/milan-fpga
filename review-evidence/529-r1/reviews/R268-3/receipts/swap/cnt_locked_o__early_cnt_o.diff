@@ -1,0 +1,16 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 2bfbb3e7..be82715b 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5489,9 +5489,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .mr_cnt_o    (crf_mrcnt_w),
+     .tu_cnt_o    (crf_tucnt_w),
+     .late_cnt_o  (crf_latecnt_w),
+-    .early_cnt_o (crf_earlycnt_w),
++    .early_cnt_o (crf_lockcnt_w),
+     .locked_o    (crf_locked_w),
+-    .cnt_locked_o   (crf_lockcnt_w),
++    .cnt_locked_o   (crf_earlycnt_w),
+     .cnt_unlocked_o (crf_unlockcnt_w),
+     .cnt_intr_o     (crf_intrcnt_w),
+     //! ...and that row's Table 5.22 source: the descriptor arbiter in front

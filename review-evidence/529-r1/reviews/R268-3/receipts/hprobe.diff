@@ -1,0 +1,50 @@
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 235afd99..2aac88b3 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -569,6 +569,7 @@ class NxnDatapathHarness {
+     //! account for every tuple, so a window can be required to have
+     //! delivered one tuple and nothing else.
+     unsigned long pp_ctr_evt_other_n = 0;
++    bool probe_win = false; long probe_k = 0;
+     //! The width of the two sticky bitmaps above: an index at or past it has
+     //! no bit to set, and shifting into one would be undefined.
+     static constexpr unsigned kSeenBits = 8 * sizeof(unsigned long);
+@@ -576,6 +577,13 @@ class NxnDatapathHarness {
+         lo();
+         hi();
+         tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
++        if (probe_win) {
++            if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w)
++                printf("  [probe] window step %ld: delivered ty=0x%04x ix=%u\n", probe_k,
++                       (unsigned)dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w,
++                       (unsigned)dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w);
++            probe_k++;
++        }
+         if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
+             const unsigned ty = dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
+             const unsigned ix = dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w;
+@@ -1327,7 +1335,12 @@ class NxnDatapathHarness {
+            n1 ? ctr_word(*n1, 32) : 0, CRF_CTR_MASK);
+         const std::vector<uint8_t> key = {0x00, 0x05, 0x00,
+                                           static_cast<uint8_t>(ix)};
++        const void* probe_d0 = uns_log.data();
++        const size_t probe_s0 = uns_log.size(), probe_c0 = uns_log.capacity();
+         const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
++        printf("  [probe] NOTIFY-CRF exchange: uns_log size %zu->%zu capacity %zu->%zu storage %s\n",
++               probe_s0, uns_log.size(), probe_c0, uns_log.capacity(),
++               probe_d0 == static_cast<const void*>(uns_log.data()) ? "UNMOVED" : "MOVED");
+         ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
+            "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
+         ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+@@ -3484,7 +3497,10 @@ class NxnDatapathHarness {
+         pp_ctr_evt_avb_seen = false;
+         pp_ctr_evt_ckd_seen = false;
+         pp_ctr_evt_other_n = 0;
++        probe_win = true; probe_k = 0;
+         crf_lever(true);
++        probe_win = false;
++        printf("  [probe] bind-edge window: %ld steps observed\n", probe_k);
+         ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+            pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+         ck("[CTRS-CRF] ...and as no STREAM_OUTPUT row", pp_ctr_evt_sout_seen, 0);

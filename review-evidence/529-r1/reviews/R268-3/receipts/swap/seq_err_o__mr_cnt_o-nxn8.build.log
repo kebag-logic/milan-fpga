@@ -1,0 +1,92 @@
+recipe: $VALIDATION_STORAGE/372-manager-candidate1/pinned-tool-bin/verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incd
+exit 0  24 s
+erilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_axi_stream_if__0__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024unit__Slow.cpp
+g++   -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=8 -DAX8X8_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_nxn.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_nxn8
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make: Leaving directory '$REVIEWS/529-r268-3-packet/scratch/swap/seq_err_o__mr_cnt_o/tb/verilator/milan_dp/obj_nxn8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 128.524 MB sources in 113 modules, into 14.632 MB in 24 C++ files needing 0.005 MB
+- Verilator: Walltime 23.878 s (elab=0.408, cvt=3.556, bld=19.427); cpu 4.627 s on 4 threads; allocated 678.398 MB
+on_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                              : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                               : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                               : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                              : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                               : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                               : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                              : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                               : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                               : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                              : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                               : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                               : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_ax7101_8x8/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                              : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_ax7101_8x8/../../../hdl/milan/milan_datapath.sv:453:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_ax7101_8x8/../../../hdl/milan/milan_datapath.sv:3336:10: ... Location of async usage
+ 3336 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_ax7101_8x8/../../../hdl/milan/milan_datapath.sv:759:10: ... Location of sync usage
+  759 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+../sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::grade_get_configuration_against_the_entity_row()’:
+../sim_nxn.cpp:2043:29: warning: ‘: configuration_index IS the...’ directive output may be truncated writing 65 bytes into a region of size between 49 and 144 [-Wformat-truncation=]
+ 2043 |                          "%s: configuration_index IS the model's "
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2044 |                          "ENTITY.current_configuration", t);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp:2042:25: note: ‘snprintf’ output between 66 and 161 bytes into a destination of size 144
+ 2042 |                 snprintf(w, sizeof w,
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+ 2043 |                          "%s: configuration_index IS the model's "
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2044 |                          "ENTITY.current_configuration", t);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::grade_get_sampling_rate_against_the_audio_unit()’:
+../sim_nxn.cpp:2417:29: warning: ‘: sampling_rate IS the model...’ directive output may be truncated writing 54 bytes into a region of size between 49 and 144 [-Wformat-truncation=]
+ 2417 |                          "%s: sampling_rate IS the model's "
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2418 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp:2417:26: note: directive argument in the range [0, 4294967295]
+ 2417 |                          "%s: sampling_rate IS the model's "
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2418 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp:2416:25: note: ‘snprintf’ output between 57 and 161 bytes into a destination of size 144
+ 2416 |                 snprintf(w, sizeof w,
+      |                 ~~~~~~~~^~~~~~~~~~~~~
+ 2417 |                          "%s: sampling_rate IS the model's "
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2418 |                          "current_sampling_rate (%lu)", t, want_sr);
+      |                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

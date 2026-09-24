@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 2bfbb3e7..e2e392c7 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7254,7 +7254,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+ 
+   always_comb begin : pp_ctr_event_next
+     pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
+-    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
++    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w | (ACMP_SRC_C'(crf_dirty_p_w) << N_STREAMS);
+     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
+     for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin

@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 2bfbb3e7..feb86a1b 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7260,7 +7260,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
+       if (pp_ctr_evt_valid_w
+           && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+-          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
++          && (pp_ctr_evt_index_w == 16'(s)) && (s != N_STREAMS)) pp_ctr_sin_pend_n[s] = 1'b0;
+     end
+     for (int unsigned s = 0; s < ACMP_SRC_C; s++) begin
+       if (pp_ctr_evt_valid_w
