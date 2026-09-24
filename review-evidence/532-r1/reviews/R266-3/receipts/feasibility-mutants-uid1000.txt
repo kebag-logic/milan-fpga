@@ -1,0 +1,16 @@
+# the head survivors applied to the feasibility copy, mode uid1000; exact failing cases follow each line
+X00 SURVIVED rc=0 mode=uid1000 | control: a comment-only edit
+D05 KILLED rc=1 mode=uid1000 | overlap does not wait for slot A's holder
+    failing: the parallel runs never overlap
+    failing: probe: only slot A never reports its daemon
+D06 KILLED rc=1 mode=uid1000 | overlap does not wait for slot B's holder
+    failing: probe: only slot B never reports its daemon
+D08 KILLED rc=1 mode=uid1000 | overlap ignores run B's verdict
+    failing: the parallel runs never overlap
+    failing: probe: run B is refused before slot A is taken
+F06 KILLED rc=1 mode=uid1000 | failed network query read as absent
+    failing: probe: the isolation network cannot be queried after removal
+G07 KILLED rc=1 mode=uid1000 | every slot's control probes slot A's namespace
+    failing: probe: only slot B reaches the container
+G08 KILLED rc=1 mode=uid1000 | slot B's control is recorded from slot A's probe
+    failing: probe: only slot B reaches the container

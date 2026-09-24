@@ -1,0 +1,24 @@
+== r266-1_fake_runner_refuse_after_slot: exit 1, PROVED lines 0, 1 PASS, 9 FAIL
+   | FAIL interrupt self-test in slot 1: see interrupt-1.log
+   | FAIL serial-a did not complete its workflows: exit 2 
+   | FAIL serial-b did not complete its workflows: exit 2 
+   | PASS overlap: slots 1 and 2 were held at the same time
+   | FAIL isolation slot 1: slot saw 'nsenter: cannot open --net=/run/netns/milan-act-slot-1: No such file or directory ', host saw 'container=reached published=reached ' (see isolation.log)
+   | FAIL isolation slot 2: slot saw 'nsenter: cannot open --net=/run/netns/milan-act-slot-2: No such file or directory ', host saw 'container=reached published=reached ' (see isolation.log)
+   | FAIL parallel-a did not complete its workflows: exit 2 
+   | FAIL parallel-b did not complete its workflows: exit 2 
+   | FAIL collision slot 1: see collide-1-*.log
+   | FAIL collision slot 0: the holder never held the slot
+   => refused to prove (expected)
+== r267-1_fake_refusing_runner: exit 1, PROVED lines 0, 1 PASS, 9 FAIL
+   | FAIL interrupt self-test in slot 1: see interrupt-1.log
+   | FAIL serial-a did not complete its workflows: exit 2 
+   | FAIL serial-b did not complete its workflows: exit 2 
+   | PASS overlap: slots 1 and 2 were held at the same time
+   | FAIL isolation slot 1: slot saw 'nsenter: cannot open --net=/run/netns/milan-act-slot-1: No such file or directory ', host saw 'container=reached published=reached ' (see isolation.log)
+   | FAIL isolation slot 2: slot saw 'nsenter: cannot open --net=/run/netns/milan-act-slot-2: No such file or directory ', host saw 'container=reached published=reached ' (see isolation.log)
+   | FAIL parallel-a did not complete its workflows: exit 2 
+   | FAIL parallel-b did not complete its workflows: exit 2 
+   | FAIL collision slot 1: see collide-1-*.log
+   | FAIL collision slot 0: see collide-0-*.log
+   => refused to prove (expected)

@@ -1,0 +1,25 @@
+# R266-2's published proof_mutants_r266_2.py (unmodified; evidence tree ead93cd7 review-evidence/532-r1/reviews/R266-2/scripts), run on a byte-identical scratch copy of the head proof script, inside scripts/sandbox.sh uid1000
+reviewed act_slot_proof.sh sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7
+control: comment only: SURVIVED rc=0
+M1 isolation: slot-side internet reachability not required: KILLED rc=1
+    FAIL a slot cannot reach the probe name: exit 0, wanted 1 with 'FAIL isolation slot 1'
+M2 slot-0 collision: refusal reason unchecked: KILLED rc=1
+    FAIL the slot-0 rival is refused for neither the tool cache nor a job volume: exit 0, wanted 1 with 'FAIL collision slot 0'
+M3 runner digest unchecked: KILLED rc=1
+    FAIL the runner is not the recorded digest: exit 0, wanted 2 with 'is not the audited read-only install'
+M4 runner write bits unchecked: KILLED rc=1
+    FAIL the runner install is group-writable: exit 0, wanted 2 with 'is not the audited read-only install'
+M5 non-empty log directory accepted: KILLED rc=1
+    FAIL the log directory is not empty: exit 0, wanted 2 with 'is not empty'
+M6 ended ignores a refusal: KILLED rc=1
+    FAIL a run is refused before the other slot is taken: exit 1, wanted 1 with 'FAIL overlap'
+M7 collision: rival exit status unchecked: KILLED rc=1
+    FAIL the rival names the slot lock but exits 1: exit 0, wanted 1 with 'FAIL collision slot 1'
+M8 isolated holder marker is the workflow start, not the slot: KILLED rc=1
+    FAIL a run never reports its own slot daemon: exit 0, wanted 1 with 'FAIL overlap'
+M9 PASS-count guard dropped: SURVIVED rc=0
+M10 slot-A collision: refusal reason unchecked: KILLED rc=1
+    FAIL the rival is refused for another reason: exit 0, wanted 1 with 'FAIL collision slot 1'
+M11 isolation: host-side reach of the published port not required: KILLED rc=1
+    FAIL the host cannot reach the published port while the container answers: exit 0, wanted 1 with 'FAIL isolation slot 1'
+reviewed file after run sha256=3cffa803fc6dd2dad0904f59970570d4e52c372c250a496cb83236db504fe4d7 EXACT

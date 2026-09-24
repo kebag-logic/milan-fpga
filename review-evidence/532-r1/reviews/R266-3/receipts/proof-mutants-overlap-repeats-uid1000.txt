@@ -1,0 +1,25 @@
+# repeats at head, mode uid1000, 4 self-tests at a time; failing= lists failed cases; the trailing field names the slot whose probe could not enter
+rep=1 D05 rc=0 failing=none 
+rep=2 D05 rc=1 failing=the parallel runs never overlap FAIL isolation slot 1
+rep=3 D05 rc=1 failing=the parallel runs never overlap FAIL isolation slot 1
+rep=4 D05 rc=1 failing=the parallel runs never overlap FAIL isolation slot 1
+rep=5 D05 rc=0 failing=none 
+rep=6 D05 rc=0 failing=none 
+rep=1 D06 rc=0 failing=none 
+rep=2 D06 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=3 D06 rc=0 failing=none 
+rep=4 D06 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=5 D06 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=6 D06 rc=0 failing=none 
+rep=1 D08 rc=0 failing=none 
+rep=2 D08 rc=0 failing=none 
+rep=3 D08 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=4 D08 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=5 D08 rc=1 failing=the parallel runs never overlap FAIL isolation slot 2
+rep=6 D08 rc=0 failing=none 
+rep=1 X00 rc=0 failing=none 
+rep=2 X00 rc=0 failing=none 
+rep=3 X00 rc=0 failing=none 
+rep=4 X00 rc=0 failing=none 
+rep=5 X00 rc=0 failing=none 
+rep=6 X00 rc=0 failing=none 

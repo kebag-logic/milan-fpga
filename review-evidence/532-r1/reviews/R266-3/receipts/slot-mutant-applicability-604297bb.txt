@@ -1,0 +1,58 @@
+ok  occurs=1 changes=True control trailing comment
+ok  occurs=1 changes=True R266 slot-root-validation-unwired
+ok  occurs=1 changes=True R266 cpu-range-boundary
+ok  occurs=1 changes=True R266 nft-query-error-reads-absent
+ok  occurs=1 changes=True R266 runtime-dir-absence-dropped
+ok  occurs=1 changes=True R266 uplink-pidfile-absence-dropped
+ok  occurs=1 changes=True R266 slice-cgroup-absence-dropped
+ok  occurs=1 changes=True R266 slot-teardown-signals-unblocked
+ok  occurs=1 changes=True R266 slice-residue-only-active
+ok  occurs=1 changes=True R266 unit-state-query-failure-reads-absent
+ok  occurs=1 changes=True R266 dropin-query-failure-ignored
+ok  occurs=1 changes=True R266 path-present-ignores-dangling-symlink
+ok  occurs=1 changes=True R266 interrupt-selftest-outside-slot
+ok  occurs=1 changes=True R266 identity-labels-unchecked
+ok  occurs=1 changes=True R266 live-selftest-inherited-refusal-dropped
+ok  occurs=1 changes=True R266 pr-run-inherited-refusal-dropped
+ok  occurs=1 changes=True R266 lock-blocking
+ok  occurs=1 changes=True R266 lock-follows-symlink
+ok  occurs=1 changes=True R266 firewall-reject-loopback-only
+ok  occurs=1 changes=True R266 uplink-maps-gateway
+ok  occurs=1 changes=True R266 slot-endpoint-range-unchecked
+ok  occurs=1 changes=True R266 teardown-daemon-after-slice
+ok  occurs=1 changes=True R267 R01 live interrupt self-test silently runs in slot 0
+ok  occurs=1 changes=True R267 R02 interrupt self-test never enters its slot
+ok  occurs=1 changes=True R267 R03 daemon runtime directory absence not proved
+ok  occurs=1 changes=True R267 R04 uplink pidfile absence not proved
+ok  occurs=1 changes=True R267 R05 uplink unload not proved
+ok  occurs=1 changes=True R267 R06 slice inactivity not proved
+ok  occurs=1 changes=True R267 R07 slice cgroup absence not proved
+ok  occurs=1 changes=True R267 R08 an unanswerable nft query is read as table absent
+ok  occurs=1 changes=True R267 R09 slot root never validated on acquisition
+ok  occurs=1 changes=True R267 R10 production lock accepts the invoking user's file
+ok  occurs=1 changes=True R267 R11 privileged host commands may prompt (no -n)
+ok  occurs=1 changes=True R267 R12 slot teardown without blocked cleanup signals
+ok  occurs=1 changes=True R267 R13 residue ignores an active slice
+ok  occurs=1 changes=True R267 R14 residue ignores the uplink pidfile
+ok  occurs=1 changes=True R267 R15 residue counts only units in state loaded
+ok  occurs=1 changes=True R267 R16 firewall table deleted before the uplink stops
+ok  occurs=1 changes=True R267 R17 firewall rule matches only IPv4 loopback
+ok  occurs=1 changes=True R267 R18 identity accepts either label
+ok  occurs=1 changes=True A213 F1 uplink-only rule dropped
+ok  occurs=1 changes=True A213 F1 uplink rule inverted to accept only
+ok  occurs=1 changes=True A213 F1 discovered uplinks ignored
+ok  occurs=1 changes=True A213 F1 unreachable default taken as an uplink
+ok  occurs=1 changes=True A213 F1 failed route query read as no route
+ok  occurs=1 changes=True A213 F1 loopback accepted as an uplink
+ok  occurs=1 changes=True A213 F1 unquotable uplink name accepted
+ok  occurs=1 changes=True A213 F1 empty uplink set accepted
+ok  occurs=1 changes=True A213 F6 ancestors not inspected
+ok  occurs=1 changes=True A213 F6 ancestor owner unchecked
+ok  occurs=1 changes=True A213 F4 slot memory cap never checked
+ok  occurs=1 changes=True A213 F4 cap exhaustion ignored
+ok  occurs=1 changes=True A213 F4 missing oom count read as zero
+ok  occurs=1 changes=True A213 F4 hierarchical events read (container limits counted)
+ok  occurs=1 changes=True A220 missing max count read as zero
+ok  occurs=1 changes=True A220 cap hits reported from the oom count
+ok  occurs=1 changes=True A220 a slice sitting at its cap without an OOM is refused too
+total=57 applying-exactly-once=57
