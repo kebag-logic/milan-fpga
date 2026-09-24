@@ -1,0 +1,87 @@
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 92c23e6..7ffb6bf 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -32,15 +32,25 @@ Measurements used Vivado 2026.1.
+ 
+ The target was `xc7a100tfgg484-2` at 100 MHz.
+ 
+-Measurements finished on 2026-08-27.
++Measurements finished on 2026-09-24 for PR #76.
+ 
+ | Block | LUTs | Registers | BRAM tiles | DSPs | WNS |
+ |---|---:|---:|---:|---:|---:|
+-| Complete engine | 4,719 | 3,639 | 1.5 | 4 | +2.249 ns |
++| Complete engine | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
+ | Standalone microCPU | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+ 
+ These figures describe one synthesis instrument.
+ 
++PR #76 adds 80 LUTs and six registers.
++
++The baseline used 4,773 LUTs and 3,646 registers.
++
++Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
++
++WNS moves from +2.249 ns; timing remains met.
++
++The [PR measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author) record the comparison.
++
+ See the [historical resource record](history/v1/RESOURCE_VALIDATION.md).
+ 
+ ## Current ROM budget
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 7bb8b5a..2908641 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -98,6 +98,12 @@ MUTATIONS = [
+      "                if (phc_slew_active_o &&\n",
+      "                if (1'b1 &&\n",
+      "slew: in-band pair after idle timeout stays inactive"),
++    ("slew idle asCapable loss arms qualification", "top/KL_gptp_engine.sv",
++     "                if (phc_slew_active_o &&\n"
++     "                    (!st_wdata_w[2] || !st_wdata_w[3]))\n",
++     "                if ((phc_slew_active_o && !st_wdata_w[3]) ||\n"
++     "                    !st_wdata_w[2])\n",
++     "slew: in-band pair after asCapable recovery stays inactive"),
+     ("slew mastership keeps qualification", "top/KL_gptp_engine.sv",
+      "                phc_slew_left_r   <= 2'd0;\n"
+      "                phc_slew_active_o <= 1'b0;\n",
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index dc64da8..22ac201 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -4763,6 +4763,33 @@ class GptpEngineHarness {
+     slew_probe("slew: in-band pair after idle GM change stays inactive", -100, false);
+     slew_probe("slew: second pair after idle GM change stays inactive", 0, false);
+ 
++    // Losing capability while tracking must also leave qualification unarmed.
++    // Bad and good Pdelay exchanges drive the entire loss/recovery on the wire.
++    const size_t idle_cap_edges = slew_edges.size();
++    const size_t idle_cap_rates = adj_seen.size();
++    expect("slew: idle capability loss starts inactive", dut->phc_slew_active_o, 0);
++    expect("slew: idle capability loss starts asCapable",
++           dut->pub_flags_o & FL_ASCAP, FL_ASCAP);
++    pd_mode = PD_FAR;
++    expect("slew: bad delay drops asCapable while inactive",
++           wait_flags(FL_ASCAP, 0, 2500000), 1);
++    run_svc(200000);
++    expect("slew: idle incapable interval stays incapable", dut->pub_flags_o & FL_ASCAP, 0);
++    expect("slew: idle incapable interval stays inactive", dut->phc_slew_active_o, 0);
++    expect("slew: idle incapable interval has no level edge", slew_edges.size(), idle_cap_edges);
++    expect("slew: idle incapable interval leaves the rate alone", adj_seen.size(), idle_cap_rates);
++    pd_mode = PD_NORMAL;
++    expect("slew: idle capability recovers",
++           wait_flags(FL_ASCAP, FL_ASCAP, 5000000), 1);
++    announce(0x7507, 100, GMID + 2, 0, PEER_CID);
++    expect("slew: idle capability recovery selects slave duty", dut->pub_flags_o & FL_AMGM, 0);
++    expect("slew: idle capability recovery stays inactive", dut->phc_slew_active_o, 0);
++    expect("slew: idle capability recovery has no level edge", slew_edges.size(), idle_cap_edges);
++    expect("slew: idle capability recovery leaves the rate alone", adj_seen.size(), idle_cap_rates);
++    slew_probe("slew: in-band pair after asCapable recovery stays inactive", 0, false, false, true);
++    slew_probe("slew: second in-band pair after asCapable recovery stays inactive", 100, false);
++    expect("slew: idle capability recovery pairs have no level edge", slew_edges.size(), idle_cap_edges);
++
+     slew_probe("slew: policy decision starts at +101 ns", 101, true);
+     const size_t held_edges = slew_edges.size();
+     run_svc(250000);

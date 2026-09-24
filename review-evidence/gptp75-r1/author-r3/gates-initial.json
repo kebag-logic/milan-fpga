@@ -1,0 +1,102 @@
+[
+  {
+    "gate": "contract",
+    "command": [
+      "make",
+      "contract"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "gate": "ucpu",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/ucpu"
+    ],
+    "rc": 0,
+    "seconds": 5.125
+  },
+  {
+    "gate": "parser",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/parser"
+    ],
+    "rc": 0,
+    "seconds": 5.173
+  },
+  {
+    "gate": "engine",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/engine",
+      "run"
+    ],
+    "rc": 0,
+    "seconds": 112.422
+  },
+  {
+    "gate": "engine-mutants",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/engine",
+      "mutants"
+    ],
+    "rc": 0,
+    "seconds": 1320.116
+  },
+  {
+    "gate": "gaskets",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/gaskets"
+    ],
+    "rc": 0,
+    "seconds": 32.833
+  },
+  {
+    "gate": "tsngen",
+    "command": [
+      "make",
+      "-C",
+      "tb/tsngen"
+    ],
+    "rc": 0,
+    "seconds": 34.581
+  },
+  {
+    "gate": "bench",
+    "command": [
+      "make",
+      "-C",
+      "bench/arty",
+      "test"
+    ],
+    "rc": 0,
+    "seconds": 4.326
+  },
+  {
+    "gate": "lint",
+    "command": [
+      "make",
+      "lint"
+    ],
+    "rc": 0,
+    "seconds": 0.314
+  },
+  {
+    "gate": "docs",
+    "command": [
+      "make",
+      "docs"
+    ],
+    "rc": 2,
+    "seconds": 0.415
+  }
+]
