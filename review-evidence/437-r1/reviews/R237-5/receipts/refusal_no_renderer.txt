@@ -1,0 +1,12 @@
+== system python (no renderer): Python 3.14.7
+ModuleNotFoundError: No module named 'cmarkgfm'
+[rc=2] scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+[rc=2] scripts/gen_toc.py --selftest :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+[rc=2] scripts/gen_toc.py --verify-anchors :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+[rc=2] scripts/check_em_dash.py --selftest :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+[rc=2] scripts/check_em_dash.py --base 759da623072358afdb0e9d570a7b4b6a788492c9 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+[rc=0] scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 728 file(s))
+[rc=0] scripts/check_hygiene.py --selftest :: 35 checks: 35 PASS, 0 FAIL
+== docs-check-no-git replica (no .git, no renderer) in extracted head tree
+[rc=0] scripts/docs_check.py :: docs_check: 0 finding(s) across 164 md files + 852 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+[rc=0] scripts/check_feature_status.py :: feature_status: 0 finding(s)

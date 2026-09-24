@@ -1,0 +1,96 @@
+BOM then ATX h2: '\ufeff## Alpha\n\n## Beta\n'
+   listed  [(2, 'Alpha', 'alpha'), (2, 'Beta', 'beta')]
+   rendered [(2, 'Alpha'), (2, 'Beta')]
+   kinds   ['heading', 'prose line', 'heading', 'prose line']
+block quote, tab after marker: '>\t## Q\n'
+   listed  [(2, 'Q', 'q')]
+   rendered [(2, 'Q')]
+   kinds   ['heading', 'prose line']
+bullet item, tab after marker: '-\t## Item\n'
+   listed  [(2, 'Item', 'item')]
+   rendered [(2, 'Item')]
+   kinds   ['heading', 'prose line']
+ordered item, tab after marker: '1.\t## Item\n'
+   listed  [(2, 'Item', 'item')]
+   rendered [(2, 'Item')]
+   kinds   ['heading', 'prose line']
+nested item heading after tab indent: '- a\n\n\t## Deep\n'
+   listed  [(2, 'Deep', 'deep')]
+   rendered [(2, 'Deep')]
+   kinds   ['prose line', 'prose line', 'heading', 'prose line']
+block quote in item, heading: '- a\n\n  > ## BQ\n'
+   listed  [(2, 'BQ', 'bq')]
+   rendered [(2, 'BQ')]
+   kinds   ['prose line', 'prose line', 'heading', 'prose line']
+NUL inside heading: '## a\x00b\n'
+   listed  [(2, 'a\x00b', 'ab')]
+   rendered [(2, 'a�b')]
+   kinds   ['heading', 'prose line']
+heading after NUL line: 'x\x00y\n\n## After\n'
+   listed  [(2, 'After', 'after')]
+   rendered [(2, 'After')]
+   kinds   ['prose line', 'prose line', 'heading', 'prose line']
+unreferenced footnote holding a fence: '[^n]: note\n\n    ```\n    ## Contents\n    ```\n\n## Real\n'
+   listed  [(2, 'Real', 'real')]
+   rendered [(2, 'Real')]
+   kinds   ['prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'prose line', 'heading', 'prose line']
+link reference definition line: '[r]: /u\n\n## Real\n'
+   listed  [(2, 'Real', 'real')]
+   rendered [(2, 'Real')]
+   kinds   ['prose line', 'prose line', 'heading', 'prose line']
+html block inside list item: '- item\n\n  <div>\n  ## Old\n  </div>\n\n## Real\n'
+   listed  [(2, 'Real', 'real')]
+   rendered [(2, 'Real')]
+   kinds   ['prose line', 'prose line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+raw h2 wrapping markdown heading: '<h2>\n\n## Inner\n\n</h2>\n'
+   listed  [(2, 'Inner', 'inner')]
+   rendered [(2, 'Inner')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line']
+template raw element: '<template>\n\n## T\n\n</template>\n\n## Real\n'
+   listed  [(2, 'T', 't'), (2, 'Real', 'real')]
+   rendered [(2, 'T'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+noscript raw element: '<noscript>\n\n## N\n\n</noscript>\n\n## Real\n'
+   listed  [(2, 'N', 'n'), (2, 'Real', 'real')]
+   rendered [(2, 'N'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+svg foreign content: '<svg>\n\n## S\n\n</svg>\n\n## Real\n'
+   listed  [(2, 'S', 's'), (2, 'Real', 'real')]
+   rendered [(2, 'S'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+math foreign content: '<math>\n\n## M\n\n</math>\n\n## Real\n'
+   listed  [(2, 'M', 'm'), (2, 'Real', 'real')]
+   rendered [(2, 'M'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+textarea (tag-filtered): '<textarea>\n\n## TA\n\n</textarea>\n\n## Real\n'
+   listed  [(2, 'Real', 'real')]
+   rendered [(2, 'Real')]
+   kinds   ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+plaintext (tag-filtered): '<plaintext>\n\n## PT\n\n## Real\n'
+   listed  [(2, 'PT', 'pt'), (2, 'Real', 'real')]
+   rendered [(2, 'PT'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'heading', 'prose line']
+object raw element: '<object>\n\n## O\n\n</object>\n\n## Real\n'
+   listed  [(2, 'O', 'o'), (2, 'Real', 'real')]
+   rendered [(2, 'O'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+frameset raw: '<frameset>\n\n## F\n\n## Real\n'
+   listed  [(2, 'F', 'f'), (2, 'Real', 'real')]
+   rendered [(2, 'F'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'heading', 'prose line']
+option raw: '<option>\n\n## Op\n\n## Real\n'
+   listed  [(2, 'Op', 'op'), (2, 'Real', 'real')]
+   rendered [(2, 'Op'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'heading', 'prose line']
+iframe (tag-filtered): '<iframe>\n\n## IF\n\n</iframe>\n\n## Real\n'
+   listed  [(2, 'IF', 'if'), (2, 'Real', 'real')]
+   rendered [(2, 'IF'), (2, 'Real')]
+   kinds   ['raw HTML line', 'prose line', 'heading', 'prose line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+cdata in raw: '<![CDATA[\n\n## CD\n\n]]>\n\n## Real\n'
+   listed  [(2, 'Real', 'real')]
+   rendered [(2, 'Real')]
+   kinds   ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line', 'heading', 'prose line']
+declaration: '<!DOCTYPE x\n\n## DT\n\n## Real\n'
+   listed  []
+   rendered []
+   kinds   ['raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'raw HTML line', 'prose line']

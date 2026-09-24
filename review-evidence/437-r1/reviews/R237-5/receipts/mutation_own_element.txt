@@ -1,0 +1,6 @@
+drop 'block_quote': SURVIVES | gen_toc.py rc=0 TOC selftest: PASS (1433/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
+drop 'list': SURVIVES | gen_toc.py rc=0 TOC selftest: PASS (1433/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
+drop 'heading': KILLED | gen_toc.py rc=1 TOC selftest: FAIL (1427/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
+drop 'code_block': SURVIVES | gen_toc.py rc=0 TOC selftest: PASS (1433/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
+drop 'thematic_break': SURVIVES | gen_toc.py rc=0 TOC selftest: PASS (1433/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
+drop 'table': SURVIVES | gen_toc.py rc=0 TOC selftest: PASS (1433/1433 arm(s)) | check_em_dash.py rc=0 check_em_dash selftest: PASS (332 arm(s))
