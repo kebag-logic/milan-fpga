@@ -1,0 +1,12 @@
+diff -ru $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv $PACKET/scratch/mut/G6-set-ignores-ready/hdl/aecp/KL_aecp_desc_mem_guard.sv
+--- $PACKET/scratch/head/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 11:55:35.000000000 +0200
++++ $PACKET/scratch/mut/G6-set-ignores-ready/hdl/aecp/KL_aecp_desc_mem_guard.sv	2026-09-24 12:10:20.802264151 +0200
+@@ -69,7 +69,7 @@
+   always_ff @(posedge clk_i) begin : owed_ff
+     if (!rst_n) begin
+       owed_r <= 1'b0;
+-    end else if (m_req_valid_o && m_req_ready_i) begin
++    end else if (m_req_valid_o) begin
+       owed_r <= 1'b1;
+     end else if (m_rsp_valid_i && m_rsp_ready_o
+                  && (m_rsp_last_i || m_rsp_err_i)) begin
