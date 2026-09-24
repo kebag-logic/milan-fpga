@@ -240,7 +240,7 @@ flowchart LR
    | Binary change or failed object measurement | Still proved | `UNKNOWN` when T is unmeasurable |
 
    Intentional supersession needs a separate public disposition.
-   Commit messages and declared intent never certify retained bytes.
+   Commit messages and declared intent never prove retained bytes.
    A retention refusal does not itself establish an accidental regression.
    The default self-test exercises these examples and killing mutations.
 

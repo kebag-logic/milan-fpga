@@ -1752,7 +1752,7 @@ the history before 2026-08-22, when every PR merged into a non-default branch
 and the keyword never fired.
 
 Containment reports the proof named beside each verdict.
-Ancestry and linear replay certify historical inclusion.
+Ancestry and linear replay prove historical inclusion.
 Later reversions leave those historical verdicts unchanged.
 The optional `--current-retention` arm separately assesses linear replay retention.
 Its unsupported histories and unproved paths remain `UNKNOWN`.
