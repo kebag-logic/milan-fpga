@@ -32,9 +32,9 @@ on the page:
   implementation alive, and the substitution's parity argument holds only with
   exactly one owner of the wire law. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
   submodule owns the wire law, this fabric consumes the result off the class-D face
-  (`srp_active_o` as the per-source stream gate since #530, `srp_sum_slope_bps_o` as the
-  class-A queue's idleSlope, the adopted {priority, VID} pair as every C-TAG this
-  device emits), and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
+  (`srp_active_o` as the per-source stream gate since #530, `srp_sum_slope_bps_o`
+  read back as `LWSRP_SLOPE` status with no shaper to program, the adopted
+  {priority, VID} pair as every C-TAG this device emits), and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
   is where the two meet.
 
 Two consequences worth stating rather than discovering:
@@ -47,13 +47,17 @@ Two consequences worth stating rather than discovering:
   integration and not wire law. The submodule's own benches
   (`protocol-processor/tb/srp_top`, `srp_decoder`, `srp_encoder`,
   `srp_stream_fsms`) carry the law and this repository's gates do not run them.
-- **The slope-versus-gate ordering stopped being testable.** The deleted bandwidth
-  gate held an explicit two-sided hold — slope joins the running Σ before the gate
-  opens, gate closes before the slope leaves. The processor's admission round
-  latches grant, granted slope and Σ together, so the invariant HOLDS (equal on the
-  opening edge, conservative on the closing one, since Σ briefly budgets a stopped
-  stream) but it is now a consequence of the round's structure rather than a
-  sequencer any bench can point at.
+- **The slope-versus-gate ordering has no object on this wire.** The deleted bandwidth
+  gate held an explicit two-sided hold: slope joins the running Σ before the gate
+  opens, gate closes before the slope leaves. No shaper consumes the slope in the
+  shipping datapath ([REQUIREMENTS.md section 5](../../REQUIREMENTS.md)), so the
+  processor's Σ and raw admission verdict are read back as status only
+  (`LWSRP_SLOPE` `0x698`, `LWSRP_STATUS[9]`). Nor would the old ordering hold: the
+  gate is ACTIVE since #530, which the processor's optimistic admission window can
+  raise up to three admission rounds before the round that adds the slope to Σ.
+  The only effect here is that those status words can trail `LWSRP_STATUS[8]` for
+  those rounds. A later lane that credit-shapes these sources derives its own
+  ordering.
 
 Also gone with the applicant: the MRPDU tx/rx counters and rx-drop count at CSR
 0x680 read **structural zeros**, and the provisioning words software used to write
@@ -82,8 +86,8 @@ the processor's face.
 | Q-6 | 8.6.7 | Queue management: no reordering within a class, loss only by admission | traffic_queues + shaping core | ✅ RTL datapath (in-order byte-exact per class, burst) | 8.6.7: reordering inside an SR class breaks the AVTP sequence_num contract downstream (AVTP-7). |
 | Q-7 | 8.6.8.1 / 34.6.2 | Strict priority transmission selection among non-shaped queues | traffic_shaping_core | ✅ RTL shaper_core (61 k vs independent model: SP order, unshaped bypass) | 8.6.8.1 is the default algorithm; inversion starves the control plane under media load. |
 | Q-8 | 8.6.8.2 / 34.6.1 | Credit-based shaper: idleSlope accrual, sendSlope drain, hiCredit/loCredit clamp, credit-reset rules, no transmit while credit < 0 | credit_based_shaper (CSR 0x400) | ✅ RTL cbs (87 k: bit-exact vs fixed-point replica + bounded vs ideal continuous model; accrual under back-pressure; live reconfig hiCredit clamp) | 34.6.1's math is the AVB latency guarantee itself; the TB's dual-model approach is the reference for any shaper change. |
-| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's CBS idleSlope mux | 🔵 PROCESSOR — the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric still consumes the verdict: `srp_sr_admitted_o` is the per-source stream gate and `srp_sum_slope_bps_o` the class-A queue's idleSlope | 34.3: exceeding 75 % legally starves best-effort — and the bridge will reject what we'd declare anyway. |
-| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size incl. per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's CBS idleSlope mux | 🔵 PROCESSOR — and the slope-versus-gate ORDERING is no longer a testable behaviour: the admission round latches grant, slope and Σ together, so the invariant holds structurally (equal on the opening edge, conservative on the closing one) with no sequencer left to point a bench at. The MaxFrameSize the recipe consumes is still derived in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) from the real AAF geometry and handed over as `cfg_tspec_max_frame_i` | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
+| Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → the fabric's stream gate through ACTIVE; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. The fabric consumes the verdict inside ACTIVE: `srp_active_o` is the per-source stream gate since #530, and a stream the round refuses loses ACTIVE within the three-round optimistic window and swaps to Talker Failed. The raw verdict `srp_sr_admitted_o` (the gate until #530) and `srp_sum_slope_bps_o` are read back as status only; no shaper is instantiated | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we'd declare anyway. |
+| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size incl. per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath, so the slope-versus-gate ORDERING has no object on this wire (see the second consequence above: since #530 the ACTIVE gate can lead Σ by up to three admission rounds). The MaxFrameSize the recipe consumes is still derived in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) from the real AAF geometry and handed over as `cfg_tspec_max_frame_i` | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
 | Q-11 | 34.5 | Default SR class config: class A = PCP 3, SR_PVID default = VID 2 | processor SRP encoder for the declaration; `cfg_lwsrp_vid` (reset word 0x684 = 2) for this fabric's default, and the ADOPTED pair from the class-D face once a Domain has been seen | 🔵 PROCESSOR for the Domain bytes; ✅ RTL crf_tx TCI golden 0x6002 for the tag. The property that survives intact is the ONE-SOURCE rule: the AAF and CRF C-TAGs mux off exactly the pair the processor publishes (`srp_class_a_prio_o` / `srp_class_a_vid_o`), so frame and declaration cannot name different values. Historic: BENCH item 1.2; SILICON MSRP Domain = VID 2 | 34.5: the bench-measured truth — Domain misparse as 638 cost a debugging round; the defaults are load-bearing for interop. |
 | Q-12 | 34.2 | SRP domain detection: talker uses the boundary-port rules (Domain attribute) to pick class priority | processor SRP registrar (`srp_domain_adopted_o`) | 🔵 PROCESSOR — the boundary case was pinned by the deleted `lwsrp_rx` suite. The fabric reads only the adopted verdict | 34.2: transmitting class-A-tagged frames on a non-SRP boundary port is undefined behavior for the bridge. |
 | Q-13 | 8.6.1–8.6.5, 8.8, 8.13 | Bridge relay: forwarding, filtering DB, egress rules | — | ➖ N/A — end station (the bench bridge provides these; its pruning behavior is documented in findings) | Bridge-only obligations. |

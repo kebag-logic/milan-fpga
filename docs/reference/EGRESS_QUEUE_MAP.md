@@ -22,11 +22,11 @@ The notification claim is checked against the
 
 ## Contents
 
-- **[Reset map](#reset-map)** — The stable five-queue roles and the checked CBS reset-slope table.
-- **[Credit-based shaping](#credit-based-shaping)** — How admitted class-D reservations control slope and enable state atomically.
-- **[Why gPTP sits below the shaped classes](#why-gptp-sits-below-the-shaped-classes)** — Why the fabric timer source cannot be delayed by the inactive generic queue chain.
-- **[Where the fabric bypasses all of this](#where-the-fabric-bypasses-all-of-this)** — The live AAF, CRF, MAAP, protocol, and time sources merged downstream.
-- **[Verification boundary](#verification-boundary)** — What the focused queue tests prove and what the release integration deliberately leaves inactive.
+- **[Reset map](#reset-map)** -- The stable five-queue roles and the checked CBS reset-slope table.
+- **[Credit-based shaping](#credit-based-shaping)** -- How the retained chain took slope and enable from SRP, and why the #530 gate does not.
+- **[Why gPTP sits below the shaped classes](#why-gptp-sits-below-the-shaped-classes)** -- Why the fabric timer source cannot be delayed by the inactive generic queue chain.
+- **[Where the fabric bypasses all of this](#where-the-fabric-bypasses-all-of-this)** -- The live AAF, CRF, MAAP, protocol, and time sources merged downstream.
+- **[Verification boundary](#verification-boundary)** -- What the focused queue tests prove and what the release integration deliberately leaves inactive.
 
 ## Reset map
 
@@ -63,12 +63,26 @@ still powers up unshaped.
 
 ## Credit-based shaping
 
-An admitted SRP class-D source supplies the granted idle slope and enable bit
-to the configured class-A queue. The active reservation overrides the matching
-CSR slope without writing it back; release restores the CSR value. Opening a
-source and accounting its slope occur on the same admission-round edge.
-Teardown closes the source first and may retain its slope until the next round,
-which is conservative: no stream can transmit against an unbudgeted slope.
+This section records how the retained chain was integrated with SRP. None of it
+is instantiated in the shipping datapath (see the top of this page), so no
+shaper consumes a slope or an admission verdict on the wire. An admitted SRP
+class-D source supplied the granted idle slope and enable bit to the configured
+class-A queue. The active reservation overrode the matching CSR slope without
+writing it back; release restored the CSR value. While the stream gate was the
+raw admission verdict, until #530, opening a source and accounting its slope
+occurred on the same admission-round edge. Teardown closed the source first and
+could retain its slope until the next round, which is conservative: no stream
+could transmit against an unbudgeted slope.
+
+That ordering does not hold for the shipping gate. Since #530 every talker gate
+reads the processor's ACTIVE, which takes the processor's optimistic admission
+window: with a Listener Ready already registered at a fresh declaration, ACTIVE
+can open a source up to three admission rounds before the round that adds its
+slope to the sum. In the shipping datapath the only effect is status skew:
+`LWSRP_STATUS[8]` can lead `LWSRP_STATUS[9]` and `LWSRP_SLOPE` `0x698`, the only
+readers of the raw verdict and the sum, for those rounds
+([REGISTER_MAP.md](REGISTER_MAP.md)). A lane that credit-shapes the fabric's own
+sources derives its own slope/gate ordering rather than inheriting this one.
 
 ## Why gPTP sits below the shaped classes
 
