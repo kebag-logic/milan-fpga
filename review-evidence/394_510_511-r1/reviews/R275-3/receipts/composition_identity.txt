@@ -1,0 +1,25 @@
+# blob identity PR source vs candidate for every PR-changed file
+README.md src=779eb1e682bd cand=779eb1e682bd IDENTICAL-TO-SOURCE predecessor_touched=no
+REQUIREMENTS.md src=8e1414a5f158 cand=8e1414a5f158 IDENTICAL-TO-SOURCE predecessor_touched=no
+docs/MILAN_V12_ROADMAP.md src=73085849cc40 cand=57afd57ed950 MERGED-DIFFERS predecessor_touched=yes
+docs/design/GPTP_PLANE.md src=f7317ed5ad66 cand=b8ea794ea70b MERGED-DIFFERS predecessor_touched=yes
+docs/design/TIME_SYNC.md src=b2ab42135d46 cand=c7d476bf8f30 MERGED-DIFFERS predecessor_touched=yes
+docs/guides/gptp/MANAGER.md src=239b4afef24b cand=e471eff5303c MERGED-DIFFERS predecessor_touched=yes
+docs/reference/FR_NFR.md src=6e728ebe83c4 cand=456d2f6be1d0 MERGED-DIFFERS predecessor_touched=yes
+docs/reference/MILAN_COMPLIANCE_MATRIX.md src=88f8b88f3aa1 cand=d1783701d1dc MERGED-DIFFERS predecessor_touched=yes
+docs/reference/MILAN_FEATURE_STATUS.md src=88785b32de7b cand=88785b32de7b IDENTICAL-TO-SOURCE predecessor_touched=no
+docs/reference/SUBMODULES.md src=8601e0c46727 cand=2018a49df6b2 MERGED-DIFFERS predecessor_touched=yes
+docs/traceability/ieee8021as.md src=e2ea1a92b3f0 cand=97a9c17dbf1a MERGED-DIFFERS predecessor_touched=yes
+
+$ git merge-tree --write-tree 70da0bcd 70f2c50d
+4420741a4517de5189ae8f5d330db488a63eba91
+candidate tree 4420741a4517de5189ae8f5d330db488a63eba91
+
+# prior finding F1/F2 fix text at candidate
+360:| Is it managed? | No. The product claims no 802.1AS management, so no managed object exists. No CSR or configuration key carries the value either. | IEEE 802.1AS-2011 Table 14-6 (14.6.25; Cor1's replacement table keeps the row): read-write, conformance `Tdot3FD`, "Required for time-aware IEEE 802.3 full-duplex port". So such a port must carry it wherever 802.1AS management is implemented. Its "(recommended)" qualifies the `scaledNs` data type, as 14.3.2 states for `offsetFromMaster`. 14.6.9 defines the object without grading it. Management is optional: PICS item `MGT` (A.5) is `O` |
+378:#### Where the term enters
+402:Revisit also before the product claims 802.1AS management.
+404:Table 14-6 then requires a read-write `delayAsymmetry` object.
+REQUIREMENTS.md:143:management: 802.1AS-2011 Table 14-6 then requires a read-write
+docs/reference/FR_NFR.md:422:>   802.1AS management, whose Table 14-6 requires a read-write
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:226:| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled. Its managed object is read-write and `Tdot3FD` in Table 14-6, so required only where 802.1AS management is implemented; management is optional (PICS `MGT`) | gPTP plane | n/a: not modelled, so zero, and no 802.1AS management is claimed; the REQ-PTP-06 elaboration constants stay the only timestamp corrections and the live UART tuner stays donor-bench-only. A directed limitation for v1.2 by the [owner decision on #511](https://github.com/kebag-logic/milan-fpga/issues/511#issuecomment-5789766257); revisit trigger and adoption plan in the [gPTP plane record](../design/GPTP_PLANE.md#propagation-asymmetry-is-not-modelled) |

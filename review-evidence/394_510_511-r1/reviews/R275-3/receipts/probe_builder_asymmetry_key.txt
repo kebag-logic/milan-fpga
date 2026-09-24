@@ -1,0 +1,12 @@
+$ diff base asym
+90a91
+>   delay_asymmetry_ns: 0
+$ python3 -B sw/builder/endstation_builder.py <base.yaml> -o scratch/builder/out_base
+  wrote $REVIEWS/394_510_511-r275-3-packet/scratch/builder/out_base/base/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote $REVIEWS/394_510_511-r275-3-packet/scratch/builder/out_base/base/gptp_ucode.hex
+  wrote $REVIEWS/394_510_511-r275-3-packet/scratch/builder/out_base/base/aecp_aem_rom.svh
+exit=0
+$ python3 -B sw/builder/endstation_builder.py <asym.yaml> -o scratch/builder/out_asym
+CONFIG ERROR: gptp: unknown keys ['delay_asymmetry_ns'] (known: ['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'priority1', 'priority2'])
+exit=1

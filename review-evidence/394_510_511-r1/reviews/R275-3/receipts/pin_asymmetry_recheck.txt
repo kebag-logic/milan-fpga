@@ -1,0 +1,73 @@
+# candidate HEAD 8b7be584da62657f9767ad07e294d278144869c5 gitlink gptp-processor e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+# PR source 70f2c50d gitlink c1b617435824929a790739ea8585c3fe1a328cc0
+$ merge-base --is-ancestor c1b617435824929a790739ea8585c3fe1a328cc0 e5dcea6e351abff18a27a00f8e345f3251bdbd8f; exit=0
+$ log --oneline c1b617435824929a790739ea8585c3fe1a328cc0..e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+e5dcea6 Merge pull request #74 from Mister-M-alt/68-step-policy
+ba92681 Re-arm the link-up threshold only on an asCapable rise, so a Sync lapse or mastership stays locked (#68)
+cbccf22 Step over 20 us at link-up and over 100 us once locked, and clamp the whole trim to 200 ppm (#68)
+77c34e9 Step the PHC only on a first synchronization over one second (#68)
+$ diff --stat c1b617435824929a790739ea8585c3fe1a328cc0 e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+ docs/INTEGRATION.md                | 135 +++++++-
+ docs/SOURCE_EVIDENCE.md            |   2 +
+ docs/TEST_DEVELOPER.md             |   3 +
+ hdl/ucode/gen_gptp_ucode.py        | 162 ++++++---
+ syn/ooc/work/gptp_ucode.hex        | 104 +++---
+ tb/tsngen/gptp_ucode.hex           | 104 +++---
+ tb/verilator/engine/gptp_ucode.hex | 104 +++---
+ tb/verilator/engine/mutants.py     |  73 ++++
+ tb/verilator/engine/sim_main.cpp   | 689 +++++++++++++++++++++++++++++++------
+ tb/verilator/ucpu/gptp_ucode.hex   | 104 +++---
+ 10 files changed, 1126 insertions(+), 354 deletions(-)
+
+## pin c1b617435824929a790739ea8585c3fe1a328cc0
+$ grep -I -i -w delayAsymmetry|delay_asymmetry|asymmetry|asym|cfg_asym|bench_uart_tune|uart_tune outside docs/history and svg
+exit=1
+$ grep -I -i asym substring outside docs/history and svg
+exit=1
+$ files naming asymmetr (all paths)
+docs/history/v1/prototype/ARCHITECTURE.md
+docs/history/v1/prototype/BENCH_OPERATIONS.md
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+docs/history/v1/prototype/FSM_CONFORMANCE.md
+docs/history/v1/prototype/INTEGRATION_GUIDE.md
+docs/history/v1/prototype/IP_BLOCKS.md
+docs/history/v1/prototype/MGMT_INTERFACE.md
+docs/history/v1/prototype/RESOURCE_VALIDATION.md
+docs/history/v1/prototype/VERIFICATION.md
+exit=0
+
+## pin e5dcea6e351abff18a27a00f8e345f3251bdbd8f
+$ grep -I -i -w delayAsymmetry|delay_asymmetry|asymmetry|asym|cfg_asym|bench_uart_tune|uart_tune outside docs/history and svg
+exit=1
+$ grep -I -i asym substring outside docs/history and svg
+exit=1
+$ files naming asymmetr (all paths)
+docs/history/v1/prototype/ARCHITECTURE.md
+docs/history/v1/prototype/BENCH_OPERATIONS.md
+docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+docs/history/v1/prototype/FSM_CONFORMANCE.md
+docs/history/v1/prototype/INTEGRATION_GUIDE.md
+docs/history/v1/prototype/IP_BLOCKS.md
+docs/history/v1/prototype/MGMT_INTERFACE.md
+docs/history/v1/prototype/RESOURCE_VALIDATION.md
+docs/history/v1/prototype/VERIFICATION.md
+exit=0
+
+## terms in the pin-bump diff itself
+changed lines naming 'asym': 0
+changed lines naming 'uart': 0
+changed lines naming 'tune': 0
+changed lines naming 'latch': 0
+changed lines naming 'ingress': 0
+changed lines naming 'egress': 8
+$ diff --name-only c1b617435824929a790739ea8585c3fe1a328cc0 e5dcea6e351abff18a27a00f8e345f3251bdbd8f -- hdl bench
+hdl/ucode/gen_gptp_ucode.py
+$ egress lines in the pin-bump diff
++envelope its egress reconstruction enforces (ppm_addend), so the plane
++    egress timestamp, with this expression: RECON_REL_PPM_P = 200 and
++    # envelope the parent's egress reconstruction enforces
+-//         egress stamp; an asCapable fall stops consumption and steering
++//         carries the live egress stamp; an asCapable fall stops
++//         ppm envelope the parent's egress reconstruction derives
++  //! KL_gptp_txret.sv refuses every egress timestamp taken while |addend|
++  // against the envelope the parent's egress reconstruction derives: not

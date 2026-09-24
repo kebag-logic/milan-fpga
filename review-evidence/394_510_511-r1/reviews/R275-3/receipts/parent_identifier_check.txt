@@ -1,0 +1,13 @@
+INGRESS_LAT_NS_P: 70f2c50d=17 8b7be584=17 
+EGRESS_LAT_NS_P: 70f2c50d=19 8b7be584=19 
+GPTP_LAT: 70f2c50d=27 8b7be584=29 
+_known_gp: 70f2c50d=6 8b7be584=6 
+eth-port: 70f2c50d=17 8b7be584=17 
+$ GPTP_LAT address rows at candidate
+HEAD:docs/design/TIME_SYNC.md:62:- `GPTP_LAT` (`0x7F0`) publishes what is applied.
+HEAD:docs/reference/REGISTER_MAP.md:294:constants and publishes what it applies at `GPTP_LAT` (`0x7F0`), because a
+HEAD:docs/reference/REGISTER_MAP.md:665:| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated |
+HEAD:docs/reference/REGISTER_MAP.md:666:| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated |
+HEAD:docs/reference/REGISTER_MAP.md:1450:| `0x7F0` | `GPTP_LAT` | RO live / W inert | `0` | `[31:16]` ingress correction, nanoseconds, SUBTRACTED from every arrival timestamp; `[15:0]` egress correction, nanoseconds, ADDED to every reconstructed launch timestamp. Elaboration constants, so the value is fixed for the bitstream and a write changes nothing. Option OFF reads zero. The shipping AX7101 build reads `0x0290_00DB` = 656 ns and 219 ns, whose sum is the 875 ns of total stamp error an inline tap measured on 2026-09-20; the Arty builds read `0` because no one has measured them on this plane. |
+$ predecessor diff of hdl/ieee8021as sw/builder
+exit=0

@@ -1,0 +1,23 @@
+$ git rev-parse HEAD HEAD^{tree}
+8b7be584da62657f9767ad07e294d278144869c5
+4420741a4517de5189ae8f5d330db488a63eba91
+$ git status --porcelain=v2 --ignored --untracked-files=all (expect empty)
+exit=0
+$ git diff --quiet (worktree vs index)
+exit=0
+$ git diff --cached --quiet HEAD (index vs HEAD)
+exit=0
+$ index entries vs HEAD tree entries (mode, oid, path)
+identical (878 entries)
+$ rehash every tracked regular file and compare with the index oid
+mismatches=0 files=874
+$ file modes on disk vs index
+modes-checked
+$ git submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e5dcea6e351abff18a27a00f8e345f3251bdbd8f gptp-processor (remotes/origin/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor head=e5dcea6e351abff18a27a00f8e345f3251bdbd8f dirty=0
+protocol-processor head=424c688fa2205b934a7689a58f2aa766420f2326 dirty=0
+third_party/verilog-axis head=48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0

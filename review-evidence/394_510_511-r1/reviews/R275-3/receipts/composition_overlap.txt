@@ -1,0 +1,322 @@
+candidate 8b7be584da62657f9767ad07e294d278144869c5 tree 4420741a4517de5189ae8f5d330db488a63eba91
+parents   70da0bcdf7896b26efb4cc3f854c17a02f2c4126 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+source    70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6 tree ef96bf2fe0d66dd9c0b1ba45c6b4300d89ba658c
+merge-base(parent, source) 759da623072358afdb0e9d570a7b4b6a788492c9
+$ git merge-tree --write-tree 70da0bcdf7896b26efb4cc3f854c17a02f2c4126 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+4420741a4517de5189ae8f5d330db488a63eba91
+exit=0
+
+## first-parent history of the predecessor side, 759da623072358afdb0e9d570a7b4b6a788492c9..70da0bcdf7896b26efb4cc3f854c17a02f2c4126
+70da0bcd Validate issue 387 merge-train candidate
+5c51569b Validate issue 117 merge-train candidate
+50e78097 Merge PR #534: Serve the CRF Stream Input counters on GET_COUNTERS and notify their changes
+26d855a9 Merge PR #528: Stop the junction counters chattering at a raced media-grid lock
+
+## files the PR changes (759da623072358afdb0e9d570a7b4b6a788492c9..70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6)
+README.md
+REQUIREMENTS.md
+docs/MILAN_V12_ROADMAP.md
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/guides/gptp/MANAGER.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/MILAN_FEATURE_STATUS.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+
+## files the predecessor side changes (759da623072358afdb0e9d570a7b4b6a788492c9..70da0bcdf7896b26efb4cc3f854c17a02f2c4126)
+CHANGELOG.md
+configs/endstation_arty_4x4.yaml
+configs/endstation_arty_8ch.yaml
+configs/endstation_ax7101_8x8.yaml
+docs/ENDSTATION_BUILDER.md
+docs/MILAN_V12_ROADMAP.md
+docs/design/GM_LOSS_RECOVERY.md
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/diagrams/timesync_chain.drawio
+docs/diagrams/timesync_chain.png
+docs/diagrams/timesync_chain.svg
+docs/findings/117_GPTP_SILICON_EVIDENCE.md
+docs/findings/README.md
+docs/guides/gptp/HDL_DEVELOPER.md
+docs/guides/gptp/MANAGER.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/guides/gptp/TEST_DEVELOPER.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/reference/REGISTER_MAP_CLASSES.md
+docs/reference/SUBMODULES.md
+docs/testing/MILAN_V12_AUDIT_2026-08-16.md
+docs/testing/TESTING.md
+docs/traceability/MODULE_MATRIX.md
+docs/traceability/ieee8021as.md
+gptp-processor
+hdl/ieee1722/aaf/KL_chan_map_capture.sv
+hdl/ieee1722/aaf/README-tests.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+hdl/ieee1722/crf/KL_media_grid_align.sv
+hdl/milan/milan_datapath.sv
+scripts/port_docs.budget
+syn/yosys/rom_digests.tsv
+tb/verilator/chmap_capture/sim_main.cpp
+tb/verilator/media_grid_align/Makefile
+tb/verilator/media_grid_align/README.md
+tb/verilator/media_grid_align/media_grid_align_wrap.sv
+tb/verilator/media_grid_align/sim_main.cpp
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_gmstep.cpp
+tb/verilator/milan_dp/sim_nxn.cpp
+
+## overlap
+docs/design/GPTP_PLANE.md
+docs/design/TIME_SYNC.md
+docs/guides/gptp/MANAGER.md
+docs/MILAN_V12_ROADMAP.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/SUBMODULES.md
+docs/traceability/ieee8021as.md
+
+## per-file patch identity: PR source diff vs candidate diff
+SAME README.md
+SAME REQUIREMENTS.md
+SAME docs/MILAN_V12_ROADMAP.md
+SAME docs/design/GPTP_PLANE.md
+SAME docs/design/TIME_SYNC.md
+SAME docs/guides/gptp/MANAGER.md
+DIFFER docs/reference/FR_NFR.md
+SAME docs/reference/MILAN_COMPLIANCE_MATRIX.md
+SAME docs/reference/MILAN_FEATURE_STATUS.md
+SAME docs/reference/SUBMODULES.md
+SAME docs/traceability/ieee8021as.md
+
+## the one DIFFER: patch text difference (context only)
+2c2
+< index cf67ef6c..6e728ebe 100644
+---
+> index ab95a372..456d2f6b 100644
+29c29
+<  | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
+---
+>  | **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. The declared CRF Stream Input's bank is served and pushed since #529. Persistence remains open |
+
+## predecessor edits on the overlap files
+diff --git a/docs/MILAN_V12_ROADMAP.md b/docs/MILAN_V12_ROADMAP.md
+index 58e9f152..9c0f2946 100644
+--- a/docs/MILAN_V12_ROADMAP.md
++++ b/docs/MILAN_V12_ROADMAP.md
+@@ -434,8 +434,9 @@ second**), the LOCK auto-unlock, and auto-DEREGISTER. The parent proof is
+ leg (`obj_notify`, the processor timebase compressed to 100 cycles per
+ millisecond) measuring the one-second limit.
+ 
+-What stays open: the declared CRF Stream Input has no served counters, so it
+-has no counter push either (audit B4).
++The declared CRF Stream Input, the last descriptor without served counters,
++has served and pushed its Table 5.16 ten since #529 (audit B4, closed); the
++timed leg's `[NOTIFY-CRF]` measures its push under the same limit.
+ 
+ For AS_PATH, COMMIT is deliberately not a publish operation: it changes a
+ staging slot that neither solicited reads nor notifications observe. PUBLISH
+diff --git a/docs/design/GPTP_PLANE.md b/docs/design/GPTP_PLANE.md
+index 33f38e92..f558a233 100644
+--- a/docs/design/GPTP_PLANE.md
++++ b/docs/design/GPTP_PLANE.md
+@@ -29,10 +29,10 @@ This page defines parent integration.
+ 
+ | Reader | Parent guide | Engine guide |
+ |---|---|---|
+-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md) |
+-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/INTEGRATION.md) |
+-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/HDL_DEVELOPER.md) |
+-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/TEST_DEVELOPER.md) |
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md) |
+ 
+ Parent guides own integration behavior.
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 56df6d4b..eaa07b1e 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -63,6 +63,7 @@ flowchart LR
+ - The engine runs peer delay and synchronization.
+ - Rate updates steer PHC frequency.
+ - Phase updates step PHC time.
++- The [step policy](#step-policy) chooses between them.
+ - Publication commits expose synchronized state atomically.
+ 
+ A correction's SUM is measured per board. Its split is assigned.
+@@ -71,6 +72,40 @@ The split moves the synchronized offset, never the peer delay.
+ 
+ Read the [fabric-plane contract](GPTP_PLANE.md).
+ 
++### Step policy
++
++The fabric plane either steps or slews the PHC.
++
++This page is the parent's one record of that rule.
++
++The offset is local time minus grandmaster time.
++
++| Servo state | Which Sync pair | Slews up to | Steps above |
++|---|---|---|---|
++| Link-up | The first pair after asCapable rises | 20 us | 20 us |
++| Locked | Every later pair | 100 us | 100 us |
++
++- Every reset clears asCapable, so it re-arms link-up.
++- Nothing else re-arms link-up.
++- A grandmaster change keeps the servo locked.
++- So does a 375 ms Sync receipt timeout.
++- So does a return from grandmaster duty.
++- The written rate trim never exceeds 200 ppm.
++- That trim is proportional plus integral; both share the bound.
++- The plane's microcode clamps the trim to that bound.
++- `KL_gptp_txret` computes the same bound as `PHC_ADJ_MAX_C`.
++- It refuses egress timestamps while the trim exceeds it.
++- A 100 us slew takes 0.5 s or more.
++- One step is one `phc_step_we_o` pulse.
++- That pulse carries the measured offset, negated.
++- Each step is one counted [media event](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
++
++| Source | Record |
++|---|---|
++| Owner decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
++| Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md#step-versus-slew-policy) |
++
+ ## Media boundary
+ 
+ CRF transport measures remote media timing.
+@@ -111,6 +146,7 @@ Each link has exactly one master.
+ | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
+ | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
+ | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |
++| Grid-aligner lock target | Engagement phase, kept 1/128 sample off the tick | `KL_media_grid_align` |
+ 
+ | Function | Implemented | Product effect |
+ |---|---|---|
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index ead8d43c..ef17d0dc 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -20,7 +20,7 @@ Use this page for delivery decisions.
+ - Atomic publication prevents contradictory consumer state.
+ - Direct health drives every AVTP uncertainty bit.
+ 
+-Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
+ 
+ ## Status
+ 
+@@ -49,7 +49,7 @@ Simulation remains necessary but insufficient.
+ 
+ Transition behavior is in [grandmaster recovery](../../design/GM_LOSS_RECOVERY.md).
+ 
+-Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md).
+ 
+ ## Release evidence
+ 
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index cf67ef6c..ab95a372 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -138,7 +138,7 @@ These repeated claims are checked against the
+ | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
+ | **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The builder generates the image, JSON manifest, and map; bare-metal firmware verifies and copies the paired image from QSPI before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
+ | **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
+-| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. Persistence remains open, and the declared CRF Stream Input still has no served counter bank |
++| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves the mandatory command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-03's registration, successful-command notifications, Table 5.22 scheduler, and departing-controller monitor are implemented. FR-CTRL-04 serves every supported counter bank and rate-limits each descriptor's push to at most once per second. The declared CRF Stream Input's bank is served and pushed since #529. Persistence remains open |
+ | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
+ | **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`, including a zero redundancy feature flag. The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
+ | **FR-CONN-01/02** (ACMP connect/disconnect/state, program the datapath) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_acmp_talker` + the listener half; the bind record and the talker declaration reach the fabric as class-D wires, and the CBS/classifier programming follows the reservation |
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index a63e33f1..21bc4121 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -123,7 +123,7 @@ input, are silently refused.
+ | 5.4.2.21 / .22 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | implemented | PP aecp_notify |
+ | 5.4.2.23 | GET_AVB_INFO | implemented | propagation delay served from the measured word since 0x0055 (audit B8 closed) |
+ | 5.4.2.24 | GET_AS_PATH | implemented | staged publish/cutover contract; option-off aliasing recorded in audit B6 |
+-| 5.4.2.25 | GET_COUNTERS — AAF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | partial | served + pushed for those four; **the declared CRF Stream Input returns an empty mask** — its Table 5.16 counters are unconnected (audit B4) |
++| 5.4.2.25 | GET_COUNTERS: AAF and CRF Stream Input, Stream Output (Table 5.17), AVB Interface, Clock Domain | implemented | served + pushed for all five; the declared CRF Stream Input serves its Table 5.16 ten at the Table 7-157 offsets (mask `0xF3F`) since #529: RTL milan_dp `[CTRS-CRF]` (reset, per-quadlet signatures through the gather mux, each counter moved by its own `KL_crf_rx` event to a distinct count, 32-bit wrap, the bind-edge wipe, descriptor isolation) and `[NOTIFY-CRF]` on the timed leg |
+ | 5.4.2.26 | GET_AUDIO_MAP (both directions) | implemented | PP pp_top |
+ | 5.4.2.27 / .28 | ADD/REMOVE_AUDIO_MAPPINGS | implemented | atomic validation, live datapath projection, lock checks, unsolicited updates (2026-08-17) |
+ | 5.4.2.29 | GET_DYNAMIC_INFO (IEEE Section 7.4.76) | implemented | completed 2026-08-17; never answers `IN_PROGRESS`, satisfying Section 7.4.76's support rule |
+@@ -140,7 +140,7 @@ input, are silently refused.
+ 
+ | Clause | Requirement | Status |
+ |---|---|---|
+-| 5.4.5.1 / .2 | registry, fan-out, per-controller sequencing, the full Table 5.22 trigger set, GET_COUNTERS push ≤ 1/descriptor/second | implemented at 0x0055 (issue #69) — every state-changing command pushes to every registered controller except the requester; the timed `milan_dp` leg (`obj_notify`) measures the one-second limit. Open corner: the CRF Stream Input has no served counters, so no counter push (audit B4) |
++| 5.4.5.1 / .2 | registry, fan-out, per-controller sequencing, the full Table 5.22 trigger set, GET_COUNTERS push ≤ 1/descriptor/second | implemented at 0x0055 (issue #69): every state-changing command pushes to every registered controller except the requester; the timed `milan_dp` leg (`obj_notify`) measures the one-second limit. The CRF Stream Input's row pushes under the same limit since #529 (`[NOTIFY-CRF]`) |
+ | 5.4.5.3 | departing-controller monitor: random 30–60 s timer, CONTROLLER_AVAILABLE probe + one retry, targeted auto-deregister | implemented at 0x0055 — `KL_aecp_ca_originator` on the processor's shared originator; PP ca_originator; timed leg measures probe, 250 ms retry, deregistration |
+ | 5.4.5.4 | identification notification | SHOULD — n/a as a gap; the Identify *indication* output is the open half (audit B7) |
+ 
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index ba4d121a..6d9494fe 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
+ | Path | Pin | Purpose | Root integration |
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+-| `gptp-processor` | `c1b617435824929a790739ea8585c3fe1a328cc0` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++| `gptp-processor` | `e5dcea6e351abff18a27a00f8e345f3251bdbd8f` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+ | `protocol-processor` | `424c688fa2205b934a7689a58f2aa766420f2326` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+ <!-- submodule-pins:end -->
+@@ -93,10 +93,10 @@ The cleanliness command must print nothing.
+ 
+ The reviewed gPTP guides match root ownership.
+ 
+-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/MANAGER.md)
+-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/INTEGRATION.md)
+-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/HDL_DEVELOPER.md)
+-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/TEST_DEVELOPER.md)
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/TEST_DEVELOPER.md)
+ 
+ Protocol donor prose retains these known contradictions.
+ 
+diff --git a/docs/traceability/ieee8021as.md b/docs/traceability/ieee8021as.md
+index f70bad73..e87c7fe3 100644
+--- a/docs/traceability/ieee8021as.md
++++ b/docs/traceability/ieee8021as.md
+@@ -48,7 +48,7 @@ Simulation never becomes physical evidence.
+ 
+ The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
+ 
+-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/c1b617435824929a790739ea8585c3fe1a328cc0/docs/SOURCE_EVIDENCE.md) maps internals.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e5dcea6e351abff18a27a00f8e345f3251bdbd8f/docs/SOURCE_EVIDENCE.md) maps internals.
+ 
+ ## Requirement mapping
+ 
+
+## gitlinks: source, parent, candidate
+-- 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-- 70da0bcdf7896b26efb4cc3f854c17a02f2c4126
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+-- 8b7be584da62657f9767ad07e294d278144869c5
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
