@@ -1,0 +1,1761 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Sep 24 13:45:21 2026
+# Process ID         : 2314743
+# Current directory  : $MANAGEMENT/2026-09-23/pp43-a253/area-candidate
+# Command line       : vivado -mode batch -nojournal -source $LANES/pp43-49-gsi-internal/syn/ooc/protocol_processor_ooc.tcl
+# Log file           : $MANAGEMENT/2026-09-23/pp43-a253/area-candidate/vivado.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.352 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 62805 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source $LANES/pp43-49-gsi-internal/syn/ooc/protocol_processor_ooc.tcl
+# set SPEC [file normalize [file dirname [info script]]/../..]
+# if {$argc > 0} { set SPEC [file normalize [lindex $argv 0]] }
+# set_param general.maxThreads 8
+# set pkgs [lsort [glob $SPEC/hdl/*/*_pkg.sv]]
+# read_verilog -sv $pkgs
+# foreach src [lsort [glob $SPEC/hdl/*/*.sv]] {
+#     if {[lsearch -exact $pkgs $src] < 0} { read_verilog -sv $src }
+# }
+# exec python3 $SPEC/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+# exec python3 $SPEC/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+# synth_design -mode out_of_context -top protocol_processor_top -part xc7a100tfgg484-2
+Command: synth_design -mode out_of_context -top protocol_processor_top -part xc7a100tfgg484-2
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 2317615
+---------------------------------------------------------------------------------
+Starting Synthesize : Time (s): cpu = 00:00:04 ; elapsed = 00:00:10 . Memory (MB): peak = 2202.734 ; gain = 493.258 ; free physical = 3433 ; free virtual = 57739
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:502]
+WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:503]
+WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:504]
+WARNING: [Synth 8-6901] identifier 'cancel_hit_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:194]
+WARNING: [Synth 8-6901] identifier 'cancel_ix_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:195]
+WARNING: [Synth 8-6901] identifier 'vd_push_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_validator.sv:364]
+WARNING: [Synth 8-6901] identifier 'vq_full_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_validator.sv:364]
+WARNING: [Synth 8-6901] identifier 'srp_class_a_prio_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:811]
+WARNING: [Synth 8-6901] identifier 'srp_class_a_vid_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:812]
+WARNING: [Synth 8-6901] identifier 'srp_domain_adopted_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:813]
+WARNING: [Synth 8-6901] identifier 'srp_evt_domain_change_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:814]
+WARNING: [Synth 8-6901] identifier 'srp_tk_decl_state_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:815]
+WARNING: [Synth 8-6901] identifier 'srp_lstn_reg_state_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:816]
+WARNING: [Synth 8-6901] identifier 'srp_active_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:817]
+WARNING: [Synth 8-6901] identifier 'srp_sr_admitted_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:818]
+WARNING: [Synth 8-6901] identifier 'srp_granted_slope_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:819]
+WARNING: [Synth 8-6901] identifier 'srp_src_fail_code_nc_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:820]
+WARNING: [Synth 8-6901] identifier 'srp_src_fail_bridge_nc_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:821]
+WARNING: [Synth 8-6901] identifier 'srp_sum_slope_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:822]
+WARNING: [Synth 8-6901] identifier 'srp_over_limit_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:823]
+WARNING: [Synth 8-6901] identifier 'srp_tk_reg_state_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:824]
+WARNING: [Synth 8-6901] identifier 'srp_lstn_decl_state_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:825]
+WARNING: [Synth 8-6901] identifier 'srp_acc_latency_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:826]
+WARNING: [Synth 8-6901] identifier 'srp_snk_fail_code_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:827]
+WARNING: [Synth 8-6901] identifier 'tkr_declaring_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:829]
+WARNING: [Synth 8-6901] identifier 'lstn_dbg_busy_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:838]
+WARNING: [Synth 8-6901] identifier 'bound_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:838]
+WARNING: [Synth 8-6901] identifier 'bound_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:839]
+WARNING: [Synth 8-6901] identifier 'bound_eid_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:842]
+WARNING: [Synth 8-6901] identifier 'bound_sid_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:843]
+WARNING: [Synth 8-6901] identifier 'bound_dmac_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:844]
+WARNING: [Synth 8-6901] identifier 'bound_vlan_r' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:845]
+WARNING: [Synth 8-6901] identifier 'adp_dbg_aidx_nc_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:850]
+WARNING: [Synth 8-6901] identifier 'lstn_act_settle_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1574]
+WARNING: [Synth 8-6901] identifier 'lstn_act_settle_sid_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1575]
+WARNING: [Synth 8-6901] identifier 'lstn_act_settle_da_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1576]
+WARNING: [Synth 8-6901] identifier 'lstn_act_settle_vlan_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1577]
+WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_valid_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2605]
+WARNING: [Synth 8-6901] identifier 'ntfy_arm_valid_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2605]
+WARNING: [Synth 8-6901] identifier 'ntfy_arm_cancel_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2620]
+WARNING: [Synth 8-6901] identifier 'ntfy_arm_slot_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2620]
+WARNING: [Synth 8-6901] identifier 'ntfy_arm_owner_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2621]
+WARNING: [Synth 8-6901] identifier 'ntfy_arm_deadline_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2621]
+WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_cancel_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2622]
+WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_slot_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2622]
+WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_owner_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2623]
+WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_deadline_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2623]
+WARNING: [Synth 8-6901] identifier 'ntfy_prng_req_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2707]
+WARNING: [Synth 8-6901] identifier 'ntfy_prng_kind_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2709]
+WARNING: [Synth 8-6901] identifier 'ntfy_prng_busy_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2719]
+WARNING: [Synth 8-6901] identifier 'ntfy_prng_valid_w' is used before its declaration [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2726]
+INFO: [Synth 8-6157] synthesizing module 'protocol_processor_top' [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:71]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_rx_slots' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:42]
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter BYTES_P bound to: 32'b00000000000000000000001001000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_rx_slots' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:42]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_timer_service' [$LANES/pp43-49-gsi-internal/hdl/common/KL_pp_timer_service.sv:43]
+	Parameter CLK_HZ_P bound to: 32'b00000101111101011110000100000000 
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter DIV_US_P bound to: 32'b00000000000000000000000001100100 
+	Parameter DIV_MS_P bound to: 32'b00000000000000000000001111101000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_timer_service' (0#1) [$LANES/pp43-49-gsi-internal/hdl/common/KL_pp_timer_service.sv:43]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_prng' [$LANES/pp43-49-gsi-internal/hdl/common/KL_pp_prng.sv:63]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/common/KL_pp_prng.sv:152]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_prng' (0#1) [$LANES/pp43-49-gsi-internal/hdl/common/KL_pp_prng.sv:63]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_scoreboard' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_scoreboard.sv:66]
+	Parameter MAX_HOLDS_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_scoreboard' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_scoreboard.sv:66]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_trace_ring' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_trace_ring.sv:39]
+	Parameter RECORDS_P bound to: 32'b00000000000000000000000100000000 
+	Parameter RECORD_W_P bound to: 32'b00000000000000000000000010000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_trace_ring' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_trace_ring.sv:39]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_originator' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:53]
+	Parameter CA_POOL_P bound to: 32'b00000000000000000000000000000100 
+	Parameter PROBE_SLOTS_P bound to: 32'b00000000000000000000000000000000 
+	Parameter INFLIGHT_P bound to: 32'b00000000000000000000000000000100 
+	Parameter KEY_W_P bound to: 32'b00000000000000000000000001110000 
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_originator' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:53]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_ca_originator' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:15]
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter TMR_CA_BASE_P bound to: 32'b00000000000000000000000000111001 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:139]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_ca_originator' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:15]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_rx_validator' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_validator.sv:71]
+	Parameter SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter BYTES_P bound to: 32'b00000000000000000000001001000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_rx_validator' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_validator.sv:71]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1353]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_normalizer' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_normalizer.sv:46]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_normalizer' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_normalizer.sv:46]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_dispatch' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:48]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_dispatch_fifo' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:224]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_dispatch_fifo' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:224]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_dispatch_fifo__parameterized0' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:224]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_dispatch_fifo__parameterized0' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:224]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_dispatch' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_dispatch.sv:48]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:1504]
+INFO: [Synth 8-6157] synthesizing module 'KL_adp_engine' [$LANES/pp43-49-gsi-internal/hdl/adp/KL_adp_engine.sv:62]
+	Parameter N_IF_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_SINK_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TMR_SLOT_ADV_BASE_P bound to: 32'b00000000000000000000000000000000 
+	Parameter TMR_SLOT_NOADP_BASE_P bound to: 32'b00000000000000000000000000000001 
+	Parameter RX_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter RX_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/adp/KL_adp_engine.sv:457]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/adp/KL_adp_engine.sv:888]
+INFO: [Synth 8-6155] done synthesizing module 'KL_adp_engine' (0#1) [$LANES/pp43-49-gsi-internal/hdl/adp/KL_adp_engine.sv:62]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_acmp_lsn_admit' [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_lsn_admit.sv:83]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TMR_OWNER_BASE_P bound to: 32'b00000000000000000000000000100000 
+	Parameter OWNER_W_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_acmp_lsn_admit' (0#1) [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_lsn_admit.sv:83]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_acmp_listener' [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:54]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TROM_HEX_P bound to: ltn_rom.hex - type: string 
+	Parameter RX_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter RX_SLOT_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+	Parameter TMR_SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter TMR_BASE_SLOT_P bound to: 32'b00000000000000000000000000001001 
+	Parameter TMR_OWNER_BASE_P bound to: 32'b00000000000000000000000000100000 
+	Parameter STRM_TIMEOUT_CYC_P bound to: 32'b00000000000000000001000000000000 
+INFO: [Synth 8-3876] $readmem data file 'ltn_rom.hex' is read successfully [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:418]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:529]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:549]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:558]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:599]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:652]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:910]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:1158]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_acmp_listener' (0#1) [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:54]
+INFO: [Synth 8-6157] synthesizing module 'KL_acmp_talker' [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:112]
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001000 
+	Parameter RX_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter RX_SLOT_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter TMR_SLOT_BASE_P bound to: 32'b00000000000000000000000000010001 
+	Parameter TMR_OWNER_BASE_P bound to: 80 - type: integer 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:693]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:851]
+WARNING: [Synth 8-693] zero replication count - replication ignored [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:884]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:410]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:887]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:1200]
+INFO: [Synth 8-6155] done synthesizing module 'KL_acmp_talker' (0#1) [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:112]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_maap' [$LANES/pp43-49-gsi-internal/hdl/maap/KL_pp_maap.sv:132]
+	Parameter N_SRC_P bound to: 32'b00000000000000000000000000001000 
+	Parameter RX_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter TMR_SLOT_BASE_P bound to: 32'b00000000000000000000000001000010 
+	Parameter TMR_OWNER_BASE_P bound to: 8'b10010000 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/maap/KL_pp_maap.sv:557]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_maap' (0#1) [$LANES/pp43-49-gsi-internal/hdl/maap/KL_pp_maap.sv:132]
+INFO: [Synth 8-6157] synthesizing module 'KL_mrp_strip' [$LANES/pp43-49-gsi-internal/hdl/top/KL_mrp_strip.sv:38]
+INFO: [Synth 8-6155] done synthesizing module 'KL_mrp_strip' (0#1) [$LANES/pp43-49-gsi-internal/hdl/top/KL_mrp_strip.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_top' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:79]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter DOM_DEF_VID_P bound to: 16'b0000000000000010 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter CAD_SLOT_BASE_P bound to: 32'b00000000000000000000000001000100 
+	Parameter CAD_OWNER_BASE_P bound to: 8'b10000000 
+	Parameter TK_SLOT_BASE_P bound to: 32'b00000000000000000000000001001011 
+	Parameter TK_OWNER_BASE_P bound to: 8'b01000000 
+	Parameter LS_SLOT_BASE_P bound to: 32'b00000000000000000000000001010011 
+	Parameter LS_OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_decoder' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:65]
+	Parameter TP_DEPTH_P bound to: 32'b00000000000000000000010000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:189]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/srp_pkg.sv:87]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:226]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:330]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:430]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_decoder' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_decoder.sv:65]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_domain' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_domain.sv:38]
+	Parameter DEF_PRIO_P bound to: 8'b00000011 
+	Parameter DEF_VID_P bound to: 16'b0000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_domain' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_domain.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_vlan' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_vlan.sv:38]
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter REFCNT_W_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_vlan.sv:184]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_vlan' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_vlan.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_admission' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_admission.sv:51]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_admission' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_admission.sv:51]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_talker_fsm' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_talker_fsm.sv:73]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001000 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000001001011 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_talker_fsm' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_talker_fsm.sv:73]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_listener_fsm' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_listener_fsm.sv:68]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000001010011 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_listener_fsm' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_listener_fsm.sv:68]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_encoder' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:63]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000001100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:430]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:532]
+INFO: [Synth 8-226] default block is never used [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:532]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_encoder' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:63]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:783]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:792]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:1013]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:1088]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_top' (0#1) [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_top.sv:79]
+INFO: [Synth 8-6157] synthesizing module 'KL_acmp_nvm_shadow' [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:100]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001000 
+	Parameter RS_TMO_CYC_P bound to: 32'b00000000000111101000010010000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:683]
+INFO: [Synth 8-226] default block is never used [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:683]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:436]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:436]
+INFO: [Synth 8-6155] done synthesizing module 'KL_acmp_nvm_shadow' (0#1) [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_nvm_shadow.sv:100]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_nvm_mgr_arb' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:58]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_nvm_mgr_arb' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv:58]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_nvm_port' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_nvm_port.sv:66]
+INFO: [Synth 8-226] default block is never used [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_nvm_port.sv:192]
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_nvm_port' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_nvm_port.sv:66]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_event_router' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_event_router.sv:48]
+	Parameter N_SRC_P bound to: 32'b00000000000000000000000000011101 
+	Parameter PAYLOAD_W_P bound to: 32'b00000000000000000000000000010000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_event_router' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_event_router.sv:48]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:2962]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_desc_mem_guard' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_mem_guard.sv:30]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_desc_mem_guard' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_mem_guard.sv:30]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_engine' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:252]
+	Parameter UCODE_HEX_P bound to: ucode.hex - type: string 
+	Parameter DESC_BASE_P bound to: 536870912 - type: integer 
+	Parameter RESP_BASE_P bound to: 537919488 - type: integer 
+	Parameter LINE_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter IDX_ENTRIES_P bound to: 32'b00000000000000000000000000100000 
+	Parameter NAME_ENTRIES_P bound to: 32'b00000000000000000000000000100000 
+	Parameter MEM_TIMEOUT_CYC_P bound to: 32'b00000000000000000001000000000000 
+	Parameter N_STREAM_IN_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_AUDIO_UNIT_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_CLK_DOMAIN_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_CONTROL_P bound to: 32'b00000000000000000000000000000001 
+	Parameter RX_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter RX_SLOT_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:958]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:1247]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_ucpu' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:37]
+	Parameter UCODE_HEX_P bound to: ucode.hex - type: string 
+INFO: [Synth 8-3876] $readmem data file 'ucode.hex' is read successfully [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:121]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:193]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:216]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:227]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:239]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:291]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:326]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:333]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:364]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:378]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:392]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:404]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:449]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:497]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:549]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:594]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:621]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_ucpu' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ucpu.sv:37]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_desc_store' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:151]
+	Parameter DESC_BASE_P bound to: 536870912 - type: integer 
+	Parameter LINE_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter IDX_ENTRIES_P bound to: 32'b00000000000000000000000000100000 
+	Parameter NAME_ENTRIES_P bound to: 32'b00000000000000000000000000100000 
+	Parameter MEM_TIMEOUT_CYC_P bound to: 32'b00000000000000000001000000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:638]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:666]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:872]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:1024]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_desc_store' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_desc_store.sv:151]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_dyn_state' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_dyn_state.sv:75]
+	Parameter N_STREAM_IN_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_AUDIO_UNIT_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_CLK_DOMAIN_P bound to: 32'b00000000000000000000000000000001 
+	Parameter N_CONTROL_P bound to: 32'b00000000000000000000000000000001 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_dyn_state.sv:191]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_dyn_state.sv:220]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_dyn_state.sv:293]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_dyn_state' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_dyn_state.sv:75]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_resp_buf' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_resp_buf.sv:96]
+	Parameter RESP_BASE_P bound to: 537919488 - type: integer 
+	Parameter RESP_BYTES_P bound to: 32'b00000000000000000000001001010000 
+	Parameter MEM_TIMEOUT_CYC_P bound to: 32'b00000000000000000001000000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_resp_buf.sv:278]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_resp_buf.sv:281]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_resp_buf.sv:416]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_resp_buf' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_resp_buf.sv:96]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:1874]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2068]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2159]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2372]
+INFO: [Synth 8-226] default block is never used [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2372]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2594]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:933]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2645]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2665]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:3184]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_engine' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:252]
+INFO: [Synth 8-6157] synthesizing module 'KL_aecp_notify' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:149]
+	Parameter N_CTRL_P bound to: 32'b00000000000000000000000000010000 
+	Parameter N_STREAM_IN_P bound to: 32'b00000000000000000000000000001000 
+	Parameter N_STREAM_OUT_P bound to: 32'b00000000000000000000000000001000 
+	Parameter TL_TIMEOUT_MS_P bound to: 32'b00000000000001001001001111100000 
+	Parameter LOCK_TIMEOUT_MS_P bound to: 32'b00000000000000001110101001100000 
+	Parameter TMR_SLOTS_P bound to: 32'b00000000000000000000000001011011 
+	Parameter TMR_REGMON_BASE_P bound to: 32'b00000000000000000000000000011001 
+	Parameter TMR_LOCK_SLOT_P bound to: 32'b00000000000000000000000000111101 
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[0]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[1]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[2]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[3]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[4]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[5]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[6]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[7]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[8]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[9]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[10]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[11]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[12]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[13]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[14]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+WARNING: [Synth 8-7186] Applying attribute ram_style = "distributed" is ignored, object 'rows_r[15]' is not inferred as ram due to incorrect usage [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:274]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:533]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:626]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:869]
+INFO: [Synth 8-6155] done synthesizing module 'KL_aecp_notify' (0#1) [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:149]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:3741]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_release_merge' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_release_merge.sv:22]
+	Parameter N_SLOTS_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_release_merge' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_release_merge.sv:22]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_tx_slots' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_slots.sv:42]
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_tx_slots' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_slots.sv:42]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_tx_arbiter' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_arbiter.sv:52]
+	Parameter N_REQ_P bound to: 32'b00000000000000000000000000001000 
+	Parameter PRIO_MAP_P bound to: 16'b0111011011001001 
+	Parameter SOLICITED_MASK_P bound to: 8'b10100101 
+	Parameter TX_STD_SLOTS_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_tx_arbiter' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_arbiter.sv:52]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:4075]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:4102]
+INFO: [Synth 8-6157] synthesizing module 'KL_pp_side_port' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_side_port.sv:42]
+	Parameter EN_FW_ASSIST_P bound to: 1'b0 
+INFO: [Synth 8-6155] done synthesizing module 'KL_pp_side_port' (0#1) [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_side_port.sv:42]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:4239]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:4246]
+INFO: [Synth 8-6155] done synthesizing module 'protocol_processor_top' (0#1) [$LANES/pp43-49-gsi-internal/hdl/top/protocol_processor_top.sv:71]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[4] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[5] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[6] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[7] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[8] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[9] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[10] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[11] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[12] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[13] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[14] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element key_r_reg[15] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:399]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[4] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[5] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[6] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[7] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[8] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[9] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[10] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[11] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[12] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[13] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[14] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-6014] Unused sequential element seq_r_reg[15] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:400]
+WARNING: [Synth 8-3936] Found unconnected internal register 'cancel_work_w_reg' and it is trimmed from '16' to '4' bits. [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:193]
+WARNING: [Synth 8-6014] Unused sequential element hold_valid_o_reg was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:424]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[4] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[5] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[6] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[7] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[8] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[9] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[10] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[11] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[12] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[13] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[14] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element owner_r_reg[15] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:398]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[4] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[5] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[6] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[7] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[8] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[9] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[10] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[11] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[12] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[13] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[14] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element txs_r_reg[15] was removed.  [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_originator.sv:403]
+WARNING: [Synth 8-6014] Unused sequential element rec_r_reg[sm_tmr_handle] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:855]
+WARNING: [Synth 8-3936] Found unconnected internal register 'trom_rdata_r_reg' and it is trimmed from '32' to '23' bits. [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_pp_acmp_listener.sv:421]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[origin] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[arrival_ts] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[status_in] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[cdl] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[src_mac] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[u_flag] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[cr] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[opcode] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[operands][desc_type] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[operands][desc_index] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[operands][config_index] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[hazard_class] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[hazard_key] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[tx_slot] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[deadline] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element txn_r_reg[resp_disposition] was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:615]
+WARNING: [Synth 8-6014] Unused sequential element walker.capture.byte_w_reg was removed.  [$LANES/pp43-49-gsi-internal/hdl/acmp/KL_acmp_talker.sv:884]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[origin] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[interface_index] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[arrival_ts] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[status_in] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[target_eid] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[u_flag] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[cr] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[operands][desc_type] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[operands][desc_index] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[operands][config_index] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[operands][unique_id] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[hazard_class] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[hazard_key] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[tx_slot] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[deadline] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmd_r_reg[resp_disposition] was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_engine.sv:2201]
+WARNING: [Synth 8-6014] Unused sequential element cmdq_drop_r_reg was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:685]
+WARNING: [Synth 8-6014] Unused sequential element em_cmd_r_reg was removed.  [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_notify.sv:737]
+WARNING: [Synth 8-7129] Port st_addr_i[2] in module KL_aecp_dyn_state is either unconnected or has no load
+WARNING: [Synth 8-7129] Port st_addr_i[1] in module KL_aecp_dyn_state is either unconnected or has no load
+WARNING: [Synth 8-7129] Port st_addr_i[0] in module KL_aecp_dyn_state is either unconnected or has no load
+WARNING: [Synth 8-7129] Port st_addr_i[2] in module KL_aecp_desc_store is either unconnected or has no load
+WARNING: [Synth 8-7129] Port st_addr_i[1] in module KL_aecp_desc_store is either unconnected or has no load
+WARNING: [Synth 8-7129] Port st_addr_i[0] in module KL_aecp_desc_store is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[392] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[391] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[390] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[389] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[388] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[387] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[386] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[385] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[384] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[383] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[382] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[381] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[380] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[379] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[378] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[377] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[376] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[375] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[374] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[373] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[372] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[371] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[370] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[369] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[368] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[367] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[366] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[365] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[364] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[363] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[362] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[361] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[360] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[359] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[358] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[357] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[349] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[348] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[347] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[346] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[345] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[141] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[140] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[123] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[122] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[121] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[120] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[119] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[118] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[117] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[116] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[115] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[114] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[113] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[112] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[111] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[110] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[109] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[108] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[107] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[106] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[105] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[104] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[103] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[102] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[101] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[100] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[99] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[98] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[97] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[96] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[95] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[94] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[93] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[92] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[91] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[90] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[89] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[88] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[87] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[86] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[85] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[84] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[83] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[82] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[81] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[80] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[79] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[78] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[77] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[76] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[75] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[74] in module KL_aecp_engine is either unconnected or has no load
+WARNING: [Synth 8-7129] Port txn_i[73] in module KL_aecp_engine is either unconnected or has no load
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished Synthesize : Time (s): cpu = 00:00:12 ; elapsed = 00:00:30 . Memory (MB): peak = 2703.094 ; gain = 993.617 ; free physical = 7140 ; free virtual = 60984
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:14 ; elapsed = 00:00:32 . Memory (MB): peak = 2703.094 ; gain = 993.617 ; free physical = 9008 ; free virtual = 62691
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:14 ; elapsed = 00:00:32 . Memory (MB): peak = 2703.094 ; gain = 993.617 ; free physical = 8982 ; free virtual = 62665
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'c_st_r_reg' in module 'KL_aecp_ca_originator'
+INFO: [Synth 8-802] inferred FSM for state register 'w_st_r_reg' in module 'KL_pp_maap'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_talker_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_listener_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'svc_st_r_reg' in module 'KL_srp_top'
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'KL_pp_nvm_port'
+INFO: [Synth 8-802] inferred FSM for state register 'ms_r_reg' in module 'KL_aecp_ucpu'
+INFO: [Synth 8-802] inferred FSM for state register 'st_r_reg' in module 'KL_aecp_resp_buf'
+INFO: [Synth 8-802] inferred FSM for state register 'g_wr_phase_r_reg' in module 'KL_aecp_engine'
+INFO: [Synth 8-802] inferred FSM for state register 'arb_st_r_reg' in module 'KL_pp_tx_arbiter'
+INFO: [Synth 8-802] inferred FSM for state register 'state_r_reg' in module 'KL_pp_side_port'
+INFO: [Synth 8-802] inferred FSM for state register 'pf_st_r_reg' in module 'protocol_processor_top'
+INFO: [Synth 8-802] inferred FSM for state register 'tkb_st_r_reg' in module 'protocol_processor_top'
+INFO: [Synth 8-802] inferred FSM for state register 'sh_st_r_reg' in module 'protocol_processor_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  C_IDLE |                            00001 |                              000
+                 C_ALLOC |                            10000 |                              001
+                 C_WRITE |                            01000 |                              010
+                C_COMMIT |                            00100 |                              011
+                 C_ISSUE |                            00010 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'c_st_r_reg' using encoding 'one-hot' in module 'KL_aecp_ca_originator'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                   W_OFF |                             0100 |                             0000
+                  W_ADDR |                             0011 |                             0010
+                  W_IVAL |                             0000 |                             0011
+                 W_ALLOC |                             0001 |                             0100
+                 W_GWAIT |                             0010 |                             0101
+                 W_WRITE |                             1011 |                             0110
+                W_COMMIT |                             1000 |                             0111
+                  W_LANE |                             1001 |                             1000
+                  W_POST |                             1010 |                             1001
+                  W_IDLE |                             0111 |                             0001
+              W_TEARDOWN |                             0101 |                             1011
+                    W_RX |                             0110 |                             1010
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'w_st_r_reg' using encoding 'sequential' in module 'KL_pp_maap'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_talker_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_listener_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                               00 |                               00
+                  S_GATE |                               01 |                               01
+                   S_CTL |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'svc_st_r_reg' using encoding 'sequential' in module 'KL_srp_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                 0000100000000000 |                             0000
+                  S_WHDR |                 0000010000000000 |                             0001
+                 S_WEREQ |                 0000000001000000 |                             0010
+                S_WEWAIT |                 0000000000000001 |                             0011
+                 S_WWREQ |                 0000000000000100 |                             0100
+                S_WHPUMP |                 0000000000001000 |                             0101
+                S_WDPUMP |                 1000000000000000 |                             0110
+                 S_WWAIT |                 0010000000000000 |                             0111
+                 S_RHREQ |                 0001000000000000 |                             1000
+                S_RHCOLL |                 0100000000000000 |                             1001
+                S_RHWAIT |                 0000001000000000 |                             1010
+                 S_RHFWD |                 0000000100000000 |                             1011
+                 S_RPREQ |                 0000000010000000 |                             1100
+                S_RPPUMP |                 0000000000010000 |                             1101
+                S_RPWAIT |                 0000000000100000 |                             1110
+                   S_FIN |                 0000000000000010 |                             1111
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'one-hot' in module 'KL_pp_nvm_port'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                              000 |                              000
+                  S_PRE3 |                              001 |                              001
+                  S_PRE2 |                              010 |                              010
+                  S_PRE1 |                              011 |                              011
+                  S_PRE0 |                              100 |                              100
+                   S_RUN |                              101 |                              101
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'ms_r_reg' using encoding 'sequential' in module 'KL_aecp_ucpu'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  R_FILL |                              110 |                              000
+                 R_FLUSH |                              101 |                              001
+                  R_RREQ |                              100 |                              010
+                R_STREAM |                              010 |                              011
+                 R_DRAIN |                              000 |                              100
+                  R_DONE |                              001 |                              101
+                  iSTATE |                              011 |                              110
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'st_r_reg' using encoding 'sequential' in module 'KL_aecp_resp_buf'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 iSTATE0 |                                0 |                               00
+                  iSTATE |                                1 |                               01
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'g_wr_phase_r_reg' using encoding 'sequential' in module 'KL_aecp_engine'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  A_IDLE |                              001 |                               00
+                 A_START |                              100 |                               01
+                A_STREAM |                              010 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'arb_st_r_reg' using encoding 'one-hot' in module 'KL_pp_tx_arbiter'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 SP_IDLE |                              001 |                               00
+                 SP_WAIT |                              010 |                               01
+                  iSTATE |                              100 |                               10
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_r_reg' using encoding 'one-hot' in module 'KL_pp_side_port'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 SH_IDLE |                              001 |                               00
+                  SH_HDR |                              010 |                               01
+                 SH_BODY |                              100 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'sh_st_r_reg' using encoding 'one-hot' in module 'protocol_processor_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 PF_WAIT |                              001 |                               00
+                   PF_RD |                              010 |                               01
+                 PF_DONE |                              100 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'pf_st_r_reg' using encoding 'one-hot' in module 'protocol_processor_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                TKB_IDLE |                            00001 |                              000
+               TKB_ALLOC |                            10000 |                              001
+                  TKB_WR |                            01000 |                              010
+              TKB_COMMIT |                            00100 |                              011
+                 TKB_REQ |                            00010 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'tkb_st_r_reg' using encoding 'one-hot' in module 'protocol_processor_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:30 ; elapsed = 00:00:57 . Memory (MB): peak = 2703.094 ; gain = 993.617 ; free physical = 9318 ; free virtual = 62919
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   3 Input   49 Bit       Adders := 3     
+	   2 Input   48 Bit       Adders := 2     
+	   2 Input   33 Bit       Adders := 1     
+	   3 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 52    
+	   3 Input   32 Bit       Adders := 23    
+	   2 Input   20 Bit       Adders := 5     
+	   3 Input   20 Bit       Adders := 1     
+	   2 Input   19 Bit       Adders := 1     
+	   4 Input   18 Bit       Adders := 1     
+	   2 Input   17 Bit       Adders := 7     
+	   2 Input   16 Bit       Adders := 20    
+	   3 Input   16 Bit       Adders := 2     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 5     
+	   3 Input   12 Bit       Adders := 2     
+	   2 Input   12 Bit       Adders := 5     
+	   2 Input   11 Bit       Adders := 33    
+	   3 Input   11 Bit       Adders := 7     
+	   2 Input   10 Bit       Adders := 24    
+	   3 Input   10 Bit       Adders := 1     
+	   2 Input    9 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 43    
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    7 Bit       Adders := 9     
+	   2 Input    6 Bit       Adders := 51    
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 52    
+	  16 Input    5 Bit       Adders := 1     
+	   2 Input    4 Bit       Adders := 37    
+	   7 Input    4 Bit       Adders := 1     
+	   6 Input    4 Bit       Adders := 1     
+	   4 Input    4 Bit       Adders := 3     
+	   3 Input    4 Bit       Adders := 2     
+	   2 Input    3 Bit       Adders := 23    
+	   4 Input    3 Bit       Adders := 15    
+	   3 Input    3 Bit       Adders := 9     
+	   5 Input    3 Bit       Adders := 1     
+	   6 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 28    
+	   2 Input    1 Bit       Adders := 2     
++---XORs : 
+	   2 Input     64 Bit         XORs := 17    
+	   2 Input     20 Bit         XORs := 1     
+	   2 Input     16 Bit         XORs := 18    
+	   2 Input      7 Bit         XORs := 1     
+	   2 Input      5 Bit         XORs := 1     
++---Registers : 
+	              393 Bit    Registers := 4     
+	              384 Bit    Registers := 1     
+	              285 Bit    Registers := 1     
+	              272 Bit    Registers := 5     
+	              146 Bit    Registers := 2     
+	              128 Bit    Registers := 19    
+	              112 Bit    Registers := 4     
+	               91 Bit    Registers := 1     
+	               84 Bit    Registers := 1     
+	               64 Bit    Registers := 134   
+	               48 Bit    Registers := 150   
+	               40 Bit    Registers := 1     
+	               32 Bit    Registers := 110   
+	               29 Bit    Registers := 2     
+	               24 Bit    Registers := 1     
+	               23 Bit    Registers := 1     
+	               20 Bit    Registers := 2     
+	               19 Bit    Registers := 1     
+	               18 Bit    Registers := 3     
+	               17 Bit    Registers := 4     
+	               16 Bit    Registers := 225   
+	               13 Bit    Registers := 6     
+	               12 Bit    Registers := 64    
+	               11 Bit    Registers := 36    
+	               10 Bit    Registers := 38    
+	                9 Bit    Registers := 3     
+	                8 Bit    Registers := 171   
+	                7 Bit    Registers := 16    
+	                6 Bit    Registers := 25    
+	                5 Bit    Registers := 31    
+	                4 Bit    Registers := 107   
+	                3 Bit    Registers := 142   
+	                2 Bit    Registers := 159   
+	                1 Bit    Registers := 402   
++---RAMs : 
+	              32K Bit	(256 X 128 bit)          RAMs := 1     
+	              30K Bit	(3904 X 8 bit)          RAMs := 1     
+	              20K Bit	(2048 X 10 bit)          RAMs := 1     
+	              18K Bit	(2304 X 8 bit)          RAMs := 6     
+	              16K Bit	(256 X 64 bit)          RAMs := 2     
+	               8K Bit	(1024 X 8 bit)          RAMs := 1     
+	               4K Bit	(32 X 128 bit)          RAMs := 1     
+	               4K Bit	(72 X 64 bit)          RAMs := 1     
+	               3K Bit	(8 X 384 bit)          RAMs := 1     
+	               3K Bit	(91 X 40 bit)          RAMs := 1     
+	               1K Bit	(8 X 146 bit)          RAMs := 1     
+	             1024 Bit	(16 X 64 bit)          RAMs := 1     
+	              672 Bit	(8 X 84 bit)          RAMs := 1     
+	              576 Bit	(64 X 9 bit)          RAMs := 1     
+	              384 Bit	(8 X 48 bit)          RAMs := 1     
+	              256 Bit	(16 X 16 bit)          RAMs := 5     
+	              228 Bit	(12 X 19 bit)          RAMs := 1     
+	              112 Bit	(16 X 7 bit)          RAMs := 1     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
+	               64 Bit	(16 X 4 bit)          RAMs := 1     
++---ROMs : 
+	                    ROMs := 1     
++---Muxes : 
+	   2 Input  384 Bit        Muxes := 1     
+	   3 Input  384 Bit        Muxes := 1     
+	   2 Input  272 Bit        Muxes := 5     
+	  16 Input  272 Bit        Muxes := 1     
+	   2 Input  146 Bit        Muxes := 3     
+	   2 Input  128 Bit        Muxes := 1     
+	   8 Input  128 Bit        Muxes := 1     
+	   2 Input   91 Bit        Muxes := 2     
+	   2 Input   84 Bit        Muxes := 3     
+	   5 Input   84 Bit        Muxes := 1     
+	   2 Input   72 Bit        Muxes := 1     
+	  15 Input   64 Bit        Muxes := 3     
+	   2 Input   64 Bit        Muxes := 95    
+	   3 Input   64 Bit        Muxes := 6     
+	   4 Input   64 Bit        Muxes := 7     
+	  11 Input   64 Bit        Muxes := 2     
+	  12 Input   64 Bit        Muxes := 1     
+	  20 Input   64 Bit        Muxes := 3     
+	  16 Input   64 Bit        Muxes := 6     
+	   8 Input   64 Bit        Muxes := 4     
+	  14 Input   64 Bit        Muxes := 1     
+	   7 Input   64 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 55    
+	   4 Input   48 Bit        Muxes := 3     
+	  15 Input   48 Bit        Muxes := 1     
+	   8 Input   48 Bit        Muxes := 2     
+	   3 Input   48 Bit        Muxes := 1     
+	  20 Input   48 Bit        Muxes := 1     
+	  16 Input   48 Bit        Muxes := 1     
+	   3 Input   47 Bit        Muxes := 1     
+	   2 Input   41 Bit        Muxes := 1     
+	  15 Input   32 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 74    
+	   5 Input   32 Bit        Muxes := 2     
+	   8 Input   32 Bit        Muxes := 3     
+	   3 Input   32 Bit        Muxes := 3     
+	  16 Input   32 Bit        Muxes := 3     
+	 129 Input   32 Bit        Muxes := 1     
+	  14 Input   32 Bit        Muxes := 2     
+	  20 Input   32 Bit        Muxes := 1     
+	   4 Input   32 Bit        Muxes := 1     
+	   2 Input   29 Bit        Muxes := 2     
+	   4 Input   27 Bit        Muxes := 1     
+	  14 Input   23 Bit        Muxes := 1     
+	   2 Input   20 Bit        Muxes := 2     
+	  14 Input   20 Bit        Muxes := 1     
+	   2 Input   19 Bit        Muxes := 1     
+	   2 Input   18 Bit        Muxes := 28    
+	   8 Input   18 Bit        Muxes := 3     
+	   3 Input   18 Bit        Muxes := 3     
+	   2 Input   17 Bit        Muxes := 6     
+	  16 Input   17 Bit        Muxes := 1     
+	  20 Input   17 Bit        Muxes := 1     
+	   2 Input   16 Bit        Muxes := 223   
+	   4 Input   16 Bit        Muxes := 13    
+	  15 Input   16 Bit        Muxes := 5     
+	   8 Input   16 Bit        Muxes := 15    
+	  11 Input   16 Bit        Muxes := 4     
+	  13 Input   16 Bit        Muxes := 2     
+	  12 Input   16 Bit        Muxes := 2     
+	  16 Input   16 Bit        Muxes := 14    
+	  20 Input   16 Bit        Muxes := 5     
+	   5 Input   16 Bit        Muxes := 3     
+	   6 Input   16 Bit        Muxes := 4     
+	  14 Input   16 Bit        Muxes := 3     
+	   3 Input   16 Bit        Muxes := 6     
+	   8 Input   15 Bit        Muxes := 1     
+	  16 Input   14 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 8     
+	  15 Input   13 Bit        Muxes := 1     
+	   5 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 59    
+	   4 Input   12 Bit        Muxes := 2     
+	   3 Input   12 Bit        Muxes := 1     
+	  16 Input   12 Bit        Muxes := 1     
+	  15 Input   11 Bit        Muxes := 1     
+	  16 Input   11 Bit        Muxes := 10    
+	   2 Input   11 Bit        Muxes := 53    
+	   5 Input   11 Bit        Muxes := 1     
+	   6 Input   11 Bit        Muxes := 4     
+	   3 Input   11 Bit        Muxes := 11    
+	   4 Input   11 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 26    
+	   4 Input   10 Bit        Muxes := 6     
+	  11 Input   10 Bit        Muxes := 1     
+	   5 Input   10 Bit        Muxes := 2     
+	   6 Input   10 Bit        Muxes := 1     
+	   3 Input   10 Bit        Muxes := 5     
+	   2 Input    9 Bit        Muxes := 1     
+	  15 Input    8 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 262   
+	   3 Input    8 Bit        Muxes := 8     
+	   5 Input    8 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 12    
+	  16 Input    8 Bit        Muxes := 4     
+	  13 Input    8 Bit        Muxes := 1     
+	   6 Input    8 Bit        Muxes := 2     
+	   8 Input    8 Bit        Muxes := 9     
+	   7 Input    8 Bit        Muxes := 3     
+	   2 Input    7 Bit        Muxes := 16    
+	   3 Input    7 Bit        Muxes := 2     
+	   8 Input    7 Bit        Muxes := 2     
+	  15 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 14    
+	  12 Input    6 Bit        Muxes := 1     
+	  20 Input    6 Bit        Muxes := 1     
+	   5 Input    6 Bit        Muxes := 2     
+	  14 Input    6 Bit        Muxes := 1     
+	   8 Input    6 Bit        Muxes := 2     
+	   4 Input    6 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 80    
+	   4 Input    5 Bit        Muxes := 4     
+	   3 Input    5 Bit        Muxes := 2     
+	  16 Input    5 Bit        Muxes := 4     
+	  20 Input    5 Bit        Muxes := 2     
+	   6 Input    5 Bit        Muxes := 1     
+	  14 Input    5 Bit        Muxes := 1     
+	   5 Input    5 Bit        Muxes := 2     
+	   8 Input    5 Bit        Muxes := 1     
+	   2 Input    4 Bit        Muxes := 148   
+	   3 Input    4 Bit        Muxes := 26    
+	   4 Input    4 Bit        Muxes := 25    
+	  15 Input    4 Bit        Muxes := 2     
+	   6 Input    4 Bit        Muxes := 9     
+	   5 Input    4 Bit        Muxes := 49    
+	   7 Input    4 Bit        Muxes := 17    
+	   8 Input    4 Bit        Muxes := 21    
+	   9 Input    4 Bit        Muxes := 2     
+	  16 Input    4 Bit        Muxes := 5     
+	  11 Input    4 Bit        Muxes := 1     
+	  12 Input    4 Bit        Muxes := 1     
+	  25 Input    4 Bit        Muxes := 1     
+	   2 Input    3 Bit        Muxes := 236   
+	  15 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 15    
+	   4 Input    3 Bit        Muxes := 6     
+	   5 Input    3 Bit        Muxes := 9     
+	  16 Input    3 Bit        Muxes := 7     
+	   8 Input    3 Bit        Muxes := 2     
+	  12 Input    3 Bit        Muxes := 1     
+	   6 Input    3 Bit        Muxes := 4     
+	   7 Input    3 Bit        Muxes := 2     
+	  18 Input    3 Bit        Muxes := 1     
+	   9 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 424   
+	   4 Input    2 Bit        Muxes := 55    
+	   3 Input    2 Bit        Muxes := 25    
+	  16 Input    2 Bit        Muxes := 6     
+	   5 Input    2 Bit        Muxes := 4     
+	   6 Input    2 Bit        Muxes := 3     
+	   8 Input    2 Bit        Muxes := 3     
+	  12 Input    2 Bit        Muxes := 2     
+	  20 Input    2 Bit        Muxes := 2     
+	   7 Input    2 Bit        Muxes := 2     
+	  15 Input    1 Bit        Muxes := 29    
+	   2 Input    1 Bit        Muxes := 2373  
+	   3 Input    1 Bit        Muxes := 158   
+	   4 Input    1 Bit        Muxes := 92    
+	   6 Input    1 Bit        Muxes := 86    
+	   5 Input    1 Bit        Muxes := 98    
+	   8 Input    1 Bit        Muxes := 164   
+	  16 Input    1 Bit        Muxes := 151   
+	   9 Input    1 Bit        Muxes := 2     
+	  11 Input    1 Bit        Muxes := 9     
+	  12 Input    1 Bit        Muxes := 30    
+	  20 Input    1 Bit        Muxes := 60    
+	  14 Input    1 Bit        Muxes := 26    
+	  13 Input    1 Bit        Muxes := 5     
+	   7 Input    1 Bit        Muxes := 33    
+	  17 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+INFO: [Synth 8-5784] Optimized 74 bits of RAM "u_trace/mem_r_reg" due to constant propagation. Old ram width 128 bits, new ram width 54 bits.
+INFO: [Synth 8-5544] ROM "listlen_decl_r" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-4471] merging register 'bidx_r_reg[5:0]' into 'bidx_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/srp/KL_srp_encoder.sv:488]
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[158]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[159]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[156]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[157]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[106]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[107]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[104]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[105]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[70]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[71]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[68]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[69]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[66]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[67]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[64]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[65]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[62]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[63]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[60]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[61]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[58]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[59]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[56]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[57]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[6]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[7]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[4]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[5]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[2]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[3]' (FDRE) to 'u_talker/push_val_r_reg[1]'
+INFO: [Synth 8-3886] merging instance 'u_talker/push_val_r_reg[0]' (FDRE) to 'u_talker/push_type_r_reg[1]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_talker/\push_val_r_reg[1] )
+INFO: [Synth 8-3886] merging instance 'u_talker/arm_owner_o_reg[3]' (FDRE) to 'u_talker/arm_owner_o_reg[4]'
+INFO: [Synth 8-3886] merging instance 'u_talker/arm_owner_o_reg[4]' (FDRE) to 'u_talker/arm_owner_o_reg[5]'
+INFO: [Synth 8-3886] merging instance 'u_talker/arm_owner_o_reg[5]' (FDRE) to 'u_talker/arm_slot_o_reg[5]'
+INFO: [Synth 8-3886] merging instance 'u_talker/arm_owner_o_reg[6]' (FDRE) to 'u_talker/arm_slot_o_reg[6]'
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_talker/\arm_slot_o_reg[5] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][31][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][30][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][29][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][28][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][27][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][26][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][25][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][24][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][23][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][22][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][21][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][20][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][19][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][18][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][17][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][16][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][15][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][14][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][13][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][12][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][11][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][10][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][9][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][8][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][7][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][6][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][5][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][4][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][3][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][2][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][1][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][0][39] )
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][31][35]' (FDE) to 'tf_ram_r_reg[0][31][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][31][39]' (FDE) to 'tf_ram_r_reg[0][31][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][30][35]' (FDE) to 'tf_ram_r_reg[0][30][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][30][39]' (FDE) to 'tf_ram_r_reg[0][30][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][29][35]' (FDE) to 'tf_ram_r_reg[0][29][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][29][39]' (FDE) to 'tf_ram_r_reg[0][29][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][28][35]' (FDE) to 'tf_ram_r_reg[0][28][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][28][39]' (FDE) to 'tf_ram_r_reg[0][28][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][27][35]' (FDE) to 'tf_ram_r_reg[0][27][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][27][39]' (FDE) to 'tf_ram_r_reg[0][27][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][26][35]' (FDE) to 'tf_ram_r_reg[0][26][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][26][39]' (FDE) to 'tf_ram_r_reg[0][26][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][25][35]' (FDE) to 'tf_ram_r_reg[0][25][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][25][39]' (FDE) to 'tf_ram_r_reg[0][25][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][24][35]' (FDE) to 'tf_ram_r_reg[0][24][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][24][39]' (FDE) to 'tf_ram_r_reg[0][24][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][23][35]' (FDE) to 'tf_ram_r_reg[0][23][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][23][39]' (FDE) to 'tf_ram_r_reg[0][23][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][22][35]' (FDE) to 'tf_ram_r_reg[0][22][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][22][39]' (FDE) to 'tf_ram_r_reg[0][22][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][21][35]' (FDE) to 'tf_ram_r_reg[0][21][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][21][39]' (FDE) to 'tf_ram_r_reg[0][21][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][20][35]' (FDE) to 'tf_ram_r_reg[0][20][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][20][39]' (FDE) to 'tf_ram_r_reg[0][20][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][19][35]' (FDE) to 'tf_ram_r_reg[0][19][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][19][39]' (FDE) to 'tf_ram_r_reg[0][19][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][18][35]' (FDE) to 'tf_ram_r_reg[0][18][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][18][39]' (FDE) to 'tf_ram_r_reg[0][18][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][17][35]' (FDE) to 'tf_ram_r_reg[0][17][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][17][39]' (FDE) to 'tf_ram_r_reg[0][17][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][16][35]' (FDE) to 'tf_ram_r_reg[0][16][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][16][39]' (FDE) to 'tf_ram_r_reg[0][16][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][15][35]' (FDE) to 'tf_ram_r_reg[0][15][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][15][39]' (FDE) to 'tf_ram_r_reg[0][15][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][14][35]' (FDE) to 'tf_ram_r_reg[0][14][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][14][39]' (FDE) to 'tf_ram_r_reg[0][14][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][13][35]' (FDE) to 'tf_ram_r_reg[0][13][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][13][39]' (FDE) to 'tf_ram_r_reg[0][13][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][12][35]' (FDE) to 'tf_ram_r_reg[0][12][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][12][39]' (FDE) to 'tf_ram_r_reg[0][12][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][11][35]' (FDE) to 'tf_ram_r_reg[0][11][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][11][39]' (FDE) to 'tf_ram_r_reg[0][11][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][10][35]' (FDE) to 'tf_ram_r_reg[0][10][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][10][39]' (FDE) to 'tf_ram_r_reg[0][10][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][9][35]' (FDE) to 'tf_ram_r_reg[0][9][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][9][39]' (FDE) to 'tf_ram_r_reg[0][9][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][8][35]' (FDE) to 'tf_ram_r_reg[0][8][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][8][39]' (FDE) to 'tf_ram_r_reg[0][8][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][7][35]' (FDE) to 'tf_ram_r_reg[0][7][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][7][39]' (FDE) to 'tf_ram_r_reg[0][7][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][6][35]' (FDE) to 'tf_ram_r_reg[0][6][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][6][39]' (FDE) to 'tf_ram_r_reg[0][6][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][5][35]' (FDE) to 'tf_ram_r_reg[0][5][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][5][39]' (FDE) to 'tf_ram_r_reg[0][5][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][4][35]' (FDE) to 'tf_ram_r_reg[0][4][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][4][39]' (FDE) to 'tf_ram_r_reg[0][4][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][3][35]' (FDE) to 'tf_ram_r_reg[0][3][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][3][39]' (FDE) to 'tf_ram_r_reg[0][3][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][2][35]' (FDE) to 'tf_ram_r_reg[0][2][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][2][39]' (FDE) to 'tf_ram_r_reg[0][2][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][1][35]' (FDE) to 'tf_ram_r_reg[0][1][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][1][39]' (FDE) to 'tf_ram_r_reg[0][1][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][0][35]' (FDE) to 'tf_ram_r_reg[0][0][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][0][39]' (FDE) to 'tf_ram_r_reg[0][0][45]'
+INFO: [Synth 8-3886] merging instance 'tf_ram_r_reg[0][31][36]' (FDE) to 'tf_ram_r_reg[0][31][45]'
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][31][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][30][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][29][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][28][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][27][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][26][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][25][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][24][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][23][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][22][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][21][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][20][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][19][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][18][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][17][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][16][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][15][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][14][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][13][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][12][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][11][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][10][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][9][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][8][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][7][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][6][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][5][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][4][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][3][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][2][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][1][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_ram_r_reg[0][0][45] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_q_r_reg[0][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tf_q_r_reg[0][45] )
+DSP Report: Generating DSP iv_bytes_r_reg, operation Mode is: (A2*B)'.
+DSP Report: register frame_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: register iv_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: operator iv_bytes_r0 is absorbed into DSP iv_bytes_r_reg.
+DSP Report: Generating DSP slope_prod_w, operation Mode is: A*(B:0xfa00).
+DSP Report: operator slope_prod_w is absorbed into DSP slope_prod_w.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\u_domain/q1_val_r_reg[31] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\u_domain/q1_ev_r_reg[2] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\u_vlan/ev_code_r_reg[1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\arm_slot_o_reg[5] )
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\push_val_r_reg[207] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\rsp_data_r_reg[31] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\u_domain/q0_ev_r_reg[1] )
+INFO: [Synth 8-4471] merging register 'cur_slot_r_reg[1:0]' into 'cur_slot_r_reg[1:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:143]
+INFO: [Synth 8-4471] merging register 'wr_ptr_r_reg[9:0]' into 'wr_ptr_r_reg[9:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:136]
+INFO: [Synth 8-4471] merging register 'cur_slot_r_reg[1:0]' into 'cur_slot_r_reg[1:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:143]
+INFO: [Synth 8-4471] merging register 'wr_ptr_r_reg[9:0]' into 'wr_ptr_r_reg[9:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:136]
+INFO: [Synth 8-5544] ROM "limit_w" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "mask_w" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "base_w" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "pdu_off_f" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "pdu_off_f" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[5][3][38] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[1][3][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_maap/\rsp_da_r_reg[46] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\pr_kind_r_reg[1][2] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_normalizer/\txn_r_reg[resp_disposition][1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_normalizer/\txn_r_reg[interface_index][1] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_normalizer/\txn_r_reg[origin][0] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_maap/\send_msg_r_reg[2] )
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\tkb_vlan_r_reg[15] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[5][2][38] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[1][2][39] )
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_1/i_0/u_acmp_q/mem_r_reg_0_3_390_392 from module partition__9 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_1/i_0/u_acmp_q/mem_r_reg_0_3_42_47 from module partition__9 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_0/i_0/u_adp_q/mem_r_reg_0_3_390_392 from module partition due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_0/i_0/u_adp_q/mem_r_reg_0_3_42_47 from module partition due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_2/i_0/u_aecp_q/mem_r_reg_0_3_390_392 from module partition__10 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_2/i_0/u_aecp_q/mem_r_reg_0_3_42_47 from module partition__10 due to constant propagation
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[5][1][38] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[1][1][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dispatch/i_2/\u_aecp_q/out_data_r_reg[392] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dispatch/i_0/\u_adp_q/out_data_r_reg[392] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_dispatch/i_1/\u_acmp_q/out_data_r_reg[392] )
+INFO: [Synth 8-7067] Removed DRAM instance u_dispatch/i_1/i_0/u_acmp_q/mem_r_reg_0_3_42_47 from module partition__9 due to constant propagation
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[5][0][38] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\armq_r_reg[1][0][39] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_talker/\txn_r_reg[interface_index][1] )
+INFO: [Synth 8-4471] merging register 'g_rx_pool[1].u_rx_slots/cur_slot_r_reg[1:0]' into 'g_rx_pool[1].u_rx_slots/cur_slot_r_reg[1:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:143]
+INFO: [Synth 8-4471] merging register 'g_rx_pool[1].u_rx_slots/wr_ptr_r_reg[9:0]' into 'g_rx_pool[1].u_rx_slots/wr_ptr_r_reg[9:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:136]
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-12589] Found 8 bits of RAM  (u_listener/i_87) with no load. RAM width may be reduced from 384 to 376 
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\bstat_r_reg[4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\apend_r_reg[0] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\txs_wr_len_o_reg[10] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_listener/\tmr_arm_owner_o_reg[4] )
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_nvm_shadow/\nvm_record_id_o_reg[7] )
+WARNING: [Synth 8-13373] Removed Macro Instance : u_listener/i_1/rec_ram_r_reg_5, of type : RAMB18E1 in constant propagation
+WARNING: [Synth 8-13373] Removed Macro Instance : u_listener/i_1/rec_ram_r_reg_5, of type : RAMB18E1 in constant propagation
+INFO: [Synth 8-4471] merging register 'cur_slot_r_reg[2:0]' into 'cur_slot_r_reg[2:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_slots.sv:238]
+INFO: [Synth 8-4471] merging register 'fetch_idx_r_reg[10:0]' into 'fetch_idx_r_reg[10:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_tx_slots.sv:177]
+INFO: [Synth 8-3333] propagating constant 0 across sequential element (\st_tk_r_reg[index][7] )
+INFO: [Common 17-14] Message 'Synth 8-3333' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Common 17-14] Message 'Synth 8-3886' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-5544] ROM "fld_len_w" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "st_wstrb_o" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+DSP Report: Generating DSP desc_off_r_reg, operation Mode is: (C'+A*B)'.
+DSP Report: register desc_off_r0 is absorbed into DSP desc_off_r_reg.
+DSP Report: register desc_off_r_reg is absorbed into DSP desc_off_r_reg.
+DSP Report: operator desc_off_r0 is absorbed into DSP desc_off_r_reg.
+DSP Report: operator desc_off_r1 is absorbed into DSP desc_off_r_reg.
+INFO: [Synth 8-5544] ROM "count_w" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "g_scan_len_r" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5546] ROM "amap_edit_phase_o" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5544] ROM "g_scan_len_r" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5546] ROM "amap_edit_phase_o" won't be mapped to RAM because it is too sparse
+INFO: [Synth 8-5544] ROM "g_rec_len_r" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "g_rec_cmd_r" won't be mapped to Block RAM because address size (3) smaller than threshold (5)
+DSP Report: Generating DSP tmr_arm_deadline_ms_o0, operation Mode is: C+(A:0x7d0)*B2.
+DSP Report: register rxq_vt_r_reg is absorbed into DSP tmr_arm_deadline_ms_o0.
+DSP Report: operator tmr_arm_deadline_ms_o0 is absorbed into DSP tmr_arm_deadline_ms_o0.
+DSP Report: operator adp_vt_to_ms_f_return is absorbed into DSP tmr_arm_deadline_ms_o0.
+INFO: [Synth 8-4471] merging register 'byte_r_reg[5:0]' into 'byte_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:108]
+INFO: [Synth 8-4471] merging register 'byte_r_reg[5:0]' into 'byte_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:108]
+INFO: [Synth 8-4471] merging register 'byte_r_reg[5:0]' into 'byte_r_reg[5:0]' [$LANES/pp43-49-gsi-internal/hdl/aecp/KL_aecp_ca_originator.sv:108]
+INFO: [Synth 8-4471] merging register 'g_rx_pool[3].u_rx_slots/cur_slot_r_reg[1:0]' into 'g_rx_pool[3].u_rx_slots/cur_slot_r_reg[1:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:143]
+INFO: [Synth 8-4471] merging register 'g_rx_pool[0].u_rx_slots/cur_slot_r_reg[1:0]' into 'g_rx_pool[0].u_rx_slots/cur_slot_r_reg[1:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:143]
+INFO: [Synth 8-4471] merging register 'g_rx_pool[3].u_rx_slots/wr_ptr_r_reg[9:0]' into 'g_rx_pool[3].u_rx_slots/wr_ptr_r_reg[9:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:136]
+INFO: [Synth 8-4471] merging register 'g_rx_pool[0].u_rx_slots/wr_ptr_r_reg[9:0]' into 'g_rx_pool[0].u_rx_slots/wr_ptr_r_reg[9:0]' [$LANES/pp43-49-gsi-internal/hdl/packet_engine/KL_pp_rx_slots.sv:136]
+INFO: [Common 17-14] Message 'Synth 8-7129' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_0/i_0/tslot_r_reg_r3_0_15_6_6 from module extram__10 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_0/i_0/tslot_r_reg_r4_0_3_6_6 from module extram__10 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_0/i_0/tslot_r_reg_r1_0_3_6_6 from module extram__10 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_0/i_0/tslot_r_reg_r2_0_3_6_6 from module extram__10 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_14/i_0/tout_r_reg_0_3_12_15 from module extram__12 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_14/i_0/tout_r_reg_0_3_6_11 from module extram__12 due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_originator/i_0/i_0/tslot_r_reg_r4_0_3_6_6 from module extram__10 due to constant propagation
+INFO: [Synth 8-5544] ROM "pick_kind_w" won't be mapped to Block RAM because address size (4) smaller than threshold (5)
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:59 ; elapsed = 00:02:43 . Memory (MB): peak = 2761.082 ; gain = 1051.605 ; free physical = 1915 ; free virtual = 53941
+---------------------------------------------------------------------------------
+ Sort Area is protocol_processor_top__GCB3 desc_off_r_reg_0 : 0 0 : 2105 2105 : Used 1 time 0
+ Sort Area is KL_srp_top__GB1 iv_bytes_r_reg_0 : 0 0 : 2093 2093 : Used 1 time 0
+ Sort Area is KL_srp_top__GB1 slope_prod_w_2 : 0 0 : 571 571 : Used 1 time 0
+ Sort Area is protocol_processor_top__GCB5 tmr_arm_deadline_ms_o0_0 : 0 0 : 185 185 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++--------------------+-------------+---------------+----------------+
+|Module Name         | RTL Object  | Depth x Width | Implemented As | 
++--------------------+-------------+---------------+----------------+
+|KL_pp_acmp_listener | act_order_f | 32x5          | LUT            | 
++--------------------+-------------+---------------+----------------+
+
+
+Block RAM: Preliminary Mapping Report (see note below)
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                  | RTL Object                        | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_decoder                    | tp_ram_reg                        | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|\g_rx_pool[2].u_rx_slots     | mem_r_reg                         | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|\g_rx_pool[4].u_rx_slots     | mem_r_reg                         | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_nvm_shadow                 | shw_ram_r_reg                     | 8 x 146(READ_FIRST)    | W |   | 8 x 146(WRITE_FIRST)   |   | R | Port A and B     | 1      | 2      | 
+|u_listener                   | rec_ram_r_reg                     | 8 x 376(READ_FIRST)    | W |   | 8 x 376(WRITE_FIRST)   |   | R | Port A and B     | 1      | 5      | 
+|protocol_processor_top__GCB1 | g_rx_pool[1].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_tx_slots                   | mem_r_reg                         | 3 K x 8(READ_FIRST)    | W |   | 3 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_timer                      | slot_ram_r_reg                    | 91 x 40(READ_FIRST)    | W |   | 91 x 40(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_aecp/u_store               | name_r_reg                        | 256 x 64(READ_FIRST)   | W |   | 256 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|u_aecp/u_store               | line_r_reg                        | 72 x 64(READ_FIRST)    | W |   | 72 x 64(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_aecp                       | amap_stage_r_reg                  | 256 x 64(READ_FIRST)   | W |   | 256 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | u_mrp_strip/ram_r_reg             | 2 K x 10(READ_FIRST)   | W |   | 2 K x 10(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | u_trace/mem_r_reg                 | 256 x 128(READ_FIRST)  | W |   | 256 x 128(WRITE_FIRST) |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | g_rx_pool[5].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB5 | g_rx_pool[3].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB5 | g_rx_pool[0].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++----------------+--------------------+----------------+----------------------+----------------+
+|Module Name     | RTL Object         | Inference      | Size (Depth x Width) | Primitives     | 
++----------------+--------------------+----------------+----------------------+----------------+
+|u_encoder       | mvrp_ram_r_reg     | Implied        | 16 x 19              | RAM32M x 4     | 
+|u_encoder       | msrp_ram_r_reg     | User Attribute | 16 x 285             | RAM32M x 48    | 
+|KL_srp_top__GB1 | u_vlan/tbl_r_reg   | Implied        | 4 x 17               | RAM32M x 3     | 
+|u_dispatch      | u_adp_q/mem_r_reg  | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_acmp_q/mem_r_reg | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_aecp_q/mem_r_reg | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_maap_q/mem_r_reg | User Attribute | 2 x 393              | RAM32M x 66    | 
+|u_talker        | rec_ram_r_reg      | Implied        | 8 x 84               | RAM32M x 14    | 
+|u_aecp/u_ucpu   | rf_r_reg           | User Attribute | 16 x 64              | RAM32M x 33    | 
+|u_aecp/u_store  | idx_r_reg          | Implied        | 32 x 128             | RAM32M x 22    | 
+|u_adp           | disc_rec_r_reg     | Implied        | 8 x 48               | RAM16X1S x 48  | 
+|u_rx_validator  | mrp_mem_r_reg      | Implied        | 64 x 9               | RAM64M x 3     | 
+|u_originator    | tslot_r_reg        | Implied        | 4 x 7                | RAM32M x 8     | 
+|u_originator    | tout_r_reg         | Implied        | 4 x 16               | RAM32M x 3     | 
+|u_notify        | cmdq_class_r_reg   | Implied        | 16 x 4               | RAM32M x 1     | 
+|u_notify        | cmdq_type_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_index_r_reg   | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_excl_r_reg    | Implied        | 16 x 64              | RAM32M x 11    | 
+|u_notify        | cmdq_arg0_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_arg1_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
++----------------+--------------------+----------------+----------------------+----------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-------------------+----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name        | DSP Mapping    | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------------+----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission   | (A2*B)'        | 17     | 16     | -      | -      | 33     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|KL_srp_admission   | A*(B:0xfa00)   | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|KL_aecp_desc_store | (C'+A*B)'      | 16     | 16     | 32     | -      | 32     | 0    | 0    | 1    | -    | -     | 0    | 1    | 
+|KL_adp_engine      | C+(A:0x7d0)*B2 | 5      | 11     | 32     | -      | 32     | 1    | 0    | 0    | -    | -     | 0    | 0    | 
++-------------------+----------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+No constraint files found.
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:02:21 ; elapsed = 00:03:18 . Memory (MB): peak = 2761.082 ; gain = 1051.605 ; free physical = 7498 ; free virtual = 57226
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                  | RTL Object                        | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_decoder                    | tp_ram_reg                        | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|\g_rx_pool[2].u_rx_slots     | mem_r_reg                         | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|\g_rx_pool[4].u_rx_slots     | mem_r_reg                         | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_nvm_shadow                 | shw_ram_r_reg                     | 8 x 146(READ_FIRST)    | W |   | 8 x 146(WRITE_FIRST)   |   | R | Port A and B     | 1      | 2      | 
+|u_listener                   | rec_ram_r_reg                     | 8 x 376(READ_FIRST)    | W |   | 8 x 376(WRITE_FIRST)   |   | R | Port A and B     | 1      | 5      | 
+|protocol_processor_top__GCB1 | g_rx_pool[1].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_tx_slots                   | mem_r_reg                         | 3 K x 8(READ_FIRST)    | W |   | 3 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_timer                      | slot_ram_r_reg                    | 91 x 40(READ_FIRST)    | W |   | 91 x 40(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_aecp/u_store               | name_r_reg                        | 256 x 64(READ_FIRST)   | W |   | 256 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|u_aecp/u_store               | line_r_reg                        | 72 x 64(READ_FIRST)    | W |   | 72 x 64(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_aecp                       | amap_stage_r_reg                  | 256 x 64(READ_FIRST)   | W |   | 256 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | u_mrp_strip/ram_r_reg             | 2 K x 10(READ_FIRST)   | W |   | 2 K x 10(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | u_trace/mem_r_reg                 | 256 x 128(READ_FIRST)  | W |   | 256 x 128(WRITE_FIRST) |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top       | g_rx_pool[5].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB5 | g_rx_pool[3].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB5 | g_rx_pool[0].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++----------------+--------------------+----------------+----------------------+----------------+
+|Module Name     | RTL Object         | Inference      | Size (Depth x Width) | Primitives     | 
++----------------+--------------------+----------------+----------------------+----------------+
+|u_encoder       | mvrp_ram_r_reg     | Implied        | 16 x 19              | RAM32M x 4     | 
+|u_encoder       | msrp_ram_r_reg     | User Attribute | 16 x 285             | RAM32M x 48    | 
+|KL_srp_top__GB1 | u_vlan/tbl_r_reg   | Implied        | 4 x 17               | RAM32M x 3     | 
+|u_dispatch      | u_adp_q/mem_r_reg  | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_acmp_q/mem_r_reg | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_aecp_q/mem_r_reg | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch      | u_maap_q/mem_r_reg | User Attribute | 2 x 393              | RAM32M x 66    | 
+|u_talker        | rec_ram_r_reg      | Implied        | 8 x 84               | RAM32M x 14    | 
+|u_aecp/u_ucpu   | rf_r_reg           | User Attribute | 16 x 64              | RAM32M x 33    | 
+|u_aecp/u_store  | idx_r_reg          | Implied        | 32 x 128             | RAM32M x 22    | 
+|u_adp           | disc_rec_r_reg     | Implied        | 8 x 48               | RAM16X1S x 48  | 
+|u_rx_validator  | mrp_mem_r_reg      | Implied        | 64 x 9               | RAM64M x 3     | 
+|u_originator    | tslot_r_reg        | Implied        | 4 x 7                | RAM32M x 8     | 
+|u_originator    | tout_r_reg         | Implied        | 4 x 16               | RAM32M x 3     | 
+|u_notify        | cmdq_class_r_reg   | Implied        | 16 x 4               | RAM32M x 1     | 
+|u_notify        | cmdq_type_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_index_r_reg   | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_excl_r_reg    | Implied        | 16 x 64              | RAM32M x 11    | 
+|u_notify        | cmdq_arg0_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify        | cmdq_arg1_r_reg    | Implied        | 16 x 16              | RAM32M x 3     | 
++----------------+--------------------+----------------+----------------------+----------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance i_3/u_nvm_shadow/shw_ram_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_nvm_shadow/shw_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_nvm_shadow/shw_ram_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_listener/rec_ram_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_listener/rec_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_listener/rec_ram_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_listener/rec_ram_r_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/u_listener/rec_ram_r_reg_4 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_3/g_rx_pool[1].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_4/u_tx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_4/u_timer/slot_ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_6/u_mrp_strip/ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_6/u_trace/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_6/g_rx_pool[5].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7067] Removed DRAM instance u_srpi_0/u_srp/u_encoder/msrp_ram_r_reg_0_15_282_284 from module KL_srp_top__GB0_tempName due to constant propagation
+INFO: [Synth 8-7067] Removed DRAM instance u_srpi_0/u_srp/u_encoder/msrp_ram_r_reg_0_15_282_284 from module KL_srp_top__GB0_tempName due to constant propagation
+INFO: [Synth 8-7052] The timing for the instance u_srpi_0/u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_2/g_rx_pool[2].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_2/g_rx_pool[4].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_5/u_aecp/u_store/name_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_5/u_aecp/u_store/line_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_5/u_aecp/amap_stage_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_7/g_rx_pool[3].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance i_7/g_rx_pool[0].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:02:25 ; elapsed = 00:03:27 . Memory (MB): peak = 2777.094 ; gain = 1067.617 ; free physical = 7808 ; free virtual = 57559
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[2].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[4].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_nvm_shadow/shw_ram_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_nvm_shadow/shw_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_nvm_shadow/shw_ram_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_listener/rec_ram_r_reg_0 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_listener/rec_ram_r_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_listener/rec_ram_r_reg_2 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_listener/rec_ram_r_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_listener/rec_ram_r_reg_4 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[1].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_tx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_timer/slot_ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_aecp/u_store/name_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_aecp/u_store/line_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_aecp/amap_stage_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_mrp_strip/ram_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_trace/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[5].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[3].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_rx_pool[0].u_rx_slots/mem_r_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:02:32 ; elapsed = 00:03:40 . Memory (MB): peak = 2890.141 ; gain = 1180.664 ; free physical = 10540 ; free virtual = 59771
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:02:32 ; elapsed = 00:03:40 . Memory (MB): peak = 2890.141 ; gain = 1180.664 ; free physical = 10804 ; free virtual = 60033
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:02:34 ; elapsed = 00:03:42 . Memory (MB): peak = 2890.141 ; gain = 1180.664 ; free physical = 10909 ; free virtual = 60171
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:02:34 ; elapsed = 00:03:42 . Memory (MB): peak = 2890.141 ; gain = 1180.664 ; free physical = 11038 ; free virtual = 60297
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:02:35 ; elapsed = 00:03:43 . Memory (MB): peak = 2911.953 ; gain = 1202.477 ; free physical = 11316 ; free virtual = 60618
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:02:35 ; elapsed = 00:03:43 . Memory (MB): peak = 2911.953 ; gain = 1202.477 ; free physical = 12046 ; free virtual = 61340
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-------------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name        | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-------------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_adp_engine      | C'+A'*B     | 5      | 11     | 32     | -      | 32     | 1    | 0    | 1    | -    | -     | 0    | 0    | 
+|KL_aecp_desc_store | (C'+A'*B)'  | 16     | 16     | 32     | -      | 32     | 1    | 0    | 1    | -    | -     | 0    | 1    | 
+|KL_srp_admission   | (A'*B)'     | 17     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission   | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-------------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |  1682|
+|2     |DSP48E1  |     4|
+|3     |LUT1     |   308|
+|4     |LUT2     |  4429|
+|5     |LUT3     |  2870|
+|6     |LUT4     |  3906|
+|7     |LUT5     |  5060|
+|8     |LUT6     | 15149|
+|9     |MUXF7    |  1423|
+|10    |MUXF8    |    55|
+|11    |RAM16X1S |    48|
+|12    |RAM32M   |   284|
+|13    |RAM32X1D |     5|
+|14    |RAM64M   |     3|
+|15    |RAMB18E1 |     2|
+|16    |RAMB36E1 |    23|
+|17    |FDRE     | 31089|
+|18    |FDSE     |    49|
++------+---------+------+
+
+Report Instance Areas: 
++------+----------------------------+------------------------------------+------+
+|      |Instance                    |Module                              |Cells |
++------+----------------------------+------------------------------------+------+
+|1     |top                         |                                    | 66389|
+|2     |  \g_rx_pool[0].u_rx_slots  |KL_pp_rx_slots                      |   103|
+|3     |  \g_rx_pool[1].u_rx_slots  |KL_pp_rx_slots_0                    |    68|
+|4     |  \g_rx_pool[2].u_rx_slots  |KL_pp_rx_slots_1                    |   137|
+|5     |  \g_rx_pool[3].u_rx_slots  |KL_pp_rx_slots_2                    |   138|
+|6     |  \g_rx_pool[4].u_rx_slots  |KL_pp_rx_slots_3                    |    76|
+|7     |  \g_rx_pool[5].u_rx_slots  |KL_pp_rx_slots_4                    |   187|
+|8     |  u_adp                     |KL_adp_engine                       |  1563|
+|9     |  u_aecp                    |KL_aecp_engine                      | 10398|
+|10    |    u_dyn                   |KL_aecp_dyn_state                   |  2074|
+|11    |    u_resp                  |KL_aecp_resp_buf                    |   824|
+|12    |    u_store                 |KL_aecp_desc_store                  |  2027|
+|13    |    u_ucpu                  |KL_aecp_ucpu                        |  2636|
+|14    |  u_ca_builder              |KL_aecp_ca_originator               |   501|
+|15    |  u_desc_mem_guard          |KL_aecp_desc_mem_guard              |     2|
+|16    |  u_dispatch                |KL_pp_dispatch                      |  1587|
+|17    |    u_acmp_q                |KL_pp_dispatch_fifo                 |   389|
+|18    |    u_adp_q                 |KL_pp_dispatch_fifo_5               |   116|
+|19    |    u_aecp_q                |KL_pp_dispatch_fifo_6               |   740|
+|20    |    u_maap_q                |KL_pp_dispatch_fifo__parameterized0 |   228|
+|21    |  u_event_router            |KL_pp_event_router                  |   954|
+|22    |  u_listener                |KL_pp_acmp_listener                 |  3155|
+|23    |  u_lsn_admit               |KL_pp_acmp_lsn_admit                |     1|
+|24    |  u_maap                    |KL_pp_maap                          |  1776|
+|25    |  u_mrp_strip               |KL_mrp_strip                        |   204|
+|26    |  u_normalizer              |KL_pp_normalizer                    |   398|
+|27    |  u_notify                  |KL_aecp_notify                      |  6856|
+|28    |  u_nvm_arb                 |KL_pp_nvm_mgr_arb                   |    15|
+|29    |  u_nvm_port                |KL_pp_nvm_port                      |   371|
+|30    |  u_nvm_shadow              |KL_acmp_nvm_shadow                  |  1840|
+|31    |  u_originator              |KL_pp_originator                    |  1816|
+|32    |  u_prng                    |KL_pp_prng                          |   378|
+|33    |  u_release_merge           |KL_pp_release_merge                 |     4|
+|34    |  u_rx_validator            |KL_pp_rx_validator                  |  2103|
+|35    |  u_scoreboard              |KL_pp_scoreboard                    |   207|
+|36    |  u_side_port               |KL_pp_side_port                     |    87|
+|37    |  u_srp                     |KL_srp_top                          | 20910|
+|38    |    u_admission             |KL_srp_admission                    |  1663|
+|39    |    u_decoder               |KL_srp_decoder                      |  1907|
+|40    |    u_domain                |KL_srp_domain                       |   239|
+|41    |    u_encoder               |KL_srp_encoder                      |  2594|
+|42    |    u_listener              |KL_srp_listener_fsm                 |  5014|
+|43    |    u_talker                |KL_srp_talker_fsm                   |  4509|
+|44    |    u_vlan                  |KL_srp_vlan                         |   187|
+|45    |  u_talker                  |KL_acmp_talker                      |  2358|
+|46    |  u_timer                   |KL_pp_timer_service                 |  1922|
+|47    |  u_trace                   |KL_pp_trace_ring                    |    27|
+|48    |  u_tx_arbiter              |KL_pp_tx_arbiter                    |   488|
+|49    |  u_tx_slots                |KL_pp_tx_slots                      |   583|
++------+----------------------------+------------------------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:02:35 ; elapsed = 00:03:43 . Memory (MB): peak = 2911.953 ; gain = 1202.477 ; free physical = 12053 ; free virtual = 61349
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 1909 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:02:35 ; elapsed = 00:03:45 . Memory (MB): peak = 2915.867 ; gain = 1206.391 ; free physical = 18151 ; free virtual = 67413
+Synthesis Optimization Complete : Time (s): cpu = 00:02:35 ; elapsed = 00:03:45 . Memory (MB): peak = 2915.867 ; gain = 1206.391 ; free physical = 18151 ; free virtual = 67403
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.27 ; elapsed = 00:00:00.28 . Memory (MB): peak = 2953.609 ; gain = 0.000 ; free physical = 16842 ; free virtual = 66016
+INFO: [Netlist 29-17] Analyzing 3529 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3131.258 ; gain = 0.000 ; free physical = 16166 ; free virtual = 65484
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 340 instances were transformed.
+  RAM16X1S => RAM32X1S (RAMS32): 48 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 284 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 5 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 3 instances
+
+Synth Design complete | Checksum: 40eb9f70
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+521 Infos, 257 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:02:44 ; elapsed = 00:03:56 . Memory (MB): peak = 3131.293 ; gain = 1421.816 ; free physical = 16314 ; free virtual = 65632
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 9872.172; main = 2492.569; forked = 8232.246
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 19569.820; main = 3131.262; forked = 16812.652
+# create_clock -period 10.000 -name clk [get_ports clk_i]
+# report_utilization -hierarchical -file util_hier.rpt
+# report_utilization -file util.rpt
+# report_timing_summary -delay_type max -max_paths 3 -file timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 8 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:01:17 ; elapsed = 00:00:27 . Memory (MB): peak = 3195.289 ; gain = 63.996 ; free physical = 16969 ; free virtual = 66652
+INFO: [Common 17-206] Exiting Vivado at Thu Sep 24 13:49:52 2026...
