@@ -1,0 +1,15 @@
+MRPDUs per phase/sender: {('before', 'DUT'): 53, ('before', 'switch'): 12, ('bound', 'DUT'): 860, ('bound', 'switch'): 189, ('after', 'switch'): 29, ('after', 'DUT'): 129}
+LeaveAll MRPDUs (phase, sender, flagged types, NumberOfValues-0 types): count
+   ('after', 'DUT', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('Listener', 'TalkerAdvertise', 'TalkerFailed')) 9
+   ('after', 'switch', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('Listener', 'TalkerAdvertise', 'TalkerFailed')) 9
+   ('before', 'DUT', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('Listener', 'TalkerAdvertise', 'TalkerFailed')) 4
+   ('before', 'switch', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('Listener', 'TalkerAdvertise', 'TalkerFailed')) 4
+   ('bound', 'DUT', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('Listener', 'TalkerFailed')) 57
+   ('bound', 'switch', ('Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'), ('TalkerAdvertise', 'TalkerFailed')) 57
+MRPDUs with more than one Domain vector (phase, sender, n Domain vectors, LeaveAll PDU): count
+   ('after', 'DUT', 2, False) 4
+   ('after', 'DUT', 2, True) 4
+   ('before', 'DUT', 2, False) 1
+   ('before', 'DUT', 2, True) 2
+   ('bound', 'DUT', 2, False) 10
+   ('bound', 'DUT', 2, True) 11

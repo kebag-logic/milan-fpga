@@ -1,0 +1,23 @@
+== MSRP events for the CRF stream by phase (count, first tap s)
+  after  DUT    TalkerAdvertise Lv                     n=   1 first=767.733282
+  after  DUT    TalkerAdvertise Mt                     n=  18 first=768.533274
+  after  switch Listener        Lv/Ready               n=   1 first=767.651181
+  after  switch TalkerAdvertise Mt                     n=   1 first=767.745167
+  bound  DUT    TalkerAdvertise JoinMt                 n= 801 first=48.131676
+  bound  DUT    TalkerAdvertise LA JoinMt              n=  56 first=57.731709
+  bound  DUT    TalkerAdvertise LA Mt                  n=   1 first=140.931882
+  bound  DUT    TalkerAdvertise New                    n=   2 first=47.731685
+  bound  switch Listener        JoinMt/Ready           n= 115 first=53.039701
+  bound  switch Listener        LA JoinMt/Ready        n=  57 first=53.139746
+  bound  switch Listener        New/Ready              n=   2 first=52.848561
+  bound  switch TalkerAdvertise Mt                     n=  15 first=53.239714
+
+== nearest DUT LeaveAll minus each switch LeaveAll (s):
+   [(4.4, 3), (3.001, 3), (0.002, 2), (0.802, 2), (2.608, 2), (0.609, 2), (4.809, 2), (0.608, 2), (1.008, 2), (4.208, 2), (3.802, 1), (0.602, 1)]
+   in bound window: [(3.001, 3), (0.802, 2), (4.4, 2), (0.609, 2), (4.809, 2), (0.608, 2), (4.592, 1), (4.602, 1), (2.402, 1), (1.202, 1), (3.402, 1), (0.002, 1)]
+
+== UTC (capture-server clock via the fit)
+  bind_h: 05:16:05.250213
+  first_listener_ready_h: 05:16:10.467018
+  first_pdu_h: 05:16:10.468228
+  unbind_h: 05:28:05.259681

@@ -1,0 +1,106 @@
+tap records 388561, host-generated excluded 167
+clock fit: {'points': 176, 'slope_ppm': 3.224603776839985, 'resid_ms_min': -2.982912, 'resid_ms_max': 7.35616}
+t=0 is tap record 1 = capture-server 1790229098.387324
+
+== ACMP for DUT talker uid 1 / peer listener uid 8 (tap s, capture-server UTC s)
+ 47.813198 1790229146.200677 p2 CONNECT_RX_COMMAND(bind) status=0(SUCCESS) dmac=00:00:00:00:00:00 cc=0
+ 47.821689 1790229146.209168 p2 CONNECT_RX_RESPONSE status=0(SUCCESS) dmac=00:00:00:00:00:00 cc=1
+ 47.821801 1790229146.209279 p2 CONNECT_TX_COMMAND(probe) status=0(SUCCESS) dmac=00:00:00:00:00:00 cc=0
+ 47.821808 1790229146.209286 p3 CONNECT_TX_RESPONSE status=0(SUCCESS) dmac=91:e0:f0:00:5a:8e cc=0
+767.821821 1790229866.211621 p2 DISCONNECT_RX_COMMAND(unbind) status=0(SUCCESS) dmac=00:00:00:00:00:00 cc=0
+
+== CRF PDUs from the DUT
+burst 1: 48.029738 .. 767.830936 tap s (UTC 1790229146.417217 .. 1790229866.220737), 719.801 s, 359897 PDUs, 499.99 PDU/s, max interval 2.005 ms, seq discontinuities 0, tu [0], vlan(pcp,vid) [(3, 2)], dst ['91:e0:f0:00:5a:8e'], stream ['0200000000010001']
+all CRF PDUs 359897; intervals ms n=359896 min=1.995 median=2.000 mean=2.000 max=2.005
+AAF PDUs from the DUT: 0
+
+== MSRP: 1266 MRPDUs (1041 from the DUT, 225 from the switch)
+LeaveAll MRPDUs switch -> DUT: 69; spacing s n=68 min=10.000 median=12.800 mean=12.706 max=14.800
+   flagged types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'], of which NumberOfValues-0 vectors ['Listener', 'TalkerAdvertise', 'TalkerFailed']: 13
+   flagged types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'], of which NumberOfValues-0 vectors ['TalkerAdvertise', 'TalkerFailed']: 56
+LeaveAll MRPDUs DUT -> switch: 69; spacing s n=68 min=10.000 median=13.000 mean=12.712 max=14.800
+   flagged types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'], of which NumberOfValues-0 vectors ['Listener', 'TalkerAdvertise', 'TalkerFailed']: 13
+   flagged types ['Domain', 'Listener', 'TalkerAdvertise', 'TalkerFailed'], of which NumberOfValues-0 vectors ['Listener', 'TalkerFailed']: 56
+DUT Talker declarations for 0200000000010001: {'TalkerAdvertise Mt': 26, 'TalkerAdvertise JoinMt': 794, 'TalkerAdvertise LA JoinMt': 55, 'TalkerAdvertise LA Mt': 1, 'TalkerAdvertise Lv': 1}
+switch Listener declarations for 0200000000010001: {'Listener New/Ready': 2, 'Listener JoinMt/Ready': 113, 'Listener LA JoinMt/Ready': 56, 'Listener Lv/Ready': 1}
+other declarations for 0200000000010001: {'TalkerAdvertise Mt': 14}
+DUT TalkerAdvertise Lv: [767.972054]
+DUT TalkerFailed: []
+switch Listener Lv: [(767.832125, 'Ready')]
+first DUT TalkerAdvertise: (3.970403, 'Mt')
+first switch Listener (any): (48.028325, 'New', 'Ready')
+first switch Listener Ready/ReadyFailed: (48.028325, 'New', 'Ready')
+
+== #530 acceptance quantities (tap clock)
+bound window: CONNECT_RX 47.813198 .. DISCONNECT_RX 767.821821 = 720.009 s (UTC 1790229146.201 .. 1790229866.212)
+  bind_t: 47.813198424
+  unbind_t: 767.821820761
+  bound_s: 720.008622337
+  bind_h: 1790229146.200677
+  unbind_h: 1790229866.211621
+  dut_ta_lv_bound: []
+  dut_tf_bound: []
+  sw_listener_lv_bound: []
+  leaveall_switch_bound: 56
+  leaveall_dut_bound: 56
+  leaveall_switch_spacing: n=55 min=10.000 median=13.200 mean=12.778 max=14.800
+  leaveall_dut_spacing: n=55 min=10.000 median=13.200 mean=12.767 max=14.800
+  switch_listener_redeclare_after_dut_leaveall_s: n=56 min=0.000 median=0.000 mean=0.002 max=0.092
+  switch_listener_redeclare_missing: 0
+  dut_ta_redeclare_after_switch_leaveall_s: n=56 min=0.000 median=0.008 mean=0.058 max=0.200
+  dut_ta_redeclare_missing: 0
+  bursts_overlapping_bound_window: 1
+  first_pdu_t: 48.029738216
+  last_pdu_t: 767.830936397
+  stream_s: 719.801198181
+  first_pdu_after_bind_s: 0.21653979199999895
+  last_pdu_after_unbind_s: 0.009115635999933147
+  max_interval_ms: 2.005149
+  seq_gaps: 0
+  first_listener_ready_t: 48.02832522
+  first_listener_ready_h: 1790229146.4158044
+  first_pdu_h: 1790229146.4172175
+  first_pdu_minus_first_ready_ms: 1.4129959999991115
+  switch_listener_before_first_pdu: {'Listener New/Ready': 1}
+  probe_responses: [(47.821808, 'SUCCESS')]
+  switch_listener_after_unbind: [(0.010304, 'Lv', 'Ready')]
+  dut_ta_lv_after_unbind_s: [0.150233]
+  last_probe_response_t: 47.821807779
+  dut_ta_lv_after_last_probe_s: [720.150246]
+
+== GET_COUNTERS (controller-host NTP time; tap s via the capture-server fit)
+reads: SO1 871, SO0 871, peer SI8 871, not SUCCESS 0
+SO1 STREAM_START/STOP/MEDIA_RESET/TIMESTAMP_UNCERTAIN changes (t tap-approx s, UTC, counters):
+   (7.819, 1790229106.206, {'STREAM_START': 1, 'STREAM_STOP': 1, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 716})
+   (48.819, 1790229147.206, {'STREAM_START': 2, 'STREAM_STOP': 1, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 1})
+   (768.819, 1790229867.207, {'STREAM_START': 2, 'STREAM_STOP': 2, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'FRAMES_TX': 721})
+SO0 (AAF) distinct counter blocks: {'{"FRAMES_TX": 0, "MEDIA_RESET": 0, "STREAM_START": 0, "STREAM_STOP": 0, "TIMESTAMP_UNCERTAIN": 0}'}
+FRAMES_TX changes 721; step sizes {-715: 1, 1: 720}; first [(48.819, 716, 1), (49.819, 1, 2), (50.819, 2, 3)]; last [(766.819, 718, 719), (767.819, 719, 720), (768.819, 720, 721)]
+FRAMES_TX final (877.819, 721)
+peer SI8 changes (excluding FRAMES_RX / TIMESTAMP_VALID):
+   7.819 {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0} FRAMES_RX 357392
+   47.823 {'MEDIA_LOCKED': 0, 'MEDIA_UNLOCKED': 0, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0} FRAMES_RX 0
+   48.819 {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 0, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0} FRAMES_RX 395
+   768.82 {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0} FRAMES_RX 359892
+peer SI8 last: (877.82, {'MEDIA_LOCKED': 1, 'MEDIA_UNLOCKED': 1, 'STREAM_INTERRUPTED': 0, 'SEQ_NUM_MISMATCH': 0, 'MEDIA_RESET': 0, 'TIMESTAMP_UNCERTAIN': 0, 'TIMESTAMP_VALID': 359892, 'TIMESTAMP_NOT_VALID': 0, 'UNSUPPORTED_FORMAT': 0, 'LATE_TIMESTAMP': 0, 'EARLY_TIMESTAMP': 0, 'FRAMES_RX': 359892})
+
+== bind window log
+   start 17.814 {'argv': ['ens10', '30', '720', '90']}
+   bind 47.823 {'response': {'status': 0, 'stream_id': '0000000000000000', 'talker': '020000fffe000001', 'listener': '3cc0c60102030000', 'talker_uid': 1, 'listener_uid': 8, 'dmac': '000000000000', 'conn_count': 1, 'flags': '0x0000', 'vlan': 0}}
+   unbind 767.824 {'attempt': 0, 'response': {'status': 0, 'stream_id': '0000000000000000', 'talker': '0000000000000000', 'listener': '3cc0c60102030000', 'talker_uid': 0, 'listener_uid': 8, 'dmac': '000000000000', 'conn_count': 0, 'flags': '0x0000', 'vlan': 0}}
+   done 857.833 {}
+   state ('before', 0, 0, '0000000000000000', 0, '91e0f0005a8e') 1
+   state ('bound', 0, 1, '020000fffe000001', 0, '91e0f0005a8e') 144
+   state ('after', 0, 0, '0000000000000000', 0, '91e0f0005a8e') 1
+   state ('post', 0, 0, '0000000000000000', 0, '91e0f0005a8e') 18
+
+== console (build-box time + offset -> capture-server time)
+milan_status (GM, SYNC, ASCAPABLE, TU): {('3cc0c6fffefe0210', '1', '1', '0'): 1790}
+CRFT_CTRL: samples 1790, edges 2: [(-0.324, '0x3'), (48.177, '0x3002e3'), (768.177, '0x3')]
+CRFT_COUNT: samples 1790, first 0x57415 at -0.309, last 717294 (0xaf1ee) at 894.191
+   frozen at its final value from 768.191
+LWSRP_STATUS: samples 1790, edges 2: [(-0.295, '0x0'), (48.205, '0x250'), (768.205, '0x0')]
+ACMP_TALKER: samples 1790, edges 0: [(-0.281, '0x0')]
+CLKV_TUCNT: samples 1790, edges 0: [(-0.266, '0xa')]
+GPTP_DROPW: samples 1790, edges 0: [(-0.252, '0x0')]
+GPTP_DROPE: samples 1790, edges 0: [(-0.238, '0x0')]
