@@ -1,0 +1,20 @@
+### python3 scripts/check_em_dash.py --base 50e78097564244c124e1ec30dd8821f83951ab06
+check_em_dash: 0 finding(s) over 203 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [50e78097..HEAD]
+rc=0
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 850 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### python3 scripts/gen_toc.py --check
+TOC gate: OK (106 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### python3 scripts/gen_toc.py --verify-anchors
+anchor check: 150 existing cross-page fragment links reproduced
+rc=0
+### python3 scripts/check_doc_paths.py
+doc path gate: OK (837 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+### git diff --check 50e78097564244c124e1ec30dd8821f83951ab06 446e79b977640d13fa1e5dc0f9896d6c5a70391d
+rc=0

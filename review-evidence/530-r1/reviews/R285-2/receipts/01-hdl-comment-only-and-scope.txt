@@ -1,0 +1,29 @@
+# cmd: python3 scripts/sv_comment_free_compare.py <CLONE> c593cbeffaffa647cda70fb1a233455bf9c80d55 446e79b977640d13fa1e5dc0f9896d6c5a70391d hdl/
+hdl/milan/milan_datapath.sv: comment-free sha256 c593cbeffaff=327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1 446e79b97764=327d63f941421deef1373859414644d3769a9a2d4b1179540c922c960a4e26a1 IDENTICAL
+changed lines: 83; not starting with //: 0
+RESULT: PASS
+rc=0
+# files changed outside docs/CHANGELOG/hdl comments:
+CHANGELOG.md
+docs/reference/EGRESS_QUEUE_MAP.md
+docs/reference/FR_NFR.md
+docs/reference/REGISTER_MAP.md
+docs/traceability/ieee8021q.md
+hdl/milan/milan_datapath.sv
+# gitlinks at c593cbef and head:
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit c1b617435824929a790739ea8585c3fe1a328cc0	gptp-processor
+160000 commit 09f9bf3846511f8388d995126502ed92eaa65213	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# full-PR non-docs files changed since c593cbef under tb tests scripts syn sw:
+0
+# commit bodies
+446e79b977640d13fa1e5dc0f9896d6c5a70391d parents=1ac860255931bfd7784921d69bfc15e2652c871e bodylines=0
+1ac860255931bfd7784921d69bfc15e2652c871e parents=a018575e11b14dd3860ed8915f2b2d52e1cfdffd bodylines=0
+a018575e11b14dd3860ed8915f2b2d52e1cfdffd parents=c08d7c0977c76a7f21575c8d839f10f6d0978f80 bodylines=0
+c08d7c0977c76a7f21575c8d839f10f6d0978f80 parents=9f607f7db495de86a6f33e77fc4ee0f617e0befe bodylines=0
+9f607f7db495de86a6f33e77fc4ee0f617e0befe parents=c593cbeffaffa647cda70fb1a233455bf9c80d55 bodylines=0
