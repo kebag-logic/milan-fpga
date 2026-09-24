@@ -1,0 +1,36 @@
+cycle 1: last record 1.034s sent by DUT; first record after return 38.239s; dark 37.21s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.16, 0.3, 3, 'fe0210'), (3.56, 0.4, 4, '000001'), (39.96, 0.5, 5, 'fe0210')]
+   holdover set while GM absent outside episodes: [3.56, 3.66, 3.76, 3.86]
+   DUT Pdelay exchanges completed after return: first 38.577s second 39.577s; asCapable rise sample 39.661s (previous sample 39.561s); rise - second 0.083s; second - first switch frame 1.34s; PDELAY_NS at rise 385
+   LINKG_STAT: first read with [7]=0 at 3.51s, 2.77s after last received frame; [7]=1 again at 38.31s (previous read 38.21s), first received frame 38.24s
+cycle 2: last record 1.756s sent by DUT; first record after return 37.556s; dark 35.80s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.08, 0.3, 3, 'fe0210'), (3.48, 0.4, 4, '000001'), (39.08, 0.5, 5, 'fe0210')]
+   holdover set while GM absent outside episodes: [3.48, 3.58, 3.68, 3.78]
+   DUT Pdelay exchanges completed after return: first 37.757s second 38.757s; asCapable rise sample 38.778s (previous sample 38.678s); rise - second 0.021s; second - first switch frame 1.00s; PDELAY_NS at rise 377
+   LINKG_STAT: first read with [7]=0 at 3.42s, 2.77s after last received frame; [7]=1 again at 37.82s (previous read 37.72s), first received frame 37.76s
+cycle 3: last record 1.463s sent by DUT; first record after return 38.068s; dark 36.61s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.08, 0.5, 5, 'fe0210'), (2.88, 0.4, 4, '000001'), (40.08, 0.5, 5, 'fe0210')]
+   holdover set while GM absent outside episodes: [2.88, 2.98, 3.08, 3.18]
+   DUT Pdelay exchanges completed after return: first 38.463s second 39.463s; asCapable rise sample 39.479s (previous sample 39.379s); rise - second 0.016s; second - first switch frame 1.40s; PDELAY_NS at rise 385
+   LINKG_STAT: first read with [7]=0 at 3.43s, 2.76s after last received frame; [7]=1 again at 38.13s (previous read 38.03s), first received frame 38.07s
+cycle 4: last record 1.718s sent by DUT; first record after return 38.577s; dark 36.86s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.17, 0.31, 3, 'fe0210'), (3.66, 0.52, 5, '000001'), (40.01, 0.41, 4, 'fe0210')]
+   holdover set while GM absent outside episodes: [3.66, 3.77, 3.87, 3.97, 4.08]
+   DUT Pdelay exchanges completed after return: first 38.852s second 39.852s; asCapable rise sample 39.905s (previous sample 39.801s); rise - second 0.052s; second - first switch frame 1.28s; PDELAY_NS at rise 385
+   LINKG_STAT: first read with [7]=0 at 3.40s, 2.69s after last received frame; [7]=1 again at 38.60s (previous read 38.50s), first received frame 38.58s
+cycle 5: last record 1.657s sent by DUT; first record after return 38.075s; dark 36.42s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.09, 0.41, 4, 'fe0210'), (2.96, 0.31, 3, '000001'), (40.12, 0.41, 4, 'fe0210')]
+   holdover set while GM absent outside episodes: [2.96, 3.06, 3.16]
+   DUT Pdelay exchanges completed after return: first 38.669s second 39.669s; asCapable rise sample 39.710s (previous sample 39.606s); rise - second 0.041s; second - first switch frame 1.59s; PDELAY_NS at rise 389
+   LINKG_STAT: first read with [7]=0 at 3.42s, 2.72s after last received frame; [7]=1 again at 38.10s (previous read 37.99s), first received frame 38.07s
+cycle 6: last record 1.485s sent by DUT; first record after return 38.118s; dark 36.63s
+   holdover episodes (start s, first-set->first-clear s, samples, GM at start): [(1.06, 0.41, 4, 'fe0210'), (3.24, 0.41, 4, '000001'), (40.2, 0.52, 5, 'fe0210')]
+   holdover set while GM absent outside episodes: [3.24, 3.34, 3.44, 3.55]
+   DUT Pdelay exchanges completed after return: first 38.589s second 39.589s; asCapable rise sample 39.683s (previous sample 39.579s); rise - second 0.094s; second - first switch frame 1.47s; PDELAY_NS at rise 382
+   LINKG_STAT: first read with [7]=0 at 3.39s, 2.76s after last received frame; [7]=1 again at 38.18s (previous read 38.07s), first received frame 38.12s
+tap-c1.pcap: DHCP to port 67 from tap port 2: 30 frames, intervals [0.01, 0.09, 0.2, 0.24, 0.34, 0.76]...
+tap-c2.pcap: DHCP to port 67 from tap port 2: 17 frames, intervals [0.01, 0.15, 1.06, 1.66, 2.0, 2.23]...
+tap-c3.pcap: DHCP to port 67 from tap port 2: 19 frames, intervals [0.01, 0.54, 0.64, 0.93, 1.67, 1.77]...
+tap-c4.pcap: DHCP to port 67 from tap port 2: 20 frames, intervals [0.01, 0.28, 0.43, 0.57, 1.63, 1.73]...
+tap-c5.pcap: DHCP to port 67 from tap port 2: 22 frames, intervals [0.01, 0.47, 0.66, 1.34, 1.41, 2.0]...
+tap-c6.pcap: DHCP to port 67 from tap port 2: 21 frames, intervals [0.01, 0.15, 0.31, 0.96, 1.82, 2.0]...

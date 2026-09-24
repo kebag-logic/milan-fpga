@@ -1,0 +1,32 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 841 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 670 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+rc=0
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+rc=0
+=== python3 scripts/check_gptp_docs.py --with-submodule
+gPTP documentation: OK (8 current pages, donor checkout verified)
+rc=0
+=== python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 839 tracked first-party file(s))
+rc=0
+=== python3 docs/DOC_MAP.gen.py --check
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+rc=0
+=== python3 scripts/check_feature_status.py --self-test
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+=== python3 scripts/gen_toc.py
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+=== python3 scripts/gen_toc.py --verify-anchors
+anchor check: 148 existing cross-page fragment links reproduced
+rc=0

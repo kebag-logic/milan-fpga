@@ -1,0 +1,13 @@
+# Reviewed public values for pcap_name_census.py (one regex per line, full match).
+# Service and protocol labels
+_services\._dns-sd\._udp\.local|_services|_dns-sd|_oca\._tcp\.local|_ipps?\._tcp\.local
+txtvers=1|protovers=1
+# IPv6 reverse-lookup owner name of a link-local address (an address, not a name)
+([0-9a-f]\.){32}ip6\.arpa
+# short host role name the evidence policy keeps (the controller host)
+pw1
+# empty BOOTP sname/file fields
+()
+# the DUT's own AEM strings (product-owned; configs/endstation_ax7101_1x1_tdm8.yaml and avdecc/)
+Kebag Logic|Milan FPGA 1x1 TDM8|AX7101-0001|2\.96\.0|48 kHz|AVB Interface 0|Audio Unit|CRF Clock|Clock Reference Format|Default|Identify|Internal|Pilot Tone|en-EN
+Stream (In|Out) 0|Loopback S0 (FC|FL|FR|LFE|RL|RR|SL|SR)|TDM8 (In|Out) (FC|FL|FR|LFE|RL|RR|SL|SR)

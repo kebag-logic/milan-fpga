@@ -1,0 +1,77 @@
+tree files (excl MANIFEST.json): 236; MANIFEST.json entries: 236
+published_sha256 mismatches: 0 []
+redacted total 77; identity-masked 71; path-only 6
+  bench-a200: redacted 20
+  bench-a202: redacted 57
+  path-only files: ['bench-a200/bench/tool-revisions.txt', 'bench-a200/HANDOFF.md', 'bench-a200/tools/a200_enum.bin', 'bench-a202/bench/attempt1-aborted/console_poll.stdout', 'bench-a202/bench/attempt1-aborted/lock.txt', 'bench-a202/HANDOFF.md']
+  entries whose path_redacted flag differs from 'changed': 0
+bench-a200/MANIFEST.sha256: OK 61 FAILED 20 missing 0; FAILED==redacted set: True; unexplained []
+  files in bench-a200 not listed in its MANIFEST.sha256: []
+bench-a202/MANIFEST.sha256: OK 96 FAILED 57 missing 0; FAILED==redacted set: True; unexplained []
+  files in bench-a202 not listed in its MANIFEST.sha256: []
+page 64-hex hashes: 82 occurrences, 81 distinct
+Raw artifacts table hashes: 74 (73 distinct); unresolved []; redacted-only (distinct files) 29
+   redacted-only: bench-a200/bench/final/census-final.jsonl
+   redacted-only: bench-a200/bench/final/tap-final.pcap
+   redacted-only: bench-a200/bench/runA/tap-runA.pcap
+   redacted-only: bench-a200/bench/runB/tap-runB.pcap
+   redacted-only: bench-a200/bench/runC/entity_0x020000fffe000001.json
+   redacted-only: bench-a200/bench/runC/tap-runC.pcap
+   redacted-only: bench-a202/bench/attempt1-aborted/lock.txt
+   redacted-only: bench-a202/bench/attempt1-aborted/tap-c1.pcap
+   redacted-only: bench-a202/bench/census-start.jsonl
+   redacted-only: bench-a202/bench/cycle1/analysis.txt
+   redacted-only: bench-a202/bench/cycle1/pw1-c1.pcap
+   redacted-only: bench-a202/bench/cycle1/tap-c1.pcap
+   redacted-only: bench-a202/bench/cycle2/analysis.txt
+   redacted-only: bench-a202/bench/cycle2/pw1-c2.pcap
+   redacted-only: bench-a202/bench/cycle2/tap-c2.pcap
+   redacted-only: bench-a202/bench/cycle3/analysis.txt
+   redacted-only: bench-a202/bench/cycle3/pw1-c3.pcap
+   redacted-only: bench-a202/bench/cycle3/tap-c3.pcap
+   redacted-only: bench-a202/bench/cycle4/analysis.txt
+   redacted-only: bench-a202/bench/cycle4/pw1-c4.pcap
+   redacted-only: bench-a202/bench/cycle4/tap-c4.pcap
+   redacted-only: bench-a202/bench/cycle5/analysis.txt
+   redacted-only: bench-a202/bench/cycle5/pw1-c5.pcap
+   redacted-only: bench-a202/bench/cycle5/tap-c5.pcap
+   redacted-only: bench-a202/bench/cycle6/analysis.txt
+   redacted-only: bench-a202/bench/cycle6/pw1-c6.pcap
+   redacted-only: bench-a202/bench/cycle6/tap-c6.pcap
+   redacted-only: bench-a202/bench/final/census-end.jsonl
+   redacted-only: bench-a202/bench/final/tap-final.pcap
+other page hash 33f0e7f9e86f: not in archive
+other page hash 4db0e6da9c9c: not in archive
+other page hash 69322600bc9d: not in archive
+other page hash 71e798fc401e: not in archive
+other page hash 9b077636b1d4: not in archive
+other page hash aaece32fc6c8: not in archive
+other page hash bc41ab03e641: not in archive
+other page hash f0725eef7a36: not in archive
+prefix 04d128bb: MANIFEST.json original -> ['bench-a200/tools/expected_crc.py', 'bench-a202/tools/expected_crc.py']; packet manifests -> ['bench-a200/tools/expected_crc.py', 'bench-a202/tools/expected_crc.py']
+prefix 0e9faf30: MANIFEST.json original -> -; packet manifests -> -
+prefix 17283696: MANIFEST.json original -> ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']; packet manifests -> ['bench-a200/tools/avdecc_ro.py', 'bench-a202/tools/avdecc_ro.py']
+prefix 29b4ac46: MANIFEST.json original -> ['bench-a200/tools/crf_bind_window.py']; packet manifests -> ['bench-a200/tools/crf_bind_window.py']
+prefix 2d8950f5: MANIFEST.json original -> ['bench-a200/tools/a200_enum.cpp']; packet manifests -> ['bench-a200/tools/a200_enum.cpp']
+prefix 3a0de7d8: MANIFEST.json original -> ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']; packet manifests -> ['bench-a200/tools/console_poll.py', 'bench-a202/tools/console_poll.py']
+prefix 40424c61: MANIFEST.json original -> ['bench-a202/tools/census_compare.py']; packet manifests -> ['bench-a202/tools/census_compare.py']
+prefix 45889a7d: MANIFEST.json original -> ['bench-a202/tools/run_cycle.sh [redacted]']; packet manifests -> ['bench-a202/tools/run_cycle.sh']
+prefix 48c248b2: MANIFEST.json original -> ['bench-a202/tools/a202_watch.py']; packet manifests -> ['bench-a202/tools/a202_watch.py']
+prefix 644bcfb8: MANIFEST.json original -> ['bench-a202/tools/console_alive.py']; packet manifests -> ['bench-a202/tools/console_alive.py']
+prefix 652d6f83: MANIFEST.json original -> ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']; packet manifests -> ['bench-a200/tools/console_read.py', 'bench-a202/tools/console_read.py']
+prefix 6ac03a87: MANIFEST.json original -> ['bench-a200/tools/analyze_run.py']; packet manifests -> ['bench-a200/tools/analyze_run.py']
+prefix 790e6b7c: MANIFEST.json original -> ['bench-a200/tools/pdelay_turnaround.py', 'bench-a202/tools/pdelay_turnaround.py']; packet manifests -> ['bench-a200/tools/pdelay_turnaround.py', 'bench-a202/tools/pdelay_turnaround.py']
+prefix 8c9f2885: MANIFEST.json original -> ['bench-a200/tools/a200_enum.bin [redacted]']; packet manifests -> ['bench-a200/tools/a200_enum.bin']
+prefix 8ef4b008: MANIFEST.json original -> -; packet manifests -> -
+prefix 950533ca: MANIFEST.json original -> ['bench-a202/tools/clock_offset.py']; packet manifests -> ['bench-a202/tools/clock_offset.py']
+prefix 95d64fd5: MANIFEST.json original -> -; packet manifests -> -
+prefix 9d2e8629: MANIFEST.json original -> ['bench-a200/tools/stream_timeline.py']; packet manifests -> ['bench-a200/tools/stream_timeline.py']
+prefix ad579e18: MANIFEST.json original -> -; packet manifests -> -
+prefix b2f1593e: MANIFEST.json original -> ['bench-a202/tools/powerstrip_cycle.sh']; packet manifests -> ['bench-a202/tools/powerstrip_cycle.sh']
+prefix bdd228a1: MANIFEST.json original -> ['bench-a202/tools/analyze_cycle.py [redacted]']; packet manifests -> ['bench-a202/tools/analyze_cycle.py']
+prefix c4ef8c9a: MANIFEST.json original -> ['bench-a202/tools/cycle_locked.sh [redacted]']; packet manifests -> ['bench-a202/tools/cycle_locked.sh']
+prefix c5039d95: MANIFEST.json original -> ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']; packet manifests -> ['bench-a200/tools/wire_summary.py', 'bench-a202/tools/wire_summary.py']
+prefix d6f53575: MANIFEST.json original -> ['bench-a202/tools/summarize.py']; packet manifests -> ['bench-a202/tools/summarize.py']
+prefix d7912881: MANIFEST.json original -> ['bench-a202/tools/census.sh']; packet manifests -> ['bench-a202/tools/census.sh']
+prefix e84e579c: MANIFEST.json original -> -; packet manifests -> -
+STRUCTURAL PASS
