@@ -1,0 +1,45 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "latency-cmp-low16",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI LATENCY-WALK-ONE bit 16 step: exactly one unsolicited response for sink 0, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "pbsta-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "failure-change-strobe-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-REFRESH unsolicited: complete Milan response"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]
