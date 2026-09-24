@@ -1,0 +1,35 @@
+ok   net-zero-source-delta args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [the branch has no net tree change (2 commit(s) not ancestors)]
+     | UNKNOWN    refs/heads/pr: current retention: linear retention unmeasurable: retention has no measurable changed-path set
+ok   criss-cross-source-merge args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, None)
+     | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]
+     | UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   criss-cross-linear-two-bases args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]
+     | UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   stranded-with-option args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['STRANDED'] expect=(1, ['STRANDED'])
+     | STRANDED   refs/heads/pr: 1 commit(s) not in refs/heads/main  [paths differing: 'mod.txt']
+ok   squash-path-arm-with-option args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]
+     | UNKNOWN    refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay
+ok   ancestry-default args=['--no-fetch', '--base', 'main', 'pr'] exit=0 words=['contained'] expect=(0, ['contained'])
+     | contained  refs/heads/pr  [historical inclusion by ancestry; current retention not implied]
+ok   ancestry-with-option args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [historical inclusion by ancestry; current retention not implied]
+     | UNKNOWN    refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay
+ok   rename-reverted args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+     | UNKNOWN    refs/heads/pr: current retention: unproved on: 'keep.txt', 'moved.txt'
+ok   rename-retained args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=0 words=['contained', 'retained'] expect=(0, ['contained', 'retained'])
+     | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]
+     | retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+ok   hostile-attributes-revert args=['--no-fetch', '--base', 'main', 'pr', '--current-retention'] exit=1 words=['contained', 'UNKNOWN'] expect=(1, ['contained', 'UNKNOWN'])
+     | contained  refs/heads/pr  [historical inclusion only: every commit has a whitespace-exact equivalent in refs/heads/main (1 not ancestors -- rebase merge)]
+     | UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+ok   base-flag-then-option args=['--no-fetch', '--base', '--current-retention', 'main', 'pr'] exit=0 words=['contained', 'retained'] expect=(None, None)
+     | contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (1 commit(s) not ancestors -- squash or rebase merge)]
+     | retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+ok   option-without-target args=['--no-fetch', '--current-retention'] exit=1 words=['UNKNOWN'] expect=(None, None)
+     | UNKNOWN    refs/heads/main: no such ref: refs/remotes/origin/dev
+PROBES PASS
+rc=0

@@ -1,0 +1,64 @@
+M01-ancestry-note-dropped KILLED exit=1 fails=2
+    FAIL linear-ancestry-optional-claim the ancestry contained line names historical inclusion and disclaims retention
+    FAIL linear-ancestry-default-claim the ancestry contained line names historical inclusion and disclaims retention
+M02-linear-note-unqualified KILLED exit=1 fails=10
+    FAIL linear-exact-reversion-claim the default replay diagnostic names its historical claim
+    FAIL linear-partial-reversion-claim the default replay diagnostic names its historical claim
+    FAIL linear-intentional-supersession-claim the default replay diagnostic names its historical claim
+    FAIL linear-mode-loss-claim     the default replay diagnostic names its historical claim
+    FAIL linear-file-kind-change-claim the default replay diagnostic names its historical claim
+    FAIL linear-symlink-reversion-claim the default replay diagnostic names its historical claim
+M03-retention-unknown-not-counted KILLED exit=1 fails=16
+    FAIL linear-exact-reversion     separate current retention verdict AND process exit
+    FAIL linear-partial-reversion   separate current retention verdict AND process exit
+    FAIL linear-intentional-supersession separate current retention verdict AND process exit
+    FAIL linear-mode-loss           separate current retention verdict AND process exit
+    FAIL linear-file-kind-change    separate current retention verdict AND process exit
+    FAIL linear-symlink-reversion   separate current retention verdict AND process exit
+M04-retention-word-always-retained KILLED exit=1 fails=16
+    FAIL linear-exact-reversion     separate current retention verdict AND process exit
+    FAIL linear-partial-reversion   separate current retention verdict AND process exit
+    FAIL linear-intentional-supersession separate current retention verdict AND process exit
+    FAIL linear-mode-loss           separate current retention verdict AND process exit
+    FAIL linear-file-kind-change    separate current retention verdict AND process exit
+    FAIL linear-symlink-reversion   separate current retention verdict AND process exit
+M05-option-ignored KILLED exit=1 fails=58
+    FAIL linear-exact-retention     separate current retention verdict AND process exit
+    FAIL linear-exact-retention-retained-claim the retained line names current retention and historical replay
+    FAIL linear-exact-reversion     separate current retention verdict AND process exit
+    FAIL linear-exact-reversion-path unproved current path is named
+    FAIL linear-mutant-exact-reversion bypassing T is rejected by this example's UNKNOWN/1 oracle
+    FAIL linear-partial-reversion   separate current retention verdict AND process exit
+M06-option-dup-check-removed KILLED exit=1 fails=1
+    FAIL linear-cli-refuses---current-retention malformed optional invocation is refused
+M07-missing-ignored KILLED exit=1 fails=22
+    FAIL linear-exact-reversion     separate current retention verdict AND process exit
+    FAIL linear-exact-reversion-path unproved current path is named
+    FAIL linear-partial-reversion   separate current retention verdict AND process exit
+    FAIL linear-partial-reversion-path unproved current path is named
+    FAIL linear-intentional-supersession separate current retention verdict AND process exit
+    FAIL linear-intentional-supersession-path unproved current path is named
+M08-one-merge-allowed KILLED exit=1 fails=1
+    FAIL linear-merge-unsupported   this optional arm never generalizes the source topology
+M09-H-measurement-failure-certifies KILLED exit=1 fails=2
+    FAIL linear-H-measurement-failure an unavailable H measurement is never a retention certificate
+    FAIL linear-H-failure-diagnostic the arm reports its H measurement failure explicitly
+M10-measurement-error-certifies KILLED exit=1 fails=2
+    FAIL linear-empty-delta         exact replays of a change and its revert cannot certify an empty delta
+    FAIL linear-H-measurement-failure an unavailable H measurement is never a retention certificate
+M11-merge-count-parse-guard-removed SURVIVED exit=0 fails=0
+M12-retention-on-stranded KILLED exit=1 fails=2
+    FAIL linear-no-retained-on-STRANDED a failed landing emits no retained line
+    FAIL linear-no-retention-on-STRANDED current retention is evaluated only for a contained landing
+M13-summary-requested-proof-wording SURVIVED exit=0 fails=0
+M14-historical-linear-verdict-withdrawn KILLED exit=1 fails=66
+    FAIL linear-patch-fallback      patch equivalence handles a linear rebase
+    FAIL linear-patch-word          ...through the patch-id fallback
+    FAIL replay-30-linear-control-exact-revert settled public matrix: exit AND verdict
+    FAIL replay-31-linear-control-adjacent-extension settled public matrix: exit AND verdict
+    FAIL linear-exact-reversion-historical existing landing verdict remains contained/0
+    FAIL linear-exact-reversion     separate current retention verdict AND process exit
+M15-H-refusal-falls-through-to-T KILLED exit=1 fails=3
+    FAIL linear-ancestry-diagnostic ancestry alone supplies no current-retention baseline
+    FAIL linear-kills-ancestry-mutant the ancestry example rejects certifying an unsupported history
+    FAIL linear-squash-unsupported  exact endpoint equality does not stand in for distinct replay evidence
