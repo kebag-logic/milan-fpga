@@ -1,0 +1,18 @@
+USING RUNNER: behave.runner:Runner
+Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+  Background: 
+
+  Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else
+    Given the Milan datapath and AAF talker RTL sources ... passed in 0.000s
+    When I read the lwSRP stream gate assignment from milan_datapath ... passed in 0.005s
+    Then the stream gate takes ACTIVE AND the per-source real grant and nothing else ... failed in 0.000s
+ASSERT FAILED: lwsrp_stream_gate must be ACTIVE AND the per-source real grant and nothing else; expression is pp_cd_srp_active_w[SRP_TALKERS_C-1:0]
+
+
+Failing scenarios:
+  features/milan_streaming_licence.feature:87  the stream gate requires ACTIVE AND the per-source real grant, nothing else
+
+0 features passed, 1 failed, 0 skipped
+0 scenarios passed, 1 failed, 4 skipped
+2 steps passed, 1 failed, 23 skipped
+Took 0min 0.006s
