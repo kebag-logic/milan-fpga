@@ -1126,7 +1126,8 @@ Elaboration provisioning retains its existing RTL scope guard.
 It executes gate 1b with every cross candidate hidden.
 Host compilers answer version and target probes only.
 Firmware compilation through a host compiler is refused.
-Every text refusal remains active; declined instruments report `NOT RUN`.
+The text refusals #408 and #409 retired are absent there, as on every machine.
+Their replacing instruments decline, and their mutations report `NOT RUN`.
 The existing AEM generator self-test remains scheduled unchanged.
 `ci_events.py` pins new steps, cache inputs, order, and guards.
 Its mutation controls remove adoption and provenance requirements independently.
