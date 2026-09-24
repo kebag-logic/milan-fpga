@@ -1,0 +1,301 @@
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index bf25b6f..841670b 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -52,7 +52,6 @@ flowchart LR
+ | `mgmt` | E | in | own (sync or 4-phase async) | model store, NVM, debug, ctrl/status | optional at runtime, needed for image load unless ROM |
+ | `nvm` | F | both | core | NVM manager | record-level, device-agnostic |
+ | `identify_active` | D | out | core | device indicator | level, 1 = identifying |
+-| `desc_mem_debt_o` | 1 | descriptor-memory guard (`debt_o`) | `clk_i` level; set on request acceptance, cleared on consumed `last` or `err`, or hard reset only | D3 writer interface (writer deferred); see [07 §3.3.1](07_memory_maps.md#sec-desc-memory) |
+ | `identify_button` | D | in | core (2FF sync) | identify handler | optional (P-EN-IDENTIFY-NOTIFICATION) |
+ 
+ ## 2. Clocking, reset, CDC
+diff --git a/docs/architecture/07_memory_maps.md b/docs/architecture/07_memory_maps.md
+index 884ac2c..80e596e 100644
+--- a/docs/architecture/07_memory_maps.md
++++ b/docs/architecture/07_memory_maps.md
+@@ -164,11 +164,13 @@ the store watchdog still bounds every locate with an error. The watchdog itself
+ is unchanged, including the immediate error on the next locate after a fetch
+ response timeout.
+ 
+-The guard is reset by the hard reset alone. Its `debt_o` is the D3 interface,
+-published as the level in [F02.10](02_interfaces.md#fig-02-statusdict). The future
+-D3 writer must hold restorable owners while this debt is set and end CLOSED if
+-its deadline expires; that writer and its rollback cases are deferred to the D3
+-lane. The memory ordering, terminal-error and reset obligations are in the
++The guard is reset by the hard reset alone. Its module port `debt_o` is the D3
++interface: a `clk_i` level set on request acceptance and cleared on a consumed
++`last` or `err`, or hard reset only. It is not a `protocol_processor_top` port.
++The D3 lane will route it to the top together with the parent consumer changes.
++The future D3 writer must hold restorable owners while this debt is set and end
++CLOSED if its deadline expires; that writer and its rollback cases are deferred
++to the D3 lane. The memory ordering, terminal-error and reset obligations are in the
+ [integrator guide §4.1](../guides/integrator.md#sec-desc-memory).
+ 
+ Every address is an **elaboration parameter** (`DESC_BASE_P`), never a register and
+diff --git a/docs/diagrams/22-aecp-descriptor-fetch.svg b/docs/diagrams/22-aecp-descriptor-fetch.svg
+index 23ea446..2f25086 100644
+--- a/docs/diagrams/22-aecp-descriptor-fetch.svg
++++ b/docs/diagrams/22-aecp-descriptor-fetch.svg
+@@ -72,7 +72,7 @@
+   <rect x="850" y="376" width="426" height="70" rx="6" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+   <text x="868" y="397" font-size="11.5" font-weight="bold" fill="#16181d">Guard at processor top — hard reset only</text>
+   <text x="868" y="415" font-size="10.5" fill="#4a5058">owed holds the next request; every response beat passes through</text>
+-  <text x="868" y="432" font-size="10.5" fill="#4a5058">debt_o → desc_mem_debt_o is the interface for the deferred D3 writer</text>
++  <text x="868" y="432" font-size="10.5" fill="#4a5058">guard debt_o: D3 interface; top + parent routing deferred to D3</text>
+   <line x1="1063" y1="356" x2="1063" y2="371" stroke="#2f7d46" stroke-width="1.3" stroke-dasharray="4 3"/>
+ 
+   <!-- STEP 5 -->
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index 936ab5c..163d448 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -129,8 +129,10 @@ unchanged and the store discards beats it no longer awaits. The first response
+ must arrive after the request-acceptance cycle. An error terminates the burst:
+ the bridge must not emit further beats for that request.
+ 
+-The guard's `debt_o` is published at the top as `desc_mem_debt_o`, the **D3
+-interface** ([status dictionary](../architecture/02_interfaces.md#fig-02-statusdict)).
++The guard's own module port `debt_o` is the **D3 interface**
++([memory contract](../architecture/07_memory_maps.md#sec-desc-memory)). It is not
++exposed by `protocol_processor_top`; the D3 lane will add that routing together
++with the parent consumer changes, keeping the current top-level interface intact.
+ Connect the guard's synchronous active-low reset to the **hard reset only**.
+ A store-only reset, future rollback reset, or entity disable must not clear it.
+ A hard reset must also flush the memory path, including any CDC queues, so no
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 07d8262..3e2848b 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -244,7 +244,6 @@ module protocol_processor_top
+     input  wire         desc_mem_rsp_last_i,   //! final beat of the burst
+     input  wire         desc_mem_rsp_err_i,    //! read failed — abort the burst
+ 
+-    output logic        desc_mem_debt_o,      //! D3: burst owed; hard-reset-only guard
+ 
+     //! ---- AECP response-buffer memory master (03 §7; READ + WRITE) -------
+     //! A SECOND, independent main-memory master, dedicated to the AECP
+@@ -3215,6 +3214,8 @@ module protocol_processor_top
+   logic  [8:0] desc_req_beats_w;
+   logic desc_rsp_valid_w, desc_rsp_ready_w, desc_rsp_last_w, desc_rsp_err_w;
+   logic [63:0] desc_rsp_data_w;
++  // D3 consumes the guard port; top + parent routing is deferred to that lane.
++  logic desc_mem_debt_nc_w;
+ 
+   KL_aecp_desc_mem_guard u_desc_mem_guard (
+       .clk_i(clk_i), .rst_n(rst_n),
+@@ -3227,7 +3228,7 @@ module protocol_processor_top
+       .m_req_addr_o(desc_mem_req_addr_o), .m_req_beats_o(desc_mem_req_beats_o),
+       .m_rsp_valid_i(desc_mem_rsp_valid_i), .m_rsp_ready_o(desc_mem_rsp_ready_o),
+       .m_rsp_data_i(desc_mem_rsp_data_i), .m_rsp_last_i(desc_mem_rsp_last_i),
+-      .m_rsp_err_i(desc_mem_rsp_err_i), .debt_o(desc_mem_debt_o)
++      .m_rsp_err_i(desc_mem_rsp_err_i), .debt_o(desc_mem_debt_nc_w)
+   );
+ 
+   KL_aecp_engine #(
+diff --git a/tb/desc_mem_guard/mutate.py b/tb/desc_mem_guard/mutate.py
+index 41967ad..aee0c53 100644
+--- a/tb/desc_mem_guard/mutate.py
++++ b/tb/desc_mem_guard/mutate.py
+@@ -6,7 +6,8 @@ from pathlib import Path
+ import subprocess
+ 
+ 
+-def main():
++def main() -> int:
++    """Read CLI options and return 0 only when the completed byte check kills the mutant."""
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+diff --git a/tb/desc_mem_guard/sim_main.cpp b/tb/desc_mem_guard/sim_main.cpp
+index 8a15a47..88e9125 100644
+--- a/tb/desc_mem_guard/sim_main.cpp
++++ b/tb/desc_mem_guard/sim_main.cpp
+@@ -10,8 +10,11 @@
+ #include "Vdesc_mem_guard_wrap.h"
+ #include "../common/verilator_harness.hpp"
+ 
+-static int checks = 0, fails = 0;
+-#define CHECK(c, ...) do { ++checks; if (!(c)) { ++fails; \
++struct TestResults {
++    int checks = 0;
++    int fails = 0;
++};
++#define CHECK(c, ...) do { ++results.checks; if (!(c)) { ++results.fails; \
+     std::printf("FAIL: " __VA_ARGS__); std::puts(""); } } while (0)
+ 
+ constexpr uint32_t BASE = 0x20000000;
+@@ -23,12 +26,14 @@ constexpr uint64_t OUTPUT0 = 0x00060000deadbeefull;
+ constexpr uint64_t OUTPUT1 = 0xcafef00d01234567ull;
+ 
+ struct Answer {
+-    bool valid = false, err = false;
++    bool valid = false;
++    bool err = false;
+     uint64_t data = 0;
+     unsigned cycles = 0;
+ };
+ 
+ struct Harness {
++    TestResults& results;
+     milan::tb::Model<Vdesc_mem_guard_wrap> model;
+     Vdesc_mem_guard_wrap& d = *model.get();
+     // Header, two index entries and two unnamed 16-byte marker descriptors.
+@@ -42,18 +47,26 @@ struct Harness {
+     }};
+     struct Burst {
+         uint32_t addr;
+-        unsigned beats, index;
++        unsigned beats;
++        unsigned index;
+         uint64_t due;
+-        bool stuck, error;
++        bool stuck;
++        bool error;
+     };
+     std::deque<Burst> fifo;
+-    uint64_t cycle = 0, accepted = 0, terminal = 0;
+-    uint64_t delayed_accept = 0, delayed_first = 0, delayed_end = 0;
++    uint64_t cycle = 0;
++    uint64_t accepted = 0;
++    uint64_t terminal = 0;
++    uint64_t delayed_accept = 0;
++    uint64_t delayed_first = 0;
++    uint64_t delayed_end = 0;
+     unsigned delay_next = 24;
+-    bool stuck_next = false, error_next = false;
+-    unsigned held_cycles = 0, overlap_accepts = 0;
++    bool stuck_next = false;
++    bool error_next = false;
++    unsigned held_cycles = 0;
++    unsigned overlap_accepts = 0;
+ 
+-    Harness() {
++    explicit Harness(TestResults& results) : results(results) {
+         uint32_t sum = 0;
+         for (unsigned i = 0; i < 4; ++i) {
+             sum += uint32_t(image[i] >> 32);
+@@ -147,15 +160,15 @@ struct Harness {
+         const auto first = read(0);
+         const auto second = read(8);
+         std::printf("%s bytes: %016llx %016llx; want %016llx %016llx\n", tag,
+-                    (unsigned long long)first.data, (unsigned long long)second.data,
+-                    (unsigned long long)INPUT0, (unsigned long long)INPUT1);
++                    static_cast<unsigned long long>(first.data), static_cast<unsigned long long>(second.data),
++                    static_cast<unsigned long long>(INPUT0), static_cast<unsigned long long>(INPUT1));
+         CHECK(!first.err && !second.err && first.data == INPUT0 && second.data == INPUT1,
+               "%s late_beats_never_served: STREAM_INPUT received another burst's bytes", tag);
+     }
+ };
+ 
+-static void late_case() {
+-    Harness h;
++static void late_case(TestResults& results) {
++    Harness h(results);
+     h.boot();
+     h.delay_next = 6000;
+     const auto late = h.locate(6);
+@@ -175,13 +188,13 @@ static void late_case() {
+     h.check_input("after drain");
+     std::printf("late case completed: accept=%llu first=%llu end=%llu third-presented=%llu "
+                 "held=%u overlap-accepts=%u timeout-answer=%u third-answer=%u\n",
+-                (unsigned long long)h.delayed_accept, (unsigned long long)h.delayed_first,
+-                (unsigned long long)h.delayed_end, (unsigned long long)presented,
++                static_cast<unsigned long long>(h.delayed_accept), static_cast<unsigned long long>(h.delayed_first),
++                static_cast<unsigned long long>(h.delayed_end), static_cast<unsigned long long>(presented),
+                 h.held_cycles, h.overlap_accepts, late.cycles, third.cycles);
+ }
+ 
+-static void stuck_case() {
+-    Harness h;
++static void stuck_case(TestResults& results) {
++    Harness h(results);
+     h.boot();
+     h.stuck_next = true;
+     const auto first = h.locate(6);
+@@ -201,8 +214,8 @@ static void stuck_case() {
+           "stuck memory did not hold the store requests");
+     std::printf("stuck case completed: 5 later locates answered errors; max=%u bound=%u "
+                 "held=%u accepted=%llu terminal=%llu debt=%u\n", longest, BOUND,
+-                h.held_cycles, (unsigned long long)h.accepted,
+-                (unsigned long long)h.terminal, unsigned(h.d.debt_o));
++                h.held_cycles, static_cast<unsigned long long>(h.accepted),
++                static_cast<unsigned long long>(h.terminal), unsigned(h.d.debt_o));
+ 
+     // This proves the independent reset seam only, not a D3 rollback writer.
+     h.d.store_rst_n = 0;
+@@ -229,8 +242,8 @@ static void stuck_case() {
+     h.check_input("after hard reset");
+ }
+ 
+-static void terminal_error_case() {
+-    Harness h;
++static void terminal_error_case(TestResults& results) {
++    Harness h(results);
+     h.boot();
+     h.error_next = true; // err on beat zero of two, without last.
+     CHECK(h.locate(6).err, "terminal memory error did not reach the store");
+@@ -239,7 +252,7 @@ static void terminal_error_case() {
+     h.check_input("after terminal error");
+ }
+ 
+-static void handshake_case() {
++static void handshake_case(TestResults& results) {
+     milan::tb::Model<Vdesc_mem_guard_wrap> model;
+     auto& d = *model.get();
+     auto eval = [&] { d.clk_i = 0; d.eval(); };
+@@ -314,12 +327,14 @@ static void handshake_case() {
+ 
+ int main(int argc, char** argv) {
+     Verilated::commandArgs(argc, argv);
+-    late_case();
++    TestResults results;
++    late_case(results);
+     if (argc == 1 || std::strcmp(argv[1], "--late-only") != 0) {
+-        stuck_case();
+-        terminal_error_case();
+-        handshake_case();
++        stuck_case(results);
++        terminal_error_case(results);
++        handshake_case(results);
+     }
+-    std::printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+-    return fails ? 1 : 0;
++    std::printf("%d checks: %d PASS, %d FAIL\n",
++                results.checks, results.checks - results.fails, results.fails);
++    return results.fails ? 1 : 0;
+ }
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 3645a59..ac4ee9c 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -69,6 +69,8 @@ tally.
+     more wire commands each receive `NO_SUCH_DESCRIPTOR` in bounded time.
+     The standalone [guard suite](../desc_mem_guard/README.md) supplies the
+     unguarded reproduction, hold-deleted mutant and independent reset checks.
++    The bench observes `u_dut.u_desc_mem_guard.debt_o` hierarchically; debt
++    routing through the product top and parent consumer is deferred to D3.
+ - **N** **GET_NAME and SET_NAME end to end** (Milan v1.2 5.4.2.11/.12):
+   every named slot in the fixture answers with cdl 84 and the exact 64 bytes
+   carried by its descriptor. The sweep includes both ENTITY semantic indices,
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index ca113f0..99c09c9 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -459,7 +459,6 @@ module pp_top_wrap (
+       .gsi_wait_i            (gsi_wait_i),
+       .gsi_avb_chg_i         (gsi_avb_chg_i),
+       .gsi_asp_chg_i         (gsi_asp_chg_i),
+-      .desc_mem_debt_o       (desc_mem_debt_o),
+       .desc_mem_req_valid_o  (desc_mem_req_valid_o),
+       .desc_mem_req_ready_i  (desc_mem_req_ready_i),
+       .desc_mem_req_addr_o   (desc_mem_req_addr_o),
+@@ -572,6 +571,8 @@ module pp_top_wrap (
+   assign dbg_evt_tk_v_o   = u_dut.lstn_evt_tk_valid_w;
+   assign dbg_evt_tk_rdy_o = u_dut.lstn_evt_tk_ready_w;
+   assign dbg_img_valid_o  = u_dut.aecp_dbg_img_valid_w;
++  // Observe the D3 guard interface without extending the product top ports.
++  assign desc_mem_debt_o = u_dut.u_desc_mem_guard.debt_o;
+   assign dbg_img_fault_o  = u_dut.aecp_dbg_fault_w;
+   assign dbg_aecp_cmd_o   = u_dut.aecp_dbg_cmd_w;
+   assign dbg_aecp_resp_o  = u_dut.aecp_dbg_resp_w;

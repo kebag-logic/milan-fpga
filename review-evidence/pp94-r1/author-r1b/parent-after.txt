@@ -1,0 +1,12 @@
+git rev-parse HEAD
+5b2415f4e4eb8580c5512024f6c454ec482afd1b
+
+git status --porcelain
+ M protocol-processor
+
+git diff --cached --stat
+
+git -C protocol-processor rev-parse HEAD
+cc077a6ffe20585d20b116f008e07189ba1bb7f8
+
+git -C protocol-processor status --porcelain
