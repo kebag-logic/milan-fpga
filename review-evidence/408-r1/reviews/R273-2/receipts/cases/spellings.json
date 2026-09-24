@@ -1,0 +1,26 @@
+[
+ {
+  "label": "S1 `%:` split by a splice (ifdef FOO)",
+  "text": "int a;\n%\\\n:ifdef FOO\nint b;\n%\\\n:endif\nint z;\n"
+ },
+ {
+  "label": "S2 `%:` split by a splice (ifndef FOO)",
+  "text": "int a;\n%\\\n:ifndef FOO\nint b;\n%\\\n:endif\nint z;\n"
+ },
+ {
+  "label": "S3 `%:` split by a splice with a blank",
+  "text": "int a;\n%\\ \n:ifdef FOO\nint b;\n%\\ \n:endif\nint z;\n"
+ },
+ {
+  "label": "S4 byte order mark then #ifdef FOO on line 1",
+  "text": "\ufeff#ifdef FOO\nint b;\n#endif\nint z;\n"
+ },
+ {
+  "label": "S5 `%:` split by a splice, #define FOO",
+  "text": "%\\\n:define FOO\n#ifdef FOO\nint b;\n#endif\nint z;\n"
+ },
+ {
+  "label": "S6 corpus control: a form feed before #",
+  "text": "int a;\n\f#ifdef FOO\nint b;\n\f#endif\nint z;\n"
+ }
+]

@@ -1,0 +1,25 @@
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=$WORKSPACE_HOME/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+LEXER S1 `%:` split by a splice (ifdef FOO): ['a', 'b', 'z']
+LEXER S2 `%:` split by a splice (ifndef FOO): ['a', 'b', 'z']
+LEXER S3 `%:` split by a splice with a blank: ['a', 'b', 'z']
+LEXER S4 byte order mark then #ifdef FOO on line 1: None
+LEXER S5 `%:` split by a splice, #define FOO: ['z']
+LEXER S6 corpus control: a form feed before #: ['a', 'z']
+ACCEPTED C0 shipping firmware unchanged (must be ACCEPTED)
+REFUSED  C1 struct-overlay store to ADP_CTRL, unconditional :: only milan_reg() may form a CSR address, and the COMPILED firmware materialises one elsewhere: an address inside the Milan CSR window (0x90000000..0x90010000) reaches a control register without passing the bit-0 census, 
+REFUSED  C2 same store in a plain `#ifdef CSR_UART_BASE` arm (product-only) :: under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only mila
+REFUSED  C3 same store, `#ifdef CSR_UART_BASE` behind a form feed (R272 F1 shape) :: under the arm selection line 1386 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only mila
+REFUSED  C4 same store, plain `%:ifdef` digraph (kept ban) :: under the arm selection line 1386 `# ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): only mil
+REFUSED  H1 same store, `%:` digraph SPLIT BY A SPLICE, #ifdef CSR_UART_BASE :: a backslash-newline JOINS two tokens inside the fabric configuration step (line 1386): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED  H2 same store, split digraph, #ifndef MILAN_CENSUS_SOC :: a backslash-newline JOINS two tokens inside the fabric configuration step (line 1386): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED  H3 same store, split digraph with a blank before the newline :: a backslash-newline JOINS two tokens inside the fabric configuration step (line 1386): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED  C5 `0 &&` in the verdict test under a plain #ifdef CSR_UART_BASE :: under the arm selection line 1396 `#ifdef CSR_UART_BASE`: CSR_UART_BASE defined, arm 1 of 1 taken, graded as a firmware of its own (whatever its headers select, the product builds one of the selections graded): the compi
+REFUSED  H4 `0 &&` in the verdict test under a split-digraph #ifdef CSR_UART_BASE :: a backslash-newline JOINS two tokens inside the entity-advertise choke point (line 1396): translation phase 2 deletes the pair, so the compiler reads ONE name where every text rule reading this body reads two
+REFUSED  C6 second #define of MILAN_ID_MAGIC as a fresh read (plain `#`) :: #define MILAN_ID_MAGIC is #defined more than once in the firmware: the compiler expands every use after the second definition with that one, and every rule here reads a name by ONE definition
+REFUSED  H5 same second definition spelled with a split `%:` digraph :: the boot path this gate READS (as this gate reads it) is not the boot path the compiler COMPILES: [(('the boot entry point', 'statements x8', 'milan_read', 'milan_read', 'return', 'configure_fabric', 'nvm_boot', 'load_ae
+ACCEPTED H6 split-digraph #undef + #define retargeting MILAN_ADP_EID_LO to ADP_CTRL
+ACCEPTED B1 a byte order mark before the first line, nothing else
+ACCEPTED B2 a byte order mark, then `#include <string.h>` on line 1
+mode=sdk baseline_census_ran=True compiles=81 lexer_note=55/55 directive spellings read as the pinned GCC recorded them, and re-measured on riscv32-linux-gcc
+exit=0
