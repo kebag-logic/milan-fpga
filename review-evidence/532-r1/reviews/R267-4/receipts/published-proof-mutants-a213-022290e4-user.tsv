@@ -1,0 +1,17 @@
+# a213-proof-mutants.py: 15 entries; head proof sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; mode user
+control comment	SURVIVED	rc=0	-
+F3 a run that never completed counts	KILLED	rc=1	every run refuses after taking its slot; a run stops before its last workflow; a run passes every workflow and is then refused; a run fails a workflow and is then refused; a parallel run refuses like its serial reference; a collision holder refuses like its serial reference
+F3 interrupt gate graded on its exit status and PASS line only	KILLED	rc=1	the interrupt gate ignores its slot
+F3 no-isolation collision (slot 0) dropped	KILLED	rc=1	honest, where PR B fails its second workflow; the shared daemon does not collide; the slot-0 rival is refused for neither the tool cache nor a job volume
+F3 serial reference check dropped	KILLED	rc=1	honest, where PR B fails its second workflow; every run refuses after taking its slot; a run stops before its last workflow; a run passes every workflow and is then refused
+F3 parallel verdict equality dropped	KILLED	rc=1	slot A changes a verdict; slot B changes a verdict
+F3 overlap not required	KILLED	rc=1	the parallel runs never overlap; run A is refused after taking slot A, before run B takes slot B; run B is refused after taking slot B, before run A takes slot A
+F3 a run that already ended still counts as holding its slot	KILLED	rc=1	the parallel runs never overlap; run A is refused after taking slot A, before run B takes slot B; run B is refused after taking slot B, before run A takes slot A; the rival is refused only after the holder left
+F3 rival may be refused after the holder left	KILLED	rc=1	the rival is refused only after the holder left
+F3 rival refusal reason unchecked	KILLED	rc=1	the rival is refused for another reason; the slot-0 rival is refused for neither the tool cache nor a job volume
+F3 collision holder verdict unchecked	KILLED	rc=1	the collision holder changes its verdict; a collision holder refuses like its serial reference
+F1 slot-side refusal not required	KILLED	rc=1	a slot reaches the default daemon's container; only slot B reaches the default daemon's container; a slot reaches the container's published port; a slot cannot reach the probe name
+F1 host-side differential dropped	KILLED	rc=1	the isolation target is dead; the host cannot reach the container; the host cannot reach the published port while the container answers
+F1 published port not probed	KILLED	rc=1	honest, where PR B fails its second workflow
+F1 target absence not proved	KILLED	rc=1	the isolation container survives removal; the isolation network survives removal; the isolation container cannot be queried after removal; the isolation network cannot be queried after removal
+# head proof after run sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd EXACT

@@ -1,0 +1,19 @@
+# head act_ci.py sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 mode user mutants 57
+# range 32:48
+R267 R11 privileged host commands may prompt (no -n)	KILLED	rc=1	FAIL a slot host command runs as `sudo -n --`, never prompting, from / with only a fixed PATH and locale, under the default bound
+R267 R12 slot teardown without blocked cleanup signals	KILLED	rc=1	FAIL every slot teardown command runs with SIGINT, SIGTERM and SIGHUP blocked, so a repeated signal cannot cut it short, while acquisition ran with them unblocked
+R267 R13 residue ignores an active slice	KILLED	rc=1	FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands an
+R267 R14 residue ignores the uplink pidfile	KILLED	rc=1	FAIL each residue of a dead invocation (namespace, runtime directory, uplink pidfile, daemon unit, uplink unit, active slice, table) refuses before any mutation, is named with the recovery commands an
+R267 R15 residue counts only units in state loaded	KILLED	rc=1	FAIL a daemon unit left in any state but the absent one (masked, error, bad-setting) is residue, not a clean slot
+R267 R16 firewall table deleted before the uplink stops	KILLED	rc=1	FAIL teardown stops the daemon, uplink and slice, reverts the cap, deletes the table and namespace, proves each gone, then unlocks
+R267 R17 firewall rule matches only IPv4 loopback	KILLED	rc=1	FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+R267 R18 identity accepts either label	KILLED	rc=1	FAIL a slot daemon reporting another invocation's token refuses and the slot is torn down
+A213 F1 uplink-only rule dropped	KILLED	rc=1	FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+A213 F1 uplink rule inverted to accept only	KILLED	rc=1	FAIL the slot firewall is one new table rejecting the slot cgroup's traffic to host-local addresses and out of any interface but the uplinks, created whole or not at all
+A213 F1 discovered uplinks ignored	KILLED	rc=1	FAIL acquisition locks the slot, proves it clean, then creates the namespace, memory cap, uplink, firewall and daemon in that order and verifies the daemon
+A213 F1 unreachable default taken as an uplink	KILLED	rc=1	-
+A213 F1 failed route query read as no route	KILLED	rc=1	FAIL a default-route query that fails is refused, never read as no route
+A213 F1 loopback accepted as an uplink	KILLED	rc=1	FAIL the slot firewall refuses loopback as the uplink
+A213 F1 unquotable uplink name accepted	KILLED	rc=1	FAIL the slot firewall refuses an uplink name that would leave its quotes
+A213 F1 empty uplink set accepted	KILLED	rc=1	FAIL the slot firewall refuses no uplink
+# head act_ci.py after run sha256 f27af88bc8849d24609f6d9a8dfac71b1d12180d56ef1dda3ffaa6a4d4bff005 EXACT

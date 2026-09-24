@@ -1,0 +1,30 @@
+# r266-3-part-1.py: 28 entries; head proof sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd; mode root
+A01 numeric-slot check removed	KILLED	rc=1	slot A is not a number
+A03 numeric check skips slot B	SURVIVED	rc=0	-
+A05 slot A == 0 accepted	KILLED	rc=1	slot A is slot 0
+B01 digest comparison removed	KILLED	rc=1	the runner is not the recorded digest
+B03 non-root writability test removed (documented: no case)	SURVIVED	rc=0	-
+B05 verify_runner never called	KILLED	rc=1	the runner is not the recorded digest; the runner install is group-writable; the log directory is not empty
+C02 completion ignores exit status on success	KILLED	rc=1	a run passes every workflow and is then refused
+C04 exit 0 with any PASS prefix completes	KILLED	rc=1	a run stops before its last workflow
+C06 compare skips completion	KILLED	rc=1	a parallel run refuses like its serial reference
+C08 verdict file keeps PASS lines only	KILLED	rc=1	honest, where PR B fails its second workflow; slot A changes a verdict; slot B changes a verdict
+D02 isolated-slot holder marker is the slot-0 marker	KILLED	rc=1	neither run reports its own slot daemon
+D04 ended ignores verdicts	KILLED	rc=1	the parallel runs never overlap; the rival is refused only after the holder left
+D06 overlap does not wait for slot B's holder	KILLED	rc=1	the parallel runs never overlap; run B dies before taking slot B while run A holds slot A
+D08 overlap ignores run B's verdict	KILLED	rc=1	the parallel runs never overlap; run B is refused after taking slot B, before run A takes slot A
+E02 interrupt gate ignores the PASS line	KILLED	rc=1	the interrupt gate prints no PASS line
+E04 interrupt gate accepts any slot's teardown line	SURVIVED	rc=0	-
+F02 target start failure not recorded	KILLED	rc=1	the isolation target cannot be started
+F04 network presence after removal not checked	KILLED	rc=1	the isolation network survives removal; the isolation network cannot be queried after removal
+F06 failed network query read as absent	KILLED	rc=1	the isolation network cannot be queried after removal
+G01 slot may reach the container	KILLED	rc=1	a slot reaches the default daemon's container; only slot B reaches the default daemon's container
+G03 slot need not reach the probe name	KILLED	rc=1	a slot cannot reach the probe name
+G05 host need not reach the container	KILLED	rc=1	the host cannot reach the container
+G07 every slot's control probes slot A's namespace	KILLED	rc=1	only slot B reaches the default daemon's container
+H01 rival need not be refused before the holder's verdict	KILLED	rc=1	the rival is refused only after the holder left
+H03 rival refusal reason not checked	KILLED	rc=1	the rival is refused for another reason; the slot-0 rival is refused for neither the tool cache nor a job volume
+H05 collision holder verdict not compared	KILLED	rc=1	the collision holder changes its verdict
+H07 slot-0 collision accepts any refusal	KILLED	rc=1	the slot-0 rival is refused for neither the tool cache nor a job volume
+I01 any FAIL line ignored when ten PASS	KILLED	rc=1	the isolation container survives removal; the isolation network survives removal; the isolation container cannot be queried after removal; the isolation network cannot be queried after removal
+# head proof after run sha256 939c76db3365fe6a6ef3b6fe08c7a219934bb8f0bf19842d3b3aaa26b09ba1bd EXACT
