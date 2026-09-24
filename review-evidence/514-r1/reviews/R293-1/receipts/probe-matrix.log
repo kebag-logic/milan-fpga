@@ -1,0 +1,43 @@
+ok   positive-replay-far-extension        pr=5f917075a7 main=0bdd506aac base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   positive-replay-two-later-commits    pr=5f917075a7 main=6505f7e29c base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   two-redundant-merges                 pr=49c19fd437 main=3393dd2cf1 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   control-replay-no-later-edit         pr=5f917075a7 main=28ddc4f1aa base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   control-revert-then-reapply          pr=5f917075a7 main=c991676525 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unsupported: source-only history contains merges
+ok   pr62-faithful-later-rewrite          pr=5f917075a7 main=fe2059e0de base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   later-disabling-rewrite              pr=5f917075a7 main=3e56061073 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   published-shape-adjacent-extension   pr=5f917075a7 main=d5d7900645 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   later-deletion-of-touched-file       pr=5f917075a7 main=c5d4bf9c23 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   later-exec-bit-loss                  pr=f8d1076cd8 main=653d8af1bd base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   later-binary-edit                    pr=0d3b3b2562 main=ec47673aba base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   exact-revert-whole-replay            pr=5f917075a7 main=4f6f909f94 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   exact-revert-pr-commit               pr=5f917075a7 main=6083ec1e4e base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   partial-revert-one-hunk              pr=5f917075a7 main=e94e845394 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   revert-plus-far-extension            pr=5f917075a7 main=066ca287b8 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   revert-under-hostile-merge-config    pr=5f917075a7 main=74fd7c7b81 base=1/UNKNOWN head=1/UNKNOWN opt=1/[] :: -
+ok   omitted-linear-commit                pr=5f917075a7 main=f516a8bcd1 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   omitted-part-of-a-commit             pr=5f917075a7 main=82fe9afa34 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   whitespace-different-postimage       pr=5f917075a7 main=413f934246 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   repeated-block-other-location        pr=a8ede027dc main=a75165eeb2 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   merge-resolution-work-missing        pr=be0bfd1a3f main=5f8097d003 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   merge-resolution-work-present        pr=be0bfd1a3f main=c3ac2d9237 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   merge-one-byte-evil-change           pr=531168dbff main=5ab76aad03 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   octopus-merge                        pr=a0add23948 main=65cbc523c1 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   octopus-absorbed-third-parent        pr=8adb74d995 main=c75fd10e2a base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   unrelated-parent-merge               pr=fa6685c66d main=5dacd00344 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   redundant-plus-nonredundant-merge    pr=338dd9bcca main=57288f3ad8 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   first-parent-is-grandparent          pr=85d403857f main=5733d04f9a base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   reversed-parent-order                pr=2f08023e06 main=426c8dd536 base=1/STRANDED head=1/STRANDED opt=1/[] :: -
+ok   linear-control-exact-revert          pr=9a9c1e7b26 main=219aa2256e base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+ok   linear-control-adjacent-extension    pr=1bd2b82f0e main=fe6d591afd base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+ok   rv-fallback-replica                  pr=b521552a41 main=68004efe94 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'linear'
+ok   rv-two-commit-no-later               pr=4aa24e091a main=418f7ff277 base=0/contained head=0/contained opt=0/['retained'] :: retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+ok   rv-two-commit-far-extension          pr=4aa24e091a main=863efcdcb1 base=0/contained head=0/contained opt=0/['retained'] :: retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+ok   rv-two-commit-revert-first           pr=4aa24e091a main=3e4656b3ec base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+ok   rv-rename-touched-file               pr=4aa24e091a main=dea49b6538 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt'
+ok   rv-delete-added-file                 pr=4aa24e091a main=a12d2cd992 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'new.py'
+ok   rv-revert-then-reapply               pr=4aa24e091a main=13021d6ed0 base=0/contained head=0/contained opt=0/['retained'] :: retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+ok   rv-hostile-config-revert             pr=4aa24e091a main=194821d7ef base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'mod.txt', 'new.py'
+ok   rv-repeated-block-moved              pr=84466fd81d main=8f27b197c6 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'rep.txt'
+ok   rv-exec-bit-lost                     pr=83bc245b49 main=aa46ba16d7 base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unproved on: 'tool.sh'
+ok   rv-ancestry-merge                    pr=d271541f61 main=1370b4e00c base=0/contained head=0/contained opt=1/['UNKNOWN'] :: UNKNOWN    refs/heads/pr: current retention: unsupported: needs a nonempty whitespace-exact linear replay
+RESULT PASS

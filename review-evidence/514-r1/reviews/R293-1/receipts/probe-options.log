@@ -1,0 +1,31 @@
+== head: --no-fetch --base --current-retention main pr
+  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]
+  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+rc=0
+== head: --base --no-fetch main pr
+--base needs a ref
+Did the merge actually take the branch?
+
+rc=2
+== head: --no-fetch --base main pr --current-retention --current-retention
+--current-retention may be specified only once
+Did the merge actually take the branch?
+
+rc=2
+== head: --current-retention --selftest
+--selftest accepts no other arguments
+Did the merge actually take the branch?
+
+rc=2
+== head: --no-fetch --current-retention --base main
+  contained  refs/heads/main  [historical inclusion by ancestry; current retention not implied]
+  UNKNOWN    refs/heads/main: current retention: unsupported: needs a nonempty whitespace-exact linear replay
+
+rc=1
+== head: --no-fetch --base main pr --current-retention
+  contained  refs/heads/pr  [every path this branch touched is identical in refs/heads/main (2 commit(s) not ancestors -- squash or rebase merge)]
+  retained   refs/heads/pr: current retention: raw no-op retention at refs/heads/main; historical linear replay proved
+rc=0
+== base: --no-fetch --base --current-retention main pr
+unknown option: --current-retention
+rc=2
