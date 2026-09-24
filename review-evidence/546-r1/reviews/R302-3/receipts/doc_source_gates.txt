@@ -1,0 +1,13 @@
+# Lines without '(clone)' ran in a git-less archive extraction; gates that need git or submodules fail there by design and are re-run read-only in the clone ('(clone)' lines). Verdict rows: check_doc_style and gen_module_matrix (archive) plus check_doc_paths, measure_test_evidence --check, check_py_idiom, check_cpp_idiom (clone): rc 0. gen_toc: not runnable (renderer absent).
+rc=0 python3 scripts/check_doc_style.py :: documentation style: OK (22 current documents) 
+rc=1 python3 scripts/gen_toc.py --check ::                              output=stdout, stderr=stderr) subprocess.CalledProcessError: Command '['git', '-C', '<packet>/scratch/head', 'ls-files', '-z', '*.md']' return
+rc=1 python3 scripts/check_doc_paths.py ::                              output=stdout, stderr=stderr) subprocess.CalledProcessError: Command '['git', '-C', '<packet>/scratch/head', 'ls-files', '-z', '*.md']' return
+rc=0 python3 docs/traceability/gen_module_matrix.py --check :: traceability generator controls: 5/5 traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived) 
+rc=2 python3 scripts/measure_test_evidence.py --check :: REFUSED: suite entry protocol-processor/scripts/run_suites.sh is missing, so which targets the protocol-processor/tb suites execute cannot be established 
+rc=1 python3 scripts/check_py_idiom.py ::                              output=stdout, stderr=stderr) subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit 
+rc=1 python3 scripts/check_cpp_idiom.py ::                              output=stdout, stderr=stderr) subprocess.CalledProcessError: Command '['git', 'submodule', 'status', '--', 'protocol-processor', 'gptp-processor']' returned non-zero exit 
+rc=2 (clone) python3 scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt 
+rc=0 (clone) python3 scripts/check_doc_paths.py :: doc path gate: OK (841 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file) 
+rc=0 (clone) python3 scripts/measure_test_evidence.py --check :: TEST-EVIDENCE RATCHET: PASS (73 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))   the mutation ratchet can be low
+rc=0 (clone) python3 scripts/check_py_idiom.py ::   global statement: 0 <= 0   over-long line: 0 <= 0 
+rc=0 (clone) python3 scripts/check_cpp_idiom.py ::   long function: 0 <= 0   build without warnings: 0 <= 0 
