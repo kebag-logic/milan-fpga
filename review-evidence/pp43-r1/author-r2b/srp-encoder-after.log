@@ -1,0 +1,11 @@
+make: Entering directory '$LANES/pp43-49-gsi-internal/tb/srp_encoder'
+verilator --cc --exe --build -j 0 --top-module srp_tb_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/pp43-49-gsi-internal/tb/srp_encoder -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv srp_tb_wrap.sv sim_main.cpp -o Vsrp_sim
+make[1]: Entering directory '$LANES/pp43-49-gsi-internal/tb/srp_encoder/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$LANES/pp43-49-gsi-internal/tb/srp_encoder/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 8 threads; allocated 29.668 MB
+./obj_dir/Vsrp_sim
+556 checks: 556 PASS, 0 FAIL
+make: Leaving directory '$LANES/pp43-49-gsi-internal/tb/srp_encoder'

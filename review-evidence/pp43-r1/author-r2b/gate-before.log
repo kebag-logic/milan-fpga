@@ -1,0 +1,39 @@
+Copied unchanged check_cpp_idiom.py: sha256 a059f01c0f8f69edb7de540004ce27b168c4e8d53a5c79c0238b0d5bb9f5f228
+Copied unchanged cpp_idiom.budget: sha256 c8c4c5c2fb02961001ec556bce36d673474969b16a0b198f18d6babcd07213b6
+Copied unchanged code_quality_scope.py: sha256 4497818d6444cc1ea7aefc002d1b32675f206e07988cbf6b19708b08409de14b
+Source: $LANES/pp43-49-gsi-internal/tb/srp_stream_fsms/sim_main.cpp
+Source sha256: 4246b710a5ad45d7abf4be4b7fe8bc4496e80c4b56ee69b9ae5239c534cd0b62
+Limit: 100 physical lines (inclusive signature and closing brace)
+Functions measured: 26
+81: 7 lines: static int app_next(int st, int ev, bool reg_in, bool p2p) {
+92: 19 lines: static int app_msg(int st, bool txla, bool reg_in) {
+152: 8 lines: static uint64_t wget(const VlWide<N>& w, int lo, int width) {
+178: 8 lines: void clear_logs() {
+187: 54 lines: void step() {
+244: 12 lines: void reset() {
+266: 5 lines: void ctl(bool settle, int sink, uint64_t sid, uint64_t da, uint16_t vid) {
+291: 13 lines: bool tick() {
+315: 3 lines: uint32_t l_lat(int s) const {
+331: 34 lines: static int t_goto(Hn& h, int S) {
+366: 38 lines: static int l_goto(Hn& h, int S) {
+436: 35 lines: void SrpStreamFsmsSuite::rx_events_match_table_10_3() {
+473: 35 lines: void SrpStreamFsmsSuite::talker_tx_rows_send_the_table_10_3_message() {
+510: 32 lines: void SrpStreamFsmsSuite::listener_tx_rows_send_the_table_10_3_message() {
+544: 41 lines: void SrpStreamFsmsSuite::talker_registrar_follows_table_10_4_with_delta13() {
+587: 56 lines: void SrpStreamFsmsSuite::talker_declaration_tracks_ready_and_admission() {
+645: 90 lines: void SrpStreamFsmsSuite::listener_matcher_registers_swaps_and_unregisters() {
+737: 23 lines: void SrpStreamFsmsSuite::vlan_user_handshake_holds_and_collapses() {
+762: 9 lines: void SrpStreamFsmsSuite::talker_tracker_isolates_applications() {
+787: 53 lines: void SrpStreamFsmsSuite::received_leave_all_reaches_only_its_attribute_type() {
+847: 27 lines: void SrpStreamFsmsSuite::run_b_switch_leave_all_keeps_the_listener_registration_in() {
+878: 16 lines: void SrpStreamFsmsSuite::domain_only_leave_all_never_ages_the_listener_registrar() {
+898: 17 lines: void SrpStreamFsmsSuite::listener_only_leave_all_ages_the_listener_registrar_to_mt() {
+922: 121 lines: void SrpStreamFsmsSuite::listener_failure_change_notifies_without_redeclaring() {
+1044: 18 lines: int SrpStreamFsmsSuite::run() {
+1065: 5 lines: int main(int argc, char** argv) {
+Maximum: 121 lines
+long_functions(): [(922, 121)]
+long function: 1 <= 0: FAIL
+FAIL: long function 1 > ratchet 0. New C++ uses the named construct; see Rule 11 in docs/development/CODE_QUALITY.md.
+Source scan and unchanged budget: FAIL
+Scratch deleted: True (/tmp/pp43-a262-cpp-_iirwl0z)
