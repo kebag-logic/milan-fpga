@@ -1,0 +1,32 @@
+$ git rev-parse HEAD HEAD^{tree}
+8544472a19a4b4d3853d64b15dea22f999372a32
+b7a11e8d2ac0d88826925877180806ee145208d8
+$ git status --porcelain --ignored --untracked-files=all
+(end status)
+$ git diff-index --cached --quiet HEAD; git diff-files --quiet
+index_vs_head=0
+worktree_vs_index=0
+$ index entries vs HEAD tree (mode sha path)
+index=8a7caffee337981a75304cc75f88a75cdbb7182fb8d7533bc043907d34e2915f  -
+tree =8a7caffee337981a75304cc75f88a75cdbb7182fb8d7533bc043907d34e2915f  -
+index_matches_tree=yes
+$ worktree blob hashes of all regular tracked files vs HEAD
+1c6c630d1dab5d10483ad0ad7045fd5c525883823b1dd59c7b05f677ef5eb4fd  -
+1c6c630d1dab5d10483ad0ad7045fd5c525883823b1dd59c7b05f677ef5eb4fd  -
+$ modes of changed files
+100644 7671e620b41ba13c1a35fd39a04bc150eb2edb42 0	docs/findings/117_GPTP_SILICON_EVIDENCE.md
+100644 a53992f54df406a1368bf553179d247da0461606 0	docs/reference/REGISTER_MAP.md
+100644 806935b322c3e8316203d71a95d1aeb2387f0d06 0	hdl/common/csr/milan_csr.sv
+100644 a1a2d85660ca3b5c40f330941364c9b0c33adf1a 0	hdl/milan/milan_datapath.sv
+100644 08ec7aa1609082f37fb45514b9eefbf560f0496b 0	tb/verilator/milan_dp/sim_nxn.cpp
+644 hdl/common/csr/milan_csr.sv
+644 hdl/milan/milan_datapath.sv
+644 tb/verilator/milan_dp/sim_nxn.cpp
+$ gitlinks
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 e5dcea6e351abff18a27a00f8e345f3251bdbd8f 0	gptp-processor
+160000 09f9bf3846511f8388d995126502ed92eaa65213 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+protocol-processor 09f9bf3846511f8388d995126502ed92eaa65213 dirty=0
+gptp-processor e5dcea6e351abff18a27a00f8e345f3251bdbd8f dirty=0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0

@@ -1,0 +1,24 @@
+$ git grep -n -i -I -E "ctlr_diag|0x6f4|h6f4|6F4\b" 8544472a19a4b4d3853d64b15dea22f999372a32 -- . ":!docs/history"
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/findings/117_GPTP_SILICON_EVIDENCE.md:471:  `CTLR_DIAG` read 0 at 13:13 UTC.
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/findings/117_GPTP_SILICON_EVIDENCE.md:524:- **DUT.** The grader passed 10 of 10 at 14:13 UTC. The console read the switch as grandmaster, `CLKV_STAT` `0x00010002`, `CRFT_CTRL` `0x3`, drop counters 0, `CTLR_DIAG` 0 (STRUCTURAL ZERO, not a measurement), `LINKG_STAT` `0x83` and `RST_EPOCH` 1. A 22 s tap capture around that read carried no AVTP stream.
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/reference/REGISTER_MAP.md:188:  - [0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bou
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/reference/REGISTER_MAP.md:1244:| `0x6F4` | `CTLR_DIAG` | RO | 🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor |
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/reference/REGISTER_MAP.md:1248:`CTLR_DIAG` (0x6F4) is **STRUCTURAL ZERO**. Its source was deleted;
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/reference/REGISTER_MAP.md:1255:The parent ties `aecp_ctlr_diag` to `32'd0`, preserving the address.
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:309:  //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO in milan_datapath (#548).
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:313:  input  wire [31:0]             i_ctlr_diag,
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:761:    //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:768:    A_CTLR_DIAG   = 'h6F4,
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:2397:      //! CTLR_DIAG (RO 0x6F4): STRUCTURAL ZERO (#548).
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/common/csr/milan_csr.sv:2402:      A_CTLR_DIAG:  live_mux = i_ctlr_diag;
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/milan/milan_datapath.sv:1500:  //! CTLR_DIAG (0x6F4): STRUCTURAL ZERO, retained for the CSR ABI (#548).
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/milan/milan_datapath.sv:1503:  wire [31:0]              aecp_ctlr_diag;
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/milan/milan_datapath.sv:2535:    .i_ctlr_diag          (aecp_ctlr_diag),
+8544472a19a4b4d3853d64b15dea22f999372a32:hdl/milan/milan_datapath.sv:3206:  assign aecp_ctlr_diag = 32'd0;
+8544472a19a4b4d3853d64b15dea22f999372a32:tb/verilator/milan_dp/sim_nxn.cpp:1596:        ck("[NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic",
+8544472a19a4b4d3853d64b15dea22f999372a32:tb/verilator/milan_dp/sim_nxn.cpp:1597:           axi_read(0x6F4), 0);
+exit=0
+
+$ git grep -c -i -I -E "ctlr_diag|0x6f4" 8544472a19a4b4d3853d64b15dea22f999372a32 -- docs/history
+8544472a19a4b4d3853d64b15dea22f999372a32:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:1
+exit=0

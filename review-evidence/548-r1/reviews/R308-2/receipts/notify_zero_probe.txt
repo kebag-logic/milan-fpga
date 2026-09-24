@@ -1,0 +1,24 @@
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 80 programs
+gptp_ucode.hex: 1024 words, 994 real (97.1%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@159 BECGATE@309 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@125 SERVO@651 RESUME@1016 PDREQ@900 TXLOST@103 TXT1OK@180
+head_build_exit=0
+head_run_exit=0
+mutant_tie_count=1
+mut_build_exit=0
+mut_run_exit=1
+--- head: CTLR_DIAG lines and summary
+148:  [ok]   [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic = 0x0
+--------------------------------------------------------------
+checks: 147   failures: 0
+RESULT: PASS
+--- mutant: failing lines and summary
+148:  [FAIL] [NOTIFY-T] CTLR_DIAG (0x6F4) is STRUCTURAL ZERO after controller traffic got=0x1001001 exp=0x0
+159:checks: 147   failures: 1
+160:RESULT: FAIL
+--------------------------------------------------------------
+checks: 147   failures: 1
+RESULT: FAIL
+mutant_fail_lines=1
+RESULT PASS
+exit=0
