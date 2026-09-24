@@ -1,0 +1,73 @@
+{
+  "head": "02648441c9d084b109e6951c8f2802245ff0c2e0",
+  "base": "b7ad74d9286b0af0b25803cf25681a390654c2f0",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/530-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "$VALIDATION_STORAGE/530-candidate-0923/full-suite-logs",
+        "--wait"
+      ],
+      "exit_code": 0,
+      "seconds": 2994.965,
+      "log": "$VALIDATION_STORAGE/530-candidate-0923/full-native/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/530-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "bash",
+        "syn/yosys/run.sh",
+        "--results",
+        "$VALIDATION_STORAGE/530-candidate-0923/yosys-results"
+      ],
+      "exit_code": 0,
+      "seconds": 674.185,
+      "log": "$VALIDATION_STORAGE/530-candidate-0923/full-native/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/530-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "bash",
+        "-c",
+        "cd protocol-processor && bash scripts/run_suites.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 359.302,
+      "log": "$VALIDATION_STORAGE/530-candidate-0923/full-native/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/530-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "make",
+        "-C",
+        "gptp-processor",
+        "all"
+      ],
+      "exit_code": 0,
+      "seconds": 1090.715,
+      "log": "$VALIDATION_STORAGE/530-candidate-0923/full-native/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=$VALIDATION_STORAGE/530-candidate-0923/pinned-tool-bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+        "behave",
+        "tests/features"
+      ],
+      "exit_code": 0,
+      "seconds": 1.209,
+      "log": "$VALIDATION_STORAGE/530-candidate-0923/full-native/05.log"
+    }
+  ]
+}
