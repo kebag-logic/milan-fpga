@@ -1,0 +1,11 @@
+--- head/hdl/milan/milan_datapath.sv
++++ X01_also_sin0/hdl/milan/milan_datapath.sv
+@@ -7253,7 +7253,7 @@
+   end : pp_ctr_event_pick
+ 
+   always_comb begin : pp_ctr_event_next
+-    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
++    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w | PP_CTR_SIN_N_C'(crf_dirty_p_w);
+     pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
+     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;

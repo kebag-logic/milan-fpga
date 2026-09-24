@@ -1,0 +1,31 @@
+# restoration check after all probes 2026-09-24T00:46:27Z
+HEAD 31e62ffead16e43d648993278b0ab9190d99b672 tree 4d32ede1eba65adcee359d00751ddadf3314a36b
+index digest 7136a6417070a224d9eeb3eed63fb03e81c460bd1d7b7a733898c7d067021466  (baseline 7136a6417070a224d9eeb3eed63fb03e81c460bd1d7b7a733898c7d067021466)
+# tracked bytes and modes vs HEAD (git diff --exit-code, no textconv, index and worktree)
+worktree+index == HEAD: yes
+index == HEAD: yes
+# flags hiding changes (assume-unchanged h / skip-worktree S)
+(end flags)
+# hash every tracked regular file on disk against its index blob
+mismatching tracked files: 0
+# submodule gitlinks
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 c1b617435824929a790739ea8585c3fe1a328cc0 0	gptp-processor
+160000 424c688fa2205b934a7689a58f2aa766420f2326 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ c1b617435824929a790739ea8585c3fe1a328cc0 gptp-processor (heads/main)
+ 424c688fa2205b934a7689a58f2aa766420f2326 protocol-processor (v2.0-199-g424c688)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor HEAD 424c688fa2205b934a7689a58f2aa766420f2326 dirty=0
+gptp-processor HEAD c1b617435824929a790739ea8585c3fe1a328cc0 dirty=0
+third_party/verilog-axis HEAD 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+# untracked or ignored files in the clone
+!! scripts/__pycache__/
+(end)
+
+# after removing the ignored scripts/__pycache__/ the gates created (2026-09-24T00:46:36Z)
+git status --porcelain --ignored:
+(end: empty means no untracked or ignored file)
+HEAD 31e62ffead16e43d648993278b0ab9190d99b672; index digest 7136a6417070a224d9eeb3eed63fb03e81c460bd1d7b7a733898c7d067021466
+worktree+index == HEAD: yes

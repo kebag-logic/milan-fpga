@@ -1,0 +1,32 @@
+run	tally	FAIL lines
+X01_also_sin0__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x101 exp=0x100
+X01_also_sin0__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x11 exp=0x10
+X02_also_sin_last_aaf__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x180 exp=0x100
+X02_also_sin_last_aaf__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x18 exp=0x10
+X03_misroute_to_n_minus_1__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x80 exp=0x100
+X03_misroute_to_n_minus_1__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x8 exp=0x10
+X04_also_sout_n__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] ...and as no STREAM_OUTPUT row      got=0x100 exp=0x0
+X04_also_sout_n__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] ...and as no STREAM_OUTPUT row      got=0x10 exp=0x0
+X05_also_sout0__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] ...and as no STREAM_OUTPUT row      got=0x1 exp=0x0
+X05_also_sout0__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] ...and as no STREAM_OUTPUT row      got=0x1 exp=0x0
+X06_also_avb__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0 got=0x1 exp=0x0
+X06_also_avb__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0 got=0x1 exp=0x0
+X07_also_ckd__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0 got=0x1 exp=0x0
+X07_also_ckd__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] ...nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0 got=0x1 exp=0x0
+X08_also_avb_as_ix1__nxn8	checks: 3136   failures: 1	[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x1 exp=0x0
+X08_also_avb_as_ix1__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x1 exp=0x0
+X09_crf_as_foreign_type__nxn8	checks: 3136   failures: 3	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x100|[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x40 exp=0x0|[FAIL] [CTRS-OUT] simultaneous output changes ALL reached the arbiter got=0x0 exp=0x1ff
+X09_crf_as_foreign_type__nxn	checks: 1708   failures: 3	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x10|[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x40 exp=0x0|[FAIL] [CTRS-OUT] simultaneous output changes ALL reached the arbiter got=0x0 exp=0x1f
+X10_crf_at_undeclared_n_plus_1__nxn8	checks: 3136   failures: 2	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x200 exp=0x100|[FAIL] [CTRS-OUT] simultaneous output changes ALL reached the arbiter got=0x1fe exp=0x1ff
+X10_crf_at_undeclared_n_plus_1__nxn	checks: 1708   failures: 2	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x20 exp=0x10|[FAIL] [CTRS-OUT] simultaneous output changes ALL reached the arbiter got=0x1e exp=0x1f
+X11_crf_at_index_plus_64__nxn8	checks: 3136   failures: 2	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x100|[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x40 exp=0x0
+X11_crf_at_index_plus_64__nxn	checks: 1708   failures: 2	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x10|[FAIL] [CTRS-CRF] ...nor any tuple of another type or index got=0x40 exp=0x0
+X12_also_sout_n_late200__nxn	checks: 1708   failures: 0	none
+X13_dirty_source_removed__notify	checks: 146   failures: 11	[FAIL] [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...and to B                       got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) got=0x0 exp=0xf3f|[FAIL] [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...and so is A's copy             got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] a second change inside the second is WITHHELD got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...and RELEASED exactly once after it got=0x0 exp=0x2|[FAIL] [NOTIFY-CRF] ...no earlier than one second after the first got=0x0 exp=0x1|[FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x0 exp=0x2|[FAIL] [NOTIFY-CRF] ...nor to A                       got=0x0 exp=0x2
+X13_dirty_source_removed__nxn	checks: 1708   failures: 1	[FAIL] [CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only got=0x0 exp=0x10
+X14_pending_clear_below_crf__notify	checks: 146   failures: 2	[FAIL] [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change got=0x4 exp=0x2|[FAIL] [NOTIFY-CRF] ...nor to A                       got=0x4 exp=0x2
+H1_no_other_record+X08__nxn	checks: 1708   failures: 0	none
+H2_instrument__notify	checks: 146   failures: 0	none
+H2_instrument__nxn8	checks: 3136   failures: 0	none
+H2_instrument__nxn	checks: 1708   failures: 0	none
+H3_flip_a_copy__notify	checks: 146   failures: 1	[FAIL] [NOTIFY-CRF] ...and so is A's copy             got=0x0 exp=0x1

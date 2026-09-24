@@ -1,0 +1,15 @@
+# builder-generated 4x4 shape with clocking.crf_sink false (scratch config)
+96c96
+<   media_clock_sources: [internal, crf] # the sources the fabric follows (#389)
+---
+>   media_clock_sources: [internal]
+98c98
+<   crf_sink: true
+---
+>   crf_sink: false
+# generated shape constants
+  localparam int ADP_TALKER_SRC_C    = 5;
+  localparam int ADP_LISTENER_SINK_C = 4;
+# simulator stage (elaboration) diagnostics of error class, then the C++ stage error
+(no elaboration error or UNDRIVEN/USERERROR diagnostic)
+../sim_nxn.cpp:3342:33: error: ‘class Vmilan_datapath___024root’ has no member named ‘milan_datapath__DOT__crf_intrcnt_w’

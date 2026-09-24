@@ -1,0 +1,38 @@
+--- head/tb/verilator/milan_dp/sim_nxn.cpp
++++ H2_instrument/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -572,11 +572,14 @@
+     //! The width of the two sticky bitmaps above: an index at or past it has
+     //! no bit to set, and shifting into one would be undefined.
+     static constexpr unsigned kSeenBits = 8 * sizeof(unsigned long);
++    bool r269_win_on = false; long r269_win_step = 0;
+     void step() {
+         lo();
+         hi();
+         tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
++        if (r269_win_on) r269_win_step++;
+         if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
++            if (r269_win_on) printf("  [r269] window step %ld: type 0x%04x index %u\n", r269_win_step, (unsigned)dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w, (unsigned)dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w);
+             const unsigned ty = dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
+             const unsigned ix = dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w;
+             if (ty == 0x0005 && ix < kSeenBits)
+@@ -1327,7 +1330,9 @@
+            n1 ? ctr_word(*n1, 32) : 0, CRF_CTR_MASK);
+         const std::vector<uint8_t> key = {0x00, 0x05, 0x00,
+                                           static_cast<uint8_t>(ix)};
++        const size_t r269_n0 = uns_log.size(), r269_c0 = uns_log.capacity();
+         const std::vector<uint8_t> g = aecp_xact_from(CTL_B, 0x0029, notify_sq++, key);
++        printf("  [r269] uns_log across the solicited exchange: size %zu -> %zu, capacity %zu -> %zu\n", r269_n0, uns_log.size(), r269_c0, uns_log.capacity());
+         ck("[NOTIFY-CRF] ...byte-identical from the body on to the solicited "
+            "answer", static_cast<long>(notify_same_from(n1, g, 38)), 1);
+         ck("[NOTIFY-CRF] ...and so is A's copy", static_cast<long>(notify_same_from(
+@@ -3484,7 +3489,10 @@
+         pp_ctr_evt_avb_seen = false;
+         pp_ctr_evt_ckd_seen = false;
+         pp_ctr_evt_other_n = 0;
++        r269_win_on = true; r269_win_step = 0;
+         crf_lever(true);
++        r269_win_on = false;
++        printf("  [r269] bind-edge window: %ld steps\n", r269_win_step);
+         ck("[CTRS-CRF] the bind edge reached the arbiter as STREAM_INPUT N only",
+            pp_ctr_evt_sin_seen, 1ul << CRF_LUID);
+         ck("[CTRS-CRF] ...and as no STREAM_OUTPUT row", pp_ctr_evt_sout_seen, 0);

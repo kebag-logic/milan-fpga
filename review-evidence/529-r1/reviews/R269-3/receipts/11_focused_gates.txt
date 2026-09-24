@@ -1,0 +1,73 @@
+### python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 164 md files + 840 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+exit=0
+
+### python3 scripts/check_em_dash.py --base ede8d48ecd7c7f589a14b957951f040d92c99c70
+check_em_dash: 0 finding(s) over 164 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [ede8d48e..HEAD]
+exit=0
+
+### python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+exit=0
+
+### python3 scripts/check_cpp_idiom.py
+  file-scope mutable: 0 <= 0
+  macro constant: 0 <= 0
+  unnamed enum block: 0 <= 0
+  multi-declarator declaration: 0 <= 0
+  long function: 0 <= 0
+  build without warnings: 0 <= 0
+exit=0
+
+### python3 scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+exit=0
+
+### python3 scripts/measure_naming.py --check
+superproject            72   1902    315       1977          240        141     292      219          3         73
+total                  120   3576    586       3778          384        247     502      406          4         96
+
+96 candidate(s): 92 boundary name(s) hide a documented unit and 4 are named for a different unit than documented (3576 ports and 586 parameters scanned, 384 with no //! and so not judged here, 406 match(es) excluded with a reason)
+
+NAMING RATCHET: PASS (96 candidate(s), all recorded by identity; 96 recorded)
+exit=0
+
+### python3 scripts/measure_test_evidence.py --check
+Verilator scheduling: 55 default suites; physical selection: milan_dp_gptp
+
+runner evidence contract: OK
+
+TEST-EVIDENCE RATCHET: PASS (74 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 74
+exit=0
+
+### python3 scripts/check_hygiene.py --check
+  tab in SystemVerilog                     0                   0                   0
+
+  superproject: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  protocol-processor: trailing whitespace 0<=1, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 718 file(s))
+exit=0
+
+### python3 scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+exit=0
+
+### python3 scripts/lint_rtl.py --check
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:244:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off)
+exit=0
+
+### python3 docs/traceability/gen_module_matrix.py --check
+traceability generator controls: 5/5
+traceability matrix up to date (69 modules, 0 untested <= ratchet 0, 0 archived)
+exit=0
+
+### git status --porcelain after the gates
+(end)

@@ -1,0 +1,11 @@
+--- head/tb/verilator/milan_dp/sim_nxn.cpp
++++ H1_no_other_record/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -587,8 +587,6 @@
+                 pp_ctr_evt_avb_seen = true;
+             else if (ty == 0x0024 && ix == 0)
+                 pp_ctr_evt_ckd_seen = true;
+-            else
+-                pp_ctr_evt_other_n++;
+         }
+     }
+ 

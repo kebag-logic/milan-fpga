@@ -1,0 +1,11 @@
+--- head/hdl/milan/milan_datapath.sv
++++ X07_also_ckd/hdl/milan/milan_datapath.sv
+@@ -7256,7 +7256,7 @@
+     pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
+     pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
+     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+-    pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
++    pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w | crf_dirty_p_w;
+     for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin
+       if (pp_ctr_evt_valid_w
+           && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)

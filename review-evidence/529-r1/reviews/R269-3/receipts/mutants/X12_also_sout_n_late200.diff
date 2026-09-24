@@ -1,0 +1,23 @@
+--- head/hdl/milan/milan_datapath.sv
++++ X12_also_sout_n_late200/hdl/milan/milan_datapath.sv
+@@ -7252,9 +7252,19 @@
+     end
+   end : pp_ctr_event_pick
+ 
++  logic [7:0] r269_dly_r = 8'd0;
++  logic       r269_arm_r = 1'b0;
++  always_ff @(posedge axis_clk) begin : r269_late
++    if (crf_dirty_p_w) begin r269_arm_r <= 1'b1; r269_dly_r <= 8'd0; end
++    else if (r269_arm_r) begin
++      r269_dly_r <= r269_dly_r + 8'd1;
++      if (r269_dly_r == 8'd200) r269_arm_r <= 1'b0;
++    end
++  end : r269_late
++  wire r269_late_p = r269_arm_r && (r269_dly_r == 8'd200);
+   always_comb begin : pp_ctr_event_next
+     pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | pp_ctr_sin_dirty_w;
+-    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
++    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w | (ACMP_SRC_C'(r269_late_p) << N_STREAMS);
+     pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | ctr_avb_dirty_w;
+     pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | ctr_ckd_dirty_w;
+     for (int unsigned s = 0; s < PP_CTR_SIN_N_C; s++) begin

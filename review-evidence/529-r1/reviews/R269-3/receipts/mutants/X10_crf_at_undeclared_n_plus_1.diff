@@ -1,0 +1,11 @@
+--- head/hdl/milan/milan_datapath.sv
++++ X10_crf_at_undeclared_n_plus_1/hdl/milan/milan_datapath.sv
+@@ -7239,7 +7239,7 @@
+         pp_ctr_evt_valid_w = 1'b1;
+         if (pick < PP_CTR_SIN_N_C) begin
+           pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+-          pp_ctr_evt_index_w = 16'(pick);
++          pp_ctr_evt_index_w = (pick == N_STREAMS && PP_CTR_SIN_N_C > N_STREAMS) ? 16'(pick + 1) : 16'(pick);
+         end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+           pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+           pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);

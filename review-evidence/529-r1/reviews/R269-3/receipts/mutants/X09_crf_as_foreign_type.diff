@@ -1,0 +1,10 @@
+--- head/hdl/milan/milan_datapath.sv
++++ X09_crf_as_foreign_type/hdl/milan/milan_datapath.sv
+@@ -7240,6 +7240,7 @@
+         if (pick < PP_CTR_SIN_N_C) begin
+           pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+           pp_ctr_evt_index_w = 16'(pick);
++          if (pick == N_STREAMS && PP_CTR_SIN_N_C > N_STREAMS) pp_ctr_evt_type_w = 16'h000E;
+         end else if (pick < (PP_CTR_SIN_N_C + ACMP_SRC_C)) begin
+           pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+           pp_ctr_evt_index_w = 16'(pick - PP_CTR_SIN_N_C);

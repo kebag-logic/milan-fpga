@@ -1,0 +1,18 @@
+name	kind	legs	expectation	description
+X01_also_sin0	rtl	nxn nxn8	RED: STREAM_INPUT N only	CRF pulse also raises AAF STREAM_INPUT 0
+X02_also_sin_last_aaf	rtl	nxn nxn8	RED: STREAM_INPUT N only	CRF pulse also raises AAF STREAM_INPUT N-1 (the CRF row's neighbour)
+X03_misroute_to_n_minus_1	rtl	nxn nxn8	RED: STREAM_INPUT N only	CRF pulse delivered at STREAM_INPUT N-1 INSTEAD of N
+X04_also_sout_n	rtl	nxn nxn8	RED: no STREAM_OUTPUT row	CRF pulse also raises STREAM_OUTPUT N (the CRF Media Clock Output)
+X05_also_sout0	rtl	nxn nxn8	RED: no STREAM_OUTPUT row	CRF pulse also raises STREAM_OUTPUT 0
+X06_also_avb	rtl	nxn nxn8	RED: nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0	CRF pulse also raises AVB_INTERFACE 0
+X07_also_ckd	rtl	nxn nxn8	RED: nor AVB_INTERFACE 0 or CLOCK_DOMAIN 0	CRF pulse also raises CLOCK_DOMAIN 0
+X08_also_avb_as_ix1	rtl	nxn nxn8	RED: nor any tuple of another type or index	CRF pulse also raises AVB, and the arbiter hands AVB out as {AVB_INTERFACE, 1}
+X09_crf_as_foreign_type	rtl	nxn nxn8	RED: STREAM_INPUT N only / another type	the CRF row handed out as type 0x000E (not STREAM_INPUT) at index N
+X10_crf_at_undeclared_n_plus_1	rtl	nxn nxn8	RED: STREAM_INPUT N only	the CRF row handed out as STREAM_INPUT N+1 (undeclared)
+X11_crf_at_index_plus_64	rtl	nxn nxn8	RED: STREAM_INPUT N only / another index	the CRF row handed out as STREAM_INPUT N+64 (past the harness bitmap)
+X13_dirty_source_removed	rtl	nxn notify	RED: bind edge on nxn; every [NOTIFY-CRF] incl. A's copy	the CRF row's Table 5.22 source tied off
+X14_pending_clear_below_crf	rtl	notify	RED: the two quiet checks	the pending-clear loop stops below the CRF row
+X12_also_sout_n_late200	rtl	nxn	CHARACTERISATION (window bound): expected GREEN	CRF pulse also raises STREAM_OUTPUT N, but 200 cycles later (outside the 64-step window)
+H3_flip_a_copy	harness	notify	RED: only [NOTIFY-CRF] ...and so is A's copy	flip one counters-block bit of controller A's logged CRF push before the A-copy check
+H1_no_other_record	harness	nxn	with X08: expected GREEN (shows the fifth record is load-bearing)	observer drops a tuple none of the four records can hold (round-1 behaviour)
+H2_instrument	harness	nxn nxn8 notify	instrumentation: all checks unchanged	print each arbiter delivery inside the bind-edge window with its step number, and uns_log size/capacity around the [NOTIFY-CRF] solicited exchange
