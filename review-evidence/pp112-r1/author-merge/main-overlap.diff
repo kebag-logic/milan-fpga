@@ -1,0 +1,442 @@
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index f1a132a..9820056 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -285,6 +285,7 @@ stateDiagram-v2
+     MONITORING --> FAILED_SEEN: matching Talker Failed registered / latch fail code + system id, EVT_TK_REGISTERED, optionally declare AskingFailed
+     READY --> FAILED_SEEN: Talker Failed replaces the Advertise in place / latch fail code + system id, withdraw Ready (optionally declare AskingFailed), EVT_TK_REGISTERED
+     FAILED_SEEN --> READY: Talker Advertise re-registered in place (clears the failure) / clear fail latch, declare Ready, EVT_TK_REGISTERED
++    FAILED_SEEN --> FAILED_SEEN: Talker Failed refresh with a changed FailureInformation / re-latch fail code + system id, failure-change strobe only (declaration unchanged)
+     READY --> MONITORING: matching attribute unregistered / withdraw Ready, EVT_TK_UNREGISTERED
+     FAILED_SEEN --> MONITORING: matching attribute unregistered / EVT_TK_UNREGISTERED
+     READY --> IDLE: ACMP teardown A8 / withdraw Ready, VLAN user--
+@@ -304,6 +305,21 @@ as an implicit `rLv` of the old type followed by the new registration — no
+ unregistration event separates the two (§35.2.6, where the NOTE also gives Failed
+ precedence when both are somehow registered).
+ 
++While Failed remains registered (IN or LV), a changed failure code or bridge ID
++re-latches both and raises `evt_tk_fail_chg_o`, a strobe that feeds **only** the
++GET_STREAM_INFO notification ([06 §7](06_aecp_engine.md#7-registry-notifications-liveness-identify),
++[F06.13](06_aecp_engine.md#fig-06-lineage)). It is not a registration event and
++not a declaration change: the Listener attribute (stream_id) and its AskingFailed
++parameter are unchanged, so the applicant is not re-driven with New,
++EVT_TK_REGISTERED stays silent and neither the event router nor the ACMP
++listener sees it. An unchanged FailureInformation refresh emits nothing. The
++change is detected with one comparator on the hit sink: every sink that can
++take the strobe is registered Failed on the same {stream_id, DA, VLAN} and has
++latched the same last FailureInformation. The failure code output is zero after
++replacement by Advertise, withdrawal, teardown or reset; the bridge output is the
++raw latch, valid only with `tk_reg_state` FAILED, and its one consumer gates it
++after its index mux.
++
+ ### 6.5 LeaveAll and the Δ13 registrar deviation
+ 
+ <a id="fig-10-leaveall"></a>**F10.9 — LeaveAll cycle (either side may start it)**
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index 268bc41..0c200f9 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -297,6 +297,17 @@ gate on them per cycle.
+ The status dictionary these implement is catalogued in
+ [`02_interfaces.md` F02.10](../architecture/02_interfaces.md#fig-02-statusdict).
+ 
++GET_STREAM_INFO input failure/probing fields are resolved **inside the processor**
++from its SRP registrar and ACMP listener record. Kind 0 selectors 5 and 7 never
++raise `gsi_req_o` for STREAM_INPUT; external answers for those cases are unused.
++Selector 4 still requests the destination MAC, but its failure-code byte is
++replaced internally. Keep serving the other selectors and the existing
++STREAM_OUTPUT words. No additional port or instantiation connection is needed.
++The internal fields and their notification events have one state owner; do not
++derive a second probing status from bound/settled flags. The internal fields are
++read live at each gather beat, like your own words; the authoritative gather
++contract and its coherence bound are [06 F06.13](../architecture/06_aecp_engine.md#fig-06-lineage).
++
+ ---
+ 
+ ## 9. Bring-up order
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 816ff95..f684db2 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -192,6 +192,9 @@ module KL_srp_top
+     // ---- class-C event strobes (02 §4.1; router makes them sticky) --------
+     output logic [N_SINKS_P-1:0]   evt_tk_registered_o,   //! TK_ATTR_REGISTERED{sink}
+     output logic [N_SINKS_P-1:0]   evt_tk_unregistered_o, //! TK_ATTR_UNREGISTERED{sink}
++    //! registered Talker Failed's FailureInformation changed{sink}: a
++    //! GET_STREAM_INFO notification strobe only, NOT a routed class-C event
++    output logic [N_SINKS_P-1:0]   evt_tk_fail_chg_o,
+     output logic [N_SOURCES_P-1:0] lstn_reg_change_o,     //! LISTENER_REG_CHANGE{source}
+     output logic                   evt_domain_change_o,   //! DOMAIN_CHANGE{class A}
+ 
+@@ -208,7 +211,7 @@ module KL_srp_top
+     output logic [N_SINKS_P-1:0][1:0]     lstn_decl_state_o,   //! 0 NONE / 1 ASKING_FAILED / 2 READY
+     output logic [N_SINKS_P-1:0][31:0]    acc_latency_o,       //! registered talker attr accumulated_latency
+     output logic [N_SINKS_P-1:0][7:0]     snk_fail_code_o,     //! msrp_fail_code[sink] (registered Talker Failed)
+-    output logic [N_SINKS_P-1:0][63:0]    snk_fail_bridge_o,   //! msrp_fail_bridge[sink] (FailureInformation system id)
++    output logic [N_SINKS_P-1:0][63:0]    snk_fail_bridge_o,   //! msrp_fail_bridge[sink] (FailureInformation system id), UNGATED: valid only with tk_reg_state == FAILED
+     output logic [N_SOURCES_P-1:0][31:0]  granted_slope_bps_o, //! per-source granted idleSlope while admitted, else 0
+     output logic [N_SOURCES_P-1:0]        sr_admitted_o,       //! per-source Σ-slope admission verdict
+     output logic [31:0]                   sum_slope_bps_o,     //! Σ of granted slopes, bps
+@@ -616,6 +619,7 @@ module KL_srp_top
+       .exp_slot_i              (exp_slot_i),
+       .evt_tk_registered_o     (evt_tk_registered_o),
+       .evt_tk_unregistered_o   (evt_tk_unregistered_o),
++      .evt_tk_fail_chg_o       (evt_tk_fail_chg_o),
+       .tk_reg_state_o          (tk_reg_state_o),
+       .lstn_decl_state_o       (lstn_decl_state_o),
+       .acc_latency_o           (acc_latency_o),
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 08cd55f..963e952 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -377,17 +377,20 @@ module protocol_processor_top
+     //! ---- Milan-info gather face (06 §6.2/§6.10; IEEE §7.4.16/§7.4.40/
+     //! §7.4.41, Milan §5.4.2.10/§5.4.2.23/§5.4.2.24) ----
+     //! The processor parses GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH and
+-    //! lays out their responses; the INTEGRATOR owns every word, because the
+-    //! truth lives in its binding view, SRP registrars, format registers and
+-    //! gPTP plane. One word at a time: `gsi_kind_o` names the command family
++    //! lays out their responses. STREAM_INPUT failure code/bridge and
++    //! probing/ACMP status come from the internal SRP and listener records
++    //! (Milan §5.3.8.6/.8). Selectors 5 and 7 are never requested externally
++    //! for an input; selector 4 still requests the DA, with its failure-code
++    //! byte replaced internally. Other words belong to the integrator.
++    //! One word at a time: `gsi_kind_o` names the command family
+     //! (0 STRI / 1 AVB / 2 ASP), `gsi_sel_o` the word, `gsi_ord_o` the
+     //! GET_AS_PATH array ordinal. Word tables: docs/architecture/06
+     //! §6.2/§6.10.
+     //!
+     //! LEAVING IT UNWIRED IS SAFE AND HONEST, same polarity as the other
+-    //! faces: an undriven `gsi_wait_i` is 0, every word answers 0, and the
+-    //! responses carry cleared validity flags, zero fields and a zero path
+-    //! count - absent, never invented.
++    //! faces: an undriven `gsi_wait_i` is 0, external words answer 0,
++    //! including validity flags and path count. Internal status still
++    //! reports the processor's records.
+     output logic        gsi_req_o,            //! a word is being asked for
+     output logic [1:0]  gsi_kind_o,           //! 0 STRI / 1 AVB / 2 ASP
+     output logic [15:0] gsi_desc_type_o,      //! addressed descriptor_type
+@@ -1944,7 +1947,7 @@ module protocol_processor_top
+   logic [N_STREAM_IN_P-1:0][1:0]   srp_lstn_decl_state_w;
+   logic [N_STREAM_IN_P-1:0][31:0]  srp_acc_latency_w;
+   logic [N_STREAM_IN_P-1:0][7:0]   srp_snk_fail_code_w;
+-  logic [N_STREAM_IN_P-1:0][63:0]  srp_snk_fail_bridge_nc_w;
++  logic [N_STREAM_IN_P-1:0][63:0]  srp_snk_fail_bridge_w;
+   logic [N_STREAM_OUT_P-1:0][31:0] srp_granted_slope_w;
+   logic [N_STREAM_OUT_P-1:0]       srp_sr_admitted_w;
+   logic [31:0] srp_sum_slope_w;
+@@ -2202,6 +2205,9 @@ module protocol_processor_top
+   logic [2:0]  srp_draw_kind_w;
+   logic        srp_draw_busy_w, srp_draw_valid_w;
+   logic [N_STREAM_IN_P-1:0]  srp_evt_tk_reg_w, srp_evt_tk_unreg_w;
++  //! FailureInformation change: feeds ONLY the GET_STREAM_INFO notify OR
++  //! (stri_events), never the event router or the ACMP listener
++  logic [N_STREAM_IN_P-1:0]  srp_evt_tk_fail_chg_w;
+   logic [N_STREAM_OUT_P-1:0] srp_lstn_reg_change_w;
+   logic [3:0]  srp_dbg_vid_active_w;
+   logic        srp_dbg_vlan_err_nc_w, srp_dbg_adm_round_nc_w;
+@@ -2278,6 +2284,7 @@ module protocol_processor_top
+       .draw_ms_i           (prng_ms_w),
+       .evt_tk_registered_o   (srp_evt_tk_reg_w),
+       .evt_tk_unregistered_o (srp_evt_tk_unreg_w),
++      .evt_tk_fail_chg_o     (srp_evt_tk_fail_chg_w),
+       .lstn_reg_change_o     (srp_lstn_reg_change_w),
+       .evt_domain_change_o   (srp_evt_domain_change_w),
+       .class_a_prio_o      (srp_class_a_prio_w),
+@@ -2292,7 +2299,7 @@ module protocol_processor_top
+       .lstn_decl_state_o   (srp_lstn_decl_state_w),
+       .acc_latency_o       (srp_acc_latency_w),
+       .snk_fail_code_o     (srp_snk_fail_code_w),
+-      .snk_fail_bridge_o   (srp_snk_fail_bridge_nc_w),
++      .snk_fail_bridge_o   (srp_snk_fail_bridge_w),
+       .granted_slope_bps_o (srp_granted_slope_w),
+       .sr_admitted_o       (srp_sr_admitted_w),
+       .sum_slope_bps_o     (srp_sum_slope_w),
+@@ -3040,20 +3047,98 @@ module protocol_processor_top
+   logic [N_STREAM_IN_P-1:0]  ntfy_stri_in_w;
+   logic [N_STREAM_OUT_P-1:0] ntfy_stri_out_w;
+ 
++  //! Milan §5.3.8.6 / Table 5.22: an eight-bit committed status view,
++  //! written ONLY by the listener record RAM's write bus (including reset
++  //! sweep and boot preload). This small flop view also compares every
++  //! commit for notification; the full listener record remains in RAM.
++  pp_acmp_pkg::acmp_rec_t lstn_commit_rec_w;
++  logic [N_STREAM_IN_P-1:0][7:0] lstn_gsi_status_r;
++  logic [7:0] lstn_gsi_status_w;
++  logic [N_STREAM_IN_P-1:0] lstn_gsi_changed_r;
++  assign lstn_commit_rec_w = pp_acmp_pkg::acmp_rec_t'(lstn_recwr_rec_w);
++  assign lstn_gsi_status_w = {lstn_commit_rec_w.pbsta,
++                              lstn_commit_rec_w.acmpsta};
++  always_ff @(posedge clk_i) begin : listener_gsi_status
++    if (!rst_n) begin
++      lstn_gsi_status_r  <= '0;
++      lstn_gsi_changed_r <= '0;
++    end else begin
++      lstn_gsi_changed_r <= '0;
++      if (lstn_recwr_w) begin
++        lstn_gsi_status_r[lstn_recwr_sink_w] <= lstn_gsi_status_w;
++        lstn_gsi_changed_r[lstn_recwr_sink_w] <=
++            (lstn_gsi_status_r[lstn_recwr_sink_w] != lstn_gsi_status_w);
++      end
++    end
++  end
++
++  //! The engine keeps its word table and response layout. Intercept only
++  //! kind 0 STREAM_INPUT words here, where the state owners meet, and read
++  //! the owners LIVE at each beat: no sample-and-hold copy (06 F06.13 states
++  //! the bound). The full descriptor index is checked BEFORE narrowing to
++  //! the sink width. The SRP bridge arrives ungated, so it is gated ONCE
++  //! here, after the index mux, on the addressed sink's registered FAILED.
++  logic        aecp_gsi_req_w, aecp_gsi_wait_w;
++  logic [63:0] aecp_gsi_data_w;
++  logic        gsi_input_w, gsi_internal_w;
++  logic [SINK_IDX_W_C-1:0] gsi_sink_w;
++  logic [7:0]  gsi_fail_code_w, gsi_status_w;
++  logic [63:0] gsi_fail_bridge_w;
++  assign gsi_input_w = (gsi_kind_o == 2'd0)
++                        && (gsi_desc_type_o == 16'h0005);
++  assign gsi_internal_w = gsi_input_w
++                           && ((gsi_sel_o == 4'd5) || (gsi_sel_o == 4'd7));
++  assign gsi_req_o = aecp_gsi_req_w && !gsi_internal_w;
++  assign aecp_gsi_wait_w = !gsi_internal_w && gsi_wait_i;
++  assign gsi_sink_w = SINK_IDX_W_C'(gsi_desc_index_o);
++
++  always_comb begin : gsi_owner_read
++    gsi_fail_code_w   = 8'd0;
++    gsi_fail_bridge_w = 64'd0;
++    gsi_status_w      = 8'd0;
++    if (32'(gsi_desc_index_o) < N_STREAM_IN_P) begin
++      gsi_fail_code_w = srp_snk_fail_code_w[gsi_sink_w];
++      if (srp_tk_reg_state_w[gsi_sink_w] == 2'd2) begin
++        gsi_fail_bridge_w = srp_snk_fail_bridge_w[gsi_sink_w];
++      end
++      gsi_status_w = lstn_gsi_status_r[gsi_sink_w];
++    end
++  end
++
++  always_comb begin : gsi_answer
++    aecp_gsi_data_w = gsi_data_i;
++    if (gsi_input_w) begin
++      case (gsi_sel_o)
++        4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
++        4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
++        4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
++        default: begin end
++      endcase
++    end
++  end
++
+   //! Publish the notification block's authoritative lock level so local
+   //! non-ATDECC mapping paths can enforce Milan 5.4.2.27 and 5.4.2.28.
+   assign aecp_lock_held_o = ntfy_lock_held_w;
+ 
++  //! Milan Table 5.22, STREAM_INPUT: one term per GET_STREAM_INFO-visible
++  //! owner. The listener's committed record gives two: the pbsta/acmpsta
++  //! compare (bind, unbind, settle, teardown, double timeout, retry) and
++  //! the started/stopped change, including a re-bind that flips
++  //! STREAMING_WAIT while pbsta/acmpsta stay put (PWR -> PWR). Both are
++  //! registered off the SAME X_WB record write, so a walk that moves both
++  //! lands them in one cycle and the OR pushes one frame. SRP gives the
++  //! registration events and the FailureInformation change.
+   always_comb begin : stri_events
+     ntfy_stri_in_w  = '0;
+     ntfy_stri_out_w = '0;
+     for (int unsigned k = 0; k < N_STREAM_IN_P; k++) begin
+       ntfy_stri_in_w[k] =
+           (32'(lstn_act_sink_w) == k
+-           && (lstn_disc_arm_w || lstn_disc_disarm_w
+-               || lstn_act_settle_w || lstn_act_teardown_w
+-               || (lstn_act_strt_chg_w && !lstn_act_strt_cmd_chg_w)))
+-          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k];
++           && lstn_act_strt_chg_w && !lstn_act_strt_cmd_chg_w)
++          || lstn_gsi_changed_r[k]
++          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]
++          || srp_evt_tk_fail_chg_w[k];
+     end
+     for (int unsigned k = 0; k < N_STREAM_OUT_P; k++) begin
+       ntfy_stri_out_w[k] =
+@@ -3349,15 +3434,15 @@ module protocol_processor_top
+       .amap_edit_value_o  (amap_edit_value_o),
+       .amap_edit_data_i   (amap_edit_data_i),
+       .amap_edit_wait_i   (amap_edit_wait_i),
+-      .gsi_req_o          (gsi_req_o),
++      .gsi_req_o          (aecp_gsi_req_w),
+       .gsi_kind_o         (gsi_kind_o),
+       .gsi_desc_type_o    (gsi_desc_type_o),
+       .gsi_desc_index_o   (gsi_desc_index_o),
+       .gsi_sel_o          (gsi_sel_o),
+       .gsi_ord_o          (gsi_ord_o),
+       .gsi_prop_fmt_o     (gsi_prop_fmt_o),
+-      .gsi_data_i         (gsi_data_i),
+-      .gsi_wait_i         (gsi_wait_i),
++      .gsi_data_i         (aecp_gsi_data_w),
++      .gsi_wait_i         (aecp_gsi_wait_w),
+       .strm_bound_i       (bound_hold_r),
+       .strm_started_i     (aecp_strm_started_o),
+       .strm_streaming_i   (aecp_streaming_w),
+@@ -3436,9 +3521,11 @@ module protocol_processor_top
+       .rgy_data_o            (aecp_rgy_data_w),
+       .rgy_wait_o            (aecp_rgy_wait_w),
+       //! Table 5.22 GET_STREAM_INFO triggers this fabric OBSERVES: for a
+-      //! sink, bound-state changes (arm/disarm), the settled parameters
+-      //! (settle/teardown - also the probing-status edges) and the
+-      //! registered Talker attribute events; for a source, its declaration
++      //! sink, committed probing/ACMP status changes (also covering bound
++      //! and settled transitions), committed started/stopped changes
++      //! (including a re-bind that flips STREAMING_WAIT), registered Talker
++      //! attribute events and a changed Talker Failed FailureInformation
++      //! (stri_events); for a source, its declaration
+       //! opening/closing and the registered Listener attribute changes.
+       //! What the fabric cannot see, it cannot notify about - the honest
+       //! remainder is recorded in 06 §7.
+diff --git a/syn/ooc/README.md b/syn/ooc/README.md
+index a4314db..e5efc34 100644
+--- a/syn/ooc/README.md
++++ b/syn/ooc/README.md
+@@ -1,6 +1,18 @@
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # syn/ooc — the µCPU area experiment
+ 
++`protocol_processor_ooc.tcl` applies the same post-synthesis instrument to
++the complete processor, with its default stream shape and all top-level
++ports present. Run it from an empty build directory; an optional first Tcl
++argument selects a different source tree for a baseline measurement, and an
++optional second and third select `N_STREAM_IN_P` and `N_STREAM_OUT_P` (for
++example `-tclargs <tree> 1 1`, the shipping one-stream shape). It
++generates both ROM images in that build directory and reports hierarchical
++and total utilization. It uses the reference part and clock from
++`ucpu_ooc.tcl`; these are area measurements, not routed timing or hardware
++qualification. Keep baseline and candidate reports beside the change's
++validation evidence and compare the same recipe on both trees.
++
+ The gate experiment of
+ [`docs/10_RESOURCE_AND_EFFORT.md` §6](../../docs/10_RESOURCE_AND_EFFORT.md):
+ out-of-context Vivado synthesis of the µCPU skeleton at the reference
+@@ -71,3 +83,26 @@ Measured 2026-09-24 with Vivado 2026.1, `xc7a100tfgg484-2`: **4 Slice LUTs,
+ [immutable T9 estimate](https://github.com/kebag-logic/milan-fpga/blob/c1ee27d81c4a1e98f9584e979b73a88acfe238b3/design-evidence/500-materialization/tickets/T9-processor-descriptor-memory-response-isolation.md)
+ of 5 LUTs and 1 flip-flop. The guard was synthesized as its own top with all
+ ports present. This is post-synthesis area, not routed timing or hardware proof.
++
++## GET_STREAM_INFO input selectors — issues #43/#49
++
++Measured 2026-09-24 with Vivado 2026.1, `xc7a100tfgg484-2`, this recipe on the
++base `939c1433` and on the change's final RTL, both shapes. Post-synthesis
++area, not routed timing or hardware proof:
++
++| Shape | Resource | Base | Change | Delta |
++|---|---|---:|---:|---:|
++| 8 in / 8 out | Slice LUTs | 28,092 | 28,326 | +234 |
++| 8 in / 8 out | Registers | 30,354 | 31,064 | +710 |
++| 1 in / 1 out | Slice LUTs | 20,978 | 21,245 | +267 |
++| 1 in / 1 out | Registers | 23,446 | 23,674 | +228 |
++
++Block RAM is unchanged at both shapes. The registers are owned state kept
++alive by the new readers: the per-sink 64-bit FailureInformation bridge latch
++in the SRP listener, the decoder's FailureInformation capture (+128 at either
++shape) and the eight-bit committed pbsta/acmpsta view per sink. The bridge is
++gated once after the top's index mux and the change is compared on the hit
++sink only, which took the SRP listener from +808 to +455 LUTs at 8x8 against
++the first revision; removing that revision's selector-0 sample-and-hold removed
++81 top-level registers at 8x8 (78 at 1x1). LUT moves of a few tens in modules
++this change does not touch are synthesis variance.
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index f36c1ec..5ea2e92 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,7 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-`make` = build + run, exit 0 = PASS, **255 checks**.
++`make` = build + run, exit 0 = PASS, **259 checks**.
+ 
+ Expectations are independent: an MRPDU builder/parser written here from
+ 802.1Q §10.8.1.2 / §35.2.2, a Σ-slope model transcribing the Milan v1.2
+@@ -131,3 +131,11 @@ verbatim; both arms passed all 253 checks before it:
+ |---|---|
+ | Domain participant also takes the Talker Advertise lane (R271-2 K13) | 1 of 255 FAIL (F5c Talker Advertise LeaveAll) |
+ | Domain participant also takes the Talker Failed lane (R271-2 K14) | 1 of 255 FAIL (F5c Talker Failed-only LeaveAll) |
++
++FailureInformation change end to end (section D, issues #43/#49): after the
++Advertise→Failed swap has drained, a Failed JoinIn with a changed code and
++bridge raises `evt_tk_fail_chg_o` once and no EVT_TK_REGISTERED, latches the
++new values, and puts NO Listener New on the wire for 800 ms; an unchanged
++refresh strobes nothing. Mutation-proven 2026-09-24 in a scratch copy: folding
++the change back into the registration indication → 3 of 259 FAIL (the strobe
++count, the wire silence, and the unchanged-refresh count).
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index 4de8db9..175fcef 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -305,6 +305,7 @@ struct H {
+   // strobe accounting
+   int reg_cnt[8] = {};
+   int unreg_cnt[8] = {};
++  int fchg_cnt[8] = {};
+   int domchg = 0;
+   int malformed = 0;
+ 
+@@ -319,6 +320,7 @@ struct H {
+     for (int k = 0; k < 8; k++) {
+       if ((d->evt_tk_registered_o >> k) & 1)   reg_cnt[k]++;
+       if ((d->evt_tk_unregistered_o >> k) & 1) unreg_cnt[k]++;
++      if ((d->evt_tk_fail_chg_o >> k) & 1)     fchg_cnt[k]++;
+     }
+     if (d->evt_domain_change_o) domchg++;
+     if (d->dbg_pdu_done_o && d->dbg_pdu_malformed_o) malformed++;
+@@ -685,6 +687,35 @@ class SrpTopHarness {
+     CHECK(h.snk_fcode(0) == 7, "D: sink failure code latched");
+     CHECK(h.snk_bridge(0) == 0xBBBBCCCCDDDDULL, "D: sink system id latched");
+     CHECK(h.ls_decl(0) == 1, "D: declaration follows to ASKING_FAILED");
++    // a changed FailureInformation under that registered Failed is not a
++    // declaration change: the notification strobe only, no REGISTERED,
++    // and no Listener New on the wire once the swap's own New has drained
++    h.run_ms(800);
++    h.sync();
++    reg_before = h.reg_cnt[0];
++    int fchg_before = h.fchg_cnt[0];
++    Msg fail2{2, 34, false, {Vec{false, 1,
++              fv_failed(SIDX, DAX, 2, 0x0100, 1, 3, 1, 0x00012345,
++                        0xBBBBCCCCDDDEULL, 9),
++              {EV_JOININ}, {}}}};
++    h.feed(mrpdu_body(true, {fail2}), true);
++    h.idle(10);
++    CHECK(h.fchg_cnt[0] == fchg_before + 1 && h.reg_cnt[0] == reg_before,
++          "D: a changed FailureInformation strobes the change only "
++          "(fchg +%d, reg +%d)", h.fchg_cnt[0] - fchg_before,
++          h.reg_cnt[0] - reg_before);
++    CHECK(h.snk_fcode(0) == 9 && h.snk_bridge(0) == 0xBBBBCCCCDDDEULL
++          && h.tk_reg(0) == 2 && h.ls_decl(0) == 1,
++          "D: new FailureInformation latched, still FAILED/AskingFailed");
++    auto renew = h.wait_frame(true, 800, [&](const std::vector<uint8_t>& fr) {
++      return frame_has(fr, true, 3, SIDX, EV_NEW);
++    });
++    CHECK(renew.empty(),
++          "D: no Listener New on the wire after a changed FailureInformation");
++    h.feed(mrpdu_body(true, {fail2}), true);
++    h.idle(10);
++    CHECK(h.fchg_cnt[0] == fchg_before + 1 && h.reg_cnt[0] == reg_before,
++          "D: an unchanged Failed refresh strobes nothing");
+     // and back: Advertise re-registers in place, clears the failure
+     h.feed(mrpdu_body(true, {adv}), true);
+     h.idle(10);
+diff --git a/tb/srp_top/srp_top_wrap.sv b/tb/srp_top/srp_top_wrap.sv
+index f8e510a..b096826 100644
+--- a/tb/srp_top/srp_top_wrap.sv
++++ b/tb/srp_top/srp_top_wrap.sv
+@@ -74,6 +74,7 @@ module srp_top_wrap (
+     // class-C strobes
+     output logic [7:0]  evt_tk_registered_o,
+     output logic [7:0]  evt_tk_unregistered_o,
++    output logic [7:0]  evt_tk_fail_chg_o,
+     output logic [7:0]  lstn_reg_change_o,
+     output logic        evt_domain_change_o,
+ 
+@@ -203,6 +204,7 @@ module srp_top_wrap (
+       .draw_ms_i           (draw_ms_w),
+       .evt_tk_registered_o (evt_tk_registered_o),
+       .evt_tk_unregistered_o (evt_tk_unregistered_o),
++      .evt_tk_fail_chg_o   (evt_tk_fail_chg_o),
+       .lstn_reg_change_o   (lstn_reg_change_o),
+       .evt_domain_change_o (evt_domain_change_o),
+       .class_a_prio_o      (class_a_prio_o),

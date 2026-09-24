@@ -1,0 +1,127 @@
+[
+  {
+    "name": "links",
+    "command": [
+      "python3",
+      "scripts/check-links.py"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.11,
+    "ended": "2026-09-24T17:05:08.982376+00:00"
+  },
+  {
+    "name": "matrix",
+    "command": [
+      "python3",
+      "scripts/check-matrix.py"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.03,
+    "ended": "2026-09-24T17:05:09.014641+00:00"
+  },
+  {
+    "name": "wavedrom",
+    "command": [
+      "python3",
+      "scripts/render-wavedrom.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.42,
+    "ended": "2026-09-24T17:05:09.430273+00:00"
+  },
+  {
+    "name": "stale",
+    "command": [
+      "make",
+      "stale"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.07,
+    "ended": "2026-09-24T17:05:09.497139+00:00"
+  },
+  {
+    "name": "diagram-lint",
+    "command": [
+      "make",
+      "lint"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 45.89,
+    "ended": "2026-09-24T17:05:55.388142+00:00"
+  },
+  {
+    "name": "hdl-lint",
+    "command": [
+      "./scripts/lint_hdl.sh"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 12.7,
+    "ended": "2026-09-24T17:06:08.086989+00:00"
+  },
+  {
+    "name": "suite-bank",
+    "command": [
+      "./scripts/run_suites.sh"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 271.74,
+    "ended": "2026-09-24T17:10:39.828140+00:00"
+  },
+  {
+    "name": "module-matrix",
+    "command": [
+      "python3",
+      "scripts/gen_matrix.py",
+      "--check"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.06,
+    "ended": "2026-09-24T17:10:39.892955+00:00"
+  },
+  {
+    "name": "figure-history-fetch",
+    "command": [
+      "git",
+      "fetch",
+      "--no-tags",
+      "origin",
+      "refs/pull/13/head"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 0.56,
+    "ended": "2026-09-24T17:10:40.458153+00:00"
+  },
+  {
+    "name": "nvm-figures",
+    "command": [
+      "make",
+      "-C",
+      "tb/nvm_port",
+      "figures"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 238.78,
+    "ended": "2026-09-24T17:14:39.239285+00:00"
+  },
+  {
+    "name": "yosys",
+    "command": [
+      "./syn/yosys/run.sh"
+    ],
+    "cwd": "$LANES/pp112-stale-grant",
+    "rc": 0,
+    "seconds": 73.41,
+    "ended": "2026-09-24T17:15:52.650583+00:00"
+  }
+]

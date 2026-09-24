@@ -1,0 +1,88 @@
+{
+  "recipe": "syn/ooc/srp_ooc.tcl (identical file for every tree)",
+  "instrument": "Vivado 2026.1 post-synthesis hierarchical utilization",
+  "part": "xc7a100tfgg484-2",
+  "clock_period_ns": 10,
+  "mode": "out_of_context",
+  "top": "KL_srp_top",
+  "sources": 8,
+  "sinks": 8,
+  "base": {
+    "commit": "939c143333d11e2378a514f1c7b6abd4c3259bfd",
+    "rc": 0,
+    "engine": {
+      "LUTs": 7566,
+      "logic_LUTs": 7372,
+      "LUTRAMs": 194,
+      "FFs": 10485,
+      "RAMB36": 0,
+      "RAMB18": 1,
+      "DSPs": 2
+    },
+    "admission": {
+      "LUTs": 782,
+      "FFs": 862,
+      "DSPs": 2,
+      "LUT_primitives": 950
+    },
+    "wns_ns": 1.302
+  },
+  "round1": {
+    "commit": "73a5478784bd861f8c8d33c0d1619594390b9529",
+    "rc": 0,
+    "engine": {
+      "LUTs": 7334,
+      "logic_LUTs": 7140,
+      "LUTRAMs": 194,
+      "FFs": 10464,
+      "RAMB36": 0,
+      "RAMB18": 1,
+      "DSPs": 2
+    },
+    "admission": {
+      "LUTs": 503,
+      "FFs": 841,
+      "DSPs": 2,
+      "LUT_primitives": 712
+    },
+    "wns_ns": 1.083
+  },
+  "head": {
+    "commit": "ae7f531bc97a7277116e0df78e70c84396c499d0",
+    "rc": 0,
+    "engine": {
+      "LUTs": 7603,
+      "logic_LUTs": 7409,
+      "LUTRAMs": 194,
+      "FFs": 10502,
+      "RAMB36": 0,
+      "RAMB18": 1,
+      "DSPs": 2
+    },
+    "admission": {
+      "LUTs": 749,
+      "FFs": 879,
+      "DSPs": 2,
+      "LUT_primitives": 944
+    },
+    "wns_ns": 1.083
+  },
+  "head_minus_base": {
+    "engine_LUTs": 37,
+    "engine_FFs": 17,
+    "admission_LUTs": -33,
+    "admission_FFs": 17
+  },
+  "worst_path": "u_decoder (unmodified) in all three builds",
+  "ff_attribution_head_minus_base": {
+    "valid_q1_r/valid_q2_r/slope_valid_r": 10,
+    "pend_acc_r": 1,
+    "aidx_r fanout replicas": 5,
+    "wgrant_r[7] kept (base trimmed)": 1
+  },
+  "ff_attribution_round1_minus_base": {
+    "validity pipeline": 10,
+    "wgrant_r[7] kept": 1,
+    "wgslope_r[7] trimmed (always zero)": -32
+  }
+}

@@ -1,0 +1,160 @@
+diff --git a/tb/srp_admission/mutants.py b/tb/srp_admission/mutants.py
+index 9512b37..ed60bad 100644
+--- a/tb/srp_admission/mutants.py
++++ b/tb/srp_admission/mutants.py
+@@ -8,7 +8,8 @@ import subprocess
+ import tempfile
+ 
+ 
+-def main():
++def main() -> int:
++    """Run controls and mutants; return 0 only if every expected outcome holds."""
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--output", type=Path, required=True)
+     args = parser.parse_args()
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index e18c0ea..2fc748b 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -308,7 +308,15 @@ struct H {
+   int domchg = 0;
+   int malformed = 0;
+   struct Sample {
+-    unsigned decl, withdraw, phase, grants, active, opt, round, tk_decl, listener;
++    unsigned decl;
++    unsigned withdraw;
++    unsigned phase;
++    unsigned grants;
++    unsigned active;
++    unsigned opt;
++    unsigned round;
++    unsigned tk_decl;
++    unsigned listener;
+     uint32_t sum;
+     std::vector<uint32_t> slopes;
+   };
+@@ -322,7 +330,8 @@ struct H {
+   // Returns the decoder's ready as sampled in the low phase.
+   bool step() {
+     d->clk_i = 0; d->eval();
+-    unsigned decl = d->dbg_decl_o, withdraw = d->dbg_withdraw_o;
++    unsigned decl = d->dbg_decl_o;
++    unsigned withdraw = d->dbg_withdraw_o;
+     unsigned phase = d->dbg_sample_index_o;
+     bool mready = d->mrp_ready_o != 0;
+     for (int k = 0; k < 8; k++) {
+@@ -1115,57 +1124,68 @@ class SrpTopHarness {
+             h.cycle(); response_ok |= d->rsp_valid_o && d->rsp_status_o == ST_OK;
+           }
+           h.recording = false;
+-          int accepted = -1, first_grant = -1, accepted_phase = -1;
+-          bool current = true, no_early_grant = true, zero_if_refused = true;
+-          bool active_equation = true, optimistic_seen = false;
+-          unsigned rounds = 0;
+-          bool window_correct = true;
+-          unsigned previous_round = 0;
+-          for (size_t i = 0; i < h.samples.size(); ++i) {
+-            const auto& x = h.samples[i];
+-            if (x.decl & mask) {
+-              accepted = int(i); accepted_phase = int(x.phase);
+-              no_early_grant &= !(x.grants & mask);
+-              previous_round = 0;
+-            }
+-            if (accepted < 0) continue;
+-            if (int(i) > accepted) rounds += previous_round;
+-            previous_round = x.round;
+-            window_correct &= bool(x.opt & mask) == (rounds < 3);
+-            optimistic_seen |= (x.opt & mask) && (x.active & mask) && !(x.grants & mask);
+-            unsigned listener = (x.listener >> (2 * s)) & 3;
+-            bool declaring = ((x.tk_decl >> (2 * s)) & 3) == 1;
+-            bool expected_active = declaring && listener >= DECL_READY &&
+-                                   ((x.opt | x.grants) & mask);
+-            active_equation &= bool(x.active & mask) == expected_active;
+-            bool grant = x.grants & mask;
+-            current &= !grant || (mfs == 224 && x.slopes[s] == slope_bps(mfs, 1));
+-            zero_if_refused &= grant || x.slopes[s] == 0;
+-            if (grant && first_grant < 0) {
+-              first_grant = int(i) - accepted;
+-              no_early_grant &= first_grant >= 4 && x.round;
+-            }
+-          }
+-          bool admitted = mfs == 224;
+-          CHECK(response_ok && accepted >= 0,
+-                "H: real declaration accepted source %d", s);
+-          CHECK(current && no_early_grant && zero_if_refused,
+-                "H: no stale grant or slope source %d phase %u frame %u", s, phase, mfs);
+-          CHECK(admitted ? (first_grant >= 4 && first_grant <= 24) : first_grant == -1,
+-                "H: grow has no grant pulse, shrink has bounded grant source %d frame %u latency %d",
+-                s, mfs, first_grant);
+-          CHECK(window_correct && optimistic_seen && active_equation,
+-                "H: ACTIVE and three-round optimistic window source %d phase %u", s, phase);
+-          CHECK(d->sum_slope_bps_o == (admitted ? slope_bps(mfs, 1) : 0) &&
+-                bool(d->over_limit_o) == !admitted,
+-                "H: settled sum and refusal source %d frame %u", s, mfs);
+-          printf("LATENCY source=%d request_phase=%u accepted_phase=%d frame=%u cycles=%d\n",
+-                 s, phase, accepted_phase, mfs, first_grant);
++          check_redeclaration_samples(s, phase, mfs, response_ok);
+         }
+       }
+     }
+   }
+ 
++  // Check the recorded cycles without advancing the simulation.
++  void check_redeclaration_samples(int s, unsigned phase, unsigned mfs, bool response_ok) {
++    unsigned mask = 1u << s;
++    int accepted = -1;
++    int first_grant = -1;
++    int accepted_phase = -1;
++    bool current = true;
++    bool no_early_grant = true;
++    bool zero_if_refused = true;
++    bool active_equation = true;
++    bool optimistic_seen = false;
++    unsigned rounds = 0;
++    bool window_correct = true;
++    unsigned previous_round = 0;
++    for (size_t i = 0; i < h.samples.size(); ++i) {
++      const auto& x = h.samples[i];
++      if (x.decl & mask) {
++        accepted = int(i); accepted_phase = int(x.phase);
++        no_early_grant &= !(x.grants & mask);
++        previous_round = 0;
++      }
++      if (accepted < 0) continue;
++      if (int(i) > accepted) rounds += previous_round;
++      previous_round = x.round;
++      window_correct &= bool(x.opt & mask) == (rounds < 3);
++      optimistic_seen |= (x.opt & mask) && (x.active & mask) && !(x.grants & mask);
++      unsigned listener = (x.listener >> (2 * s)) & 3;
++      bool declaring = ((x.tk_decl >> (2 * s)) & 3) == 1;
++      bool expected_active = declaring && listener >= DECL_READY &&
++                             ((x.opt | x.grants) & mask);
++      active_equation &= bool(x.active & mask) == expected_active;
++      bool grant = x.grants & mask;
++      current &= !grant || (mfs == 224 && x.slopes[s] == slope_bps(mfs, 1));
++      zero_if_refused &= grant || x.slopes[s] == 0;
++      if (grant && first_grant < 0) {
++        first_grant = int(i) - accepted;
++        no_early_grant &= first_grant >= 4 && x.round;
++      }
++    }
++    bool admitted = mfs == 224;
++    CHECK(response_ok && accepted >= 0,
++          "H: real declaration accepted source %d", s);
++    CHECK(current && no_early_grant && zero_if_refused,
++          "H: no stale grant or slope source %d phase %u frame %u", s, phase, mfs);
++    CHECK(admitted ? (first_grant >= 4 && first_grant <= 24) : first_grant == -1,
++          "H: grow has no grant pulse, shrink has bounded grant source %d frame %u latency %d",
++          s, mfs, first_grant);
++    CHECK(window_correct && optimistic_seen && active_equation,
++          "H: ACTIVE and three-round optimistic window source %d phase %u", s, phase);
++    CHECK(d->sum_slope_bps_o == (admitted ? slope_bps(mfs, 1) : 0) &&
++          bool(d->over_limit_o) == !admitted,
++          "H: settled sum and refusal source %d frame %u", s, mfs);
++    printf("LATENCY source=%d request_phase=%u accepted_phase=%d frame=%u cycles=%d\n",
++           s, phase, accepted_phase, mfs, first_grant);
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;

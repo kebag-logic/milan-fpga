@@ -1,0 +1,110 @@
+[
+  {
+    "name": "suites",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "bash",
+      "scripts/run_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 213.97,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-suites.log"
+  },
+  {
+    "name": "admission-shapes",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "make",
+      "-C",
+      "tb/srp_admission",
+      "shapes"
+    ],
+    "rc": 0,
+    "seconds": 0.36,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-shapes.log"
+  },
+  {
+    "name": "srp-top-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_top/obj_dir/Vsrp_top_sim"
+    ],
+    "rc": 0,
+    "seconds": 2.22,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-srp-top-output.log"
+  },
+  {
+    "name": "admission-1-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_admission/obj_1/Vsrp_admission_sim"
+    ],
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-1-output.log"
+  },
+  {
+    "name": "admission-2-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_admission/obj_2/Vsrp_admission_sim"
+    ],
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-2-output.log"
+  },
+  {
+    "name": "admission-3-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_admission/obj_3/Vsrp_admission_sim"
+    ],
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-3-output.log"
+  },
+  {
+    "name": "admission-5-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_admission/obj_5/Vsrp_admission_sim"
+    ],
+    "rc": 0,
+    "seconds": 0.0,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-5-output.log"
+  },
+  {
+    "name": "admission-8-output",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "tb/srp_admission/obj_8/Vsrp_admission_sim"
+    ],
+    "rc": 0,
+    "seconds": 0.01,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-admission-8-output.log"
+  },
+  {
+    "name": "lint",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "bash",
+      "scripts/lint_hdl.sh"
+    ],
+    "rc": 0,
+    "seconds": 10.89,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-lint.log"
+  },
+  {
+    "name": "mutants",
+    "head": "90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4",
+    "command": [
+      "python3",
+      "tb/srp_admission/mutants.py",
+      "--output",
+      "$MANAGEMENT/2026-09-23/pp112-a266/after-mutants"
+    ],
+    "rc": 0,
+    "seconds": 21.16,
+    "log": "$MANAGEMENT/2026-09-23/pp112-a266/after-mutants.log"
+  }
+]

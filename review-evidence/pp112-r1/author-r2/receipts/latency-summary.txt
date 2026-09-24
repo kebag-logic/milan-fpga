@@ -1,0 +1,32 @@
+# Grant latency, head ae7f531bc97a7277116e0df78e70c84396c499d0
+# unit (tb/srp_admission, make = all shapes): distinct cycles per shape, all cases / cross-source cases
+N=1 lines=4 all={ 4 } cross={ }
+N=2 lines=24 all={ 4 6 } cross={ 6 }
+N=3 lines=51 all={ 6 9 } cross={ 6 9 }
+N=5 lines=125 all={ 5 10 15 } cross={ 10 15 }
+N=8 lines=296 all={ 8 16 24 } cross={ 8 16 24 }
+# srp_top H (M=8, gate acceptance -> published grant; window = clocks until the optimistic window closes)
+      5 frame=20000 cycles=-1 window=25
+     16 frame=20000 cycles=-1 window=33
+      3 frame=20000 cycles=-1 window=41
+     32 frame=224 cycles=16 window=33
+      6 frame=224 cycles=24 window=41
+     10 frame=224 cycles=8 window=25
+# srp_top I (source 0 re-declares beside refused source 1/7; hi_first = freed source's first grant)
+     42 frame=1051 lo_latency=16 hi_first=-1 refused_levels=0
+     14 frame=1051 lo_latency=24 hi_first=-1 refused_levels=0
+     12 frame=224 lo_latency=16 hi_first=16 refused_levels=0
+      4 frame=224 lo_latency=24 hi_first=24 refused_levels=0
+     12 frame=900 lo_latency=16 hi_first=-1 refused_levels=0
+      4 frame=900 lo_latency=24 hi_first=-1 refused_levels=0
+# srp_top J (source 7 then source 0; clocks from source 0 acceptance)
+      3 held=0 source7=-12 source0=16
+      2 held=0 source7=-12 source0=24
+      5 held=0 source7=-16 source0=16
+      6 held=0 source7=-4 source0=16
+      2 held=0 source7=-4 source0=24
+      6 held=0 source7=-8 source0=16
+      2 held=0 source7=-8 source0=24
+     16 held=1 source7=16 source0=16
+      6 held=1 source7=24 source0=24
+# at P-CLK-HZ 100 MHz: 8/16/24 clocks = 80/160/240 ns; 50 MHz: 160/320/480 ns

@@ -1,0 +1,54 @@
+commit f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc
+Merge: ae7f531 7a47f57
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Thu Sep 24 19:05:00 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Thu Sep 24 19:05:00 2026 +0200
+
+    Merge main into 112-stale-grant preserving admission and stream info changes
+
+diff --git a/syn/ooc/README.md b/syn/ooc/README.md
+remerge CONFLICT (content): Merge conflict in syn/ooc/README.md
+index 406cf0c..b4914f6 100644
+--- a/syn/ooc/README.md
++++ b/syn/ooc/README.md
+@@ -84,7 +84,6 @@ Measured 2026-09-24 with Vivado 2026.1, `xc7a100tfgg484-2`: **4 Slice LUTs,
+ of 5 LUTs and 1 flip-flop. The guard was synthesized as its own top with all
+ ports present. This is post-synthesis area, not routed timing or hardware proof.
+ 
+-<<<<<<< ae7f531 (Record the SRP admission area for the pending-round rule and align its port comments)
+ ## SRP admission freshness — issue #112
+ 
+ `srp_ooc.tcl` measures the complete `KL_srp_top` at its default shape
+@@ -130,7 +129,7 @@ difference:
+ Round 1's admission LUT primitives packed two to a LUT (712 primitives in
+ 503 LUTs). Base and round 2 map to wider LUTs: 950 in 782, and 944 in 749.
+ This is post-synthesis area, not routed timing or hardware proof.
+-=======
++
+ ## GET_STREAM_INFO input selectors — issues #43/#49
+ 
+ Measured 2026-09-24 with Vivado 2026.1, `xc7a100tfgg484-2`, this recipe on the
+@@ -153,4 +152,3 @@ sink only, which took the SRP listener from +808 to +455 LUTs at 8x8 against
+ the first revision; removing that revision's selector-0 sample-and-hold removed
+ 81 top-level registers at 8x8 (78 at 1x1). LUT moves of a few tens in modules
+ this change does not touch are synthesis variance.
+->>>>>>> 7a47f57 (Merge PR #111: serve GET_STREAM_INFO failure bridge IDs and probing status from processor state)
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+remerge CONFLICT (content): Merge conflict in tb/srp_top/README.md
+index f92e85c..c528cd6 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,11 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-<<<<<<< ae7f531 (Record the SRP admission area for the pending-round rule and align its port comments)
+-`make` = build + run, exit 0 = PASS, **1527 checks**.
+-=======
+-`make` = build + run, exit 0 = PASS, **259 checks**.
+->>>>>>> 7a47f57 (Merge PR #111: serve GET_STREAM_INFO failure bridge IDs and probing status from processor state)
++`make` = build + run, exit 0 = PASS, **1531 checks**.
+ 
+ Expectations are independent: an MRPDU builder/parser written here from
+ 802.1Q §10.8.1.2 / §35.2.2, a Σ-slope model transcribing the Milan v1.2

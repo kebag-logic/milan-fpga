@@ -1,0 +1,137 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "failure-code-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-0 solicited: failure code sink 0 = 7, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "failure-bridge-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-0 solicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "pbsta-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI PASSIVE solicited: pbsta sink 0 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0",
+      "FAIL: GI PASSIVE solicited: pbsta sink 1 = 1, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "acmpsta-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI TIMEOUT solicited: acmpsta sink 0 = 7, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "wrong-sink",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI DISTINCT-0 solicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "integrator-path",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI internal seam: selectors 5/7 never requested from integrator"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "missing-descriptor-leak",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI MISSING solicited: pbsta sink 2 = 0, got 2"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "status-notification-zero",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI PASSIVE unsolicited: complete Milan response",
+      "FAIL: GI PASSIVE unsolicited: complete Milan response",
+      "FAIL: GI PASSIVE unsolicited: complete Milan response"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "rebind-started-trigger-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "failure-change-strobe-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-REFRESH unsolicited: complete Milan response"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "failure-change-redeclares",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "index-guard-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "bridge-gate-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]
