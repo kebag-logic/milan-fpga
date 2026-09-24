@@ -1474,17 +1474,20 @@ corpora connected, the generated corpus stops it first, on its own sentence,
 at `%\`, a line end, then `:ifdef`; with only the fixed corpus connected, that
 corpus passes and the assertion stops it, so the generated corpus is what
 measures the phase order. With the corpora and the assertion off, the
-split-digraph arm passes the whole gate on every machine, the `%:%:` paste two
-splices split passes without a compiler and is refused for another reason
-with one, and the product's selection of the split-digraph arm is not found
-at all. Keeping the byte-order mark in phase 1 lets the three controls behind
-one through on every machine, and the fixed corpus fails on its own sentence.
-Removing the whole-file digraph ban fails five controls: with a compiler each
-is refused for another reason, the two digraph arms by the grading of the
-selection the readers find, and without one the two arms and the split paste
-pass. Removing the check for a `%:` pair phase 3 reads as other tokens lets
-`<%:` through without a compiler. With the page's bound on the paste ban no
-longer required, the page claiming the ban reads a header's macro passes.
+product's selection of the split-digraph arm is not found at all, and the ban
+still refuses the arm itself, because the `%:` pair a splice splits is still a
+pair once phase 2 has run. With that check removed as well, which is the
+round-two state, the split-digraph arm passes the whole gate on every machine
+and the `%:%:` paste two splices split passes without a compiler. Keeping the
+byte-order mark in phase 1 lets the identity forged behind one pass the whole
+gate on every machine, and the `#include` and the `#line` behind one pass
+without a compiler; the fixed corpus then fails on its own sentence. Removing
+the whole-file digraph ban fails five controls: with a compiler each is
+refused for another reason, the two digraph arms by the grading of the
+selection the readers find, and without one four of them pass. Removing the
+check for a `%:` pair phase 3 reads as other tokens lets `<%:` through
+without a compiler. With the page's bound on the paste ban no longer
+required, the page claiming the ban reads a header's macro passes.
 
 **What a runner with no RV32 compiler gets** is explicitly weaker, and it is
 a registered `NOT RUN`, never coverage. The compiler-absent CI control keeps
