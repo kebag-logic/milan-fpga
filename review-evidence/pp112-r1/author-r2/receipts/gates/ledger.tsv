@@ -1,0 +1,20 @@
+verilator-version	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	verilator --version
+check-links	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	python3 scripts/check-links.py
+check-matrix	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	python3 scripts/check-matrix.py
+render-wavedrom-check	0	ae7f531bc97a7277116e0df78e70c84396c499d0	1s	python3 scripts/render-wavedrom.py --check
+make-stale	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	make stale
+gen-matrix-check	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	python3 scripts/gen_matrix.py --check
+make-check	0	ae7f531bc97a7277116e0df78e70c84396c499d0	27s	make check
+diff-check	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	git diff --check 939c143 HEAD
+lint-hdl	0	ae7f531bc97a7277116e0df78e70c84396c499d0	8s	./scripts/lint_hdl.sh
+lint-admission-shapes	0	ae7f531bc97a7277116e0df78e70c84396c499d0	1s	/tmp/a267-work/lint_shapes.sh
+yosys-srp-tops	0	ae7f531bc97a7277116e0df78e70c84396c499d0	3s	/tmp/a267-work/srp_yosys.sh
+run-suites	0	ae7f531bc97a7277116e0df78e70c84396c499d0	424s	./scripts/run_suites.sh
+fetch-pr13	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	git fetch --no-tags origin refs/pull/13/head
+nvm-port-figures	0	ae7f531bc97a7277116e0df78e70c84396c499d0	236s	make -C tb/nvm_port figures
+yosys-portability	0	ae7f531bc97a7277116e0df78e70c84396c499d0	70s	./syn/yosys/run.sh
+srp-admission-shapes	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	make -C tb/srp_admission
+srp-top	0	ae7f531bc97a7277116e0df78e70c84396c499d0	6s	make -C tb/srp_top
+srp-stream-fsms	0	ae7f531bc97a7277116e0df78e70c84396c499d0	0s	make -C tb/srp_stream_fsms
+pp-top	0	ae7f531bc97a7277116e0df78e70c84396c499d0	178s	make -C tb/pp_top
+mutants	0	ae7f531bc97a7277116e0df78e70c84396c499d0	83s	python3 tb/srp_admission/mutants.py --output $MANAGEMENT/2026-09-23/pp112-a267/receipts/mutants

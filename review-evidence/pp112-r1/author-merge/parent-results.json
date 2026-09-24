@@ -1,0 +1,103 @@
+[
+  {
+    "name": "parent-fetch",
+    "command": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "fetch",
+      "$LANES/pp112-stale-grant",
+      "HEAD"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.12,
+    "ended": "2026-09-24T17:05:24.972301+00:00"
+  },
+  {
+    "name": "parent-checkout",
+    "command": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "checkout",
+      "--detach",
+      "FETCH_HEAD"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.02,
+    "ended": "2026-09-24T17:05:24.992186+00:00"
+  },
+  {
+    "name": "parent-add",
+    "command": [
+      "git",
+      "add",
+      "protocol-processor"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.0,
+    "ended": "2026-09-24T17:05:24.996147+00:00"
+  },
+  {
+    "name": "parent-cpp",
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 1.32,
+    "ended": "2026-09-24T17:05:26.315030+00:00"
+  },
+  {
+    "name": "parent-py",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 3.12,
+    "ended": "2026-09-24T17:05:29.440024+00:00"
+  },
+  {
+    "name": "parent-source-lists",
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 1.72,
+    "ended": "2026-09-24T17:05:31.161917+00:00"
+  },
+  {
+    "name": "parent-pp-shadow",
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/pp_shadow",
+      "-j8"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 28.79,
+    "ended": "2026-09-24T17:05:59.953532+00:00"
+  },
+  {
+    "name": "parent-reset",
+    "command": [
+      "git",
+      "reset",
+      "-q",
+      "protocol-processor"
+    ],
+    "cwd": "$LANES/pp112-parent-consumer",
+    "rc": 0,
+    "seconds": 0.01,
+    "ended": "2026-09-24T17:05:59.961855+00:00"
+  }
+]

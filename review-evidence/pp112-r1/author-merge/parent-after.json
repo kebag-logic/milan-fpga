@@ -1,0 +1,51 @@
+[
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain=v1"
+    ],
+    "rc": 0,
+    "output": " M protocol-processor\n"
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "rc": 0,
+    "output": "54112923417837dffc8722890e2beb733468f441\n"
+  },
+  {
+    "command": [
+      "git",
+      "ls-files",
+      "--stage",
+      "protocol-processor"
+    ],
+    "rc": 0,
+    "output": "160000 73a5478784bd861f8c8d33c0d1619594390b9529 0\tprotocol-processor\n"
+  },
+  {
+    "command": [
+      "git",
+      "-C",
+      "protocol-processor",
+      "rev-parse",
+      "HEAD"
+    ],
+    "rc": 0,
+    "output": "f222f6b96328c8eb0f4d2c5c3470ebd365e51fdc\n"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--exit-code"
+    ],
+    "rc": 0,
+    "output": ""
+  }
+]

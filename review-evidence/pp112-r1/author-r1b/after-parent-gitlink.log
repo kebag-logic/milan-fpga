@@ -1,0 +1,28 @@
+$ git -C protocol-processor fetch $LANES/pp112-stale-grant HEAD
+From $LANES/pp112-stale-grant
+ * branch            HEAD       -> FETCH_HEAD
+rc=0
+$ git -C protocol-processor checkout --detach FETCH_HEAD
+Previous HEAD position was 73a5478 Prevent SRP admission grants from using stale declaration slopes
+HEAD is now at 90e1ce1 test: satisfy SRP test idiom gates without changing coverage
+rc=0
+$ git add protocol-processor
+rc=0
+gate checkout head: 90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4
+gate staged gitlink: 160000 90e1ce13bb1c49c0c985b64e583128b7b8c6a9c4 0	protocol-processor
+$ git reset -q protocol-processor
+rc=0
+$ git -C protocol-processor checkout --detach 73a5478784bd861f8c8d33c0d1619594390b9529
+Warning: you are leaving 1 commit behind, not connected to
+any of your branches:
+
+  90e1ce1 test: satisfy SRP test idiom gates without changing coverage
+
+If you want to keep it by creating a new branch, this may be a good time
+to do so with:
+
+ git branch <new-branch-name> 90e1ce1
+
+HEAD is now at 73a5478 Prevent SRP admission grants from using stale declaration slopes
+rc=0
+parent index, submodule checkout, and clean status restored; parent HEAD unchanged

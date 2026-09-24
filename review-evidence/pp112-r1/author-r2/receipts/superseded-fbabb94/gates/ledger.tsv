@@ -1,0 +1,20 @@
+verilator-version	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	verilator --version
+check-links	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	python3 scripts/check-links.py
+check-matrix	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	python3 scripts/check-matrix.py
+render-wavedrom-check	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	python3 scripts/render-wavedrom.py --check
+make-stale	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	make stale
+gen-matrix-check	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	python3 scripts/gen_matrix.py --check
+make-check	0	fbabb94246025961bece8ef07e357e627e7ea94b	27s	make check
+diff-check	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	git diff --check 939c143 HEAD
+lint-hdl	0	fbabb94246025961bece8ef07e357e627e7ea94b	8s	./scripts/lint_hdl.sh
+run-suites	0	fbabb94246025961bece8ef07e357e627e7ea94b	432s	./scripts/run_suites.sh
+fetch-pr13	0	fbabb94246025961bece8ef07e357e627e7ea94b	1s	git fetch --no-tags origin refs/pull/13/head
+nvm-port-figures	0	fbabb94246025961bece8ef07e357e627e7ea94b	249s	make -C tb/nvm_port figures
+yosys-portability	0	fbabb94246025961bece8ef07e357e627e7ea94b	72s	./syn/yosys/run.sh
+yosys-srp-tops	0	fbabb94246025961bece8ef07e357e627e7ea94b	2s	/tmp/a267-work/srp_yosys.sh
+lint-admission-shapes	0	fbabb94246025961bece8ef07e357e627e7ea94b	1s	/tmp/a267-work/lint_shapes.sh
+srp-admission-shapes	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	make -C tb/srp_admission
+srp-top	0	fbabb94246025961bece8ef07e357e627e7ea94b	6s	make -C tb/srp_top
+srp-stream-fsms	0	fbabb94246025961bece8ef07e357e627e7ea94b	0s	make -C tb/srp_stream_fsms
+pp-top	0	fbabb94246025961bece8ef07e357e627e7ea94b	176s	make -C tb/pp_top
+mutants	0	fbabb94246025961bece8ef07e357e627e7ea94b	84s	python3 tb/srp_admission/mutants.py --output $MANAGEMENT/2026-09-23/pp112-a267/receipts/mutants
