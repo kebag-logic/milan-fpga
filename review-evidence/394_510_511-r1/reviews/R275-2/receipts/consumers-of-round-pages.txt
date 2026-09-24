@@ -1,0 +1,29 @@
+# head 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+# pages changed by the round 64bcf768..HEAD:
+REQUIREMENTS.md
+docs/design/GPTP_PLANE.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+# non-Markdown tracked files naming any of them (git grep, code/config/workflow types):
+docs/DOC_MAP.gen.py:114:            Step("REQUIREMENTS.md", "Check normative obligations"),
+docs/reference/milan_feature_status.json:104:        "docs/design/GPTP_PLANE.md",
+docs/reference/milan_feature_status.json:131:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:149:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:172:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:255:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:277:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:300:        "docs/reference/FR_NFR.md",
+docs/reference/milan_feature_status.json:317:        "docs/reference/FR_NFR.md",
+hdl/common/csr/milan_csr.sv:14:                (REQUIREMENTS.md REQ-CSR-*) that bare-metal firmware uses; it
+hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:91:                point-to-point link); docs/design/GPTP_PLANE.md;
+hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:72:                docs/design/GPTP_PLANE.md; docs/litex/CLOCK_DOMAINS.md
+hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv:52:                docs/design/GPTP_PLANE.md (egress timestamp path)
+scripts/check_doc_style.py:29:    ROOT / "docs" / "design" / "GPTP_PLANE.md",
+scripts/check_gptp_docs.py:39:    "docs/design/GPTP_PLANE.md": (
+scripts/check_wire_accountability.py:96:refusal is CORRECT: FR-STR-03 (docs/reference/FR_NFR.md, Milan v1.2 5.4)
+scripts/docs_check.py:231:    "TRUE_E2E_REQUIREMENTS.md",
+sw/builder/test_builder.py:23971:#: posted on issue #358; docs/design/GPTP_PLANE.md carries its method.
+syn/yosys/check_tap_purity.sh:83:    # and owns its own TX lane. Listing it is what makes GPTP_PLANE.md's
+tb/verilator/gptp_txts/sim_main.cpp:62://! THE BUDGET IS PUBLISHED, not kept here: docs/design/GPTP_PLANE.md carries
+tb/verilator/milan_dp/sim_gptp.cpp:98://! together with the PHY, and docs/design/GPTP_PLANE.md says so.
+exit=0

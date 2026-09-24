@@ -1,0 +1,13 @@
+CONTROL load_config: gptp ingress=656 egress=219 keys=['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'port_number', 'priority1', 'priority2']
+CONTROL _load_gptp(raw): loaded
+ARM _load_gptp delay_asymmetry_ns=0: ConfigError, names key=True: gptp: unknown keys ['delay_asymmetry_ns'] (known: ['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'priority1', 'priority2'])
+ARM load_config delay_asymmetry_ns=0: ConfigError, names key=True
+ARM _load_gptp delayAsymmetry=5: ConfigError, names key=True: gptp: unknown keys ['delayAsymmetry'] (known: ['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'priority1', 'priority2'])
+ARM load_config delayAsymmetry=5: ConfigError, names key=True
+ARM _load_gptp delay_asymmetry=-12: ConfigError, names key=True: gptp: unknown keys ['delay_asymmetry'] (known: ['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'priority1', 'priority2'])
+ARM load_config delay_asymmetry=-12: ConfigError, names key=True
+ARM _load_gptp asymmetry_ns=1: ConfigError, names key=True: gptp: unknown keys ['asymmetry_ns'] (known: ['clock_accuracy', 'clock_class', 'domain', 'egress_latency_ns', 'ingress_latency_ns', 'log_announce_interval', 'log_pdelay_interval', 'log_sync_interval', 'offset_scaled_log_variance', 'priority1', 'priority2'])
+ARM load_config asymmetry_ns=1: ConfigError, names key=True
+RESULT PASS
+exit=0
+CONTROL scratch round-trip load_config: loaded, gptp ingress/egress 656 219

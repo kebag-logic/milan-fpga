@@ -1,0 +1,24 @@
+# head 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6 tree ef96bf2fe0d66dd9c0b1ba45c6b4300d89ba658c
+# gptp-processor gitlink c1b617435824929a790739ea8585c3fe1a328cc0; checkout c1b617435824929a790739ea8585c3fe1a328cc0
+## parent: identifier-shaped asymmetry names in hdl sw configs avdecc scripts tb (no svg)
+exit=1
+## parent: builder gptp key whitelist (_known_gp)
+sw/builder/endstation_builder.py:3940:        _known_gp = {"priority1", "priority2", "clock_class",
+sw/builder/endstation_builder.py:3945:        if not isinstance(gp_raw, dict) or set(gp_raw) - _known_gp:
+sw/builder/endstation_builder.py:3947:                              f"{sorted(set(gp_raw) - _known_gp)} "
+sw/builder/endstation_builder.py:3948:                              f"(known: {sorted(_known_gp)})")
+sw/builder/endstation_builder.py:3977:        #! refused by _known_gp above - there is nothing here to choose.
+exit=0
+## gptp-processor pinned commit: files naming asym (any case), svg excluded
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/ARCHITECTURE.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/BENCH_OPERATIONS.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/BENCH_TAP_WIRETRUTH.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/FSM_CONFORMANCE.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/INTEGRATION_GUIDE.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/IP_BLOCKS.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/MGMT_INTERFACE.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/RESOURCE_VALIDATION.md
+c1b617435824929a790739ea8585c3fe1a328cc0:docs/history/v1/prototype/VERIFICATION.md
+exit=0
+## gptp-processor pinned commit: asym in hdl syn scripts tb bench Makefile
+exit=1

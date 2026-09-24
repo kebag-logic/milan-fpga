@@ -1,0 +1,41 @@
+# reviewed diffs at head 70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6
+## git diff --no-ext-diff --no-textconv 64bcf768..70f2c50d (round) sha256:
+360bfb802eaf0be2e79d967950b8e39586be9db02ce22d5c5b76caebca0e6624
+author's published correction-a226/receipts/round-diff.patch sha256 (MANIFEST at evidence commit 9c71d05f): 360bfb802eaf0be2e79d967950b8e39586be9db02ce22d5c5b76caebca0e6624
+## git diff --raw 759da623..70f2c50d (whole PR):
+:100644 100644 3fd79f6f9 779eb1e68 M	README.md
+:100644 100644 340a0eb1a 8e1414a5f M	REQUIREMENTS.md
+:100644 100644 58e9f1521 73085849c M	docs/MILAN_V12_ROADMAP.md
+:100644 100644 33f38e928 f7317ed5a M	docs/design/GPTP_PLANE.md
+:100644 100644 56df6d4b9 b2ab42135 M	docs/design/TIME_SYNC.md
+:100644 100644 ead8d43c8 239b4afef M	docs/guides/gptp/MANAGER.md
+:100644 100644 cf67ef6c5 6e728ebe8 M	docs/reference/FR_NFR.md
+:100644 100644 a63e33f13 88f8b88f3 M	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+:100644 100644 3f479c799 88785b32d M	docs/reference/MILAN_FEATURE_STATUS.md
+:100644 100644 ba4d121a4 8601e0c46 M	docs/reference/SUBMODULES.md
+:100644 100644 f70bad735 e2ea1a92b M	docs/traceability/ieee8021as.md
+## --numstat:
+6	6	README.md
+40	1	REQUIREMENTS.md
+4	3	docs/MILAN_V12_ROADMAP.md
+109	0	docs/design/GPTP_PLANE.md
+1	0	docs/design/TIME_SYNC.md
+1	0	docs/guides/gptp/MANAGER.md
+51	11	docs/reference/FR_NFR.md
+5	4	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+8	0	docs/reference/MILAN_FEATURE_STATUS.md
+1	0	docs/reference/SUBMODULES.md
+4	1	docs/traceability/ieee8021as.md
+## round --numstat:
+5	2	REQUIREMENTS.md
+30	4	docs/design/GPTP_PLANE.md
+4	2	docs/reference/FR_NFR.md
+1	1	docs/reference/MILAN_COMPLIANCE_MATRIX.md
+## history:
+70f2c50d45550f65c9d71ed0f5b0d70dc48acdb6 64bcf768d28b4b9763fbe5917a734bcefa2a66e0 Name every delayAsymmetry term in the #511 record, state its Table 14-6 grade and add the 802.1AS management revisit condition
+64bcf768d28b4b9763fbe5917a734bcefa2a66e0 dcbe3cfaadcd7c340e74ce9b62bf06e9d401c2fc State in the #511 record that the donor's ingress/egress latch compensation is not adopted
+dcbe3cfaadcd7c340e74ce9b62bf06e9d401c2fc 71ddc7e90bd1d70ba45ec4509bc864b1ae41ebac Name the processor issues that carry FR-MVU-02's command behavior if P4 implements it
+71ddc7e90bd1d70ba45ec4509bc864b1ae41ebac b38634f4792f5dada4da4c3902434cdf8dbc85de Say which FR_NFR out-of-scope entries are recorded decisions with a revisit trigger
+b38634f4792f5dada4da4c3902434cdf8dbc85de 6c5d5b5c08a7094161959347feafee8d3cf86bdb Record the #511 decision: delayAsymmetry is not modelled for v1.2 and the live UART tuner stays donor-bench-only
+6c5d5b5c08a7094161959347feafee8d3cf86bdb 909d8febee108a16769e76363c3967115974ed2b Record the #510 decision: the MVU system-unique-id and media-clock-reference rows are RECOMMENDED and answered NOT_IMPLEMENTED for October
+909d8febee108a16769e76363c3967115974ed2b 759da623072358afdb0e9d570a7b4b6a788492c9 Record the #394 decision: v1.2 is a declared non-redundant end station, Milan Section 8 revisited with the P4/P5 PCB

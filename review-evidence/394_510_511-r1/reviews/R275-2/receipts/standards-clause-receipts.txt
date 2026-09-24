@@ -1,0 +1,106 @@
+## PDF identities
+a07215b346fe0019b719b445abd4acb96d687f822b85c55ee1030d7195298ae3  802.1AS-2011.pdf (17399 text lines)
+e704e89c636e7b1e94db3af7afab619c9f8d137ba12211c99d55abeac370f31a  802.1AS-2011_Cor1-2013.pdf (6437 text lines)
+dbe16669ca5e647c8a6d5cf2ed5356eb258beefd7b9c12ec9d260727e65a0080  802.1AS-2011_Cor_2-2015.pdf (524 text lines)
+762d15eb65b4401b251255c11e3bde7cabdda71b8d5d9e8703292714b0f02dcb  802.1AS-2020.pdf (26388 text lines)
+34564fbe2964decc070270c464421f1c979a46af85b586c3502bdb89326a77e6  802.1BA-2011.pdf (2292 text lines)
+6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8  Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf
+## 2011: every line naming delayAsymmetry (count and clause context lines)
+47
+### 802.1AS-2011 :: This standard does not explicitly require the measurement of delayAsymmetry|defined to be positive when the responder
+2134: In other words, delayAsymmetry is defined to be positive when the responder to initiator propagation time is
+2137: This standard does not explicitly require the measurement of delayAsymmetry; however, if
+matches=2
+### 802.1AS-2011 :: ^ *10\.2\.4\.8 delayAsymmetry|^ *delayAsymmetry is zero\.
+3802: 10.2.4.8 delayAsymmetry: the asymmetry in the propagation delay on the link attached to this port relative
+3804: delayAsymmetry is zero.
+matches=2
+### 802.1AS-2011 :: neighborPropDelay\*\(rcvdPSSyncPtr->rateRatio/neighborRateRatio\) \+ delayAsymmetry|delayAsymmetry/rcvdPSSyncPtr->rateRatio
+4615: neighborPropDelay*(rcvdPSSyncPtr->rateRatio/neighborRateRatio) + delayAsymmetry;
+4617: delayAsymmetry/rcvdPSSyncPtr->rateRatio;
+matches=2
+### 802.1AS-2011 :: Figure 10-9.ClockSlaveSync state machine$|Figure 10-4.PortSyncSyncReceive state machine$|rateRatio \+= \(neighborRateRatio
+4026: rateRatio += (neighborRateRatio – 1.0);
+4038: Figure 10-4—PortSyncSyncReceive state machine
+4633: Figure 10-9—ClockSlaveSync state machine
+9417: MDSyncReceive.VendorSpecific.rateRatio += (neighborRateRatio – 1);
+matches=4
+### 802.1AS-2011 :: delayAsymmetry \(see 10\.2\.4\.8\) for this port divided by rateRatio|same is true of any delayAsymmetry
+7399: delayAsymmetry (see 10.2.4.8) for this port divided by rateRatio [see e) above]. The
+7411: same is true of any delayAsymmetry. See NOTE 2 of 11.2.15.2.4.
+matches=2
+### 802.1AS-2011 :: d\)    The quantity delayAsymmetry|The quantity \(ts,i . upstreamTxTime\)\(rateRatioi\)
+6930: d) The quantity delayAsymmetry (see 10.2.4.8) divided by rateRatioi.
+6938: e) The quantity (ts,i – upstreamTxTime)(rateRatioi).
+matches=2
+### 802.1AS-2011 :: ^ *11\.2\.14\.2\.3 setFollowUp|the quantity delayAsymmetry is used in the|Table 11-5.Value of correction field$
+7548: 11.2.14.2.3 setFollowUp(): creates a structure whose parameters contain the fields (see 11.4 and its
+8464: Table 11-5—Value of correction field
+8472: and 11.2.14.2.3; the quantity delayAsymmetry is used in the
+matches=3
+### 802.1AS-2011 :: causes time-synchronization information to be
+4446: this time-aware system is the grandmaster. The state machine causes time-synchronization information to be
+matches=1
+### 802.1AS-2011 :: ^ *11\.2\.15\.2\.4 computePropTime
+7790: 11.2.15.2.4 computePropTime(): computes the mean propagation delay on the link attached to this MD
+matches=1
+### 802.1AS-2011 :: CSN egress port also modifies the ClockSlaveSync|upstreamTxTime, neighborPropDelay, neighborRateRatio, and delayAsymmetry values
+17069: The CSN egress port also modifies the ClockSlaveSync state machine (see 10.2.12) to get the
+17070: upstreamTxTime, neighborPropDelay, neighborRateRatio, and delayAsymmetry values from the respective
+matches=2
+### 802.1AS-2011 :: ^ *14\.6\.9 delayAsymmetry|delayAsymmetry +scaledNs +RW +Tdot3FD|Tdot3FD = Required|It is recommended that the *$|^ *data type be scaledNs|offsetFromMaster +ScaledNs
+10709: slave and the grandmaster, as computed by the slave, and as specified in 10.2.9. It is recommended that the
+10710: data type be scaledNs. The default value is implementation specific.
+10782: offsetFromMaster ScaledNs R T 14.3.2
+11063: 14.6.9 delayAsymmetry
+11204: delayAsymmetry scaledNs RW Tdot3FD 14.6.9
+11226: Tdot3FD = Required for time-aware IEEE 802.3 full-duplex port;
+matches=6
+### 802.1AS-2011 :: -A1 delayAsymmetry +scaledNs +RW +Tdot3FD
+11204: delayAsymmetry scaledNs RW Tdot3FD 14.6.9
+11205- (recommended)
+matches=1
+### 802.1AS-2011 :: ^ *MGT +Is management|synchronization in Bridges supported|^ *MIB +Is the IEEE 8021-AS-MIB|MINTA-8
+15132: MIB Is the IEEE 8021-AS-MIB module fully O Clause 15 Yes [ ] N/A [ ]
+15166: MGT Is management of the timing O Clause 15 Yes [ ] No [ ]
+15167: synchronization in Bridges supported?
+15231: MINTA-8 If path delay asymmetry is modeled by this O 8.3 Yes [ ] No [ ]
+matches=4
+### 802.1AS-2011 :: ^ *10\.2\.4\.5 syncInterval
+3790: 10.2.4.5 syncInterval: a variable containing the mean time-synchronization event message transmission
+matches=1
+## Cor1: Table 14-6 replacement keeps the row; 11.2.13.2.1 f) restated
+### 802.1AS-2011_Cor1-2013 :: Change Table 14-6 as follows|delayAsymmetry +scaledNs +RW +Tdot3FD|Change 11\.2\.13\.2\.1 as follows|Change 10\.2\.12\.2\.1 as follows
+1206:Change 10.2.12.2.1 as follows:
+1931:Change 11.2.13.2.1 as follows:
+2648:Change Table 14-6 as follows:
+2665: delayAsymmetry scaledNs RW Tdot3FD 14.6.9
+matches=4
+## Cor2: scope and absence of delayAsymmetry
+### 802.1AS-2011_Cor_2-2015 :: This corrigendum only makes changes to Figure 11-8
+365:NOTE—This corrigendum only makes changes to Figure 11-8.
+matches=1
+delayAsymmetry lines in Cor2: 0
+## 2020 comparison row
+### 802.1AS-2020 :: ^ *10\.2\.13 ClockSlaveSync|^ *11\.2\.14\.2\.1 setMDSyncReceiveMDSR|^ *11\.2\.15\.2\.3 setFollowUp|^ *11\.2\.17\.2 Differences
+5639: 10.2.13 ClockSlaveSync state machine
+10518: 11.2.14.2.1 setMDSyncReceiveMDSR(): Creates an MDSyncReceive structure, and returns a pointer to
+10744: 11.2.15.2.3 setFollowUp(): Creates a structure whose parameters contain the fields (see 11.4) of a
+11108: 11.2.17.2 Differences between instance-specific peer-to-peer delay mechanism and CMLDS
+matches=4
+### 802.1AS-2020 :: adds$|delayAsymmetry separately when computing upstreamTxTime|corrects the computed mean link
+11117: a) Instance-specific peer delay computes mean link delay averaged over the two directions and adds
+11118: delayAsymmetry separately when computing upstreamTxTime by the setMDSyncReceiveMDSR()
+11119: function of the MDSyncReceive state machine, while CMLDS corrects the computed mean link
+matches=3
+## 802.1BA-2011: management/MIB requirement lines
+MIB or management-of lines: 0
+## Milan v1.2
+asymmetr lines: 0
+### milan12 :: defined by \[802\.1AS\], \[802\.1AS-2011/Cor1\]|Seamless network redundancy is not a mandatory|R-PAAD shall have at least two AVB-capable|^ *31 +0x00000001 +REDUNDANCY|^ *1 +NOT_IMPLEMENTED
+1023:defined by [802.1AS], [802.1AS-2011/Cor1], and [802.1AS-2011/Cor2].
+3187: 1 NOT_IMPLEMENTED The PAAD-AE does not support the command type.
+3314: 31 0x00000001 REDUNDANCY The ATDECC Entity, in its currently active
+6135:Seamless network redundancy is not a mandatory requirement for a PAAD to be compliant with this specifica-
+6206: • The R-PAAD shall have at least two AVB-capable Ethernet ports.
+matches=5
