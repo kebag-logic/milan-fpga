@@ -144,7 +144,7 @@ Each link has exactly one master.
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
 | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
 | CRF unlock | Trim held in HOLDOVER | `KL_mmcm_drp_servo` |
-| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | MMCM servo on an implausible window | Error above 1024 ppm discarded; four in a row re-base the window | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
 | Grid-aligner error | Frame-marker phase at one-clock resolution | `KL_media_grid_align` |
 | Grid-aligner command | PI in servo units; +/-200 ppm authority | `KL_media_grid_align` |

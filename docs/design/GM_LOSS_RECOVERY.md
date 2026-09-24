@@ -149,9 +149,9 @@ Issue #387 decided its media reaction.
 |---|---|---|
 | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
 | Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes, at the next PDU end, counted in its recentre tally; a grandmaster identity change also re-centres it |
-| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid (#539). Whether the aligner needs its own re-centre is a question with the owner on #387 |
+| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). Whether the aligner needs its own re-centre is a question with the owner on #387 |
 | Packet NCO | Not named by the decision | No PHC or step input |
-| CRF servo | Keeps its window guard | `KL_mmcm_drp_servo` discards a window above 1024 ppm; a locked step of about 108 to 524 us passes that guard (#539) |
+| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
 | Outgoing `mr` (IEEE 1722-2016 4.4.4.3) | Toggles once | Not yet: `mcr_restart_p_w` ignores the step |
 | Talker MEDIA_RESET (Milan Table 5.4) | Counts that one toggle | Not yet: no toggle to count |
 | A step while an `mr` restart is pending | Merges with it: exactly one restart, never a cancellation, and the step's MEDIA_RESET is still counted (ruling 5802264260 item 2) | Not yet: `KL_media_clock_restart` flips its target once per request, so a second request before the first reaches the wire cancels it |
@@ -178,7 +178,7 @@ It grades these rows:
 It does not grade these:
 
 - The grid aligner: the leg holds the TDM clocks.
-- The CRF servo: its DRP answers zero; see #539.
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
 - An lwSRP licence: the escape bit opens the talker.
 - A step during a pending restart: tested with the edit.
 - The physical re-base: the #117 bench measures it.
