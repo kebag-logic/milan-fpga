@@ -1,0 +1,51 @@
+== git grep -i -e step guard gap
+rc=1
+== git grep -i -e guard gap
+rc=1
+== git grep -e 108 to 524 -e 108-524 -e 108 and 524
+rc=1
+== git grep -i -e integrates a locked -e integrated as a rate -e integrates the step -e integrates it
+rc=1
+== git grep -i -e #539
+324eb343a870973b64706779d0183ae342dcb3d7:docs/design/GM_LOSS_RECOVERY.md:152:| Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); what still reaches that grid is a policy-legal slew (#545) and the talker's own step (#546). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
+324eb343a870973b64706779d0183ae342dcb3d7:docs/design/GM_LOSS_RECOVERY.md:154:| CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. A policy-legal 100 us slew still moves its integrator (#545), and so does the talker's own step (#546) |
+324eb343a870973b64706779d0183ae342dcb3d7:docs/design/GM_LOSS_RECOVERY.md:181:- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+324eb343a870973b64706779d0183ae342dcb3d7:docs/design/TIME_SYNC.md:147:| MMCM servo on a PHC step | The window the step lands in is discarded; trim and integrator held (#539). A [step-policy](#step-policy) slew is not a step and still reaches the integrator (#545) | `KL_mmcm_drp_servo`, `MCSRV_STAT[15:10]` |
+324eb343a870973b64706779d0183ae342dcb3d7:docs/reference/REGISTER_MAP.md:1942:| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, or one a PHC step landed in (#539; cleared in IDLE), `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor (the generated `AEM_CRF_CLKSRC_C`); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+324eb343a870973b64706779d0183ae342dcb3d7:docs/testing/TESTING.md:481:| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Since #74 the build enables it through the live clock-source resolve (Section 7). `sim_phc_step.cpp` runs it at the silicon window scale against a PHC step from 21 us to 1 s, and `make trace STEP_NS=<n>` prints the integrator window by window (#539) |
+324eb343a870973b64706779d0183ae342dcb3d7:hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:54:                  PHC step guard (#539): that threshold alone let a
+324eb343a870973b64706779d0183ae342dcb3d7:hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:296:  //! PHC step detector (#539): one clk_i cycle's ptp_now_i advance above
+324eb343a870973b64706779d0183ae342dcb3d7:hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:446:  //! PHC step detector (#539), aligned with ptp_q_r: set on the edge that
+324eb343a870973b64706779d0183ae342dcb3d7:hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:650:        //! PHC step guard (#539, see header): the open window straddles
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/milan_dp/README.md:387:- The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/milan_dp/README.md:388:- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/milan_dp/sim_gmstep.cpp:16:// the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/Makefile:11:#     (1 ms tick, 512 ms window, NORM_SHIFT_P = 0) against a PHC step (#539)
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/Makefile:13:#   make trace STEP_NS=<n> - the #539 reproduction record: one n ns step at
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_main.cpp:23://       does (#539)
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_main.cpp:379:    //      Since #539 every one of these JUMPS is the PHC step guard's: the
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_main.cpp:471:    // U11: the 1024 ppm guard's own arm (#539 moved every ptp_now JUMP to
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_phc_step.cpp:4:// KL_mmcm_drp_servo against a PHC step, at the SILICON window scale (#539).
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_phc_step.cpp:12:// (1 ppm = 512 units), which is the arithmetic #539 reads.
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_phc_step.cpp:25:// Trace modes (the #539 records; lock, then one disturbance at mid-window,
+324eb343a870973b64706779d0183ae342dcb3d7:tb/verilator/mmcm_servo/sim_phc_step.cpp:58://! P1: the #539 range, 100 us to 1 s, both signs, plus the 20 us link-up
+rc=0
+== git grep -i -e issues/539
+rc=1
+== README:388 vs GM_LOSS_RECOVERY:181
+- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+- The CRF servo: its DRP answers zero. `Vphc_step` grades its step discard (#539).
+== sim_gmstep.cpp:14-18
+//
+// What this leg does NOT grade: the grid aligner (the TDM clocks are held),
+// the CRF servo (the DRP answers zero; #539), an lwSRP licence (the talker is
+// opened by the escape bit), a step that lands inside a pending mr restart
+// (the ruling 5802264260 item 2 arm joins with the datapath edit), and the
+== Vphc_step target exists
+10:#   sim_phc_step.cpp -> Vphc_step       : the servo at its SILICON defaults
+47:	  -Mdir obj_phc $(COMMON) sim_phc_step.cpp -o Vphc_step
+50:	./obj_phc/Vphc_step +trace_step_ns=$(STEP_NS)
+65:	./obj_phc/Vphc_step
+== margin arithmetic (4096/384, 20000/4096)
+10.667 4.883
+SWEEP_DONE

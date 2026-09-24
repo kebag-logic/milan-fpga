@@ -1,0 +1,28 @@
+== delta file list and numstat 910b4fb5f..324eb343a870973b64706779d0183ae342dcb3d7
+1	1	hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+1	1	tb/verilator/milan_dp/README.md
+== delta changed lines (unified=0)
+-  //! (#387 owner step policy). 4096 ns sits over 10x above the one and 5x
++  //! (#387 owner step policy). 4096 ns sits 10.7x above the one and 4.9x
+-- The CRF servo. The MMCM DRP answers zero; its step guard gap is #539.
++- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades its step discard (#539).
+== sha256 raw
+7cbae6ed0a3ed0a9e349767f7bb1abe4314aa3de9ba12fa52cea3164aa2e11ff  old.sv
+903fc1bba8ad8d9ef683a25df9cd49a4c6af908873ae243c3bfca874e5cd9b06  new.sv
+== sha256 comment-stripped
+6b8ef5b93bf9f136cda63563336cc4fa962266c52b7df02bd388d691d8cc57b0  old.nc
+6b8ef5b93bf9f136cda63563336cc4fa962266c52b7df02bd388d691d8cc57b0  new.nc
+STRIPPED_IDENTICAL rc=0
+== verilator -E -P (preprocessed, comments dropped)
+Verilator 5.050 2026-07-01 rev v5.050
+3f2b1ca621f8b3393f350b3203faf16511dd4a84efd32a7644f3dc911a89c81a  old.pp
+3f2b1ca621f8b3393f350b3203faf16511dd4a84efd32a7644f3dc911a89c81a  new.pp
+PREPROCESSED_IDENTICAL rc=0
+== every RTL/test/harness path touched by the delta
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+tb/verilator/milan_dp/README.md
+== gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e5dcea6e351abff18a27a00f8e345f3251bdbd8f	gptp-processor
+160000 commit 424c688fa2205b934a7689a58f2aa766420f2326	protocol-processor
+PROOF_DONE

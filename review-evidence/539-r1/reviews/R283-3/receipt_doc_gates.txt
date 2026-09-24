@@ -1,0 +1,33 @@
+HEAD 324eb343a870973b64706779d0183ae342dcb3d7
+== python3 -B scripts/docs_check.py
+docs_check: 0 finding(s) across 165 md files + 851 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== python3 -B scripts/check_em_dash.py --base f86c34fe2ddbc6cfb7c8c70ddbe0d9726f4d3c2f
+check_em_dash: 0 finding(s) over 9 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [f86c34fe..HEAD]
+rc=0
+== python3 -B scripts/check_em_dash.py --base 910b4fb5f
+check_em_dash: 0 finding(s) over 1 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 57/57 [910b4fb5..HEAD]
+rc=0
+== python3 -B scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== python3 -B scripts/gen_toc.py --check
+TOC gate: OK (107 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== python3 -B scripts/check_doc_paths.py
+doc path gate: OK (838 cited paths all resolve, 1 allowlisted; 0 line anchor(s) within their file)
+rc=0
+== python3 -B scripts/check_sv_idiom.py
+SystemVerilog idiom gate: OK (124 first-party HDL file(s) across the superproject and both processor submodules, every one .sv/.svh; 0 generic `always`; 0 reg <= 0; 0 untyped parameter <= 0; 0 untyped localparam <= 0)
+rc=0
+== python3 -B scripts/check_rtl_source_lists.py
+protocol-processor native tops list (syn/yosys/run.sh): 32 top(s) for 38 declared module(s); 6 recorded omission(s) at this pin: KL_acmp_nvm_shadow, KL_mrp_strip, KL_pp_dispatch_fifo, KL_srp_admission, KL_srp_top, protocol_processor_top
+RTL source-list gate: OK (103 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 32/38 tops, 6 recorded)
+rc=0
+== git diff --check 26d855a9176d63625e6635a029a0c44e3d57ce9a HEAD
+rc=0
+== git diff --check 910b4fb5f HEAD
+rc=0
+== status after gates
+status_listed
+GATES_DONE
