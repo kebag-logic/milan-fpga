@@ -1,0 +1,27 @@
+RTL CASE     MVU 0x0000 in Figure 5.3                                   R281-1 row_mvu_0000 (st 0 cdl 32, model ==)
+RTL CASE     MVU 0x0001 in Figure 5.5                                   R281-1 x_fig55_set_system_unique_id_cdl28 (st 1 cdl 28, model ==)
+RTL CASE     MVU 0x0002 in Figure 5.3                                   R281-1 row_mvu_0002 (st 1 cdl 20, model ==)
+RTL CASE     MVU 0x0003 in Figure 5.6                                   R281-1 x_fig56_set_mcr_info_cdl92 (st 1 cdl 92, model ==)
+RTL CASE     MVU 0x0004 in Figure 5.7                                   R281-1 row_mvu_0004 (st 1 cdl 20, model ==); R280-1 ct_0004_fig5.3_shape (st 1 cdl 20, model ==); R280-1 get_mcri_fig5.7_cdl20 (st 1 cdl 20, model ==)
+RTL CASE     guard FF-1B-C5-0A-C1-00 word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_22 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-FF-C5-0A-C1-00 word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_23 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-FF-0A-C1-00 word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_24 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-C5-FF-C1-00 word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_25 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-C5-0A-FF-00 word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_26 (st 1 cdl 20, model ==)
+NO RTL CASE  guard 00-1B-C5-0A-D1-00 word 0x0000 reserved 0x0000 cdl 20 mt 6 cdl 20; nearest R281-1 row_mvu_0000 differs at @26
+NO RTL CASE  guard 00-1B-C5-0A-C2-00 word 0x0000 reserved 0x0000 cdl 20 mt 6 cdl 20; nearest R281-1 row_mvu_0000 differs at @26
+RTL CASE     guard 00-1B-C5-0A-C1-FF word 0x0000 reserved 0x0000 cdl 20 R281-1 x_pid_foreign_at_27 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-C5-0A-C1-01 word 0x0000 reserved 0x0000 cdl 20 R281-1 row_foreign_c101 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-C5-0A-C1-00 word 0x8000 reserved 0x0000 cdl 20 R281-1 row_r1 (st 1 cdl 20, model ==)
+RTL CASE     guard 00-1B-C5-0A-C1-00 word 0x0000 reserved 0x0000 cdl 19 R281-1 row_short_cdl19 (st 1 cdl 19, model ==); R280-1 gmi_7_octets_cdl19 (st 1 cdl 19, model ==)
+RTL CASE     guard 00-1B-C5-0A-C1-00 word 0x0000 reserved 0xdead cdl 20 R281-1 row_junk_reserved (st 0 cdl 32, model ==); R280-1 gmi_junk_reserved_served (st 0 cdl 32, model ==)
+NO RTL CASE  guard 00-1B-C5-0A-C1-00 word 0x0000 reserved 0x0000 cdl 24 mt 6 cdl 24; nearest R281-1 x_overlong_cdl24 differs at @33,@34,@35
+RTL CASE     guard 00-1B-C5-0A-C1-00 word 0x0000 reserved 0x0000 cdl 112 R281-1 x_overlong_cdl112 (st 0 cdl 32, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 0                    R281-1 x_mt0_carrying_mvu_bytes (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 2                    R281-1 x_mt2_carrying_mvu_bytes (st 1 cdl 20, model ==); R280-1 mt2_with_milan_pid (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 4                    R281-1 x_mt4_carrying_mvu_bytes (st 1 cdl 20, model ==); R280-1 mt4_with_milan_pid (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 8                    R281-1 x_mt8_carrying_mvu_bytes (st 1 cdl 20, model ==); R280-1 mt8_with_milan_pid (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 10                   R280-1 mt10_with_milan_pid (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 12                   R280-1 mt12_with_milan_pid (st 1 cdl 20, model ==)
+RTL CASE     GET_MILAN_INFO octets as message_type 14                   R281-1 x_mt14_carrying_mvu_bytes (st 1 cdl 20, model ==); R280-1 mt14_with_milan_pid (st 1 cdl 20, model ==)
+23 rows matched to an RTL-answered frame, 3 without one; 0 model/RTL mismatches
